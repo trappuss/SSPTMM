@@ -12,7 +12,7 @@ namespace TCFModManager.App.Behaviors;
 //
 // Registered once for every ScrollViewer in the app. A wheel turn goes to the innermost scroll
 // viewer under the pointer that can still move that way - a list inside a page scrolls before the
-// page does, and hands over once it reaches its end - and eases there over a fifth of a second.
+// page does, and hands over once it reaches its end - and eases there over a quarter of a second.
 // Turns that arrive while it is still moving add to where it is heading, so a fast spin covers
 // ground rather than restarting each time.
 //
@@ -25,7 +25,7 @@ public static class SmoothScrolling
     // to feel like a browser, not measured from one; so is the glide time below.
     private const double NotchDistance = 100;
 
-    private static readonly Duration GlideTime = new(TimeSpan.FromMilliseconds(200));
+    private static readonly Duration GlideTime = new(TimeSpan.FromMilliseconds(250));
 
     private static readonly IEasingFunction Ease = new CubicEase { EasingMode = EasingMode.EaseOut };
 
@@ -88,6 +88,47 @@ public static class SmoothScrolling
         };
 
         viewer.BeginAnimation(OffsetProperty, glide, HandoffBehavior.SnapshotAndReplace);
+
+        HoldStill(viewer);
+    }
+
+    //
+    // While a viewer glides, what it shows stops reacting to the pointer. The pointer stands still
+    // while the page moves under it, so otherwise every card that passes beneath it would lift, open
+    // its hover popup (a window of its own) and start its slideshow, one after another, for the
+    // whole scroll - which is most of what made scrolling stutter. It comes back a moment after the
+    // last wheel turn, under the pointer where the scroll left it.
+    //
+    private static readonly TimeSpan HoverRestDelay = TimeSpan.FromMilliseconds(250);
+
+    private static readonly DependencyProperty RestTimerProperty = DependencyProperty.RegisterAttached(
+        "RestTimer", typeof(System.Windows.Threading.DispatcherTimer), typeof(SmoothScrolling));
+
+    private static void HoldStill(ScrollViewer viewer)
+    {
+        if (viewer.Content is not UIElement content) return;
+
+        if (viewer.GetValue(RestTimerProperty) is not System.Windows.Threading.DispatcherTimer timer)
+        {
+            timer = new System.Windows.Threading.DispatcherTimer { Interval = GlideTime.TimeSpan + HoverRestDelay };
+            timer.Tick += (_, _) =>
+            {
+                timer.Stop();
+                if (viewer.Content is UIElement shown) shown.IsHitTestVisible = true;
+                Mouse.Synchronize();
+            };
+            viewer.SetValue(RestTimerProperty, timer);
+
+            // Something to hit while the content is not: the wheel must still reach this viewer.
+            viewer.Background ??= Brushes.Transparent;
+        }
+
+        // Only content that was taking the pointer to begin with.
+        if (!content.IsHitTestVisible && !timer.IsEnabled) return;
+
+        content.IsHitTestVisible = false;
+        timer.Stop();
+        timer.Start();
     }
 
     private static void OnOffsetChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)

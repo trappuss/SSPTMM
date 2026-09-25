@@ -35,7 +35,7 @@
     <!-- The whole window sits on the Workshop browse page's background - #262B34 under Steam's two
          faint grids - so every page reads as part of one Steam site. The item page draws the
          legacy blue over it, as Steam's own item pages do. -->
-    <Grid Background="{StaticResource SteamWorkshopGrid}">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -43,6 +43,15 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
+
+        <!-- The grid background as a layer of its own, drawn once into a bitmap and reused: every
+             frame of a scroll repaints what is behind the page, and a tiled drawing redrawn over the
+             whole window each frame was a large part of what made scrolling stutter. -->
+        <Border Grid.RowSpan="5" Background="{StaticResource SteamWorkshopGrid}" IsHitTestVisible="False">
+            <Border.CacheMode>
+                <BitmapCache />
+            </Border.CacheMode>
+        </Border>
 
         <!-- Both titles come from SptEnvironmentViewModel.WindowTitle. The version half is read
              from the assembly (see AppVersion) rather than typed here: they used to be two

@@ -154,11 +154,17 @@
                                             behaviors:ModContextMenu.Mod="{Binding Mod}"
                                             MouseLeftButtonUp="Card_MouseLeftButtonUp">
                                             <Border Background="#1B1D21">
+                                                <Border.CacheMode>
+                                                    <BitmapCache />
+                                                </Border.CacheMode>
                                                 <Border.Effect>
                                                     <DropShadowEffect BlurRadius="10" Direction="315" Opacity="0.58" ShadowDepth="1.4" Color="Black" />
                                                 </Border.Effect>
                                             </Border>
                                             <Border Background="{StaticResource SteamCardBackground}">
+                                                <Border.CacheMode>
+                                                    <BitmapCache EnableClearType="True" SnapsToDevicePixels="True" />
+                                                </Border.CacheMode>
                                                 <StackPanel>
                                                     <Grid Height="183" Background="{StaticResource SteamPreviewBackground}" ClipToBounds="True">
                                                         <Image Stretch="UniformToFill" behaviors:ThumbnailLoader.DecodeWidth="183" behaviors:ThumbnailLoader.Source="{Binding Thumbnail}" />
@@ -299,11 +305,17 @@
                                         behaviors:ModContextMenu.Mod="{Binding Mod}"
                                         MouseLeftButtonUp="Card_MouseLeftButtonUp">
                                         <Border Background="#1B1D21">
+                                            <Border.CacheMode>
+                                                <BitmapCache />
+                                            </Border.CacheMode>
                                             <Border.Effect>
                                                 <DropShadowEffect BlurRadius="10" Direction="315" Opacity="0.58" ShadowDepth="1.4" Color="Black" />
                                             </Border.Effect>
                                         </Border>
                                         <Border Background="{StaticResource SteamCardBackground}">
+                                            <Border.CacheMode>
+                                                <BitmapCache EnableClearType="True" SnapsToDevicePixels="True" />
+                                            </Border.CacheMode>
                                             <StackPanel>
                                                 <Grid
                                                     Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
@@ -364,11 +376,17 @@
                                     behaviors:ModContextMenu.Mod="{Binding Mod}"
                                     MouseLeftButtonUp="Card_MouseLeftButtonUp">
                                     <Border Background="#1B1D21">
+                                        <Border.CacheMode>
+                                            <BitmapCache />
+                                        </Border.CacheMode>
                                         <Border.Effect>
                                             <DropShadowEffect BlurRadius="10" Direction="315" Opacity="0.58" ShadowDepth="1.4" Color="Black" />
                                         </Border.Effect>
                                     </Border>
                                     <Border Background="{StaticResource SteamCardBackground}">
+                                        <Border.CacheMode>
+                                            <BitmapCache EnableClearType="True" SnapsToDevicePixels="True" />
+                                        </Border.CacheMode>
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="114" />

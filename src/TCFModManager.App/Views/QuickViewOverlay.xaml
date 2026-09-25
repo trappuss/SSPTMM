@@ -132,10 +132,17 @@
                 </Button.Template>
             </Button>
 
-            <Border Grid.Row="1" Background="#23262E" MouseLeftButtonUp="Modal_MouseLeftButtonUp">
+            <!-- The shadow as a layer of its own behind the modal: an effect on the modal itself
+                 would redraw everything in it through the blur whenever any of it changed. -->
+            <Border Grid.Row="1" Background="#23262E" IsHitTestVisible="False">
+                <Border.CacheMode>
+                    <BitmapCache />
+                </Border.CacheMode>
                 <Border.Effect>
                     <DropShadowEffect BlurRadius="20" Opacity="0.75" ShadowDepth="0" Color="Black" />
                 </Border.Effect>
+            </Border>
+            <Border Grid.Row="1" Background="#23262E" MouseLeftButtonUp="Modal_MouseLeftButtonUp">
                 <StackPanel>
                     <Grid Margin="16,16,16,8">
                         <Grid.ColumnDefinitions>

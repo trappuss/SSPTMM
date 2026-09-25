@@ -256,6 +256,9 @@
                                                 BorderThickness="1"
                                                 Cursor="Hand"
                                                 MouseLeftButtonUp="Item_Click">
+                                                <Border.CacheMode>
+                                                    <BitmapCache />
+                                                </Border.CacheMode>
                                                 <Border.Effect>
                                                     <DropShadowEffect BlurRadius="10" Opacity="1" ShadowDepth="2.8" Direction="315" Color="Black" />
                                                 </Border.Effect>
