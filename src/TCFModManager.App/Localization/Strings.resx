@@ -5800,4 +5800,12 @@ This was written to:
     <value>- newest posted {0}</value>
     <comment>After the item count on a followed author. {0} is a date as Steam writes it ("Sep 24 @ 2:34AM").</comment>
   </data>
+  <data name="Installed_NotForSptFormat" xml:space="preserve">
+    <value>Version {0} does not run on SPT {1}, and no newer version does.</value>
+    <comment>On an installed mod whose version is not for this install's SPT (sp-mod.com's update check). {0} is the installed version, {1} the SPT version.</comment>
+  </data>
+  <data name="Installed_NotForSptWithFormat" xml:space="preserve">
+    <value>Version {0} does not run on SPT {1}; version {2} does (the Versions tab or the update dialog can switch to it).</value>
+    <comment>Same, when an older version runs on this SPT. {0} is the installed version, {1} the SPT version, {2} the version that runs.</comment>
+  </data>
 </root>

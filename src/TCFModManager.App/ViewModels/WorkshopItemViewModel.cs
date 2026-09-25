@@ -501,7 +501,9 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel, IModActi
     public string? StatusLine => Card.IsInstalled ? Card.StatusTooltip : null;
 
     // sp-mod.com holds this mod's update back: it would break another installed mod.
-    public string? HeldBackNote => Installed is not null ? AppServices.HeldBack.Note(Mod.Id) : null;
+    public string? HeldBackNote => Installed is not null
+        ? AppServices.HeldBack.NotForSptNote(Mod.Id, Installed.InstalledVersion) ?? AppServices.HeldBack.Note(Mod.Id)
+        : null;
 
     private void RefreshInstallState()
     {

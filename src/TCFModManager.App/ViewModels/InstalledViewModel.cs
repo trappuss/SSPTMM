@@ -798,7 +798,11 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
             _all = cards;
 
             // What sp-mod.com held back last time stands until it answers again.
-            foreach (var card in cards) card.HeldBackNote = card.IsAddon ? null : AppServices.HeldBack.Note(card.ModId);
+            foreach (var card in cards)
+            {
+                card.HeldBackNote = card.IsAddon ? null : AppServices.HeldBack.Note(card.ModId);
+                card.NotForSptNote = card.IsAddon ? null : AppServices.HeldBack.NotForSptNote(card.ModId, card.InstalledVersion);
+            }
             _ = CheckHeldBackAsync(cards);
 
             if (openCards.Count > 0 || openRows.Count > 0)
@@ -1306,7 +1310,10 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     private void ApplyHeldBack()
     {
         foreach (var card in _all)
+        {
             card.HeldBackNote = card.IsAddon ? null : AppServices.HeldBack.Note(card.ModId);
+            card.NotForSptNote = card.IsAddon ? null : AppServices.HeldBack.NotForSptNote(card.ModId, card.InstalledVersion);
+        }
 
         AnnounceUpdates();
         UpdateSelectedCommand.NotifyCanExecuteChanged();

@@ -1560,4 +1560,6 @@ internal static class Strings
     internal static string FollowedAuthors_Items(int count, params object?[] values) =>
         LocalizationService.Plural("FollowedAuthors_Items", count, values);
     internal static string FollowedAuthors_NewestFormat => LocalizationService.Get("FollowedAuthors_NewestFormat");
+    internal static string Installed_NotForSptFormat => LocalizationService.Get("Installed_NotForSptFormat");
+    internal static string Installed_NotForSptWithFormat => LocalizationService.Get("Installed_NotForSptWithFormat");
 }

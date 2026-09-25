@@ -145,6 +145,13 @@
                         Text="{Binding IncompleteSummary}"
                         Visibility="{Binding IncompleteSummary, Converter={StaticResource NullToCollapsed}}" />
 
+                    <!-- The installed version does not run on this SPT (sp-mod.com's check). -->
+                    <TextBlock
+                        Foreground="{DynamicResource SystemFillColorCautionBrush}"
+                        TextWrapping="Wrap"
+                        Text="{Binding NotForSptNote}"
+                        Visibility="{Binding NotForSptNote, Converter={StaticResource NullToCollapsed}}" />
+
                     <!-- sp-mod.com holds this mod's update back: it would break another installed mod. -->
                     <TextBlock
                         Foreground="{DynamicResource SystemFillColorCautionBrush}"

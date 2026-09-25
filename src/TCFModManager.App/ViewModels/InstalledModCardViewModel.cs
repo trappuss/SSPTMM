@@ -441,7 +441,9 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
     // rather than either side's.
     public string StatusGlyph => IsMixedState || IsIncompleteInstall
         ? "ErrorCircle24"
-        : ModStatusDisplay.Glyph(Status);
+        : NotForSptNote is not null && !IsDisabled
+            ? "Warning24"
+            : ModStatusDisplay.Glyph(Status);
 
     // sp-mod.com holds this mod's update back: it would break another installed mod. Set after
     // each scan by InstalledViewModel, from AppServices.HeldBack.
@@ -449,9 +451,15 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
     [NotifyPropertyChangedFor(nameof(StatusTooltip))]
     private string? _heldBackNote;
 
+    // The installed version does not run on this install's SPT - see HeldBackUpdates.NotForSptNote.
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(StatusTooltip), nameof(StatusGlyph))]
+    private string? _notForSptNote;
+
     // Missing files first: it is the only one of these the card gives no other sign of.
     public string StatusTooltip =>
         IncompleteSummary
+        ?? NotForSptNote
         ?? HeldBackNote
         ?? (HasDuplicateFolders
             ? Strings.Installed_StatusDuplicate

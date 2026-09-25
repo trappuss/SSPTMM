@@ -17,6 +17,9 @@ public sealed class HeldBackUpdates
 {
     private Dictionary<int, ModBlockedUpdateEntry> _blocked = [];
 
+    // Installed versions that do not run on this install's SPT, with no newer version that does.
+    private Dictionary<int, ModIncompatibleEntry> _incompatible = [];
+
     // Bumped per check, so an older check answering after a newer one is dropped.
     private int _request;
 
@@ -29,6 +32,33 @@ public sealed class HeldBackUpdates
 
     /// <summary>The version sp-mod.com holds back for this mod, if any.</summary>
     public string? HeldVersion(int? modId) => For(modId)?.LatestVersion?.Version;
+
+    // The SPT version the last answer was for.
+    private string? _checkedSpt;
+
+    /// <summary>When the installed version of this mod does not run on this install's SPT (and no
+    /// newer version does): one sentence saying so, naming the newest version that does when the
+    /// catalog has one - an older one, then - or null.</summary>
+    public string? NotForSptNote(int? modId, string? installedVersion)
+    {
+        if (modId is not { } id || !_incompatible.TryGetValue(id, out var entry) || _checkedSpt is not { } spt) return null;
+
+        // sp-mod.com's pick when it gives one; otherwise the newest catalog version that runs here.
+        var runs = entry.LatestCompatibleVersion;
+        if (runs is null && AppServices.ModCache.AllMods.FirstOrDefault(m => m.Id == id) is { } mod)
+        {
+            runs = (mod.Versions ?? [])
+                .OrderByDescending(v => v.PublishedAt ?? DateTimeOffset.MinValue)
+                .FirstOrDefault(v => SptVersionMatcher.IsSatisfiedBy(v.SptVersionConstraint, spt) == true)
+                ?.Version;
+        }
+
+        var version = entry.Version ?? installedVersion ?? "?";
+
+        return runs is not null && !string.Equals(runs, version, StringComparison.OrdinalIgnoreCase)
+            ? LocalizationService.Text(Strings.Installed_NotForSptWithFormat, version, spt, runs)
+            : LocalizationService.Text(Strings.Installed_NotForSptFormat, version, spt);
+    }
 
     /// <summary>One sentence saying what is held back and why, or null.</summary>
     public string? Note(int? modId) => For(modId) is { } entry ? Describe(entry) : null;
@@ -69,7 +99,12 @@ public sealed class HeldBackUpdates
                 .GroupBy(b => b.CurrentVersion!.ModId)
                 .ToDictionary(g => g.Key, g => g.First());
 
-            AppLog.Info("Updates", $"sp-mod.com update check: {result.Updates.Count} updates, {_blocked.Count} held back");
+            _incompatible = result.IncompatibleWithSpt
+                .GroupBy(i => i.ModId)
+                .ToDictionary(g => g.Key, g => g.First());
+            _checkedSpt = sptVersion;
+
+            AppLog.Info("Updates", $"sp-mod.com update check: {result.Updates.Count} updates, {_blocked.Count} held back, {_incompatible.Count} not for SPT {sptVersion}");
             Changed?.Invoke(this, EventArgs.Empty);
         }
         catch (Exception ex)
