@@ -113,7 +113,7 @@ public static class ModContextMenu
                 var following = AppServices.Followed.IsFollowing(owner.Id);
                 menu.Items.Add(Item(
                     LocalizationService.Text(following ? Strings.Workshop_UnfollowFormat : Strings.Workshop_FollowFormat, author),
-                    () => AppServices.Followed.Toggle(owner.Id, author)));
+                    () => AppServices.Followed.Set(owner.Id, author, !following)));
             }
         }
     }

@@ -1538,4 +1538,5 @@ internal static class Strings
     internal static string WorkshopHome_FromFollowed => LocalizationService.Get("WorkshopHome_FromFollowed");
     internal static string WorkshopHome_FromFollowedNote => LocalizationService.Get("WorkshopHome_FromFollowedNote");
     internal static string Browse_CreatedByFollowed => LocalizationService.Get("Browse_CreatedByFollowed");
+    internal static string Play_ServerPortTakenFormat => LocalizationService.Get("Play_ServerPortTakenFormat");
 }

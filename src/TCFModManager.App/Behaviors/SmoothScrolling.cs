@@ -96,10 +96,11 @@ public static class SmoothScrolling
     // While a viewer glides, what it shows stops reacting to the pointer. The pointer stands still
     // while the page moves under it, so otherwise every card that passes beneath it would lift, open
     // its hover popup (a window of its own) and start its slideshow, one after another, for the
-    // whole scroll - which is most of what made scrolling stutter. It comes back a moment after the
-    // last wheel turn, under the pointer where the scroll left it.
+    // whole scroll. (HUNCH, not measured on Windows: that churn is a large part of the stutter.)
+    // It comes back as the glide ends, under the pointer where the scroll left it; a click in the
+    // glide's last quarter-second is not taken.
     //
-    private static readonly TimeSpan HoverRestDelay = TimeSpan.FromMilliseconds(250);
+    private static readonly TimeSpan HoverRestDelay = TimeSpan.FromMilliseconds(80);
 
     private static readonly DependencyProperty RestTimerProperty = DependencyProperty.RegisterAttached(
         "RestTimer", typeof(System.Windows.Threading.DispatcherTimer), typeof(SmoothScrolling));

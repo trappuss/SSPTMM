@@ -46,7 +46,10 @@ public sealed partial class WorkshopAuthor : ObservableObject
         IsFollowing ? Strings.Workshop_UnfollowFormat : Strings.Workshop_FollowFormat, Name);
 
     [RelayCommand]
-    private void ToggleFollow() => IsFollowing = AppServices.Followed.Toggle(Id, Name);
+    private void ToggleFollow() => IsFollowing = AppServices.Followed.Set(Id, Name, !IsFollowing);
+
+    /// <summary>Re-reads whether this author is followed - after a follow made elsewhere.</summary>
+    public void Refresh() => IsFollowing = AppServices.Followed.IsFollowing(Id);
 }
 
 // A mod listed in one of the right-hand panels: more by the author, or required by.
@@ -182,6 +185,8 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel, IModActi
         // Browse redraws its page after every install and removal, once its installed index has
         // caught up - the moment this page's own state is worth reading again too.
         AppServices.Browse.PageChanged += OnBrowsePageChanged;
+        AppServices.Followed.Changed += OnFollowedChanged;
+        AppServices.HeldBack.Changed += OnHeldBackChanged;
 
         // The Subscribe button follows this mod's download while it is in the queue.
         AppServices.DownloadQueue.Items.CollectionChanged += OnQueueChanged;
@@ -279,6 +284,9 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel, IModActi
     // Stops listening once the page is closed or replaced.
     public void Detach()
     {
+        _detached = true;
+        AppServices.Followed.Changed -= OnFollowedChanged;
+        AppServices.HeldBack.Changed -= OnHeldBackChanged;
         AppServices.Browse.PageChanged -= OnBrowsePageChanged;
         AppServices.Browse.PropertyChanged -= OnBrowseChanged;
         AppServices.DownloadQueue.Items.CollectionChanged -= OnQueueChanged;
@@ -286,6 +294,18 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel, IModActi
     }
 
     private void OnBrowsePageChanged(object? sender, EventArgs e) => RefreshInstallState();
+
+    // Set once the page has let go of this view model: background work started for it stops.
+    private bool _detached;
+
+    // A follow made elsewhere (the right-click menu) shows on this page's CREATED BY buttons.
+    private void OnFollowedChanged(object? sender, EventArgs e)
+    {
+        foreach (var author in Authors) author.Refresh();
+    }
+
+    // sp-mod.com's update check may answer after this page opened.
+    private void OnHeldBackChanged(object? sender, EventArgs e) => OnPropertyChanged(nameof(HeldBackNote));
 
     // ------------------------------------------------------------------ what the page shows
 
@@ -557,7 +577,7 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel, IModActi
         _checkingVersions = true;
         try
         {
-            for (var i = 0; i < Versions.Count && IsVersionsShown; i++) await Versions[i].CheckAsync();
+            for (var i = 0; i < Versions.Count && IsVersionsShown && !_detached; i++) await Versions[i].CheckAsync();
         }
         finally
         {

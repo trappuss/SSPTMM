@@ -32,15 +32,19 @@ public sealed class FollowedAuthors
     public bool IsByFollowed(Mod mod) =>
         IsFollowing(mod.Owner?.Id) || (mod.AdditionalAuthors ?? []).Any(a => IsFollowing(a.Id));
 
-    /// <summary>Follows, or stops following; true when now following.</summary>
-    public bool Toggle(int id, string? name)
+    /// <summary>Follows (or stops following) this author; true when now following. Asked for
+    /// explicitly rather than flipped, so a button showing an out-of-date state still does what it
+    /// says.</summary>
+    public bool Set(int id, string? name, bool follow)
     {
         if (id == 0) return false;
+        if (IsFollowing(id) == follow) return follow;
 
         var settings = _settings.Load();
         var list = settings.FollowedAuthors ?? [];
 
-        var following = list.RemoveAll(a => a.Id == id) == 0;
+        list.RemoveAll(a => a.Id == id);
+        var following = follow;
         if (following) list.Add(new FollowedAuthor { Id = id, Name = name });
 
         settings.FollowedAuthors = list;

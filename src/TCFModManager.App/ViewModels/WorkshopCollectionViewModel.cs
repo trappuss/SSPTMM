@@ -151,7 +151,8 @@ public sealed partial class WorkshopCollectionViewModel : LocalizedViewModel, IM
 
     // The square button: Subscribe, or - subscribed - Unsubscribe, through the same code the item
     // page's buttons use.
-    [RelayCommand]
+    // Each row on its own: one row's removal (seconds, with a rescan) must not disable the rest.
+    [RelayCommand(AllowConcurrentExecutions = true)]
     private async Task ToggleSubscribeAsync(WorkshopCollectionItem? item)
     {
         if (item?.Mod is not { } mod || !item.CanSubscribe) return;

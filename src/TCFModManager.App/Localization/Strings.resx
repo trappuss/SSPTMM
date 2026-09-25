@@ -3064,7 +3064,7 @@ The copy you don't keep is moved into a hidden .tcfmm-duplicates folder in your 
     <value>No mods matched.</value>
   </data>
   <data name="Browse_CountFound_one" xml:space="preserve">
-    <value>1 entry matching filters</value>
+    <value>{0:N0} entry matching filters</value>
     <comment>See the Many form; these become one plural key in S5.</comment>
   </data>
   <data name="Browse_CountFound_other" xml:space="preserve">
@@ -5097,7 +5097,7 @@ This was written to:
     <comment>Right-hand panel title: other mods by the same author. Upper case in Steam's panel style. {0} is the author.</comment>
   </data>
   <data name="Item_RequiredBy_one" xml:space="preserve">
-    <value>REQUIRED BY 1 ITEM</value>
+    <value>REQUIRED BY {0:N0} ITEM</value>
     <comment>Right-hand panel title: the mods that need this one. Upper case in Steam's panel style.</comment>
   </data>
   <data name="Item_RequiredBy_other" xml:space="preserve">
@@ -5133,7 +5133,7 @@ This was written to:
     <comment>In the full-size viewer: which picture or video this is, of how many.</comment>
   </data>
   <data name="Installed_UpdateAll_one" xml:space="preserve">
-    <value>Update 1 item</value>
+    <value>Update {0:N0} item</value>
     <comment>Button beside the Subscribed items title: updates the one installed mod that has an update.</comment>
   </data>
   <data name="Installed_UpdateAll_other" xml:space="preserve">
@@ -5297,7 +5297,7 @@ This was written to:
     <comment>Tooltip on the Add to Collection button. Steam's words.</comment>
   </data>
   <data name="Collection_Added_one" xml:space="preserve">
-    <value>Added {0} to 1 collection.</value>
+    <value>Added {0} to {1} collection.</value>
     <comment>After Add to Collection. {0} is the mod, {1} how many collections.</comment>
   </data>
   <data name="Collection_Added_other" xml:space="preserve">
@@ -5305,7 +5305,7 @@ This was written to:
     <comment>After Add to Collection. {0} is the mod, {1} how many collections.</comment>
   </data>
   <data name="Collection_Removed_one" xml:space="preserve">
-    <value>Took {0} off 1 collection.</value>
+    <value>Took {0} off {1} collection.</value>
     <comment>After Add to Collection, for collections that were unticked. {0} is the mod, {1} how many.</comment>
   </data>
   <data name="Collection_Removed_other" xml:space="preserve">
@@ -5313,7 +5313,7 @@ This was written to:
     <comment>After Add to Collection, for collections that were unticked. {0} is the mod, {1} how many.</comment>
   </data>
   <data name="Collection_ItemCount_one" xml:space="preserve">
-    <value>1 item</value>
+    <value>{0:N0} item</value>
     <comment>How many items a collection holds, beside its name.</comment>
   </data>
   <data name="Collection_ItemCount_other" xml:space="preserve">
@@ -5321,7 +5321,7 @@ This was written to:
     <comment>How many items a collection holds, beside its name. {0} is the number.</comment>
   </data>
   <data name="Item_InCollections_one" xml:space="preserve">
-    <value>IN 1 OF YOUR COLLECTIONS</value>
+    <value>IN {0:N0} OF YOUR COLLECTIONS</value>
     <comment>Title over the item page's list of your collections holding the mod, after Steam's "In N Collections". Upper case in Steam's design.</comment>
   </data>
   <data name="Item_InCollections_other" xml:space="preserve">
@@ -5349,7 +5349,7 @@ This was written to:
     <comment>After ITEMS over a collection's items, in a lighter grey. {0} is how many.</comment>
   </data>
   <data name="Collection_CreatedBy_one" xml:space="preserve">
-    <value>A COLLECTION OF 1 ITEM CREATED BY</value>
+    <value>A COLLECTION OF {0:N0} ITEM CREATED BY</value>
     <comment>Right-hand panel title on a collection's page, over its items' authors. Steam's words, upper case in its design.</comment>
   </data>
   <data name="Collection_CreatedBy_other" xml:space="preserve">
@@ -5409,7 +5409,7 @@ This was written to:
     <comment>Status line on the Collections page when sent there to save the current subscriptions.</comment>
   </data>
   <data name="Collection_UnsubscribeAllBody_one" xml:space="preserve">
-    <value>The 1 installed item of this collection will be set aside (disabled), not deleted. It can be enabled again from Subscribed items.</value>
+    <value>The {0:N0} installed item of this collection will be set aside (disabled), not deleted. It can be enabled again from Subscribed items.</value>
     <comment>Confirmation before Unsubscribe from all. {0} is how many.</comment>
   </data>
   <data name="Collection_UnsubscribeAllBody_other" xml:space="preserve">
@@ -5625,7 +5625,7 @@ This was written to:
     <comment>Tooltip on Passed Verification. {0} is the date and time.</comment>
   </data>
   <data name="Item_VersionFiles_one" xml:space="preserve">
-    <value>Files in this download (1)</value>
+    <value>Files in this download ({0:N0})</value>
     <comment>Link on a version that opens the list of files its download contains. {0} is how many.</comment>
   </data>
   <data name="Item_VersionFiles_other" xml:space="preserve">
@@ -5711,5 +5711,9 @@ This was written to:
   <data name="Browse_CreatedByFollowed" xml:space="preserve">
     <value>Created by Followed</value>
     <comment>Browse SPECIAL FILTERS choice: only items by followed authors. Steam's words.</comment>
+  </data>
+  <data name="Play_ServerPortTakenFormat" xml:space="preserve">
+    <value>Something was already listening on port {0} before the server started, so there is no telling when it is up - the launcher was not opened. Open it yourself once the server is ready.</value>
+    <comment>Play page, with the launcher-after-server switch on, when the server's port was taken before it started. {0} is the port or ports.</comment>
   </data>
 </root>

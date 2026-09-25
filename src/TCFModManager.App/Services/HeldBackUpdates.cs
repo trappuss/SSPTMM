@@ -17,6 +17,9 @@ public sealed class HeldBackUpdates
 {
     private Dictionary<int, ModBlockedUpdateEntry> _blocked = [];
 
+    // Bumped per check, so an older check answering after a newer one is dropped.
+    private int _request;
+
     /// <summary>Raised after every check that got an answer.</summary>
     public event EventHandler? Changed;
 
@@ -54,10 +57,12 @@ public sealed class HeldBackUpdates
     {
         if (installed.Count == 0 || string.IsNullOrWhiteSpace(sptVersion)) return;
 
+        var request = ++_request;
         try
         {
             var mods = string.Join(",", installed.Select(m => $"{m.ModId}:{m.Version}"));
             var result = await AppServices.SpModApi.GetModUpdatesAsync(mods, sptVersion);
+            if (request != _request) return;
 
             _blocked = result.BlockedUpdates
                 .Where(b => b.CurrentVersion is not null)

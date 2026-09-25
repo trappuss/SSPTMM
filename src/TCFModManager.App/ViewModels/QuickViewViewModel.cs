@@ -55,7 +55,7 @@ public sealed partial class QuickViewViewModel : LocalizedViewModel, IModActionH
     }
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(Listing), nameof(CanGoPrevious), nameof(CanGoNext))]
+    [NotifyPropertyChangedFor(nameof(Listing), nameof(CanGoPrevious), nameof(CanGoNext), nameof(Description), nameof(Tags), nameof(HasTags))]
     [NotifyCanExecuteChangedFor(nameof(PreviousCommand), nameof(NextCommand))]
     private int _index;
 
@@ -104,11 +104,11 @@ public sealed partial class QuickViewViewModel : LocalizedViewModel, IModActionH
 
     private async Task LoadAsync()
     {
-        var generation = ++_generation;
-        var listing = Listing;
-
         Detach();
         Item = null;
+
+        var generation = ++_generation;
+        var listing = Listing;
         Message = null;
         IsLoading = true;
 
@@ -138,6 +138,9 @@ public sealed partial class QuickViewViewModel : LocalizedViewModel, IModActionH
     /// <summary>Lets go of the shown item's view model; the overlay calls this as it closes.</summary>
     public void Detach()
     {
+        // A details fetch still on its way is dropped when it lands.
+        _generation++;
+
         if (Item is not { } item) return;
 
         item.PropertyChanged -= OnItemChanged;

@@ -106,6 +106,15 @@ public partial class PlayViewModel : LocalizedViewModel
 
     public bool CanStopServer => Server?.IsRunning == true && !IsRestarting;
 
+    // A server that went down on its own takes the question about stopping it with it.
+    partial void OnServerChanged(SptLaunchTargetInfo? value)
+    {
+        if (value?.IsRunning != true) ConfirmingServerStop = false;
+    }
+
+    // The wait for the launcher, called off by Stop server.
+    private CancellationTokenSource? _launcherWait;
+
     public bool CanRestartHeadless => Headless?.IsRunning == true && !IsRestarting;
 
     //
@@ -212,6 +221,9 @@ public partial class PlayViewModel : LocalizedViewModel
     [RelayCommand]
     private async Task StartServerAsync()
     {
+        var ports = SptServerReadiness.PortsFor(Server?.ExePath);
+        _portsBeforeStart = ports.Where(p => !SptServerReadiness.IsListening(new HashSet<int> { p })).ToHashSet();
+
         Start(SptLaunchTarget.Server);
 
         if (HasError || !new SettingsService().Load().StartLauncherAfterServer || Client is not { CanLaunch: true }) return;
@@ -233,10 +245,22 @@ public partial class PlayViewModel : LocalizedViewModel
         IsWaitingForServer = true;
         Message = Strings.Play_WaitingForServer;
 
+        _launcherWait?.Cancel();
+        var cancel = _launcherWait = new CancellationTokenSource();
+
         try
         {
             var installPath = AppServices.SptEnvironment.InstallPath;
-            var ports = SptServerReadiness.PortsFor(Server?.ExePath);
+            var ports = _portsBeforeStart ?? SptServerReadiness.PortsFor(Server?.ExePath);
+            if (ports.Count == 0)
+            {
+                // Everything the server could use was already taken before it started: whatever
+                // answers there is not this server, so there is nothing to wait for.
+                HasError = true;
+                Message = Text(Strings.Play_ServerPortTakenFormat, string.Join(", ", SptServerReadiness.PortsFor(Server?.ExePath).Order()));
+                return;
+            }
+
             var started = DateTime.UtcNow;
 
             // Looked at afresh each second (the page's own poll stops when it is left). The first
@@ -246,7 +270,15 @@ public partial class PlayViewModel : LocalizedViewModel
                 || (SptLaunchService.Describe(installPath, SptLaunchTarget.Server).IsRunning
                     && !SptLaunchService.Describe(installPath, SptLaunchTarget.Client).IsRunning);
 
-            var up = await SptServerReadiness.WaitUntilListeningAsync(ports, TimeSpan.FromMinutes(3), StillWanted);
+            bool up;
+            try
+            {
+                up = await SptServerReadiness.WaitUntilListeningAsync(ports, TimeSpan.FromMinutes(3), StillWanted, cancel.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                return;
+            }
 
             Refresh();
             if (up && Client is { CanLaunch: true })
@@ -262,8 +294,12 @@ public partial class PlayViewModel : LocalizedViewModel
         finally
         {
             IsWaitingForServer = false;
+            if (ReferenceEquals(_launcherWait, cancel)) _launcherWait = null;
         }
     }
+
+    // The server's ports that nothing held before it was started - only those can say it is up.
+    private IReadOnlySet<int>? _portsBeforeStart;
 
     [RelayCommand]
     private void StartClient() => Start(SptLaunchTarget.Client);
@@ -314,6 +350,7 @@ public partial class PlayViewModel : LocalizedViewModel
         if (!ConfirmingServerStop) return;
 
         ConfirmingServerStop = false;
+        _launcherWait?.Cancel();
         IsRestarting = true;
         _poll.Stop();
 

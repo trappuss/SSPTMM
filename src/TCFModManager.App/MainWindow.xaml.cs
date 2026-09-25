@@ -81,6 +81,9 @@ public partial class MainWindow : FluentWindow
         // and over an item page it was opened from, which then closes.
         AppServices.CollectionOverlay.Requested += (_, listId) =>
         {
+            // A list deleted since the link was drawn opens nothing, and leaves the page as it was.
+            if (AppServices.ModLists.Find(listId) is null) return;
+
             _collectionUnderItem = false;
             ItemPage.Close();
             CollectionPage.Show(listId);
