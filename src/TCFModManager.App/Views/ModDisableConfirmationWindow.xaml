@@ -48,7 +48,7 @@
                 FontWeight="SemiBold"
                 Margin="0,0,0,8" />
 
-            <ScrollViewer MaxHeight="260" VerticalScrollBarVisibility="Auto">
+            <ScrollViewer FocusVisualStyle="{x:Null}" MaxHeight="260" VerticalScrollBarVisibility="Auto">
                 <ItemsControl Focusable="False" x:Name="ImpactList">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>

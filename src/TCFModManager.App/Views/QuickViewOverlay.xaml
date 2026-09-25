@@ -182,6 +182,7 @@
                             <Grid Margin="0,8,0,4" Visibility="{Binding Item.HasGallery, Converter={StaticResource TrueToVisible}, FallbackValue=Collapsed}">
                                 <ScrollViewer
                                     x:Name="Strip"
+                                    FocusVisualStyle="{x:Null}"
                                     HorizontalScrollBarVisibility="Hidden"
                                     VerticalScrollBarVisibility="Disabled"
                                     ScrollChanged="Strip_ScrollChanged">

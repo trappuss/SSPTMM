@@ -138,6 +138,7 @@
             Visibility="{Binding Items.Count, Converter={StaticResource HasItems}, ConverterParameter=Invert}" />
 
         <ScrollViewer
+            FocusVisualStyle="{x:Null}"
             Grid.Row="1"
             VerticalScrollBarVisibility="Auto"
             Visibility="{Binding Items.Count, Converter={StaticResource HasItems}}">

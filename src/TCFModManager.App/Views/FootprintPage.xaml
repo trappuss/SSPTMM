@@ -165,6 +165,7 @@
 
             <ScrollViewer
                 x:Name="RowsScrollViewer"
+                FocusVisualStyle="{x:Null}"
                 Focusable="False"
                 VerticalScrollBarVisibility="Auto"
                 HorizontalScrollBarVisibility="Disabled"

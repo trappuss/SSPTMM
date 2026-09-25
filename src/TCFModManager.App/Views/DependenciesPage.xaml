@@ -74,6 +74,7 @@
 
         <ScrollViewer
             x:Name="TreesScrollViewer"
+            FocusVisualStyle="{x:Null}"
             Grid.Row="2"
             VerticalScrollBarVisibility="Auto"
             Visibility="{Binding Trees.Count, Converter={StaticResource HasItems}}">

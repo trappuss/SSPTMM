@@ -107,6 +107,7 @@
 
                 <ScrollViewer
                     x:Name="ListScrollViewer"
+                    FocusVisualStyle="{x:Null}"
                     Grid.Row="2"
                     Focusable="False"
                     VerticalScrollBarVisibility="Auto"

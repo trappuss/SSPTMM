@@ -139,7 +139,7 @@
     </UserControl.Resources>
 
     <Border Background="{StaticResource SteamLegacyBackground}">
-        <ScrollViewer x:Name="Scroll" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer x:Name="Scroll" FocusVisualStyle="{x:Null}" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
             <StackPanel MaxWidth="950" Margin="24,20,24,40">
 
                 <!-- Breadcrumbs: SPT > Workshop > Your collections. -->

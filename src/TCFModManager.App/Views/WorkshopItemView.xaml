@@ -135,7 +135,9 @@
     </UserControl.Resources>
 
     <Border Background="{StaticResource SteamLegacyBackground}">
-        <ScrollViewer x:Name="Scroll" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+        <!-- No focus frame (nor on any scroll area in the app): when Subscribe goes disabled while it
+             works, focus falls back here, and the frame was drawn around the whole page. -->
+        <ScrollViewer x:Name="Scroll" FocusVisualStyle="{x:Null}" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
             <StackPanel MaxWidth="950" Margin="24,20,24,40">
 
                 <!-- Breadcrumbs: SPT > Workshop > <author>'s Workshop. -->
@@ -235,7 +237,7 @@
                                      chosen one framed; a slider under it when they do not all fit. -->
                                 <Border Margin="0,1,0,0" Padding="7,7,7,0" Background="#80000000" Visibility="{Binding HasGallery, Converter={StaticResource TrueToVisible}}">
                                     <StackPanel>
-                                        <ScrollViewer x:Name="Strip" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled" ScrollChanged="Strip_ScrollChanged">
+                                        <ScrollViewer x:Name="Strip" FocusVisualStyle="{x:Null}" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled" ScrollChanged="Strip_ScrollChanged">
                                             <ItemsControl Focusable="False" ItemsSource="{Binding Gallery}">
                                                 <ItemsControl.ItemsPanel>
                                                     <ItemsPanelTemplate>

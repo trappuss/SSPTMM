@@ -374,9 +374,9 @@ turns during a glide add to it. A list inside a page scrolls before the page doe
   installed, are listed with whose they are, and the install waits for *Install Anyway* (Cancel is
   the default). Not counted: the mod's own files (an update over itself is not asked about, nor a
   file its record already shares with another mod after an Install Anyway) and user data the install
-  leaves in place (SVM's presets). A list sp-mod.com cut short says so. A version with no file list
-  (not verified, or offline) installs as before, and dependencies queued along with a mod are not
-  checked.
+  leaves in place (SVM's presets). A list sp-mod.com cut short says so. The items a mod needs,
+  when they are installed along with it, are asked about the same way, each on its own. A version
+  with no file list (not verified, or offline) installs as before.
 - *Not for your SPT.* `/mods/updates` also names installed versions that do not run on this
   install's SPT and have no newer version that does. Subscribed items says so on the card (a warning
   glyph and the tooltip) and the item page, naming the newest version that does run here when there
@@ -397,14 +397,22 @@ turns during a glide add to it. A list inside a page scrolls before the page doe
   description how long it took to show; the .bat turns that into `Claude outputs\perf-report.txt`
   with the graphics card, screen and WPF's render tier. Off (and costing nothing) otherwise.
 
+- *The page stays still when a card's Subscribe is clicked.* The button goes disabled while it
+  works; keyboard focus then fell back to the card grid, which WPF scrolls into view, so Browse
+  jumped to the grid's top. Lists of items are no longer focusable anywhere, and scroll areas no
+  longer draw a focus frame (it outlined the whole item page after Subscribe's questions closed).
+
 ### Where this round differs, and why
 
 - **The file-clash question is the app's own.** Steam gives every item its own folder, so it never
   has to ask; SPT mods share BepInEx and user/mods.
 - **A lighter description view is planned, not built.** Measured under the build machine's software
-  renderer: a 14,858-character description (SAIN) took 1.4ms to read, 31ms to build and 510ms to lay
-  out and first draw, 3,156px tall; scrolling was no slower than on a plain page there. Which
-  change is worth making waits on the numbers from a real PC.
+  renderer, on SAIN's 14,858-character description (3,156px tall): about 40ms to read and build and
+  510-550ms until it is laid out and drawn. Showing the same document in a read-only viewer instead
+  of the RichTextBox took the same time; the same text as plain text blocks, a lower bound for
+  rewriting the renderer, about 330ms. Scrolling was the same (13-14 frames a second) in all three
+  and on a plain page there. Tabs inside a description and the Change Notes tab are already built
+  only when first shown. Which change is worth making waits on the numbers from a real PC.
 
 ## Values that could not be measured (marked HUNCH in the source)
 

@@ -123,6 +123,7 @@
 
     <ScrollViewer
         x:Name="PageScroll"
+        FocusVisualStyle="{x:Null}"
         ScrollChanged="PageScroll_ScrollChanged"
         HorizontalScrollBarVisibility="Disabled"
         VerticalScrollBarVisibility="Auto">

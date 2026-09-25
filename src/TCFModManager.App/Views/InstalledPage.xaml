@@ -670,6 +670,7 @@
         -->
         <ScrollViewer
             x:Name="CardsScrollViewer"
+            FocusVisualStyle="{x:Null}"
             Grid.Row="4"
             Focusable="False"
             Padding="4"
@@ -887,6 +888,7 @@
              testing, unset does not. -->
         <ScrollViewer
             x:Name="GroupsScrollViewer"
+            FocusVisualStyle="{x:Null}"
             Grid.Row="4"
             AllowDrop="True"
             Background="Transparent"
@@ -1120,6 +1122,7 @@
              shouldn't bubble focus up and nudge the scroller. -->
         <ScrollViewer
             x:Name="ListScrollViewer"
+            FocusVisualStyle="{x:Null}"
             Grid.Row="4"
             Focusable="False"
             VerticalScrollBarVisibility="Auto"

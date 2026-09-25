@@ -178,6 +178,7 @@
                  visible scrollbar is that template part, and that is what the wheel has to drive -
                  see Dialog_PreviewMouseWheel. -->
             <ScrollViewer
+                FocusVisualStyle="{x:Null}"
                 VerticalScrollBarVisibility="Auto"
                 Visibility="{Binding IsLoading, Converter={StaticResource FalseToVisible}}">
               <StackPanel>

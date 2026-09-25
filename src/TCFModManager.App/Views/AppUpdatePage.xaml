@@ -19,7 +19,7 @@
         <converters:NullToVisibilityConverter x:Key="NullToCollapsed" />
     </Page.Resources>
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <ScrollViewer FocusVisualStyle="{x:Null}" VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="24,16,24,16">
 
             <!-- Where this comes from. Stated up front rather than buried, because "an app that

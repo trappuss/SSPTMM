@@ -91,7 +91,7 @@
         </Style>
     </Page.Resources>
 
-    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+    <ScrollViewer FocusVisualStyle="{x:Null}" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="24,16,24,24">
             <views:WorkshopBanner />
             <views:WorkshopSubNav />
@@ -134,6 +134,7 @@
 
                         <ScrollViewer
                             x:Name="Carousel"
+                            FocusVisualStyle="{x:Null}"
                             Grid.Column="1"
                             HorizontalScrollBarVisibility="Hidden"
                             VerticalScrollBarVisibility="Disabled"

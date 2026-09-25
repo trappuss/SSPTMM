@@ -100,7 +100,7 @@
             </StackPanel>
 
             <!-- One row per page: the name, and its Open button (Opened once it has been). -->
-            <ScrollViewer MaxHeight="320" Margin="0,0,0,4" VerticalScrollBarVisibility="Auto">
+            <ScrollViewer FocusVisualStyle="{x:Null}" MaxHeight="320" Margin="0,0,0,4" VerticalScrollBarVisibility="Auto">
                 <ItemsControl Focusable="False" x:Name="LinksList">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
