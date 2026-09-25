@@ -1,6 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <!-- The WebView2 package's API docs are for the IDE, not for the folder people run the app from. -->
+    <PublishReferencesDocumentationFiles>false</PublishReferencesDocumentationFiles>
     <TargetFramework>net9.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <OutputType>WinExe</OutputType>
@@ -67,6 +69,8 @@
          SIL Open Font License 1.1; the licence travels with the build next to the exe. -->
     <Resource Include="Themes\Fonts\*.ttf" />
     <None Include="Themes\Fonts\OFL.txt" Link="Licenses\NotoSans-OFL.txt" CopyToOutputDirectory="PreserveNewest" />
+    <!-- The licences of the libraries the Steam fork added, shipped beside the exe as they ask. -->
+    <None Include="..\..\build\steam-ui\licenses\*.txt" Link="Licenses\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <!--

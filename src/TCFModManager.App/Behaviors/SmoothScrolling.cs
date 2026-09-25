@@ -21,7 +21,8 @@ namespace TCFModManager.App.Behaviors;
 //
 public static class SmoothScrolling
 {
-    // Pixels per wheel notch. WPF's own is three 16px lines; browsers move about 100.
+    // Pixels per wheel notch. WPF's own is three 16px lines; browsers move about 100. HUNCH: chosen
+    // to feel like a browser, not measured from one; so is the glide time below.
     private const double NotchDistance = 100;
 
     private static readonly Duration GlideTime = new(TimeSpan.FromMilliseconds(200));

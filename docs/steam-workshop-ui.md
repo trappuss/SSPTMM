@@ -100,6 +100,8 @@ labels `#939393`; "DESCRIPTION" 11px `#61696D`.
 | CONTENT TYPE | Category |
 | Tag rows [+]/[-] | The attribute filters: [+] Fika compatible, Has dependencies, Has addons; [-] Contains ads, AI content, Subscribed |
 | Required items | The shown version's dependencies (sp-mod.com sends no optional flag today) |
+| Comments | sp-mod.com's own comments, embedded |
+| Screenshots / videos | The pictures and videos in the description |
 | Change Notes | Every published version with its changelog |
 | File Size | The shown version's download size |
 
@@ -110,8 +112,8 @@ labels `#939393`; "DESCRIPTION" 11px `#61696D`.
   per-period popularity. The home page's first list is "Top Rated" (endorsements), named as such.
 - **The week's row** is "released in the past week, most downloaded first" - the nearest honest
   reading of Steam's "in the past week" row.
-- **Discussions, Comments, About, Awards, Favorite, Add to Collection** are left out: nothing in
-  the app sits behind them.
+- **Discussions, About, Awards, Favorite, Add to Collection** are left out: nothing in the app sits
+  behind them.
 - **Tag rows with one direction.** Each app filter goes one way, so the other box is shown disabled
   rather than removed.
 - **The hub header stays put** while pages scroll (on Steam it scrolls away) - it is the app's
@@ -124,7 +126,93 @@ labels `#939393`; "DESCRIPTION" 11px `#61696D`.
 - **Subscribed items keeps the upstream page's three views,** multi-select and groups; it gains the
   Steam title, previews on its cards and the Steam palette.
 
+## Second round: Browse, descriptions, item page, downloads
+
+**Infinite Browse.** Per page gains *Infinite*, now the default: 30 cards, and 30 more each time the
+page comes within about two rows of its end. The numbered pager is hidden while it is on. A page
+size saved with Save as default still wins.
+
+**Descriptions in sp-mod.com's markdown style.** The API hands descriptions over as the HTML the
+site renders its markdown to. A survey of the 200 most downloaded and most recently updated mods
+(2026-09-24) found: paragraphs, h1-h6, bold/italic/strikethrough, inline code and code blocks,
+links, pictures (png/jpg/gif/webp, two svg), nested lists, tables, rules, blockquotes (plain and
+`is-warning`), YouTube embeds and tab sets (46% of mods; they nest). `Core/Markup/SpModMarkup.cs`
+reads all of it (HtmlAgilityPack) - checked against all 200: no word of text lost - and
+`App/Behaviors/Markup/MarkupRenderer.cs` lays it out with sp-mod.com's measured styles:
+
+| Element | sp-mod.com (16px body) |
+|---|---|
+| h1 / h2 / h3 / h4 | 30/36, 24/32, 20/28, 18/28, bold white, 16px above, 8px below |
+| paragraph | 8px above and below |
+| list item | 28px indent, 8px apart |
+| inline code | 12.8px, `#D1D5DC` on `#364153` |
+| code block | 14px on 20px lines, 14px inside |
+| blockquote | `#101828`, 4px `#0092B8` bar, 16px inside, 16px above and below |
+| warning | `#432004`, 4px `#D08700` bar, text `#FEF9C2` |
+| rule | 2px `#333`, 16px either side |
+| tab buttons | upper case, 4px 12px, radius 4 4 0 0, 4px apart; `#0F172B` white; chosen `#1D293D`, bold `#53EAFD`, 2px `#0092B8` underline |
+| tab content | `#101828`, 16px inside, radius 4 4 16 16, 4px below the tabs |
+| YouTube | the video's thumbnail at 16:9 on black with a play button |
+
+Sizes scale from the site's 16px body to the Workshop page's 14px. Animated GIFs play
+(XamlAnimatedGif). A link to another sp-mod.com mod opens its item page; a picture or video opens
+in the full-size viewer, which steps through every picture and video of that description.
+
+**Item page.**
+- Tabs in Steam's order - Description, Comments, Change Notes - then sp-mod.com's Versions.
+- Steam's highlight strip under the preview: the mod's picture, then every picture and video from
+  its description (116x65 on black, `#97C0E3` 1px frame on the chosen one, Steam's grey slider).
+- CREATED BY names open Browse searched for that author.
+- REQUIRED BY lists the mods whose current release needs this one; MORE BY lists the author's
+  other mods.
+- Versions: each version's SPT range (green when it runs on your install, red when not), size,
+  downloads, release date, Fika, what it needs, and *Install this version* (or *Switch to this
+  version*, through the update dialog, when another version is installed).
+- Subscribe shows the download's progress inside the button.
+- Mouse back button and Alt+Left leave the page; Browse keeps its scroll position.
+
+**Comments.** sp-mod.com has no API for comments; its page loads them with its own scripts. The
+Comments tab shows the site's real comments section in a web view (WebView2), with the rest of
+the page hidden, so they can be read, replied to and reacted to after signing in once (the
+sign-in lasts: the profile is in `Data\WebView2`). Other sites' links open in the browser.
+Without a WebView2 runtime the tab offers to open them in the browser.
+
+**Downloads.** Subscribe now looks up what the mod needs before asking, so the mod and every
+missing dependency are confirmed in one window instead of a second one appearing mid-download.
+The read-the-mod-page gate still asks for each page, but *Open page* shows the real sp-mod.com page
+inside the app (so it still counts as a visit), stepping through several with Next. Without
+WebView2 it opens the browser as before; the Options switch that turns the gate off is unchanged.
+
+**Subscribed items** has its own hub tab, and an *Update all* button when anything has an update.
+
+**Smooth scrolling.** Every scrolling page glides: 100px per wheel notch over 200ms, easing out;
+turns during a glide add to it. A list inside a page scrolls before the page does.
+
+### Where this round differs from sp-mod.com or the upstream app, and why
+
+- **Code blocks get a faint shade** (`rgba(0,0,0,.2)`). On sp-mod.com they sit on the page's own
+  colour with no box; on the Workshop blue that read as ordinary text in another font.
+- **Inline code has no rounded padding** - a box would stop a long path from wrapping.
+- **Table columns** are shared out by how much text each holds; a FlowDocument table cannot size
+  columns to content the way the site's does.
+- **The Versions tab has no count.** The API lists fewer versions than the site's own tab counts
+  (30 against 74 for SAIN) - a number that disagrees with the site would read as a fault.
+- **Subscribe waits for one lookup** before its window opens. Upstream queued first and asked
+  about dependencies once the download had started; asking once for everything needs the answer
+  first. If the lookup cannot be made, it falls back to the upstream order.
+- **Updates are measured against the newest release for your SPT**, not the newest release
+  overall. Upstream compared against the newest overall and then checked its SPT, so a mod whose
+  newest release was for the next SPT line never showed an update for yours (SAIN 4.4.2 on SPT
+  4.0.13 read "up to date" with 4.4.3 out).
+- **Required by** covers mods that have a release for your SPT, asked about at the version the app
+  would install - about eight batched calls per session.
+- **Under Wine, GIF thumbnails are left blank.** WPF's GIF decoding crashes the whole process
+  there (reproduced with Wine 9 on every GIF tried, in a bare WPF program); description GIFs
+  still play, through XamlAnimatedGif. Windows is unaffected.
+
 ## Values that could not be measured (marked HUNCH in the source)
+
+- The smooth-scroll distance and time (100px, 200ms) - chosen to feel like a browser, not measured.
 
 - Critical/error red (`#E05A5A`): no error state on the pages measured.
 - Outlined "View All" hover fill.
