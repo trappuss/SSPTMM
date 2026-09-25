@@ -889,7 +889,13 @@
         <Setter Property="Height" Value="30" />
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
-        <Setter Property="ToolTip" Value="{loc:Str Menu_QuickView}" />
+        <!--  A binding, not {loc:Str}: in a Setter that would be the text of the moment, and the
+              tip would keep its language after a switch.  -->
+        <Setter Property="ToolTip">
+            <Setter.Value>
+                <Binding Mode="OneWay" Path="[Menu_QuickView]" Source="{x:Static loc:LocalizationService.Instance}" />
+            </Setter.Value>
+        </Setter>
         <Setter Property="Visibility" Value="Collapsed" />
         <Setter Property="Template">
             <Setter.Value>

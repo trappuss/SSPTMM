@@ -295,6 +295,9 @@ public static class ThumbnailLoader
         foreach (var weak in request.Images)
         {
             if (!weak.TryGetTarget(out var image) || !image.IsVisible || GetSource(image) as string != request.Url) continue;
+
+            // Not laid out yet: where it will be is not known, so it does not jump the line.
+            if (!image.IsArrangeValid || image.RenderSize.Width <= 0 || image.RenderSize.Height <= 0) continue;
             if (Window.GetWindow(image) is not { } window) continue;
 
             try
@@ -313,7 +316,18 @@ public static class ThumbnailLoader
 
     private static async Task RunAsync(Request request)
     {
-        var outcome = await LoadAsync(request);
+        Outcome outcome;
+        try
+        {
+            outcome = await LoadAsync(request);
+        }
+        catch (Exception ex)
+        {
+            // Whatever it was, the slot comes back and the request is closed: one picture that
+            // could not load must not stop the rest.
+            AppLog.Warn("Thumbnails", $"picture {request.Url} could not be loaded: {ex.Message}");
+            outcome = Outcome.Failed;
+        }
 
         _running--;
         Running.Remove(request);
@@ -409,7 +423,8 @@ public static class ThumbnailLoader
         if (pixels <= 0 || pixels > 384 || !WebpReadable.Value) return null;
         if (SizedCopyName.Match(url) is not { Success: true } match) return null;
 
-        return $"https://files.sp-mod.com/mods/{match.Groups[1].Value}_{(pixels <= 192 ? 192 : 384)}w.webp";
+        var copyWidth = pixels <= 192 ? 192 : 384;
+        return $"https://files.sp-mod.com/mods/{match.Groups[1].Value}_{copyWidth}w.webp";
     }
 
     private static async Task<Outcome> LoadAsync(Request request)

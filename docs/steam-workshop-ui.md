@@ -442,6 +442,40 @@ Measured and not changed:
 - Scrolling was 13-15 frames a second on every page tried, with or without a description - the
   software renderer's own ceiling. steam-ui-measure.bat measures it on a real PC.
 
+## Seventh round: hover on Home, scrolling switch, pictures, item cover (2026-09-25)
+
+**From Steam (measured on the live pages).**
+- *Workshop Home reacts to the pointer like Browse.* On Steam's front page the carousel cards and
+  the list rows lift 5px with the white glow, open the same hover popup as Browse and show the
+  Quick View magnifier. Home's carousel, From Followed Authors and list rows now do all of that, with
+  the app's quick Subscribe beside the magnifier. The popup is one control (CardHoverPopup, attached
+  by CardHover) built the first time it opens.
+- *The popup's teaser wraps to five lines*, as Steam's does (-webkit-line-clamp: 5 on 19px lines;
+  the earlier "one line" was an item whose text was one line long). The popup was also being cut at
+  WPF UI's tooltip width; it is 270px like Steam's now.
+- *The item's picture heads the item page's right-hand column*: 268px square, 5px above Content
+  Type, the mod's own picture cropped square as Browse's cards crop it; a click opens it in the
+  picture viewer.
+
+**The app.**
+- *Options > Scrolling*: smooth scrolling on (the default) or off. Off, a wheel turn moves the same
+  distance at once. Saved, and applied without a restart.
+- *Pictures that did not load after scrolling.* Reproduced through a 1 MB/s link: after a fast
+  scroll down Browse, half the cards on screen were still blank six seconds later. Downloads waited
+  in the order asked for, six at a time, behind every card the scroll had passed (about 380 KB
+  each), and one that failed was never tried again. Now pictures on screen go first; ones nothing
+  wants any more are dropped before they are fetched and stopped part way; one download serves
+  every picture asking for the same file; a failure that may pass is tried twice more; a picture
+  still missing when it is shown again is asked for again. Same test after: 12 of the sampled
+  places blank at six seconds instead of 30. Description pictures retry the same way.
+- *Smaller copies of mod pictures.* sp-mod.com keeps its newer mod pictures (40-character names)
+  at 192 and 384 pixels wide as well, in WebP, and shows those on its own pages. Where one covers
+  the size shown, that copy is fetched: 30 times less to download on a sample of 23 (9.7 MB against
+  0.3 MB). Older pictures (named by number) have none, and a card on a screen scaled past 150%
+  needs more than 384 pixels, so those fetch the full picture, as does a machine that cannot read
+  WebP - probed once at start and written to the log. The build machine cannot read WebP, so the
+  smaller copies could not be seen working here; the full-picture path is what was tested.
+
 ## Values that could not be measured (marked HUNCH in the source)
 
 - The smooth-scroll distance and time (100px, 250ms) - chosen to feel like a browser, not measured.
