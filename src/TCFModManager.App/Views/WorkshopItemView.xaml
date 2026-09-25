@@ -35,6 +35,7 @@
         <converters:UpdateAvailableToVisibilityConverter x:Key="TrueToVisible" />
         <converters:FalseToVisibilityConverter x:Key="FalseToVisible" />
         <converters:EqualityConverter x:Key="IsSame" />
+        <converters:LocalTimeConverter x:Key="LocalTime" />
 
         <!-- A breadcrumb: 12px #8F98A0, white under the pointer. -->
         <Style x:Key="Crumb" TargetType="Button" BasedOn="{StaticResource SteamLinkButton}">
@@ -351,9 +352,9 @@
                                     <TextBlock Grid.Row="0" Margin="0,0,24,4" Text="{loc:Str Item_FileSize}" Visibility="{Binding FileSize, Converter={StaticResource NullToCollapsed}}" />
                                     <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding FileSize}" Visibility="{Binding FileSize, Converter={StaticResource NullToCollapsed}}" />
                                     <TextBlock Grid.Row="1" Margin="0,0,24,4" Text="{loc:Str Item_Posted}" Visibility="{Binding PostedAt, Converter={StaticResource NullToCollapsed}}" />
-                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding PostedAt, StringFormat='{}{0:MMM d @ h:mmtt}'}" ToolTip="{Binding PostedAt}" Visibility="{Binding PostedAt, Converter={StaticResource NullToCollapsed}}" />
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding PostedText}" ToolTip="{Binding PostedToolTip}" Visibility="{Binding PostedAt, Converter={StaticResource NullToCollapsed}}" />
                                     <TextBlock Grid.Row="2" Margin="0,0,24,4" Text="{loc:Str Item_Updated}" Visibility="{Binding UpdatedAt, Converter={StaticResource NullToCollapsed}}" />
-                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding UpdatedAt, StringFormat='{}{0:MMM d @ h:mmtt}'}" ToolTip="{Binding UpdatedAt}" Visibility="{Binding UpdatedAt, Converter={StaticResource NullToCollapsed}}" />
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding UpdatedText}" ToolTip="{Binding UpdatedToolTip}" Visibility="{Binding UpdatedAt, Converter={StaticResource NullToCollapsed}}" />
                                 </Grid>
 
                                 <Button Margin="0,4,0,0" HorizontalAlignment="Left" Style="{StaticResource SteamLinkButton}" Foreground="#2F89BC" Command="{Binding ShowChangeNotesCommand}">
@@ -630,7 +631,7 @@
                                 <Border Margin="0,0,0,12" Padding="16" Background="#33000000">
                                     <DockPanel>
                                         <StackPanel DockPanel.Dock="Right" Margin="16,0,0,0" HorizontalAlignment="Right">
-                                            <TextBlock HorizontalAlignment="Right" FontSize="13" Foreground="{StaticResource SteamTextDim}" Text="{Binding PublishedAt, StringFormat={loc:Str Item_VersionReleasedFormat}}" Visibility="{Binding PublishedAt, Converter={StaticResource NullToCollapsed}}" />
+                                            <TextBlock HorizontalAlignment="Right" FontSize="13" Foreground="{StaticResource SteamTextDim}" Text="{Binding PublishedAt, Converter={StaticResource LocalTime}, StringFormat={loc:Str Item_VersionReleasedFormat}}" Visibility="{Binding PublishedAt, Converter={StaticResource NullToCollapsed}}" />
                                             <TextBlock Margin="0,4,0,0" HorizontalAlignment="Right" FontSize="13" Foreground="#A4D007" Text="{loc:Str Item_VersionFika}" Visibility="{Binding IsFikaCompatible, Converter={StaticResource TrueToVisible}}" />
                                             <TextBlock Margin="0,10,0,0" HorizontalAlignment="Right" FontSize="13" Foreground="#A4D007" Text="{loc:Str Item_VersionInstalled}" Visibility="{Binding IsInstalled, Converter={StaticResource TrueToVisible}}" />
                                             <Button
@@ -716,41 +717,67 @@
                         Text="{Binding VersionsProblem}"
                         Visibility="{Binding VersionsProblem, Converter={StaticResource NullToCollapsed}}" />
 
+                    <!-- Steam's Change Notes page: a bar saying how many are shown, then each
+                         note as an "Update: <date>" headline in light blue, a byline, and the
+                         notes in a dark box. Measured on sharedfiles/filedetails/changelog: 20px
+                         light #67C1F5 headline 30px apart, 14px #99A1A8 byline, 14px #CFD8E1 body
+                         on rgba(0,0,0,.2) with 16px padding; the bar rgba(0,0,0,.4), 12px. Where
+                         Steam names the author the byline has the version and its SPT range. -->
+                    <Border
+                        Height="32"
+                        Margin="0,0,0,4"
+                        Padding="10,0"
+                        Background="#66000000"
+                        Visibility="{Binding ChangeNotesShowing, Converter={StaticResource NullToCollapsed}}">
+                        <TextBlock VerticalAlignment="Center" FontSize="12" Foreground="#99A1A8" Text="{Binding ChangeNotesShowing}" />
+                    </Border>
+
                     <ItemsControl ItemsSource="{Binding ChangeNotes}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Margin="0,0,0,16" Padding="16" Background="#33000000">
-                                    <StackPanel>
-                                        <DockPanel>
-                                            <TextBlock
-                                                DockPanel.Dock="Right"
-                                                FontSize="13"
-                                                Foreground="{StaticResource SteamTextDim}"
-                                                Text="{Binding SptVersionConstraint, StringFormat={loc:Str ModUpdate_TargetsSptFormat}}"
-                                                Visibility="{Binding SptVersionConstraint, Converter={StaticResource NullToCollapsed}}" />
-                                            <TextBlock FontSize="15" Foreground="{StaticResource SteamWhite}">
-                                                <Run Text="{Binding Version, Mode=OneWay}" />
-                                                <Run FontSize="13" Foreground="{StaticResource SteamTextDim}" Text="{Binding PublishedAt, Mode=OneWay, StringFormat={loc:Str ModUpdate_PublishedFormat}}" />
-                                            </TextBlock>
-                                        </DockPanel>
+                                <StackPanel Margin="0,26,0,0">
+                                    <TextBlock
+                                        FontFamily="{StaticResource SteamFontLight}"
+                                        FontSize="20"
+                                        Foreground="#67C1F5"
+                                        TextWrapping="Wrap"
+                                        Text="{Binding Headline}"
+                                        Visibility="{Binding Headline, Converter={StaticResource NullToCollapsed}}" />
+                                    <TextBlock
+                                        FontSize="14"
+                                        Foreground="#99A1A8"
+                                        TextWrapping="Wrap"
+                                        Text="{Binding Byline}"
+                                        Visibility="{Binding Byline, Converter={StaticResource NullToCollapsed}}" />
+                                    <Border
+                                        Margin="0,6,0,14"
+                                        Padding="16"
+                                        Background="#33000000"
+                                        Visibility="{Binding Html, Converter={StaticResource NullToCollapsed}}">
                                         <RichTextBox
-                                            Margin="0,8,0,0"
                                             Padding="0"
                                             Background="Transparent"
                                             BorderThickness="0"
                                             FontSize="14"
+                                            Foreground="#CFD8E1"
                                             Focusable="False"
                                             HorizontalScrollBarVisibility="Disabled"
                                             IsDocumentEnabled="True"
                                             IsReadOnly="True"
                                             VerticalScrollBarVisibility="Disabled"
-                                            behaviors:HtmlText.Html="{Binding Html}"
-                                            Visibility="{Binding Html, Converter={StaticResource NullToCollapsed}}" />
-                                    </StackPanel>
-                                </Border>
+                                            behaviors:HtmlText.Html="{Binding Html}" />
+                                    </Border>
+                                </StackPanel>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
+                    <Button
+                        Margin="0,8,0,0"
+                        HorizontalAlignment="Center"
+                        Style="{StaticResource SteamButton}"
+                        Command="{Binding LoadMoreVersionsCommand}"
+                        Content="{loc:Str Item_ChangeNotesMore}"
+                        Visibility="{Binding CanLoadMoreVersions, Converter={StaticResource TrueToVisible}}" />
                 </StackPanel>
             </StackPanel>
         </ScrollViewer>

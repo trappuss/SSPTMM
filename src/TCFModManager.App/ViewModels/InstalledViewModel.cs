@@ -364,10 +364,26 @@ public partial class InstalledViewModel : LocalizedViewModel
         _rescanAfterInstall.Tick += async (_, _) =>
         {
             _rescanAfterInstall.Stop();
-            if (!IsBusy && ScanCommand.CanExecute(null)) await ScanCommand.ExecuteAsync(null);
+
+            // Only the newest instance - the page's own - scans. An older one (the one the item
+            // page's Unsubscribe built before this page was first opened) would otherwise scan the
+            // disk again after every install for the rest of the session, for a list nobody sees.
+            if (!ReferenceEquals(Current, this)) return;
+
+            // A scan already running may have read the folder before this install landed: try
+            // again once it has finished, rather than dropping the install until the next one.
+            if (IsBusy)
+            {
+                _rescanAfterInstall.Start();
+                return;
+            }
+
+            if (ScanCommand.CanExecute(null)) await ScanCommand.ExecuteAsync(null);
         };
         AppServices.DownloadQueue.ItemInstalled += (_, _) =>
         {
+            if (!ReferenceEquals(Current, this)) return;
+
             _rescanAfterInstall.Stop();
             _rescanAfterInstall.Start();
         };

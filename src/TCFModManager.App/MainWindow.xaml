@@ -257,9 +257,6 @@
             Grid.RowSpan="2"
             Visibility="Collapsed" />
 
-        <!-- Full-size pictures and videos from an item page, over everything but the title bar. -->
-        <views:MediaViewerOverlay Grid.Row="1" Grid.RowSpan="4" />
-
         <!-- Loading overlay shown during the first mod catalog fetch. The scrim stays a
              literal rather than a theme brush on purpose: its job is to dim whatever is
              behind it, which a translucent black does correctly in either theme. -->
@@ -302,10 +299,14 @@
             </ui:Card>
         </Border>
 
-        <!-- Host presenter for content dialogs, topmost in the grid. -->
+        <!-- Host presenter for content dialogs, over everything but the picture viewer. -->
         <ContentPresenter
             x:Name="RootContentDialogPresenter"
             Grid.Row="0"
             Grid.RowSpan="5" />
+
+        <!-- Full-size pictures and videos, over everything but the title bar - the update dialog
+             too, since a picture in the changelog it shows opens here. -->
+        <views:MediaViewerOverlay Grid.Row="1" Grid.RowSpan="4" />
     </Grid>
 </ui:FluentWindow>

@@ -96,6 +96,14 @@
             <views:WorkshopBanner />
             <views:WorkshopSubNav />
 
+            <TextBlock
+                Margin="0,12,0,0"
+                FontSize="14"
+                Foreground="{StaticResource SteamText}"
+                TextWrapping="Wrap"
+                Text="{Binding Message}"
+                Visibility="{Binding Message, Converter={StaticResource NullToCollapsed}}" />
+
             <!-- The week's row. -->
             <Border Margin="0,36,0,0" Padding="16" Background="#66000000" CornerRadius="7">
                 <StackPanel>
@@ -330,8 +338,12 @@
                                                 Margin="8,10,14,0"
                                                 VerticalAlignment="Top"
                                                 Orientation="Horizontal"
-                                                ToolTip="{Binding Endorsements, StringFormat={loc:Str Browse_EndorsementsFormat}}"
                                                 Visibility="{Binding Endorsements, Converter={StaticResource NullToCollapsed}}">
+                                                <StackPanel.ToolTip>
+                                                    <ToolTip>
+                                                        <TextBlock Text="{Binding Endorsements, StringFormat={loc:Str Browse_EndorsementsFormat}}" />
+                                                    </ToolTip>
+                                                </StackPanel.ToolTip>
                                                 <ui:SymbolIcon FontSize="16" Filled="True" Foreground="{StaticResource SteamBlue}" Symbol="ThumbLike16" />
                                                 <TextBlock Margin="3,0,0,0" FontSize="13" Foreground="{StaticResource SteamBlue}" Text="{Binding Endorsements, StringFormat=N0}" />
                                             </StackPanel>

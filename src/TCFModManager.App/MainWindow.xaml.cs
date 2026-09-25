@@ -52,7 +52,16 @@ public partial class MainWindow : FluentWindow
         AppServices.ModUpdateOverlay.ShowAsync = async mod =>
         {
             var dialog = new ModUpdateContentDialog(RootContentDialogPresenter, mod);
-            await dialog.ShowAsync();
+            AppServices.ModUpdateOverlay.IsOpen = true;
+            try
+            {
+                await dialog.ShowAsync();
+            }
+            finally
+            {
+                AppServices.ModUpdateOverlay.IsOpen = false;
+            }
+
             return dialog.ViewModel.MadeChanges;
         };
     }

@@ -22,8 +22,17 @@ public static class ThumbnailLoader
     // Decode width when an Image does not set DecodeWidth - the small list thumbnails.
     private const int DefaultDecodeWidth = 128;
 
-    // In-memory cache of decoded thumbnails, keyed by decode width and URL. Only touched from the UI thread.
-    private static readonly Dictionary<string, BitmapSource> Cache = new();
+    // In-memory cache of decoded thumbnails, keyed by decode width and URL, least recently used
+    // first out once it holds more than CacheBudget bytes of pixels. Only touched from the UI thread.
+    //
+    // It had no bound, and Browse's infinite list can reach every mod in the catalog: a 245px card
+    // is about a quarter of a megabyte decoded (more on a scaled screen), so a long scroll kept
+    // hundreds of megabytes for the rest of the session. The budget is several screens of cards
+    // at any scale, so what is near the view is always a hit. HUNCH: the figure is a judgement,
+    // not measured against real use.
+    private const long CacheBudget = 160L * 1024 * 1024;
+
+    private static readonly PictureCache Cache = new(CacheBudget);
 
     //
     // The width the image is shown at, in device-independent pixels. Decoding at the shown size
@@ -131,7 +140,7 @@ public static class ThumbnailLoader
 
             AppLog.Debug("Thumbnails", $"ThumbnailLoader: loaded {bytes.Length} bytes after {sw.ElapsedMilliseconds}ms total for {url}");
 
-            Cache[key] = bitmap;
+            Cache.Add(key, bitmap);
             if (GetSource(image) as string == url) image.Source = bitmap;
         }
         finally
@@ -165,6 +174,54 @@ public static class ThumbnailLoader
         catch (Exception ex) when (ex is NotSupportedException or ArgumentException or IOException or OverflowException or FileFormatException or InvalidOperationException or System.Runtime.InteropServices.COMException)
         {
             return null;
+        }
+    }
+
+    // A byte-budgeted least-recently-used map. What an Image is showing stays alive through that
+    // Image whatever happens here; eviction only means the next card to ask decodes it again.
+    private sealed class PictureCache(long budget)
+    {
+        private readonly Dictionary<string, LinkedListNode<(string Key, BitmapSource Bitmap, long Bytes)>> _index = new();
+
+        // Most recently used at the front.
+        private readonly LinkedList<(string Key, BitmapSource Bitmap, long Bytes)> _order = new();
+
+        private long _bytes;
+
+        public bool TryGetValue(string key, out BitmapSource bitmap)
+        {
+            if (_index.TryGetValue(key, out var node))
+            {
+                _order.Remove(node);
+                _order.AddFirst(node);
+                bitmap = node.Value.Bitmap;
+                return true;
+            }
+
+            bitmap = null!;
+            return false;
+        }
+
+        public void Add(string key, BitmapSource bitmap)
+        {
+            if (_index.Remove(key, out var old))
+            {
+                _order.Remove(old);
+                _bytes -= old.Value.Bytes;
+            }
+
+            var bytes = (long)bitmap.PixelWidth * bitmap.PixelHeight * Math.Max(1, (bitmap.Format.BitsPerPixel + 7) / 8);
+            _index[key] = _order.AddFirst((key, bitmap, bytes));
+            _bytes += bytes;
+
+            // Always keeps the newest, even alone over budget.
+            while (_bytes > budget && _order.Count > 1)
+            {
+                var last = _order.Last!;
+                _order.RemoveLast();
+                _index.Remove(last.Value.Key);
+                _bytes -= last.Value.Bytes;
+            }
         }
     }
 }

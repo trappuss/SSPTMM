@@ -17,7 +17,9 @@ rem  exe, as the app always does - so it never touches the TCFModManager you alr
 rem  at your SPT folder once in Options, as with a fresh install.
 rem ---------------------------------------------------------------------------------------------
 
-cd /d "%~dp0"
+rem pushd rather than cd: it also works when this folder is on a network share (\\server\share),
+rem where cd cannot go and the relative paths below would otherwise point at C:\Windows.
+pushd "%~dp0" || exit /b 1
 set "ROOT=%~dp0"
 set "LOG=%ROOT%steam-ui-build.log"
 set "OUT=%ROOT%dist\steam-ui"
@@ -70,6 +72,7 @@ call :say "Done. The exe is dist\steam-ui\TCFModManager.exe"
 call :say "Its own log files are in dist\steam-ui\Data\logs\"
 echo.
 pause
+popd
 exit /b 0
 
 :fail_sdk
@@ -90,9 +93,16 @@ goto :end_fail
 :end_fail
 echo.
 pause
+popd
 exit /b 1
 
 :say
-echo(%~1
->> "%LOG%" echo(%~1
+rem The message is echoed through delayed expansion, so a path holding "&" or ")" - a folder
+rem named "Tom & Jerry" - prints as text instead of running as a command. It is taken into MSG
+rem before delayed expansion is on, so a "!" in it survives too.
+set "MSG=%~1"
+setlocal EnableDelayedExpansion
+echo(!MSG!
+>> "!LOG!" echo(!MSG!
+endlocal
 exit /b 0

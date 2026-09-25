@@ -31,6 +31,7 @@
     Loaded="BrowsePage_Loaded">
     <Page.Resources>
         <converters:NullToVisibilityConverter x:Key="NullToCollapsed" />
+        <converters:LocalTimeConverter x:Key="LocalTime" />
         <converters:UpdateAvailableToVisibilityConverter x:Key="TrueToVisible" />
         <converters:FalseToVisibilityConverter x:Key="FalseToVisible" />
         <converters:CountToVisibilityConverter x:Key="HasCount" />
@@ -381,12 +382,12 @@
                                                     Margin="0,5,0,0"
                                                     FontSize="13"
                                                     Foreground="#949CA4"
-                                                    Text="{Binding PostedAt, StringFormat={loc:Str Workshop_PostedFormat}}"
+                                                    Text="{Binding PostedAt, Converter={StaticResource LocalTime}, StringFormat={loc:Str Workshop_PostedFormat}}"
                                                     Visibility="{Binding PostedAt, Converter={StaticResource NullToCollapsed}}" />
                                                 <TextBlock
                                                     FontSize="13"
                                                     Foreground="#949CA4"
-                                                    Text="{Binding UpdatedAt, StringFormat={loc:Str Workshop_UpdatedFormat}}"
+                                                    Text="{Binding UpdatedAt, Converter={StaticResource LocalTime}, StringFormat={loc:Str Workshop_UpdatedFormat}}"
                                                     Visibility="{Binding UpdatedAt, Converter={StaticResource NullToCollapsed}}" />
                                                 <!-- Which SPT the shown release runs on, coloured the way
                                                      the card used to colour it. -->
@@ -426,6 +427,17 @@
                                         </ToolTip>
                                     </Grid.ToolTip>
 
+                                    <!-- Starts this card's dependency lookup as soon as the card is
+                                         drawn, as upstream's badge on the card did. The badge in the
+                                         popup above cannot: a ToolTip's content gets no DataContext
+                                         until it opens, and the "Has dependencies" filter only knows
+                                         the mods that have been looked up. Nothing to see - zero size. -->
+                                    <FrameworkElement
+                                        Width="0"
+                                        Height="0"
+                                        IsHitTestVisible="False"
+                                        behaviors:DependencyBadgeLoader.Mod="{Binding Mod}" />
+
                                     <!-- Two shadow layers, swapped by the hover trigger: a trigger
                                          cannot reach into an Effect by name. -->
                                     <Border x:Name="Shadow" Background="#1B1D21">
@@ -446,7 +458,7 @@
                                                 Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
                                                 Background="{StaticResource SteamPreviewBackground}"
                                                 ClipToBounds="True">
-                                                <Image Stretch="UniformToFill" behaviors:ThumbnailLoader.DecodeWidth="245" behaviors:ThumbnailLoader.Source="{Binding Thumbnail}" />
+                                                <Image Stretch="UniformToFill" behaviors:ThumbnailLoader.DecodeWidth="245" behaviors:ThumbnailLoader.Source="{Binding ShownThumbnail}" />
 
                                                 <!-- Installed / update / disabled, and the pin, over the
                                                      preview's corner. Not Steam's - Steam's page knows
@@ -484,20 +496,33 @@
                                                         <StackPanel
                                                             Margin="0,0,10,0"
                                                             Orientation="Horizontal"
-                                                            ToolTip="{Binding Endorsements, StringFormat={loc:Str Browse_EndorsementsFormat}}"
                                                             Visibility="{Binding Endorsements, Converter={StaticResource NullToCollapsed}}">
+                                                            <StackPanel.ToolTip>
+                                                                <ToolTip>
+                                                                    <TextBlock Text="{Binding Endorsements, StringFormat={loc:Str Browse_EndorsementsFormat}}" />
+                                                                </ToolTip>
+                                                            </StackPanel.ToolTip>
                                                             <ui:SymbolIcon FontSize="15" Filled="True" Foreground="{StaticResource SteamBlue}" Symbol="ThumbLike16" />
                                                             <TextBlock Margin="3,0,0,0" FontSize="12" Foreground="{StaticResource SteamBlue}" Text="{Binding Endorsements, StringFormat=N0}" />
                                                         </StackPanel>
                                                         <StackPanel
                                                             Margin="0,0,10,0"
                                                             Orientation="Horizontal"
-                                                            ToolTip="{Binding Favourites, StringFormat={loc:Str Workshop_FavouritesFormat}}"
                                                             Visibility="{Binding Favourites, Converter={StaticResource NullToCollapsed}}">
+                                                            <StackPanel.ToolTip>
+                                                                <ToolTip>
+                                                                    <TextBlock Text="{Binding Favourites, StringFormat={loc:Str Workshop_FavouritesFormat}}" />
+                                                                </ToolTip>
+                                                            </StackPanel.ToolTip>
                                                             <ui:SymbolIcon FontSize="15" Filled="True" Foreground="{StaticResource SteamBlue}" Symbol="Star16" />
                                                             <TextBlock Margin="3,0,0,0" FontSize="12" Foreground="{StaticResource SteamBlue}" Text="{Binding Favourites, StringFormat=N0}" />
                                                         </StackPanel>
-                                                        <StackPanel Orientation="Horizontal" ToolTip="{Binding Downloads, StringFormat={loc:Str Common_DownloadsFormat}}">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <StackPanel.ToolTip>
+                                                                <ToolTip>
+                                                                    <TextBlock Text="{Binding Downloads, StringFormat={loc:Str Common_DownloadsFormat}}" />
+                                                                </ToolTip>
+                                                            </StackPanel.ToolTip>
                                                             <ui:SymbolIcon FontSize="15" Foreground="{StaticResource SteamBlue}" Symbol="ArrowDownload16" />
                                                             <TextBlock Margin="3,0,0,0" FontSize="12" Foreground="{StaticResource SteamBlue}" Text="{Binding Downloads, StringFormat=N0}" />
                                                         </StackPanel>

@@ -1396,4 +1396,12 @@ internal static class Strings
     internal static string Viewer_CounterFormat => LocalizationService.Get("Viewer_CounterFormat");
     internal static string Installed_UpdateAll(int count, params object?[] values) =>
         LocalizationService.Plural("Installed_UpdateAll", count, values);
+    internal static string Browse_SelfModFormat => LocalizationService.Get("Browse_SelfModFormat");
+    internal static string Item_DateThisYearFormat => LocalizationService.Get("Item_DateThisYearFormat");
+    internal static string Item_DateFormat => LocalizationService.Get("Item_DateFormat");
+    internal static string Item_ChangeNoteUpdateFormat => LocalizationService.Get("Item_ChangeNoteUpdateFormat");
+    internal static string Item_ChangeNoteVersionFormat => LocalizationService.Get("Item_ChangeNoteVersionFormat");
+    internal static string Item_ChangeNoteSptFormat => LocalizationService.Get("Item_ChangeNoteSptFormat");
+    internal static string Item_ChangeNotesShowingFormat => LocalizationService.Get("Item_ChangeNotesShowingFormat");
+    internal static string Item_ChangeNotesMore => LocalizationService.Get("Item_ChangeNotesMore");
 }

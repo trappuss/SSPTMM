@@ -26,12 +26,21 @@ public partial class ModPageWindow : FluentWindow
         InitializeComponent();
 
         Browser.DefaultBackgroundColor = System.Drawing.Color.FromArgb(0x1B, 0x28, 0x38);
+
+        // Until the web view has started there is no page to step from: the steps appear with
+        // the first one (ShowPage), and the way out is Close.
+        PreviousButton.Visibility = NextButton.Visibility = Visibility.Collapsed;
+        DoneButton.Content = Strings.ModPage_Close;
+
         Loaded += async (_, _) => await StartAsync();
+        Closed += (_, _) => _closed = true;
     }
 
     /// <summary>Shows <paramref name="links"/> (those with a page) over <paramref name="owner"/>
     /// until closed. False when the app has no web view to show them with, in which case nothing
-    /// was shown and the caller opens the browser instead.</summary>
+    /// was shown and the caller opens the browser instead. True once the window has been shown,
+    /// even if it was closed before a page appeared: a page not shown stays unread for the gate,
+    /// and opening them all in the browser as well would be a second answer to one click.</summary>
     public static bool Show(Window? owner, IReadOnlyList<ModPageLink> links)
     {
         var withPages = links.Where(l => l.HasUrl).ToList();
@@ -39,25 +48,27 @@ public partial class ModPageWindow : FluentWindow
 
         var window = new ModPageWindow(withPages, 0) { Owner = owner };
         window.ShowDialog();
-        return window._started;
+        return true;
     }
 
-    private bool _started;
+    private bool _closed;
 
     private async Task StartAsync()
     {
-        if (!await WebViews.InitializeAsync(Browser))
+        var started = await WebViews.InitializeAsync(Browser);
+
+        // Closed while the web view was starting: nothing more to show, and nowhere to show it.
+        if (_closed) return;
+
+        if (!started)
         {
             // The runtime was there but would not start: hand the pages to the browser instead.
             AppLog.Warn("ModPages", "web view would not start; opening the page(s) in the browser");
             foreach (var link in _links) MarkupActions.OpenInBrowser(link.Url!);
             foreach (var link in _links) link.IsOpened = true;
-            _started = true;
             Close();
             return;
         }
-
-        _started = true;
 
         var core = Browser.CoreWebView2;
         core.NewWindowRequested += OnNewWindowRequested;
@@ -84,7 +95,7 @@ public partial class ModPageWindow : FluentWindow
             ? Strings.ModPage_Close
             : Strings.ModPage_Done;
 
-        Browser.CoreWebView2.Navigate(link.Url!);
+        Browser.CoreWebView2?.Navigate(link.Url!);
     }
 
     // The site's own pages (a linked mod, the sign-in page) stay here; anywhere else goes to the browser.

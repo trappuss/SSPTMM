@@ -188,11 +188,12 @@ public partial class WorkshopItemView : UserControl
             _comments = new WebView2 { DefaultBackgroundColor = System.Drawing.Color.FromArgb(0x1B, 0x28, 0x38) };
             CommentsHost.Child = _comments;
 
-            if (!await WebViews.InitializeAsync(_comments))
+            var started = await WebViews.InitializeAsync(_comments);
+            if (!started)
             {
                 CommentsHost.Child = null;
                 _comments = null;
-                ShowCommentsFallback();
+                if (StillWants(url)) ShowCommentsFallback();
                 return;
             }
 
@@ -223,6 +224,10 @@ public partial class WorkshopItemView : UserControl
             };
         }
 
+        // The first start of the web view takes a moment, in which another item may have been
+        // opened or another tab chosen: these comments are then no longer wanted.
+        if (!StillWants(url)) return;
+
         CommentsFallback.Visibility = Visibility.Collapsed;
         CommentsHost.Visibility = Visibility.Visible;
         SizeComments();
@@ -230,6 +235,10 @@ public partial class WorkshopItemView : UserControl
         if (_comments.CoreWebView2 is { } web && !string.Equals(web.Source, url, StringComparison.OrdinalIgnoreCase))
             web.Navigate(url);
     }
+
+    private bool StillWants(string url) =>
+        _viewModel is { IsCommentsShown: true } current
+        && string.Equals(current.CommentsUrl, url, StringComparison.OrdinalIgnoreCase);
 
     private void ShowCommentsFallback()
     {

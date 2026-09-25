@@ -20,7 +20,13 @@ public sealed class RequiredByIndex
 {
     private const int BatchSize = 100;
 
-    private Task<Dictionary<int, List<int>>>? _building;
+    // A build that could not ask about every mod (offline, rate limited) is asked again this long
+    // after it finished, rather than kept incomplete for the rest of the session.
+    private static readonly TimeSpan RetryIncompleteAfter = TimeSpan.FromMinutes(2);
+
+    private sealed record Built(Dictionary<int, List<int>> Dependents, bool Complete, DateTime FinishedAt);
+
+    private Task<Built>? _building;
     private string? _builtFor;
 
     /// <summary>The catalog mods whose shown version needs <paramref name="modId"/> directly, most
@@ -32,16 +38,19 @@ public sealed class RequiredByIndex
         var sptVersion = AppServices.SptEnvironment.InstalledVersion ?? (releases.Count > 0 ? releases[0].Label : null);
         if (string.IsNullOrWhiteSpace(sptVersion)) return [];
 
-        if (_building is null || _builtFor != sptVersion)
+        if (_building is null || _builtFor != sptVersion || IsStale(_building))
         {
             _builtFor = sptVersion;
             _building = BuildAsync(sptVersion);
         }
 
-        var dependents = await _building;
+        var dependents = (await _building).Dependents;
         if (!dependents.TryGetValue(modId, out var ids)) return [];
 
-        var byId = AppServices.ModCache.AllMods.ToDictionary(m => m.Id);
+        // Grouped rather than ToDictionary: a mod stored twice in the cached catalog must not throw.
+        var byId = AppServices.ModCache.AllMods
+            .GroupBy(m => m.Id)
+            .ToDictionary(g => g.Key, g => g.First());
         return ids
             .Select(id => byId.GetValueOrDefault(id))
             .OfType<Mod>()
@@ -49,9 +58,16 @@ public sealed class RequiredByIndex
             .ToList();
     }
 
-    private static async Task<Dictionary<int, List<int>>> BuildAsync(string sptVersion)
+    // Failed outright (the catalog would not load), or finished without every answer a while ago.
+    private static bool IsStale(Task<Built> building) =>
+        building.IsFaulted || building.IsCanceled
+        || (building.IsCompletedSuccessfully && !building.Result.Complete
+            && DateTime.UtcNow - building.Result.FinishedAt > RetryIncompleteAfter);
+
+    private static async Task<Built> BuildAsync(string sptVersion)
     {
         var dependents = new Dictionary<int, List<int>>();
+        var complete = true;
 
         await AppServices.ModCache.EnsureLoadedAsync();
 
@@ -75,6 +91,7 @@ public sealed class RequiredByIndex
             {
                 // A batch that fails leaves its mods out rather than failing the panel.
                 AppLog.Warn("RequiredBy", $"dependency batch {i / BatchSize + 1} failed: {ex.Message}");
+                complete = false;
                 continue;
             }
 
@@ -91,7 +108,7 @@ public sealed class RequiredByIndex
             }
         }
 
-        AppLog.Info("RequiredBy", $"indexed {pairs.Count} mods for SPT {sptVersion}: {dependents.Count} are required by something");
-        return dependents;
+        AppLog.Info("RequiredBy", $"indexed {pairs.Count} mods for SPT {sptVersion}: {dependents.Count} are required by something{(complete ? "" : " (incomplete; asked again later)")}");
+        return new Built(dependents, complete, DateTime.UtcNow);
     }
 }

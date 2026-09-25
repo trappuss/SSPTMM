@@ -26,6 +26,29 @@ public sealed partial class ModCardViewModel : LocalizedViewModel
     public void RefreshPin(IReadOnlySet<string> pins) =>
         IsPinned = PinKeys.Count > 0 && PinKeys.Any(pins.Contains);
 
+    //
+    // False while the card is far outside the view in Browse's list, so its picture is let go and
+    // a long infinite list holds only the pictures near the view - see BrowsePage.UpdateNearView.
+    // The picture comes back from ThumbnailLoader's cache (or the network) as the card nears again.
+    //
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShownThumbnail))]
+    private bool _isNearView = true;
+
+    public string? ShownThumbnail => IsNearView ? Thumbnail : null;
+
+    /// <summary>True when this card, built afresh for the same mod, would look no different from
+    /// <paramref name="other"/> - what Browse's redraw checks before replacing a card. Covers what can
+    /// change without the catalog changing: the install state, the pin and the addon count.</summary>
+    public bool ShowsSameAs(ModCardViewModel other) =>
+        ReferenceEquals(Mod, other.Mod)
+        && IsInstalled == other.IsInstalled
+        && IsDisabled == other.IsDisabled
+        && UpdateAvailable == other.UpdateAvailable
+        && AddonCount == other.AddonCount
+        && IsPinned == other.IsPinned
+        && PinKeys.SequenceEqual(other.PinKeys);
+
     public string? Name => Mod.Name;
     public string? Guid => Mod.Guid;
     public string? Teaser => Mod.Teaser;

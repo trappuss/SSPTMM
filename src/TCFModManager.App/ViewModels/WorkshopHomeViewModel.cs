@@ -53,6 +53,10 @@ public sealed partial class WorkshopHomeViewModel : LocalizedViewModel
     [ObservableProperty]
     private string _searchText = string.Empty;
 
+    /// <summary>Why a card did not open, or why the catalog did not load - under the navigation.</summary>
+    [ObservableProperty]
+    private string? _message;
+
     // The line under the tabs saying what the list is ranked by.
     public string TabDescription => SelectedTab switch
     {
@@ -72,9 +76,9 @@ public sealed partial class WorkshopHomeViewModel : LocalizedViewModel
 
     public WorkshopHomeViewModel()
     {
-        // A mod installed or removed elsewhere changes what these cards should say about it.
-        AppServices.DownloadQueue.ItemInstalled += (_, _) => Refresh();
-        InstalledViewModel.ModRemoved += (_, _) => Refresh();
+        // A mod installed or removed elsewhere changes what these cards should say about it - once
+        // Browse has rebuilt the index the cards are matched against.
+        AppServices.Browse.InstalledIndexChanged += (_, _) => Refresh();
     }
 
     private bool _loaded;
@@ -93,6 +97,9 @@ public sealed partial class WorkshopHomeViewModel : LocalizedViewModel
         {
             await AppServices.Browse.EnsureLoadedAsync();
             _loaded = AppServices.Browse.HasLoadedResults;
+
+            // The load reports its failures in Browse's status line, which is not on this page.
+            Message = _loaded ? null : AppServices.Browse.StatusMessage;
             Refresh();
         }
         finally
@@ -187,7 +194,10 @@ public sealed partial class WorkshopHomeViewModel : LocalizedViewModel
     [RelayCommand]
     private async Task OpenAsync(ModCardViewModel? card)
     {
-        if (card is not null) await AppServices.Browse.LoadDetailsAsync(card.Mod);
+        if (card is null) return;
+
+        // Browse's status line, where a failure also goes, is not on this page.
+        Message = await AppServices.Browse.LoadDetailsAsync(card.Mod);
     }
 
     private static void OpenBrowse(Action arrange)

@@ -24,17 +24,26 @@ public static class MarkupActions
     public static void OpenLink(string url)
     {
         var match = ModLink.Match(url);
-        if (match.Success && int.TryParse(match.Groups["id"].Value, out var id))
+
+        // Browse's catalog rather than the raw cache, so a link to this app's own listing goes to
+        // the browser instead of an item page with a Subscribe button - see BrowseViewModel.IsSelf.
+        // Not while the update dialog is open, either: the item page would open underneath it.
+        if (match.Success && int.TryParse(match.Groups["id"].Value, out var id)
+            && !AppServices.ModUpdateOverlay.IsOpen
+            && AppServices.Browse.FindInCatalog(id) is { } mod)
         {
-            var mod = AppServices.ModCache.AllMods.FirstOrDefault(m => m.Id == id);
-            if (mod is not null)
-            {
-                _ = AppServices.Browse.LoadDetailsAsync(mod);
-                return;
-            }
+            _ = OpenItemPageAsync(mod, url);
+            return;
         }
 
         OpenInBrowser(url);
+    }
+
+    // The item page, or the link in the browser when the page could not be loaded (offline, rate
+    // limited): a click inside a description has no status line of its own to explain a failure in.
+    private static async Task OpenItemPageAsync(Core.Models.Mod mod, string url)
+    {
+        if (await AppServices.Browse.LoadDetailsAsync(mod) is not null) OpenInBrowser(url);
     }
 
     public static void OpenInBrowser(string url)

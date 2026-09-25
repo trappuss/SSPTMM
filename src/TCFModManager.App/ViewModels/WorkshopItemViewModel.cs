@@ -43,7 +43,22 @@ public sealed record WorkshopChangeNote(
     DateTimeOffset? PublishedAt,
     string? SptVersionConstraint,
     string? Html,
-    bool IsShown);
+    bool IsShown)
+{
+    // Steam's "Update: Sep 24 @ 2:34AM" headline.
+    public string? Headline => PublishedAt is null
+        ? null
+        : LocalizationService.Text(Strings.Item_ChangeNoteUpdateFormat, SteamDates.Short(PublishedAt));
+
+    // Where Steam writes "by <author>": which version, and the SPT it declares.
+    public string? Byline => string.Join(
+        Strings.Common_FactSeparator,
+        new[]
+        {
+            Version is null ? null : LocalizationService.Text(Strings.Item_ChangeNoteVersionFormat, Version),
+            SptVersionConstraint is null ? null : LocalizationService.Text(Strings.Item_ChangeNoteSptFormat, SptVersionConstraint),
+        }.Where(part => part is not null));
+}
 
 //
 // The Workshop item page (steamcommunity.com/sharedfiles/filedetails) for one mod.
@@ -255,7 +270,7 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel
     [RelayCommand]
     private async Task OpenRelatedAsync(WorkshopRelatedItem? item)
     {
-        if (item is not null) await AppServices.Browse.LoadDetailsAsync(item.Mod);
+        if (item is not null) await OpenAsync(item.Mod);
     }
 
     // A name under CREATED BY: everything by them, in Browse.
@@ -279,6 +294,15 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel
     public DateTimeOffset? PostedAt => Mod.PublishedAt ?? Mod.CreatedAt;
 
     public DateTimeOffset? UpdatedAt => Mod.UpdatedAt;
+
+    // As Steam writes them, in this PC's time zone; the tooltip has the full date.
+    public string? PostedText => SteamDates.Short(PostedAt);
+
+    public string? PostedToolTip => SteamDates.Full(PostedAt);
+
+    public string? UpdatedText => SteamDates.Short(UpdatedAt);
+
+    public string? UpdatedToolTip => SteamDates.Full(UpdatedAt);
 
     public bool HasModPage => !string.IsNullOrWhiteSpace(Mod.DetailUrl);
 
@@ -366,7 +390,13 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel
 
     public bool HasRequiredItems => RequiredItems.Count > 0;
 
-    public string ChangeNotesLink => Text(Strings.Item_ChangeNotesFormat, ChangeNotes.Count);
+    // Every version the API lists, not the twenty loaded so far.
+    public string ChangeNotesLink => Text(Strings.Item_ChangeNotesFormat, Math.Max(TotalVersions, ChangeNotes.Count));
+
+    // The bar over the notes: "Showing 1-20 of 30 entries".
+    public string? ChangeNotesShowing => ChangeNotes.Count == 0
+        ? null
+        : Text(Strings.Item_ChangeNotesShowingFormat, 1, ChangeNotes.Count, Math.Max(TotalVersions, ChangeNotes.Count));
 
     [ObservableProperty]
     private string? _fileSize;
@@ -383,6 +413,8 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanLoadMoreVersions))]
+    [NotifyPropertyChangedFor(nameof(ChangeNotesLink))]
+    [NotifyPropertyChangedFor(nameof(ChangeNotesShowing))]
     private int _totalVersions;
 
     private int _versionsPage;
@@ -471,16 +503,19 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel
             OnPropertyChanged(nameof(CanLoadMoreVersions));
 
             // The version Subscribe would install - the one the card advertises.
+            // Until it is found - it can be on a later page - the newest stands in for the header's
+            // size and required items, but only the real one is marked as shown.
             var shownVersion = Card.DisplayReleaseVersion;
-            var shown = result.Data.FirstOrDefault(v => string.Equals(v.Version, shownVersion, StringComparison.OrdinalIgnoreCase))
-                ?? (first ? result.Data.FirstOrDefault() : null);
+            var exact = result.Data.FirstOrDefault(v => string.Equals(v.Version, shownVersion, StringComparison.OrdinalIgnoreCase));
+            var shown = exact ?? (first ? result.Data.FirstOrDefault() : null);
 
             foreach (var v in result.Data)
             {
-                ChangeNotes.Add(new WorkshopChangeNote(v.Version, v.PublishedAt, v.SptVersionConstraint, v.Description, ReferenceEquals(v, shown)));
+                ChangeNotes.Add(new WorkshopChangeNote(v.Version, v.PublishedAt, v.SptVersionConstraint, v.Description, ReferenceEquals(v, exact)));
             }
 
             OnPropertyChanged(nameof(ChangeNotesLink));
+            OnPropertyChanged(nameof(ChangeNotesShowing));
 
             if (shown is null) return;
 
@@ -539,6 +574,11 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel
     [RelayCommand]
     private async Task SubscribeAsync()
     {
+        // The button shows the download's progress while it runs; a click on it then must not
+        // queue the mod a second time. (Refused here rather than by disabling the button, which
+        // would dim the progress it is showing.)
+        if (IsInQueue) return;
+
         _subscribing = true;
         try
         {
@@ -620,8 +660,14 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel
     {
         if (item is null) return;
 
-        var mod = AppServices.ModCache.AllMods.FirstOrDefault(m => m.Id == item.ModId);
-        if (mod is not null) await AppServices.Browse.LoadDetailsAsync(mod);
+        if (AppServices.Browse.FindInCatalog(item.ModId) is { } mod) await OpenAsync(mod);
+    }
+
+    // Another item page in this one's place. A failure is said here: Browse's status line, where
+    // it also goes, is not on screen.
+    private async Task OpenAsync(Mod mod)
+    {
+        if (await AppServices.Browse.LoadDetailsAsync(mod) is { } failed) Message = failed;
     }
 
     // The last breadcrumb: everything by this author, in Browse.

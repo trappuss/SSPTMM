@@ -62,10 +62,16 @@ public partial class MediaViewerOverlay : UserControl
             VideoHost.Children.Add(_player);
         }
 
-        if (_player is not null && await WebViews.InitializeAsync(_player) && media.EmbedUrl is { } embed)
+        var ready = _player is not null && await WebViews.InitializeAsync(_player);
+
+        // Starting the web view the first time takes a moment, in which the viewer may have been
+        // closed or moved on - and then this video must not start playing behind it.
+        if (!ViewModel.IsOpen || !ReferenceEquals(ViewModel.Current, media)) return;
+
+        if (ready && media.EmbedUrl is { } embed)
         {
             VideoFallback.Visibility = Visibility.Collapsed;
-            _player.Visibility = Visibility.Visible;
+            _player!.Visibility = Visibility.Visible;
             _player.CoreWebView2.Navigate(embed);
             return;
         }

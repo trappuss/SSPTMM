@@ -102,7 +102,7 @@ public partial class BrowseViewModel : LocalizedViewModel
         // "N addons" badges are redrawn once it does rather than waiting for a page change.
         AppServices.Addons.AddonsChanged += (_, _) =>
         {
-            if (HasLoadedResults) GoToPage(CurrentPage, isNavigation: false);
+            if (HasLoadedResults) Redraw();
         };
     }
 
@@ -608,20 +608,87 @@ public partial class BrowseViewModel : LocalizedViewModel
 
     //
     // After the installed index changes. With Hide installed ticked the result set itself has
-    // changed - a mod just installed has to leave it - so the filter runs again, on the same page
-    // where there still is one.
+    // changed - a mod just installed has to leave it - so the filter runs again first. Either way
+    // the cards are redrawn where they are: the view stays put, however far down the list it is.
     //
     private void ShowInstalledChange()
     {
-        if (!IsOn(ModAttributeFilter.HideInstalled) || !HasLoadedResults)
+        if (HasLoadedResults)
         {
-            GoToPage(CurrentPage, isNavigation: false);
-            return;
+            if (IsOn(ModAttributeFilter.HideInstalled)) Filter();
+            Redraw();
         }
 
-        var page = CurrentPage;
-        ApplyFilter();
-        if (page > 1) GoToPage(page, isNavigation: false);
+        InstalledIndexChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    /// <summary>Raised once the installed index has been rebuilt after an install or a removal -
+    /// the moment <see cref="BuildCard"/> starts describing the new state. The Workshop home page
+    /// redraws on it; redrawing on the install event itself raced the rebuild and showed the old
+    /// state.</summary>
+    public event EventHandler? InstalledIndexChanged;
+
+    //
+    // Redraws the cards on screen without starting the list again: after an install or removal, or
+    // when the addon counts arrive. Only a card that now reads differently is replaced, and a card
+    // that has left the results is taken out, so a list thousands of cards long does not rebuild
+    // every one of them per install - which is what clearing it and adding them all back did.
+    //
+    private void Redraw()
+    {
+        var sw = Stopwatch.StartNew();
+
+        List<Mod> target;
+        if (IsInfinite)
+        {
+            // As many as were loaded, so a card leaving the results is followed by the next one.
+            target = _filtered.Take(Math.Max(Results.Count, PageStep)).ToList();
+        }
+        else
+        {
+            CurrentPage = Math.Clamp(CurrentPage, 1, TotalPages);
+            target = _filtered.Skip((CurrentPage - 1) * PageStep).Take(PageStep).ToList();
+        }
+
+        var pins = AppServices.ModLists.GetPins();
+        for (var i = 0; i < target.Count; i++)
+        {
+            var mod = target[i];
+            var fresh = MakeCard(mod, pins);
+
+            if (i < Results.Count && Results[i].Mod.Id == mod.Id)
+            {
+                if (fresh.ShowsSameAs(Results[i])) continue;
+
+                fresh.IsNearView = Results[i].IsNearView;
+                Results[i] = fresh;
+            }
+            else
+            {
+                // A card whose mod has left the results is dropped; anything else missing here
+                // is new to the list and goes in at its place.
+                if (i < Results.Count && !target.Skip(i).Any(m => m.Id == Results[i].Mod.Id))
+                {
+                    Results.RemoveAt(i);
+                    i--;
+                    continue;
+                }
+
+                Results.Insert(i, fresh);
+            }
+        }
+
+        while (Results.Count > target.Count) Results.RemoveAt(Results.Count - 1);
+
+        if (IsInfinite) CurrentPage = Math.Max(1, (int)Math.Ceiling(Results.Count / (double)PageStep));
+
+        PageLinks.Clear();
+        foreach (var link in PageLink.For(CurrentPage, TotalPages)) PageLinks.Add(link);
+
+        HasMore = IsInfinite && Results.Count < _filtered.Count;
+        PageChanged?.Invoke(this, EventArgs.Empty);
+
+        AppLog.Debug("Browse", $"Redraw: {Results.Count} cards checked in {sw.ElapsedMilliseconds}ms");
     }
 
     // Re-reads the pins for the cards on screen, for a pin made on another page since.
@@ -642,7 +709,15 @@ public partial class BrowseViewModel : LocalizedViewModel
         return null;
     }
 
+    // A new result set, from the top.
     private void ApplyFilter()
+    {
+        Filter();
+        GoToPage(1, isNavigation: true);
+    }
+
+    // Works out the result set and says how many there are; what is on screen is left to the caller.
+    private void Filter()
     {
         var sw = Stopwatch.StartNew();
         var query = SearchText.Trim();
@@ -667,7 +742,7 @@ public partial class BrowseViewModel : LocalizedViewModel
             // business appearing among the mods this app installs into an SPT folder: it isn't a
             // mod, and installing it from here would drop a second copy of the manager into
             // BepInEx\plugins where SPT would try to load it.
-            .Where(m => !string.Equals(m.Id.ToString(), SelfMod.ModId, StringComparison.Ordinal))
+            .Where(m => !IsSelf(m))
             .Where(m => authorQuery is not null
                 ? MatchesAuthor(m, authorQuery)
                 : query.Length == 0 || Matches(m.Name, query) || Matches(m.Teaser, query) || Matches(m.Slug, query))
@@ -711,9 +786,7 @@ public partial class BrowseViewModel : LocalizedViewModel
         };
         AppLog.Debug("Browse", $"ApplyFilter: filter/sort took {sw.ElapsedMilliseconds}ms over {AppServices.ModCache.AllMods.Count} cached mods, {_filtered.Count} matched");
 
-        // A fresh search always jumps back to page 1 of the new result set.
         TotalPages = Math.Max(1, (int)Math.Ceiling(_filtered.Count / (double)PageStep));
-        GoToPage(1, isNavigation: true);
 
         // Steam's "N entries matching filters" line under the title. A message from before the
         // filter ran (queued, saved, failed) is left where it is below it.
@@ -969,6 +1042,14 @@ public partial class BrowseViewModel : LocalizedViewModel
 
         var mod = card.Mod;
 
+        // Every install path comes through here, so this is where the app's own listing is refused,
+        // whatever led to it - see IsSelf.
+        if (IsSelf(mod))
+        {
+            StatusMessage = Text(Strings.Browse_SelfModFormat, mod.Name);
+            return;
+        }
+
         // Same rule as the Installed page: a disabled mod's install record points at folders it no
         // longer occupies, so reinstalling over it would place files where nothing loads them and
         // leave the disabled copy behind as a duplicate.
@@ -1015,6 +1096,14 @@ public partial class BrowseViewModel : LocalizedViewModel
         try
         {
             missing = await AppServices.DownloadQueue.FindMissingDependenciesAsync(target, chosenVersion, installPath);
+        }
+        catch (Exception ex)
+        {
+            // Reading the install (the scan, the install records) can fail on a locked or
+            // unreadable file. That is no reason not to queue: the queue checks the dependencies
+            // itself, inside its own error handling, when it is told nothing was found here.
+            AppLog.Warn("Browse", $"dependency pre-check for {mod.Name} failed, leaving it to the queue: {ex.Message}");
+            missing = null;
         }
         finally
         {
@@ -1073,8 +1162,7 @@ public partial class BrowseViewModel : LocalizedViewModel
     public InstalledModCardViewModel? InstalledMatchFor(Mod mod) => FindInstalledMatch(mod);
 
     /// <summary>Every mod this page could show, before any filter - what the home page ranks.</summary>
-    public IEnumerable<Mod> Catalog => AppServices.ModCache.AllMods
-        .Where(m => !string.Equals(m.Id.ToString(), SelfMod.ModId, StringComparison.Ordinal));
+    public IEnumerable<Mod> Catalog => AppServices.ModCache.AllMods.Where(m => !IsSelf(m));
 
     /// <summary>Opens the results searched for <paramref name="text"/> - the home page's search box.</summary>
     public void ShowSearch(string text) => SearchText = text.Trim();
@@ -1095,31 +1183,55 @@ public partial class BrowseViewModel : LocalizedViewModel
         if (option is not null) SelectedSortOption = option;
     }
 
-    public async Task LoadDetailsAsync(Mod mod)
+    /// <summary>Opens a mod's item page. Returns null once it is showing, or what went wrong - which
+    /// is also put in this page's status line, and which a caller on another page (Home, the item
+    /// page itself) shows in its own, since this page's line is not on screen there.</summary>
+    public async Task<string?> LoadDetailsAsync(Mod mod)
     {
+        // The app's own listing never gets an item page, from any link: its Subscribe would install
+        // the manager into the SPT folder - see the note in ApplyFilter. It opens on sp-mod.com.
+        if (IsSelf(mod))
+        {
+            if (!string.IsNullOrWhiteSpace(mod.DetailUrl)) MarkupActions.OpenInBrowser(mod.DetailUrl);
+            return null;
+        }
+
+        string message;
         try
         {
             var details = await _spModApi.GetModAsync(mod.Id.ToString(), include: "versions,license,category");
 
             // The installed version is what this mod's addons check their own constraints against.
             AppServices.ModDetailsOverlay.Show(details, FindInstalledMatch(mod)?.InstalledVersion);
+            return null;
         }
         catch (SpModApiException ex)
         {
-            StatusMessage = Text(Strings.Browse_DetailsFailedFormat, mod.Name, ex.Message);
+            message = Text(Strings.Browse_DetailsFailedFormat, mod.Name, ex.Message);
         }
         catch (HttpRequestException ex)
         {
-            StatusMessage = Text(Strings.Browse_DetailsNetworkFormat, mod.Name, ex.Message);
+            message = Text(Strings.Browse_DetailsNetworkFormat, mod.Name, ex.Message);
         }
         catch (OperationCanceledException)
         {
-            StatusMessage = Text(Strings.Browse_DetailsTimedOutFormat, mod.Name);
+            message = Text(Strings.Browse_DetailsTimedOutFormat, mod.Name);
         }
         catch (Exception ex)
         {
             // Last-resort catch-all so a failure here doesn't silently look like a no-op click.
-            StatusMessage = Text(Strings.Browse_DetailsUnexpectedFormat, mod.Name, ex.Message);
+            message = Text(Strings.Browse_DetailsUnexpectedFormat, mod.Name, ex.Message);
         }
+
+        StatusMessage = message;
+        return message;
     }
+
+    /// <summary>True for this app's own sp-mod.com listing.</summary>
+    public static bool IsSelf(Mod mod) =>
+        string.Equals(mod.Id.ToString(), SelfMod.ModId, StringComparison.Ordinal);
+
+    /// <summary>A catalog mod by id, leaving out this app's own listing - what a link or a required
+    /// item may open.</summary>
+    public Mod? FindInCatalog(int id) => Catalog.FirstOrDefault(m => m.Id == id);
 }

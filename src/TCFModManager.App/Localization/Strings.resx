@@ -5144,4 +5144,36 @@ This was written to:
     <value>Update all ({0})</value>
     <comment>Button beside the Subscribed items title: updates every installed mod that has an update. {0} is how many.</comment>
   </data>
+  <data name="Browse_SelfModFormat" xml:space="preserve">
+    <value>{0} is this app, not an SPT mod, so it is not installed into SPT - it updates itself from the App update page.</value>
+    <comment>Shown when something asks to install the app's own sp-mod.com listing. {0} is the listing's name.</comment>
+  </data>
+  <data name="Item_DateThisYearFormat" xml:space="preserve">
+    <value>{0:MMM d @ h:mmtt}</value>
+    <comment>A date and time within the current year, as Steam writes it on an item page: "Sep 24 @ 2:34AM". {0} is the date; the pattern after the colon is .NET date formatting and may be changed to suit the language.</comment>
+  </data>
+  <data name="Item_DateFormat" xml:space="preserve">
+    <value>{0:MMM d, yyyy @ h:mmtt}</value>
+    <comment>A date and time before the current year, as Steam writes it: "Mar 3, 2021 @ 5:12PM". {0} is the date; the pattern after the colon is .NET date formatting and may be changed to suit the language.</comment>
+  </data>
+  <data name="Item_ChangeNoteUpdateFormat" xml:space="preserve">
+    <value>Update: {0}</value>
+    <comment>Headline of one change note, as Steam writes it. {0} is when the version was published, already written out ("Sep 24 @ 2:34AM").</comment>
+  </data>
+  <data name="Item_ChangeNoteVersionFormat" xml:space="preserve">
+    <value>Version {0}</value>
+    <comment>Under a change note's headline, where Steam names who posted it. {0} is the version number.</comment>
+  </data>
+  <data name="Item_ChangeNoteSptFormat" xml:space="preserve">
+    <value>Works with SPT {0}</value>
+    <comment>After the version under a change note's headline, in Steam's "Works with game versions" wording. {0} is the SPT version or range the version declares, e.g. "~4.1.0".</comment>
+  </data>
+  <data name="Item_ChangeNotesShowingFormat" xml:space="preserve">
+    <value>Showing {0}-{1} of {2} entries</value>
+    <comment>The bar over the change notes, in Steam's words. {0} and {1} are the first and last shown, {2} how many there are.</comment>
+  </data>
+  <data name="Item_ChangeNotesMore" xml:space="preserve">
+    <value>Show older updates</value>
+    <comment>Button under the change notes when older versions are not loaded yet.</comment>
+  </data>
 </root>
