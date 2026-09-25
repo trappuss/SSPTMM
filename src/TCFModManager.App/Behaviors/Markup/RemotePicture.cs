@@ -99,21 +99,40 @@ public sealed class RemotePicture : Image
             return;
         }
 
-        byte[] bytes;
-        await Gate.WaitAsync();
-        try
+        // A download that fails for a reason that may pass (the network, a timeout, a busy server)
+        // is tried twice more, 2 and then 6 seconds later; the slot is given up while it waits.
+        // A picture no longer wanted - the page moved on - is not fetched at all.
+        byte[]? bytes = null;
+        for (var attempt = 0; bytes is null; attempt++)
         {
-            bytes = await Http.GetByteArrayAsync(url);
-        }
-        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or UriFormatException or InvalidOperationException)
-        {
-            AppLog.Debug("Markup", $"picture {url} failed: {ex.Message}");
-            if (Url == url) Failed?.Invoke(this, EventArgs.Empty);
-            return;
-        }
-        finally
-        {
-            Gate.Release();
+            await Gate.WaitAsync();
+            try
+            {
+                if (Url != url) return;
+                bytes = await Http.GetByteArrayAsync(url);
+            }
+            catch (HttpRequestException ex) when (ex.StatusCode is { } status && (int)status is >= 400 and < 500 && (int)status is not (408 or 429))
+            {
+                AppLog.Debug("Markup", $"picture {url} refused ({(int)status})");
+                if (Url == url) Failed?.Invoke(this, EventArgs.Empty);
+                return;
+            }
+            catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or IOException && attempt < 2)
+            {
+                AppLog.Debug("Markup", $"picture {url} failed, trying again: {ex.Message}");
+            }
+            catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or IOException or UriFormatException or InvalidOperationException)
+            {
+                AppLog.Info("Markup", $"picture {url} did not load: {ex.Message}");
+                if (Url == url) Failed?.Invoke(this, EventArgs.Empty);
+                return;
+            }
+            finally
+            {
+                Gate.Release();
+            }
+
+            if (bytes is null) await Task.Delay(TimeSpan.FromSeconds(attempt == 0 ? 2 : 6));
         }
 
         if (Url != url) return;
