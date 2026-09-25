@@ -476,6 +476,39 @@ Measured and not changed:
   WebP - probed once at start and written to the log. The build machine cannot read WebP, so the
   smaller copies could not be seen working here; the full-picture path is what was tested.
 
+## Eighth round: required items, unsubscribing, Subscribed items (2026-09-25)
+
+**Fixed.**
+- *A mod's dependencies were not offered again after they were removed.* Install Looting Bots with
+  BigBrain, unsubscribe from both, subscribe to Looting Bots again: no Additional Required Items,
+  and BigBrain was skipped. The queue counted its finished downloads as still queued; only ones
+  still to run or running count now. Reproduced and checked with that mod pair.
+- *The item page's REQUIRED ITEMS ticks the ones installed* (Steam's subscribed tick, `#66C0F4`),
+  and updates as they are installed or removed.
+
+**Unsubscribing.**
+- *The question before one item is removed is Steam's modal* (it was a Windows message box), with
+  *Don't ask again*. Ticked and answered, it turns the question off; ticked and cancelled, nothing
+  changes. *Options > Unsubscribing* turns it back on. Unasked, config files are always kept (set
+  aside in LegacyConfigs, as the question's first answer does), and a warning still comes first
+  when other installed items use what is going or a hand-installed item's folders would be deleted,
+  because the question was what listed those folders.
+- *Multi select > Unsubscribe selected* removes every ticked item, addons and hand-installed ones
+  included, the way a collection's Unsubscribe from all does: config files kept, the same warning
+  first. Its question names the items, since ticked ones can be hidden by filters set since, and
+  set-aside (disabled) ones are left alone and said so.
+- *Where "Unsubscribe from all" is:* on a collection's page - Your Items > Your collections, pick a
+  collection, View collection - above its items. It asks whether to set the items aside or remove
+  them.
+
+**Subscribed items.**
+- *Per page: Infinite*, as Browse has it: no pager, 24 more cards as the list nears its bottom
+  (Cards view builds each card, so not every card at once). Saved as default like the other sizes.
+- *Groups > Sort groups: Category*: one section per sp-mod.com category, A to Z, items with none
+  last, each foldable for as long as the app is open. Your own groups come back with any other
+  choice; items cannot be dragged into a category, and the group controls step aside meanwhile.
+- A card's buttons wrap onto a second line instead of cutting Unsubscribe off.
+
 ## Values that could not be measured (marked HUNCH in the source)
 
 - The smooth-scroll distance and time (100px, 250ms) - chosen to feel like a browser, not measured.
