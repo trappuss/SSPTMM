@@ -1530,4 +1530,12 @@ internal static class Strings
     internal static string Options_LaunchDescription => LocalizationService.Get("Options_LaunchDescription");
     internal static string Options_LaunchSwitchOn => LocalizationService.Get("Options_LaunchSwitchOn");
     internal static string Options_LaunchSwitchOff => LocalizationService.Get("Options_LaunchSwitchOff");
+    internal static string Workshop_Follow => LocalizationService.Get("Workshop_Follow");
+    internal static string Workshop_Following => LocalizationService.Get("Workshop_Following");
+    internal static string Workshop_Unfollow => LocalizationService.Get("Workshop_Unfollow");
+    internal static string Workshop_FollowFormat => LocalizationService.Get("Workshop_FollowFormat");
+    internal static string Workshop_UnfollowFormat => LocalizationService.Get("Workshop_UnfollowFormat");
+    internal static string WorkshopHome_FromFollowed => LocalizationService.Get("WorkshopHome_FromFollowed");
+    internal static string WorkshopHome_FromFollowedNote => LocalizationService.Get("WorkshopHome_FromFollowedNote");
+    internal static string Browse_CreatedByFollowed => LocalizationService.Get("Browse_CreatedByFollowed");
 }

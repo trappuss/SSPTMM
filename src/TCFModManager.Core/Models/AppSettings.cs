@@ -52,6 +52,13 @@ public sealed class AppSettings
     public bool StartLauncherAfterServer { get; set; }
 
     //
+    // The sp-mod.com authors followed from the Workshop pages, by their sp-mod.com user id (names
+    // can change); the name is kept for showing. Their newest items head the Workshop's front page
+    // and Browse can show only theirs, as Steam does for the authors you follow.
+    //
+    public List<FollowedAuthor> FollowedAuthors { get; set; } = [];
+
+    //
     // The two answers as the roles the rest of the app reasons about.
     //
     // An unanswered PlaysHere reads as yes. An install nobody has been asked about is overwhelmingly
@@ -238,4 +245,12 @@ public sealed class ServerMapSettings
     public bool HasKey => !string.IsNullOrWhiteSpace(SharedKey);
 
     public ServerMapEndpoint ToEndpoint() => new(Host ?? string.Empty, Port, PinnedThumbprint, SharedKey);
+}
+
+// An author followed from the Workshop pages - see AppSettings.FollowedAuthors.
+public sealed class FollowedAuthor
+{
+    public int Id { get; set; }
+
+    public string? Name { get; set; }
 }

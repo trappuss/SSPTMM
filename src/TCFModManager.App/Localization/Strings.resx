@@ -5680,4 +5680,36 @@ This was written to:
     <value>Only start the server</value>
     <comment>Options switch, off.</comment>
   </data>
+  <data name="Workshop_Follow" xml:space="preserve">
+    <value>+ Follow</value>
+    <comment>Steam's Follow button on an author, before following them.</comment>
+  </data>
+  <data name="Workshop_Following" xml:space="preserve">
+    <value>Following</value>
+    <comment>The Follow button once the author is followed.</comment>
+  </data>
+  <data name="Workshop_Unfollow" xml:space="preserve">
+    <value>Unfollow</value>
+    <comment>The Follow button under the pointer while the author is followed.</comment>
+  </data>
+  <data name="Workshop_FollowFormat" xml:space="preserve">
+    <value>Follow {0}</value>
+    <comment>Right-click menu and tooltip: follow an author. {0} is the author.</comment>
+  </data>
+  <data name="Workshop_UnfollowFormat" xml:space="preserve">
+    <value>Unfollow {0}</value>
+    <comment>Right-click menu and tooltip: stop following an author. {0} is the author.</comment>
+  </data>
+  <data name="WorkshopHome_FromFollowed" xml:space="preserve">
+    <value>From Followed Authors</value>
+    <comment>Workshop front page: title of the row of new items by followed authors. Steam's words.</comment>
+  </data>
+  <data name="WorkshopHome_FromFollowedNote" xml:space="preserve">
+    <value>Recently posted items from authors you follow</value>
+    <comment>Under From Followed Authors. Steam's words.</comment>
+  </data>
+  <data name="Browse_CreatedByFollowed" xml:space="preserve">
+    <value>Created by Followed</value>
+    <comment>Browse SPECIAL FILTERS choice: only items by followed authors. Steam's words.</comment>
+  </data>
 </root>

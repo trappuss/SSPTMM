@@ -41,6 +41,12 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
     {
         _spModApi = spModApi;
 
+        // Following or unfollowing someone changes what "Created by Followed" shows.
+        AppServices.Followed.Changed += (_, _) =>
+        {
+            if (SelectedFeaturedFilter.Value == FeaturedFilter.CreatedByFollowed) AutoApplyFilter();
+        };
+
         _defaults = new SettingsService().Load().BrowseDefaults;
 
         //
@@ -359,6 +365,7 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
         new(nameof(Strings.Filter_FeaturedIncluded), FeaturedFilter.Include),
         new(nameof(Strings.Filter_FeaturedExcluded), FeaturedFilter.Exclude),
         new(nameof(Strings.Filter_FeaturedOnly), FeaturedFilter.Only),
+        new(nameof(Strings.Browse_CreatedByFollowed), FeaturedFilter.CreatedByFollowed),
     ];
 
     [ObservableProperty]
@@ -967,6 +974,7 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
             {
                 FeaturedFilter.Only => m.Featured == true,
                 FeaturedFilter.Exclude => m.Featured != true,
+                FeaturedFilter.CreatedByFollowed => AppServices.Followed.IsByFollowed(m),
                 _ => true, // Include - no restriction
             })
             .Where(m => SelectedCategory.Title is not { } category
@@ -1406,6 +1414,25 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
 
     /// <summary>Opens the results searched for <paramref name="text"/> - the home page's search box.</summary>
     public void ShowSearch(string text) => SearchText = text.Trim();
+
+    /// <summary>Opens the items of the followed authors, newest first - the home page's "From
+    /// Followed Authors" View All.</summary>
+    public void ShowFollowed()
+    {
+        _suppressAutoApplyFilter = true;
+        try
+        {
+            SearchText = string.Empty;
+            SelectedFeaturedFilter = FeaturedFilterOptions.First(o => o.Value == FeaturedFilter.CreatedByFollowed);
+            ShowSortedBy(ModSortOrder.Newest);
+        }
+        finally
+        {
+            _suppressAutoApplyFilter = false;
+        }
+
+        if (HasLoadedResults) ApplyFilter();
+    }
 
     /// <summary>Opens the results in one sort order - the home page's "View all".</summary>
     public void ShowSortedBy(ModSortOrder order) =>

@@ -44,6 +44,13 @@ public sealed partial class WorkshopHomeViewModel : LocalizedViewModel, IModActi
 
     public ObservableCollection<ModCardViewModel> TabItems { get; } = [];
 
+    // Steam's "From Followed Authors": the newest items by the authors followed, six of them.
+    public ObservableCollection<ModCardViewModel> FromFollowed { get; } = [];
+
+    public bool HasFromFollowed => FromFollowed.Count > 0;
+
+    private const int FollowedSize = 6;
+
     public ObservableCollection<WorkshopCategoryCount> Categories { get; } = [];
 
     [ObservableProperty]
@@ -81,6 +88,7 @@ public sealed partial class WorkshopHomeViewModel : LocalizedViewModel, IModActi
         // A mod installed or removed elsewhere changes what these cards should say about it - once
         // Browse has rebuilt the index the cards are matched against.
         AppServices.Browse.InstalledIndexChanged += (_, _) => Refresh();
+        AppServices.Followed.Changed += (_, _) => Refresh();
     }
 
     private bool _loaded;
@@ -127,6 +135,17 @@ public sealed partial class WorkshopHomeViewModel : LocalizedViewModel, IModActi
 
         Replace(Featured, featured);
         OnPropertyChanged(nameof(HasFeatured));
+
+        // "Recently posted items from authors you follow": by when they were posted, not updated.
+        var followed = AppServices.Followed.HasAny
+            ? catalog
+                .Where(AppServices.Followed.IsByFollowed)
+                .OrderByDescending(m => m.PublishedAt ?? m.CreatedAt ?? DateTimeOffset.MinValue)
+                .Take(FollowedSize)
+            : [];
+
+        Replace(FromFollowed, followed);
+        OnPropertyChanged(nameof(HasFromFollowed));
 
         var categories = catalog
             .Where(m => !string.IsNullOrWhiteSpace(m.Category?.Title))
@@ -201,6 +220,10 @@ public sealed partial class WorkshopHomeViewModel : LocalizedViewModel, IModActi
         // Browse's status line, where a failure also goes, is not on this page.
         Message = await AppServices.Browse.LoadDetailsAsync(card.Mod);
     }
+
+    // The followed row's View All: Browse, Created by Followed, newest first.
+    [RelayCommand]
+    private static void ViewAllFollowed() => OpenBrowse(AppServices.Browse.ShowFollowed);
 
     private static void OpenBrowse(Action arrange)
     {

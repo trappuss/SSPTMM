@@ -12,8 +12,8 @@ namespace TCFModManager.App.Behaviors;
 // ModId, for a place that only knows the id) on the element that stands for it.
 //
 // Steam's web pages have no menu on a Workshop item, so what is on it is this app's: open it,
-// Subscribe or Unsubscribe, Update when there is one, Quick View, Add to Collection, the link, and
-// the author's other items - each through ModActions, the same code the item page's buttons use.
+// Subscribe or Unsubscribe, Update when there is one, Quick View, Add to Collection, the link, the
+// author's other items and following them - each through ModActions, the same code the item page's buttons use.
 // It looks like Steam's own popup menus (SteamPopupMenu). The menu is built as it opens, so it
 // always matches the mod's state at that moment.
 //
@@ -108,12 +108,15 @@ public static class ModContextMenu
             menu.Items.Add(Rule());
             menu.Items.Add(Item(LocalizationService.Text(Strings.Item_AuthorsWorkshopFormat, author), () => ModActions.ShowAuthor(author)));
 
-            if (FollowToggle is { } follow) menu.Items.Add(follow(author));
+            if (mod.Owner is { Id: not 0 } owner)
+            {
+                var following = AppServices.Followed.IsFollowing(owner.Id);
+                menu.Items.Add(Item(
+                    LocalizationService.Text(following ? Strings.Workshop_UnfollowFormat : Strings.Workshop_FollowFormat, author),
+                    () => AppServices.Followed.Toggle(owner.Id, author)));
+            }
         }
     }
-
-    /// <summary>Follow or Unfollow for an author, when the app keeps followed authors; set once at startup.</summary>
-    public static Func<string, MenuItem>? FollowToggle { get; set; }
 
     public static MenuItem Item(string header, Action run)
     {

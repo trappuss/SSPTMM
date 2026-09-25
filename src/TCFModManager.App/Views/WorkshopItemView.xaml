@@ -745,8 +745,18 @@
                                     <ItemsControl ItemsSource="{Binding Authors}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
+                                                <Grid Margin="0,0,0,2">
+                                                <!-- Steam's Follow (btn_darkblue_white_innerfade), at the row's end. -->
                                                 <Button
-                                                    Margin="0,0,0,2"
+                                                    Margin="0,0,6,0"
+                                                    Panel.ZIndex="1"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Center"
+                                                    Style="{StaticResource SteamFollowButton}"
+                                                    ToolTip="{Binding FollowToolTip}"
+                                                    Command="{Binding ToggleFollowCommand}"
+                                                    Visibility="{Binding CanFollow, Converter={StaticResource TrueToVisible}}" />
+                                                <Button
                                                     Padding="6"
                                                     Style="{StaticResource PanelRow}"
                                                     ToolTip="{loc:Str Item_AuthorToolTip}"
@@ -762,6 +772,7 @@
                                                         <TextBlock VerticalAlignment="Center" FontSize="12" Foreground="{StaticResource SteamValueText}" Text="{Binding Name}" />
                                                     </StackPanel>
                                                 </Button>
+                                                </Grid>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>

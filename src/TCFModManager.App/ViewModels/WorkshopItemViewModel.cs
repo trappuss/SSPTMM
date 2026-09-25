@@ -19,7 +19,35 @@ namespace TCFModManager.App.ViewModels;
 public sealed record WorkshopRequiredItem(int ModId, string Label);
 
 // Someone credited on the mod, with their sp-mod.com picture when they have one.
-public sealed record WorkshopAuthor(string Name, string? Photo);
+public sealed partial class WorkshopAuthor : ObservableObject
+{
+    public WorkshopAuthor(int id, string name, string? photo)
+    {
+        Id = id;
+        Name = name;
+        Photo = photo;
+        _isFollowing = AppServices.Followed.IsFollowing(id);
+    }
+
+    public int Id { get; }
+
+    public string Name { get; }
+
+    public string? Photo { get; }
+
+    // Steam's Follow, for this author: their new items head the Workshop's front page.
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(FollowToolTip))]
+    private bool _isFollowing;
+
+    public bool CanFollow => Id != 0;
+
+    public string FollowToolTip => LocalizationService.Text(
+        IsFollowing ? Strings.Workshop_UnfollowFormat : Strings.Workshop_FollowFormat, Name);
+
+    [RelayCommand]
+    private void ToggleFollow() => IsFollowing = AppServices.Followed.Toggle(Id, Name);
+}
 
 // A mod listed in one of the right-hand panels: more by the author, or required by.
 public sealed record WorkshopRelatedItem(Mod Mod)
@@ -340,13 +368,15 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel, IModActi
     }
 
     // Everyone credited, owner first.
-    public IReadOnlyList<WorkshopAuthor> Authors =>
+    public IReadOnlyList<WorkshopAuthor> Authors => _authors ??=
         new[] { Mod.Owner }
             .Concat(Mod.AdditionalAuthors ?? [])
             .Where(o => !string.IsNullOrWhiteSpace(o?.Name))
-            .Select(o => new WorkshopAuthor(o!.Name!, o.ProfilePhotoUrl))
+            .Select(o => new WorkshopAuthor(o!.Id, o.Name!, o.ProfilePhotoUrl))
             .DistinctBy(a => a.Name, StringComparer.OrdinalIgnoreCase)
             .ToList();
+
+    private IReadOnlyList<WorkshopAuthor>? _authors;
 
     // ------------------------------------------------------------------ screenshot strip
 

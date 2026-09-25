@@ -267,6 +267,71 @@
                 </StackPanel>
 
                 <StackPanel Grid.Column="2">
+                    <!-- Steam's "From Followed Authors", above the four lists while anyone is
+                         followed: the newest items by the authors followed, six across. -->
+                    <StackPanel Margin="0,0,0,48" Visibility="{Binding HasFromFollowed, Converter={StaticResource TrueToVisible}}">
+                        <DockPanel>
+                            <Button
+                                DockPanel.Dock="Right"
+                                VerticalAlignment="Center"
+                                Style="{StaticResource ViewAllButton}"
+                                Command="{Binding ViewAllFollowedCommand}">
+                                <TextBlock Text="{loc:Str WorkshopHome_ViewAll}" />
+                            </Button>
+                            <StackPanel>
+                                <TextBlock FontFamily="{StaticResource SteamFontMedium}" FontWeight="Medium" FontSize="20" Foreground="{StaticResource SteamWhite}" Text="{loc:Str WorkshopHome_FromFollowed}" />
+                                <TextBlock FontSize="15" Foreground="{StaticResource SteamText}" Text="{loc:Str WorkshopHome_FromFollowedNote}" />
+                            </StackPanel>
+                        </DockPanel>
+                        <ItemsControl Margin="0,16,-16,0" ItemsSource="{Binding FromFollowed}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Columns="6" Rows="1" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid
+                                        Margin="0,0,16,6"
+                                        VerticalAlignment="Top"
+                                        Background="Transparent"
+                                        Cursor="Hand"
+                                        behaviors:ModContextMenu.Mod="{Binding Mod}"
+                                        MouseLeftButtonUp="Card_MouseLeftButtonUp">
+                                        <Border Background="#1B1D21">
+                                            <Border.Effect>
+                                                <DropShadowEffect BlurRadius="10" Direction="315" Opacity="0.58" ShadowDepth="1.4" Color="Black" />
+                                            </Border.Effect>
+                                        </Border>
+                                        <Border Background="{StaticResource SteamCardBackground}">
+                                            <StackPanel>
+                                                <Grid
+                                                    Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
+                                                    Background="{StaticResource SteamPreviewBackground}"
+                                                    ClipToBounds="True">
+                                                    <Image Stretch="UniformToFill" behaviors:ThumbnailLoader.DecodeWidth="205" behaviors:ThumbnailLoader.Source="{Binding Thumbnail}" />
+                                                </Grid>
+                                                <StackPanel Height="62" Margin="8,6,8,0">
+                                                    <StackPanel Height="14" Orientation="Horizontal">
+                                                        <ui:SymbolIcon FontSize="13" Foreground="{StaticResource SteamBlue}" Symbol="ArrowDownload16" />
+                                                        <TextBlock Margin="3,0,0,0" FontSize="12" Foreground="{StaticResource SteamBlue}" Text="{Binding Downloads, StringFormat=N0}" />
+                                                    </StackPanel>
+                                                    <TextBlock Margin="0,3,0,0" FontSize="15" Foreground="{StaticResource SteamWhite}" TextTrimming="CharacterEllipsis" Text="{Binding Name}" />
+                                                    <TextBlock
+                                                        FontSize="12"
+                                                        Foreground="{StaticResource SteamAuthorText}"
+                                                        TextTrimming="CharacterEllipsis"
+                                                        Text="{Binding Author, StringFormat={loc:Str Browse_ByAuthorFormat}}"
+                                                        Visibility="{Binding Author, Converter={StaticResource NullToCollapsed}}" />
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </Border>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+
                     <StackPanel x:Name="ListTabs" Orientation="Horizontal">
                         <ToggleButton Style="{StaticResource HomeTab}" Tag="{x:Static vm:WorkshopHomeTab.TopRated}" Click="ListTab_Click">
                             <TextBlock Text="{loc:Str WorkshopHome_TabTopRated}" />

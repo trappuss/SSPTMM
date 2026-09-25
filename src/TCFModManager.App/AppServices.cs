@@ -12,6 +12,10 @@ internal static class AppServices
 {
     public static SpModApiClient SpModApi { get; } = new();
 
+    // The authors followed from the Workshop pages. Before Browse and the Workshop's front page,
+    // which listen to it as they are built.
+    public static FollowedAuthors Followed { get; } = new();
+
     // The SPT release list sp-mod.com publishes, used to resolve mod version constraints
     // to releases that actually shipped rather than the boundaries constraints are written with.
     public static SptReleaseCatalog SptCatalog { get; } = new(SpModApi);

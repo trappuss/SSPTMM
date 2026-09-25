@@ -37,6 +37,9 @@ public enum FeaturedFilter
 
     // Only featured mods show.
     Only,
+
+    // Steam's "Created by Followed": only mods by an author followed from the Workshop pages.
+    CreatedByFollowed,
 }
 
 // One entry in Browse's Featured dropdown.
