@@ -35,6 +35,7 @@ public partial class App : Application
         ApplySteamFont();
 
         // Wheel scrolling that glides, across every page - see Behaviors/SmoothScrolling.
+        Behaviors.SmoothScrolling.Enabled = new Core.Services.SettingsService().Load().SmoothScrolling;
         Behaviors.SmoothScrolling.Register();
 
         // Frame-rate and description timings in the log, only when asked for - see PerfProbe.

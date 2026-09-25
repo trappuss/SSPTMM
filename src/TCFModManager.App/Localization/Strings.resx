@@ -5828,4 +5828,20 @@ This was written to:
     <value>Remove Anyway</value>
     <comment>Button on the check before removing a collection's items.</comment>
   </data>
+  <data name="Options_ScrollingHeader" xml:space="preserve">
+    <value>Scrolling</value>
+    <comment>Options card heading.</comment>
+  </data>
+  <data name="Options_ScrollingDescription" xml:space="preserve">
+    <value>Smooth scrolling glides the page to where each turn of the mouse wheel takes it, as a web browser does. Turned off, the page jumps there at once. Either way it moves the same distance.</value>
+    <comment>Options card text.</comment>
+  </data>
+  <data name="Options_ScrollingSwitchOn" xml:space="preserve">
+    <value>Smooth scrolling</value>
+    <comment>Options switch, on.</comment>
+  </data>
+  <data name="Options_ScrollingSwitchOff" xml:space="preserve">
+    <value>Jump straight there</value>
+    <comment>Options switch, off.</comment>
+  </data>
 </root>

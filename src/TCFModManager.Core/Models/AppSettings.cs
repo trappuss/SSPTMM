@@ -52,6 +52,12 @@ public sealed class AppSettings
     public bool StartLauncherAfterServer { get; set; }
 
     //
+    // Whether a turn of the mouse wheel glides the page to where it takes it, as a browser does,
+    // or jumps there at once. On by default; the distance per turn is the same either way.
+    //
+    public bool SmoothScrolling { get; set; } = true;
+
+    //
     // The sp-mod.com authors followed from the Workshop pages, by their sp-mod.com user id (names
     // can change); the name is kept for showing. Their newest items head the Workshop's front page
     // and Browse can show only theirs, as Steam does for the authors you follow.

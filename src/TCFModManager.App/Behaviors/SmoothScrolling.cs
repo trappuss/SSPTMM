@@ -19,6 +19,9 @@ namespace TCFModManager.App.Behaviors;
 // Viewers that scroll by item rather than by pixel (virtualised lists) keep WPF's own behaviour:
 // their offsets count rows, and gliding between rows would only look like a stutter.
 //
+// Options > Scrolling turns the glide off (Enabled): a turn then moves the same distance at once,
+// to the same viewer, and nothing is held still.
+//
 public static class SmoothScrolling
 {
     // Pixels per wheel notch. WPF's own is three 16px lines; browsers move about 100. HUNCH: chosen
@@ -38,6 +41,10 @@ public static class SmoothScrolling
         "Offset", typeof(double), typeof(SmoothScrolling), new PropertyMetadata(0.0, OnOffsetChanged));
 
     private static bool _registered;
+
+    /// <summary>False to jump rather than glide - Options > Scrolling. Read from the settings at
+    /// start and set by Options when the switch changes.</summary>
+    public static bool Enabled { get; set; } = true;
 
     public static void Register()
     {
@@ -70,6 +77,15 @@ public static class SmoothScrolling
         if (viewer.CanContentScroll)
         {
             viewer.ScrollToVerticalOffset(viewer.VerticalOffset - delta);
+            return;
+        }
+
+        if (!Enabled)
+        {
+            // A glide still running when the switch went off would carry on under the jump.
+            viewer.BeginAnimation(OffsetProperty, null);
+            viewer.SetValue(TargetProperty, double.NaN);
+            viewer.ScrollToVerticalOffset(Math.Clamp(viewer.VerticalOffset - delta / 120.0 * NotchDistance, 0, viewer.ScrollableHeight));
             return;
         }
 

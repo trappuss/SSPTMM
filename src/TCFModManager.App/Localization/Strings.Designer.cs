@@ -1567,4 +1567,8 @@ internal static class Strings
     internal static string RemoveCheck_NeededIntro => LocalizationService.Get("RemoveCheck_NeededIntro");
     internal static string RemoveCheck_FoldersIntro => LocalizationService.Get("RemoveCheck_FoldersIntro");
     internal static string RemoveCheck_RemoveAnyway => LocalizationService.Get("RemoveCheck_RemoveAnyway");
+    internal static string Options_ScrollingHeader => LocalizationService.Get("Options_ScrollingHeader");
+    internal static string Options_ScrollingDescription => LocalizationService.Get("Options_ScrollingDescription");
+    internal static string Options_ScrollingSwitchOn => LocalizationService.Get("Options_ScrollingSwitchOn");
+    internal static string Options_ScrollingSwitchOff => LocalizationService.Get("Options_ScrollingSwitchOff");
 }

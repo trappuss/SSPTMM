@@ -95,6 +95,23 @@ public partial class OptionsViewModel : LocalizedViewModel
         AppLog.Info("Launch", value ? "launcher follows the server" : "launcher no longer follows the server");
     }
 
+    // Whether the mouse wheel glides or jumps - see AppSettings and Behaviors/SmoothScrolling.
+    [ObservableProperty]
+    private bool _smoothScrolling;
+
+    partial void OnSmoothScrollingChanged(bool value)
+    {
+        if (!_loaded) return;
+
+        Behaviors.SmoothScrolling.Enabled = value;
+
+        var settings = _settings.Load();
+        settings.SmoothScrolling = value;
+        _settings.Save(settings);
+
+        AppLog.Info("Options", value ? "smooth scrolling on" : "smooth scrolling off");
+    }
+
     // Same arrangement as ModPageGate: one description of the setting, shared with the nav item.
     public FootprintGateViewModel FootprintGate => AppServices.FootprintGate;
 
@@ -200,6 +217,7 @@ public partial class OptionsViewModel : LocalizedViewModel
         _skipModPageConfirmation = settings.SkipModPageConfirmation;
         _showModFootprintPage = settings.ShowModFootprintPage;
         _startLauncherAfterServer = settings.StartLauncherAfterServer;
+        _smoothScrolling = settings.SmoothScrolling;
 
         _selectedWindowStartup = WindowStartupOptions.FirstOrDefault(o => o.Value == settings.Window.StartupMode)
             ?? WindowStartupOptions[0];
