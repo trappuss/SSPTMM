@@ -81,17 +81,24 @@ public static class HtmlText
         {
             document.SetValue(SplitProperty, true);
 
+            // Where to cut is worked out first, touching nothing; then the pieces are taken out
+            // from the last one back, so what is out is always the tail of where it came from.
+            // Should taking one out fail, the ones already out go straight back, in order: nothing
+            // is ever lost, and the document is shown whole.
             var pending = new List<Piece>();
+            var removals = new List<Action>();
             var size = 0;
+            Plan(document.Blocks, pending, removals, ref size);
+
+            var index = removals.Count - 1;
             try
             {
-                HoldBack(document.Blocks, pending, ref size);
+                for (; index >= 0; index--) removals[index]();
             }
             catch (Exception ex)
             {
-                // Whatever went wrong, nothing is lost: everything taken out goes straight back.
                 Core.Services.AppLog.Warn("Markup", $"could not cut a document into parts, showing it whole: {ex.Message}");
-                foreach (var piece in pending) piece.Add();
+                for (var back = index + 1; back < pending.Count; back++) pending[back].Add();
                 pending.Clear();
             }
 
@@ -102,16 +109,16 @@ public static class HtmlText
         HandInLater(host, document);
     }
 
-    // Leaves what fits in the first part where it is and takes the rest out into pieces, in order.
-    private static void HoldBack(BlockCollection blocks, List<Piece> pending, ref int size)
+    // Works out what fits in the first part and lists the rest as pieces, in order, with how to
+    // take each out. Changes nothing itself.
+    private static void Plan(BlockCollection blocks, List<Piece> pending, List<Action> removals, ref int size)
     {
-        foreach (var block in blocks.ToList())
+        foreach (var block in blocks)
         {
             if (size >= PartSize)
             {
-                var held = Weight(block);
-                blocks.Remove(block);
-                pending.Add(new Piece(held, () => blocks.Add(block)));
+                pending.Add(new Piece(Weight(block), () => blocks.Add(block)));
+                removals.Add(() => blocks.Remove(block));
                 continue;
             }
 
@@ -126,13 +133,12 @@ public static class HtmlText
             switch (block)
             {
                 case List list:
-                    foreach (var item in list.ListItems.ToList())
+                    foreach (var item in list.ListItems)
                     {
                         if (size >= PartSize)
                         {
-                            var held = Weight(item);
-                            list.ListItems.Remove(item);
-                            pending.Add(new Piece(held, () => list.ListItems.Add(item)));
+                            pending.Add(new Piece(Weight(item), () => list.ListItems.Add(item)));
+                            removals.Add(() => list.ListItems.Remove(item));
                         }
                         else
                         {
@@ -143,7 +149,7 @@ public static class HtmlText
                     break;
 
                 case Section section:
-                    HoldBack(section.Blocks, pending, ref size);
+                    Plan(section.Blocks, pending, removals, ref size);
                     break;
 
                 default:
@@ -180,15 +186,23 @@ public static class HtmlText
         if (!ReferenceEquals(host.Document, document) || document.GetValue(PendingProperty) is not List<Piece> pending) return;
 
         var size = 0;
-        var taken = 0;
-        while (taken < pending.Count && size < PartSize)
+        while (pending.Count > 0 && size < PartSize)
         {
-            size += pending[taken].Weight;
-            pending[taken].Add();
-            taken++;
+            // Off the list before it goes in, so a piece is never added twice.
+            var piece = pending[0];
+            pending.RemoveAt(0);
+            size += piece.Weight;
+
+            try
+            {
+                piece.Add();
+            }
+            catch (Exception ex) when (ex is InvalidOperationException or ArgumentException)
+            {
+                Core.Services.AppLog.Warn("Markup", $"a part of a document could not go in: {ex.Message}");
+            }
         }
 
-        pending.RemoveRange(0, taken);
         if (pending.Count == 0) document.ClearValue(PendingProperty);
 
         HandInLater(host, document);

@@ -56,7 +56,26 @@ public sealed class RemotePicture : Image
 
     /// <summary>False for a picture that fills a box of its own (a video's thumbnail) rather than
     /// being shown at its own size.</summary>
-    public bool LimitToNaturalSize { get; set; } = true;
+    public bool LimitToNaturalSize
+    {
+        get => _limitToNaturalSize;
+        set
+        {
+            _limitToNaturalSize = value;
+            ApplyNaturalWidth();
+        }
+    }
+
+    private bool _limitToNaturalSize = true;
+
+    // The shown picture's own width, once it is known.
+    private double? _naturalWidth;
+
+    private void ApplyNaturalWidth()
+    {
+        // Only ever set, as before: a MaxWidth the page gave the picture itself is left alone.
+        if (_limitToNaturalSize && _naturalWidth is { } width) MaxWidth = width;
+    }
 
     /// <summary>Raised when the picture could not be fetched or read, so the host can show its
     /// alternative text instead.</summary>
@@ -122,7 +141,7 @@ public sealed class RemotePicture : Image
             decoded.Value.Bitmap,
             null,
             decoded.Value.NaturalWidth,
-            (long)decoded.Value.Bitmap.PixelWidth * decoded.Value.Bitmap.PixelHeight * 4);
+            (long)decoded.Value.Bitmap.PixelHeight * ((decoded.Value.Bitmap.PixelWidth * decoded.Value.Bitmap.Format.BitsPerPixel + 7) / 8));
         PictureCache.Add(url, still);
 
         if (Url != url) return;
@@ -131,7 +150,8 @@ public sealed class RemotePicture : Image
 
     private void Show(CachedPicture picture)
     {
-        if (LimitToNaturalSize) MaxWidth = picture.NaturalWidth;
+        _naturalWidth = picture.NaturalWidth;
+        ApplyNaturalWidth();
 
         if (picture.Gif is { } gif)
         {
@@ -170,7 +190,12 @@ public sealed class RemotePicture : Image
             UpdatePlaying();
         };
         IsVisibleChanged += (_, _) => UpdatePlaying();
-        AnimationBehavior.AddLoadedHandler(this, (_, _) => UpdatePlaying());
+        // Once more after the library has finished loading: it starts a GIF playing itself.
+        AnimationBehavior.AddLoadedHandler(this, (_, _) =>
+        {
+            UpdatePlaying();
+            Dispatcher.BeginInvoke(UpdatePlaying, System.Windows.Threading.DispatcherPriority.Loaded);
+        });
 
         if (IsLoaded) Rewatch();
     }
