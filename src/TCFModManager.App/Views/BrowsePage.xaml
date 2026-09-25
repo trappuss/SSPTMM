@@ -147,7 +147,7 @@
                     Foreground="{StaticResource SteamText}"
                     TextWrapping="Wrap"
                     Text="{Binding EntriesText}" />
-                <ItemsControl VerticalAlignment="Center" ItemsSource="{Binding FilterChips}">
+                <ItemsControl Focusable="False" VerticalAlignment="Center" ItemsSource="{Binding FilterChips}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <WrapPanel />
@@ -248,7 +248,7 @@
                     <Border Margin="0,0,12,12" MinWidth="283" Style="{StaticResource SteamMenuPanel}">
                         <StackPanel>
                             <TextBlock Style="{StaticResource SteamMenuHeader}" Text="{loc:Str Workshop_SortOrderHeader}" />
-                            <ItemsControl ItemsSource="{Binding SortOptions}">
+                            <ItemsControl Focusable="False" ItemsSource="{Binding SortOptions}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <RadioButton
@@ -365,7 +365,7 @@
                         <!-- SPT release lines, as tag rows. Only [+] means anything here: ticked lines
                              narrow the results to mods with a release for them. -->
                         <TextBlock Margin="0,20,0,5" Style="{StaticResource SteamSidebarHeader}" Text="{loc:Str Workshop_SptVersionHeader}" ToolTip="{loc:Str Browse_SptVersionFilterToolTip}" />
-                        <ItemsControl ItemsSource="{Binding SptVersionOptions}">
+                        <ItemsControl Focusable="False" ItemsSource="{Binding SptVersionOptions}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Margin="0,0,0,5" Background="Transparent" Orientation="Horizontal">
@@ -378,7 +378,7 @@
                         </ItemsControl>
 
                         <TextBlock Margin="0,20,0,5" Style="{StaticResource SteamSidebarHeader}" Text="{loc:Str Workshop_ModTags}" ToolTip="{loc:Str Common_AttributeFilterToolTip}" />
-                        <ItemsControl ItemsSource="{Binding TagRows}">
+                        <ItemsControl Focusable="False" ItemsSource="{Binding TagRows}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Margin="0,0,0,5" Background="Transparent" Orientation="Horizontal">
@@ -450,9 +450,13 @@
 
                 <Grid Grid.Column="2" MinHeight="400">
                     <!-- The card grid. Columns come from the width - as many 245px cards as fit, 16px
-                         apart - and the right margin takes back the last column's gap. -->
+                         apart - and the right margin takes back the last column's gap. Not focusable
+                         (nor is any list of items in the app): a card's Subscribe goes disabled while
+                         it works, keyboard focus then fell back to the grid, and a focused element is
+                         scrolled into view - the page jumped to the grid's top. -->
                     <ItemsControl
                         x:Name="ResultsGrid"
+                        Focusable="False"
                         Margin="0,0,-16,0"
                         VerticalAlignment="Top"
                         ItemsSource="{Binding Results}"
@@ -850,7 +854,7 @@
                 <Button Style="{StaticResource PagerArrow}" Command="{Binding PreviousPageCommand}" ToolTip="{loc:Str Common_Previous}">
                     <Path Width="14" Height="10" Data="M5,0 L0,5 L5,10 M0,5 L14,5" Stretch="Fill" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2" />
                 </Button>
-                <ItemsControl Margin="6,0" VerticalAlignment="Center" ItemsSource="{Binding PageLinks}">
+                <ItemsControl Focusable="False" Margin="6,0" VerticalAlignment="Center" ItemsSource="{Binding PageLinks}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <StackPanel Orientation="Horizontal" />

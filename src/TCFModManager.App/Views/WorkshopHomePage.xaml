@@ -138,7 +138,7 @@
                             HorizontalScrollBarVisibility="Hidden"
                             VerticalScrollBarVisibility="Disabled"
                             PreviewMouseWheel="Carousel_PreviewMouseWheel">
-                            <ItemsControl ItemsSource="{Binding Featured}">
+                            <ItemsControl Focusable="False" ItemsSource="{Binding Featured}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
                                         <StackPanel Orientation="Horizontal" />
@@ -253,7 +253,7 @@
                     <Border Margin="0,4,0,0" Padding="10" Background="{StaticResource SteamSidebarBackground}">
                         <StackPanel>
                             <TextBlock Style="{StaticResource SteamSidebarHeader}" Text="{loc:Str Workshop_ContentType}" />
-                            <ItemsControl ItemsSource="{Binding Categories}">
+                            <ItemsControl Focusable="False" ItemsSource="{Binding Categories}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Button
@@ -289,7 +289,7 @@
                                 <TextBlock FontSize="15" Foreground="{StaticResource SteamText}" Text="{loc:Str WorkshopHome_FromFollowedNote}" />
                             </StackPanel>
                         </DockPanel>
-                        <ItemsControl Margin="0,16,-16,0" ItemsSource="{Binding FromFollowed}">
+                        <ItemsControl Focusable="False" Margin="0,16,-16,0" ItemsSource="{Binding FromFollowed}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <UniformGrid Columns="6" Rows="1" />
@@ -360,7 +360,7 @@
                     </StackPanel>
                     <TextBlock Margin="0,2,0,0" FontSize="15" Foreground="{StaticResource SteamText}" Text="{Binding TabDescription}" />
 
-                    <ItemsControl Margin="0,22,-16,0" ItemsSource="{Binding TabItems}">
+                    <ItemsControl Focusable="False" Margin="0,22,-16,0" ItemsSource="{Binding TabItems}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <UniformGrid Columns="2" VerticalAlignment="Top" />

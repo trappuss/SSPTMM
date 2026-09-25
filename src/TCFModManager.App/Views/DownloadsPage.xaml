@@ -141,7 +141,7 @@
             Grid.Row="1"
             VerticalScrollBarVisibility="Auto"
             Visibility="{Binding Items.Count, Converter={StaticResource HasItems}}">
-            <ItemsControl ItemsSource="{Binding Items}">
+            <ItemsControl Focusable="False" ItemsSource="{Binding Items}">
                 <ItemsControl.ItemTemplate>
                     <!-- Card for one queued/in-progress/finished download item. -->
                     <DataTemplate>

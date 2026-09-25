@@ -343,6 +343,7 @@
                                  that only look like config. A chip each, with the kind spelled out,
                                  because the three do opposite things. -->
                             <ItemsControl
+                                Focusable="False"
                                 Margin="0,8,0,0"
                                 ItemsSource="{Binding Locations}"
                                 Visibility="{Binding HasLocations, Converter={StaticResource BoolToVis}}">

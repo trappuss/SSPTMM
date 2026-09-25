@@ -101,7 +101,7 @@
 
             <!-- One row per page: the name, and its Open button (Opened once it has been). -->
             <ScrollViewer MaxHeight="320" Margin="0,0,0,4" VerticalScrollBarVisibility="Auto">
-                <ItemsControl x:Name="LinksList">
+                <ItemsControl Focusable="False" x:Name="LinksList">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Border Margin="0,0,0,2" Padding="10,6" Background="{StaticResource SteamRequiredItem}">

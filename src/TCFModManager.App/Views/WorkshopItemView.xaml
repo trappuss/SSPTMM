@@ -236,7 +236,7 @@
                                 <Border Margin="0,1,0,0" Padding="7,7,7,0" Background="#80000000" Visibility="{Binding HasGallery, Converter={StaticResource TrueToVisible}}">
                                     <StackPanel>
                                         <ScrollViewer x:Name="Strip" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled" ScrollChanged="Strip_ScrollChanged">
-                                            <ItemsControl ItemsSource="{Binding Gallery}">
+                                            <ItemsControl Focusable="False" ItemsSource="{Binding Gallery}">
                                                 <ItemsControl.ItemsPanel>
                                                     <ItemsPanelTemplate>
                                                         <StackPanel Orientation="Horizontal" />
@@ -363,7 +363,7 @@
                                     <TextBlock>
                                         <Run Style="{StaticResource DetailLabel}" Text="{loc:Str Item_SourceCodeLabel}" />
                                     </TextBlock>
-                                    <ItemsControl ItemsSource="{Binding SourceCode}">
+                                    <ItemsControl Focusable="False" ItemsSource="{Binding SourceCode}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                                 <Button
@@ -382,7 +382,7 @@
                                     <TextBlock Margin="0,0,4,0">
                                         <Run Style="{StaticResource DetailLabel}" Text="{loc:Str Item_VirusTotalLabel}" />
                                     </TextBlock>
-                                    <ItemsControl ItemsSource="{Binding VirusTotal}">
+                                    <ItemsControl Focusable="False" ItemsSource="{Binding VirusTotal}">
                                         <ItemsControl.ItemsPanel>
                                             <ItemsPanelTemplate>
                                                 <WrapPanel />
@@ -641,7 +641,7 @@
                                  the name 14px bold white, the item count 14px #99A1A8 at the right. -->
                             <StackPanel Margin="0,20,0,0" Visibility="{Binding HasInCollections, Converter={StaticResource TrueToVisible}}">
                                 <TextBlock Margin="0,0,0,6" FontSize="11" Foreground="#61696D" Text="{Binding InCollectionsTitle}" />
-                                <ItemsControl ItemsSource="{Binding InCollections}">
+                                <ItemsControl Focusable="False" ItemsSource="{Binding InCollections}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Button
@@ -706,7 +706,7 @@
                                 <StackPanel>
                                     <TextBlock Style="{StaticResource SteamRightPanelTitle}" Text="{loc:Str Item_RequiredItems}" />
                                     <TextBlock Margin="0,0,0,6" FontSize="12" Foreground="{StaticResource SteamTextMinor}" TextWrapping="Wrap" Text="{loc:Str Item_RequiredItemsNote}" />
-                                    <ItemsControl ItemsSource="{Binding RequiredItems}">
+                                    <ItemsControl Focusable="False" ItemsSource="{Binding RequiredItems}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                                 <Button
@@ -742,7 +742,7 @@
                                 <StackPanel>
                                     <TextBlock Style="{StaticResource SteamRightPanelTitle}" Text="{loc:Str Item_CreatedBy}" />
                                     <!-- Each name opens everything they made, in Browse. -->
-                                    <ItemsControl ItemsSource="{Binding Authors}">
+                                    <ItemsControl Focusable="False" ItemsSource="{Binding Authors}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                                 <Grid Margin="0,0,0,2">
@@ -804,7 +804,7 @@
                             <Border Style="{StaticResource SteamRightPanel}" Visibility="{Binding HasRequiredBy, Converter={StaticResource TrueToVisible}}">
                                 <StackPanel>
                                     <TextBlock Style="{StaticResource SteamRightPanelTitle}" Text="{Binding RequiredByTitle}" />
-                                    <ItemsControl ItemsSource="{Binding RequiredBy}" ItemTemplate="{StaticResource RelatedRow}" />
+                                    <ItemsControl Focusable="False" ItemsSource="{Binding RequiredBy}" ItemTemplate="{StaticResource RelatedRow}" />
                                 </StackPanel>
                             </Border>
 
@@ -812,7 +812,7 @@
                             <Border Style="{StaticResource SteamRightPanel}" Visibility="{Binding HasMoreByAuthor, Converter={StaticResource TrueToVisible}}">
                                 <StackPanel>
                                     <TextBlock Style="{StaticResource SteamRightPanelTitle}" Text="{Binding MoreByAuthorTitle}" />
-                                    <ItemsControl ItemsSource="{Binding MoreByAuthor}" ItemTemplate="{StaticResource RelatedRow}" />
+                                    <ItemsControl Focusable="False" ItemsSource="{Binding MoreByAuthor}" ItemTemplate="{StaticResource RelatedRow}" />
                                 </StackPanel>
                             </Border>
                         </StackPanel>
@@ -823,7 +823,7 @@
                 <!-- sp-mod.com's version cards: number and date, SPT, size, downloads, Fika, what
                      it needs, and a button to install that version. -->
                 <StackPanel Visibility="{Binding IsVersionsShown, Converter={StaticResource TrueToVisible}}">
-                    <ItemsControl ItemsSource="{Binding Versions}">
+                    <ItemsControl Focusable="False" ItemsSource="{Binding Versions}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Border Margin="0,0,0,12" Padding="16" Background="#33000000">
@@ -882,7 +882,7 @@
                                             </TextBlock>
                                             <WrapPanel Margin="0,6,0,0" Visibility="{Binding HasVirusTotal, Converter={StaticResource TrueToVisible}}">
                                                 <TextBlock Margin="0,0,4,0" FontSize="13" Foreground="{StaticResource SteamTextDim}" Text="{loc:Str Item_VirusTotalLabel}" />
-                                                <ItemsControl ItemsSource="{Binding VirusTotal}">
+                                                <ItemsControl Focusable="False" ItemsSource="{Binding VirusTotal}">
                                                     <ItemsControl.ItemsPanel>
                                                         <ItemsPanelTemplate>
                                                             <WrapPanel />
@@ -918,7 +918,7 @@
                                                 Background="#33000000"
                                                 Visibility="{Binding AreFilesShown, Converter={StaticResource TrueToVisible}}">
                                                 <StackPanel>
-                                                    <ItemsControl ItemsSource="{Binding Files}">
+                                                    <ItemsControl Focusable="False" ItemsSource="{Binding Files}">
                                                         <ItemsControl.ItemTemplate>
                                                             <DataTemplate>
                                                                 <TextBlock FontFamily="{StaticResource SteamMonospace}" FontSize="12" Foreground="{StaticResource SteamText}" TextTrimming="CharacterEllipsis" Text="{Binding}" ToolTip="{Binding}" />
@@ -993,7 +993,7 @@
                         <TextBlock VerticalAlignment="Center" FontSize="12" Foreground="#99A1A8" Text="{Binding ChangeNotesShowing}" />
                     </Border>
 
-                    <ItemsControl ItemsSource="{Binding ChangeNotes}">
+                    <ItemsControl Focusable="False" ItemsSource="{Binding ChangeNotes}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Margin="0,26,0,0">

@@ -230,7 +230,7 @@
                             Text="{loc:Str Collection_NoItems}"
                             Visibility="{Binding IsEmpty, Converter={StaticResource TrueToVisible}}" />
 
-                        <ItemsControl ItemsSource="{Binding Items}">
+                        <ItemsControl Focusable="False" ItemsSource="{Binding Items}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Border x:Name="Row" Margin="0,0,0,2" Background="#335485B7" behaviors:ModContextMenu.Mod="{Binding Mod}">
@@ -309,7 +309,7 @@
                         <Border Padding="10" Background="{StaticResource SteamSubscribeBox}" Visibility="{Binding HasAuthors, Converter={StaticResource TrueToVisible}}">
                             <StackPanel>
                                 <TextBlock Margin="0,0,0,8" FontSize="11" Foreground="#61696D" TextWrapping="Wrap" Text="{Binding CreatedByTitle}" />
-                                <ItemsControl ItemsSource="{Binding Authors}">
+                                <ItemsControl Focusable="False" ItemsSource="{Binding Authors}">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <WrapPanel />

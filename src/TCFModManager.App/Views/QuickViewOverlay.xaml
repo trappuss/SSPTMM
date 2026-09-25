@@ -185,7 +185,7 @@
                                     HorizontalScrollBarVisibility="Hidden"
                                     VerticalScrollBarVisibility="Disabled"
                                     ScrollChanged="Strip_ScrollChanged">
-                                    <ItemsControl ItemsSource="{Binding Item.Gallery}">
+                                    <ItemsControl Focusable="False" ItemsSource="{Binding Item.Gallery}">
                                         <ItemsControl.ItemsPanel>
                                             <ItemsPanelTemplate>
                                                 <StackPanel Orientation="Horizontal" />
@@ -298,7 +298,7 @@
 
                             <StackPanel Margin="0,16,0,0" Visibility="{Binding HasTags, Converter={StaticResource TrueToVisible}}">
                                 <TextBlock FontSize="13" Foreground="#ACB2B8" Text="{loc:Str QuickView_Tags}" />
-                                <ItemsControl ItemsSource="{Binding Tags}">
+                                <ItemsControl Focusable="False" ItemsSource="{Binding Tags}">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <WrapPanel />

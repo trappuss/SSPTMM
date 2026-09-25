@@ -46,7 +46,7 @@
             Text="{loc:Str FollowedAuthors_Empty}"
             Visibility="{Binding IsEmpty, Converter={StaticResource TrueToVisible}}" />
 
-        <ItemsControl Margin="0,8,0,0" ItemsSource="{Binding Authors}">
+        <ItemsControl Focusable="False" Margin="0,8,0,0" ItemsSource="{Binding Authors}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Border x:Name="Row" Margin="0,0,0,2" Padding="10" Background="#335485B7">

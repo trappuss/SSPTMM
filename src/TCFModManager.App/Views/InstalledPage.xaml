@@ -37,6 +37,7 @@
              page-wide toggle as well as "is it in any list at all". -->
         <DataTemplate x:Key="ModListBadges">
             <ItemsControl
+                Focusable="False"
                 ItemsSource="{Binding Lists}"
                 Visibility="{Binding ShowLists, Converter={StaticResource BoolToVis}}">
                 <ItemsControl.ItemsPanel>
@@ -515,7 +516,7 @@
                     StaysOpen="False"
                     AllowsTransparency="True">
                     <Border Style="{StaticResource FilterDropDownPopup}" MinWidth="{Binding ActualWidth, ElementName=AttributeToggle}">
-                        <ItemsControl Margin="8,4" ItemsSource="{Binding AttributeOptions}">
+                        <ItemsControl Focusable="False" Margin="8,4" ItemsSource="{Binding AttributeOptions}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <CheckBox

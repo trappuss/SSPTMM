@@ -77,7 +77,7 @@
             Grid.Row="2"
             VerticalScrollBarVisibility="Auto"
             Visibility="{Binding Trees.Count, Converter={StaticResource HasItems}}">
-            <ItemsControl ItemsSource="{Binding Trees}">
+            <ItemsControl Focusable="False" ItemsSource="{Binding Trees}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <!-- One expander per installed mod, holding its flattened dependency rows. -->
@@ -111,7 +111,7 @@
                                 </Grid>
                             </ui:CardExpander.Header>
 
-                            <ItemsControl ItemsSource="{Binding Rows}">
+                            <ItemsControl Focusable="False" ItemsSource="{Binding Rows}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <!-- Indent reflects depth in the tree; a nested dependency sits under its parent. -->

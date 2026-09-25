@@ -229,8 +229,8 @@
             <ui:NavigationView.Template>
                 <ControlTemplate TargetType="ui:NavigationView">
                     <Grid>
-                        <ItemsControl x:Name="PART_MenuItemsItemsControl" Visibility="Collapsed" />
-                        <ItemsControl x:Name="PART_FooterMenuItemsItemsControl" Visibility="Collapsed" />
+                        <ItemsControl Focusable="False" x:Name="PART_MenuItemsItemsControl" Visibility="Collapsed" />
+                        <ItemsControl Focusable="False" x:Name="PART_FooterMenuItemsItemsControl" Visibility="Collapsed" />
                         <ui:NavigationViewContentPresenter
                             x:Name="PART_NavigationViewContentPresenter"
                             Padding="{TemplateBinding Padding}"
