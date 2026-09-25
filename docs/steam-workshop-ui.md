@@ -297,9 +297,85 @@ turns during a glide add to it. A list inside a page scrolls before the page doe
   a virtualising panel needs to own its scrolling; the pictures are what is released instead.
 - **The notices keep sp-mod.com's colours**; Steam has nothing like them.
 
+## Fourth round: collections, right-click, Quick View, Play (2026-09-25)
+
+**From Steam.**
+- *Collections as Workshop pages.* A mod list opens as Steam's collection page: title bar and
+  control row, ITEMS (n) with Subscribe to all / Unsubscribe from all / Save to Collection, rows
+  with the square subscribe button, the authors' chips and Posted/Updated. An item opened from it
+  goes over it; Esc (or back) returns to the collection. *Manage in Collections* opens the list
+  on the Collections page.
+- *Add to Collection* on the item page, in Quick View and in the right-click menu: tick the lists
+  that should hold the mod, or name a new one. The item page lists *In N of your collections*.
+- *Quick View* - the magnifier on a Browse card (and in the right-click menu): pictures, CREATED
+  BY, posted/updated/file size and the counts, TAGS, the start of the description, Subscribe, Add
+  to Collection and See More; the arrows (and ←/→) step through the list it was opened from.
+  Measured from Steam's live page.
+- *Search options* under Browse's gear: Title & Description / Title Only / Description Only, with
+  Steam's chip wording ("Results for: "x" (title only)").
+- *Filter by Date*: posted between, last updated between, with Steam's chips.
+- *Follow* on an author (CREATED BY on the item page, and the right-click menu), *From Followed
+  Authors - Recently posted items from authors you follow* on the front page, and *Created by
+  Followed* among Browse's SPECIAL FILTERS.
+- *Right-click menu on any mod* (cards, rows, related and required items, Subscribed items), in
+  Steam's popup menu style (`#3D4450`, `#DCDEDF` 12px items, measured from shared_global.css):
+  Open, Quick View, Subscribe/Unsubscribe, Update, Add to Collection..., Copy link, View mod page,
+  the author's Workshop, Follow/Unfollow.
+- Descriptions in Steam's BBCode styles (headings, quotes, code, tables, rules, links); tabs, notices
+  and inline code keep sp-mod.com's features in Steam's palette.
+- The Browse hover popup shows the mod's pictures under its title, a new one every two seconds when
+  it has more than one.
+
+**From sp-mod.com.**
+- Descriptions are searched with sp-mod.com's own full-text search (the cached catalog has no
+  descriptions). It answers with its best 20 matches at most (seen on every query tried), so a
+  common word finds the 20 it ranks first; names and teasers are still matched locally in full.
+- *Held-back updates*: after each scan of Subscribed items the whole install is checked with
+  `/mods/updates`. An update that would break another installed mod ("Update to 3.0.6 held back:
+  Black and Blue needs ~2.0.24") is said on the card, the item page and the status tooltip, and
+  Update all / Update selected leave it alone (its own update dialog can still install it).
+- *Passed Verification* (sp-mod.com's shield and words) on versions whose download sp-mod.com has
+  checked, with *Files in this download* from the file-tree endpoint.
+- YouTube videos play in the picture viewer (they showed a player error: YouTube refuses embeds
+  opened without a web page around them, so the app serves one).
+
+**The app.**
+- Play: while the server runs, Start server becomes a red *Stop server* (asked about on the card
+  first, like Restart). Options > *Starting the game*: open the SPT launcher as soon as the server
+  listens on its port (http.json's port and 6969, ports already taken before the start not
+  counted), within three minutes.
+- Scrolling: while a page glides its content stops reacting to the pointer (no lift, hover popup or
+  slideshow firing under a still pointer) until the glide ends; card bodies, their shadows, the
+  collection frames and the window's grid background are drawn once into bitmaps and reused; the
+  glide is 250ms.
+
+### Where this round differs, and why
+
+- **Unsubscribe from all sets the items aside (disabled) rather than deleting them**, after one
+  confirmation; they come back from Subscribed items.
+- **Subscribe to all hands over to the Collections page**, which shows what will change before
+  anything does (Add Only applies the list additively, Overwrite My Subscriptions exclusively).
+- **A collection made from Add to Collection applies additively** (it holds what you picked, not a
+  whole install).
+- **Quick View's stats**: Downloads and Favorites stand where Steam has Visitors and Subscribers;
+  the endorsements stand where the stars are; there is no Favorite, vote or award button.
+- **The right-click menu is the app's**: Steam's pages have no menu on an item.
+- **Follows are kept on this PC** (settings.json), by sp-mod.com user id: sp-mod.com has no
+  following of its own to sync with.
+- **Mods with several credited authors count as theirs** for From Followed Authors and Created by
+  Followed, as the CREATED BY panel lists them.
+- **Stop server asks first**, as Restart does: a raid in progress does not survive it.
+
 ## Values that could not be measured (marked HUNCH in the source)
 
-- The smooth-scroll distance and time (100px, 200ms) - chosen to feel like a browser, not measured.
+- The smooth-scroll distance and time (100px, 250ms) - chosen to feel like a browser, not measured.
+- Whether pointer churn during a scroll was a large part of the stutter: on this build machine the
+  app runs under Wine with software rendering, whose own floor (~15 frames a second on a plain page)
+  hides it. Please say whether scrolling is better on Windows.
+- The Follow button's words ("+ Follow", "Following", "Unfollow" under the pointer): Steam only
+  draws that button for someone signed in. Its colours are measured.
+- Quick View's button hover colours (Steam shows them disabled until signed in).
+- The page behind Quick View is darkened to about 40% (measured from a screenshot, not the CSS).
 - The thumbnail cache's budget (160 MB) and how far from the view pictures are kept (two screens).
 
 - Critical/error red (`#E05A5A`): no error state on the pages measured.
