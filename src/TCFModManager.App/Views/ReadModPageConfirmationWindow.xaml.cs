@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Windows;
 using TCFModManager.App.Localization;
 using TCFModManager.Core.Services;
-using Wpf.Ui.Controls;
 
 namespace TCFModManager.App.Views;
 
@@ -36,10 +35,10 @@ public sealed class ModPageLink(string name, string? url) : INotifyPropertyChang
 
 // 
 // Modal gate shown before mods are queued for install/update, requiring every listed mod's page
-// to be opened before the Continue button unlocks. Implemented as a plain FluentWindow so it can
-// be shown via ShowDialog() from any call site.
+// to be opened before the Continue button unlocks. A plain Window drawn as Steam's modal dialog,
+// so it can be shown via ShowDialog() from any call site - see Ask.
 // 
-public partial class ReadModPageConfirmationWindow : FluentWindow
+public partial class ReadModPageConfirmationWindow : Window
 {
     private static string Text(string format, params object?[] values) =>
         LocalizationService.Text(format, values);
@@ -71,7 +70,7 @@ public partial class ReadModPageConfirmationWindow : FluentWindow
         _links = links.ToList();
         InitializeComponent();
 
-        WindowTitleBar.Title = Title = _links.Count == 1
+        TitleText.Text = Title = _links.Count == 1
             ? Text(Strings.ReadModPage_TitleNamedFormat, _links[0].Name)
             : Text(Strings.ReadModPage_TitleCountFormat, _links.Count);
 
@@ -118,11 +117,26 @@ public partial class ReadModPageConfirmationWindow : FluentWindow
     // are, so it is the one page where skipping costs the reader the thing they most need.</param>
     //
     public static bool Confirm(string modName, string? modPageUrl, bool allowSkip = true) =>
-        (allowSkip && Skipped) || new ReadModPageConfirmationWindow(modName, modPageUrl).ShowDialog() == true;
+        (allowSkip && Skipped) || Ask(new ReadModPageConfirmationWindow(modName, modPageUrl));
 
     // Shows the gate for a batch of mods and returns true only if Continue was clicked.
     public static bool ConfirmAll(IReadOnlyList<ModPageLink> links) =>
-        Skipped || new ReadModPageConfirmationWindow(links).ShowDialog() == true;
+        Skipped || Ask(new ReadModPageConfirmationWindow(links));
+
+    // Over the main window, dimmed behind it as Steam dims the page behind its dialogs.
+    private static bool Ask(ReadModPageConfirmationWindow gate)
+    {
+        var dimmed = gate.Owner as MainWindow;
+        dimmed?.SetModalDim(true);
+        try
+        {
+            return gate.ShowDialog() == true;
+        }
+        finally
+        {
+            dimmed?.SetModalDim(false);
+        }
+    }
 
     private void UpdateContinueEnabled()
     {
@@ -195,4 +209,12 @@ public partial class ReadModPageConfirmationWindow : FluentWindow
     private void ContinueButton_Click(object sender, RoutedEventArgs e) => DialogResult = true;
 
     private void CancelButton_Click(object sender, RoutedEventArgs e) => DialogResult = false;
+
+    private void Window_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        if (e.Key != System.Windows.Input.Key.Escape) return;
+
+        e.Handled = true;
+        DialogResult = false;
+    }
 }

@@ -1113,25 +1113,47 @@ public partial class BrowseViewModel : LocalizedViewModel
             IsCheckingRequirements = false;
         }
 
+        // Steam's "Additional Required Items" question first: the mod and all it needs, the mod on
+        // its own, or nothing. The same rows go on to the read-the-page gate, so a page opened from
+        // the question counts there too.
+        var requiredLinks = missing is null ? [] : DownloadQueueViewModel.PageLinks(missing);
+        var withRequired = true;
+        if (requiredLinks.Count > 0)
+        {
+            switch (RequiredItemsDialog.Ask(mod.Name ?? Strings.Browse_ThisMod, requiredLinks))
+            {
+                case RequiredItemsChoice.JustThisItem:
+                    withRequired = false;
+                    break;
+                case RequiredItemsChoice.Cancel:
+                    StatusMessage = Cancelled();
+                    return;
+            }
+        }
+
         var links = new List<ModPageLink> { new(mod.Name ?? Strings.Browse_ThisMod, mod.DetailUrl) };
-        if (missing is not null) links.AddRange(DownloadQueueViewModel.PageLinks(missing));
+        if (withRequired) links.AddRange(requiredLinks);
 
         if (!ReadModPageConfirmationWindow.ConfirmAll(links))
         {
-            StatusMessage = Text(
-                action == DownloadAction.Install
-                    ? Strings.Browse_InstallCancelledFormat
-                    : Strings.Browse_RedownloadCancelledFormat,
-                mod.Name);
+            StatusMessage = Cancelled();
             return;
         }
 
+        // Just this item: the required ones were declined here, so the queue is not told to go
+        // looking for them again.
         var item = AppServices.DownloadQueue.Enqueue(target, chosenVersion, installPath, resolve, checkDependencies: missing is null);
-        if (missing is { Count: > 0 }) AppServices.DownloadQueue.EnqueueDependencies(item, missing);
+        if (withRequired && missing is { Count: > 0 }) AppServices.DownloadQueue.EnqueueDependencies(item, missing);
 
-        StatusMessage = missing is { Count: > 0 }
+        StatusMessage = withRequired && missing is { Count: > 0 }
             ? Strings.Browse_QueuedWithRequirements(missing.Count, mod.Name, chosenVersion, missing.Count)
             : Text(Strings.Browse_QueuedFormat, mod.Name, chosenVersion);
+
+        string Cancelled() => Text(
+            action == DownloadAction.Install
+                ? Strings.Browse_InstallCancelledFormat
+                : Strings.Browse_RedownloadCancelledFormat,
+            mod.Name);
     }
 
     /// <summary>Resolves the full ModVersion (with its download Link) for exactly one version string.

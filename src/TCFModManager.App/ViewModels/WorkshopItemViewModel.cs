@@ -189,7 +189,40 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel
         AnnounceQueue();
     }
 
-    private void OnQueueItemChanged(object? sender, PropertyChangedEventArgs e) => AnnounceQueue();
+    private void OnQueueItemChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        AnnounceQueue();
+
+        // Steam's "added to your Subscriptions" bar, once this page's own download has installed.
+        if (e.PropertyName == nameof(DownloadQueueItemViewModel.Status)
+            && _queueItem is { Status: DownloadQueueItemStatus.Completed }
+            && _watchingForInstall)
+        {
+            _watchingForInstall = false;
+            JustSubscribed = true;
+        }
+    }
+
+    // Set by Subscribe on this page, so the bar is for an install asked for here and not for one
+    // that happened to finish while the page was open.
+    private bool _watchingForInstall;
+
+    /// <summary>Shows Steam's "This item has been added to your Subscriptions" bar under the
+    /// subscribe box.</summary>
+    [ObservableProperty]
+    private bool _justSubscribed;
+
+    // The bar's sentence either side of its link, so a translation can put the link anywhere.
+    public string JustSubscribedBefore => Strings.Item_JustSubscribedFormat.Split("{0}", 2)[0];
+
+    public string JustSubscribedAfter => Strings.Item_JustSubscribedFormat.Split("{0}", 2) is { Length: 2 } parts ? parts[1] : string.Empty;
+
+    [RelayCommand]
+    private void DismissJustSubscribed() => JustSubscribed = false;
+
+    // The bar's "Subscriptions" link: the Subscribed items page (navigating closes this page).
+    [RelayCommand]
+    private static void OpenSubscriptions() => AppNavigation.Navigate(typeof(InstalledPage));
 
     private void AnnounceQueue()
     {
@@ -412,6 +445,9 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel
 
         // "Queued ..." is out of date once the install lands; the installed line says the rest.
         if (!wasInstalled && Installed is not null) Message = null;
+
+        // Unsubscribing hides the "added to your Subscriptions" bar, as on Steam.
+        if (wasInstalled && Installed is null) JustSubscribed = false;
 
         foreach (var row in Versions) row.Refresh(Installed?.InstalledVersion);
     }
@@ -672,6 +708,7 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel
         // would dim the progress it is showing.)
         if (IsInQueue) return;
 
+        JustSubscribed = false;
         _subscribing = true;
         try
         {
@@ -682,6 +719,9 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel
             _subscribing = false;
             OnPropertyChanged(nameof(IsCheckingRequirements));
         }
+
+        // Queued: the bar shows once that download has installed.
+        _watchingForInstall = IsInQueue;
 
         Message = AppServices.Browse.StatusMessage;
     }

@@ -1,0 +1,104 @@
+<!--
+    Steam's modal dialog (newmodal), for a question with two or three answers.
+
+    Measured on steamcommunity.com: #25282E with a radial glow of rgba(74,81,92,.4) from the top
+    left, fading out by 60%; a 1px line along the top from #00CCFF to #3366FF; no radius, no
+    shadow; min-width 500. The title is 22px bold white, 24px in from the top and sides; the body
+    16px #ACB2B8; the buttons sit bottom right, 12px apart, 32px tall with 15px text and 15px side
+    padding, radius 2 - green, blue and grey faces below. The page behind is dimmed to 80% black
+    (MainWindow's ModalDim, raised by SteamDialog.Show).
+-->
+<Window
+    x:Class="TCFModManager.App.Views.SteamDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    MinWidth="500"
+    MaxWidth="760"
+    Background="#25282E"
+    FontFamily="{StaticResource SteamFont}"
+    ResizeMode="NoResize"
+    ShowInTaskbar="False"
+    SizeToContent="WidthAndHeight"
+    WindowStartupLocation="CenterOwner"
+    WindowStyle="None"
+    KeyDown="Window_KeyDown">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- The glow from the top left, under everything. -->
+        <Border Grid.RowSpan="4" IsHitTestVisible="False">
+            <Border.Background>
+                <RadialGradientBrush Center="0,0" GradientOrigin="0,0" RadiusX="1.414" RadiusY="1.414">
+                    <GradientStop Offset="0" Color="#664A515C" />
+                    <GradientStop Offset="0.6" Color="#004B515C" />
+                </RadialGradientBrush>
+            </Border.Background>
+        </Border>
+
+        <Rectangle Grid.Row="0" Height="1">
+            <Rectangle.Fill>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                    <GradientStop Offset="0" Color="#00CCFF" />
+                    <GradientStop Offset="1" Color="#3366FF" />
+                </LinearGradientBrush>
+            </Rectangle.Fill>
+        </Rectangle>
+
+        <TextBlock
+            x:Name="TitleText"
+            Grid.Row="1"
+            Margin="24,24,48,0"
+            FontSize="22"
+            FontWeight="Bold"
+            Foreground="White"
+            TextWrapping="Wrap" />
+
+        <!-- The close X: 16px, 9px in from the corner, at 70% until pointed at. -->
+        <Button
+            Grid.Row="0"
+            Grid.RowSpan="2"
+            Width="16"
+            Height="16"
+            Margin="9"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Top"
+            Cursor="Hand"
+            FocusVisualStyle="{x:Null}"
+            Focusable="False"
+            Click="Close_Click">
+            <Button.Template>
+                <ControlTemplate TargetType="Button">
+                    <Grid x:Name="Glyph" Background="Transparent" Opacity="0.7">
+                        <ui:SymbolIcon FontSize="16" Foreground="White" Symbol="Dismiss16" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Glyph" Property="Opacity" Value="1" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Button.Template>
+        </Button>
+
+        <ContentPresenter
+            x:Name="Body"
+            Grid.Row="2"
+            Margin="24"
+            TextElement.FontSize="16"
+            TextElement.Foreground="#ACB2B8" />
+
+        <StackPanel
+            x:Name="Buttons"
+            Grid.Row="3"
+            Margin="24,0,24,24"
+            HorizontalAlignment="Right"
+            Orientation="Horizontal" />
+    </Grid>
+</Window>

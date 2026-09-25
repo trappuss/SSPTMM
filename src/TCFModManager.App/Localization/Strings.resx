@@ -5228,4 +5228,36 @@ This was written to:
     <value>This item has no comments section on sp-mod.com.</value>
     <comment>Shown on the Comments tab when the mod's sp-mod.com page has no comments.</comment>
   </data>
+  <data name="Subscribe_RequiredTitle" xml:space="preserve">
+    <value>Additional Required Items</value>
+    <comment>Title of the dialog Subscribe shows when a mod needs other mods this install does not have. Steam's own words.</comment>
+  </data>
+  <data name="Subscribe_RequiredIntroFormat" xml:space="preserve">
+    <value>{0} requires all of the following other items in order to function properly.</value>
+    <comment>First sentence of the required-items dialog, Steam's own words. {0} is the mod.</comment>
+  </data>
+  <data name="Subscribe_RequiredClickNote" xml:space="preserve">
+    <value>You can click on each one here to read its page on sp-mod.com before proceeding.</value>
+    <comment>Second sentence of the required-items dialog: each listed mod opens its page when clicked.</comment>
+  </data>
+  <data name="Subscribe_RequiredAllNote" xml:space="preserve">
+    <value>The list includes the items they in turn require. Subscribing to just this item leaves them all out, and SPT may not load it without them.</value>
+    <comment>Third sentence of the required-items dialog.</comment>
+  </data>
+  <data name="Subscribe_JustThisItem" xml:space="preserve">
+    <value>Subscribe to Just This Item</value>
+    <comment>Required-items dialog button: installs only the mod asked for. Steam's own words.</comment>
+  </data>
+  <data name="Subscribe_All" xml:space="preserve">
+    <value>Subscribe to All</value>
+    <comment>Required-items dialog button: installs the mod and everything listed. Steam's own words.</comment>
+  </data>
+  <data name="Item_JustSubscribedFormat" xml:space="preserve">
+    <value>This item has been added to your {0}. SPT loads it the next time it starts.</value>
+    <comment>The bar under the subscribe box once a mod has installed, after Steam's "This item has been added to your Subscriptions". {0} is the link Item_JustSubscribedLink; put it where your language needs it.</comment>
+  </data>
+  <data name="Item_JustSubscribedLink" xml:space="preserve">
+    <value>Subscriptions</value>
+    <comment>The link inside Item_JustSubscribedFormat; opens Subscribed items. Steam's word.</comment>
+  </data>
 </root>

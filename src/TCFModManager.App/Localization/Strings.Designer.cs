@@ -1417,4 +1417,12 @@ internal static class Strings
     internal static string Item_ProfileNotice => LocalizationService.Get("Item_ProfileNotice");
     internal static string Item_ProfileNoticeMore => LocalizationService.Get("Item_ProfileNoticeMore");
     internal static string Item_CommentsNone => LocalizationService.Get("Item_CommentsNone");
+    internal static string Subscribe_RequiredTitle => LocalizationService.Get("Subscribe_RequiredTitle");
+    internal static string Subscribe_RequiredIntroFormat => LocalizationService.Get("Subscribe_RequiredIntroFormat");
+    internal static string Subscribe_RequiredClickNote => LocalizationService.Get("Subscribe_RequiredClickNote");
+    internal static string Subscribe_RequiredAllNote => LocalizationService.Get("Subscribe_RequiredAllNote");
+    internal static string Subscribe_JustThisItem => LocalizationService.Get("Subscribe_JustThisItem");
+    internal static string Subscribe_All => LocalizationService.Get("Subscribe_All");
+    internal static string Item_JustSubscribedFormat => LocalizationService.Get("Item_JustSubscribedFormat");
+    internal static string Item_JustSubscribedLink => LocalizationService.Get("Item_JustSubscribedLink");
 }

@@ -308,5 +308,14 @@
         <!-- Full-size pictures and videos, over everything but the title bar - the update dialog
              too, since a picture in the changelog it shows opens here. -->
         <views:MediaViewerOverlay Grid.Row="1" Grid.RowSpan="4" />
+
+        <!-- Steam's backdrop behind its modal dialogs: the page at 80% black while a SteamDialog is
+             open over it. -->
+        <Border
+            x:Name="ModalDim"
+            Grid.Row="0"
+            Grid.RowSpan="5"
+            Background="#CC000000"
+            Visibility="Collapsed" />
     </Grid>
 </ui:FluentWindow>

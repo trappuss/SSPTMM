@@ -320,6 +320,132 @@
         </Setter>
     </Style>
 
+    <!--
+        Steam's modal dialog buttons (newmodal) - see SteamDialog.xaml for the measurements.
+    -->
+    <!-- The modal's three button faces. One template: the face brush and its hover come from the
+         style, the text colour turns white on hover as Steam's do. -->
+    <ControlTemplate x:Key="SteamModalButtonTemplate" TargetType="Button">
+        <Border
+            x:Name="Face"
+            MinHeight="32"
+            Padding="15,0"
+            Background="{TemplateBinding Background}"
+            CornerRadius="2"
+            SnapsToDevicePixels="True">
+            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True" />
+        </Border>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Face" Property="Background" Value="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}" />
+                <Setter Property="Foreground" Value="White" />
+            </Trigger>
+            <!-- btn_disabled: the face at 45%, no hand. -->
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="Face" Property="Opacity" Value="0.45" />
+                <Setter Property="Cursor" Value="Arrow" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <!-- Steam's :focus-visible ring - 2px white, inside the edge. A FocusVisualStyle, which WPF
+         shows for keyboard focus only, as focus-visible does; a click leaves no ring. -->
+    <Style x:Key="SteamModalFocusRing">
+        <Setter Property="Control.Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Border BorderBrush="White" BorderThickness="2" CornerRadius="2" SnapsToDevicePixels="True" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="SteamModalButton" TargetType="Button">
+        <Setter Property="Template" Value="{StaticResource SteamModalButtonTemplate}" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="Margin" Value="12,0,0,0" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource SteamModalFocusRing}" />
+    </Style>
+
+    <!-- Green: #75B022 -> #588A1B left to right, #D2EFA9 text; hover #8ED629 -> #6AA621 top to bottom. -->
+    <Style x:Key="SteamModalGreenButton" TargetType="Button" BasedOn="{StaticResource SteamModalButton}">
+        <Setter Property="Foreground" Value="#D2EFA9" />
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                    <GradientStop Offset="0.05" Color="#75B022" />
+                    <GradientStop Offset="0.95" Color="#588A1B" />
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Tag">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Offset="0.05" Color="#8ED629" />
+                    <GradientStop Offset="0.95" Color="#6AA621" />
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Blue: Steam draws #47BFFF -> #1A44C2 at 330% width and shows a slice of it, the slice
+         moving on hover. These are the colours of those two slices, worked out from the
+         gradient: #3DA3F1 -> #245FD0 at rest, #47BFFF -> #3286E3 on hover. #C3E1F8 text. -->
+    <Style x:Key="SteamModalBlueButton" TargetType="Button" BasedOn="{StaticResource SteamModalButton}">
+        <Setter Property="Foreground" Value="#C3E1F8" />
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                    <GradientStop Offset="0" Color="#3DA3F1" />
+                    <GradientStop Offset="1" Color="#245FD0" />
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Tag">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                    <GradientStop Offset="0.165" Color="#47BFFF" />
+                    <GradientStop Offset="1" Color="#3286E3" />
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Grey: #32363F, #DFE3E6 text; hover #464D58. -->
+    <Style x:Key="SteamModalGreyButton" TargetType="Button" BasedOn="{StaticResource SteamModalButton}">
+        <Setter Property="Foreground" Value="#DFE3E6" />
+        <Setter Property="Background" Value="#32363F" />
+        <Setter Property="Tag" Value="#464D58" />
+    </Style>
+
+    <!--
+        A required item listed in a Steam modal (the "Additional Required Items" dialog): the
+        item page's requiredItem row - rgba(84,133,183,.2), lighter under the pointer.
+    -->
+    <Style x:Key="SteamModalRow" TargetType="Button">
+        <Setter Property="Margin" Value="0,0,0,2" />
+        <Setter Property="Padding" Value="10,7" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="Foreground" Value="{StaticResource SteamWhite}" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Row" Padding="{TemplateBinding Padding}" Background="{StaticResource SteamRequiredItem}">
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Row" Property="Background" Value="#555485B7" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!--  A bare text link: Steam blue, lighter on hover.  -->
     <Style x:Key="SteamLinkButton" TargetType="Button">
         <Setter Property="Foreground" Value="{StaticResource SteamLegacyBlue}" />

@@ -348,7 +348,7 @@
                                 <!-- The rest of sp-mod.com's Details panel: the plugin id, the
                                      source code, and the VirusTotal scans of the version Subscribe
                                      would install. -->
-                                <TextBlock Margin="0,0,0,6" TextWrapping="Wrap" Visibility="{Binding Guid, Converter={StaticResource NullToCollapsed}}">
+                                <TextBlock Margin="0,0,0,6" TextTrimming="CharacterEllipsis" ToolTip="{Binding Guid}" Visibility="{Binding Guid, Converter={StaticResource NullToCollapsed}}">
                                     <Run Style="{StaticResource DetailLabel}" Text="{loc:Str Item_GuidLabel}" />
                                     <Run Style="{StaticResource DetailValue}" FontFamily="{StaticResource SteamMonospace}" FontSize="13" Text="{Binding Guid, Mode=OneWay}" />
                                 </TextBlock>
@@ -586,6 +586,44 @@
                                         <TextBlock Margin="0,6,0,0" FontSize="13" Foreground="#A4D007" TextWrapping="Wrap" Text="{Binding StatusLine}" Visibility="{Binding StatusLine, Converter={StaticResource NullToCollapsed}}" />
                                         <TextBlock Margin="0,6,0,0" FontSize="13" Foreground="{StaticResource SteamLegacyBlue}" TextWrapping="Wrap" Text="{Binding Message}" Visibility="{Binding Message, Converter={StaticResource NullToCollapsed}}" />
                                     </StackPanel>
+                                </DockPanel>
+                            </Border>
+
+                            <!-- Steam's #JustSubscribed bar, straight under the box once the
+                                 install asked for here has landed: rgba(64,128,183,.8), #66C0F4
+                                 14px text with "Subscriptions" as a white link to Subscribed
+                                 items, a tick at the left and a close X at the top right. -->
+                            <Border
+                                Padding="10"
+                                Background="#CC4080B7"
+                                Visibility="{Binding JustSubscribed, Converter={StaticResource TrueToVisible}}">
+                                <DockPanel>
+                                    <Button
+                                        Width="16"
+                                        Height="16"
+                                        Margin="10,0,0,0"
+                                        VerticalAlignment="Top"
+                                        DockPanel.Dock="Right"
+                                        Cursor="Hand"
+                                        Focusable="False"
+                                        Command="{Binding DismissJustSubscribedCommand}">
+                                        <Button.Template>
+                                            <ControlTemplate TargetType="Button">
+                                                <Grid x:Name="Glyph" Background="Transparent" Opacity="0.7">
+                                                    <ui:SymbolIcon FontSize="16" Foreground="White" Symbol="Dismiss16" />
+                                                </Grid>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="Glyph" Property="Opacity" Value="1" />
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Button.Template>
+                                    </Button>
+                                    <ui:SymbolIcon Margin="0,0,10,0" VerticalAlignment="Center" FontSize="20" Foreground="#66C0F4" Symbol="Checkmark20" />
+                                    <TextBlock VerticalAlignment="Center" FontSize="14" Foreground="#66C0F4" TextWrapping="Wrap">
+                                        <Run Text="{Binding JustSubscribedBefore, Mode=OneWay}" /><Hyperlink Command="{Binding OpenSubscriptionsCommand}" Foreground="White" TextDecorations="None"><Run Text="{loc:Str Item_JustSubscribedLink}" /></Hyperlink><Run Text="{Binding JustSubscribedAfter, Mode=OneWay}" />
+                                    </TextBlock>
                                 </DockPanel>
                             </Border>
 

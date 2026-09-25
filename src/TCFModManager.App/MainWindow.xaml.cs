@@ -66,6 +66,16 @@ public partial class MainWindow : FluentWindow
         };
     }
 
+    // How many SteamDialogs are open over this window; the backdrop shows while any is.
+    private int _modalDims;
+
+    /// <summary>Dims the window behind a SteamDialog, as Steam dims the page behind its modals.</summary>
+    public void SetModalDim(bool on)
+    {
+        _modalDims = Math.Max(0, _modalDims + (on ? 1 : -1));
+        ModalDim.Visibility = _modalDims > 0 ? Visibility.Visible : Visibility.Collapsed;
+    }
+
     // Lights the hub tab for the page on screen - the Workshop tab for every Workshop page but
     // Subscribed items, which has a tab of its own - and
     // shows the Workshop strip over the two Workshop pages that have no banner of their own.
