@@ -745,7 +745,23 @@
                                                             </ControlTemplate.Triggers>
                                                         </ControlTemplate>
                                                     </Button.Template>
-                                                    <TextBlock FontSize="14" Foreground="{StaticResource SteamValueText}" TextWrapping="Wrap" Text="{Binding Label}" />
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="Auto" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock FontSize="14" Foreground="{StaticResource SteamValueText}" TextWrapping="Wrap" Text="{Binding Label}" />
+                                                        <!-- Installed: Steam's subscribed tick. -->
+                                                        <ui:SymbolIcon
+                                                            Grid.Column="1"
+                                                            Margin="8,0,0,0"
+                                                            VerticalAlignment="Center"
+                                                            FontSize="16"
+                                                            Foreground="#66C0F4"
+                                                            Symbol="Checkmark16"
+                                                            ToolTip="{loc:Str Item_Subscribed}"
+                                                            Visibility="{Binding IsInstalled, Converter={StaticResource TrueToVisible}}" />
+                                                    </Grid>
                                                 </Button>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>

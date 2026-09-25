@@ -15,8 +15,24 @@ using TCFModManager.Core.SpModApi;
 
 namespace TCFModManager.App.ViewModels;
 
-// One required item on the item page's right: another mod the shown version needs.
-public sealed record WorkshopRequiredItem(int ModId, string Label);
+// One required item on the item page's right: another mod the shown version needs, ticked while
+// it is installed.
+public sealed partial class WorkshopRequiredItem(int modId, string? guid, string? name, string label) : ObservableObject
+{
+    public int ModId { get; } = modId;
+
+    public string Label { get; } = label;
+
+    [ObservableProperty]
+    private bool _isInstalled;
+
+    /// <summary>Looks again at whether it is installed: by the catalog's record of it, else its guid or name.</summary>
+    public void Refresh()
+    {
+        var mod = AppServices.Browse.FindInCatalog(ModId) ?? new Mod { Id = ModId, Guid = guid, Name = name };
+        IsInstalled = AppServices.Browse.InstalledMatchFor(mod) is not null;
+    }
+}
 
 // Someone credited on the mod, with their sp-mod.com picture when they have one.
 public sealed partial class WorkshopAuthor : ObservableObject
@@ -527,6 +543,7 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel, IModActi
         if (wasInstalled && Installed is null) JustSubscribed = false;
 
         foreach (var row in Versions) row.Refresh(Installed?.InstalledVersion);
+        foreach (var required in RequiredItems) required.Refresh();
     }
 
     // What the last action said - queued, removed, failed.
@@ -740,9 +757,13 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel, IModActi
             {
                 var modId = dependency.ModId != 0 ? dependency.ModId : dependency.Id;
                 var name = DependencyName(dependency);
-                RequiredItems.Add(new WorkshopRequiredItem(
+                var required = new WorkshopRequiredItem(
                     modId,
-                    dependency.IsOptional ? Text(Strings.Item_OptionalFormat, name) : name));
+                    dependency.Guid ?? dependency.ModGuid,
+                    dependency.Name ?? dependency.ModName,
+                    dependency.IsOptional ? Text(Strings.Item_OptionalFormat, name) : name);
+                required.Refresh();
+                RequiredItems.Add(required);
             }
 
             OnPropertyChanged(nameof(HasRequiredItems));
