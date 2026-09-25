@@ -1,5 +1,7 @@
 # Build output
 bin/
+# The .NET SDK steam-ui-build-and-run.bat installs locally when a PC has none
+.dotnet/
 obj/
 dist/
 publish/
