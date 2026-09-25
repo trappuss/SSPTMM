@@ -443,9 +443,16 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
         ? "ErrorCircle24"
         : ModStatusDisplay.Glyph(Status);
 
+    // sp-mod.com holds this mod's update back: it would break another installed mod. Set after
+    // each scan by InstalledViewModel, from AppServices.HeldBack.
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(StatusTooltip))]
+    private string? _heldBackNote;
+
     // Missing files first: it is the only one of these the card gives no other sign of.
     public string StatusTooltip =>
         IncompleteSummary
+        ?? HeldBackNote
         ?? (HasDuplicateFolders
             ? Strings.Installed_StatusDuplicate
             : IsMixedState

@@ -5592,4 +5592,48 @@ This was written to:
     <value>Updated before {0}</value>
     <comment>Filter chip. Steam's words. {0} is a date.</comment>
   </data>
+  <data name="Installed_HeldBackFormat" xml:space="preserve">
+    <value>Update to {0} held back: {1}.</value>
+    <comment>On a mod whose newer version would break another installed mod, e.g. "Update to 3.0.6 held back: Black and Blue needs ~2.0.24." {0} is the held-back version, {1} the mods it would break (Installed_HeldBackNeedsFormat, joined).</comment>
+  </data>
+  <data name="Installed_HeldBackNeedsFormat" xml:space="preserve">
+    <value>{0} needs {1}</value>
+    <comment>Part of Installed_HeldBackFormat: {0} is an installed mod, {1} the versions of this mod it accepts, as sp-mod.com writes them ("~2.0.24").</comment>
+  </data>
+  <data name="Installed_HeldBackChainFormat" xml:space="preserve">
+    <value>Update to {0} held back: it needs another update that is held back.</value>
+    <comment>sp-mod.com holds the update back because something it depends on is held back itself. {0} is the version.</comment>
+  </data>
+  <data name="Installed_HeldBackPlainFormat" xml:space="preserve">
+    <value>Update to {0} held back by sp-mod.com.</value>
+    <comment>sp-mod.com holds the update back for a reason it does not explain. {0} is the version.</comment>
+  </data>
+  <data name="Installed_UpdatesHeldBack_one" xml:space="preserve">
+    <value>{1} was left alone: sp-mod.com holds its update back. Its own update dialog can still install it.</value>
+    <comment>After Update all/selected, for a mod whose update sp-mod.com holds back. {0} is how many, {1} the mod.</comment>
+  </data>
+  <data name="Installed_UpdatesHeldBack_other" xml:space="preserve">
+    <value>{1} were left alone: sp-mod.com holds their updates back. Each one's own update dialog can still install it.</value>
+    <comment>After Update all/selected, for mods whose updates sp-mod.com holds back. {0} is how many, {1} the mods.</comment>
+  </data>
+  <data name="Item_VersionVerified" xml:space="preserve">
+    <value>Passed Verification</value>
+    <comment>Beside a version sp-mod.com has checked the download of. sp-mod.com's words.</comment>
+  </data>
+  <data name="Item_VersionVerifiedToolTipFormat" xml:space="preserve">
+    <value>sp-mod.com checked this download on {0} and recorded the files in it.</value>
+    <comment>Tooltip on Passed Verification. {0} is the date and time.</comment>
+  </data>
+  <data name="Item_VersionFiles_one" xml:space="preserve">
+    <value>Files in this download (1)</value>
+    <comment>Link on a version that opens the list of files its download contains. {0} is how many.</comment>
+  </data>
+  <data name="Item_VersionFiles_other" xml:space="preserve">
+    <value>Files in this download ({0:N0})</value>
+    <comment>Link on a version that opens the list of files its download contains. {0} is how many.</comment>
+  </data>
+  <data name="Item_VersionFilesTruncated" xml:space="preserve">
+    <value>The download has more files than sp-mod.com records, so this list is incomplete.</value>
+    <comment>Under a file list sp-mod.com cut short.</comment>
+  </data>
 </root>

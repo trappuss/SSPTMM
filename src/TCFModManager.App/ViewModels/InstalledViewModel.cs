@@ -797,6 +797,10 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
             _all = cards;
 
+            // What sp-mod.com held back last time stands until it answers again.
+            foreach (var card in cards) card.HeldBackNote = card.IsAddon ? null : AppServices.HeldBack.Note(card.ModId);
+            _ = CheckHeldBackAsync(cards);
+
             if (openCards.Count > 0 || openRows.Count > 0)
                 foreach (var card in cards)
                 {
@@ -1202,7 +1206,36 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
     private static bool IsUpdatable(InstalledModCardViewModel card) =>
         card is { UpdateAvailable: true, IsDisabled: false, IsAddon: false, ModId: not null }
-        && card.LatestPublishedVersion is not null;
+        && card.LatestPublishedVersion is not null
+        && !IsHeldBack(card);
+
+    // sp-mod.com holds back the very version this update would install. A different, newer version
+    // being held back leaves this one alone.
+    private static bool IsHeldBack(InstalledModCardViewModel card) =>
+        AppServices.HeldBack.HeldVersion(card.ModId) is { } held
+        && string.Equals(held, card.UpdateVersion ?? card.LatestPublishedVersion, StringComparison.OrdinalIgnoreCase);
+
+    // After each scan: ask sp-mod.com about the whole install, then mark what it holds back.
+    private async Task CheckHeldBackAsync(IReadOnlyList<InstalledModCardViewModel> cards)
+    {
+        var installed = cards
+            .Where(c => c is { IsAddon: false, ModId: not null } && !string.IsNullOrWhiteSpace(c.InstalledVersion))
+            .Select(c => (c.ModId!.Value, c.InstalledVersion!))
+            .DistinctBy(c => c.Item1)
+            .ToList();
+
+        await AppServices.HeldBack.RefreshAsync(installed, AppServices.SptEnvironment.InstalledVersion);
+        ApplyHeldBack();
+    }
+
+    private void ApplyHeldBack()
+    {
+        foreach (var card in _all)
+            card.HeldBackNote = card.IsAddon ? null : AppServices.HeldBack.Note(card.ModId);
+
+        AnnounceUpdates();
+        UpdateSelectedCommand.NotifyCanExecuteChanged();
+    }
 
     //
     // Updates every selected mod that has one waiting, in a single pass.
@@ -1249,9 +1282,15 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
         var targets = selected.Where(IsUpdatable).ToList();
 
+        // Held back by sp-mod.com: said, and left for the mod's own update dialog.
+        var heldBack = selected.Where(c => c is { UpdateAvailable: true, IsDisabled: false } && IsHeldBack(c)).ToList();
+        var heldBackNote = heldBack.Count == 0
+            ? null
+            : Strings.Installed_UpdatesHeldBack(heldBack.Count, heldBack.Count, TextLists.Join(heldBack.Select(c => c.DisplayTitle).ToList()));
+
         if (targets.Count == 0)
         {
-            StatusMessage = DescribeNothingToUpdate(selected);
+            StatusMessage = heldBackNote ?? DescribeNothingToUpdate(selected);
             return;
         }
 
@@ -1308,6 +1347,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
         var queued = Strings.Installed_UpdateQueued(resolved.Count);
         StatusMessage = queued + DescribeSkipped(selected, resolved.Count, unmatched);
+        if (heldBackNote is not null) StatusMessage = string.Join(Strings.Common_SentenceSeparator, StatusMessage, heldBackNote);
 
         AppLog.Info("Installed", $"queued {resolved.Count} update(s) from a selection of {selected.Count}");
     }

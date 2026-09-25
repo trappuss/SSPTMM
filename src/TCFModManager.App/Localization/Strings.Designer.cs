@@ -1508,4 +1508,15 @@ internal static class Strings
     internal static string Browse_ChipUpdatedBetween => LocalizationService.Get("Browse_ChipUpdatedBetween");
     internal static string Browse_ChipUpdatedAfter => LocalizationService.Get("Browse_ChipUpdatedAfter");
     internal static string Browse_ChipUpdatedBefore => LocalizationService.Get("Browse_ChipUpdatedBefore");
+    internal static string Installed_HeldBackFormat => LocalizationService.Get("Installed_HeldBackFormat");
+    internal static string Installed_HeldBackNeedsFormat => LocalizationService.Get("Installed_HeldBackNeedsFormat");
+    internal static string Installed_HeldBackChainFormat => LocalizationService.Get("Installed_HeldBackChainFormat");
+    internal static string Installed_HeldBackPlainFormat => LocalizationService.Get("Installed_HeldBackPlainFormat");
+    internal static string Installed_UpdatesHeldBack(int count, params object?[] values) =>
+        LocalizationService.Plural("Installed_UpdatesHeldBack", count, values);
+    internal static string Item_VersionVerified => LocalizationService.Get("Item_VersionVerified");
+    internal static string Item_VersionVerifiedToolTipFormat => LocalizationService.Get("Item_VersionVerifiedToolTipFormat");
+    internal static string Item_VersionFiles(int count, params object?[] values) =>
+        LocalizationService.Plural("Item_VersionFiles", count, values);
+    internal static string Item_VersionFilesTruncated => LocalizationService.Get("Item_VersionFilesTruncated");
 }

@@ -30,6 +30,53 @@ public class SpModApiClientTests
         Assert.Contains("per_page=25", query);
     }
 
+    // Live /mods/updates, 2026-09-25: CommonLib's update is held back because Black and Blue 1.0.0
+    // needs CommonLib ~2.0.24, and Black and Blue's own update is held back in turn.
+    private const string UpdatesFixture = """
+        {"success":true,"data":{"spt_version":"4.1.6","updates":[],"blocked_updates":[{"current_version":{"id":14916,"mod_id":2310,"guid":"com.wtt.commonlib","name":"WTT - CommonLib","version":"3.0.5"},"latest_version":{"id":14931,"version":"3.0.6","spt_versions":["4.1.6","4.1.5","4.1.4","4.1.3"]},"block_reason":"dependency_constraint_violation","blocking_mods":[{"mod_id":3052,"mod_guid":"com.c11.blackandblue","mod_name":"Black and Blue","current_version":"1.0.0","constraint":"~2.0.24","incompatible_with":"3.0.6"}]},{"current_version":{"id":15571,"mod_id":3052,"guid":"com.c11.blackandblue","name":"Black and Blue","version":"1.0.0"},"latest_version":{"id":15572,"version":"3.0.0","spt_versions":["4.1.6"]},"block_reason":"chain_dependency_conflict"}],"up_to_date":[],"incompatible_with_spt":[]}}
+        """;
+
+    [Fact]
+    public async Task GetModUpdatesAsync_ReadsHeldBackUpdatesAndWhatBlocksThem()
+    {
+        var handler = new FakeHttpMessageHandler(HttpStatusCode.OK, UpdatesFixture);
+        using var client = CreateClient(handler);
+
+        var result = await client.GetModUpdatesAsync("2310:3.0.5,3052:1.0.0", "4.1.6");
+
+        Assert.Contains("mods=2310%3A3.0.5%2C3052%3A1.0.0", handler.LastRequestUri!.Query);
+        var commonLib = Assert.Single(result.BlockedUpdates, b => b.CurrentVersion?.ModId == 2310);
+        Assert.Equal("3.0.6", commonLib.LatestVersion?.Version);
+        Assert.Equal("dependency_constraint_violation", commonLib.BlockReason);
+        var blocker = Assert.Single(commonLib.BlockingMods);
+        Assert.Equal("Black and Blue", blocker.ModName);
+        Assert.Equal("~2.0.24", blocker.Constraint);
+
+        var chained = Assert.Single(result.BlockedUpdates, b => b.CurrentVersion?.ModId == 3052);
+        Assert.Equal("chain_dependency_conflict", chained.BlockReason);
+        Assert.Empty(chained.BlockingMods);
+    }
+
+    // Live /mod/791/versions/14862/file-tree, 2026-09-25 (SAIN 4.5.0).
+    private const string FileTreeFixture = """
+        {"success":true,"data":{"verified_at":"2026-08-20T17:36:45.000000Z","file_count":6,"truncated":false,"files":["BepInEx/plugins/SAIN/SAIN.Preset.Shared.dll","BepInEx/plugins/SAIN/SAIN.dll","SPT_Runtime/user/mods/Solarint-SAIN-ServerMod/Data/NicknamePersonalities.json","SPT_Runtime/user/mods/Solarint-SAIN-ServerMod/SAIN.Preset.Shared.dll","SPT_Runtime/user/mods/Solarint-SAIN-ServerMod/SAINServerMod.dll","SPT_Runtime/user/mods/Solarint-SAIN-ServerMod/wwwroot/css/sain.css"]}}
+        """;
+
+    [Fact]
+    public async Task GetModVersionFileTreeAsync_ReadsTheVerifiedFileList()
+    {
+        var handler = new FakeHttpMessageHandler(HttpStatusCode.OK, FileTreeFixture);
+        using var client = CreateClient(handler);
+
+        var tree = await client.GetModVersionFileTreeAsync("791", "14862");
+
+        Assert.EndsWith("/api/v0/mod/791/versions/14862/file-tree", handler.LastRequestUri!.AbsolutePath);
+        Assert.NotNull(tree.VerifiedAt);
+        Assert.Equal(tree.FileCount, tree.Files.Count);
+        Assert.Contains(tree.Files, f => f.StartsWith("BepInEx/plugins/SAIN/", StringComparison.Ordinal));
+        Assert.False(tree.Truncated);
+    }
+
     [Fact]
     public async Task GetModsAsync_DeserializesRealListResponse()
     {

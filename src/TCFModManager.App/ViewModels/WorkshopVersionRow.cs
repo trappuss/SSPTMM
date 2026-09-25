@@ -1,8 +1,10 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using TCFModManager.App.Localization;
+using TCFModManager.App.Services;
 using TCFModManager.Core.Models;
 using TCFModManager.Core.Services;
+using TCFModManager.Core.SpModApi;
 
 namespace TCFModManager.App.ViewModels;
 
@@ -81,4 +83,61 @@ public sealed partial class WorkshopVersionRow : ObservableObject
 
     [RelayCommand]
     private Task InstallAsync() => _page.InstallVersionAsync(this);
+
+    // ------------------------------------------------------------------ files and verification
+
+    //
+    // sp-mod.com checks each version's download and records the files in it ("Passed
+    // Verification" beside the version on the site). Its file-tree endpoint lists them, and only
+    // for a version that passed; any other answers "not found". Asked once per row, when the
+    // Versions tab is shown.
+    //
+    private bool _checked;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsVerified), nameof(VerifiedToolTip), nameof(FilesButtonText), nameof(HasFiles))]
+    private FileTree? _fileTree;
+
+    public bool IsVerified => FileTree?.VerifiedAt is not null;
+
+    public string? VerifiedToolTip => FileTree?.VerifiedAt is { } when
+        ? LocalizationService.Text(Strings.Item_VersionVerifiedToolTipFormat, SteamDates.Full(when))
+        : null;
+
+    public bool HasFiles => FileTree is { Files.Count: > 0 };
+
+    public string FilesButtonText => Strings.Item_VersionFiles(FileTree?.FileCount ?? 0, FileTree?.FileCount ?? 0);
+
+    public IReadOnlyList<string> Files => FileTree?.Files ?? [];
+
+    public bool IsTruncated => FileTree?.Truncated == true;
+
+    [ObservableProperty]
+    private bool _areFilesShown;
+
+    [RelayCommand]
+    private void ToggleFiles() => AreFilesShown = !AreFilesShown;
+
+    public async Task CheckAsync()
+    {
+        var versionId = Source.Id;
+        if (_checked || versionId == 0 || _page.Mod.Id == 0) return;
+        _checked = true;
+
+        try
+        {
+            FileTree = await AppServices.SpModApi.GetModVersionFileTreeAsync(_page.Mod.Id.ToString(), versionId.ToString());
+            OnPropertyChanged(nameof(Files));
+            OnPropertyChanged(nameof(IsTruncated));
+        }
+        catch (SpModApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            // Not verified (or not public): nothing to show, which is what the row then shows.
+        }
+        catch (Exception ex)
+        {
+            _checked = false;
+            AppLog.Warn("Workshop", $"file list for version {versionId} failed: {ex.Message}");
+        }
+    }
 }

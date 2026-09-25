@@ -591,6 +591,7 @@
                                         <TextBlock Margin="0,4,0,0" FontSize="20" FontWeight="Bold" Foreground="{StaticResource SteamWhite}" TextWrapping="Wrap" Text="{Binding Name}" />
                                         <!-- Installed / update available / disabled, in the app's own words. -->
                                         <TextBlock Margin="0,6,0,0" FontSize="13" Foreground="#A4D007" TextWrapping="Wrap" Text="{Binding StatusLine}" Visibility="{Binding StatusLine, Converter={StaticResource NullToCollapsed}}" />
+                                        <TextBlock Margin="0,4,0,0" FontSize="13" Foreground="#D3AC42" TextWrapping="Wrap" Text="{Binding HeldBackNote}" Visibility="{Binding HeldBackNote, Converter={StaticResource NullToCollapsed}}" />
                                         <TextBlock Margin="0,6,0,0" FontSize="13" Foreground="{StaticResource SteamLegacyBlue}" TextWrapping="Wrap" Text="{Binding Message}" Visibility="{Binding Message, Converter={StaticResource NullToCollapsed}}" />
                                     </StackPanel>
                                 </DockPanel>
@@ -829,7 +830,21 @@
                                                 Visibility="{Binding CanInstall, Converter={StaticResource TrueToVisible}}" />
                                         </StackPanel>
                                         <StackPanel>
-                                            <TextBlock FontSize="20" Foreground="{StaticResource SteamWhite}" Text="{Binding Version}" />
+                                            <!-- The number, and sp-mod.com's shield once the version has passed its
+                                                 file check: blue-400 (#60A5FA), "Passed Verification". -->
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock FontSize="20" Foreground="{StaticResource SteamWhite}" Text="{Binding Version}" />
+                                                <StackPanel
+                                                    Margin="10,0,0,0"
+                                                    VerticalAlignment="Center"
+                                                    Background="Transparent"
+                                                    Orientation="Horizontal"
+                                                    ToolTip="{Binding VerifiedToolTip}"
+                                                    Visibility="{Binding IsVerified, Converter={StaticResource TrueToVisible}}">
+                                                    <ui:SymbolIcon FontSize="18" Filled="True" Foreground="#60A5FA" Symbol="ShieldCheckmark20" />
+                                                    <TextBlock Margin="4,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="#60A5FA" Text="{loc:Str Item_VersionVerified}" />
+                                                </StackPanel>
+                                            </StackPanel>
                                             <WrapPanel Margin="0,6,0,0">
                                                 <Border Margin="0,0,8,0" Padding="6,1" CornerRadius="2" Visibility="{Binding HasSptRange, Converter={StaticResource TrueToVisible}}">
                                                     <Border.Style>
@@ -876,6 +891,32 @@
                                                     </ItemsControl.ItemTemplate>
                                                 </ItemsControl>
                                             </WrapPanel>
+
+                                            <!-- What the download puts where, as sp-mod.com recorded it. -->
+                                            <Button
+                                                Margin="0,8,0,0"
+                                                HorizontalAlignment="Left"
+                                                Style="{StaticResource SteamLinkButton}"
+                                                Command="{Binding ToggleFilesCommand}"
+                                                Visibility="{Binding HasFiles, Converter={StaticResource TrueToVisible}}">
+                                                <TextBlock FontSize="13" Text="{Binding FilesButtonText}" />
+                                            </Button>
+                                            <Border
+                                                Margin="0,6,0,0"
+                                                Padding="10,8"
+                                                Background="#33000000"
+                                                Visibility="{Binding AreFilesShown, Converter={StaticResource TrueToVisible}}">
+                                                <StackPanel>
+                                                    <ItemsControl ItemsSource="{Binding Files}">
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <TextBlock FontFamily="{StaticResource SteamMonospace}" FontSize="12" Foreground="{StaticResource SteamText}" TextTrimming="CharacterEllipsis" Text="{Binding}" ToolTip="{Binding}" />
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                    <TextBlock Margin="0,6,0,0" FontSize="12" Foreground="{StaticResource SteamTextDim}" TextWrapping="Wrap" Text="{loc:Str Item_VersionFilesTruncated}" Visibility="{Binding IsTruncated, Converter={StaticResource TrueToVisible}}" />
+                                                </StackPanel>
+                                            </Border>
                                         </StackPanel>
                                     </DockPanel>
                                 </Border>

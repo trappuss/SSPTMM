@@ -434,11 +434,11 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel, IModActi
     // ------------------------------------------------------------------ install state
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsSubscribed), nameof(CanUpdate), nameof(IsDisabled), nameof(StatusLine))]
+    [NotifyPropertyChangedFor(nameof(IsSubscribed), nameof(CanUpdate), nameof(IsDisabled), nameof(StatusLine), nameof(HeldBackNote))]
     private ModCardViewModel _card = null!;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsSubscribed), nameof(CanUpdate))]
+    [NotifyPropertyChangedFor(nameof(IsSubscribed), nameof(CanUpdate), nameof(HeldBackNote))]
     private InstalledModCardViewModel? _installed;
 
     public bool IsSubscribed => Card.IsInstalled;
@@ -449,6 +449,9 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel, IModActi
 
     // "Installed", "Update available", "Disabled" - the same words the rest of the app uses.
     public string? StatusLine => Card.IsInstalled ? Card.StatusTooltip : null;
+
+    // sp-mod.com holds this mod's update back: it would break another installed mod.
+    public string? HeldBackNote => Installed is not null ? AppServices.HeldBack.Note(Mod.Id) : null;
 
     private void RefreshInstallState()
     {
@@ -508,9 +511,29 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel, IModActi
         OnPropertyChanged(nameof(IsChangeNotesShown));
         OnPropertyChanged(nameof(IsVersionsShown));
         OnPropertyChanged(nameof(IsCommentsShown));
+
+        if (tab == WorkshopItemTab.Versions) _ = CheckVersionsAsync();
     }
 
     // ------------------------------------------------------------------ versions
+
+    // Which versions passed sp-mod.com's file check, one row after another - only while the
+    // Versions tab is what is being looked at.
+    private bool _checkingVersions;
+
+    private async Task CheckVersionsAsync()
+    {
+        if (_checkingVersions) return;
+        _checkingVersions = true;
+        try
+        {
+            for (var i = 0; i < Versions.Count && IsVersionsShown; i++) await Versions[i].CheckAsync();
+        }
+        finally
+        {
+            _checkingVersions = false;
+        }
+    }
 
     public ObservableCollection<WorkshopChangeNote> ChangeNotes { get; } = [];
 
@@ -627,6 +650,8 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel, IModActi
                 Versions.Add(new WorkshopVersionRow(this, v, installedSpt, Installed?.InstalledVersion ?? InstalledVersion,
                     DependencyNames(v), v.ContentLength is { } size ? DescribeSize(size) : null));
             }
+
+            if (IsVersionsShown) _ = CheckVersionsAsync();
 
             OnPropertyChanged(nameof(CanLoadMoreVersions));
 

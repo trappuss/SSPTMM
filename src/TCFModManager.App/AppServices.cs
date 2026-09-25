@@ -68,6 +68,9 @@ internal static class AppServices
     // Steam's Quick View - see QuickViewOverlay.
     public static QuickViewOverlayViewModel QuickView { get; } = new();
 
+    // Updates sp-mod.com holds back because they would break another installed mod.
+    public static HeldBackUpdates HeldBack { get; } = new();
+
     // Whether a newer release of this app has been published on sp-mod.com. Shared between the
     // banner in MainWindow, the nav item's badge and the App update page, so all three read one
     // check rather than each running their own.
