@@ -241,13 +241,12 @@ public sealed partial class WorkshopCollectionViewModel : LocalizedViewModel, IM
             new SteamDialogChoice(Strings.Collection_RemoveAll, SteamDialogButton.Blue),
             new SteamDialogChoice(Strings.Common_Cancel, SteamDialogButton.Grey));
 
+        if (answer is not (0 or 1)) return;
+
         var page = InstalledViewModel.Current ?? new InstalledViewModel();
-        Message = answer switch
-        {
-            0 => await page.DisableModsAsync(installed),
-            1 => await page.RemoveModsAsync(installed),
-            _ => Message,
-        };
+        Message = (answer == 0
+            ? await page.DisableModsAsync(installed)
+            : await page.RemoveModsAsync(installed)) ?? Message;
     }
 
     // Steam's Save to Collection: a copy of this collection, under a new name.

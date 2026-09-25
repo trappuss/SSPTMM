@@ -1398,6 +1398,7 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
     private async Task<bool> ConfirmFileClashesAsync(Mod mod, int knownVersionId, string version, string installPath)
     {
         IReadOnlyList<FileClash> clashes;
+        bool partial;
         IsCheckingRequirements = true;
         try
         {
@@ -1423,7 +1424,11 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
                 installPath, paths, target, AppServices.InstallManifest.Load().Mods,
                 full => own is not null && own.Entries.Any(e =>
                     string.Equals(System.IO.Path.GetFullPath(e.FolderPath), System.IO.Path.GetFullPath(full), StringComparison.OrdinalIgnoreCase)
-                    || ModFileConflicts.IsInside(full, e.FolderPath)));
+                    || ModFileConflicts.IsInside(full, e.FolderPath)),
+                new ModConfigOptionsStore().Effective());
+
+            // sp-mod.com cuts a long list short; what it left out cannot be checked.
+            partial = tree.Truncated;
         }
         catch (Exception ex)
         {
@@ -1437,15 +1442,17 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
 
         if (clashes.Count == 0) return true;
 
-        AppLog.Info("Browse", $"{mod.Name} {version} would overwrite {clashes.Count} file(s): {string.Join(", ", clashes.Take(10).Select(c => c.Path))}");
-        return FileClashDialog.Ask(mod.Name ?? Strings.Browse_ThisMod, version, clashes, HandInstalledOwner);
+        AppLog.Info("Browse", $"{mod.Name} {version} would overwrite {clashes.Count} file(s){(partial ? " (partial file list)" : "")}: {string.Join(", ", clashes.Take(10).Select(c => c.Path))}");
+        return FileClashDialog.Ask(mod.Name ?? Strings.Browse_ThisMod, version, clashes, partial, HandInstalledOwner);
     }
 
-    // The installed mod whose folder holds a file no install record lists, for the clash list.
+    // The installed mod whose folder holds a file no install record lists, for the clash list: one
+    // installed by hand, or a file an app-installed mod made after it was installed.
     private string? HandInstalledOwner(string installRelative)
     {
         var full = System.IO.Path.Combine(AppServices.SptEnvironment.InstallPath ?? "", installRelative.Replace('/', System.IO.Path.DirectorySeparatorChar));
         return _installedByName.Values
+            .Concat(_installedByGuid.Values)
             .Distinct()
             .FirstOrDefault(card => card.Entries.Any(e =>
                 string.Equals(System.IO.Path.GetFullPath(e.FolderPath), System.IO.Path.GetFullPath(full), StringComparison.OrdinalIgnoreCase)

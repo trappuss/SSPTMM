@@ -20,7 +20,8 @@ public static class FileClashDialog
     /// <summary>True to install anyway.</summary>
     /// <param name="handOwner">For a file no install record lists: the installed mod whose folder
     /// holds it, if one does.</param>
-    public static bool Ask(string modName, string version, IReadOnlyList<FileClash> clashes, Func<string, string?> handOwner)
+    /// <param name="partial">True when sp-mod.com sent only part of the download's file list.</param>
+    public static bool Ask(string modName, string version, IReadOnlyList<FileClash> clashes, bool partial, Func<string, string?> handOwner)
     {
         var body = new StackPanel { MaxWidth = 640 };
         body.Children.Add(new TextBlock
@@ -55,6 +56,17 @@ public static class FileClashDialog
             {
                 Text = LocalizationService.Text(Strings.FileClash_MoreFormat, clashes.Count - Shown),
                 FontSize = 13,
+            });
+        }
+
+        if (partial)
+        {
+            list.Children.Add(new TextBlock
+            {
+                Text = Strings.FileClash_Partial,
+                TextWrapping = TextWrapping.Wrap,
+                FontSize = 13,
+                Margin = new Thickness(0, 4, 0, 0),
             });
         }
 

@@ -5725,7 +5725,7 @@ This was written to:
     <comment>Top of the file-clash question. {0} is the mod, {1} its version.</comment>
   </data>
   <data name="FileClash_ByHandFormat" xml:space="preserve">
-    <value>part of {0}, installed by hand</value>
+    <value>in {0}'s folder</value>
     <comment>Beside a clashing file that belongs to a hand-installed mod. {0} is that mod.</comment>
   </data>
   <data name="FileClash_Unknown" xml:space="preserve">
@@ -5807,5 +5807,25 @@ This was written to:
   <data name="Installed_NotForSptWithFormat" xml:space="preserve">
     <value>Version {0} does not run on SPT {1}; version {2} does (the Versions tab or the update dialog can switch to it).</value>
     <comment>Same, when an older version runs on this SPT. {0} is the installed version, {1} the SPT version, {2} the version that runs.</comment>
+  </data>
+  <data name="FileClash_Partial" xml:space="preserve">
+    <value>sp-mod.com lists only part of this download's files, so there may be more.</value>
+    <comment>Under the list of clashing files when sp-mod.com sent only part of the download's file list.</comment>
+  </data>
+  <data name="RemoveCheck_Title" xml:space="preserve">
+    <value>Before removing</value>
+    <comment>Title of the check shown before a collection's Unsubscribe from all removes its items, when something needs a second look.</comment>
+  </data>
+  <data name="RemoveCheck_NeededIntro" xml:space="preserve">
+    <value>These installed items use items being removed, and may stop working:</value>
+    <comment>Above the list of installed mods that depend on mods about to be removed.</comment>
+  </data>
+  <data name="RemoveCheck_FoldersIntro" xml:space="preserve">
+    <value>These items were installed by hand, so removing them deletes these folders:</value>
+    <comment>Above the list of folders of hand-installed mods about to be removed.</comment>
+  </data>
+  <data name="RemoveCheck_RemoveAnyway" xml:space="preserve">
+    <value>Remove Anyway</value>
+    <comment>Button on the check before removing a collection's items.</comment>
   </data>
 </root>

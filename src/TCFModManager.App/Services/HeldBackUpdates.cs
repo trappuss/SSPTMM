@@ -43,6 +43,13 @@ public sealed class HeldBackUpdates
     {
         if (modId is not { } id || !_incompatible.TryGetValue(id, out var entry) || _checkedSpt is not { } spt) return null;
 
+        // An answer about a version no longer installed (switched since the check) says nothing.
+        if (entry.Version is not null && installedVersion is not null
+            && !string.Equals(entry.Version, installedVersion, StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
         // sp-mod.com's pick when it gives one; otherwise the newest catalog version that runs here.
         var runs = entry.LatestCompatibleVersion;
         if (runs is null && AppServices.ModCache.AllMods.FirstOrDefault(m => m.Id == id) is { } mod)
@@ -94,17 +101,21 @@ public sealed class HeldBackUpdates
             var result = await AppServices.SpModApi.GetModUpdatesAsync(mods, sptVersion);
             if (request != _request) return;
 
-            _blocked = result.BlockedUpdates
+            // Both worked out before either is replaced, so a surprise in one leaves both as they were.
+            var blocked = (result.BlockedUpdates ?? [])
                 .Where(b => b.CurrentVersion is not null)
                 .GroupBy(b => b.CurrentVersion!.ModId)
                 .ToDictionary(g => g.Key, g => g.First());
 
-            _incompatible = result.IncompatibleWithSpt
+            var incompatible = (result.IncompatibleWithSpt ?? [])
                 .GroupBy(i => i.ModId)
                 .ToDictionary(g => g.Key, g => g.First());
+
+            _blocked = blocked;
+            _incompatible = incompatible;
             _checkedSpt = sptVersion;
 
-            AppLog.Info("Updates", $"sp-mod.com update check: {result.Updates.Count} updates, {_blocked.Count} held back, {_incompatible.Count} not for SPT {sptVersion}");
+            AppLog.Info("Updates", $"sp-mod.com update check: {result.Updates?.Count ?? 0} updates, {_blocked.Count} held back, {_incompatible.Count} not for SPT {sptVersion}");
             Changed?.Invoke(this, EventArgs.Empty);
         }
         catch (Exception ex)

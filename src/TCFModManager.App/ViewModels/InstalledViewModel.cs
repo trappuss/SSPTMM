@@ -947,7 +947,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         IsBusy = true;
         try
         {
-            StatusMessage = await RemoveConfirmedAsync(mod, installPath, configAction);
+            StatusMessage = (await RemoveConfirmedAsync(mod, installPath, configAction)).Message;
             ModRemoved?.Invoke(this, EventArgs.Empty);
         }
         catch (ModInstallException ex)
@@ -976,22 +976,28 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
     //
     // Removes one mod once the removal has been agreed to: the manifest-precise uninstall for what
-    // this app installed, the mod's folders for anything else. Returns what to say; throws what the
-    // install service throws (SPT running) and file errors, for the caller to report.
+    // this app installed, the mod's folders for anything else. Returns whether it went, what to
+    // say, and whether that is more than "Removed X." (files left behind, configs kept aside, or
+    // nothing to remove); throws what the install service throws (SPT running) and file errors,
+    // for the caller to report.
     //
-    private static async Task<string> RemoveConfirmedAsync(InstalledModCardViewModel mod, string installPath, ConfigAction configAction)
+    private static async Task<(bool Removed, string Message, bool Notable)> RemoveConfirmedAsync(
+        InstalledModCardViewModel mod, string installPath, ConfigAction configAction)
     {
         if (mod.IsAppManaged && mod.ModId is { } modId)
         {
             var record = AppServices.InstallManifest.Load().Mods.FirstOrDefault(m => m.ModId == modId);
-            if (record is null) return Text(Strings.Installed_RemoveNoRecordFormat, mod.Name);
+            if (record is null) return (false, Text(Strings.Installed_RemoveNoRecordFormat, mod.Name), true);
 
             var result = await AppServices.ModInstall.UninstallAsync(installPath, record, configAction);
-            return DescribeRemoval(mod.Name, result.FailedFiles.Count, result.ConfigsKept, result.ConfigsFolder);
+            return (
+                true,
+                DescribeRemoval(mod.Name, result.FailedFiles.Count, result.ConfigsKept, result.ConfigsFolder),
+                result.FailedFiles.Count > 0 || result.ConfigsKept > 0);
         }
 
         var paths = LegacyPaths(mod);
-        if (paths.Count == 0) return Text(Strings.Installed_RemoveNoFolderFormat, mod.Name);
+        if (paths.Count == 0) return (false, Text(Strings.Installed_RemoveNoFolderFormat, mod.Name), true);
 
         var configs = ModInstallService.FindLegacyConfigs(installPath, paths);
         var kept = configAction == ConfigAction.Keep && configs.Count > 0
@@ -1005,13 +1011,15 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         if (mod.IsManualOverride && mod.ModId is { } overriddenModId)
             AppServices.InstallManifest.ClearManualVersion(overriddenModId);
 
-        return DescribeRemoval(mod.Name, failedFiles: 0, kept.Count, kept.Folder);
+        return (true, DescribeRemoval(mod.Name, failedFiles: 0, kept.Count, kept.Folder), kept.Count > 0);
     }
 
     /// <summary>Removes the installed mods with these sp-mod.com ids - a collection's Unsubscribe
-    /// from all, when removing was chosen over setting aside. Asked about once, by the caller; their
-    /// config files are kept (copied aside) as a single removal's Yes keeps them. Set-aside mods are
-    /// left alone: their records point at folders they no longer occupy. Returns what to say.</summary>
+    /// from all, when removing was chosen over setting aside. Asked about by the caller, and again
+    /// here only when other installed mods use these or hand-installed folders would be deleted (what
+    /// a single removal's confirmation lists). Their config files are kept (copied aside) as a single
+    /// removal's Yes keeps them. Set-aside mods are left alone: their records point at folders they
+    /// no longer occupy. Returns what to say, or null when the check was cancelled.</summary>
     public async Task<string?> RemoveModsAsync(IReadOnlySet<int> modIds)
     {
         if (_all.Count == 0) await ScanAsync();
@@ -1025,18 +1033,30 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         var cards = _all.Where(c => c is { IsAddon: false, ModId: { } id } && modIds.Contains(id)).ToList();
         var disabled = cards.Where(c => c.IsDisabled).ToList();
 
+        var targets = cards.Except(disabled).ToList();
+
+        // Mods left installed that use one of these, and the hand-installed folders removing deletes.
+        var needed = AffectedCards(targets, disable: true)
+            .Where(a => !a.Card.IsDisabled)
+            .Select(a => (a.Card.DisplayTitle, a.Detail))
+            .ToList();
+        var folders = targets.Where(c => !c.IsAppManaged).SelectMany(LegacyPaths).ToList();
+
+        if ((needed.Count > 0 || folders.Count > 0) && !RemoveCheckDialog.Ask(needed, folders)) return null;
+
         var removed = 0;
         var problems = new List<string>();
 
         IsBusy = true;
         try
         {
-            foreach (var card in cards.Except(disabled))
+            foreach (var card in targets)
             {
                 try
                 {
-                    await RemoveConfirmedAsync(card, installPath, ConfigAction.Keep);
-                    removed++;
+                    var outcome = await RemoveConfirmedAsync(card, installPath, ConfigAction.Keep);
+                    if (outcome.Removed) removed++;
+                    if (outcome.Notable) problems.Add(outcome.Message);
                 }
                 catch (ModInstallException ex)
                 {

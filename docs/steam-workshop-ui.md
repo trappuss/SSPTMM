@@ -368,12 +368,15 @@ turns during a glide add to it. A list inside a page scrolls before the page doe
 ## Fifth round: file clashes, removing, followed authors, SPT fit, measuring (2026-09-25)
 
 **From sp-mod.com.**
-- *Files already there.* Before an install is queued, the version's file list (sp-mod.com's
+- *Files already there.* Before a mod is queued, the chosen version's file list (sp-mod.com's
   file-tree, kept for versions that passed its file check) is placed exactly as the install would
   place it. Files already on disk that belong to another installed mod, or to nothing this app
   installed, are listed with whose they are, and the install waits for *Install Anyway* (Cancel is
-  the default). The mod's own files never count, so an update is never asked about. A version with
-  no file list (not verified, or offline) installs as before.
+  the default). Not counted: the mod's own files (an update over itself is not asked about, nor a
+  file its record already shares with another mod after an Install Anyway) and user data the install
+  leaves in place (SVM's presets). A list sp-mod.com cut short says so. A version with no file list
+  (not verified, or offline) installs as before, and dependencies queued along with a mod are not
+  checked.
 - *Not for your SPT.* `/mods/updates` also names installed versions that do not run on this
   install's SPT and have no newer version that does. Subscribed items says so on the card (a warning
   glyph and the tooltip) and the item page, naming the newest version that does run here when there
@@ -384,8 +387,11 @@ turns during a glide add to it. A list inside a page scrolls before the page doe
   catalog has from them and their newest date, *Their items* and Steam's Follow/Unfollow button;
   *View all their items* opens Browse filtered to Created by Followed. Steam's Workshop has no page
   listing followed authors; this one is laid out like its item rows.
-- *Unsubscribe from all* offers *Set Aside* (the default, as before), *Remove* (deletes the mods,
-  after the same check for mods that need them; disabled ones are skipped and said so) or Cancel.
+- *Unsubscribe from all* offers *Set Aside* (the default; it asks about mods that need them, as
+  setting aside always has), *Remove* or Cancel. Remove deletes the mods as Subscribed items'
+  Remove does, config files copied aside first; when installed mods left behind use them, or
+  hand-installed folders would be deleted, it lists those and waits for *Remove Anyway*. Set-aside
+  items are skipped and said so, and anything that did not go cleanly is said.
 - *Measuring on a real PC.* `steam-ui-measure.bat` starts the built app with `TCFMM_PERF=1`: for
   each second something scrolls it logs frames per second and the longest stall, and for each
   description how long it took to show; the .bat turns that into `Claude outputs\perf-report.txt`

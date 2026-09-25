@@ -15,7 +15,8 @@ public sealed record FileClash(string Path, string? OwnerName);
 // not one of SPT's own is looked through (up to four deep), and "user/..." goes wherever this
 // install keeps user/mods. A file that is already there belongs to the installed mod whose install
 // record lists it; one that no record lists was put there by hand or by another tool. The mod being
-// installed is never in its own way - an update over itself is what an update is.
+// installed is never in its own way - an update over itself is what an update is - and neither is a
+// file of the user's own that the install leaves where it is (ConfigCarryOver's preserved user data).
 //
 public static class ModFileConflicts
 {
@@ -56,17 +57,27 @@ public static class ModFileConflicts
     /// not the installing mod's own.</summary>
     /// <param name="belongsToTarget">For a file no install record lists: true when it is inside the
     /// installing mod's own (hand-installed) folders.</param>
+    /// <param name="configOptions">The mods' config entries: a file one of them names as user data
+    /// (SVM's presets) is never placed over by an install, so it is never in the way.</param>
     public static IReadOnlyList<FileClash> Find(
         string installPath,
         IEnumerable<string> installRelative,
         InstallTarget target,
         IReadOnlyList<InstalledModRecord> records,
-        Func<string, bool>? belongsToTarget = null)
+        Func<string, bool>? belongsToTarget = null,
+        IReadOnlyDictionary<string, ModConfigOptions>? configOptions = null)
     {
-        var owners = new Dictionary<string, InstalledModRecord>(StringComparer.OrdinalIgnoreCase);
+        // Every record that lists a file: after an Install Anyway two do.
+        var owners = new Dictionary<string, List<InstalledModRecord>>(StringComparer.OrdinalIgnoreCase);
         foreach (var record in records)
+        {
             foreach (var file in record.Files)
-                owners.TryAdd(file.Replace('\\', '/'), record);
+            {
+                var key = file.Replace('\\', '/');
+                if (!owners.TryGetValue(key, out var list)) owners[key] = list = [];
+                list.Add(record);
+            }
+        }
 
         var clashes = new List<FileClash>();
 
@@ -75,9 +86,12 @@ public static class ModFileConflicts
             var full = Path.Combine(installPath, relative.Replace('/', Path.DirectorySeparatorChar));
             if (!File.Exists(full)) continue;
 
-            if (owners.TryGetValue(relative, out var owner))
+            if (ModConfigFiles.IsUserData(relative, ModConfigFiles.OptionsFor(relative, configOptions))) continue;
+
+            if (owners.TryGetValue(relative, out var listed))
             {
-                if (!target.Matches(owner)) clashes.Add(new FileClash(relative, owner.Name));
+                // Once the mod's own record lists it, putting it there again was agreed to already.
+                if (!listed.Any(target.Matches)) clashes.Add(new FileClash(relative, listed[0].Name));
                 continue;
             }
 

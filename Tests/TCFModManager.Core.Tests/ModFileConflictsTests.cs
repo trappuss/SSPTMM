@@ -71,6 +71,45 @@ public class ModFileConflictsTests
         }
     }
 
+    [Fact]
+    public void A_file_the_mods_own_record_also_lists_and_the_users_presets_are_not_in_the_way()
+    {
+        var root = Path.Combine(Path.GetTempPath(), "tcfmm-clash-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            Write(root, "BepInEx/plugins/Shared/Lib.dll");
+            Write(root, "SPT/user/mods/SVM/Presets/Mine.json");
+
+            // Installed over each other once already (Install Anyway): both records list it.
+            var records = new List<InstalledModRecord>
+            {
+                Record(1, "Other Mod", "BepInEx/plugins/Shared/Lib.dll"),
+                Record(2, "My Mod", "BepInEx/plugins/Shared/Lib.dll"),
+            };
+            var target = new InstallTarget(2, false, "My Mod", null, null, null);
+            var options = new Dictionary<string, ModConfigOptions>
+            {
+                [ModConfigOptionsStore.KeyFor("SVM")] = new() { UserData = ["Presets"] },
+            };
+
+            var clashes = ModFileConflicts.Find(
+                root,
+                ["BepInEx/plugins/Shared/Lib.dll", "SPT/user/mods/SVM/Presets/Mine.json"],
+                target,
+                records,
+                configOptions: options);
+
+            Assert.Empty(clashes);
+
+            // Without the entry the preset is somebody else's file like any other.
+            Assert.Single(ModFileConflicts.Find(root, ["SPT/user/mods/SVM/Presets/Mine.json"], target, records));
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+        }
+    }
+
     private static void Write(string root, string relative)
     {
         var path = Path.Combine(root, relative.Replace('/', Path.DirectorySeparatorChar));

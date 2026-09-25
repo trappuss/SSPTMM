@@ -1562,4 +1562,9 @@ internal static class Strings
     internal static string FollowedAuthors_NewestFormat => LocalizationService.Get("FollowedAuthors_NewestFormat");
     internal static string Installed_NotForSptFormat => LocalizationService.Get("Installed_NotForSptFormat");
     internal static string Installed_NotForSptWithFormat => LocalizationService.Get("Installed_NotForSptWithFormat");
+    internal static string FileClash_Partial => LocalizationService.Get("FileClash_Partial");
+    internal static string RemoveCheck_Title => LocalizationService.Get("RemoveCheck_Title");
+    internal static string RemoveCheck_NeededIntro => LocalizationService.Get("RemoveCheck_NeededIntro");
+    internal static string RemoveCheck_FoldersIntro => LocalizationService.Get("RemoveCheck_FoldersIntro");
+    internal static string RemoveCheck_RemoveAnyway => LocalizationService.Get("RemoveCheck_RemoveAnyway");
 }
