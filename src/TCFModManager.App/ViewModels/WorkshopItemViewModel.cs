@@ -423,6 +423,14 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel, IModActi
         if (SelectedMedia is { } media) AppServices.MediaViewer.Show(Gallery, media.Url);
     }
 
+    // The cover at the head of the right-hand column: the mod's own picture, in the viewer with the
+    // rest of the gallery (it is the gallery's first item).
+    [RelayCommand]
+    private void OpenCover()
+    {
+        if (Thumbnail is { Length: > 0 } cover) AppServices.MediaViewer.Show(Gallery, cover);
+    }
+
     // ------------------------------------------------------------------ related items
 
     private const int MoreByAuthorCount = 5;

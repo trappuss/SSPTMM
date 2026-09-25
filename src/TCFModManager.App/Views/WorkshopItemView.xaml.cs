@@ -154,6 +154,13 @@ public partial class WorkshopItemView : UserControl
         _viewModel?.OpenSelectedMediaCommand.Execute(null);
     }
 
+    // The cover at the head of the right-hand column opens full size, as Steam's does.
+    private void Cover_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        e.Handled = true;
+        _viewModel?.OpenCoverCommand.Execute(null);
+    }
+
     // The slider under the strip mirrors the strip's own horizontal scroll, and drives it.
     private void Strip_ScrollChanged(object sender, ScrollChangedEventArgs e)
     {

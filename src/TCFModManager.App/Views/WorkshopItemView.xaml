@@ -327,6 +327,20 @@
                             </StackPanel>
 
                             <StackPanel Grid.Column="2">
+                                <!-- Steam's item preview at the head of this column (measured: 268px
+                                     square, 5px under it, then Content Type): the mod's own picture,
+                                     cropped square as Browse's cards crop it. A click opens it full
+                                     size, as Steam's does. -->
+                                <Grid
+                                    Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
+                                    Margin="0,0,0,5"
+                                    Background="{StaticResource SteamPreviewBackground}"
+                                    ClipToBounds="True"
+                                    Cursor="Hand"
+                                    MouseLeftButtonUp="Cover_MouseLeftButtonUp"
+                                    Visibility="{Binding Thumbnail, Converter={StaticResource NullToCollapsed}}">
+                                    <Image Stretch="UniformToFill" behaviors:ThumbnailLoader.DecodeWidth="268" behaviors:ThumbnailLoader.Source="{Binding Thumbnail}" />
+                                </Grid>
                                 <TextBlock Margin="0,0,0,6" TextWrapping="Wrap" Visibility="{Binding Category, Converter={StaticResource NullToCollapsed}}">
                                     <Run Style="{StaticResource DetailLabel}" Text="{loc:Str Item_ContentTypeLabel}" />
                                     <Run Style="{StaticResource DetailValue}" Text="{Binding Category, Mode=OneWay}" />
