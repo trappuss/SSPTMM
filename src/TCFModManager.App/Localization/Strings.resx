@@ -5409,11 +5409,11 @@ This was written to:
     <comment>Status line on the Collections page when sent there to save the current subscriptions.</comment>
   </data>
   <data name="Collection_UnsubscribeAllBody_one" xml:space="preserve">
-    <value>The {0:N0} installed item of this collection will be set aside (disabled), not deleted. It can be enabled again from Subscribed items.</value>
+    <value>The {0:N0} installed item of this collection can be set aside (disabled - it comes back with a click on Subscribed items) or removed (its files deleted, its config files copied aside first).</value>
     <comment>Confirmation before Unsubscribe from all. {0} is how many.</comment>
   </data>
   <data name="Collection_UnsubscribeAllBody_other" xml:space="preserve">
-    <value>The {0:N0} installed items of this collection will be set aside (disabled), not deleted. They can be enabled again from Subscribed items.</value>
+    <value>The {0:N0} installed items of this collection can be set aside (disabled - they come back with a click on Subscribed items) or removed (their files deleted, their config files copied aside first).</value>
     <comment>Confirmation before Unsubscribe from all. {0} is how many.</comment>
   </data>
   <data name="Collection_NothingInstalled" xml:space="preserve">
@@ -5743,5 +5743,29 @@ This was written to:
   <data name="FileClash_InstallAnyway" xml:space="preserve">
     <value>Install Anyway</value>
     <comment>Button on the file-clash question.</comment>
+  </data>
+  <data name="Installed_RemovedMany_one" xml:space="preserve">
+    <value>Removed {0:N0} mod.</value>
+    <comment>After removing several mods at once (a collection's Unsubscribe from all). {0} is how many.</comment>
+  </data>
+  <data name="Installed_RemovedMany_other" xml:space="preserve">
+    <value>Removed {0:N0} mods.</value>
+    <comment>After removing several mods at once. {0} is how many.</comment>
+  </data>
+  <data name="Installed_RemoveSkippedDisabled_one" xml:space="preserve">
+    <value>{1} is set aside (disabled) and was left alone - enable it first to remove it.</value>
+    <comment>After removing several mods at once, for a disabled one. {0} is how many, {1} the mod.</comment>
+  </data>
+  <data name="Installed_RemoveSkippedDisabled_other" xml:space="preserve">
+    <value>{1} are set aside (disabled) and were left alone - enable them first to remove them.</value>
+    <comment>After removing several mods at once, for disabled ones. {0} is how many, {1} the mods.</comment>
+  </data>
+  <data name="Collection_SetAside" xml:space="preserve">
+    <value>Set Aside</value>
+    <comment>Unsubscribe from all answer: disable the collection's installed items.</comment>
+  </data>
+  <data name="Collection_RemoveAll" xml:space="preserve">
+    <value>Remove</value>
+    <comment>Unsubscribe from all answer: delete the collection's installed items.</comment>
   </data>
 </root>

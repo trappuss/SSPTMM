@@ -219,10 +219,10 @@ public sealed partial class WorkshopCollectionViewModel : LocalizedViewModel, IM
     }
 
     //
-    // Steam's Unsubscribe from all takes every item out of the subscriptions. Here the installed
-    // ones are set aside (disabled) rather than deleted - one confirmation for the lot, and each
-    // comes back with a click on Subscribed items - through the Subscribed items page's own disable,
-    // which also asks about anything else they take with them.
+    // Steam's Unsubscribe from all takes every item out of the subscriptions. Here that is asked once
+    // for the lot: set the installed ones aside (disabled - each comes back with a click on
+    // Subscribed items), or remove them (files deleted, config files copied aside first). Both go
+    // through the Subscribed items page's own code.
     //
     [RelayCommand]
     private async Task UnsubscribeFromAllAsync()
@@ -237,13 +237,17 @@ public sealed partial class WorkshopCollectionViewModel : LocalizedViewModel, IM
         var answer = SteamDialog.Show(
             Strings.Collection_UnsubscribeAll,
             Strings.Collection_UnsubscribeAllBody(installed.Count, installed.Count),
-            new SteamDialogChoice(Strings.Collection_UnsubscribeAll, SteamDialogButton.Green),
-            new SteamDialogChoice(Strings.Common_Cancel, SteamDialogButton.Grey, IsDefault: true));
-
-        if (answer != 0) return;
+            new SteamDialogChoice(Strings.Collection_SetAside, SteamDialogButton.Green, IsDefault: true),
+            new SteamDialogChoice(Strings.Collection_RemoveAll, SteamDialogButton.Blue),
+            new SteamDialogChoice(Strings.Common_Cancel, SteamDialogButton.Grey));
 
         var page = InstalledViewModel.Current ?? new InstalledViewModel();
-        Message = await page.DisableModsAsync(installed);
+        Message = answer switch
+        {
+            0 => await page.DisableModsAsync(installed),
+            1 => await page.RemoveModsAsync(installed),
+            _ => Message,
+        };
     }
 
     // Steam's Save to Collection: a copy of this collection, under a new name.

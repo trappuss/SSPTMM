@@ -1546,4 +1546,10 @@ internal static class Strings
     internal static string FileClash_MoreFormat => LocalizationService.Get("FileClash_MoreFormat");
     internal static string FileClash_Outro => LocalizationService.Get("FileClash_Outro");
     internal static string FileClash_InstallAnyway => LocalizationService.Get("FileClash_InstallAnyway");
+    internal static string Installed_RemovedMany(int count, params object?[] values) =>
+        LocalizationService.Plural("Installed_RemovedMany", count, values);
+    internal static string Installed_RemoveSkippedDisabled(int count, params object?[] values) =>
+        LocalizationService.Plural("Installed_RemoveSkippedDisabled", count, values);
+    internal static string Collection_SetAside => LocalizationService.Get("Collection_SetAside");
+    internal static string Collection_RemoveAll => LocalizationService.Get("Collection_RemoveAll");
 }

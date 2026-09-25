@@ -888,6 +888,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
             return;
         }
 
+        ConfigAction configAction;
         if (mod.IsAppManaged && mod.ModId is { } modId)
         {
             var manifest = AppServices.InstallManifest.Load();
@@ -911,80 +912,154 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
                 .ToList();
 
             if (ConfirmRemoval(mod.Name, Strings.Installed_RemoveAppManagedBody, configs.Count)
-                is not { } configAction)
+                is not { } answer)
             {
                 return;
             }
 
-            IsBusy = true;
-            try
-            {
-                var result = await AppServices.ModInstall.UninstallAsync(installPath, record, configAction);
-                StatusMessage = DescribeRemoval(mod.Name, result.FailedFiles.Count, result.ConfigsKept, result.ConfigsFolder);
-                ModRemoved?.Invoke(this, EventArgs.Empty);
-            }
-            catch (ModInstallException ex)
-            {
-                // SPT or its server is running - the message names what to close.
-                StatusMessage = ModInstallProblems.Describe(ex);
-            }
-            finally
-            {
-                IsBusy = false;
-            }
+            configAction = answer;
         }
         else
         {
-            var paths = new[] { mod.ClientFolderPath, mod.ServerFolderPath }
-                .Where(p => !string.IsNullOrWhiteSpace(p))
-                .ToList();
+            var paths = LegacyPaths(mod);
             if (paths.Count == 0)
             {
                 StatusMessage = Text(Strings.Installed_RemoveNoFolderFormat, mod.Name);
                 return;
             }
 
-            var configs = ModInstallService.FindLegacyConfigs(installPath, paths!);
+            var configs = ModInstallService.FindLegacyConfigs(installPath, paths);
             if (ConfirmRemoval(
                     mod.Name,
                     Text(Strings.Installed_RemoveLegacyBodyFormat, string.Join("\n", paths)),
-                    configs.Count) is not { } configAction)
+                    configs.Count) is not { } answer)
             {
                 return;
             }
 
-            IsBusy = true;
-            try
-            {
-                var kept = configAction == ConfigAction.Keep && configs.Count > 0
-                    ? ModInstallService.KeepLegacyConfigs(installPath, configs, mod.Name)
-                    : new KeptConfigs(0, null);
+            configAction = answer;
+        }
 
-                foreach (var path in paths) ModInstallService.RemoveLegacyPath(path!, AppServices.SptEnvironment.InstallPath);
-
-                // A manually-confirmed version record would otherwise dangle, pointing at a mod
-                // that's no longer on disk.
-                if (mod.IsManualOverride && mod.ModId is { } overriddenModId)
-                    AppServices.InstallManifest.ClearManualVersion(overriddenModId);
-
-                StatusMessage = DescribeRemoval(mod.Name, failedFiles: 0, kept.Count, kept.Folder);
-                ModRemoved?.Invoke(this, EventArgs.Empty);
-            }
-            catch (ModInstallException ex)
-            {
-                StatusMessage = ModInstallProblems.Describe(ex);
-            }
-            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-            {
-                StatusMessage = Text(Strings.Installed_RemoveFailedFormat, mod.Name, ex.Message);
-            }
-            finally
-            {
-                IsBusy = false;
-            }
+        IsBusy = true;
+        try
+        {
+            StatusMessage = await RemoveConfirmedAsync(mod, installPath, configAction);
+            ModRemoved?.Invoke(this, EventArgs.Empty);
+        }
+        catch (ModInstallException ex)
+        {
+            // SPT or its server is running - the message names what to close.
+            StatusMessage = ModInstallProblems.Describe(ex);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            StatusMessage = Text(Strings.Installed_RemoveFailedFormat, mod.Name, ex.Message);
+        }
+        finally
+        {
+            IsBusy = false;
         }
 
         await ScanAsync();
+    }
+
+    // A hand-installed mod's folders - what removing it deletes.
+    private static List<string> LegacyPaths(InstalledModCardViewModel mod) =>
+        new[] { mod.ClientFolderPath, mod.ServerFolderPath }
+            .Where(p => !string.IsNullOrWhiteSpace(p))
+            .Select(p => p!)
+            .ToList();
+
+    //
+    // Removes one mod once the removal has been agreed to: the manifest-precise uninstall for what
+    // this app installed, the mod's folders for anything else. Returns what to say; throws what the
+    // install service throws (SPT running) and file errors, for the caller to report.
+    //
+    private static async Task<string> RemoveConfirmedAsync(InstalledModCardViewModel mod, string installPath, ConfigAction configAction)
+    {
+        if (mod.IsAppManaged && mod.ModId is { } modId)
+        {
+            var record = AppServices.InstallManifest.Load().Mods.FirstOrDefault(m => m.ModId == modId);
+            if (record is null) return Text(Strings.Installed_RemoveNoRecordFormat, mod.Name);
+
+            var result = await AppServices.ModInstall.UninstallAsync(installPath, record, configAction);
+            return DescribeRemoval(mod.Name, result.FailedFiles.Count, result.ConfigsKept, result.ConfigsFolder);
+        }
+
+        var paths = LegacyPaths(mod);
+        if (paths.Count == 0) return Text(Strings.Installed_RemoveNoFolderFormat, mod.Name);
+
+        var configs = ModInstallService.FindLegacyConfigs(installPath, paths);
+        var kept = configAction == ConfigAction.Keep && configs.Count > 0
+            ? ModInstallService.KeepLegacyConfigs(installPath, configs, mod.Name)
+            : new KeptConfigs(0, null);
+
+        foreach (var path in paths) ModInstallService.RemoveLegacyPath(path, installPath);
+
+        // A manually-confirmed version record would otherwise dangle, pointing at a mod that's no
+        // longer on disk.
+        if (mod.IsManualOverride && mod.ModId is { } overriddenModId)
+            AppServices.InstallManifest.ClearManualVersion(overriddenModId);
+
+        return DescribeRemoval(mod.Name, failedFiles: 0, kept.Count, kept.Folder);
+    }
+
+    /// <summary>Removes the installed mods with these sp-mod.com ids - a collection's Unsubscribe
+    /// from all, when removing was chosen over setting aside. Asked about once, by the caller; their
+    /// config files are kept (copied aside) as a single removal's Yes keeps them. Set-aside mods are
+    /// left alone: their records point at folders they no longer occupy. Returns what to say.</summary>
+    public async Task<string?> RemoveModsAsync(IReadOnlySet<int> modIds)
+    {
+        if (_all.Count == 0) await ScanAsync();
+
+        var installPath = AppServices.SptEnvironment.InstallPath;
+        if (string.IsNullOrWhiteSpace(installPath)) return AppMessages.NoSptInstallFolder;
+
+        if (ModInstallService.RunningBlockers(installPath) is { Count: > 0 } blockers)
+            return ModInstallProblems.InstallInUse(blockers, ModInstallAction.Remove);
+
+        var cards = _all.Where(c => c is { IsAddon: false, ModId: { } id } && modIds.Contains(id)).ToList();
+        var disabled = cards.Where(c => c.IsDisabled).ToList();
+
+        var removed = 0;
+        var problems = new List<string>();
+
+        IsBusy = true;
+        try
+        {
+            foreach (var card in cards.Except(disabled))
+            {
+                try
+                {
+                    await RemoveConfirmedAsync(card, installPath, ConfigAction.Keep);
+                    removed++;
+                }
+                catch (ModInstallException ex)
+                {
+                    problems.Add(ModInstallProblems.Describe(ex));
+                    break;
+                }
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+                {
+                    problems.Add(Text(Strings.Installed_RemoveFailedFormat, card.Name, ex.Message));
+                }
+            }
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+
+        if (removed > 0) ModRemoved?.Invoke(this, EventArgs.Empty);
+        await ScanAsync();
+
+        var said = new List<string> { Strings.Installed_RemovedMany(removed, removed) };
+        if (disabled.Count > 0)
+            said.Add(Strings.Installed_RemoveSkippedDisabled(disabled.Count, disabled.Count, TextLists.Join(disabled.Select(c => c.DisplayTitle).ToList())));
+        said.AddRange(problems);
+
+        StatusMessage = string.Join(Strings.Common_SentenceSeparator, said);
+        return StatusMessage;
     }
 
     /// <summary>Opens the mod details/update dialog for whichever card was clicked. Routed through
