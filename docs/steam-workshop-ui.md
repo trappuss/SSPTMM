@@ -103,10 +103,10 @@ labels `#939393`; "DESCRIPTION" 11px `#61696D`.
 | Subscribe / Subscribed / Unsubscribe | Install / installed / Remove (same code paths) |
 | Star rating | Endorsements (and favourites, downloads) - the counts sp-mod.com publishes |
 | Top Rated All Time / Most Recent / Last Updated / Total Unique Subscribers | Most endorsed / Newest / Last updated / Most downloaded (and the app's Most favourited, last) |
-| SPECIAL FILTERS | Featured include / exclude / only |
+| SPECIAL FILTERS | Featured include / exclude / only; Created by Followed |
 | CONTENT TYPE | Category |
 | Tag rows [+]/[-] | The attribute filters: [+] Fika compatible, Has dependencies, Has addons; [-] Contains ads, Subscribed |
-| Filter chips on the count line | One per filter in force: search, content type, each SPT line, each tag, featured |
+| Filter chips on the count line | One per filter in force: search (with its search option), content type, each SPT line, each tag, featured, followed, posted and updated dates |
 | Additional Required Items dialog | The mod's missing dependencies, before the read-the-page gate |
 | "Added to your Subscriptions" bar | Shown once an install asked for on the item page has landed |
 | Required items | The shown version's dependencies (sp-mod.com sends no optional flag today) |
@@ -122,15 +122,14 @@ labels `#939393`; "DESCRIPTION" 11px `#61696D`.
   per-period popularity. The home page's first list is "Top Rated" (endorsements), named as such.
 - **The week's row** is "released in the past week, most downloaded first" - the nearest honest
   reading of Steam's "in the past week" row.
-- **Discussions, About, Awards, Favorite, Add to Collection** are left out: nothing in the app sits
-  behind them.
+- **Discussions, About, Awards, Favorite** are left out: nothing in the app sits behind them.
 - **Tag rows with one direction.** Each app filter goes one way, so the other box is shown disabled
   rather than removed.
 - **The hub header stays put** while pages scroll (on Steam it scrolls away) - it is the app's
   navigation.
 - **Status badge on card previews** (installed / update / disabled, and the pin): a Workshop page
   cannot know what is on your disk; a mod manager's grid has to.
-- **Quick subscribe** on a card's hover, where Steam shows a quick-look magnifier.
+- **Quick subscribe** on a card's hover, beside Steam's quick-look magnifier.
 - **Banner art and copy are the app's own**; Steam's slogan and game art are not reused.
 - **Theme is always dark.** Steam has no light theme.
 - **Subscribed items keeps the upstream page's three views,** multi-select and groups; it gains the
@@ -352,7 +351,7 @@ turns during a glide add to it. A list inside a page scrolls before the page doe
 ### Where this round differs, and why
 
 - **Unsubscribe from all sets the items aside (disabled) rather than deleting them**, after one
-  confirmation; they come back from Subscribed items.
+  confirmation; they come back from Subscribed items. (Fifth round: removing them is offered too.)
 - **Subscribe to all hands over to the Collections page**, which shows what will change before
   anything does (Add Only applies the list additively, Overwrite My Subscriptions exclusively).
 - **A collection made from Add to Collection applies additively** (it holds what you picked, not a
@@ -365,6 +364,41 @@ turns during a glide add to it. A list inside a page scrolls before the page doe
 - **Mods with several credited authors count as theirs** for From Followed Authors and Created by
   Followed, as the CREATED BY panel lists them.
 - **Stop server asks first**, as Restart does: a raid in progress does not survive it.
+
+## Fifth round: file clashes, removing, followed authors, SPT fit, measuring (2026-09-25)
+
+**From sp-mod.com.**
+- *Files already there.* Before an install is queued, the version's file list (sp-mod.com's
+  file-tree, kept for versions that passed its file check) is placed exactly as the install would
+  place it. Files already on disk that belong to another installed mod, or to nothing this app
+  installed, are listed with whose they are, and the install waits for *Install Anyway* (Cancel is
+  the default). The mod's own files never count, so an update is never asked about. A version with
+  no file list (not verified, or offline) installs as before.
+- *Not for your SPT.* `/mods/updates` also names installed versions that do not run on this
+  install's SPT and have no newer version that does. Subscribed items says so on the card (a warning
+  glyph and the tooltip) and the item page, naming the newest version that does run here when there
+  is one - sp-mod.com's pick, or else the newest catalog version whose SPT range covers this SPT.
+
+**The app.**
+- *Authors you follow*, under Your Items: each followed author with picture, how many items the
+  catalog has from them and their newest date, *Their items* and Steam's Follow/Unfollow button;
+  *View all their items* opens Browse filtered to Created by Followed. Steam's Workshop has no page
+  listing followed authors; this one is laid out like its item rows.
+- *Unsubscribe from all* offers *Set Aside* (the default, as before), *Remove* (deletes the mods,
+  after the same check for mods that need them; disabled ones are skipped and said so) or Cancel.
+- *Measuring on a real PC.* `steam-ui-measure.bat` starts the built app with `TCFMM_PERF=1`: for
+  each second something scrolls it logs frames per second and the longest stall, and for each
+  description how long it took to show; the .bat turns that into `Claude outputs\perf-report.txt`
+  with the graphics card, screen and WPF's render tier. Off (and costing nothing) otherwise.
+
+### Where this round differs, and why
+
+- **The file-clash question is the app's own.** Steam gives every item its own folder, so it never
+  has to ask; SPT mods share BepInEx and user/mods.
+- **A lighter description view is planned, not built.** Measured under the build machine's software
+  renderer: a 14,858-character description (SAIN) took 1.4ms to read, 31ms to build and 510ms to lay
+  out and first draw, 3,156px tall; scrolling was no slower than on a plain page there. Which
+  change is worth making waits on the numbers from a real PC.
 
 ## Values that could not be measured (marked HUNCH in the source)
 
