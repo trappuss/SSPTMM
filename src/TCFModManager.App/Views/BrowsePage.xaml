@@ -474,16 +474,18 @@
                                         </ToolTip>
                                     </Grid.ToolTip>
 
-                                    <!-- Starts this card's dependency lookup as soon as the card is
-                                         drawn, as upstream's badge on the card did. The badge in the
+                                    <!-- Starts this card's dependency lookup once the card is near the
+                                         view, as upstream's badge on the card did. The badge in the
                                          popup above cannot: a ToolTip's content gets no DataContext
                                          until it opens, and the "Has dependencies" filter only knows
-                                         the mods that have been looked up. Nothing to see - zero size. -->
+                                         the mods that have been looked up. Near the view only, so a
+                                         long scroll does not ask sp-mod.com about every card it
+                                         passes - see DependencyBadgeLoader's pacing. Zero size. -->
                                     <FrameworkElement
                                         Width="0"
                                         Height="0"
                                         IsHitTestVisible="False"
-                                        behaviors:DependencyBadgeLoader.Mod="{Binding Mod}" />
+                                        behaviors:DependencyBadgeLoader.Mod="{Binding NearViewMod}" />
 
                                     <!-- Two shadow layers, swapped by the hover trigger: a trigger
                                          cannot reach into an Effect by name. -->

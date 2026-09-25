@@ -218,9 +218,16 @@ public partial class WorkshopItemView : UserControl
                     var result = await core.ExecuteScriptAsync(CommentsOnlyScript);
 
                     // The mod's own page with no comments section: say so, rather than showing the
-                    // whole page under a Comments tab. (Any other page - the sign-in page, say -
-                    // is left as it is.)
-                    if (result == "\"none\"" && StillWants(core.Source)) ShowCommentsOff();
+                    // whole page under a Comments tab - now and on every later visit to the tab,
+                    // when the page is not loaded again. Only the page asked for counts (matched
+                    // by mod id, so a redirect to a new slug still does); any other page - the
+                    // sign-in page, another mod followed from a link - is left as it is.
+                    if (result == "\"none\"" && _requestedComments is { } requested
+                        && SpModModId(core.Source) is { } shown && shown == SpModModId(requested))
+                    {
+                        _noComments.Add(requested);
+                        if (StillWants(requested)) ShowCommentsOff();
+                    }
                 }
                 catch (Exception ex) when (ex is InvalidOperationException or System.Runtime.InteropServices.COMException)
                 {
@@ -233,13 +240,35 @@ public partial class WorkshopItemView : UserControl
         // opened or another tab chosen: these comments are then no longer wanted.
         if (!StillWants(url)) return;
 
+        if (_noComments.Contains(url))
+        {
+            ShowCommentsOff();
+            return;
+        }
+
         CommentsFallback.Visibility = Visibility.Collapsed;
         CommentsOff.Visibility = Visibility.Collapsed;
         CommentsHost.Visibility = Visibility.Visible;
         SizeComments();
 
         if (_comments.CoreWebView2 is { } web && !string.Equals(web.Source, url, StringComparison.OrdinalIgnoreCase))
+        {
+            _requestedComments = url;
             web.Navigate(url);
+        }
+    }
+
+    // The comments page last asked for, and those found to have no comments section this session.
+    private string? _requestedComments;
+    private readonly HashSet<string> _noComments = new(StringComparer.OrdinalIgnoreCase);
+
+    // "791" from https://sp-mod.com/mod/791/sain...#comments; null for any other page.
+    private static string? SpModModId(string? url)
+    {
+        if (!Uri.TryCreate(url, UriKind.Absolute, out var uri)) return null;
+
+        var match = System.Text.RegularExpressions.Regex.Match(uri.AbsolutePath, @"^/mod/(\d+)(/|$)");
+        return match.Success ? match.Groups[1].Value : null;
     }
 
     private bool StillWants(string url) =>

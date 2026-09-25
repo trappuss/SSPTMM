@@ -306,6 +306,14 @@ public partial class BrowseViewModel : LocalizedViewModel
     [RelayCommand]
     private static void RemoveFilterChip(BrowseFilterChip? chip) => chip?.Remove();
 
+    // The chips are plain records written in the language of the moment; a language switch
+    // writes them again (see LocalizedViewModel.RefreshText).
+    protected internal override void RefreshText()
+    {
+        base.RefreshText();
+        if (HasLoadedResults) RebuildFilterChips();
+    }
+
     //
     // What is filtering the results, as Steam lists it on the count line: the search ("Results
     // for: ..."), the content type, each SPT line and tag ticked (with its [+] or [-] box), and the
@@ -1089,8 +1097,9 @@ public partial class BrowseViewModel : LocalizedViewModel
 
         var mod = card.Mod;
 
-        // Every install path comes through here, so this is where the app's own listing is refused,
-        // whatever led to it - see IsSelf.
+        // Every install from Browse, Home and the item page comes through here, so this is where
+        // the app's own listing is refused, whatever link led to it - see IsSelf. (Mod lists refuse
+        // it themselves; the other install paths start from mods already installed.)
         if (IsSelf(mod))
         {
             StatusMessage = Text(Strings.Browse_SelfModFormat, mod.Name);

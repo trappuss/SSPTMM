@@ -22,6 +22,17 @@ public static class DependencyBadgeLoader
     // unlike thumbnails which load from a CDN.
     private static readonly SemaphoreSlim Gate = new(4, 4);
 
+    //
+    // And spaces them out: one every half second at most, 20 in ten seconds - half of what
+    // sp-mod.com allows (40 per 10s, 200 per minute), leaving the rest for everything else the app
+    // asks it. Browse's infinite list draws cards as fast as it is scrolled, and one lookup per card
+    // at full speed would soon be refused - and a refused API takes item pages and Subscribe's
+    // lookup down with it. Only the UI thread touches this.
+    //
+    private static readonly TimeSpan Spacing = TimeSpan.FromMilliseconds(500);
+
+    private static DateTime _nextStart = DateTime.MinValue;
+
     private static readonly DependencyFlagStore Store = new();
 
     // Cache of "does this mod's latest version have dependencies", keyed by mod id, seeded from
@@ -102,6 +113,17 @@ public static class DependencyBadgeLoader
                 if (GetMod(element)?.Id == mod.Id) element.Visibility = cached ? Visibility.Visible : Visibility.Collapsed;
                 return;
             }
+
+            // Wait for this lookup's turn, then drop it if the card no longer wants it - scrolled
+            // far away (Browse lets go of those) or reused for another mod.
+            if (GetMod(element)?.Id != mod.Id) return;
+
+            var now = DateTime.UtcNow;
+            var start = _nextStart > now ? _nextStart : now;
+            _nextStart = start + Spacing;
+            if (start > now) await Task.Delay(start - now);
+
+            if (GetMod(element)?.Id != mod.Id) return;
 
             bool hasDependencies;
             try

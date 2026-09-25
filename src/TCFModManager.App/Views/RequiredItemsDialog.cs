@@ -103,11 +103,18 @@ public static class RequiredItemsDialog
             TextTrimming = TextTrimming.CharacterEllipsis,
         };
 
+        // A row with no page never gets the tick (a link without a page counts as read from the
+        // start), and rows take no keyboard focus, so Enter always answers the dialog.
+        var content = new DockPanel();
+        if (link.HasUrl) content.Children.Add(tick);
+        content.Children.Add(name);
+
         var row = new Button
         {
             Style = (Style)Application.Current.FindResource("SteamModalRow"),
-            Content = new DockPanel { Children = { tick, name } },
+            Content = content,
             IsEnabled = link.HasUrl,
+            Focusable = false,
             ToolTip = link.Url,
         };
         row.Click += (_, _) => Open(Window.GetWindow(row), link);

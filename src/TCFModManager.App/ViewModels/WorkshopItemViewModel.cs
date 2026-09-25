@@ -269,7 +269,9 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel
 
     public string? License => Mod.License?.Name;
 
-    public bool HasLicenseLink => Uri.TryCreate(Mod.License?.Link, UriKind.Absolute, out _);
+    // Web addresses only: the link is handed to the shell.
+    public bool HasLicenseLink =>
+        Uri.TryCreate(Mod.License?.Link, UriKind.Absolute, out var uri) && uri.Scheme is "https" or "http";
 
     // The BepInEx plugin id - what the game's logs call the mod.
     public string? Guid => string.IsNullOrWhiteSpace(Mod.Guid) ? null : Mod.Guid;
@@ -676,15 +678,25 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel
     // version cards write it; the name alone when the API sent no versions.
     private static string DependencyNameAndVersion(ModVersionDependency dependency)
     {
+        // Highest of those that read as versions; a label that does not ("beta") only when none do.
         string? newest = null;
         foreach (var version in (dependency.Versions ?? []).Select(v => v.Version).Where(v => !string.IsNullOrWhiteSpace(v)))
         {
-            if (newest is null || ModVersionComparer.IsUpdateAvailable(newest, version) == true) newest = version;
+            if (newest is null
+                || ModVersionComparer.IsUpdateAvailable(newest, version) == true
+                || (!ReadsAsVersion(newest) && ReadsAsVersion(version)))
+            {
+                newest = version;
+            }
         }
 
         var name = DependencyName(dependency);
         return newest is null ? name : Text(Strings.Item_DependencyVersionFormat, name, newest);
     }
+
+    // Whether the comparer can read it at all: anything it can read compares against "0".
+    private static bool ReadsAsVersion(string? version) =>
+        ModVersionComparer.IsUpdateAvailable("0", version) is not null;
 
     private static string? DependencyNames(ModVersion version) =>
         version.Dependencies is { Count: > 0 } dependencies
