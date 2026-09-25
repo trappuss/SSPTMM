@@ -24,12 +24,18 @@
         Steam's own face is Motiva Sans, which Valve licenses and does not allow anyone else to use
         (the licence text sits at the top of steamcommunity.com's motiva_sans.css). Noto Sans is the
         next family in Steam's own font stack, and it is SIL OFL, so it ships here with its licence
-        (Themes/Fonts/OFL.txt). Light and Medium are separate families in these files, so they are
-        named explicitly rather than reached through FontWeight.
+        (Themes/Fonts/OFL.txt). Light and Medium carry both a family name of their own and "Noto Sans"; see the
+        note on SteamFontLight below.
     -->
-    <FontFamily x:Key="SteamFont">pack://application:,,,/Themes/Fonts/#Noto Sans</FontFamily>
-    <FontFamily x:Key="SteamFontLight">pack://application:,,,/Themes/Fonts/#Noto Sans Light</FontFamily>
-    <FontFamily x:Key="SteamFontMedium">pack://application:,,,/Themes/Fonts/#Noto Sans Medium</FontFamily>
+    <!--  Segoe UI after it, so a character Noto Sans does not have (an emoji in a mod description,
+          CJK in a mod name) falls back to what Windows always has rather than to nothing.  -->
+    <FontFamily x:Key="SteamFont">pack://application:,,,/Themes/Fonts/#Noto Sans, Segoe UI</FontFamily>
+    <!--  Light and Medium name their own family first and fall back to "Noto Sans": font engines
+          disagree on whether those two files are families of their own (their legacy names) or
+          weights of Noto Sans (their typographic names). Every use also asks for the weight, so
+          whichever grouping wins, the right face is picked.  -->
+    <FontFamily x:Key="SteamFontLight">pack://application:,,,/Themes/Fonts/#Noto Sans Light, pack://application:,,,/Themes/Fonts/#Noto Sans, Segoe UI</FontFamily>
+    <FontFamily x:Key="SteamFontMedium">pack://application:,,,/Themes/Fonts/#Noto Sans Medium, pack://application:,,,/Themes/Fonts/#Noto Sans, Segoe UI</FontFamily>
 
     <!--  Steam rounds its buttons, fields and dropdowns by 2px and its popups barely at all. Both
           keys are read by WPF-UI's templates through DynamicResource, so this reaches every control.  -->
@@ -57,7 +63,7 @@
     <SolidColorBrush x:Key="SteamAuthorText" Color="#A2FFFFFF" />
     <SolidColorBrush x:Key="SteamPreviewBackground" Color="#070707" />
     <SolidColorBrush x:Key="SteamPopupBackground" Color="#344352" />
-    <SolidColorBrush x:Key="SteamChip" Color="#17FFFFFF" />
+    <SolidColorBrush x:Key="SteamChipFill" Color="#17FFFFFF" />
     <SolidColorBrush x:Key="SteamLabelBlue" Color="#5C8699" />
     <SolidColorBrush x:Key="SteamValueText" Color="#EBEBEB" />
     <SolidColorBrush x:Key="SteamStatNumber" Color="#6088BB" />
@@ -334,6 +340,7 @@
     <Style x:Key="SteamHubTab" TargetType="ToggleButton">
         <Setter Property="Foreground" Value="{StaticResource SteamHubTabText}" />
         <Setter Property="FontFamily" Value="{StaticResource SteamFontMedium}" />
+        <Setter Property="FontWeight" Value="Medium" />
         <Setter Property="FontSize" Value="15" />
         <Setter Property="Margin" Value="0,0,20,0" />
         <Setter Property="Cursor" Value="Hand" />
@@ -615,7 +622,7 @@
     <!--  ============================================================ Pieces  -->
     <!--  Tag chip in the hover popup: rgba(255,255,255,.09), white 12px, 4 8 padding.  -->
     <Style x:Key="SteamChip" TargetType="Border">
-        <Setter Property="Background" Value="{StaticResource SteamChip}" />
+        <Setter Property="Background" Value="{StaticResource SteamChipFill}" />
         <Setter Property="Padding" Value="8,4" />
         <Setter Property="Margin" Value="0,0,4,4" />
     </Style>

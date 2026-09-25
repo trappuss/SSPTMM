@@ -32,4 +32,9 @@ public sealed class ModVersionDependency
     public string? ModName { get; set; }
     public string? VersionConstraint { get; set; }
     public bool IsOptional { get; set; }
+
+    // What the API sends today: each dependency is the required mod's own record, so its id is the
+    // mod's id and its name the mod's name. (The mod_* fields above stay for the older shape.)
+    public string? Guid { get; set; }
+    public string? Name { get; set; }
 }

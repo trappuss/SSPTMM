@@ -269,6 +269,18 @@
         </Grid.RowDefinitions>
 
         <DockPanel Grid.Row="0" Margin="0,0,0,12">
+            <!-- The page's title on a line of its own, as a Steam page has it, with what the scan
+                 found under it. Docked first so it spans the row above the toolbar. -->
+            <StackPanel DockPanel.Dock="Top" Margin="0,0,0,12">
+                <TextBlock FontSize="18" Foreground="{StaticResource SteamTextBright}" Text="{loc:Str Workshop_SubscribedItems}" />
+                <TextBlock
+                    Margin="0,2,0,0"
+                    FontSize="14"
+                    TextWrapping="Wrap"
+                    Foreground="{StaticResource SteamText}"
+                    Text="{Binding StatusMessage}" />
+            </StackPanel>
+
             <ui:Button
                 DockPanel.Dock="Right"
                 Content="{loc:Str Common_Rescan}"
@@ -356,15 +368,6 @@
                     Click="ListView_Click" />
             </StackPanel>
 
-            <StackPanel VerticalAlignment="Center">
-                <TextBlock FontSize="18" Foreground="{StaticResource SteamTextBright}" Text="{loc:Str Workshop_SubscribedItems}" />
-                <TextBlock
-                    Margin="0,2,0,0"
-                    FontSize="14"
-                    TextWrapping="Wrap"
-                    Foreground="{StaticResource SteamText}"
-                    Text="{Binding StatusMessage}" />
-            </StackPanel>
         </DockPanel>
 
         <!-- Search box and filter toggles. -->

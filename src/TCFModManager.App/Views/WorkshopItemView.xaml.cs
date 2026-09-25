@@ -46,6 +46,12 @@ public partial class WorkshopItemView : UserControl
         var viewModel = new WorkshopItemViewModel(request);
         DataContext = viewModel;
 
+        // A tab switch is a new page on Steam; start it at the top.
+        viewModel.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(WorkshopItemViewModel.IsChangeNotesShown)) Scroll.ScrollToTop();
+        };
+
         Visibility = Visibility.Visible;
         Scroll.ScrollToTop();
 

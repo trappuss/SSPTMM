@@ -34,6 +34,7 @@
              dimmer white otherwise. -->
         <Style x:Key="HomeTab" TargetType="ToggleButton" BasedOn="{StaticResource SteamHubTab}">
             <Setter Property="FontFamily" Value="{StaticResource SteamFontMedium}" />
+            <Setter Property="FontWeight" Value="Medium" />
             <Setter Property="FontSize" Value="20" />
             <Setter Property="Margin" Value="0,0,24,0" />
             <Setter Property="Foreground" Value="#9DA3A9" />
@@ -107,7 +108,7 @@
                             <TextBlock Text="{loc:Str WorkshopHome_ViewAll}" />
                         </Button>
                         <StackPanel>
-                            <TextBlock FontFamily="{StaticResource SteamFontMedium}" FontSize="20" Foreground="{StaticResource SteamWhite}" Text="{loc:Str WorkshopHome_FeaturedTitle}" />
+                            <TextBlock FontFamily="{StaticResource SteamFontMedium}" FontWeight="Medium" FontSize="20" Foreground="{StaticResource SteamWhite}" Text="{loc:Str WorkshopHome_FeaturedTitle}" />
                             <TextBlock FontSize="15" Foreground="{StaticResource SteamText}" Text="{loc:Str WorkshopHome_InThePastWeek}" />
                         </StackPanel>
                     </DockPanel>

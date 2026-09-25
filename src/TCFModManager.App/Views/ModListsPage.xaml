@@ -94,6 +94,7 @@
         Margin="24,16,24,16"
         Background="Transparent">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -103,7 +104,16 @@
         </Grid.ColumnDefinitions>
 
         <!-- Left: make a list or bring one in, then the ones already here. -->
-        <Grid Grid.Row="0" Grid.Column="0">
+        <!-- The page's title, as Steam's "Your collections" has it. -->
+        <TextBlock
+            Grid.Row="0"
+            Grid.ColumnSpan="3"
+            Margin="0,0,0,16"
+            FontSize="18"
+            Foreground="{StaticResource SteamTextBright}"
+            Text="{loc:Str Workshop_YourCollections}" />
+
+        <Grid Grid.Row="1" Grid.Column="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -310,7 +320,7 @@
         </Grid>
 
         <!-- Right: the selected list, and what applying it would do. -->
-        <Grid Grid.Row="0" Grid.Column="2">
+        <Grid Grid.Row="1" Grid.Column="2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />

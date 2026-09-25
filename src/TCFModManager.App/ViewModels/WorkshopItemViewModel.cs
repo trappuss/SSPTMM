@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Net.Http;
 using System.Windows;
@@ -142,8 +143,13 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel
 
     private void RefreshInstallState()
     {
+        var wasInstalled = Installed is not null;
+
         Card = AppServices.Browse.BuildCard(Mod);
         Installed = AppServices.Browse.InstalledMatchFor(Mod);
+
+        // "Queued ..." is out of date once the install lands; the installed line says the rest.
+        if (!wasInstalled && Installed is not null) Message = null;
     }
 
     // What the last action said - queued, removed, failed.
@@ -202,7 +208,7 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel
         {
             var result = await AppServices.SpModApi.GetModVersionsAsync(
                 Mod.Id.ToString(),
-                new ModVersionsQuery { Sort = "-published_at", PerPage = 20 });
+                new ModVersionsQuery { Include = "dependencies", Sort = "-published_at", PerPage = 20 });
 
             // The version Subscribe would install - the one the card advertises.
             var shownVersion = Card.DisplayReleaseVersion;
@@ -222,9 +228,10 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel
             RequiredItems.Clear();
             foreach (var dependency in (shown?.Dependencies ?? []).OrderBy(d => d.IsOptional))
             {
-                var name = dependency.ModName ?? dependency.ModGuid ?? dependency.ModId.ToString();
+                var modId = dependency.ModId != 0 ? dependency.ModId : dependency.Id;
+                var name = dependency.ModName ?? dependency.Name ?? dependency.ModGuid ?? dependency.Guid ?? modId.ToString();
                 RequiredItems.Add(new WorkshopRequiredItem(
-                    dependency.ModId,
+                    modId,
                     dependency.IsOptional ? Text(Strings.Item_OptionalFormat, name) : name));
             }
 
@@ -271,8 +278,26 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel
         if (Installed is null) return;
 
         var installed = InstalledViewModel.Current ?? new InstalledViewModel();
-        await installed.RemoveCommand.ExecuteAsync(Installed);
-        Message = installed.StatusMessage;
+
+        // The removal's own message is the first thing that page says; the reload it sets off
+        // then replaces it with the page's mod count, which means nothing here.
+        string? said = null;
+        void Listen(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(InstalledViewModel.StatusMessage)) said ??= installed.StatusMessage;
+        }
+
+        installed.PropertyChanged += Listen;
+        try
+        {
+            await installed.RemoveCommand.ExecuteAsync(Installed);
+        }
+        finally
+        {
+            installed.PropertyChanged -= Listen;
+        }
+
+        if (said is not null) Message = said;
     }
 
     // The same dialog Subscribed items opens for a mod: every version, its changelog, Update.

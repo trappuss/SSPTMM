@@ -130,7 +130,7 @@
             <!-- "Browsing: Mods (Subscribe to add to your game)" - 18px, the hint in the light face. -->
             <TextBlock Margin="0,24,0,0" FontSize="18" Foreground="{StaticResource SteamTextBright}" TextWrapping="Wrap">
                 <Run Text="{loc:Str Workshop_BrowsingTitle}" />
-                <Run FontFamily="{StaticResource SteamFontLight}" Text="{loc:Str Workshop_BrowsingHint}" />
+                <Run FontFamily="{StaticResource SteamFontLight}" FontWeight="Light" Text="{loc:Str Workshop_BrowsingHint}" />
             </TextBlock>
             <TextBlock
                 Margin="0,4,0,0"

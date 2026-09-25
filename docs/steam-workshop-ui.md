@@ -25,9 +25,10 @@ starts it. That build keeps its own `Data\` folder, so it does not touch an exis
 Steam sets its pages in **Motiva Sans**. Its licence (quoted at the top of Steam's own
 `motiva_sans.css`) restricts use to Valve, so the fork does not bundle it and does not load it
 from a Steam install either. The next family in Steam's own font stack is **Noto Sans**, which
-is SIL OFL 1.1 and ships in `Themes/Fonts/` with its licence. Light and Medium are separate
-families in those files, so styles name them (`SteamFontLight`, `SteamFontMedium`) rather than
-relying on `FontWeight`.
+is SIL OFL 1.1 and ships in `Themes/Fonts/` with its licence. Windows does not agree with every
+engine on whether Light and Medium are families of their own or weights of "Noto Sans", so
+`SteamFontLight` and `SteamFontMedium` name both and the styles also set `FontWeight`; Segoe UI is
+the last fallback.
 
 ## Measurements
 
@@ -98,7 +99,7 @@ labels `#939393`; "DESCRIPTION" 11px `#61696D`.
 | SPECIAL FILTERS | Featured include / exclude / only |
 | CONTENT TYPE | Category |
 | Tag rows [+]/[-] | The attribute filters: [+] Fika compatible, Has dependencies, Has addons; [-] Contains ads, AI content, Subscribed |
-| Required items | The shown version's dependencies (optional ones marked) |
+| Required items | The shown version's dependencies (sp-mod.com sends no optional flag today) |
 | Change Notes | Every published version with its changelog |
 | File Size | The shown version's download size |
 

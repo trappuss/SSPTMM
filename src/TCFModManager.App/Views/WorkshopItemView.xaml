@@ -27,6 +27,7 @@
     xmlns:loc="clr-namespace:TCFModManager.App.Localization"
     xmlns:app="clr-namespace:TCFModManager.App"
     Focusable="True"
+    FocusVisualStyle="{x:Null}"
     KeyDown="View_KeyDown">
     <UserControl.Resources>
         <converters:NullToVisibilityConverter x:Key="NullToCollapsed" />
@@ -84,6 +85,7 @@
                     </StackPanel>
                     <TextBlock
                         FontFamily="{StaticResource SteamFontLight}"
+                        FontWeight="Light"
                         FontSize="30"
                         Foreground="{StaticResource SteamWhite}"
                         TextTrimming="CharacterEllipsis"
@@ -271,7 +273,7 @@
                                     </StackPanel>
 
                                     <StackPanel>
-                                        <TextBlock FontFamily="{StaticResource SteamFontLight}" FontSize="13" Foreground="{StaticResource SteamLabelBlue}" Text="{loc:Str Item_SubscribeToDownload}" />
+                                        <TextBlock FontFamily="{StaticResource SteamFontLight}" FontWeight="Light" FontSize="13" Foreground="{StaticResource SteamLabelBlue}" Text="{loc:Str Item_SubscribeToDownload}" />
                                         <TextBlock Margin="0,4,0,0" FontSize="20" FontWeight="Bold" Foreground="{StaticResource SteamWhite}" TextWrapping="Wrap" Text="{Binding Name}" />
                                         <!-- Installed / update available / disabled, in the app's own words. -->
                                         <TextBlock Margin="0,6,0,0" FontSize="13" Foreground="#A4D007" TextWrapping="Wrap" Text="{Binding StatusLine}" Visibility="{Binding StatusLine, Converter={StaticResource NullToCollapsed}}" />
@@ -283,6 +285,9 @@
                             <!-- DESCRIPTION, with the rule over it. -->
                             <Rectangle Height="1" Margin="0,26,0,0" Fill="#1F2E40" />
                             <TextBlock Style="{StaticResource SteamDescriptionTitle}" Text="{loc:Str Item_DescriptionHeader}" />
+                            <!-- Steam's description: 14px #ACB2B8 on 20px lines. The renderer
+                                 colours the document from TextFillColorPrimaryBrush, so the local
+                                 key below is what it finds first. -->
                             <RichTextBox
                                 Padding="0"
                                 Background="Transparent"
@@ -293,7 +298,14 @@
                                 IsDocumentEnabled="True"
                                 IsReadOnly="True"
                                 VerticalScrollBarVisibility="Disabled"
-                                behaviors:HtmlText.Html="{Binding DescriptionHtml}" />
+                                behaviors:HtmlText.Html="{Binding DescriptionHtml}">
+                                <RichTextBox.Resources>
+                                    <SolidColorBrush x:Key="TextFillColorPrimaryBrush" Color="#ACB2B8" />
+                                    <Style TargetType="Paragraph">
+                                        <Setter Property="LineHeight" Value="20" />
+                                    </Style>
+                                </RichTextBox.Resources>
+                            </RichTextBox>
 
                             <!-- The mod's own addons; collapses when it has none. -->
                             <views:AddonsSection Margin="0,16,0,0" DataContext="{Binding Addons}" />
