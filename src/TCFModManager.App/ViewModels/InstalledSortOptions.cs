@@ -43,6 +43,9 @@ public enum GroupSortOption
     Manual,
     NameAscending,
     NameDescending,
+
+    // Not an order of your groups: one section per sp-mod.com category in their place.
+    Category,
 }
 
 public sealed class GroupSortItem(string key, GroupSortOption value) : LocalizedViewModel

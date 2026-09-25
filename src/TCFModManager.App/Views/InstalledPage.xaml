@@ -203,51 +203,58 @@
                     </StackPanel>
                 </StackPanel>
 
-                <!-- Remove is docked right, away from the two safe actions, so the destructive one
-                     is never where the mouse already is. LastChildFill is off: this row is two
-                     docked groups, not a filled remainder. -->
-                <DockPanel Grid.Row="1" LastChildFill="False" Margin="0,12,0,0" VerticalAlignment="Bottom">
-                    <ui:Button
-                        DockPanel.Dock="Left"
-                        Content="{loc:Str Installed_DetailsAndVersions}"
-                        Icon="{ui:SymbolIcon Info24}"
-                        Command="{Binding DataContext.ShowDetailsCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
-                        CommandParameter="{Binding}"
-                        ToolTip="{loc:Str Installed_DetailsAndVersionsToolTip}" />
+                <!-- Unsubscribe sits on the right, away from the safe actions, so the destructive one
+                     is never where the mouse already is. It keeps its full width; the safe ones wrap
+                     onto a second line when the card is too narrow for all of them, rather than the
+                     last button being cut off. -->
+                <Grid Grid.Row="1" Margin="0,8,0,0" VerticalAlignment="Bottom">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <WrapPanel VerticalAlignment="Bottom">
+                        <ui:Button
+                            Margin="0,4,8,0"
+                            Content="{loc:Str Installed_DetailsAndVersions}"
+                            Icon="{ui:SymbolIcon Info24}"
+                            Command="{Binding DataContext.ShowDetailsCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
+                            CommandParameter="{Binding}"
+                            ToolTip="{loc:Str Installed_DetailsAndVersionsToolTip}" />
+
+                        <ui:Button
+                            Margin="0,4,8,0"
+                            Foreground="{DynamicResource SystemFillColorCautionBrush}"
+                            Content="{loc:Str Installed_SortOut}"
+                            Icon="{ui:SymbolIcon Warning24}"
+                            Visibility="{Binding HasDuplicateFolders, Converter={StaticResource BoolToVis}}"
+                            Command="{Binding DataContext.ResolveDuplicateCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
+                            CommandParameter="{Binding}"
+                            ToolTip="{loc:Str Installed_SortOutToolTip}" />
+
+                        <ui:Button
+                            Margin="0,4,8,0"
+                            Content="{Binding PinLabel}"
+                            Command="{Binding DataContext.TogglePinCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
+                            CommandParameter="{Binding}"
+                            ToolTip="{Binding PinTooltip}">
+                            <ui:Button.Icon>
+                                <ui:SymbolIcon Symbol="{Binding PinGlyph}" />
+                            </ui:Button.Icon>
+                        </ui:Button>
+                    </WrapPanel>
 
                     <ui:Button
-                        DockPanel.Dock="Left"
-                        Margin="8,0,0,0"
-                        Foreground="{DynamicResource SystemFillColorCautionBrush}"
-                        Content="{loc:Str Installed_SortOut}"
-                        Icon="{ui:SymbolIcon Warning24}"
-                        Visibility="{Binding HasDuplicateFolders, Converter={StaticResource BoolToVis}}"
-                        Command="{Binding DataContext.ResolveDuplicateCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
-                        CommandParameter="{Binding}"
-                        ToolTip="{loc:Str Installed_SortOutToolTip}" />
-
-                    <ui:Button
-                        DockPanel.Dock="Left"
-                        Margin="8,0,0,0"
-                        Content="{Binding PinLabel}"
-                        Command="{Binding DataContext.TogglePinCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
-                        CommandParameter="{Binding}"
-                        ToolTip="{Binding PinTooltip}">
-                        <ui:Button.Icon>
-                            <ui:SymbolIcon Symbol="{Binding PinGlyph}" />
-                        </ui:Button.Icon>
-                    </ui:Button>
-
-                    <ui:Button
-                        DockPanel.Dock="Right"
-                        Margin="8,0,0,0"
+                        Grid.Column="1"
+                        Margin="0,4,0,0"
+                        VerticalAlignment="Bottom"
                         Foreground="{DynamicResource SystemFillColorCriticalBrush}"
                         Content="{loc:Str Installed_Remove}"
                         Icon="{ui:SymbolIcon Delete24}"
                         Command="{Binding DataContext.RemoveCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
                         CommandParameter="{Binding}"
                         ToolTip="{loc:Str Installed_RemoveToolTip}" />
-                </DockPanel>
+                </Grid>
             </Grid>
         </DataTemplate>
 
@@ -579,7 +586,19 @@
                     Visibility="{Binding ShowCards, Converter={StaticResource BoolToVis}}">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding StringFormat={loc:Str Common_PageSizeFormat}}" />
+                            <!-- 0 is Infinite, as in Browse. -->
+                            <TextBlock>
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Text" Value="{Binding StringFormat={loc:Str Common_PageSizeFormat}}" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding}" Value="0">
+                                                <Setter Property="Text" Value="{Binding [Workshop_PerPageInfinite], Source={x:Static loc:LocalizationService.Instance}}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
@@ -625,6 +644,24 @@
                 Content="{loc:Str Installed_DisableSelected}"
                 Icon="{ui:SymbolIcon PlugDisconnected24}"
                 Command="{Binding DisableSelectedCommand}" />
+            <!-- Red like each card's own Unsubscribe - while there is something ticked; greyed
+                 out like its neighbours otherwise. -->
+            <ui:Button
+                DockPanel.Dock="Right"
+                Margin="0,0,8,0"
+                Content="{loc:Str Installed_UnsubscribeSelected}"
+                Icon="{ui:SymbolIcon Delete24}"
+                Command="{Binding UnsubscribeSelectedCommand}">
+                <ui:Button.Style>
+                    <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
+                        <Style.Triggers>
+                            <Trigger Property="IsEnabled" Value="True">
+                                <Setter Property="Foreground" Value="{DynamicResource SystemFillColorCriticalBrush}" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </ui:Button.Style>
+            </ui:Button>
             <TextBlock
                 VerticalAlignment="Center"
                 Foreground="{DynamicResource TextFillColorSecondaryBrush}"
@@ -648,12 +685,22 @@
                 Margin="0,0,16,0"
                 Content="{loc:Str Installed_AddGroup}"
                 Icon="{ui:SymbolIcon Add24}"
+                Visibility="{Binding GroupsByCategory, Converter={StaticResource FalseToVisible}}"
                 Command="{Binding AddGroupCommand}" />
+            <!-- Sorted by category, the sections are categories: no group to add or fill here. -->
+            <TextBlock
+                Margin="0,0,16,0"
+                VerticalAlignment="Center"
+                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                TextWrapping="Wrap"
+                Text="{loc:Str Installed_ByCategoryNote}"
+                Visibility="{Binding GroupsByCategory, Converter={StaticResource BoolToVis}}" />
             <ui:TextBox
                 MinWidth="220"
                 HorizontalAlignment="Left"
                 PlaceholderText="{loc:Str Installed_NewGroupPlaceholder}"
-                Text="{Binding NewGroupName, UpdateSourceTrigger=PropertyChanged}" />
+                Text="{Binding NewGroupName, UpdateSourceTrigger=PropertyChanged}"
+                Visibility="{Binding GroupsByCategory, Converter={StaticResource FalseToVisible}}" />
         </DockPanel>
 
         <!-- Installed mods grid; column count is set from code-behind based on width. Hidden in
@@ -671,6 +718,7 @@
         <ScrollViewer
             x:Name="CardsScrollViewer"
             FocusVisualStyle="{x:Null}"
+            ScrollChanged="CardsScrollViewer_ScrollChanged"
             Grid.Row="4"
             Focusable="False"
             Padding="4"
@@ -918,7 +966,7 @@
                                         Padding="4"
                                         Margin="0,0,6,0"
                                         Appearance="Transparent"
-                                        Visibility="{Binding IsRealGroup, Converter={StaticResource BoolToVis}}"
+                                        Visibility="{Binding CanCollapse, Converter={StaticResource BoolToVis}}"
                                         Command="{Binding DataContext.ToggleCollapsedCommand, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
                                         CommandParameter="{Binding}"
                                         ToolTip="{loc:Str Installed_GroupExpandToolTip}">
@@ -1034,15 +1082,24 @@
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate DataType="{x:Type viewmodels:InstalledModCardViewModel}">
                                                 <Border
-                                                    Style="{StaticResource ClickableCardRow}"
                                                     Margin="0,0,0,4"
                                                     Padding="8,6"
                                                     Opacity="{Binding CardOpacity}"
                                                     behaviors:ModContextMenu.ModId="{Binding CatalogModId}"
-                                                    ToolTip="{loc:Str Installed_GroupRowToolTip}"
                                                     PreviewMouseLeftButtonDown="ModRow_PreviewMouseLeftButtonDown"
                                                     PreviewMouseMove="ModRow_PreviewMouseMove"
                                                     PreviewMouseLeftButtonUp="ModRow_PreviewMouseLeftButtonUp">
+                                                    <!-- Sorted by category there is no group to drag it onto. -->
+                                                    <Border.Style>
+                                                        <Style TargetType="Border" BasedOn="{StaticResource ClickableCardRow}">
+                                                            <Setter Property="ToolTip" Value="{Binding [Installed_GroupRowToolTip], Source={x:Static loc:LocalizationService.Instance}}" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding DataContext.GroupsByCategory, RelativeSource={RelativeSource AncestorType={x:Type Page}}}" Value="True">
+                                                                    <Setter Property="ToolTip" Value="{Binding [Installed_CategoryRowToolTip], Source={x:Static loc:LocalizationService.Instance}}" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="Auto" />
@@ -1236,13 +1293,14 @@
             </ItemsControl>
         </ScrollViewer>
 
-        <!-- Only shown in Cards view - the two scrolling views have no use for pages. -->
+        <!-- Only shown in Cards view - the two scrolling views have no use for pages, nor has
+             the infinite list. -->
         <StackPanel
             Grid.Row="5"
             Orientation="Horizontal"
             HorizontalAlignment="Center"
             Margin="0,8,0,0"
-            Visibility="{Binding ShowCards, Converter={StaticResource BoolToVis}}">
+            Visibility="{Binding ShowPager, Converter={StaticResource BoolToVis}}">
             <ui:Button
                 Content="{loc:Str Common_Previous}"
                 Command="{Binding PreviousPageCommand}" />

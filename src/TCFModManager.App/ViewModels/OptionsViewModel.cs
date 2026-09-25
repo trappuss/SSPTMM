@@ -112,6 +112,29 @@ public partial class OptionsViewModel : LocalizedViewModel
         AppLog.Info("Options", value ? "smooth scrolling on" : "smooth scrolling off");
     }
 
+    // Whether removing an item asks first - see AppSettings.ConfirmUnsubscribe. A plain property
+    // rather than [ObservableProperty]: the question's "Don't ask again" changes the stored value
+    // while this page may be open, and Reload puts it on the switch without saving it again.
+    private bool _confirmUnsubscribe;
+
+    public bool ConfirmUnsubscribe
+    {
+        get => _confirmUnsubscribe;
+        set
+        {
+            if (!SetProperty(ref _confirmUnsubscribe, value) || !_loaded) return;
+
+            var settings = _settings.Load();
+            settings.ConfirmUnsubscribe = value;
+            _settings.Save(settings);
+
+            AppLog.Info("Options", value ? "unsubscribe question on" : "unsubscribe question off");
+        }
+    }
+
+    /// <summary>Settings another part of the app can change while this page is open, read again.</summary>
+    public void Reload() => SetProperty(ref _confirmUnsubscribe, _settings.Load().ConfirmUnsubscribe, nameof(ConfirmUnsubscribe));
+
     // Same arrangement as ModPageGate: one description of the setting, shared with the nav item.
     public FootprintGateViewModel FootprintGate => AppServices.FootprintGate;
 
@@ -218,6 +241,7 @@ public partial class OptionsViewModel : LocalizedViewModel
         _showModFootprintPage = settings.ShowModFootprintPage;
         _startLauncherAfterServer = settings.StartLauncherAfterServer;
         _smoothScrolling = settings.SmoothScrolling;
+        _confirmUnsubscribe = settings.ConfirmUnsubscribe;
 
         _selectedWindowStartup = WindowStartupOptions.FirstOrDefault(o => o.Value == settings.Window.StartupMode)
             ?? WindowStartupOptions[0];

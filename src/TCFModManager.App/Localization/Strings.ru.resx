@@ -2030,14 +2030,6 @@
   <data name="Installed_RemoveConfigs_many" xml:space="preserve">
     <value>У мода {0} есть {1} собственных файлов конфигурации или настроек:</value>
   </data>
-  <data name="Installed_RemoveConfigs_one" xml:space="preserve">
-    <value>У мода {0} есть {1} собственный файл конфигурации или настроек:</value>
-  </data>
-  <data name="Installed_RemoveConfigsChoicesFormat" xml:space="preserve">
-    <value>Да  -  сохранить их, переместив в {0}
-Нет  -  удалить их вместе с остальным модом
-Отмена  -  ничего не удалять</value>
-  </data>
   <data name="Installed_RemovedConfigsKept_few" xml:space="preserve">
     <value>{0} файла конфигурации оставлены в {1}.</value>
   </data>
@@ -2078,9 +2070,6 @@
   </data>
   <data name="Installed_RemoveNoRecordFormat" xml:space="preserve">
     <value>Не удалось найти запись об установке {0} - возможно, он уже удалён.</value>
-  </data>
-  <data name="Installed_RemoveTitleFormat" xml:space="preserve">
-    <value>Удалить {0}?</value>
   </data>
   <data name="Installed_RemoveToolTip" xml:space="preserve">
     <value>Удалить этот мод</value>

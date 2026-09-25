@@ -66,6 +66,19 @@ public partial class InstalledPage : Page
         GroupsScrollViewer.AddHandler(DropEvent, new DragEventHandler(GroupsScrollViewer_Drop), true);
     }
 
+    // How close to the bottom, in pixels, the infinite list adds its next cards - as Browse does.
+    // ScrollChanged also fires when the list grows, so a window tall enough to show every card
+    // added keeps asking until the list is longer than the view.
+    private const double LoadMoreDistance = 800;
+
+    private void CardsScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
+    {
+        if (!ViewModel.IsInfinite) return;
+
+        var remaining = CardsScrollViewer.ExtentHeight - CardsScrollViewer.ViewportHeight - CardsScrollViewer.VerticalOffset;
+        if (remaining <= LoadMoreDistance) ViewModel.LoadMore();
+    }
+
     private async void InstalledPage_Loaded(object sender, RoutedEventArgs e)
     {
         ViewModel.UpdateLayoutForWidth(ResultsItems.ActualWidth);
@@ -178,6 +191,9 @@ public partial class InstalledPage : Page
     private void ModRow_PreviewMouseMove(object sender, MouseEventArgs e)
     {
         if (e.LeftButton != MouseButtonState.Pressed || _dragCandidate is null || _dragStarted) return;
+
+        // Sorted by category there are no groups on screen to drag a row into.
+        if (ViewModel.GroupsByCategory) return;
 
         var current = e.GetPosition(null);
         if (Math.Abs(current.X - _dragStart.X) < SystemParameters.MinimumHorizontalDragDistance
@@ -340,15 +356,17 @@ public partial class InstalledPage : Page
         await ViewModel.ShowDetailsCommand.ExecuteAsync(mod);
     }
 
+    // A category's section is not a group: nothing is dropped on it.
     private void Section_DragOver(object sender, DragEventArgs e)
     {
-        e.Effects = e.Data.GetDataPresent(typeof(InstalledModCardViewModel)) ? DragDropEffects.Move : DragDropEffects.None;
+        var isCategory = sender is FrameworkElement { DataContext: ModGroupSectionViewModel { IsCategory: true } };
+        e.Effects = !isCategory && e.Data.GetDataPresent(typeof(InstalledModCardViewModel)) ? DragDropEffects.Move : DragDropEffects.None;
         e.Handled = true;
     }
 
     private void Section_Drop(object sender, DragEventArgs e)
     {
-        if (sender is not FrameworkElement { DataContext: ModGroupSectionViewModel section }) return;
+        if (sender is not FrameworkElement { DataContext: ModGroupSectionViewModel { IsCategory: false } section }) return;
         if (e.Data.GetData(typeof(InstalledModCardViewModel)) is not InstalledModCardViewModel mod) return;
 
         ViewModel.MoveModToGroup(mod, section.GroupId);

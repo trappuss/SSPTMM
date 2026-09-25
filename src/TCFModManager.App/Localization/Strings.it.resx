@@ -1919,17 +1919,6 @@ La copia che non conservi viene spostata in una cartella nascosta .tcfmm-duplica
   <data name="Installed_RemoveAppManagedBody" xml:space="preserve">
     <value>Verranno eliminati esattamente i file che questa app ha installato per questo mod.</value>
   </data>
-  <data name="Installed_RemoveConfigs_one" xml:space="preserve">
-    <value>{0} ha un proprio file di configurazione o impostazioni:</value>
-  </data>
-  <data name="Installed_RemoveConfigs_other" xml:space="preserve">
-    <value>{0} ha {1} file di configurazione o impostazioni propri:</value>
-  </data>
-  <data name="Installed_RemoveConfigsChoicesFormat" xml:space="preserve">
-    <value>Sì  -  li conserva, spostandoli in {0}
-No  -  li elimina insieme al resto del mod
-Annulla  -  non rimuove nulla</value>
-  </data>
   <data name="Installed_RemovedConfigsKept_one" xml:space="preserve">
     <value>Un file di configurazione conservato in {1}.</value>
   </data>
@@ -1964,9 +1953,6 @@ Annulla  -  non rimuove nulla</value>
   </data>
   <data name="Installed_RemoveNoRecordFormat" xml:space="preserve">
     <value>Nessun registro di installazione trovato per {0} - potrebbe essere già stato rimosso.</value>
-  </data>
-  <data name="Installed_RemoveTitleFormat" xml:space="preserve">
-    <value>Vuoi rimuovere {0}?</value>
   </data>
   <data name="Installed_RemoveToolTip" xml:space="preserve">
     <value>Rimuovi questo mod</value>

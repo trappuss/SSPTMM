@@ -17,6 +17,16 @@ public partial class ModGroupSectionViewModel : LocalizedViewModel
 
     public bool IsRealGroup => GroupId is not null;
 
+    // The category a section holds when the Groups view is sorted by category ("" for no category);
+    // null for a group's section and for Ungrouped. Such a section is not a group: nothing is
+    // assigned to it and nothing can be dropped on it.
+    public string? CategoryKey { get; init; }
+
+    public bool IsCategory => CategoryKey is not null;
+
+    // A category's section folds too, for as long as the app is open (it is not stored anywhere).
+    public bool CanCollapse => IsRealGroup || IsCategory;
+
     [ObservableProperty]
     private string _name = string.Empty;
 
@@ -67,6 +77,13 @@ public partial class ModGroupSectionViewModel : LocalizedViewModel
         GroupId = group.Id,
         Name = group.Name,
         IsCollapsed = group.IsCollapsed,
+    };
+
+    public static ModGroupSectionViewModel ForCategory(string? category, bool collapsed) => new()
+    {
+        CategoryKey = category ?? string.Empty,
+        Name = category ?? Strings.Installed_NoCategory,
+        IsCollapsed = collapsed,
     };
 
     public static ModGroupSectionViewModel Ungrouped() => new()

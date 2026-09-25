@@ -160,6 +160,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     //
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ShowCards))]
+    [NotifyPropertyChangedFor(nameof(ShowPager))]
     [NotifyPropertyChangedFor(nameof(ShowGroups))]
     [NotifyPropertyChangedFor(nameof(ShowList))]
     [NotifyPropertyChangedFor(nameof(ShowExpanders))]
@@ -192,7 +193,14 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         new(nameof(Strings.Sort_GroupsManual), GroupSortOption.Manual),
         new(nameof(Strings.Sort_GroupNameAscending), GroupSortOption.NameAscending),
         new(nameof(Strings.Sort_GroupNameDescending), GroupSortOption.NameDescending),
+        new(nameof(Strings.Sort_GroupsByCategory), GroupSortOption.Category),
     ];
+
+    /// <summary>The Groups view shows one section per category rather than your groups.</summary>
+    public bool GroupsByCategory => SelectedGroupSortOption.Value == GroupSortOption.Category;
+
+    // The category sections folded this session, by CategoryKey - kept across rebuilds.
+    private readonly HashSet<string> _collapsedCategories = new(StringComparer.OrdinalIgnoreCase);
 
     [ObservableProperty]
     private GroupSortItem _selectedGroupSortOption;
@@ -261,14 +269,28 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     private bool _showListBadges = true;
 
     //
-    // No "show everything" option, on purpose: Cards view builds every card up front rather than
-    // virtualising, so a hundred-odd of them in one page is work the app does not need to be doing.
-    // List view is the cheap way to see the lot.
+    // Infinite, as Browse has it: no pager, and the next InfiniteStep cards are added as the page
+    // nears its bottom. Not "every card at once": Cards view builds its cards rather than
+    // virtualising them, so a hundred-odd up front is work the app does not need to be doing.
     //
-    public List<int> PageSizeOptions { get; } = [8, DefaultPageSizeValue, 16, 24, 32];
+    public const int InfinitePageSize = BrowseViewModel.InfinitePageSize;
+
+    private const int InfiniteStep = 24;
+
+    public List<int> PageSizeOptions { get; } = [InfinitePageSize, 8, DefaultPageSizeValue, 16, 24, 32];
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsInfinite))]
+    [NotifyPropertyChangedFor(nameof(ShowPager))]
     private int _pageSize = DefaultPageSizeValue;
+
+    public bool IsInfinite => PageSize == InfinitePageSize;
+
+    /// <summary>The pager under the cards: Cards view, unless it is the infinite list.</summary>
+    public bool ShowPager => ShowCards && !IsInfinite;
+
+    // Cards per page, or per load of the infinite list.
+    private int PageStep => IsInfinite ? InfiniteStep : PageSize;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(PreviousPageCommand))]
@@ -522,6 +544,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     partial void OnSelectedGroupSortOptionChanged(GroupSortItem value)
     {
         OnPropertyChanged(nameof(CanReorderGroups));
+        OnPropertyChanged(nameof(GroupsByCategory));
         RebuildSections();
     }
 
@@ -839,6 +862,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
             OnPropertyChanged(nameof(SelectedCountLabel));
             DisableSelectedCommand.NotifyCanExecuteChanged();
             EnableSelectedCommand.NotifyCanExecuteChanged();
+            UnsubscribeSelectedCommand.NotifyCanExecuteChanged();
             UpdateSelectedCommand.NotifyCanExecuteChanged();
             AnnounceUpdates();
             OnPropertyChanged(nameof(AllSelected));
@@ -896,7 +920,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         if (mod.IsAppManaged && mod.ModId is { } modId)
         {
             var manifest = AppServices.InstallManifest.Load();
-            var record = manifest.Mods.FirstOrDefault(m => m.ModId == modId);
+            var record = manifest.Mods.FirstOrDefault(m => m.ModId == modId && m.IsAddon == mod.IsAddon);
             if (record is null)
             {
                 StatusMessage = Text(Strings.Installed_RemoveNoRecordFormat, mod.Name);
@@ -915,7 +939,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToList();
 
-            if (ConfirmRemoval(mod.Name, Strings.Installed_RemoveAppManagedBody, configs.Count)
+            if (ConfirmRemoval(mod.DisplayTitle, Strings.Installed_RemoveAppManagedBody, configs.Count)
                 is not { } answer)
             {
                 return;
@@ -934,7 +958,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
             var configs = ModInstallService.FindLegacyConfigs(installPath, paths);
             if (ConfirmRemoval(
-                    mod.Name,
+                    mod.DisplayTitle,
                     Text(Strings.Installed_RemoveLegacyBodyFormat, string.Join("\n", paths)),
                     configs.Count) is not { } answer)
             {
@@ -986,7 +1010,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     {
         if (mod.IsAppManaged && mod.ModId is { } modId)
         {
-            var record = AppServices.InstallManifest.Load().Mods.FirstOrDefault(m => m.ModId == modId);
+            var record = AppServices.InstallManifest.Load().Mods.FirstOrDefault(m => m.ModId == modId && m.IsAddon == mod.IsAddon);
             if (record is null) return (false, Text(Strings.Installed_RemoveNoRecordFormat, mod.Name), true);
 
             var result = await AppServices.ModInstall.UninstallAsync(installPath, record, configAction);
@@ -1024,13 +1048,52 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     {
         if (_all.Count == 0) await ScanAsync();
 
+        return await RemoveCardsAsync(_all.Where(c => c is { IsAddon: false, ModId: { } id } && modIds.Contains(id)).ToList());
+    }
+
+    //
+    // Subscribed items' Unsubscribe selected: every ticked item, addons and hand-installed ones
+    // included, removed as a collection's Unsubscribe from all removes - configs kept, the same
+    // check first when other items use them or hand-installed folders would go. Asked about first
+    // unless the unsubscribe question is off.
+    //
+    [RelayCommand(CanExecute = nameof(HasSelection))]
+    private async Task UnsubscribeSelectedAsync()
+    {
+        var cards = SelectedCards();
+        if (cards.Count == 0) return;
+
+        var settingsService = new SettingsService();
+        if (settingsService.Load().ConfirmUnsubscribe)
+        {
+            var body = new System.Windows.Controls.StackPanel { MaxWidth = 640 };
+            body.Children.Add(Paragraph(Strings.Installed_UnsubscribeSelectedBody(cards.Count, cards.Count, AppPaths.LegacyConfigsDirectory)));
+            body.Children.Add(Paragraph(Strings.Installed_UnsubscribeSelectedDisableHint));
+            var dontAsk = AddDontAsk(body);
+
+            var answer = SteamDialog.Show(
+                Strings.Installed_UnsubscribeSelectedTitle(cards.Count, cards.Count),
+                body,
+                new SteamDialogChoice(Strings.Item_Unsubscribe, SteamDialogButton.Blue, IsDefault: true),
+                new SteamDialogChoice(Strings.Common_Cancel, SteamDialogButton.Grey));
+            if (answer != 0) return;
+
+            TurnOffQuestionIfTicked(settingsService, dontAsk);
+        }
+
+        await RemoveCardsAsync(cards);
+    }
+
+    // What RemoveModsAsync and Unsubscribe selected share. Returns what to say, or null when the
+    // check was cancelled.
+    private async Task<string?> RemoveCardsAsync(List<InstalledModCardViewModel> cards)
+    {
         var installPath = AppServices.SptEnvironment.InstallPath;
-        if (string.IsNullOrWhiteSpace(installPath)) return AppMessages.NoSptInstallFolder;
+        if (string.IsNullOrWhiteSpace(installPath)) return StatusMessage = AppMessages.NoSptInstallFolder;
 
         if (ModInstallService.RunningBlockers(installPath) is { Count: > 0 } blockers)
-            return ModInstallProblems.InstallInUse(blockers, ModInstallAction.Remove);
+            return StatusMessage = ModInstallProblems.InstallInUse(blockers, ModInstallAction.Remove);
 
-        var cards = _all.Where(c => c is { IsAddon: false, ModId: { } id } && modIds.Contains(id)).ToList();
         var disabled = cards.Where(c => c.IsDisabled).ToList();
 
         var targets = cards.Except(disabled).ToList();
@@ -1757,41 +1820,106 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         OnPropertyChanged(nameof(AllSelected));
         DisableSelectedCommand.NotifyCanExecuteChanged();
         EnableSelectedCommand.NotifyCanExecuteChanged();
+        UnsubscribeSelectedCommand.NotifyCanExecuteChanged();
         UpdateSelectedCommand.NotifyCanExecuteChanged();
     }
 
     private static bool Confirm(string title, string message) =>
         MessageBox.Show(message, title, MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes;
 
-    /// <summary>Confirms a removal and, when the mod has config files of its own, asks what should happen to
-    /// them in the same prompt. Returns null when the user backed out.</summary>
+    //
+    // Confirms a removal and, when the mod has config files of its own, asks what should happen to
+    // them - Steam's modal. Returns null when the user backed out. Not asked at all once "Don't ask
+    // again" was ticked (Options > Unsubscribing turns it back on): then the configs are kept, the
+    // answer that deletes nothing.
+    //
     private static ConfigAction? ConfirmRemoval(string modName, string message, int configCount)
     {
+        var settingsService = new SettingsService();
+        if (!settingsService.Load().ConfirmUnsubscribe) return ConfigAction.Keep;
+
+        var body = new System.Windows.Controls.StackPanel { MaxWidth = 640 };
+        body.Children.Add(Paragraph(message));
+        if (configCount > 0)
+            body.Children.Add(Paragraph(Strings.Installed_UnsubscribeConfigs(configCount, modName, configCount, AppPaths.LegacyConfigsDirectory)));
+
         // Most people reaching for Remove are troubleshooting, where disabling does the job without
         // deleting anything - worth saying at the point they're about to delete.
-        message = $"{message}\n\n{Strings.Installed_RemoveDisableHint}";
+        body.Children.Add(Paragraph(Strings.Installed_RemoveDisableHint));
 
-        var title = Text(Strings.Installed_RemoveTitleFormat, modName);
+        var dontAsk = AddDontAsk(body);
 
-        if (configCount == 0) return Confirm(title, message) ? ConfigAction.Keep : null;
+        var title = Text(Strings.Installed_UnsubscribeTitleFormat, modName);
 
-        var configs = Strings.Installed_RemoveConfigs(configCount, modName, configCount);
-
-        var choices = Text(Strings.Installed_RemoveConfigsChoicesFormat, AppPaths.LegacyConfigsDirectory);
-
-        var answer = MessageBox.Show(
-            $"{message}\n\n{configs}\n\n{choices}",
-            title,
-            MessageBoxButton.YesNoCancel,
-            MessageBoxImage.Warning);
-
-        return answer switch
+        ConfigAction? action;
+        if (configCount == 0)
         {
-            MessageBoxResult.Yes => ConfigAction.Keep,
-            MessageBoxResult.No => ConfigAction.Delete,
-            _ => null,
-        };
+            action = SteamDialog.Show(
+                title,
+                body,
+                new SteamDialogChoice(Strings.Item_Unsubscribe, SteamDialogButton.Blue, IsDefault: true),
+                new SteamDialogChoice(Strings.Common_Cancel, SteamDialogButton.Grey)) == 0
+                ? ConfigAction.Keep
+                : null;
+        }
+        else
+        {
+            action = SteamDialog.Show(
+                title,
+                body,
+                new SteamDialogChoice(Strings.Installed_UnsubscribeKeepConfigs, SteamDialogButton.Blue, IsDefault: true),
+                new SteamDialogChoice(Strings.Installed_UnsubscribeDeleteConfigs, SteamDialogButton.Grey),
+                new SteamDialogChoice(Strings.Common_Cancel, SteamDialogButton.Grey)) switch
+            {
+                0 => ConfigAction.Keep,
+                1 => ConfigAction.Delete,
+                _ => null,
+            };
+        }
+
+        // Ticked and then cancelled changes nothing: the box goes with the answer.
+        if (action is not null) TurnOffQuestionIfTicked(settingsService, dontAsk);
+
+        return action;
     }
+
+    // The unsubscribe question's "Don't ask again", and the line under it saying how to undo it.
+    private static System.Windows.Controls.CheckBox AddDontAsk(System.Windows.Controls.Panel body)
+    {
+        var dontAsk = new System.Windows.Controls.CheckBox
+        {
+            Content = Strings.Installed_UnsubscribeDontAsk,
+            Margin = new Thickness(0, 4, 0, 0),
+        };
+        body.Children.Add(dontAsk);
+        body.Children.Add(new System.Windows.Controls.TextBlock
+        {
+            Text = Strings.Installed_UnsubscribeDontAskNote,
+            TextWrapping = TextWrapping.Wrap,
+            FontSize = 12,
+            Margin = new Thickness(0, 4, 0, 0),
+            Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x8F, 0x98, 0xA0)),
+        });
+        return dontAsk;
+    }
+
+    private static void TurnOffQuestionIfTicked(SettingsService settingsService, System.Windows.Controls.CheckBox dontAsk)
+    {
+        if (dontAsk.IsChecked != true) return;
+
+        var settings = settingsService.Load();
+        settings.ConfirmUnsubscribe = false;
+        settingsService.Save(settings);
+        AppLog.Info("Options", "unsubscribe question turned off from the question");
+    }
+
+    private static System.Windows.Controls.TextBlock Paragraph(string text) => new()
+    {
+        Text = text,
+        TextWrapping = TextWrapping.Wrap,
+        LineHeight = 21,
+        Margin = new Thickness(0, 0, 0, 12),
+    };
 
     private static string DescribeRemoval(string modName, int failedFiles, int configsKept, string? configsFolder)
     {
@@ -1827,9 +1955,22 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         if (!_cardsDirty && target == CurrentPage) return;
 
         CurrentPage = target;
-        ItemsSync.Apply(Results, _filtered.Skip((CurrentPage - 1) * PageSize).Take(PageSize).ToList());
+        ItemsSync.Apply(
+            Results,
+            IsInfinite
+                // As many as were loaded, so a card leaving the results is followed by the next.
+                ? _filtered.Take(Math.Max(Results.Count, PageStep)).ToList()
+                : _filtered.Skip((CurrentPage - 1) * PageStep).Take(PageStep).ToList());
 
         _cardsDirty = false;
+    }
+
+    /// <summary>Adds the next cards to the infinite list - called as Cards view nears its bottom.</summary>
+    public void LoadMore()
+    {
+        if (!IsInfinite || !ShowCards || _cardsDirty || Results.Count >= _filtered.Count) return;
+
+        foreach (var card in _filtered.Skip(Results.Count).Take(PageStep).ToList()) Results.Add(card);
     }
 
     private void ApplyFilter()
@@ -1873,7 +2014,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         // catch up when switched to.
         _cardsDirty = _listDirty = _sectionsDirty = true;
 
-        TotalPages = Math.Max(1, (int)Math.Ceiling(_filtered.Count / (double)PageSize));
+        TotalPages = Math.Max(1, (int)Math.Ceiling(_filtered.Count / (double)PageStep));
 
         // The button names the number it would select, so narrowing the filter has to re-label it -
         // and re-decide whether everything it now matches is already ticked.
@@ -2007,9 +2148,27 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     // and can't drift out of sync with the store.
     private void RebuildSections()
     {
-        var data = AppServices.ModGroups.Load();
-
         Sections.Clear();
+
+        if (GroupsByCategory)
+        {
+            // A to Z by category, what has none last; within each the page's own sort order.
+            foreach (var category in _filtered
+                         .GroupBy(m => m.CategoryTag, StringComparer.OrdinalIgnoreCase)
+                         .OrderBy(g => g.Key is null)
+                         .ThenBy(g => g.Key, StringComparer.CurrentCultureIgnoreCase))
+            {
+                var section = ModGroupSectionViewModel.ForCategory(
+                    category.Key, _collapsedCategories.Contains(category.Key ?? string.Empty));
+                foreach (var mod in category) section.Items.Add(mod);
+                Sections.Add(section);
+            }
+
+            _sectionsDirty = false;
+            return;
+        }
+
+        var data = AppServices.ModGroups.Load();
 
         IEnumerable<ModGroup> ordered = SelectedGroupSortOption.Value switch
         {
@@ -2110,9 +2269,17 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     [RelayCommand]
     private void ToggleCollapsed(ModGroupSectionViewModel? section)
     {
-        if (section is not { IsRealGroup: true }) return;
+        if (section is not { CanCollapse: true }) return;
 
         section.IsCollapsed = !section.IsCollapsed;
+
+        if (section.CategoryKey is { } category)
+        {
+            if (section.IsCollapsed) _collapsedCategories.Add(category);
+            else _collapsedCategories.Remove(category);
+            return;
+        }
+
         AppServices.ModGroups.SetCollapsed(section.GroupId!.Value, section.IsCollapsed);
     }
 

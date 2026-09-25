@@ -2512,24 +2512,6 @@ That happens legitimately if the server was rebuilt or you're reaching it throug
     <value>To take it out of the game without deleting it, use Disable instead.</value>
     <comment>Last paragraph of every Remove prompt.</comment>
   </data>
-  <data name="Installed_RemoveTitleFormat" xml:space="preserve">
-    <value>Remove {0}?</value>
-    <comment>{0} is a mod name. Dialog title.</comment>
-  </data>
-  <data name="Installed_RemoveConfigs_one" xml:space="preserve">
-    <value>{0} has 1 config or settings file of its own:</value>
-    <comment>{0} is a mod name. See the Many form; these become one plural key in S5.</comment>
-  </data>
-  <data name="Installed_RemoveConfigs_other" xml:space="preserve">
-    <value>{0} has {1} config or settings files of its own:</value>
-    <comment>{0} is a mod name, {1} how many files.</comment>
-  </data>
-  <data name="Installed_RemoveConfigsChoicesFormat" xml:space="preserve">
-    <value>Yes  -  keep them, moved to {0}
-No  -  delete them along with the rest of the mod
-Cancel  -  don't remove anything</value>
-    <comment>What the three dialog buttons do. {0} is a folder path. Yes/No/Cancel are the Windows button captions and follow the operating system's language, so keep them as they appear there.</comment>
-  </data>
   <data name="Installed_RemovedFormat" xml:space="preserve">
     <value>Removed {0}.</value>
     <comment>{0} is a mod name.</comment>
@@ -5843,5 +5825,89 @@ This was written to:
   <data name="Options_ScrollingSwitchOff" xml:space="preserve">
     <value>Jump straight there</value>
     <comment>Options switch, off.</comment>
+  </data>
+  <data name="Installed_UnsubscribeTitleFormat" xml:space="preserve">
+    <value>Unsubscribe from {0}?</value>
+    <comment>Title of the question before one item is removed. {0} is the mod.</comment>
+  </data>
+  <data name="Installed_UnsubscribeConfigs_one" xml:space="preserve">
+    <value>{0} has 1 config or settings file of its own. Keep Configs sets it aside in {2} first; Delete Configs deletes it with the rest of the item.</value>
+    <comment>In the question before removing. {0} is the mod, {1} how many, {2} a folder. "Keep Configs" and "Delete Configs" are the buttons Installed_UnsubscribeKeepConfigs and Installed_UnsubscribeDeleteConfigs.</comment>
+  </data>
+  <data name="Installed_UnsubscribeConfigs_other" xml:space="preserve">
+    <value>{0} has {1} config or settings files of its own. Keep Configs sets them aside in {2} first; Delete Configs deletes them with the rest of the item.</value>
+    <comment>Same, several files.</comment>
+  </data>
+  <data name="Installed_UnsubscribeKeepConfigs" xml:space="preserve">
+    <value>Unsubscribe, Keep Configs</value>
+    <comment>Button: remove the mod, its config files set aside.</comment>
+  </data>
+  <data name="Installed_UnsubscribeDeleteConfigs" xml:space="preserve">
+    <value>Unsubscribe, Delete Configs</value>
+    <comment>Button: remove the mod and its config files.</comment>
+  </data>
+  <data name="Installed_UnsubscribeDontAsk" xml:space="preserve">
+    <value>Don't ask again</value>
+    <comment>Tick box in the question before removing: turns the question off (Options &gt; Unsubscribing).</comment>
+  </data>
+  <data name="Installed_UnsubscribeDontAskNote" xml:space="preserve">
+    <value>Options &gt; Unsubscribing turns this question back on. Unasked, config files are always kept.</value>
+    <comment>Under the tick box.</comment>
+  </data>
+  <data name="Options_UnsubscribeHeader" xml:space="preserve">
+    <value>Unsubscribing</value>
+    <comment>Options card heading.</comment>
+  </data>
+  <data name="Options_UnsubscribeDescription" xml:space="preserve">
+    <value>Before an item's files are removed, a question says what will be deleted and asks what to do with its config files. Turned off, items are removed at once and their config files are always kept, set aside in the LegacyConfigs folder. Removing several at once still warns first when other items use them or folders installed by hand would be deleted.</value>
+    <comment>Options card text.</comment>
+  </data>
+  <data name="Options_UnsubscribeSwitchOn" xml:space="preserve">
+    <value>Ask before unsubscribing</value>
+    <comment>Options switch, on.</comment>
+  </data>
+  <data name="Options_UnsubscribeSwitchOff" xml:space="preserve">
+    <value>Unsubscribe at once</value>
+    <comment>Options switch, off.</comment>
+  </data>
+  <data name="Installed_UnsubscribeSelected" xml:space="preserve">
+    <value>Unsubscribe selected</value>
+    <comment>Subscribed items, selection bar: removes the ticked items.</comment>
+  </data>
+  <data name="Installed_UnsubscribeSelectedTitle_one" xml:space="preserve">
+    <value>Unsubscribe from {0:N0} item?</value>
+    <comment>Title of the question before Unsubscribe selected. {0} is how many.</comment>
+  </data>
+  <data name="Installed_UnsubscribeSelectedTitle_other" xml:space="preserve">
+    <value>Unsubscribe from {0:N0} items?</value>
+    <comment>Same, several.</comment>
+  </data>
+  <data name="Installed_UnsubscribeSelectedBody_one" xml:space="preserve">
+    <value>The selected item's files are deleted. Its config files are kept, set aside in {1} first.</value>
+    <comment>Question before Unsubscribe selected. {0} is how many, {1} a folder.</comment>
+  </data>
+  <data name="Installed_UnsubscribeSelectedBody_other" xml:space="preserve">
+    <value>The {0:N0} selected items' files are deleted. Their config files are kept, set aside in {1} first.</value>
+    <comment>Same, several.</comment>
+  </data>
+  <data name="Installed_UnsubscribeSelectedDisableHint" xml:space="preserve">
+    <value>To take them out of the game without deleting them, use Disable selected instead.</value>
+    <comment>Last paragraph of the question before Unsubscribe selected.</comment>
+  </data>
+  <data name="Sort_GroupsByCategory" xml:space="preserve">
+    <value>Category</value>
+    <comment>Subscribed items, Groups view, Sort groups: one section per category (sp-mod.com's), instead of your own groups. Beside Manual order and Group name (A-Z).</comment>
+  </data>
+  <data name="Installed_NoCategory" xml:space="preserve">
+    <value>No category</value>
+    <comment>The Groups view sorted by category: the section of items with no sp-mod.com category (not found there, or not given one).</comment>
+  </data>
+  <data name="Installed_ByCategoryNote" xml:space="preserve">
+    <value>Sorted by category: your own groups show again with another Sort groups choice, and items can be dragged between groups there.</value>
+    <comment>Above the Groups view while it is sorted by category.</comment>
+  </data>
+  <data name="Installed_CategoryRowToolTip" xml:space="preserve">
+    <value>Click for details</value>
+    <comment>Tooltip on an item in the Groups view while it is sorted by category (where it cannot be dragged into a group).</comment>
   </data>
 </root>

@@ -16,7 +16,12 @@ public partial class OptionsPage : Page
 
     // Same reason as ServerMapPage: the key file can appear or change while this app is open, and
     // the section that shows it is right here.
-    private void Page_Loaded(object sender, RoutedEventArgs e) => AppServices.ServerMap.RefreshLocalKey();
+    // The unsubscribe question's "Don't ask again" can have changed its switch since this page was made.
+    private void Page_Loaded(object sender, RoutedEventArgs e)
+    {
+        AppServices.ServerMap.RefreshLocalKey();
+        ViewModel.Reload();
+    }
 
     private void DataFiles_Click(object sender, RoutedEventArgs e) =>
         new DataFilesWindow { Owner = Window.GetWindow(this) }.Show();

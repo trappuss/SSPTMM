@@ -58,6 +58,13 @@ public sealed class AppSettings
     public bool SmoothScrolling { get; set; } = true;
 
     //
+    // Whether removing an item (Unsubscribe) asks first - what will be deleted, and what to do with
+    // its config files. On by default; the question's "Don't ask again" turns it off. Unasked, an
+    // item's config files are kept (set aside), never deleted.
+    //
+    public bool ConfirmUnsubscribe { get; set; } = true;
+
+    //
     // The sp-mod.com authors followed from the Workshop pages, by their sp-mod.com user id (names
     // can change); the name is kept for showing. Their newest items head the Workshop's front page
     // and Browse can show only theirs, as Steam does for the authors you follow.

@@ -305,6 +305,26 @@
             </StackPanel>
         </ui:Card>
 
+        <!-- Whether removing an item asks first; the question's "Don't ask again" turns this off. -->
+        <ui:Card Padding="16" VerticalAlignment="Top" Margin="0,16,0,0">
+            <StackPanel>
+                <TextBlock
+                    Text="{loc:Str Options_UnsubscribeHeader}"
+                    FontWeight="SemiBold"
+                    Margin="0,0,0,4" />
+                <TextBlock
+                    TextWrapping="Wrap"
+                    Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                    Margin="0,0,0,8"
+                    Text="{loc:Str Options_UnsubscribeDescription}" />
+                <ui:ToggleSwitch
+                    HorizontalAlignment="Left"
+                    IsChecked="{Binding ConfirmUnsubscribe}"
+                    OnContent="{loc:Str Options_UnsubscribeSwitchOn}"
+                    OffContent="{loc:Str Options_UnsubscribeSwitchOff}" />
+            </StackPanel>
+        </ui:Card>
+
         <ui:Card Padding="16" VerticalAlignment="Top" Margin="0,16,0,0">
             <StackPanel>
                 <TextBlock

@@ -720,10 +720,6 @@ internal static class Strings
     internal static string Installed_RemoveLegacyBodyFormat => LocalizationService.Get("Installed_RemoveLegacyBodyFormat");
     internal static string Installed_RemoveFailedFormat => LocalizationService.Get("Installed_RemoveFailedFormat");
     internal static string Installed_RemoveDisableHint => LocalizationService.Get("Installed_RemoveDisableHint");
-    internal static string Installed_RemoveTitleFormat => LocalizationService.Get("Installed_RemoveTitleFormat");
-    internal static string Installed_RemoveConfigs(int count, params object?[] values) =>
-        LocalizationService.Plural("Installed_RemoveConfigs", count, values);
-    internal static string Installed_RemoveConfigsChoicesFormat => LocalizationService.Get("Installed_RemoveConfigsChoicesFormat");
     internal static string Installed_RemovedFormat => LocalizationService.Get("Installed_RemovedFormat");
     internal static string Installed_RemovedFailed(int count, params object?[] values) =>
         LocalizationService.Plural("Installed_RemovedFailed", count, values);
@@ -1571,4 +1567,25 @@ internal static class Strings
     internal static string Options_ScrollingDescription => LocalizationService.Get("Options_ScrollingDescription");
     internal static string Options_ScrollingSwitchOn => LocalizationService.Get("Options_ScrollingSwitchOn");
     internal static string Options_ScrollingSwitchOff => LocalizationService.Get("Options_ScrollingSwitchOff");
+    internal static string Installed_UnsubscribeTitleFormat => LocalizationService.Get("Installed_UnsubscribeTitleFormat");
+    internal static string Installed_UnsubscribeConfigs(int count, params object?[] values) =>
+        LocalizationService.Plural("Installed_UnsubscribeConfigs", count, values);
+    internal static string Installed_UnsubscribeKeepConfigs => LocalizationService.Get("Installed_UnsubscribeKeepConfigs");
+    internal static string Installed_UnsubscribeDeleteConfigs => LocalizationService.Get("Installed_UnsubscribeDeleteConfigs");
+    internal static string Installed_UnsubscribeDontAsk => LocalizationService.Get("Installed_UnsubscribeDontAsk");
+    internal static string Installed_UnsubscribeDontAskNote => LocalizationService.Get("Installed_UnsubscribeDontAskNote");
+    internal static string Options_UnsubscribeHeader => LocalizationService.Get("Options_UnsubscribeHeader");
+    internal static string Options_UnsubscribeDescription => LocalizationService.Get("Options_UnsubscribeDescription");
+    internal static string Options_UnsubscribeSwitchOn => LocalizationService.Get("Options_UnsubscribeSwitchOn");
+    internal static string Options_UnsubscribeSwitchOff => LocalizationService.Get("Options_UnsubscribeSwitchOff");
+    internal static string Installed_UnsubscribeSelected => LocalizationService.Get("Installed_UnsubscribeSelected");
+    internal static string Installed_UnsubscribeSelectedTitle(int count, params object?[] values) =>
+        LocalizationService.Plural("Installed_UnsubscribeSelectedTitle", count, values);
+    internal static string Installed_UnsubscribeSelectedBody(int count, params object?[] values) =>
+        LocalizationService.Plural("Installed_UnsubscribeSelectedBody", count, values);
+    internal static string Installed_UnsubscribeSelectedDisableHint => LocalizationService.Get("Installed_UnsubscribeSelectedDisableHint");
+    internal static string Sort_GroupsByCategory => LocalizationService.Get("Sort_GroupsByCategory");
+    internal static string Installed_NoCategory => LocalizationService.Get("Installed_NoCategory");
+    internal static string Installed_ByCategoryNote => LocalizationService.Get("Installed_ByCategoryNote");
+    internal static string Installed_CategoryRowToolTip => LocalizationService.Get("Installed_CategoryRowToolTip");
 }
