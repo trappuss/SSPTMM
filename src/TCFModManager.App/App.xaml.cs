@@ -37,6 +37,9 @@ public partial class App : Application
         // Wheel scrolling that glides, across every page - see Behaviors/SmoothScrolling.
         Behaviors.SmoothScrolling.Register();
 
+        // Frame-rate and description timings in the log, only when asked for - see PerfProbe.
+        Services.PerfProbe.Start();
+
         // TEMPORARY, ADDED IN v1.5.0 - DELETE WHEN THE APP LEAVES BETA, along with the method
         // itself. Carries a pre-v1.5.0 LegacyConfigs folder from beside the exe into Data\. A no-op
         // on every launch after the first, and on any install that never had one.

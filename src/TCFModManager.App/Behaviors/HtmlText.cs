@@ -28,8 +28,23 @@ public static class HtmlText
 
         ForwardWheel(richTextBox);
 
+        var timer = Services.PerfProbe.IsOn ? System.Diagnostics.Stopwatch.StartNew() : null;
+
         var document = MarkupRenderer.Render(SpModMarkup.Parse(e.NewValue as string), richTextBox.FontSize);
         Attach(richTextBox, document);
+
+        if (timer is not null && e.NewValue is string { Length: > 0 } markup) LogTimings(richTextBox, timer, markup.Length);
+    }
+
+    // PerfProbe: how long a description took to read and render, then to lay out and first draw.
+    private static void LogTimings(RichTextBox host, System.Diagnostics.Stopwatch timer, int length)
+    {
+        var built = timer.Elapsed.TotalMilliseconds;
+        host.Dispatcher.BeginInvoke(
+            () => Core.Services.AppLog.Info(
+                "Perf",
+                FormattableString.Invariant($"description {length} chars: built {built:F0}ms, on screen {timer.Elapsed.TotalMilliseconds:F0}ms, {host.ActualHeight:F0}px tall")),
+            System.Windows.Threading.DispatcherPriority.ContextIdle);
     }
 
     /// <summary>Sets a RichTextBox up the way the XAML hosts are: read-only, frameless, no scroll

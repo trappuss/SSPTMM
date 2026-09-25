@@ -65,10 +65,13 @@ public partial class MainWindow : FluentWindow
             }
 
             ItemPage.Show(request);
+            PerfProbe.ItemPage(opened: true);
         };
 
         ItemPage.Closed += (_, _) =>
         {
+            PerfProbe.ItemPage(opened: false);
+
             if (!_collectionUnderItem) return;
 
             _collectionUnderItem = false;
