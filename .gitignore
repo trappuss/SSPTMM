@@ -1,5 +1,8 @@
 # Build output
 bin/
+# Update-rebuild-run script Claude hands over beside the repo rather than in it: it moves the
+# branch, and a script that git itself might replace mid-run would be cut off halfway.
+steam-ui-rebuild-and-run.bat
 # The .NET SDK steam-ui-build-and-run.bat installs locally when a PC has none
 .dotnet/
 obj/

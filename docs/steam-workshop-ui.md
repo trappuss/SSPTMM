@@ -5,7 +5,13 @@ and wording as `steamcommunity.com/app/<id>/workshop/`, with every mod-manager f
 there underneath. This file records **where each value came from**, **what maps to what**, and
 **every place the fork knowingly differs from Steam or rests on a guess**.
 
-Build and run: double-click `steam-ui-build-and-run.bat` in the repo root. It installs a local
+Update, rebuild and run: double-click `steam-ui-rebuild-and-run.bat` in the repo root. It takes the
+newest `steam-workshop-ui.bundle` from `Claude outputs\` (moving the branch forward only - it
+never drops commits), closes this build if it is open, clears the old build output (keeping
+`dist\steam-ui\Data`) and then runs the script below. It is kept out of git on purpose (see
+`.gitignore`): it switches the branch, and git must not replace the script while it runs.
+
+Build and run what is already there: double-click `steam-ui-build-and-run.bat` in the repo root. It installs a local
 .NET 9 SDK if the PC has none, runs the tests, publishes `dist\steam-ui\TCFModManager.exe`, and
 starts it. That build keeps its own `Data\` folder, so it does not touch an existing install.
 
