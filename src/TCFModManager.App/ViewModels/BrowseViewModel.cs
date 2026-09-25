@@ -1288,10 +1288,12 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
         // The version asked for, or the same pick the card displays, so the queued version is the
         // one it advertised.
         string chosenVersion;
+        int chosenVersionId;
         Func<Task<ModVersion?>> resolve;
         if (pinned?.Version is { } pinnedVersion)
         {
             chosenVersion = pinnedVersion;
+            chosenVersionId = pinned.Id;
             resolve = pinned.Link is null
                 ? () => ResolveVersionLinkAsync(mod, pinnedVersion)
                 : () => Task.FromResult<ModVersion?>(pinned);
@@ -1306,6 +1308,7 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
             }
 
             chosenVersion = chosen.Version;
+            chosenVersionId = chosen.Id;
             resolve = () => ResolveVersionLinkAsync(mod, chosenVersion);
         }
 
@@ -1354,6 +1357,12 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
             }
         }
 
+        if (!await ConfirmFileClashesAsync(mod, chosenVersionId, chosenVersion, installPath))
+        {
+            StatusMessage = Cancelled();
+            return;
+        }
+
         var links = new List<ModPageLink> { new(mod.Name ?? Strings.Browse_ThisMod, mod.DetailUrl) };
         if (withRequired) links.AddRange(requiredLinks);
 
@@ -1377,6 +1386,71 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
                 ? Strings.Browse_InstallCancelledFormat
                 : Strings.Browse_RedownloadCancelledFormat,
             mod.Name);
+    }
+
+    //
+    // Before a mod is queued: would it write over another mod's files? Answered from sp-mod.com's
+    // record of the version's archive (only kept for a version that passed its file check - for
+    // any other there is nothing to go on, and nothing is asked). Files another installed mod put
+    // there, or that were put there by hand, are listed, and the install goes ahead only if asked
+    // to. Offline, or any other failure, lets the install go ahead as it always has.
+    //
+    private async Task<bool> ConfirmFileClashesAsync(Mod mod, int knownVersionId, string version, string installPath)
+    {
+        IReadOnlyList<FileClash> clashes;
+        IsCheckingRequirements = true;
+        try
+        {
+            var versionId = knownVersionId > 0 ? knownVersionId : (await ResolveVersionLinkAsync(mod, version))?.Id ?? 0;
+            if (versionId == 0) return true;
+
+            FileTree tree;
+            try
+            {
+                tree = await _spModApi.GetModVersionFileTreeAsync(mod.Id.ToString(), versionId.ToString());
+            }
+            catch (SpModApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                return true;
+            }
+
+            SptInstallationService.TryGetServerRoot(installPath, out var serverRoot);
+            var paths = ModFileConflicts.InstallRelativePaths(tree.Files, serverRoot);
+            var target = InstallTarget.For(mod);
+            var own = FindInstalledMatch(mod);
+
+            clashes = ModFileConflicts.Find(
+                installPath, paths, target, AppServices.InstallManifest.Load().Mods,
+                full => own is not null && own.Entries.Any(e =>
+                    string.Equals(System.IO.Path.GetFullPath(e.FolderPath), System.IO.Path.GetFullPath(full), StringComparison.OrdinalIgnoreCase)
+                    || ModFileConflicts.IsInside(full, e.FolderPath)));
+        }
+        catch (Exception ex)
+        {
+            AppLog.Warn("Browse", $"file check for {mod.Name} {version} failed, installing without it: {ex.Message}");
+            return true;
+        }
+        finally
+        {
+            IsCheckingRequirements = false;
+        }
+
+        if (clashes.Count == 0) return true;
+
+        AppLog.Info("Browse", $"{mod.Name} {version} would overwrite {clashes.Count} file(s): {string.Join(", ", clashes.Take(10).Select(c => c.Path))}");
+        return FileClashDialog.Ask(mod.Name ?? Strings.Browse_ThisMod, version, clashes, HandInstalledOwner);
+    }
+
+    // The installed mod whose folder holds a file no install record lists, for the clash list.
+    private string? HandInstalledOwner(string installRelative)
+    {
+        var full = System.IO.Path.Combine(AppServices.SptEnvironment.InstallPath ?? "", installRelative.Replace('/', System.IO.Path.DirectorySeparatorChar));
+        return _installedByName.Values
+            .Distinct()
+            .FirstOrDefault(card => card.Entries.Any(e =>
+                string.Equals(System.IO.Path.GetFullPath(e.FolderPath), System.IO.Path.GetFullPath(full), StringComparison.OrdinalIgnoreCase)
+                || ModFileConflicts.IsInside(full, e.FolderPath)))
+            ?.DisplayTitle;
     }
 
     /// <summary>Resolves the full ModVersion (with its download Link) for exactly one version string.

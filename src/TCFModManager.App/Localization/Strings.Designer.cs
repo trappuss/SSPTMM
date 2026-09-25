@@ -1539,4 +1539,11 @@ internal static class Strings
     internal static string WorkshopHome_FromFollowedNote => LocalizationService.Get("WorkshopHome_FromFollowedNote");
     internal static string Browse_CreatedByFollowed => LocalizationService.Get("Browse_CreatedByFollowed");
     internal static string Play_ServerPortTakenFormat => LocalizationService.Get("Play_ServerPortTakenFormat");
+    internal static string FileClash_Title => LocalizationService.Get("FileClash_Title");
+    internal static string FileClash_IntroFormat => LocalizationService.Get("FileClash_IntroFormat");
+    internal static string FileClash_ByHandFormat => LocalizationService.Get("FileClash_ByHandFormat");
+    internal static string FileClash_Unknown => LocalizationService.Get("FileClash_Unknown");
+    internal static string FileClash_MoreFormat => LocalizationService.Get("FileClash_MoreFormat");
+    internal static string FileClash_Outro => LocalizationService.Get("FileClash_Outro");
+    internal static string FileClash_InstallAnyway => LocalizationService.Get("FileClash_InstallAnyway");
 }

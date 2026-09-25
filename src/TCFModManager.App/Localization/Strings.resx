@@ -5716,4 +5716,32 @@ This was written to:
     <value>Something was already listening on port {0} before the server started, so there is no telling when it is up - the launcher was not opened. Open it yourself once the server is ready.</value>
     <comment>Play page, with the launcher-after-server switch on, when the server's port was taken before it started. {0} is the port or ports.</comment>
   </data>
+  <data name="FileClash_Title" xml:space="preserve">
+    <value>Files already there</value>
+    <comment>Title of the question asked before installing a mod whose files are already there from another mod.</comment>
+  </data>
+  <data name="FileClash_IntroFormat" xml:space="preserve">
+    <value>{0} {1} puts files where these already are:</value>
+    <comment>Top of the file-clash question. {0} is the mod, {1} its version.</comment>
+  </data>
+  <data name="FileClash_ByHandFormat" xml:space="preserve">
+    <value>part of {0}, installed by hand</value>
+    <comment>Beside a clashing file that belongs to a hand-installed mod. {0} is that mod.</comment>
+  </data>
+  <data name="FileClash_Unknown" xml:space="preserve">
+    <value>put there by hand or by another tool</value>
+    <comment>Beside a clashing file no installed mod is known to own.</comment>
+  </data>
+  <data name="FileClash_MoreFormat" xml:space="preserve">
+    <value>and {0:N0} more</value>
+    <comment>Under the list of clashing files when it is cut short. {0} is how many more.</comment>
+  </data>
+  <data name="FileClash_Outro" xml:space="preserve">
+    <value>Installing replaces them, and the mod they belong to may stop working. The list comes from sp-mod.com's check of this version's download.</value>
+    <comment>Bottom of the file-clash question.</comment>
+  </data>
+  <data name="FileClash_InstallAnyway" xml:space="preserve">
+    <value>Install Anyway</value>
+    <comment>Button on the file-clash question.</comment>
+  </data>
 </root>
