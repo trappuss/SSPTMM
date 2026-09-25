@@ -5859,7 +5859,7 @@ This was written to:
     <comment>Options card heading.</comment>
   </data>
   <data name="Options_UnsubscribeDescription" xml:space="preserve">
-    <value>Before an item's files are removed, a question says what will be deleted and asks what to do with its config files. Turned off, items are removed at once and their config files are always kept, set aside in the LegacyConfigs folder. Removing several at once still warns first when other items use them or folders installed by hand would be deleted.</value>
+    <value>Before an item's files are removed, a question says what will be deleted and asks what to do with its config files. Turned off, items are removed at once and their config files are always kept, set aside in the LegacyConfigs folder - with a warning first only when other items use them or folders installed by hand would be deleted.</value>
     <comment>Options card text.</comment>
   </data>
   <data name="Options_UnsubscribeSwitchOn" xml:space="preserve">

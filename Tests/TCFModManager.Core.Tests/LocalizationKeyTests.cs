@@ -121,7 +121,7 @@ public class LocalizationKeyTests
             // A binding to LocalizationService's indexer - {Binding [Key], Source=...} or
             // Path="[Key]" - which a style's Setter uses so the text follows a language switch.
             // Keys only: every key has an underscore, which keeps other indexers out.
-            foreach (Match m in Regex.Matches(text, @"(?:Path=""|Binding\s+)\[([A-Z]\w*_\w*)\]"))
+            foreach (Match m in Regex.Matches(text, @"(?:Path=""?|Binding\s+)\[([A-Z]\w*_\w*)\]"))
                 used.Add(m.Groups[1].Value);
         }
 

@@ -968,6 +968,11 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
             configAction = answer;
         }
 
+        // Unasked, the check a removal of several makes still comes first when it has something to
+        // say: other installed items that use this one, or folders a hand-installed item's removal
+        // deletes - the question would have listed those folders.
+        if (!new SettingsService().Load().ConfirmUnsubscribe && !CheckBeforeRemoving([mod])) return;
+
         IsBusy = true;
         try
         {
@@ -1033,7 +1038,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         // A manually-confirmed version record would otherwise dangle, pointing at a mod that's no
         // longer on disk.
         if (mod.IsManualOverride && mod.ModId is { } overriddenModId)
-            AppServices.InstallManifest.ClearManualVersion(overriddenModId);
+            AppServices.InstallManifest.ClearManualVersion(overriddenModId, mod.IsAddon);
 
         return (true, DescribeRemoval(mod.Name, failedFiles: 0, kept.Count, kept.Folder), kept.Count > 0);
     }
@@ -1063,25 +1068,44 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         var cards = SelectedCards();
         if (cards.Count == 0) return;
 
+        // Set-aside ones are left alone (RemoveCardsAsync says so), so the question counts and names
+        // only what goes - by name, since ticked items can be hidden by the filters since.
+        var removing = cards.Where(c => !c.IsDisabled).ToList();
+
+        System.Windows.Controls.CheckBox? dontAsk = null;
         var settingsService = new SettingsService();
-        if (settingsService.Load().ConfirmUnsubscribe)
+        if (removing.Count > 0 && settingsService.Load().ConfirmUnsubscribe)
         {
             var body = new System.Windows.Controls.StackPanel { MaxWidth = 640 };
-            body.Children.Add(Paragraph(Strings.Installed_UnsubscribeSelectedBody(cards.Count, cards.Count, AppPaths.LegacyConfigsDirectory)));
-            body.Children.Add(Paragraph(Strings.Installed_UnsubscribeSelectedDisableHint));
-            var dontAsk = AddDontAsk(body);
+            body.Children.Add(Paragraph(Strings.Installed_UnsubscribeSelectedBody(removing.Count, removing.Count, AppPaths.LegacyConfigsDirectory)));
+            body.Children.Add(RemoveCheckDialog.List(removing.Select(c => (c.DisplayTitle, "")).ToList(), monospace: false));
+            body.Children.Add(Paragraph(Strings.Installed_UnsubscribeSelectedDisableHint, top: 12));
+            dontAsk = AddDontAsk(body);
 
             var answer = SteamDialog.Show(
-                Strings.Installed_UnsubscribeSelectedTitle(cards.Count, cards.Count),
+                Strings.Installed_UnsubscribeSelectedTitle(removing.Count, removing.Count),
                 body,
                 new SteamDialogChoice(Strings.Item_Unsubscribe, SteamDialogButton.Blue, IsDefault: true),
                 new SteamDialogChoice(Strings.Common_Cancel, SteamDialogButton.Grey));
             if (answer != 0) return;
-
-            TurnOffQuestionIfTicked(settingsService, dontAsk);
         }
 
-        await RemoveCardsAsync(cards);
+        // Ticked and then cancelled - here or at the check after it - changes nothing.
+        if (await RemoveCardsAsync(cards) is not null && dontAsk is not null)
+            TurnOffQuestionIfTicked(settingsService, dontAsk);
+    }
+
+    // Before removing: other installed items that use these, and the folders removing hand-installed
+    // ones deletes - asked about only when there is either. False when that was cancelled.
+    private bool CheckBeforeRemoving(IReadOnlyList<InstalledModCardViewModel> targets)
+    {
+        var needed = AffectedCards(targets.ToList(), disable: true)
+            .Where(a => !a.Card.IsDisabled)
+            .Select(a => (a.Card.DisplayTitle, a.Detail))
+            .ToList();
+        var folders = targets.Where(c => !c.IsAppManaged).SelectMany(LegacyPaths).ToList();
+
+        return (needed.Count == 0 && folders.Count == 0) || RemoveCheckDialog.Ask(needed, folders);
     }
 
     // What RemoveModsAsync and Unsubscribe selected share. Returns what to say, or null when the
@@ -1098,14 +1122,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
         var targets = cards.Except(disabled).ToList();
 
-        // Mods left installed that use one of these, and the hand-installed folders removing deletes.
-        var needed = AffectedCards(targets, disable: true)
-            .Where(a => !a.Card.IsDisabled)
-            .Select(a => (a.Card.DisplayTitle, a.Detail))
-            .ToList();
-        var folders = targets.Where(c => !c.IsAppManaged).SelectMany(LegacyPaths).ToList();
-
-        if ((needed.Count > 0 || folders.Count > 0) && !RemoveCheckDialog.Ask(needed, folders)) return null;
+        if (!CheckBeforeRemoving(targets)) return null;
 
         var removed = 0;
         var problems = new List<string>();
@@ -1890,6 +1907,9 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         {
             Content = Strings.Installed_UnsubscribeDontAsk,
             Margin = new Thickness(0, 4, 0, 0),
+
+            // The dialog's own text colour: it is Steam-dark whatever the app's theme.
+            Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0xAC, 0xB2, 0xB8)),
         };
         body.Children.Add(dontAsk);
         body.Children.Add(new System.Windows.Controls.TextBlock
@@ -1913,12 +1933,12 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         AppLog.Info("Options", "unsubscribe question turned off from the question");
     }
 
-    private static System.Windows.Controls.TextBlock Paragraph(string text) => new()
+    private static System.Windows.Controls.TextBlock Paragraph(string text, double top = 0) => new()
     {
         Text = text,
         TextWrapping = TextWrapping.Wrap,
         LineHeight = 21,
-        Margin = new Thickness(0, 0, 0, 12),
+        Margin = new Thickness(0, top, 0, 12),
     };
 
     private static string DescribeRemoval(string modName, int failedFiles, int configsKept, string? configsFolder)
@@ -1946,7 +1966,8 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
     private void GoToPage(int page)
     {
-        var target = Math.Clamp(page, 1, TotalPages);
+        // The infinite list has no pages: it is always "page 1", so going back to pages starts there.
+        var target = IsInfinite ? 1 : Math.Clamp(page, 1, TotalPages);
 
         // Unlike the other two views this one also depends on which page is asked for, so being
         // clean isn't enough on its own - paging forward and back has to rebuild even though

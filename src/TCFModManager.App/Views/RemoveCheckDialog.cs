@@ -6,10 +6,11 @@ using TCFModManager.App.Localization;
 namespace TCFModManager.App.Views;
 
 //
-// Asked before a collection's Unsubscribe from all removes its items (InstalledViewModel.
-// RemoveModsAsync), only when there is something the first question could not show: installed
-// mods outside the removal that use what is being removed, and the folders of hand-installed mods
-// that removing them deletes - what a single removal's confirmation lists. Steam's modal.
+// Asked before a collection's Unsubscribe from all or Subscribed items' Unsubscribe selected removes
+// items (InstalledViewModel.RemoveModsAsync), and before a single removal when the unsubscribe
+// question is turned off - only when there is something to say: installed mods outside the removal
+// that use what is being removed, and the folders of hand-installed mods that removing them
+// deletes. Steam's modal.
 //
 public static class RemoveCheckDialog
 {
@@ -52,7 +53,9 @@ public static class RemoveCheckDialog
         Margin = new Thickness(0, top, 0, 8),
     };
 
-    private static ScrollViewer List(IReadOnlyList<(string Main, string Aside)> lines, bool monospace)
+    /// <summary>Lines of names (and an aside each, greyed), a dozen shown before "and N more",
+    /// scrolling past a height.</summary>
+    public static ScrollViewer List(IReadOnlyList<(string Main, string Aside)> lines, bool monospace)
     {
         var list = new StackPanel();
         foreach (var (main, aside) in lines.Take(Shown))

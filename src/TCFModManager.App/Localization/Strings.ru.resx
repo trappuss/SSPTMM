@@ -2024,12 +2024,6 @@
   <data name="Installed_RemoveAppManagedBody" xml:space="preserve">
     <value>Будут удалены ровно те файлы, которые приложение установило для этого мода.</value>
   </data>
-  <data name="Installed_RemoveConfigs_few" xml:space="preserve">
-    <value>У мода {0} есть {1} собственных файла конфигурации или настроек:</value>
-  </data>
-  <data name="Installed_RemoveConfigs_many" xml:space="preserve">
-    <value>У мода {0} есть {1} собственных файлов конфигурации или настроек:</value>
-  </data>
   <data name="Installed_RemovedConfigsKept_few" xml:space="preserve">
     <value>{0} файла конфигурации оставлены в {1}.</value>
   </data>

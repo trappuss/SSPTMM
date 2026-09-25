@@ -359,6 +359,13 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
 
         token.ThrowIfCancellationRequested();
 
+        // What is still to run or running now, before the scan: one that finishes while the scan
+        // runs would be neither on the scan nor unfinished afterwards, and be queued a second time.
+        var unfinishedBefore = Items
+            .Where(i => !i.IsFinished && !i.Target.IsAddon)
+            .Select(i => i.Target.Id)
+            .ToHashSet();
+
         // Fresh disk scan each time so it reflects whatever was just installed in this same batch.
         await AppServices.ModCache.EnsureLoadedAsync();
         var scanned = await Task.Run(() => InstalledModScanner.Scan(installPath));
@@ -382,6 +389,7 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
             .Where(i => !i.IsFinished && !i.Target.IsAddon)
             .Select(i => i.Target.Id)
             .ToHashSet();
+        queuedIds.UnionWith(unfinishedBefore);
 
         // Prefer each cached catalog Mod when available; fall back to a minimal Mod built from
         // the dependency node's own fields.
