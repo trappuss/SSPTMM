@@ -5176,4 +5176,56 @@ This was written to:
     <value>Show older updates</value>
     <comment>Button under the change notes when older versions are not loaded yet.</comment>
   </data>
+  <data name="Item_GuidLabel" xml:space="preserve">
+    <value>GUID:</value>
+    <comment>Label in the item header before the mod's plugin id (e.g. "me.sol.sain"), as sp-mod.com's Details panel names it.</comment>
+  </data>
+  <data name="Item_SourceCodeLabel" xml:space="preserve">
+    <value>Source Code:</value>
+    <comment>Label in the item header before links to the mod's source code.</comment>
+  </data>
+  <data name="Item_SourceCodeLinkFormat" xml:space="preserve">
+    <value>{0}: {1}</value>
+    <comment>A labelled link to the mod's source code, as sp-mod.com writes it: "4.2.0+: github.com/ArchangelWTF/SAIN". {0} is the author's label, {1} the address.</comment>
+  </data>
+  <data name="Item_VirusTotalLabel" xml:space="preserve">
+    <value>VirusTotal Results:</value>
+    <comment>Label before links to VirusTotal's scans of the files, as sp-mod.com words it. Followed by the files' labels ("Client", "Server") or Item_VirusTotalOpen.</comment>
+  </data>
+  <data name="Item_VirusTotalOpen" xml:space="preserve">
+    <value>View</value>
+    <comment>A link to a VirusTotal scan whose file has no label on sp-mod.com.</comment>
+  </data>
+  <data name="Item_DependencyVersionFormat" xml:space="preserve">
+    <value>{0} ({1})</value>
+    <comment>A required mod and the newest version of it that the requirement accepts, as sp-mod.com writes it: "BigBrain (1.4.0)".</comment>
+  </data>
+  <data name="Item_CheatNoticeLead" xml:space="preserve">
+    <value>Warning:</value>
+    <comment>Bold start of sp-mod.com's notice on mods that work like multiplayer cheats.</comment>
+  </data>
+  <data name="Item_CheatNotice" xml:space="preserve">
+    <value>This mod provides functionality similar to traditional multiplayer cheats but was designed exclusively for use with SPT. Attempting to use this software on live EFT servers will not work and will result in an immediate and permanent ban from EFT and SPT.</value>
+    <comment>sp-mod.com's notice on mods that work like multiplayer cheats, in its words.</comment>
+  </data>
+  <data name="Item_CheatNoticeMore" xml:space="preserve">
+    <value>See the Content Guidelines for more information.</value>
+    <comment>Link after the cheat notice; opens sp-mod.com's content guidelines.</comment>
+  </data>
+  <data name="Item_ProfileNoticeLead" xml:space="preserve">
+    <value>Notice:</value>
+    <comment>Bold start of sp-mod.com's notice on mods that may change a profile permanently.</comment>
+  </data>
+  <data name="Item_ProfileNotice" xml:space="preserve">
+    <value>This mod may make permanent changes to your profile, and may not be removable without starting a new profile.</value>
+    <comment>sp-mod.com's notice on mods that may change a profile permanently, in its words.</comment>
+  </data>
+  <data name="Item_ProfileNoticeMore" xml:space="preserve">
+    <value>More information.</value>
+    <comment>Link after the profile notice; opens the SPT wiki's page on profiles and mods.</comment>
+  </data>
+  <data name="Item_CommentsNone" xml:space="preserve">
+    <value>This item has no comments section on sp-mod.com.</value>
+    <comment>Shown on the Comments tab when the mod's sp-mod.com page has no comments.</comment>
+  </data>
 </root>

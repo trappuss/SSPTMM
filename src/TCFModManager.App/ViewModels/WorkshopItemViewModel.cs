@@ -37,6 +37,39 @@ public enum WorkshopItemTab
     Comments,
 }
 
+// A link to somewhere off sp-mod.com's mod pages - source code, a VirusTotal scan, a licence.
+public sealed record WorkshopLink(string Text, string Url)
+{
+    /// <summary>The links a version carries, named by their label - "Client", "Server" - or, when
+    /// it has none, by <paramref name="unlabelled"/>.</summary>
+    public static IReadOnlyList<WorkshopLink> From(IEnumerable<SourceCodeLink>? links, string unlabelled) =>
+        Valid(links)
+            .Select(l => new WorkshopLink(string.IsNullOrWhiteSpace(l.Label) ? unlabelled : l.Label.Trim(), l.Url))
+            .ToList();
+
+    /// <summary>Source code links as the site's Details panel writes them: "4.2.0+: github.com/x/y",
+    /// or just the address when the author gave no label.</summary>
+    public static IReadOnlyList<WorkshopLink> SourceCode(IEnumerable<SourceCodeLink>? links) =>
+        Valid(links)
+            .Select(l =>
+            {
+                var uri = new Uri(l.Url);
+                var address = (uri.Host + uri.AbsolutePath).TrimEnd('/');
+                return new WorkshopLink(
+                    string.IsNullOrWhiteSpace(l.Label)
+                        ? address
+                        : LocalizationService.Text(Strings.Item_SourceCodeLinkFormat, l.Label.Trim(), address),
+                    l.Url);
+            })
+            .ToList();
+
+    // Only web addresses: anything else is not something to hand to the browser.
+    private static IEnumerable<(string Url, string? Label)> Valid(IEnumerable<SourceCodeLink>? links) =>
+        (links ?? [])
+            .Where(l => Uri.TryCreate(l.Url, UriKind.Absolute, out var uri) && uri.Scheme is "https" or "http")
+            .Select(l => (l.Url!, l.Label));
+}
+
 // One entry on the Change Notes tab.
 public sealed record WorkshopChangeNote(
     string? Version,
@@ -202,6 +235,51 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel
     public string? Category => Mod.Category?.Title;
 
     public string? License => Mod.License?.Name;
+
+    public bool HasLicenseLink => Uri.TryCreate(Mod.License?.Link, UriKind.Absolute, out _);
+
+    // The BepInEx plugin id - what the game's logs call the mod.
+    public string? Guid => string.IsNullOrWhiteSpace(Mod.Guid) ? null : Mod.Guid;
+
+    // "4.2.0+: github.com/...", as the site's Details panel lists them.
+    public IReadOnlyList<WorkshopLink> SourceCode => WorkshopLink.SourceCode(Mod.SourceCodeLinks);
+
+    public bool HasSourceCode => SourceCode.Count > 0;
+
+    // sp-mod.com's two notices, in its own words: a mod that behaves like a multiplayer cheat, and
+    // one that may change a profile for good.
+    public bool HasCheatNotice => Mod.CheatNotice == true;
+
+    public bool HasProfileNotice => Mod.ShowsProfileBindingNotice == true;
+
+    // Where each notice's "more information" goes, as on the site.
+    private const string CheatGuidelinesUrl = "https://sp-mod.com/content-guidelines#anti-cheat-policy";
+    private const string ProfileNoticeUrl = "https://wiki.sp-tushonka.com/SPT_4x/Profiles#mods";
+
+    [RelayCommand]
+    private void OpenCheatGuidelines() => MarkupActions.OpenInBrowser(CheatGuidelinesUrl);
+
+    [RelayCommand]
+    private void OpenProfileNotice() => MarkupActions.OpenInBrowser(ProfileNoticeUrl);
+
+    [RelayCommand]
+    private void OpenLicense()
+    {
+        if (HasLicenseLink) MarkupActions.OpenInBrowser(Mod.License!.Link!);
+    }
+
+    [RelayCommand]
+    private void OpenWebLink(WorkshopLink? link)
+    {
+        if (link is not null) MarkupActions.OpenInBrowser(link.Url);
+    }
+
+    // The VirusTotal scans of the version Subscribe would install, once the versions have loaded.
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasVirusTotal))]
+    private IReadOnlyList<WorkshopLink> _virusTotal = [];
+
+    public bool HasVirusTotal => VirusTotal.Count > 0;
 
     // The mod's flags, in the header's Tags line.
     public string? Tags
@@ -486,7 +564,7 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel
         {
             var result = await AppServices.SpModApi.GetModVersionsAsync(
                 Mod.Id.ToString(),
-                new ModVersionsQuery { Include = "dependencies", Sort = "-published_at", PerPage = VersionsPageSize, Page = page });
+                new ModVersionsQuery { Include = "dependencies,virus_total_links", Sort = "-published_at", PerPage = VersionsPageSize, Page = page });
 
             _versionsPage = page;
             TotalVersions = result.Meta?.Total ?? result.Data.Count;
@@ -520,6 +598,7 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel
             if (shown is null) return;
 
             FileSize = shown.ContentLength is { } bytes ? DescribeSize(bytes) : null;
+            VirusTotal = WorkshopLink.From(shown.VirusTotalLinks, Strings.Item_VirusTotalOpen);
 
             RequiredItems.Clear();
             foreach (var dependency in (shown.Dependencies ?? []).OrderBy(d => d.IsOptional))
@@ -557,9 +636,23 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel
         dependency.ModName ?? dependency.Name ?? dependency.ModGuid ?? dependency.Guid ??
         (dependency.ModId != 0 ? dependency.ModId : dependency.Id).ToString();
 
+    // "BigBrain (1.4.0)": the name and the newest version that satisfies it, as sp-mod.com's
+    // version cards write it; the name alone when the API sent no versions.
+    private static string DependencyNameAndVersion(ModVersionDependency dependency)
+    {
+        string? newest = null;
+        foreach (var version in (dependency.Versions ?? []).Select(v => v.Version).Where(v => !string.IsNullOrWhiteSpace(v)))
+        {
+            if (newest is null || ModVersionComparer.IsUpdateAvailable(newest, version) == true) newest = version;
+        }
+
+        var name = DependencyName(dependency);
+        return newest is null ? name : Text(Strings.Item_DependencyVersionFormat, name, newest);
+    }
+
     private static string? DependencyNames(ModVersion version) =>
         version.Dependencies is { Count: > 0 } dependencies
-            ? string.Join(Strings.Common_ListSeparator, dependencies.Select(DependencyName))
+            ? string.Join(Strings.Common_ListSeparator, dependencies.Select(DependencyNameAndVersion))
             : null;
 
     // Steam writes sizes as "22.946 KB": thousands of bytes to three places. (Whether Steam counts

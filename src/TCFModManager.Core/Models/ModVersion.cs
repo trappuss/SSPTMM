@@ -21,6 +21,10 @@ public sealed class ModVersion
 
     // This version's immediate dependencies. Only populated when requested via include=dependencies.
     public List<ModVersionDependency>? Dependencies { get; set; }
+
+    // The VirusTotal scans of this version's files - one per file, labelled "Client", "Server" and so
+    // on, or with an empty label. Only populated when requested via include=virus_total_links.
+    public List<SourceCodeLink>? VirusTotalLinks { get; set; }
 }
 
 // One immediate dependency of a mod version, as returned by GET /mod/{modId}/versions?include=dependencies.
@@ -37,4 +41,8 @@ public sealed class ModVersionDependency
     // mod's id and its name the mod's name. (The mod_* fields above stay for the older shape.)
     public string? Guid { get; set; }
     public string? Name { get; set; }
+
+    // Also in today's shape: the required mod's versions that satisfy the constraint, in no
+    // particular order. sp-mod.com's version cards name the highest of them - "BigBrain (1.4.0)".
+    public List<ModVersionSummary>? Versions { get; set; }
 }

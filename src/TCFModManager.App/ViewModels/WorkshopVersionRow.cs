@@ -25,6 +25,7 @@ public sealed partial class WorkshopVersionRow : ObservableObject
         Size = size;
 
         SptRange = SptVersionRangeFormatter.Format(source.SptVersionConstraint) ?? source.SptVersionConstraint;
+        VirusTotal = WorkshopLink.From(source.VirusTotalLinks, Strings.Item_VirusTotalOpen);
         IsCompatible = SptVersionMatcher.IsSatisfiedBy(source.SptVersionConstraint, installedSpt);
         Refresh(installedVersion);
     }
@@ -59,6 +60,11 @@ public sealed partial class WorkshopVersionRow : ObservableObject
     public string? Dependencies { get; }
 
     public bool HasDependencies => Dependencies is not null;
+
+    // This version's VirusTotal scans, as the site's "VirusTotal Results" button on each version.
+    public IReadOnlyList<WorkshopLink> VirusTotal { get; }
+
+    public bool HasVirusTotal => VirusTotal.Count > 0;
 
     [ObservableProperty]
     private bool _isInstalled;

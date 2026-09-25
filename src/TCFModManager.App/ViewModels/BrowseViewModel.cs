@@ -88,13 +88,16 @@ public partial class BrowseViewModel : LocalizedViewModel
 
         // Steam's [+]/[-] tag rows over the same options - see WorkshopTagRow. Neutral names, so the
         // box that is lit says which way the row filters: [-] beside "Contains ads" hides them.
+        //
+        // No "Contains AI content" row: sp-mod.com does not send that field (asked 2026-09-25: the
+        // API refuses it as a filter - "Invalid filter(s): contains_ai_content" - and no mod record
+        // carries it), so the row could never hide anything.
         TagRows =
         [
             new(nameof(Strings.Common_FlagFikaCompatible), Option(ModAttributeFilter.FikaCompatible), null),
             new(nameof(Strings.Filter_HasDependencies), Option(ModAttributeFilter.HasDependencies), null),
             new(nameof(Strings.Filter_HasAddons), Option(ModAttributeFilter.HasAddons), null),
             new(nameof(Strings.Common_FlagContainsAds), null, Option(ModAttributeFilter.HideAds)),
-            new(nameof(Strings.Common_FlagContainsAiContent), null, Option(ModAttributeFilter.HideAiContent)),
             new(nameof(Strings.Workshop_TagSubscribed), null, Option(ModAttributeFilter.HideInstalled)),
         ];
 
@@ -1199,7 +1202,8 @@ public partial class BrowseViewModel : LocalizedViewModel
         string message;
         try
         {
-            var details = await _spModApi.GetModAsync(mod.Id.ToString(), include: "versions,license,category");
+            // source_code_links only arrives when asked for; the item page lists them.
+            var details = await _spModApi.GetModAsync(mod.Id.ToString(), include: "versions,license,category,source_code_links");
 
             // The installed version is what this mod's addons check their own constraints against.
             AppServices.ModDetailsOverlay.Show(details, FindInstalledMatch(mod)?.InstalledVersion);

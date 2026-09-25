@@ -326,10 +326,75 @@
                                     <Run Style="{StaticResource DetailLabel}" Text="{loc:Str Item_TagsLabel}" />
                                     <Run Style="{StaticResource DetailValue}" Text="{Binding Tags, Mode=OneWay}" />
                                 </TextBlock>
-                                <TextBlock Margin="0,0,0,6" TextWrapping="Wrap" Visibility="{Binding License, Converter={StaticResource NullToCollapsed}}">
-                                    <Run Style="{StaticResource DetailLabel}" Text="{loc:Str Item_LicenseLabel}" />
-                                    <Run Style="{StaticResource DetailValue}" Text="{Binding License, Mode=OneWay}" />
+                                <!-- The licence, opening its text when sp-mod.com links one. -->
+                                <WrapPanel Margin="0,0,0,6" Visibility="{Binding License, Converter={StaticResource NullToCollapsed}}">
+                                    <TextBlock Margin="0,0,4,0" VerticalAlignment="Center">
+                                        <Run Style="{StaticResource DetailLabel}" Text="{loc:Str Item_LicenseLabel}" />
+                                    </TextBlock>
+                                    <TextBlock VerticalAlignment="Center" Visibility="{Binding HasLicenseLink, Converter={StaticResource FalseToVisible}}">
+                                        <Run Style="{StaticResource DetailValue}" Text="{Binding License, Mode=OneWay}" />
+                                    </TextBlock>
+                                    <Button
+                                        VerticalAlignment="Center"
+                                        Style="{StaticResource SteamLinkButton}"
+                                        Foreground="{StaticResource SteamValueText}"
+                                        Command="{Binding OpenLicenseCommand}"
+                                        ToolTip="{Binding Mod.License.Link}"
+                                        Visibility="{Binding HasLicenseLink, Converter={StaticResource TrueToVisible}}">
+                                        <TextBlock FontSize="14" TextDecorations="Underline" Text="{Binding License}" />
+                                    </Button>
+                                </WrapPanel>
+
+                                <!-- The rest of sp-mod.com's Details panel: the plugin id, the
+                                     source code, and the VirusTotal scans of the version Subscribe
+                                     would install. -->
+                                <TextBlock Margin="0,0,0,6" TextWrapping="Wrap" Visibility="{Binding Guid, Converter={StaticResource NullToCollapsed}}">
+                                    <Run Style="{StaticResource DetailLabel}" Text="{loc:Str Item_GuidLabel}" />
+                                    <Run Style="{StaticResource DetailValue}" FontFamily="{StaticResource SteamMonospace}" FontSize="13" Text="{Binding Guid, Mode=OneWay}" />
                                 </TextBlock>
+                                <StackPanel Margin="0,0,0,6" Visibility="{Binding HasSourceCode, Converter={StaticResource TrueToVisible}}">
+                                    <TextBlock>
+                                        <Run Style="{StaticResource DetailLabel}" Text="{loc:Str Item_SourceCodeLabel}" />
+                                    </TextBlock>
+                                    <ItemsControl ItemsSource="{Binding SourceCode}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Button
+                                                    HorizontalAlignment="Left"
+                                                    Style="{StaticResource SteamLinkButton}"
+                                                    Command="{Binding DataContext.OpenWebLinkCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding}"
+                                                    ToolTip="{Binding Url}">
+                                                    <TextBlock FontSize="13" TextTrimming="CharacterEllipsis" Text="{Binding Text}" />
+                                                </Button>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                                <WrapPanel Margin="0,0,0,6" Visibility="{Binding HasVirusTotal, Converter={StaticResource TrueToVisible}}">
+                                    <TextBlock Margin="0,0,4,0">
+                                        <Run Style="{StaticResource DetailLabel}" Text="{loc:Str Item_VirusTotalLabel}" />
+                                    </TextBlock>
+                                    <ItemsControl ItemsSource="{Binding VirusTotal}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Button
+                                                    Margin="0,0,8,0"
+                                                    Style="{StaticResource SteamLinkButton}"
+                                                    Command="{Binding DataContext.OpenWebLinkCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding}"
+                                                    ToolTip="{Binding Url}">
+                                                    <TextBlock FontSize="13" Text="{Binding Text}" />
+                                                </Button>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </WrapPanel>
 
                                 <!-- Which SPT the release Subscribe would fetch runs on. -->
                                 <TextBlock Margin="0,0,0,6" FontSize="13" TextWrapping="Wrap" ToolTip="{Binding Card.SptVersionTooltip}">
@@ -369,6 +434,45 @@
 
                     <!-- Under the header: the subscribe box and the description on the left, the
                          panels on the right. -->
+                    <!-- sp-mod.com's notices, where the choice to subscribe is made: a mod that
+                         works like a multiplayer cheat (red on the site) and one that may change a
+                         profile for good (amber). Steam has nothing like them; their colours and
+                         words are the site's. -->
+                    <StackPanel Margin="0,22,0,-22">
+                        <Border
+                            Margin="0,8,0,0"
+                            Padding="14,10"
+                            Background="#B91C1C"
+                            Visibility="{Binding HasCheatNotice, Converter={StaticResource TrueToVisible}}">
+                            <DockPanel>
+                                <ui:SymbolIcon Margin="0,1,10,0" VerticalAlignment="Top" FontSize="18" Foreground="White" Filled="True" Symbol="Warning16" />
+                                <TextBlock FontSize="14" Foreground="White" TextWrapping="Wrap">
+                                    <Run FontWeight="Bold" Text="{loc:Str Item_CheatNoticeLead}" />
+                                    <Run Text="{loc:Str Item_CheatNotice}" />
+                                    <Hyperlink Command="{Binding OpenCheatGuidelinesCommand}" Foreground="White">
+                                        <Run Text="{loc:Str Item_CheatNoticeMore}" />
+                                    </Hyperlink>
+                                </TextBlock>
+                            </DockPanel>
+                        </Border>
+                        <Border
+                            Margin="0,8,0,0"
+                            Padding="14,10"
+                            Background="#D97706"
+                            Visibility="{Binding HasProfileNotice, Converter={StaticResource TrueToVisible}}">
+                            <DockPanel>
+                                <ui:SymbolIcon Margin="0,1,10,0" VerticalAlignment="Top" FontSize="18" Foreground="White" Filled="True" Symbol="Warning16" />
+                                <TextBlock FontSize="14" Foreground="White" TextWrapping="Wrap">
+                                    <Run FontWeight="Bold" Text="{loc:Str Item_ProfileNoticeLead}" />
+                                    <Run Text="{loc:Str Item_ProfileNotice}" />
+                                    <Hyperlink Command="{Binding OpenProfileNoticeCommand}" Foreground="White">
+                                        <Run Text="{loc:Str Item_ProfileNoticeMore}" />
+                                    </Hyperlink>
+                                </TextBlock>
+                            </DockPanel>
+                        </Border>
+                    </StackPanel>
+
                     <Grid Margin="0,30,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="655*" />
@@ -668,6 +772,28 @@
                                                 <Run Foreground="{StaticResource SteamTextDim}" Text="{loc:Str Item_VersionDependencies}" />
                                                 <Run Text="{Binding Dependencies, Mode=OneWay}" />
                                             </TextBlock>
+                                            <WrapPanel Margin="0,6,0,0" Visibility="{Binding HasVirusTotal, Converter={StaticResource TrueToVisible}}">
+                                                <TextBlock Margin="0,0,4,0" FontSize="13" Foreground="{StaticResource SteamTextDim}" Text="{loc:Str Item_VirusTotalLabel}" />
+                                                <ItemsControl ItemsSource="{Binding VirusTotal}">
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <WrapPanel />
+                                                        </ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Button
+                                                                Margin="0,0,8,0"
+                                                                Style="{StaticResource SteamLinkButton}"
+                                                                Command="{Binding DataContext.OpenWebLinkCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                CommandParameter="{Binding}"
+                                                                ToolTip="{Binding Url}">
+                                                                <TextBlock FontSize="13" Text="{Binding Text}" />
+                                                            </Button>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </WrapPanel>
                                         </StackPanel>
                                     </DockPanel>
                                 </Border>
@@ -696,6 +822,7 @@
                 <StackPanel x:Name="CommentsTab" Visibility="{Binding IsCommentsShown, Converter={StaticResource TrueToVisible}}">
                     <TextBlock Margin="0,0,0,8" FontSize="12" Foreground="{StaticResource SteamTextDim}" Text="{loc:Str Item_CommentsSignIn}" Visibility="{Binding Visibility, ElementName=CommentsHost}" />
                     <Border x:Name="CommentsHost" Background="#1B2838" />
+                    <TextBlock x:Name="CommentsOff" Margin="0,20,0,0" HorizontalAlignment="Center" Foreground="{StaticResource SteamText}" Text="{loc:Str Item_CommentsNone}" Visibility="Collapsed" />
                     <StackPanel x:Name="CommentsFallback" Margin="0,20,0,0" HorizontalAlignment="Center" Visibility="Collapsed">
                         <TextBlock MaxWidth="520" Foreground="{StaticResource SteamText}" TextAlignment="Center" TextWrapping="Wrap" Text="{loc:Str Item_CommentsUnavailable}" />
                         <Button Margin="0,12,0,0" HorizontalAlignment="Center" Style="{StaticResource SteamBlueButton}" Content="{loc:Str Item_CommentsOpen}" Click="OpenComments_Click" />

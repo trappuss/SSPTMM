@@ -215,7 +215,12 @@ public partial class WorkshopItemView : UserControl
             {
                 try
                 {
-                    await core.ExecuteScriptAsync(CommentsOnlyScript);
+                    var result = await core.ExecuteScriptAsync(CommentsOnlyScript);
+
+                    // The mod's own page with no comments section: say so, rather than showing the
+                    // whole page under a Comments tab. (Any other page - the sign-in page, say -
+                    // is left as it is.)
+                    if (result == "\"none\"" && StillWants(core.Source)) ShowCommentsOff();
                 }
                 catch (Exception ex) when (ex is InvalidOperationException or System.Runtime.InteropServices.COMException)
                 {
@@ -229,6 +234,7 @@ public partial class WorkshopItemView : UserControl
         if (!StillWants(url)) return;
 
         CommentsFallback.Visibility = Visibility.Collapsed;
+        CommentsOff.Visibility = Visibility.Collapsed;
         CommentsHost.Visibility = Visibility.Visible;
         SizeComments();
 
@@ -243,13 +249,23 @@ public partial class WorkshopItemView : UserControl
     private void ShowCommentsFallback()
     {
         CommentsHost.Visibility = Visibility.Collapsed;
+        CommentsOff.Visibility = Visibility.Collapsed;
         CommentsFallback.Visibility = Visibility.Visible;
+    }
+
+    private void ShowCommentsOff()
+    {
+        CommentsHost.Visibility = Visibility.Collapsed;
+        CommentsFallback.Visibility = Visibility.Collapsed;
+        CommentsOff.Visibility = Visibility.Visible;
+        Scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
     }
 
     private void HideComments()
     {
         CommentsHost.Visibility = Visibility.Collapsed;
         CommentsFallback.Visibility = Visibility.Collapsed;
+        CommentsOff.Visibility = Visibility.Collapsed;
         Scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
     }
 
@@ -275,13 +291,14 @@ public partial class WorkshopItemView : UserControl
     // Keeps the comments and nothing else. From the comments section up to the page body, every
     // other element beside the path is hidden (hidden, not removed: the site's own scripts keep
     // working on them) and each container on the path is told to use the full width. Colours
-    // are moved to the Workshop page's own. If the page does not have a comments section - the
-    // author has turned comments off - it is shown as it is.
+    // are moved to the Workshop page's own. A page with no comments section answers "none", and
+    // the tab then says so instead of showing it (SAIN's has none; sp-mod.com then shows no
+    // Comments tab at all).
     //
     private const string CommentsOnlyScript = """
         (() => {
           const comments = document.getElementById('comments');
-          if (!comments) return;
+          if (!comments) return 'none';
           let node = comments;
           while (node && node !== document.body) {
             const parent = node.parentElement;
@@ -302,6 +319,7 @@ public partial class WorkshopItemView : UserControl
           style.textContent = 'html, body { background: #1B2838 !important; } body { padding: 0 4px 16px !important; }';
           document.head.appendChild(style);
           window.scrollTo(0, 0);
+          return 'shown';
         })();
         """;
 }
