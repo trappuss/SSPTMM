@@ -703,10 +703,19 @@
     <SolidColorBrush x:Key="ToggleSwitchKnobFillOnPressed" Color="{StaticResource TextOnAccentFillColorPrimary}" />
     <SolidColorBrush x:Key="ToggleSwitchKnobFillOnDisabled" Color="{StaticResource TextOnAccentFillColorDisabled}" />
 
-    <!--  ToolTip  -->
-    <SolidColorBrush x:Key="ToolTipBackground" Color="#344352" />
+    <!--
+        ToolTip: Steam's own tooltip (the new Workshop pages' - "Quick View" on a Browse card):
+        radial-gradient(62.67% 62.67% at 62.67% 100%, #CFD1D3 0%, #B3B8BC 100%) with #17181C text.
+        #344352, which this used to be, is the colour of Steam's card hover popup, not of a tooltip;
+        that popup (BrowsePage) sets its own. The legacy item page's grey #C2C2C2 tooltip is not
+        used: one tooltip style throughout.
+    -->
+    <RadialGradientBrush x:Key="ToolTipBackground" Center="0.6267,1" GradientOrigin="0.6267,1" RadiusX="0.6267" RadiusY="0.6267">
+        <GradientStop Offset="0" Color="#CFD1D3" />
+        <GradientStop Offset="1" Color="#B3B8BC" />
+    </RadialGradientBrush>
     <SolidColorBrush x:Key="ToolTipBorderBrush" Color="#00000000" />
-    <SolidColorBrush x:Key="ToolTipForeground" Color="#ACB2B8" />
+    <SolidColorBrush x:Key="ToolTipForeground" Color="#17181C" />
 
     <!--  ToolBar  -->
     <!--  TODO  -->
