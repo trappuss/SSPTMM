@@ -50,6 +50,9 @@ internal static class AppServices
     // Shared across every Browse page navigation, not re-created per visit.
     public static BrowseViewModel Browse { get; } = new();
 
+    // The Workshop front page's lists. After Browse, which it loads the catalog through.
+    public static WorkshopHomeViewModel WorkshopHome { get; } = new();
+
     // Whether a newer release of this app has been published on sp-mod.com. Shared between the
     // banner in MainWindow, the nav item's badge and the App update page, so all three read one
     // check rather than each running their own.

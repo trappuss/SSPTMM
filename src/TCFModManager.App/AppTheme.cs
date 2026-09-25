@@ -88,7 +88,10 @@ public static class AppTheme
             _subscribed = true;
         }
 
-        if (Stored == ThemePreference.FollowSystem) StartFollowing(window);
+        // Never follows Windows here: a watcher left running would put WPF-UI's light theme back
+        // the moment Windows switched to light, which is exactly what the Steam look must not do.
+        StopFollowing();
+        _ = window;
     }
 
     // Applies a newly chosen preference, saves it, and starts or stops following Windows to match.
@@ -100,40 +103,43 @@ public static class AppTheme
         settings.Theme = preference;
         Settings.Save(settings);
 
-        if (preference == ThemePreference.FollowSystem)
-        {
-            if (Application.Current?.MainWindow is { } window) StartFollowing(window);
-        }
-        else
-        {
-            // Load-bearing: left watching, the next time Windows changed theme it would drag the app
-            // back off the theme the user just pinned.
-            StopFollowing();
-        }
+        // See ApplyOnly: the Steam look does not follow Windows, whatever the stored preference.
+        StopFollowing();
 
         AppLog.Info("Theme", $"set to {preference}");
     }
 
+    //
+    // The Steam Workshop fork has one look, the way Steam does: WPF-UI's dark theme with the Steam
+    // palette laid over it (Themes/SteamTheme.xaml) and Steam's blue as the accent. The stored
+    // preference is still read and still saved, so going back to the upstream app finds the
+    // setting where it was left - it just no longer changes what is drawn here, and the Options
+    // page no longer offers it.
+    //
+    // No Mica backdrop: Steam's pages are flat colour, and Mica would tint them with the desktop
+    // wallpaper. updateAccent is false because the accent WPF-UI would pick is the Windows one.
+    //
     private static void ApplyOnly(ThemePreference preference)
     {
-        switch (preference)
-        {
-            case ThemePreference.Light:
-                ApplicationThemeManager.Apply(ApplicationTheme.Light);
-                break;
+        _ = preference;
 
-            case ThemePreference.Dark:
-                ApplicationThemeManager.Apply(ApplicationTheme.Dark);
-                break;
-
-            default:
-                ApplicationThemeManager.ApplySystemTheme();
-                break;
-        }
+        ApplicationThemeManager.Apply(ApplicationTheme.Dark, WindowBackdropType.None, updateAccent: false);
+        ApplySteamAccent();
 
         RefreshWindowChrome();
         PinPressedButtonForeground();
         HookButtonPressFeedback();
+    }
+
+    // Steam's new-UI blue (#1A9FFF) for the accent and its legacy link blue (#66C0F4) as the
+    // lighter tertiary shade, matching the literal accent colours in Themes/SteamTheme.xaml so a
+    // DynamicResource lookup and a StaticResource one inside that file agree.
+    private static void ApplySteamAccent()
+    {
+        var blue = Color.FromRgb(0x1A, 0x9F, 0xFF);
+        var legacyBlue = Color.FromRgb(0x66, 0xC0, 0xF4);
+
+        ApplicationAccentColorManager.Apply(blue, blue, blue, legacyBlue);
     }
 
     //

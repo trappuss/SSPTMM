@@ -334,7 +334,7 @@
     <value>Есть зависимости</value>
   </data>
   <data name="Browse_ByAuthorFormat" xml:space="preserve">
-    <value>от {0}</value>
+    <value>От {0}</value>
   </data>
   <data name="Browse_CategoryFilterToolTip" xml:space="preserve">
     <value>Фильтр по категории, в которой указан мод</value>
@@ -1653,6 +1653,12 @@
   <data name="Footprint_WhatThisReadsHeader" xml:space="preserve">
     <value>Что здесь читается</value>
   </data>
+  <data name="Hub_ModSite" xml:space="preserve">
+    <value>sp-mod.com</value>
+  </data>
+  <data name="Hub_Title" xml:space="preserve">
+    <value>Single Player Tarkov</value>
+  </data>
   <data name="Install_StageDone" xml:space="preserve">
     <value>Готово.</value>
   </data>
@@ -2307,6 +2313,60 @@
   <data name="InstallRole_Title" xml:space="preserve">
     <value>Похоже, это headless-машина</value>
   </data>
+  <data name="Item_AuthorsWorkshopFormat" xml:space="preserve">
+    <value>Мастерская {0}</value>
+  </data>
+  <data name="Item_ChangeNotesFormat" xml:space="preserve">
+    <value>Обновлений: {0}</value>
+  </data>
+  <data name="Item_ContentTypeLabel" xml:space="preserve">
+    <value>Тип контента:</value>
+  </data>
+  <data name="Item_CreatedBy" xml:space="preserve">
+    <value>СОЗДАТЕЛИ:</value>
+  </data>
+  <data name="Item_DescriptionHeader" xml:space="preserve">
+    <value>ОПИСАНИЕ</value>
+  </data>
+  <data name="Item_FileSize" xml:space="preserve">
+    <value>Размер файла</value>
+  </data>
+  <data name="Item_Posted" xml:space="preserve">
+    <value>Добавлен</value>
+  </data>
+  <data name="Item_RequiredItems" xml:space="preserve">
+    <value>НЕОБХОДИМЫЕ ПРОДУКТЫ</value>
+  </data>
+  <data name="Item_RequiredItemsNote" xml:space="preserve">
+    <value>Этому продукту необходимо</value>
+  </data>
+  <data name="Item_StatFavourites" xml:space="preserve">
+    <value>добавили в избранное</value>
+  </data>
+  <data name="Item_Subscribe" xml:space="preserve">
+    <value>Подписаться</value>
+  </data>
+  <data name="Item_Subscribed" xml:space="preserve">
+    <value>В подписках</value>
+  </data>
+  <data name="Item_SubscribeToDownload" xml:space="preserve">
+    <value>Подпишитесь, чтобы загрузить</value>
+  </data>
+  <data name="Item_TabChangeNotes" xml:space="preserve">
+    <value>Обновления</value>
+  </data>
+  <data name="Item_TabDescription" xml:space="preserve">
+    <value>Описание</value>
+  </data>
+  <data name="Item_Unsubscribe" xml:space="preserve">
+    <value>Отписаться</value>
+  </data>
+  <data name="Item_Updated" xml:space="preserve">
+    <value>Изменён</value>
+  </data>
+  <data name="Item_View" xml:space="preserve">
+    <value>(просмотреть)</value>
+  </data>
   <data name="MainWindow_LoadingCatalog" xml:space="preserve">
     <value>Загрузка каталога модов...</value>
   </data>
@@ -2330,12 +2390,6 @@
   </data>
   <data name="Meta_TranslationCredit" xml:space="preserve">
     <value>Машинный перевод, ещё не проверенный носителем языка. Исправления и замечания приветствуются на GitHub.</value>
-  </data>
-  <data name="ModDetails_CategoryFormat" xml:space="preserve">
-    <value>Категория: {0}</value>
-  </data>
-  <data name="ModDetails_LicenseFormat" xml:space="preserve">
-    <value>Лицензия: {0}</value>
   </data>
   <data name="ModDisable_Note" xml:space="preserve">
     <value>В любом случае ничего не удаляется - отключённые моды сохраняют свои файлы и конфигурации и возвращаются нетронутыми при повторном включении.</value>
@@ -3379,10 +3433,10 @@
     <value>След модов</value>
   </data>
   <data name="Nav_Installed" xml:space="preserve">
-    <value>Установленные</value>
+    <value>Ваши подписки</value>
   </data>
   <data name="Nav_ModLists" xml:space="preserve">
-    <value>Списки модов</value>
+    <value>Коллекции</value>
   </data>
   <data name="Nav_Options" xml:space="preserve">
     <value>Параметры</value>
@@ -3392,6 +3446,9 @@
   </data>
   <data name="Nav_ServerMap" xml:space="preserve">
     <value>Карта сервера</value>
+  </data>
+  <data name="Nav_Workshop" xml:space="preserve">
+    <value>Мастерская</value>
   </data>
   <data name="Options_AppearanceDescription" xml:space="preserve">
     <value>«Как в системе» повторяет настройку Windows и продолжает следовать ей, когда вы меняете её там. «Светлая» и «Тёмная» закрепляют одну тему независимо от системы.</value>
@@ -4066,19 +4123,19 @@
     <value>По автору (Я-А)</value>
   </data>
   <data name="Sort_BrowseLastUpdated" xml:space="preserve">
-    <value>Недавно обновлённые</value>
+    <value>Дата последнего обновления</value>
   </data>
   <data name="Sort_BrowseMostDownloaded" xml:space="preserve">
-    <value>Больше всего загрузок</value>
+    <value>Больше всего подписчиков</value>
   </data>
   <data name="Sort_BrowseMostEndorsed" xml:space="preserve">
-    <value>Больше всего рекомендаций</value>
+    <value>С наивысшим рейтингом за всё время</value>
   </data>
   <data name="Sort_BrowseMostFavourited" xml:space="preserve">
     <value>Чаще в избранном</value>
   </data>
   <data name="Sort_BrowseNewest" xml:space="preserve">
-    <value>Сначала новые</value>
+    <value>Последние</value>
   </data>
   <data name="Sort_FootprintLargestOnDisk" xml:space="preserve">
     <value>Больше всего на диске</value>
@@ -4187,5 +4244,62 @@
   </data>
   <data name="SptLaunch_StopFailedReasonFormat" xml:space="preserve">
     <value>Не удалось остановить {0}: {1}. Возможно, он запущен от имени другого пользователя или от имени администратора - закройте его окно вручную и запустите снова, результат будет тот же.</value>
+  </data>
+  <data name="Workshop_BrowsingHint" xml:space="preserve">
+    <value>(Подпишитесь, чтобы добавить в игру)</value>
+  </data>
+  <data name="Workshop_BrowsingTitle" xml:space="preserve">
+    <value>Просмотр: Mods</value>
+  </data>
+  <data name="Workshop_ContentType" xml:space="preserve">
+    <value>ТИП КОНТЕНТА</value>
+  </data>
+  <data name="Workshop_Home" xml:space="preserve">
+    <value>Главная мастерской</value>
+  </data>
+  <data name="Workshop_LearnMore" xml:space="preserve">
+    <value>Узнать больше</value>
+  </data>
+  <data name="Workshop_PerPage" xml:space="preserve">
+    <value>Показывать на странице:</value>
+  </data>
+  <data name="Workshop_SortOrderHeader" xml:space="preserve">
+    <value>ПОРЯДОК СОРТИРОВКИ</value>
+  </data>
+  <data name="Workshop_SpecialFilters" xml:space="preserve">
+    <value>ОСОБЫЕ ФИЛЬТРЫ:</value>
+  </data>
+  <data name="Workshop_SubscribedItems" xml:space="preserve">
+    <value>Ваши подписки</value>
+  </data>
+  <data name="Workshop_TagSubscribed" xml:space="preserve">
+    <value>В подписках</value>
+  </data>
+  <data name="Workshop_YourCollections" xml:space="preserve">
+    <value>Ваши коллекции</value>
+  </data>
+  <data name="Workshop_YourItems" xml:space="preserve">
+    <value>Ваши предметы</value>
+  </data>
+  <data name="Workshop_YourItemsHeader" xml:space="preserve">
+    <value>ВАШИ ПРЕДМЕТЫ</value>
+  </data>
+  <data name="WorkshopHome_FeaturedTitle" xml:space="preserve">
+    <value>Моды</value>
+  </data>
+  <data name="WorkshopHome_InThePastWeek" xml:space="preserve">
+    <value>За последнюю неделю</value>
+  </data>
+  <data name="WorkshopHome_TabLastUpdated" xml:space="preserve">
+    <value>Последние обновления</value>
+  </data>
+  <data name="WorkshopHome_TabMostSubscribed" xml:space="preserve">
+    <value>Больше всего подписчиков</value>
+  </data>
+  <data name="WorkshopHome_TabNew" xml:space="preserve">
+    <value>Самые новые</value>
+  </data>
+  <data name="WorkshopHome_ViewAll" xml:space="preserve">
+    <value>Показать все</value>
   </data>
 </root>

@@ -331,7 +331,7 @@ Das wurde hier hingeschrieben:
     <value>Hat Abhängigkeiten</value>
   </data>
   <data name="Browse_ByAuthorFormat" xml:space="preserve">
-    <value>von {0}</value>
+    <value>Von {0}</value>
   </data>
   <data name="Browse_CategoryFilterToolTip" xml:space="preserve">
     <value>Nach der Kategorie filtern, unter der ein Mod gelistet ist</value>
@@ -1578,6 +1578,12 @@ Was du auch wählst: Die Version, die gerade auf der Festplatte liegt, wird zuer
   <data name="Footprint_WhatThisReadsHeader" xml:space="preserve">
     <value>Was hier ausgelesen wird</value>
   </data>
+  <data name="Hub_ModSite" xml:space="preserve">
+    <value>sp-mod.com</value>
+  </data>
+  <data name="Hub_Title" xml:space="preserve">
+    <value>Single Player Tarkov</value>
+  </data>
   <data name="Install_StageDone" xml:space="preserve">
     <value>Fertig.</value>
   </data>
@@ -2172,6 +2178,60 @@ Abbrechen  -  nichts entfernen</value>
   <data name="InstallRole_Title" xml:space="preserve">
     <value>Das sieht nach einer Headless-Maschine aus</value>
   </data>
+  <data name="Item_AuthorsWorkshopFormat" xml:space="preserve">
+    <value>Workshop von {0}</value>
+  </data>
+  <data name="Item_ChangeNotesFormat" xml:space="preserve">
+    <value>{0} Änderungshinweise</value>
+  </data>
+  <data name="Item_ContentTypeLabel" xml:space="preserve">
+    <value>Content Type:</value>
+  </data>
+  <data name="Item_CreatedBy" xml:space="preserve">
+    <value>ERSTELLT VON</value>
+  </data>
+  <data name="Item_DescriptionHeader" xml:space="preserve">
+    <value>BESCHREIBUNG</value>
+  </data>
+  <data name="Item_FileSize" xml:space="preserve">
+    <value>Dateigröße</value>
+  </data>
+  <data name="Item_Posted" xml:space="preserve">
+    <value>Veröffentlicht</value>
+  </data>
+  <data name="Item_RequiredItems" xml:space="preserve">
+    <value>BENÖTIGTE INHALTE</value>
+  </data>
+  <data name="Item_RequiredItemsNote" xml:space="preserve">
+    <value>Dieser Inhalt erfordert alle der folgenden weiteren Inhalte</value>
+  </data>
+  <data name="Item_StatFavourites" xml:space="preserve">
+    <value>Aktuelle Favoriten</value>
+  </data>
+  <data name="Item_Subscribe" xml:space="preserve">
+    <value>Abonnieren</value>
+  </data>
+  <data name="Item_Subscribed" xml:space="preserve">
+    <value>Abonniert</value>
+  </data>
+  <data name="Item_SubscribeToDownload" xml:space="preserve">
+    <value>Abonnieren zum Herunterladen</value>
+  </data>
+  <data name="Item_TabChangeNotes" xml:space="preserve">
+    <value>Änderungshinweise</value>
+  </data>
+  <data name="Item_TabDescription" xml:space="preserve">
+    <value>Beschreibung</value>
+  </data>
+  <data name="Item_Unsubscribe" xml:space="preserve">
+    <value>Abbestellen</value>
+  </data>
+  <data name="Item_Updated" xml:space="preserve">
+    <value>Aktualisiert</value>
+  </data>
+  <data name="Item_View" xml:space="preserve">
+    <value>(anzeigen)</value>
+  </data>
   <data name="MainWindow_LoadingCatalog" xml:space="preserve">
     <value>Mod-Katalog wird geladen...</value>
   </data>
@@ -2195,12 +2255,6 @@ Abbrechen  -  nichts entfernen</value>
   </data>
   <data name="Meta_TranslationCredit" xml:space="preserve">
     <value>Maschinelle Übersetzung, noch nicht von einem Muttersprachler geprüft. Korrekturen und Hinweise sind auf GitHub willkommen.</value>
-  </data>
-  <data name="ModDetails_CategoryFormat" xml:space="preserve">
-    <value>Kategorie: {0}</value>
-  </data>
-  <data name="ModDetails_LicenseFormat" xml:space="preserve">
-    <value>Lizenz: {0}</value>
   </data>
   <data name="ModDisable_Note" xml:space="preserve">
     <value>So oder so wird nichts gelöscht - deaktivierte Mods behalten ihre eigenen Dateien und Konfigurationen und kommen unverändert zurück, wenn du sie wieder aktivierst.</value>
@@ -3199,10 +3253,10 @@ Sicher dein Profil, bevor du fortfährst, wenn es dir wichtig ist.</value>
     <value>Mod-Fußabdruck</value>
   </data>
   <data name="Nav_Installed" xml:space="preserve">
-    <value>Installiert</value>
+    <value>Abonnierte Inhalte</value>
   </data>
   <data name="Nav_ModLists" xml:space="preserve">
-    <value>Modlisten</value>
+    <value>Kollektionen</value>
   </data>
   <data name="Nav_Options" xml:space="preserve">
     <value>Optionen</value>
@@ -3212,6 +3266,9 @@ Sicher dein Profil, bevor du fortfährst, wenn es dir wichtig ist.</value>
   </data>
   <data name="Nav_ServerMap" xml:space="preserve">
     <value>Server-Map</value>
+  </data>
+  <data name="Nav_Workshop" xml:space="preserve">
+    <value>Workshop</value>
   </data>
   <data name="Options_AppearanceDescription" xml:space="preserve">
     <value>System folgen richtet sich nach Windows und bleibt dabei, auch wenn du es dort änderst. Hell und Dunkel legen die App unabhängig davon auf eines fest.</value>
@@ -3859,16 +3916,16 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
     <value>Zuletzt aktualisiert</value>
   </data>
   <data name="Sort_BrowseMostDownloaded" xml:space="preserve">
-    <value>Meiste Downloads</value>
+    <value>Am häufigsten abonniert</value>
   </data>
   <data name="Sort_BrowseMostEndorsed" xml:space="preserve">
-    <value>Meiste Empfehlungen</value>
+    <value>Bestbewertete aller Zeiten</value>
   </data>
   <data name="Sort_BrowseMostFavourited" xml:space="preserve">
     <value>Meiste Favoriten</value>
   </data>
   <data name="Sort_BrowseNewest" xml:space="preserve">
-    <value>Neueste zuerst</value>
+    <value>Neueste</value>
   </data>
   <data name="Sort_FootprintLargestOnDisk" xml:space="preserve">
     <value>Größte auf der Festplatte</value>
@@ -3977,5 +4034,62 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   </data>
   <data name="SptLaunch_StopFailedReasonFormat" xml:space="preserve">
     <value>{0} konnte nicht gestoppt werden: {1}. Vielleicht läuft es als anderer Benutzer oder als Administrator - sein Fenster von Hand zu schließen und es dann neu zu starten, bewirkt dasselbe.</value>
+  </data>
+  <data name="Workshop_BrowsingHint" xml:space="preserve">
+    <value>(Abonnieren und zum Spiel hinzufügen)</value>
+  </data>
+  <data name="Workshop_BrowsingTitle" xml:space="preserve">
+    <value>Durchsuchen: Mods</value>
+  </data>
+  <data name="Workshop_ContentType" xml:space="preserve">
+    <value>CONTENT TYPE</value>
+  </data>
+  <data name="Workshop_Home" xml:space="preserve">
+    <value>Startseite</value>
+  </data>
+  <data name="Workshop_LearnMore" xml:space="preserve">
+    <value>Mehr erfahren</value>
+  </data>
+  <data name="Workshop_PerPage" xml:space="preserve">
+    <value>Pro Seite:</value>
+  </data>
+  <data name="Workshop_SortOrderHeader" xml:space="preserve">
+    <value>SORTIERUNG</value>
+  </data>
+  <data name="Workshop_SpecialFilters" xml:space="preserve">
+    <value>ZUSÄTZLICHE FILTER:</value>
+  </data>
+  <data name="Workshop_SubscribedItems" xml:space="preserve">
+    <value>Abonnierte Inhalte</value>
+  </data>
+  <data name="Workshop_TagSubscribed" xml:space="preserve">
+    <value>Abonniert</value>
+  </data>
+  <data name="Workshop_YourCollections" xml:space="preserve">
+    <value>Ihre Kollektionen</value>
+  </data>
+  <data name="Workshop_YourItems" xml:space="preserve">
+    <value>Ihre Inhalte</value>
+  </data>
+  <data name="Workshop_YourItemsHeader" xml:space="preserve">
+    <value>IHRE INHALTE</value>
+  </data>
+  <data name="WorkshopHome_FeaturedTitle" xml:space="preserve">
+    <value>Mods</value>
+  </data>
+  <data name="WorkshopHome_InThePastWeek" xml:space="preserve">
+    <value>In der vergangenen Woche</value>
+  </data>
+  <data name="WorkshopHome_TabLastUpdated" xml:space="preserve">
+    <value>Zuletzt aktualisiert</value>
+  </data>
+  <data name="WorkshopHome_TabMostSubscribed" xml:space="preserve">
+    <value>Am häufigsten abonniert</value>
+  </data>
+  <data name="WorkshopHome_TabNew" xml:space="preserve">
+    <value>Neue</value>
+  </data>
+  <data name="WorkshopHome_ViewAll" xml:space="preserve">
+    <value>Alle anzeigen</value>
   </data>
 </root>

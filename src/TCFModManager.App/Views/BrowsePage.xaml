@@ -1,16 +1,20 @@
 <!--
-    ScrollViewer.CanContentScroll="False" opts this page out of the outer DynamicScrollViewer that
-    WPF-UI's NavigationView wraps every Page in by default (its NavigationViewContentPresenter
-    overrides the CanContentScroll metadata for the Page type itself). Inside that wrapper the page
-    is measured with unbounded height, so the "*" row below never got a real limit: the results grid
-    grew to fit whatever was on the page and the pager under it rode down with it, moving every time
-    you turned a page or the tallest card changed.
+    Browse, laid out as Steam's Workshop browse page (steamcommunity.com/workshop/browse): the banner
+    and the Workshop strip, "Browsing: ..." with the match count, the search box and gear on the left
+    and the sort order on the right, a 300px filter sidebar beside a grid of 245px cards, and the
+    per-page choice and numbered pager under it. Every size and colour is from the live page - see
+    docs/steam-workshop-ui.md.
 
-    Opted out, the page is exactly the window's height, the "*" row takes what's left, the ListBox
-    scrolls inside itself and the pager stays where it is. Same fix InstalledPage and DependenciesPage
-    carry - see the comment at the top of InstalledPage.xaml for the full diagnosis. Note this page
-    deliberately does NOT take the other two parts of that fix (a Transparent root Background and a
-    PreviewMouseWheel handler), which are only needed for scroll-anywhere.
+    The whole page scrolls as one, the way a Steam page does, so the page opts out of the outer
+    DynamicScrollViewer NavigationView wraps pages in (ScrollViewer.CanContentScroll="False") and
+    carries its own. That wrapper measures a page with unbounded height, which is what used to let
+    the pager ride up and down; with one ScrollViewer here and the pager at the end of the content,
+    there is nothing for it to ride on.
+
+    What Steam's page has and this one leaves out: the Discussions and About links in the strip, the
+    time frame half of the sort panel (the catalog records no per-period popularity), and star
+    ratings - sp-mod.com publishes endorsements, favourites and downloads instead, so those are what
+    sit where the stars would.
 -->
 <Page
     x:Class="TCFModManager.App.Views.BrowsePage"
@@ -18,6 +22,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:app="clr-namespace:TCFModManager.App"
+    xmlns:views="clr-namespace:TCFModManager.App.Views"
     xmlns:converters="clr-namespace:TCFModManager.App.Converters"
     xmlns:behaviors="clr-namespace:TCFModManager.App.Behaviors"
     xmlns:loc="clr-namespace:TCFModManager.App.Localization"
@@ -29,593 +34,626 @@
         <converters:UpdateAvailableToVisibilityConverter x:Key="TrueToVisible" />
         <converters:FalseToVisibilityConverter x:Key="FalseToVisible" />
         <converters:CountToVisibilityConverter x:Key="HasCount" />
+        <converters:EqualityConverter x:Key="IsSame" />
 
+        <!-- The sort order's face: rgba(0,0,0,.37), 283x42, 15px #C4C4C4. -->
+        <Style x:Key="SortFace" TargetType="ToggleButton">
+            <Setter Property="Foreground" Value="#C4C4C4" />
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border Padding="10,0" Background="{StaticResource SteamSortBox}">
+                            <ContentPresenter VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{StaticResource SteamWhite}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+
+        <!-- A page number in the pager: 15px white, the current one #ACB2B8 and not a link. -->
+        <Style x:Key="PageNumber" TargetType="Button">
+            <Setter Property="Foreground" Value="{StaticResource SteamWhite}" />
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="Margin" Value="4,0" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <ContentPresenter />
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{StaticResource SteamBlue}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsCurrent}" Value="True">
+                    <Setter Property="Foreground" Value="{StaticResource SteamText}" />
+                    <Setter Property="IsHitTestVisible" Value="False" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsEllipsis}" Value="True">
+                    <Setter Property="Foreground" Value="{StaticResource SteamText}" />
+                    <Setter Property="IsHitTestVisible" Value="False" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- The pager's arrows: #1A9FFF 41x24, radius 2; #21537A with a grey arrow when there is
+             nowhere to go. -->
+        <Style x:Key="PagerArrow" TargetType="Button" BasedOn="{StaticResource SteamBlueButton}">
+            <Setter Property="Width" Value="41" />
+            <Setter Property="Height" Value="24" />
+            <Setter Property="MinHeight" Value="24" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Chrome" Background="{TemplateBinding Background}" CornerRadius="2">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Chrome" Property="Background" Value="{StaticResource SteamBlueHover}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Chrome" Property="Background" Value="#21537A" />
+                                <Setter Property="Foreground" Value="#71757A" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Page.Resources>
-    <Grid Margin="16">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Margin="0,0,0,8">
-            <DockPanel>
-                <!-- The Fika / ads / AI toggles that used to sit along this row are now three of
-                     the five tick boxes in the "Show" dropdown below, next to the other filters. -->
-                <ui:TextBox
-                    MinWidth="320"
-                    HorizontalAlignment="Left"
-                    PlaceholderText="{loc:Str Common_SearchPlaceholder}"
-                    Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
-            </DockPanel>
+    <ScrollViewer
+        x:Name="PageScroll"
+        HorizontalScrollBarVisibility="Disabled"
+        VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="24,16,24,24">
+            <views:WorkshopBanner />
+            <views:WorkshopSubNav />
 
-            <DockPanel Margin="0,8,0,0">
-                <ui:Button
-                    DockPanel.Dock="Right"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Center"
-                    Content="{loc:Str Common_ClearFilters}"
-                    ToolTip="{loc:Str Common_ClearFiltersToolTip}"
-                    Command="{Binding ClearFiltersCommand}" />
+            <!-- "Browsing: Mods (Subscribe to add to your game)" - 18px, the hint in the light face. -->
+            <TextBlock Margin="0,24,0,0" FontSize="18" Foreground="{StaticResource SteamTextBright}" TextWrapping="Wrap">
+                <Run Text="{loc:Str Workshop_BrowsingTitle}" />
+                <Run FontFamily="{StaticResource SteamFontLight}" Text="{loc:Str Workshop_BrowsingHint}" />
+            </TextBlock>
+            <TextBlock
+                Margin="0,4,0,0"
+                FontSize="14"
+                Foreground="{StaticResource SteamText}"
+                TextWrapping="Wrap"
+                Text="{Binding EntriesText}" />
 
-                <!-- Same as Installed's: the defaults are saved from the page, not restated in
-                     Options. Declared after Clear filters so it lands to its left. -->
-                <ui:Button
-                    DockPanel.Dock="Right"
-                    Margin="0,0,8,0"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Center"
-                    Content="{loc:Str Common_SaveAsDefault}"
-                    ToolTip="{loc:Str Browse_SaveAsDefaultToolTip}"
-                    Command="{Binding SaveAsDefaultCommand}" />
-                <ui:Button
-                    DockPanel.Dock="Right"
-                    Margin="0,0,8,0"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Center"
-                    Content="{loc:Str Browse_RefreshCache}"
-                    Command="{Binding RefreshCacheCommand}" />
+            <!-- Anything the page has to say that isn't the count: queued, saved, failed. Steam has
+                 nowhere for this; it sits under the count so it is still read. -->
+            <TextBlock
+                Margin="0,4,0,0"
+                FontSize="13"
+                Foreground="{StaticResource SteamLegacyBlue}"
+                TextWrapping="Wrap"
+                Text="{Binding StatusMessage}"
+                Visibility="{Binding StatusMessage, Converter={StaticResource NullToCollapsed}}" />
 
-                <!-- A WrapPanel: six filters don't fit on one line at every window width, and a
-                     filter that has run off the edge of the page may as well not exist. -->
-                <WrapPanel>
-                <!--
-                     SPT version multi-select filter, styled to match the ComboBoxes beside it.
-
-                     No inline labels on this row: each filter's neutral value names what it filters
-                     ("All SPT versions", "Featured included") rather than leaning on a word to its
-                     left.
-
-                     Width is fixed on the three controls whose contents change - these two
-                     dropdowns, whose summary is rewritten as you tick, and Category, whose list is
-                     rebuilt when the catalog loads. Sizing those to their contents is what used to
-                     shift the whole row sideways mid-use. The remaining three have fixed item sets,
-                     so they size to a constant widest item and MinWidth cannot move anything; they
-                     carry MinWidth instead, which is the headroom a longer language needs. Same
-                     treatment as Installed's row.
-                -->
+            <!-- Search on the left, sort order on the right. -->
+            <DockPanel Margin="0,10,0,12">
                 <ToggleButton
-                    x:Name="SptVersionToggle"
-                    Width="200"
-                    Margin="0,0,16,4"
-                    VerticalAlignment="Center"
-                    ToolTip="{loc:Str Browse_SptVersionFilterToolTip}"
-                    Style="{StaticResource FilterDropDownToggle}">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock
-                                Grid.Column="0"
-                                VerticalAlignment="Center"
-                                TextTrimming="CharacterEllipsis"
-                                Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                                Text="{Binding SptVersionFilterSummary}" />
-                            <ui:SymbolIcon
-                                Grid.Column="1"
-                                Margin="8,0,0,0"
-                                VerticalAlignment="Center"
-                                FontSize="11"
-                                Foreground="{DynamicResource ComboBoxDropDownGlyphForeground}"
-                                Symbol="ChevronDown24" />
-                        </Grid>
+                    x:Name="SortToggle"
+                    DockPanel.Dock="Right"
+                    Width="283"
+                    Height="42"
+                    Style="{StaticResource SortFace}"
+                    ToolTip="{loc:Str Common_SortToolTip}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <!-- Steam's sort glyph: three shortening lines and a down arrow. -->
+                        <Path
+                            Grid.Column="0"
+                            Width="24"
+                            Height="16"
+                            Margin="0,0,21,0"
+                            Data="M0,1 L14,1 M0,7 L11,7 M0,13 L8,13 M19,0 L19,14 M15,10 L19,14 L23,10"
+                            Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"
+                            StrokeThickness="2" />
+                        <TextBlock
+                            Grid.Column="1"
+                            VerticalAlignment="Center"
+                            TextTrimming="CharacterEllipsis"
+                            Text="{Binding SelectedSortOption.Label}" />
+                        <Path
+                            Grid.Column="2"
+                            Width="14"
+                            Height="10"
+                            Margin="10,0,4,0"
+                            Data="M0,0 L14,0 L7,10 Z"
+                            Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"
+                            Stretch="Fill" />
+                    </Grid>
                 </ToggleButton>
                 <Popup
-                    IsOpen="{Binding IsChecked, ElementName=SptVersionToggle, Mode=TwoWay}"
-                    PlacementTarget="{Binding ElementName=SptVersionToggle}"
+                    x:Name="SortPopup"
+                    AllowsTransparency="True"
+                    IsOpen="{Binding IsChecked, ElementName=SortToggle, Mode=TwoWay}"
                     Placement="Bottom"
-                    StaysOpen="False"
-                    AllowsTransparency="True">
-                    <Border Style="{StaticResource FilterDropDownPopup}" MinWidth="{Binding ActualWidth, ElementName=SptVersionToggle}">
-                        <ScrollViewer MaxHeight="240" VerticalScrollBarVisibility="Auto">
-                            <ItemsControl Margin="8,4" ItemsSource="{Binding SptVersionOptions}">
+                    PlacementTarget="{Binding ElementName=SortToggle}"
+                    StaysOpen="False">
+                    <Border Margin="0,0,12,12" MinWidth="283" Style="{StaticResource SteamMenuPanel}">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource SteamMenuHeader}" Text="{loc:Str Workshop_SortOrderHeader}" />
+                            <ItemsControl ItemsSource="{Binding SortOptions}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <CheckBox
-                                            Margin="2"
-                                            Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                                            IsChecked="{Binding IsSelected, Mode=TwoWay}"
-                                            Content="{Binding Label, StringFormat={loc:Str Browse_SptVersionItemFormat}}" />
+                                        <RadioButton
+                                            Style="{StaticResource SteamRadio}"
+                                            Command="{Binding DataContext.SelectSortCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                            CommandParameter="{Binding}"
+                                            Click="SortChoice_Click">
+                                            <RadioButton.IsChecked>
+                                                <MultiBinding Converter="{StaticResource IsSame}" Mode="OneWay">
+                                                    <Binding />
+                                                    <Binding Path="DataContext.SelectedSortOption" RelativeSource="{RelativeSource AncestorType=Page}" />
+                                                </MultiBinding>
+                                            </RadioButton.IsChecked>
+                                            <TextBlock Text="{Binding Label}" />
+                                        </RadioButton>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
-                        </ScrollViewer>
+                        </StackPanel>
                     </Border>
                 </Popup>
 
-                <!-- Everything that describes the mod itself, in one place: what used to be three
-                     toggle switches, plus dependencies and addons. -->
-                <ToggleButton
-                    x:Name="AttributeToggle"
-                    Width="220"
-                    Margin="0,0,16,4"
-                    VerticalAlignment="Center"
-                    ToolTip="{loc:Str Common_AttributeFilterToolTip}"
-                    Style="{StaticResource FilterDropDownToggle}">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock
-                                Grid.Column="0"
-                                VerticalAlignment="Center"
-                                TextTrimming="CharacterEllipsis"
-                                Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                                Text="{Binding AttributeFilterSummary}" />
-                            <ui:SymbolIcon
-                                Grid.Column="1"
-                                Margin="8,0,0,0"
-                                VerticalAlignment="Center"
-                                FontSize="11"
-                                Foreground="{DynamicResource ComboBoxDropDownGlyphForeground}"
-                                Symbol="ChevronDown24" />
-                        </Grid>
-                </ToggleButton>
-                <Popup
-                    IsOpen="{Binding IsChecked, ElementName=AttributeToggle, Mode=TwoWay}"
-                    PlacementTarget="{Binding ElementName=AttributeToggle}"
-                    Placement="Bottom"
-                    StaysOpen="False"
-                    AllowsTransparency="True">
-                    <Border Style="{StaticResource FilterDropDownPopup}" MinWidth="{Binding ActualWidth, ElementName=AttributeToggle}">
-                        <ItemsControl Margin="8,4" ItemsSource="{Binding AttributeOptions}">
+                <StackPanel Orientation="Horizontal">
+                    <Border Width="260" Height="42" Padding="8" Background="{StaticResource SteamGray}">
+                        <TextBox
+                            Style="{StaticResource SteamSearchField}"
+                            Tag="{loc:Str Common_SearchPlaceholder}"
+                            Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
+                    </Border>
+
+                    <!-- Steam's gear holds the search options; here, the page's own: refresh the
+                         catalog, and keep these filters as how the page opens. -->
+                    <Button
+                        x:Name="GearButton"
+                        Width="36"
+                        Height="42"
+                        Margin="4,0,0,0"
+                        Padding="0"
+                        Style="{StaticResource SteamButton}"
+                        ToolTip="{loc:Str Workshop_SearchOptionsToolTip}"
+                        Click="GearButton_Click">
+                        <ui:SymbolIcon FontSize="22" Foreground="{StaticResource SteamText}" Filled="True" Symbol="Settings24" />
+                        <Button.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Command="{Binding RefreshCacheCommand}" Header="{loc:Str Browse_RefreshCache}" />
+                                <MenuItem Command="{Binding SaveAsDefaultCommand}" Header="{loc:Str Common_SaveAsDefault}" ToolTip="{loc:Str Browse_SaveAsDefaultToolTip}" />
+                            </ContextMenu>
+                        </Button.ContextMenu>
+                    </Button>
+                </StackPanel>
+            </DockPanel>
+
+            <!-- Filter sidebar and the results grid. -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="300" />
+                    <ColumnDefinition Width="24" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Border
+                    Grid.Column="0"
+                    Padding="10"
+                    VerticalAlignment="Top"
+                    Background="{StaticResource SteamSidebarBackground}">
+                    <StackPanel>
+                        <!-- Steam's "SPECIAL FILTERS" dropdown - here, whether featured mods are in. -->
+                        <TextBlock Style="{StaticResource SteamSidebarHeader}" Text="{loc:Str Workshop_SpecialFilters}" />
+                        <ComboBox
+                            MinHeight="36"
+                            FontSize="13"
+                            ToolTip="{loc:Str Browse_FeaturedFilterToolTip}"
+                            ItemsSource="{Binding FeaturedFilterOptions}"
+                            SelectedItem="{Binding SelectedFeaturedFilter}" />
+
+                        <TextBlock Margin="0,20,0,5" Style="{StaticResource SteamSidebarHeader}" Text="{loc:Str Workshop_ContentType}" />
+                        <ComboBox
+                            MinHeight="36"
+                            FontSize="13"
+                            ToolTip="{loc:Str Browse_CategoryFilterToolTip}"
+                            ItemsSource="{Binding CategoryOptions}"
+                            SelectedItem="{Binding SelectedCategory}" />
+
+                        <!-- SPT release lines, as tag rows. Only [+] means anything here: ticked lines
+                             narrow the results to mods with a release for them. -->
+                        <TextBlock Margin="0,20,0,5" Style="{StaticResource SteamSidebarHeader}" Text="{loc:Str Workshop_SptVersionHeader}" ToolTip="{loc:Str Browse_SptVersionFilterToolTip}" />
+                        <ItemsControl ItemsSource="{Binding SptVersionOptions}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <CheckBox
-                                        Margin="2"
-                                        Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                                        IsChecked="{Binding IsSelected, Mode=TwoWay}"
-                                        Content="{Binding Label}"
-                                        ToolTip="{Binding ToolTip}" />
+                                    <StackPanel Margin="0,0,0,5" Background="Transparent" Orientation="Horizontal">
+                                        <CheckBox Style="{StaticResource SteamTagIncludeBox}" IsChecked="{Binding IsSelected, Mode=TwoWay}" />
+                                        <CheckBox Style="{StaticResource SteamTagExcludeBox}" IsEnabled="False" />
+                                        <TextBlock Style="{StaticResource SteamTagLabel}" Text="{Binding Label, StringFormat={loc:Str Browse_SptVersionItemFormat}}" />
+                                    </StackPanel>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
+
+                        <TextBlock Margin="0,20,0,5" Style="{StaticResource SteamSidebarHeader}" Text="{loc:Str Workshop_ModTags}" ToolTip="{loc:Str Common_AttributeFilterToolTip}" />
+                        <ItemsControl ItemsSource="{Binding TagRows}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Margin="0,0,0,5" Background="Transparent" Orientation="Horizontal">
+                                        <CheckBox
+                                            Style="{StaticResource SteamTagIncludeBox}"
+                                            IsChecked="{Binding IncludeOn, Mode=TwoWay}"
+                                            IsEnabled="{Binding CanInclude}"
+                                            ToolTip="{Binding IncludeToolTip}" />
+                                        <CheckBox
+                                            Style="{StaticResource SteamTagExcludeBox}"
+                                            IsChecked="{Binding ExcludeOn, Mode=TwoWay}"
+                                            IsEnabled="{Binding CanExclude}"
+                                            ToolTip="{Binding ExcludeToolTip}" />
+                                        <TextBlock Style="{StaticResource SteamTagLabel}" Text="{Binding Label}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <!-- Where Steam has "Filter by Date": the one button this sidebar needs. -->
+                        <Button
+                            Margin="0,20,0,0"
+                            HorizontalAlignment="Left"
+                            Style="{StaticResource SteamButton}"
+                            ToolTip="{loc:Str Common_ClearFiltersToolTip}"
+                            Command="{Binding ClearFiltersCommand}">
+                            <TextBlock Text="{loc:Str Common_ClearFilters}" />
+                        </Button>
+                    </StackPanel>
+                </Border>
+
+                <Grid Grid.Column="2" MinHeight="400">
+                    <!-- The card grid. Columns come from the width - as many 245px cards as fit, 16px
+                         apart - and the right margin takes back the last column's gap. -->
+                    <ItemsControl
+                        x:Name="ResultsGrid"
+                        Margin="0,0,-16,0"
+                        VerticalAlignment="Top"
+                        ItemsSource="{Binding Results}"
+                        SizeChanged="ResultsGrid_SizeChanged">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid VerticalAlignment="Top" Columns="{Binding Columns}" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <!-- One card, plus the shadow behind it as its own layer: an Effect on
+                                     the card itself would render its text without ClearType. -->
+                                <Grid
+                                    x:Name="CardRoot"
+                                    Margin="0,0,16,16"
+                                    VerticalAlignment="Top"
+                                    Background="Transparent"
+                                    Cursor="Hand"
+                                    MouseLeftButtonUp="Card_MouseLeftButtonUp"
+                                    ToolTipService.InitialShowDelay="150"
+                                    ToolTipService.Placement="Right"
+                                    ToolTipService.ShowDuration="60000">
+                                    <Grid.RenderTransform>
+                                        <TranslateTransform Y="0" />
+                                    </Grid.RenderTransform>
+
+                                    <!-- Steam's hover popup: title, one line of description, the
+                                         dates and the tags, #344352 at 270px. -->
+                                    <Grid.ToolTip>
+                                        <ToolTip Padding="8,5" Background="{StaticResource SteamPopupBackground}" HasDropShadow="True">
+                                            <StackPanel Width="254">
+                                                <TextBlock FontSize="17" Foreground="{StaticResource SteamWhite}" TextTrimming="CharacterEllipsis" Text="{Binding Name}" />
+                                                <TextBlock
+                                                    Margin="0,8,0,0"
+                                                    FontSize="13"
+                                                    Foreground="{StaticResource SteamText}"
+                                                    TextTrimming="CharacterEllipsis"
+                                                    Text="{Binding Teaser}"
+                                                    Visibility="{Binding HasTeaser, Converter={StaticResource TrueToVisible}}" />
+                                                <TextBlock
+                                                    Margin="0,5,0,0"
+                                                    FontSize="13"
+                                                    Foreground="#949CA4"
+                                                    Text="{Binding PostedAt, StringFormat={loc:Str Workshop_PostedFormat}}"
+                                                    Visibility="{Binding PostedAt, Converter={StaticResource NullToCollapsed}}" />
+                                                <TextBlock
+                                                    FontSize="13"
+                                                    Foreground="#949CA4"
+                                                    Text="{Binding UpdatedAt, StringFormat={loc:Str Workshop_UpdatedFormat}}"
+                                                    Visibility="{Binding UpdatedAt, Converter={StaticResource NullToCollapsed}}" />
+                                                <!-- Which SPT the shown release runs on, coloured the way
+                                                     the card used to colour it. -->
+                                                <TextBlock Margin="0,5,0,0" FontSize="13" TextWrapping="Wrap">
+                                                    <Run Style="{StaticResource CompatibilityText}" Text="{Binding SptVersionDisplay, Mode=OneWay}" />
+                                                    <Run Foreground="#949CA4" Text="{Binding DisplayReleaseVersion, Mode=OneWay, StringFormat='v{0}'}" />
+                                                </TextBlock>
+                                                <TextBlock
+                                                    FontSize="12"
+                                                    FontStyle="Italic"
+                                                    Foreground="{DynamicResource SystemFillColorCautionBrush}"
+                                                    TextWrapping="Wrap"
+                                                    Text="{Binding AlternateCompatibleVersionNote}"
+                                                    Visibility="{Binding AlternateCompatibleVersionNote, Converter={StaticResource NullToCollapsed}}" />
+                                                <WrapPanel Margin="0,5,0,0">
+                                                    <Border Style="{StaticResource SteamChip}" Visibility="{Binding CategoryTag, Converter={StaticResource NullToCollapsed}}">
+                                                        <TextBlock FontSize="12" Foreground="{StaticResource SteamWhite}" Text="{Binding CategoryTag}" />
+                                                    </Border>
+                                                    <Border Style="{StaticResource SteamChip}" Visibility="{Binding IsFikaCompatible, Converter={StaticResource TrueToVisible}}">
+                                                        <TextBlock FontSize="12" Foreground="{StaticResource SteamWhite}" Text="{loc:Str Common_FlagFikaCompatible}" />
+                                                    </Border>
+                                                    <Border Style="{StaticResource SteamChip}" Visibility="{Binding ContainsAds, Converter={StaticResource TrueToVisible}}">
+                                                        <TextBlock FontSize="12" Foreground="{StaticResource SteamWhite}" Text="{loc:Str Common_FlagContainsAds}" />
+                                                    </Border>
+                                                    <Border Style="{StaticResource SteamChip}" Visibility="{Binding ContainsAiContent, Converter={StaticResource TrueToVisible}}">
+                                                        <TextBlock FontSize="12" Foreground="{StaticResource SteamWhite}" Text="{loc:Str Common_FlagContainsAiContent}" />
+                                                    </Border>
+                                                    <Border Style="{StaticResource SteamChip}" Visibility="{Binding HasAddons, Converter={StaticResource TrueToVisible}}">
+                                                        <TextBlock FontSize="12" Foreground="{StaticResource SteamWhite}" Text="{Binding AddonBadgeText}" />
+                                                    </Border>
+                                                    <!-- Resolved per card in the background, like the badge it replaces. -->
+                                                    <Border Style="{StaticResource SteamChip}" Visibility="Collapsed" behaviors:DependencyBadgeLoader.Mod="{Binding Mod}">
+                                                        <TextBlock FontSize="12" Foreground="{StaticResource SteamWhite}" Text="{loc:Str Browse_BadgeHasDependencies}" />
+                                                    </Border>
+                                                </WrapPanel>
+                                            </StackPanel>
+                                        </ToolTip>
+                                    </Grid.ToolTip>
+
+                                    <!-- Two shadow layers, swapped by the hover trigger: a trigger
+                                         cannot reach into an Effect by name. -->
+                                    <Border x:Name="Shadow" Background="#1B1D21">
+                                        <Border.Effect>
+                                            <DropShadowEffect BlurRadius="10" Direction="315" Opacity="0.58" ShadowDepth="1.4" Color="Black" />
+                                        </Border.Effect>
+                                    </Border>
+                                    <Border x:Name="Glow" Background="#1B1D21" Visibility="Hidden">
+                                        <Border.Effect>
+                                            <DropShadowEffect BlurRadius="10" Direction="315" Opacity="0.25" ShadowDepth="1.4" Color="White" />
+                                        </Border.Effect>
+                                    </Border>
+
+                                    <Border Background="{StaticResource SteamCardBackground}">
+                                        <StackPanel>
+                                            <!-- The square preview, #070707 behind the image. -->
+                                            <Grid
+                                                Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
+                                                Background="{StaticResource SteamPreviewBackground}"
+                                                ClipToBounds="True">
+                                                <Image Stretch="UniformToFill" behaviors:ThumbnailLoader.Source="{Binding Thumbnail}" />
+
+                                                <!-- Installed / update / disabled, and the pin, over the
+                                                     preview's corner. Not Steam's - Steam's page knows
+                                                     nothing about what is on this disk - but it is the
+                                                     one thing a mod manager's grid must still say. -->
+                                                <Border
+                                                    Margin="6"
+                                                    Padding="4,3"
+                                                    HorizontalAlignment="Left"
+                                                    VerticalAlignment="Top"
+                                                    Background="#CC000000"
+                                                    CornerRadius="2"
+                                                    Visibility="{Binding IsInstalled, Converter={StaticResource TrueToVisible}}">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <ui:SymbolIcon
+                                                            FontSize="16"
+                                                            Symbol="{Binding StatusGlyph}"
+                                                            Style="{StaticResource StatusIcon}"
+                                                            ToolTip="{Binding StatusTooltip}" />
+                                                        <ui:SymbolIcon
+                                                            Margin="4,0,0,0"
+                                                            FontSize="14"
+                                                            Foreground="{StaticResource SteamLegacyBlue}"
+                                                            Symbol="Pin24"
+                                                            ToolTip="{loc:Str Common_PinnedToolTip}"
+                                                            Visibility="{Binding IsPinned, Converter={StaticResource TrueToVisible}}" />
+                                                    </StackPanel>
+                                                </Border>
+                                            </Grid>
+
+                                            <Grid Height="78" Margin="10,0">
+                                                <StackPanel>
+                                                    <!-- Where Steam's stars sit: what sp-mod.com counts. -->
+                                                    <StackPanel Height="16" Margin="0,10,0,0" Orientation="Horizontal" TextElement.Foreground="{StaticResource SteamBlue}">
+                                                        <StackPanel
+                                                            Margin="0,0,10,0"
+                                                            Orientation="Horizontal"
+                                                            ToolTip="{Binding Endorsements, StringFormat={loc:Str Browse_EndorsementsFormat}}"
+                                                            Visibility="{Binding Endorsements, Converter={StaticResource NullToCollapsed}}">
+                                                            <ui:SymbolIcon FontSize="15" Filled="True" Foreground="{StaticResource SteamBlue}" Symbol="ThumbLike16" />
+                                                            <TextBlock Margin="3,0,0,0" FontSize="12" Foreground="{StaticResource SteamBlue}" Text="{Binding Endorsements, StringFormat=N0}" />
+                                                        </StackPanel>
+                                                        <StackPanel
+                                                            Margin="0,0,10,0"
+                                                            Orientation="Horizontal"
+                                                            ToolTip="{Binding Favourites, StringFormat={loc:Str Workshop_FavouritesFormat}}"
+                                                            Visibility="{Binding Favourites, Converter={StaticResource NullToCollapsed}}">
+                                                            <ui:SymbolIcon FontSize="15" Filled="True" Foreground="{StaticResource SteamBlue}" Symbol="Star16" />
+                                                            <TextBlock Margin="3,0,0,0" FontSize="12" Foreground="{StaticResource SteamBlue}" Text="{Binding Favourites, StringFormat=N0}" />
+                                                        </StackPanel>
+                                                        <StackPanel Orientation="Horizontal" ToolTip="{Binding Downloads, StringFormat={loc:Str Common_DownloadsFormat}}">
+                                                            <ui:SymbolIcon FontSize="15" Foreground="{StaticResource SteamBlue}" Symbol="ArrowDownload16" />
+                                                            <TextBlock Margin="3,0,0,0" FontSize="12" Foreground="{StaticResource SteamBlue}" Text="{Binding Downloads, StringFormat=N0}" />
+                                                        </StackPanel>
+                                                    </StackPanel>
+                                                    <TextBlock
+                                                        Margin="0,2,0,0"
+                                                        FontSize="17"
+                                                        Foreground="{StaticResource SteamWhite}"
+                                                        TextTrimming="CharacterEllipsis"
+                                                        Text="{Binding Name}" />
+                                                    <TextBlock
+                                                        Margin="0,2,0,0"
+                                                        FontSize="12"
+                                                        Foreground="{StaticResource SteamAuthorText}"
+                                                        TextTrimming="CharacterEllipsis"
+                                                        Text="{Binding Author, StringFormat={loc:Str Browse_ByAuthorFormat}}"
+                                                        Visibility="{Binding Author, Converter={StaticResource NullToCollapsed}}" />
+                                                </StackPanel>
+
+                                                <!-- Where Steam puts its quick-look magnifier on hover:
+                                                     subscribe, straight from the grid, for a mod that is
+                                                     not installed yet. -->
+                                                <Button
+                                                    x:Name="QuickSubscribe"
+                                                    Width="24"
+                                                    Height="24"
+                                                    MinHeight="24"
+                                                    Margin="0,0,-2,8"
+                                                    Padding="0"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Bottom"
+                                                    Style="{StaticResource SteamButton}"
+                                                    Command="{Binding DataContext.InstallCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                    CommandParameter="{Binding}"
+                                                    ToolTip="{Binding InstallToolTip, Source={x:Static app:AppServices.ModPageGate}}"
+                                                    Visibility="Collapsed">
+                                                    <ui:SymbolIcon FontSize="16" Foreground="{StaticResource SteamWhite}" Symbol="Add16" />
+                                                </Button>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+                                <DataTemplate.Triggers>
+                                    <!-- Steam's hover: the card lifts 5px and its shadow turns into
+                                         a faint white glow. -->
+                                    <Trigger SourceName="CardRoot" Property="IsMouseOver" Value="True">
+                                        <Trigger.EnterActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetName="CardRoot" Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)" To="-5" Duration="0:0:0.15" />
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </Trigger.EnterActions>
+                                        <Trigger.ExitActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetName="CardRoot" Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)" To="0" Duration="0:0:0.15" />
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </Trigger.ExitActions>
+                                        <Setter TargetName="Shadow" Property="Visibility" Value="Hidden" />
+                                        <Setter TargetName="Glow" Property="Visibility" Value="Visible" />
+                                    </Trigger>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsMouseOver, ElementName=CardRoot}" Value="True" />
+                                            <Condition Binding="{Binding IsInstalled}" Value="False" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter TargetName="QuickSubscribe" Property="Visibility" Value="Visible" />
+                                    </MultiDataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!--
+                        Startup panel, over the results area and only on the first load of a session.
+                        Before this the window opened and sat empty while the catalog loaded; on a
+                        first run, with no cache, that is a long silence while ~3000 mods are fetched
+                        a page at a time.
+                    -->
+                    <Border
+                        Background="{StaticResource SteamWorkshopBackground}"
+                        Visibility="{Binding IsStartingUp, Converter={StaticResource TrueToVisible}}">
+                        <StackPanel Margin="0,80,0,0" HorizontalAlignment="Center" VerticalAlignment="Top">
+                            <ui:ProgressRing
+                                Width="48"
+                                Height="48"
+                                HorizontalAlignment="Center"
+                                IsIndeterminate="True" />
+                            <TextBlock
+                                Margin="0,16,0,0"
+                                HorizontalAlignment="Center"
+                                Foreground="{StaticResource SteamWhite}"
+                                Text="{Binding StartupStage}" />
+                            <!-- One sentence, not four Runs: "of" and "mods" were fragments no
+                                 translator could place. Only a live fetch knows a total. -->
+                            <TextBlock
+                                Margin="0,4,0,0"
+                                HorizontalAlignment="Center"
+                                Foreground="{StaticResource SteamText}"
+                                Visibility="{Binding TotalCount, Source={x:Static app:AppServices.ModCache}, Converter={StaticResource HasCount}}">
+                                <TextBlock.Text>
+                                    <MultiBinding StringFormat="{loc:Str Browse_StartupProgressFormat}">
+                                        <Binding Mode="OneWay" Path="LoadedCount" Source="{x:Static app:AppServices.ModCache}" />
+                                        <Binding Mode="OneWay" Path="TotalCount" Source="{x:Static app:AppServices.ModCache}" />
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                            <TextBlock
+                                MaxWidth="380"
+                                Margin="0,16,0,0"
+                                HorizontalAlignment="Center"
+                                Foreground="{StaticResource SteamTextDim}"
+                                TextAlignment="Center"
+                                TextWrapping="Wrap"
+                                Text="{loc:Str Browse_FirstLaunchNote}"
+                                Visibility="{Binding TotalCount, Source={x:Static app:AppServices.ModCache}, Converter={StaticResource HasCount}}" />
+                        </StackPanel>
                     </Border>
-                </Popup>
+                </Grid>
+            </Grid>
 
+            <!-- "Per page: [30]  < 1 2 3 ... 1,000 >", right-aligned under the grid. -->
+            <StackPanel Margin="0,12,0,0" HorizontalAlignment="Right" Orientation="Horizontal">
+                <TextBlock VerticalAlignment="Center" FontSize="16" Foreground="{StaticResource SteamText}" Text="{loc:Str Workshop_PerPage}" />
                 <ComboBox
-                    Width="165"
-                    Margin="0,0,16,4"
+                    MinWidth="60"
+                    Margin="6,0,10,0"
                     VerticalAlignment="Center"
-                    ToolTip="{loc:Str Browse_CategoryFilterToolTip}"
-                    ItemsSource="{Binding CategoryOptions}"
-                    SelectedItem="{Binding SelectedCategory}" />
-
-                <ComboBox
-                    MinWidth="175"
-                    Margin="0,0,16,4"
-                    VerticalAlignment="Center"
-                    ToolTip="{loc:Str Common_SortToolTip}"
-                    ItemsSource="{Binding SortOptions}"
-                    SelectedItem="{Binding SelectedSortOption}" />
-
-                <!-- Item template, because the options are plain ints and "12" says nothing on its
-                     own. SelectedItem stays an int, so the paging arithmetic is untouched. -->
-                <ComboBox
-                    MinWidth="130"
-                    Margin="0,0,16,4"
-                    VerticalAlignment="Center"
+                    FontSize="12"
                     ToolTip="{loc:Str Common_PageSizeToolTip}"
                     ItemsSource="{Binding PageSizeOptions}"
-                    SelectedItem="{Binding PageSize}">
-                    <ComboBox.ItemTemplate>
+                    SelectedItem="{Binding PageSize}" />
+                <Button Style="{StaticResource PagerArrow}" Command="{Binding PreviousPageCommand}" ToolTip="{loc:Str Common_Previous}">
+                    <Path Width="14" Height="10" Data="M5,0 L0,5 L5,10 M0,5 L14,5" Stretch="Fill" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2" />
+                </Button>
+                <ItemsControl Margin="6,0" VerticalAlignment="Center" ItemsSource="{Binding PageLinks}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding StringFormat={loc:Str Common_PageSizeFormat}}" />
+                            <Button
+                                Style="{StaticResource PageNumber}"
+                                Command="{Binding DataContext.GoToPageNumberCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                CommandParameter="{Binding Number}">
+                                <TextBlock Text="{Binding Text}" />
+                            </Button>
                         </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                </ComboBox>
-
-                <ComboBox
-                    MinWidth="170"
-                    Margin="0,0,16,4"
-                    VerticalAlignment="Center"
-                    ToolTip="{loc:Str Browse_FeaturedFilterToolTip}"
-                    ItemsSource="{Binding FeaturedFilterOptions}"
-                    SelectedItem="{Binding SelectedFeaturedFilter}" />
-                </WrapPanel>
-            </DockPanel>
-        </StackPanel>
-
-        <TextBlock
-            Grid.Row="1"
-            Margin="0,0,0,8"
-            TextWrapping="Wrap"
-            Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-            Text="{Binding StatusMessage}" />
-
-        <!-- Results grid; column count is set from code-behind based on width. -->
-        <ListBox
-            x:Name="ResultsListBox"
-            Grid.Row="2"
-            Padding="4"
-            BorderThickness="0"
-            Background="Transparent"
-            ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-            ItemsSource="{Binding Results}"
-            SelectionChanged="ResultsListBox_SelectionChanged"
-            SizeChanged="ResultsListBox_SizeChanged">
-            <ListBox.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <UniformGrid Columns="{Binding Columns}" />
-                </ItemsPanelTemplate>
-            </ListBox.ItemsPanel>
-            <ListBox.ItemContainerStyle>
-                <Style TargetType="ListBoxItem">
-                    <!-- Clears default item chrome so only the Card's own styling shows. -->
-                    <Setter Property="Margin" Value="6" />
-                    <Setter Property="Padding" Value="0" />
-                    <Setter Property="Background" Value="Transparent" />
-                    <Setter Property="BorderThickness" Value="0" />
-                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                    <Setter Property="VerticalContentAlignment" Value="Stretch" />
-                    <!-- Ensures the item fills its UniformGrid cell. -->
-                    <Setter Property="HorizontalAlignment" Value="Stretch" />
-                    <Setter Property="VerticalAlignment" Value="Stretch" />
-                    <Style.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="{StaticResource RowHoverBrush}" />
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </ListBox.ItemContainerStyle>
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <!-- Mod card, stretched to fill its grid cell and clipped to bounds. -->
-                    <ui:Card
-                        HorizontalAlignment="Stretch"
-                        VerticalAlignment="Stretch"
-                        ClipToBounds="True">
-                        <!-- Fills the card. The right-hand column is a gutter the status icon and
-                             install button live in, so neither can overlap the title or badges. -->
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-
-                            <Grid Grid.Column="0" VerticalAlignment="Center">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-
-                                <!-- Throttled thumbnail loader. -->
-                                <Image
-                                    Grid.Column="0"
-                                    Width="48"
-                                    Height="48"
-                                    Margin="0,0,10,0"
-                                    Stretch="UniformToFill"
-                                    behaviors:ThumbnailLoader.Source="{Binding Thumbnail}" />
-
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                    <TextBlock
-                                        Text="{Binding Name}"
-                                        FontWeight="SemiBold"
-                                        TextTrimming="CharacterEllipsis" />
-                                    <TextBlock
-                                        Text="{Binding Author, StringFormat={loc:Str Browse_ByAuthorFormat}}"
-                                        FontSize="11"
-                                        Foreground="{DynamicResource TextFillColorTertiaryBrush}"
-                                        TextTrimming="CharacterEllipsis"
-                                        Visibility="{Binding Author, Converter={StaticResource NullToCollapsed}}" />
-                                    <TextBlock
-                                        Text="{Binding Guid}"
-                                        FontSize="11"
-                                        Foreground="{DynamicResource TextFillColorTertiaryBrush}"
-                                        TextTrimming="CharacterEllipsis" />
-                                    <TextBlock
-                                        Text="{Binding Downloads, Mode=OneWay, StringFormat={loc:Str Common_DownloadsFormat}}"
-                                        FontSize="11"
-                                        Foreground="{DynamicResource TextFillColorTertiaryBrush}"
-                                        TextTrimming="CharacterEllipsis" />
-                                    <!-- Collapsed rather than shown as "0 endorsements": the feature
-                                         is new enough that almost every mod is on zero, and an empty
-                                         row on every card would just add height. ModCardViewModel
-                                         nulls the count at zero so NullToCollapsed can do this. -->
-                                    <TextBlock
-                                        Text="{Binding Endorsements, Mode=OneWay, StringFormat={loc:Str Browse_EndorsementsFormat}}"
-                                        FontSize="11"
-                                        Foreground="{DynamicResource TextFillColorTertiaryBrush}"
-                                        TextTrimming="CharacterEllipsis"
-                                        Visibility="{Binding Endorsements, Converter={StaticResource NullToCollapsed}}" />
-                                    <!-- Runs rather than separate TextBlocks because the SPT segment
-                                         is colored by compatibility with the installed version while
-                                         the rest isn't, and the whole line has to trim as one when
-                                         the card is narrow. De-emphasis here uses Foreground since
-                                         Run has no Opacity. -->
-                                    <TextBlock
-                                        FontSize="11"
-                                        TextTrimming="CharacterEllipsis"
-                                        ToolTip="{Binding SptVersionTooltip}">
-                                        <Run
-                                            Text="{Binding SptVersionDisplay, Mode=OneWay}"
-                                            Style="{StaticResource CompatibilityText}" />
-                                        <Run Text=" • " Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
-                                        <Run Text="{Binding DisplayReleaseVersion, Mode=OneWay, StringFormat='v{0}'}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
-                                    </TextBlock>
-                                    <!-- Shown only when the ticked SPT filter is hiding a version
-                                         that actually runs on the installed SPT - explains a red
-                                         card rather than leaving it looking simply incompatible.
-
-                                         Wraps rather than trims, unlike every line above it: those
-                                         are identity (name, GUID, counts) where the first half
-                                         still identifies the mod, but this one's whole point is the
-                                         version number and it sits at the end of the sentence. At
-                                         three or four columns it was being cut off at "...for your
-                                         inst", which says nothing at all. The UniformGrid sizes
-                                         every cell to the tallest, so the second line costs a row
-                                         of height across the page - worth it for the one note on
-                                         the card that exists purely to be read. -->
-                                    <TextBlock
-                                        Text="{Binding AlternateCompatibleVersionNote}"
-                                        FontSize="11"
-                                        FontStyle="Italic"
-                                        Foreground="{DynamicResource SystemFillColorCautionBrush}"
-                                        TextWrapping="Wrap"
-                                        ToolTip="{Binding AlternateCompatibleVersionNote}"
-                                        Visibility="{Binding AlternateCompatibleVersionNote, Converter={StaticResource NullToCollapsed}}" />
-                                    <!--
-                                        The badge area, held at three badge rows whatever this
-                                        particular mod carries.
-
-                                        The UniformGrid sizes every cell to the tallest card on the
-                                        page, so one card with three rows of badges made every card
-                                        on that page taller - and since each page has a different
-                                        tallest card, the pager underneath the grid moved every time
-                                        you turned a page. Reserving the space up front costs a
-                                        little height on sparse pages and buys a Browse page that
-                                        never resizes under the cursor.
-
-                                        Three rows is what five badges take at the narrowest column
-                                        count: category, Fika, ads, dependencies and addons. The
-                                        keeper column is a minimum rather than a clamp - a card that
-                                        somehow needs a fourth row grows rather than clipping a
-                                        badge, which is the bug this whole run has been fixing.
-
-                                        Height comes from three real Badges at zero width rather
-                                        than a hard-coded number, so it stays right if the badge
-                                        style ever changes. IsHitTestVisible="False" keeps them out
-                                        of the way of the card's own click.
-                                    -->
-                                    <Grid Margin="0,4,0,0">
-                                        <StackPanel IsHitTestVisible="False">
-                                            <ui:Badge Width="0" Margin="0,0,0,4" FontSize="11" Content=" " Visibility="Hidden" />
-                                            <ui:Badge Width="0" Margin="0,0,0,4" FontSize="11" Content=" " Visibility="Hidden" />
-                                            <ui:Badge Width="0" FontSize="11" Content=" " Visibility="Hidden" />
-                                        </StackPanel>
-
-                                        <StackPanel VerticalAlignment="Top">
-                                            <!--
-                                                WrapPanels, not StackPanels: a badge is a fixed label
-                                                that can't shorten itself, so a horizontal stack runs
-                                                the last one off the edge of the card - three of these
-                                                left "Contains ads" reading "Contains ad". Gaps are
-                                                trailing margins so whichever badge starts a line sits
-                                                flush left, and the 4 at the bottom is the gap between
-                                                wrapped lines.
-
-                                                Two panels rather than one so the mod's own tags stay
-                                                above what it needs from you, and so the dependency
-                                                badge arriving late can't reshuffle the tags around it.
-                                            -->
-                                            <WrapPanel>
-                                                <ui:Badge
-                                                    Margin="0,0,6,4"
-                                                    Appearance="Info"
-                                                    FontSize="11"
-                                                    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                                                    Content="{Binding CategoryTag}"
-                                                    Visibility="{Binding CategoryTag, Converter={StaticResource NullToCollapsed}}" />
-                                                <ui:Badge
-                                                    Margin="0,0,6,4"
-                                                    Appearance="Info"
-                                                    FontSize="11"
-                                                    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                                                    Content="{loc:Str Common_FlagFikaCompatible}"
-                                                    Visibility="{Binding IsFikaCompatible, Converter={StaticResource TrueToVisible}}" />
-                                                <ui:Badge
-                                                    Margin="0,0,6,4"
-                                                    Appearance="Info"
-                                                    FontSize="11"
-                                                    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                                                    Content="{loc:Str Common_FlagContainsAds}"
-                                                    Visibility="{Binding ContainsAds, Converter={StaticResource TrueToVisible}}" />
-                                            </WrapPanel>
-
-                                            <!-- Both collapse when they don't apply, so whichever one
-                                                 shows starts at the left edge. The dependency badge is
-                                                 resolved asynchronously per card; the addon one is
-                                                 answered from the cached addon catalog, so unlike the
-                                                 badge beside it that one is right on the first render. -->
-                                            <WrapPanel>
-                                                <ui:Badge
-                                                    Margin="0,0,6,4"
-                                                    Appearance="Caution"
-                                                    FontSize="11"
-                                                    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                                                    Content="{loc:Str Browse_BadgeHasDependencies}"
-                                                    Visibility="Collapsed"
-                                                    behaviors:DependencyBadgeLoader.Mod="{Binding Mod}" />
-                                                <ui:Badge
-                                                    Margin="0,0,6,4"
-                                                    Appearance="Info"
-                                                    FontSize="11"
-                                                    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                                                    Content="{Binding AddonBadgeText}"
-                                                    ToolTip="{loc:Str Browse_AddonBadgeToolTip}"
-                                                    Visibility="{Binding HasAddons, Converter={StaticResource TrueToVisible}}" />
-                                            </WrapPanel>
-                                        </StackPanel>
-                                    </Grid>
-                                </StackPanel>
-                            </Grid>
-
-                            <!-- Install/update status icon, same set the Installed and Dependencies pages use,
-                                 with the pin under it when this install has the mod pinned. -->
-                            <StackPanel
-                                Grid.Column="1"
-                                Margin="8,0,0,0"
-                                HorizontalAlignment="Right"
-                                VerticalAlignment="Top">
-                                <ui:SymbolIcon
-                                    FontSize="20"
-                                    Symbol="{Binding StatusGlyph}"
-                                    Style="{StaticResource StatusIcon}"
-                                    ToolTip="{Binding StatusTooltip}"
-                                    Visibility="{Binding IsInstalled, Converter={StaticResource TrueToVisible}}" />
-
-                                <ui:SymbolIcon
-                                    FontSize="16"
-                                    Margin="0,4,0,0"
-                                    HorizontalAlignment="Center"
-                                    Symbol="Pin24"
-                                    Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"
-                                    ToolTip="{loc:Str Common_PinnedToolTip}"
-                                    Visibility="{Binding IsPinned, Converter={StaticResource TrueToVisible}}" />
-                            </StackPanel>
-
-                            <!-- Install button, shown only for mods not yet installed. -->
-                            <ui:Button
-                                Grid.Column="1"
-                                Margin="8,0,0,0"
-                                HorizontalAlignment="Right"
-                                VerticalAlignment="Bottom"
-                                Padding="6"
-                                Appearance="Transparent"
-                                Command="{Binding DataContext.InstallCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
-                                CommandParameter="{Binding}"
-                                Icon="{ui:SymbolIcon ArrowDownload24}"
-                                ToolTip="{Binding InstallToolTip, Source={x:Static app:AppServices.ModPageGate}}"
-                                Visibility="{Binding IsInstalled, Converter={StaticResource FalseToVisible}}" />
-
-                            <!-- Redownload button, takes the install button's place once the mod is installed. -->
-                            <ui:Button
-                                Grid.Column="1"
-                                Margin="8,0,0,0"
-                                HorizontalAlignment="Right"
-                                VerticalAlignment="Bottom"
-                                Padding="6"
-                                Appearance="Transparent"
-                                Command="{Binding DataContext.RedownloadCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
-                                CommandParameter="{Binding}"
-                                Icon="{ui:SymbolIcon ArrowDownload24}"
-                                ToolTip="{Binding RedownloadToolTip, Source={x:Static app:AppServices.ModPageGate}}"
-                                Visibility="{Binding IsInstalled, Converter={StaticResource TrueToVisible}}" />
-                        </Grid>
-                    </ui:Card>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
-
-        <!--
-            Startup panel, over the results area and only on the first load of a session.
-
-            Before this the window opened and then sat empty while the catalog loaded, with nothing
-            saying anything was happening - and on a first run, with no cache to read, that is a
-            long silence while ~3000 mods are fetched a page at a time. The progress counters it
-            reads have been on the catalog loader all along with nothing bound to them.
-
-            It sits in the same grid row as the ListBox and paints the window background, so the
-            empty list doesn't show through, and it takes no space once it collapses.
-        -->
-        <Border
-            Grid.Row="2"
-            Background="{DynamicResource ApplicationBackgroundBrush}"
-            Visibility="{Binding IsStartingUp, Converter={StaticResource TrueToVisible}}">
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                <ui:ProgressRing
-                    Width="48"
-                    Height="48"
-                    HorizontalAlignment="Center"
-                    IsIndeterminate="True" />
-
-                <TextBlock
-                    Margin="0,16,0,0"
-                    HorizontalAlignment="Center"
-                    FontWeight="SemiBold"
-                    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                    Text="{Binding StartupStage}" />
-
-                <!-- Only a live fetch knows a total, so this stays collapsed on a launch that
-                     reads the cache and appears on the first run, which is the slow one. -->
-                <!-- One sentence, not four Runs: "of" and "mods" were fragments no translator
-                     could place, and several languages would not put them in that order. -->
-                <TextBlock
-                    Margin="0,4,0,0"
-                    HorizontalAlignment="Center"
-                    Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                    Visibility="{Binding TotalCount, Source={x:Static app:AppServices.ModCache}, Converter={StaticResource HasCount}}">
-                    <TextBlock.Text>
-                        <MultiBinding StringFormat="{loc:Str Browse_StartupProgressFormat}">
-                            <Binding Path="LoadedCount" Source="{x:Static app:AppServices.ModCache}" Mode="OneWay" />
-                            <Binding Path="TotalCount" Source="{x:Static app:AppServices.ModCache}" Mode="OneWay" />
-                        </MultiBinding>
-                    </TextBlock.Text>
-                </TextBlock>
-
-                <TextBlock
-                    Margin="0,16,0,0"
-                    HorizontalAlignment="Center"
-                    TextWrapping="Wrap"
-                    MaxWidth="380"
-                    TextAlignment="Center"
-                    Foreground="{DynamicResource TextFillColorTertiaryBrush}"
-                    Text="{loc:Str Browse_FirstLaunchNote}"
-                    Visibility="{Binding TotalCount, Source={x:Static app:AppServices.ModCache}, Converter={StaticResource HasCount}}" />
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <Button Style="{StaticResource PagerArrow}" Command="{Binding NextPageCommand}" ToolTip="{loc:Str Common_Next}">
+                    <Path Width="14" Height="10" Data="M9,0 L14,5 L9,10 M0,5 L14,5" Stretch="Fill" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2" />
+                </Button>
             </StackPanel>
-        </Border>
-
-        <StackPanel
-            Grid.Row="3"
-            Orientation="Horizontal"
-            HorizontalAlignment="Center"
-            Margin="0,8,0,0">
-            <ui:Button
-                Content="{loc:Str Common_Previous}"
-                Command="{Binding PreviousPageCommand}" />
-
-            <!-- One TextBlock rather than "Page 3" beside "of 10": a page count is one sentence,
-                 and the two halves cannot be reordered independently. The second half loses its
-                 dimmer foreground in the merge. -->
-            <TextBlock
-                Margin="12,0,12,0"
-                VerticalAlignment="Center"
-                Foreground="{DynamicResource TextFillColorPrimaryBrush}">
-                <TextBlock.Text>
-                    <MultiBinding StringFormat="{loc:Str Common_PagerFormat}">
-                        <Binding Path="CurrentPage" Mode="OneWay" />
-                        <Binding Path="TotalPages" Mode="OneWay" />
-                    </MultiBinding>
-                </TextBlock.Text>
-            </TextBlock>
-            <ui:Button
-                Margin="12,0,0,0"
-                Content="{loc:Str Common_Next}"
-                Command="{Binding NextPageCommand}" />
         </StackPanel>
-    </Grid>
+    </ScrollViewer>
 </Page>

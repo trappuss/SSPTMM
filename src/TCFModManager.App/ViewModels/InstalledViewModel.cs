@@ -345,8 +345,17 @@ public partial class InstalledViewModel : LocalizedViewModel
             : GroupFilterItem.All;
     }
 
+    //
+    // The most recently built instance - the Installed page's own, once it has been opened. The
+    // Workshop item page's Unsubscribe removes through it, so a removal from there takes exactly the
+    // path, the confirmations and the rescan a removal from Subscribed items does.
+    //
+    public static InstalledViewModel? Current { get; private set; }
+
     public InstalledViewModel()
     {
+        Current = this;
+
         var settings = new SettingsService().Load();
         _showListBadges = settings.ShowModListBadges;
         _defaults = settings.InstalledDefaults;

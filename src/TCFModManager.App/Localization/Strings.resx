@@ -163,14 +163,6 @@
     <value>Refresh</value>
     <comment>Button label - re-runs the dependency scan.</comment>
   </data>
-  <data name="ModDetails_CategoryFormat" xml:space="preserve">
-    <value>Category: {0}</value>
-    <comment>{0} is a category name from the Forge, which arrives in its author's language and is not translated here.</comment>
-  </data>
-  <data name="ModDetails_LicenseFormat" xml:space="preserve">
-    <value>License: {0}</value>
-    <comment>{0} is a licence name, e.g. "MIT".</comment>
-  </data>
   <data name="Addons_Description" xml:space="preserve">
     <value>Extra content published for this mod. An addon's versions are matched against the mod's installed version, not your SPT version.</value>
   </data>
@@ -209,7 +201,7 @@
     <value>Whether mods featured on sp-mod.com are included</value>
   </data>
   <data name="Browse_ByAuthorFormat" xml:space="preserve">
-    <value>by {0}</value>
+    <value>By {0}</value>
     <comment>{0} is an author's name, shown under a mod's title on its card.</comment>
   </data>
   <data name="Browse_EndorsementsFormat" xml:space="preserve">
@@ -1098,11 +1090,11 @@ A mod list records which mods to install and enable. Applying one downloads what
     <comment>Sidebar item. Browsing mods on sp-mod.com.</comment>
   </data>
   <data name="Nav_Installed" xml:space="preserve">
-    <value>Installed</value>
+    <value>Subscribed items</value>
     <comment>Sidebar item. The mods on this machine.</comment>
   </data>
   <data name="Nav_ModLists" xml:space="preserve">
-    <value>Mod lists</value>
+    <value>Collections</value>
     <comment>Sidebar item.</comment>
   </data>
   <data name="Nav_Configs" xml:space="preserve">
@@ -2358,20 +2350,20 @@ That happens legitimately if the server was rebuilt or you're reaching it throug
     <value>Group name (Z-A)</value>
   </data>
   <data name="Sort_BrowseNewest" xml:space="preserve">
-    <value>Newest first</value>
+    <value>Most Recent</value>
     <comment>Browse's sort dropdown.</comment>
   </data>
   <data name="Sort_BrowseLastUpdated" xml:space="preserve">
-    <value>Recently updated</value>
+    <value>Last Updated</value>
   </data>
   <data name="Sort_BrowseMostDownloaded" xml:space="preserve">
-    <value>Most downloaded</value>
+    <value>Most Subscribed</value>
   </data>
   <data name="Sort_BrowseMostFavourited" xml:space="preserve">
-    <value>Most favourited</value>
+    <value>Most Favorited</value>
   </data>
   <data name="Sort_BrowseMostEndorsed" xml:space="preserve">
-    <value>Most endorsed</value>
+    <value>Top Rated All Time</value>
   </data>
   <data name="Sort_FootprintName" xml:space="preserve">
     <value>Name (A-Z)</value>
@@ -3076,11 +3068,11 @@ The copy you don't keep is moved into a hidden .tcfmm-duplicates folder in your 
     <value>No mods matched.</value>
   </data>
   <data name="Browse_CountFound_one" xml:space="preserve">
-    <value>1 mod found.</value>
+    <value>1 entry matching filters</value>
     <comment>See the Many form; these become one plural key in S5.</comment>
   </data>
   <data name="Browse_CountFound_other" xml:space="preserve">
-    <value>{0} mods found.</value>
+    <value>{0:N0} entries matching filters</value>
     <comment>{0} is how many mods the filters match.</comment>
   </data>
   <data name="Browse_DependencyNote" xml:space="preserve">
@@ -4755,5 +4747,265 @@ You can turn it back on at any time.</value>
 This was written to:
 {1}</value>
     <comment>{0} is the error itself, which arrives in English from .NET; {1} is the path to the log file.</comment>
+  </data>
+  <data name="Hub_Title" xml:space="preserve">
+    <value>Single Player Tarkov</value>
+    <comment>The title over the tab strip, where Steam shows the game's name. A proper name - leave it as it is.</comment>
+  </data>
+  <data name="Hub_ModSite" xml:space="preserve">
+    <value>sp-mod.com</value>
+    <comment>Button at the top right, where Steam has "Store Page". The site's name - leave it as it is.</comment>
+  </data>
+  <data name="Hub_ModSiteToolTip" xml:space="preserve">
+    <value>Open sp-mod.com in your browser</value>
+    <comment>Tooltip on the sp-mod.com button.</comment>
+  </data>
+  <data name="Nav_Workshop" xml:space="preserve">
+    <value>Workshop</value>
+    <comment>Hub tab. Steam's word for the place mods are browsed and subscribed to.</comment>
+  </data>
+  <data name="Workshop_Home" xml:space="preserve">
+    <value>Home</value>
+    <comment>Workshop sub-navigation: the Workshop front page.</comment>
+  </data>
+  <data name="Workshop_YourItems" xml:space="preserve">
+    <value>Your Items</value>
+    <comment>Workshop sub-navigation: opens a menu of your subscribed items and your collections.</comment>
+  </data>
+  <data name="Workshop_YourItemsHeader" xml:space="preserve">
+    <value>YOUR ITEMS</value>
+    <comment>Heading over the Your Items menu. Upper case in Steam's own design.</comment>
+  </data>
+  <data name="Workshop_SubscribedItems" xml:space="preserve">
+    <value>Subscribed items</value>
+    <comment>Your Items menu entry: the mods installed in this SPT folder.</comment>
+  </data>
+  <data name="Workshop_YourCollections" xml:space="preserve">
+    <value>Your collections</value>
+    <comment>Your Items menu entry: your mod lists.</comment>
+  </data>
+  <data name="Workshop_BannerHeadline" xml:space="preserve">
+    <value>Modding for Single Player Tarkov</value>
+    <comment>The Workshop banner headline, where Steam has the game's tagline.</comment>
+  </data>
+  <data name="Workshop_BannerBody" xml:space="preserve">
+    <value>Discover mods, addons and collections, and add them to your SPT install with a click of a button.</value>
+    <comment>The Workshop banner's one sentence under the headline.</comment>
+  </data>
+  <data name="Workshop_LearnMore" xml:space="preserve">
+    <value>Learn More</value>
+    <comment>Link under the banner text; opens sp-mod.com.</comment>
+  </data>
+  <data name="Workshop_BrowsingTitle" xml:space="preserve">
+    <value>Browsing: Mods</value>
+    <comment>Title over the Browse results. Steam writes "Browsing: Addons"; the translations follow Steam's own for that.</comment>
+  </data>
+  <data name="Workshop_BrowsingHint" xml:space="preserve">
+    <value>(Subscribe to add to your game)</value>
+    <comment>Follows the Browse title, in a lighter face. Steam's own words.</comment>
+  </data>
+  <data name="Workshop_SpecialFilters" xml:space="preserve">
+    <value>SPECIAL FILTERS:</value>
+    <comment>Filter sidebar heading over the featured-mods dropdown. Upper case in Steam's design.</comment>
+  </data>
+  <data name="Workshop_ContentType" xml:space="preserve">
+    <value>CONTENT TYPE</value>
+    <comment>Filter sidebar heading over the category dropdown.</comment>
+  </data>
+  <data name="Workshop_SptVersionHeader" xml:space="preserve">
+    <value>SPT VERSION</value>
+    <comment>Filter sidebar heading over the SPT release lines.</comment>
+  </data>
+  <data name="Workshop_ModTags" xml:space="preserve">
+    <value>MOD TAGS</value>
+    <comment>Filter sidebar heading over the tag rows. Steam writes "ADDON TAGS".</comment>
+  </data>
+  <data name="Workshop_TagSubscribed" xml:space="preserve">
+    <value>Subscribed</value>
+    <comment>A tag row: its [-] box hides mods already installed.</comment>
+  </data>
+  <data name="Workshop_SortOrderHeader" xml:space="preserve">
+    <value>SORT ORDER</value>
+    <comment>Heading inside the sort dropdown.</comment>
+  </data>
+  <data name="Workshop_PerPage" xml:space="preserve">
+    <value>Per page:</value>
+    <comment>Before the results-per-page dropdown under the grid.</comment>
+  </data>
+  <data name="Workshop_SearchOptionsToolTip" xml:space="preserve">
+    <value>Search options</value>
+    <comment>Tooltip on the gear beside the search box.</comment>
+  </data>
+  <data name="Workshop_PostedFormat" xml:space="preserve">
+    <value>Posted: {0:MMM d, yyyy @ h:mm tt}</value>
+    <comment>In a card's hover popup. {0} is a date and time; the pattern after the colon is .NET date formatting and may be changed to suit the language.</comment>
+  </data>
+  <data name="Workshop_UpdatedFormat" xml:space="preserve">
+    <value>Updated: {0:MMM d, yyyy @ h:mm tt}</value>
+    <comment>In a card's hover popup. {0} is a date and time; the pattern may be changed as for Posted.</comment>
+  </data>
+  <data name="Workshop_FavouritesFormat" xml:space="preserve">
+    <value>{0:N0} favorites</value>
+    <comment>Tooltip on a card's favourites count.</comment>
+  </data>
+  <data name="WorkshopHome_FeaturedTitle" xml:space="preserve">
+    <value>Mods</value>
+    <comment>Heading of the front page's top row, where Steam writes "Addons".</comment>
+  </data>
+  <data name="WorkshopHome_InThePastWeek" xml:space="preserve">
+    <value>In the past week</value>
+    <comment>Under the top row's heading: what the row holds.</comment>
+  </data>
+  <data name="WorkshopHome_ViewAll" xml:space="preserve">
+    <value>View All</value>
+    <comment>Button that opens Browse with the row's or list's ordering.</comment>
+  </data>
+  <data name="WorkshopHome_TabTopRated" xml:space="preserve">
+    <value>Top Rated</value>
+    <comment>Front page tab: the most endorsed mods. Steam's first tab is "Most Popular", a measure sp-mod.com does not have.</comment>
+  </data>
+  <data name="WorkshopHome_TabMostSubscribed" xml:space="preserve">
+    <value>Most Subscribed</value>
+    <comment>Front page tab: the most downloaded mods.</comment>
+  </data>
+  <data name="WorkshopHome_TabLastUpdated" xml:space="preserve">
+    <value>Last Updated</value>
+    <comment>Front page tab.</comment>
+  </data>
+  <data name="WorkshopHome_TabNew" xml:space="preserve">
+    <value>New</value>
+    <comment>Front page tab: the most recently released mods.</comment>
+  </data>
+  <data name="WorkshopHome_TopRatedNote" xml:space="preserve">
+    <value>The most endorsed mods on sp-mod.com</value>
+    <comment>Under the tabs when Top Rated is chosen.</comment>
+  </data>
+  <data name="WorkshopHome_MostSubscribedNote" xml:space="preserve">
+    <value>The most downloaded mods of all time</value>
+    <comment>Under the tabs when Most Subscribed is chosen.</comment>
+  </data>
+  <data name="WorkshopHome_LastUpdatedNote" xml:space="preserve">
+    <value>The mods updated most recently</value>
+    <comment>Under the tabs when Last Updated is chosen.</comment>
+  </data>
+  <data name="WorkshopHome_NewNote" xml:space="preserve">
+    <value>The mods released most recently</value>
+    <comment>Under the tabs when New is chosen.</comment>
+  </data>
+  <data name="WorkshopHome_EmptyWeek" xml:space="preserve">
+    <value>Nothing has been released in the past week.</value>
+    <comment>Stands in for the top row when it would be empty.</comment>
+  </data>
+  <data name="Item_AuthorsWorkshopFormat" xml:space="preserve">
+    <value>{0}'s Workshop</value>
+    <comment>Last breadcrumb over an item page; {0} is the author. Steam's own pattern.</comment>
+  </data>
+  <data name="Item_TabDescription" xml:space="preserve">
+    <value>Description</value>
+    <comment>Item page tab.</comment>
+  </data>
+  <data name="Item_TabChangeNotes" xml:space="preserve">
+    <value>Change Notes</value>
+    <comment>Item page tab: every published version with its changelog.</comment>
+  </data>
+  <data name="Item_SubscribeToDownload" xml:space="preserve">
+    <value>Subscribe to download</value>
+    <comment>Small line over the mod's name in the subscribe box.</comment>
+  </data>
+  <data name="Item_Subscribe" xml:space="preserve">
+    <value>Subscribe</value>
+    <comment>The green button: installs the mod.</comment>
+  </data>
+  <data name="Item_Subscribed" xml:space="preserve">
+    <value>Subscribed</value>
+    <comment>The green button once the mod is installed.</comment>
+  </data>
+  <data name="Item_Unsubscribe" xml:space="preserve">
+    <value>Unsubscribe</value>
+    <comment>The green button while the pointer is on it and the mod is installed: removes it.</comment>
+  </data>
+  <data name="Item_RequiredItems" xml:space="preserve">
+    <value>REQUIRED ITEMS</value>
+    <comment>Right-hand panel title. Upper case in Steam's design.</comment>
+  </data>
+  <data name="Item_RequiredItemsNote" xml:space="preserve">
+    <value>This item requires all of the following other items</value>
+    <comment>Under REQUIRED ITEMS.</comment>
+  </data>
+  <data name="Item_OptionalFormat" xml:space="preserve">
+    <value>{0} (optional)</value>
+    <comment>A required item the author marked optional. {0} is its name.</comment>
+  </data>
+  <data name="Item_CreatedBy" xml:space="preserve">
+    <value>CREATED BY</value>
+    <comment>Right-hand panel title over the authors.</comment>
+  </data>
+  <data name="Item_DescriptionHeader" xml:space="preserve">
+    <value>DESCRIPTION</value>
+    <comment>Heading over the mod's description.</comment>
+  </data>
+  <data name="Item_ContentTypeLabel" xml:space="preserve">
+    <value>Content Type:</value>
+    <comment>Label in the item header; the value after it is the category.</comment>
+  </data>
+  <data name="Item_TagsLabel" xml:space="preserve">
+    <value>Tags:</value>
+    <comment>Label in the item header before the mod's flags.</comment>
+  </data>
+  <data name="Item_LicenseLabel" xml:space="preserve">
+    <value>License:</value>
+    <comment>Label in the item header before the licence name.</comment>
+  </data>
+  <data name="Item_FileSize" xml:space="preserve">
+    <value>File Size</value>
+    <comment>Stat label in the item header.</comment>
+  </data>
+  <data name="Item_Posted" xml:space="preserve">
+    <value>Posted</value>
+    <comment>Stat label in the item header.</comment>
+  </data>
+  <data name="Item_Updated" xml:space="preserve">
+    <value>Updated</value>
+    <comment>Stat label in the item header.</comment>
+  </data>
+  <data name="Item_ChangeNotesFormat" xml:space="preserve">
+    <value>{0} Change Notes</value>
+    <comment>Link in the item header to the Change Notes tab. {0} is how many versions are listed.</comment>
+  </data>
+  <data name="Item_View" xml:space="preserve">
+    <value>( view )</value>
+    <comment>Follows the Change Notes link.</comment>
+  </data>
+  <data name="Item_StatDownloads" xml:space="preserve">
+    <value>Downloads</value>
+    <comment>Right-hand stats panel, after the number.</comment>
+  </data>
+  <data name="Item_StatFavourites" xml:space="preserve">
+    <value>Current Favorites</value>
+    <comment>Right-hand stats panel, after the number.</comment>
+  </data>
+  <data name="Item_StatEndorsements" xml:space="preserve">
+    <value>Endorsements</value>
+    <comment>Right-hand stats panel, after the number.</comment>
+  </data>
+  <data name="Item_CopyLink" xml:space="preserve">
+    <value>Copy link</value>
+    <comment>Button on the item page: copies the mod page address.</comment>
+  </data>
+  <data name="Item_LinkCopied" xml:space="preserve">
+    <value>Link copied.</value>
+    <comment>Shown after Copy link.</comment>
+  </data>
+  <data name="Item_FileSizeKb" xml:space="preserve">
+    <value>{0:N3} KB</value>
+    <comment>A download size in thousands of bytes, written the way Steam writes it.</comment>
+  </data>
+  <data name="Item_FileSizeMb" xml:space="preserve">
+    <value>{0:N3} MB</value>
+    <comment>A download size in millions of bytes.</comment>
+  </data>
+  <data name="Item_CloseToolTip" xml:space="preserve">
+    <value>Back to the Workshop (Esc)</value>
+    <comment>Tooltip on the Workshop breadcrumb, which closes the item page.</comment>
   </data>
 </root>

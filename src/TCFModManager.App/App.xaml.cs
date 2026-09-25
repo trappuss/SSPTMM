@@ -31,6 +31,9 @@ public partial class App : Application
         // moment after it opens. Following the OS needs a real window and is set up in MainWindow.
         AppTheme.ApplyStored();
 
+        // The Steam font everywhere, including the trees a window cannot hand it to.
+        ApplySteamFont();
+
         // TEMPORARY, ADDED IN v1.5.0 - DELETE WHEN THE APP LEAVES BETA, along with the method
         // itself. Carries a pre-v1.5.0 LegacyConfigs folder from beside the exe into Data\. A no-op
         // on every launch after the first, and on any install that never had one.
@@ -93,6 +96,45 @@ public partial class App : Application
             // start over.
             AppLog.Warn("Language", $"couldn't set the element language: {ex.Message}");
         }
+    }
+
+    //
+    // Steam's pages are set in Motiva Sans, which Valve licenses and nobody else may use, falling
+    // back to Noto Sans - so Noto Sans is what ships (Themes/Fonts, SIL OFL) and what this applies.
+    //
+    // Default-value overrides rather than a FontFamily on each window, because tooltips, context
+    // menus and popups are separate visual trees that inherit nothing from the window they belong
+    // to. TextElement and TextBlock cover every run of text wherever it sits; Window, ToolTip and
+    // ContextMenu cover the controls, which take their font from those roots by inheritance.
+    //
+    // Each override stands alone: WPF refuses a second override for a type, and one refusal must not
+    // cost the rest.
+    //
+    private void ApplySteamFont()
+    {
+        if (TryFindResource("SteamFont") is not System.Windows.Media.FontFamily font)
+        {
+            AppLog.Warn("Theme", "SteamFont resource missing - keeping the system font");
+            return;
+        }
+
+        void Override(DependencyProperty property, Type type)
+        {
+            try
+            {
+                property.OverrideMetadata(type, new FrameworkPropertyMetadata(font));
+            }
+            catch (Exception ex)
+            {
+                AppLog.Warn("Theme", $"couldn't set the Steam font on {type.Name}: {ex.Message}");
+            }
+        }
+
+        Override(System.Windows.Documents.TextElement.FontFamilyProperty, typeof(System.Windows.Documents.TextElement));
+        Override(System.Windows.Controls.TextBlock.FontFamilyProperty, typeof(System.Windows.Controls.TextBlock));
+        Override(System.Windows.Controls.Control.FontFamilyProperty, typeof(Window));
+        Override(System.Windows.Controls.Control.FontFamilyProperty, typeof(System.Windows.Controls.ToolTip));
+        Override(System.Windows.Controls.Control.FontFamilyProperty, typeof(System.Windows.Controls.ContextMenu));
     }
 
     protected override void OnExit(ExitEventArgs e)

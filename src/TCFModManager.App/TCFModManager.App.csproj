@@ -53,6 +53,15 @@
 
   <ItemGroup>
     <Resource Include="Assets\AppIcon.ico" />
+
+    <!-- The app's own artwork (assets\TCFModMgr.png), in the spot where Steam's Workshop banner shows
+         the game's art. -->
+    <Resource Include="Assets\WorkshopBanner.png" />
+
+    <!-- Noto Sans, the next face in Steam's own font stack after Valve's licensed Motiva Sans.
+         SIL Open Font License 1.1; the licence travels with the build next to the exe. -->
+    <Resource Include="Themes\Fonts\*.ttf" />
+    <None Include="Themes\Fonts\OFL.txt" Link="Licenses\NotoSans-OFL.txt" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <!--

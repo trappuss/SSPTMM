@@ -86,6 +86,18 @@ public partial class BrowseViewModel : LocalizedViewModel
 
         UpdateAttributeFilterSummary();
 
+        // Steam's [+]/[-] tag rows over the same options - see WorkshopTagRow. Neutral names, so the
+        // box that is lit says which way the row filters: [-] beside "Contains ads" hides them.
+        TagRows =
+        [
+            new(nameof(Strings.Common_FlagFikaCompatible), Option(ModAttributeFilter.FikaCompatible), null),
+            new(nameof(Strings.Filter_HasDependencies), Option(ModAttributeFilter.HasDependencies), null),
+            new(nameof(Strings.Filter_HasAddons), Option(ModAttributeFilter.HasAddons), null),
+            new(nameof(Strings.Common_FlagContainsAds), null, Option(ModAttributeFilter.HideAds)),
+            new(nameof(Strings.Common_FlagContainsAiContent), null, Option(ModAttributeFilter.HideAiContent)),
+            new(nameof(Strings.Workshop_TagSubscribed), null, Option(ModAttributeFilter.HideInstalled)),
+        ];
+
         // The addon catalog usually settles after the first page has already rendered, so the
         // "N addons" badges are redrawn once it does rather than waiting for a page change.
         AppServices.Addons.AddonsChanged += (_, _) =>
@@ -161,10 +173,11 @@ public partial class BrowseViewModel : LocalizedViewModel
     private SortOptionItem _selectedSortOption;
 
     // How many matching cards make up one page, when nothing has been saved as this page's
-    // default - see DefaultPageSize().
-    private const int DefaultPageSizeValue = 12;
+    // default - see DefaultPageSize(). Steam's own choices, and its default of 30; a default saved
+    // from the upstream app's list (8/12/16/24/32) is not among them and falls back to this.
+    private const int DefaultPageSizeValue = 30;
 
-    public List<int> PageSizeOptions { get; } = [8, DefaultPageSizeValue, 16, 24, 32];
+    public List<int> PageSizeOptions { get; } = [10, 15, DefaultPageSizeValue, 50];
 
     [ObservableProperty]
     private int _pageSize = DefaultPageSizeValue;
@@ -201,6 +214,12 @@ public partial class BrowseViewModel : LocalizedViewModel
 
     [ObservableProperty]
     private CategoryFilterItem _selectedCategory = CategoryFilterItem.All;
+
+    /// <summary>The sidebar's tag rows, over <see cref="AttributeOptions"/>.</summary>
+    public IReadOnlyList<WorkshopTagRow> TagRows { get; }
+
+    private ModAttributeOption Option(ModAttributeFilter filter) =>
+        AttributeOptions.First(o => o.Value == filter);
 
     private bool IsOn(ModAttributeFilter filter) =>
         AttributeOptions.Any(o => o.Value == filter && o.IsSelected);
@@ -251,18 +270,34 @@ public partial class BrowseViewModel : LocalizedViewModel
 
     public ObservableCollection<ModCardViewModel> Results { get; } = [];
 
+    /// <summary>Steam's numbered pager under the grid - see PageLink.For.</summary>
+    public ObservableCollection<PageLink> PageLinks { get; } = [];
+
+    /// <summary>"N entries matching filters" under the page title.</summary>
+    [ObservableProperty]
+    private string? _entriesText;
+
+    /// <summary>The Steam card's width at 1:1 - the grid's columns are counted from it.</summary>
+    public const double CardWidth = 245;
+
+    // The gap between cards, 609 - 348 - 245 on the measured page.
+    public const double CardGap = 16;
+
     /// <summary>True once a search has actually completed. Lets BrowsePage skip redundantly re-running the initial search on re-navigation.</summary>
     public bool HasLoadedResults { get; private set; }
 
+    /// <summary>Raised after a page of results is on screen, so the page can scroll back to the top
+    /// of the grid the way a Steam page load does.</summary>
+    public event EventHandler? PageChanged;
+
+    //
+    // As many Steam-sized cards as fit across, each keeping its 16px gap. Steam's page lays the grid
+    // out the same way; a wider window gets more columns rather than wider cards.
+    //
     public void UpdateLayoutForWidth(double availableWidth)
     {
-        Columns = availableWidth switch
-        {
-            < 700 => 1,   // small
-            < 1050 => 2,  // medium
-            < 1400 => 3,  // large
-            _ => 4,       // extra large
-        };
+        if (availableWidth <= 0) return;
+        Columns = Math.Max(1, (int)Math.Floor((availableWidth + CardGap) / (CardWidth + CardGap)));
     }
 
     /// <summary>Ensures the full mod catalog is cached (fetches only on the first call each session), then filters/sorts it locally.</summary>
@@ -439,6 +474,14 @@ public partial class BrowseViewModel : LocalizedViewModel
     [RelayCommand(CanExecute = nameof(CanGoToNextPage))]
     private void NextPage() => GoToPage(CurrentPage + 1);
 
+    // int? because the pager's "..." entries carry no number; they are not clickable, but the
+    // command is still asked whether it can run for them.
+    [RelayCommand]
+    private void GoToPageNumber(int? page)
+    {
+        if (page is { } number) GoToPage(number);
+    }
+
     /// <summary>Replaces Results with exactly one page's worth of cards - never grows it, so only one page's thumbnails are ever in flight.</summary>
     private void GoToPage(int page)
     {
@@ -461,6 +504,11 @@ public partial class BrowseViewModel : LocalizedViewModel
             card.RefreshPin(pins);
             Results.Add(card);
         }
+
+        PageLinks.Clear();
+        foreach (var link in PageLink.For(CurrentPage, TotalPages)) PageLinks.Add(link);
+
+        PageChanged?.Invoke(this, EventArgs.Empty);
 
         AppLog.Debug("Browse", $"GoToPage: page {CurrentPage}/{TotalPages} rendered in {sw.ElapsedMilliseconds}ms");
     }
@@ -620,7 +668,9 @@ public partial class BrowseViewModel : LocalizedViewModel
         TotalPages = Math.Max(1, (int)Math.Ceiling(_filtered.Count / (double)PageSize));
         GoToPage(1);
 
-        StatusMessage = _filtered.Count switch
+        // Steam's "N entries matching filters" line under the title. A message from before the
+        // filter ran (queued, saved, failed) is left where it is below it.
+        EntriesText = _filtered.Count switch
         {
             0 => Strings.Browse_NoMatches,
             _ => Strings.Browse_CountFound(_filtered.Count),
@@ -629,9 +679,9 @@ public partial class BrowseViewModel : LocalizedViewModel
         // Said plainly rather than left for someone to work out from a short list.
         if (IsOn(ModAttributeFilter.HasDependencies))
         {
-            StatusMessage = string.Join(
+            EntriesText = string.Join(
                 Strings.Common_SentenceSeparator,
-                StatusMessage,
+                EntriesText,
                 Strings.Browse_DependencyNote);
         }
     }
@@ -645,7 +695,7 @@ public partial class BrowseViewModel : LocalizedViewModel
     /// back to the mod's own dates when it carries no usable version data. Dating a mod by a release
     /// that doesn't run on this install is what let a 4.1-only update sort above a mod that shipped
     /// a usable update more recently.</summary>
-    private static DateTimeOffset NewestReleaseDate(Mod mod, string? installedSptVersion)
+    internal static DateTimeOffset NewestReleaseDate(Mod mod, string? installedSptVersion)
     {
         if (ModCardViewModel.PickDisplayVersion(mod, installedSptVersion)?.PublishedAt is { } shown)
             return shown;
@@ -664,7 +714,7 @@ public partial class BrowseViewModel : LocalizedViewModel
     /// metadata edits too, which is part of what this sort is for - but when the newest release
     /// targets a line this install isn't on, that date is describing an update that can't be used
     /// here, so the newest usable release's date is used instead.</summary>
-    private static DateTimeOffset LastUpdatedDate(Mod mod, string? installedSptVersion)
+    internal static DateTimeOffset LastUpdatedDate(Mod mod, string? installedSptVersion)
     {
         var newest = ModCardViewModel.LatestVersion(mod);
 
@@ -907,6 +957,58 @@ public partial class BrowseViewModel : LocalizedViewModel
         var versions = await _spModApi.GetModVersionsAsync(
             mod.Id.ToString(), new ModVersionsQuery { FilterVersion = version, PerPage = 5 });
         return versions.Data.FirstOrDefault(v => v.Version == version) ?? versions.Data.FirstOrDefault();
+    }
+
+    //
+    // Entry points for the Workshop home page and the Workshop item page, which show the same
+    // catalog through the same cards and install through the same queue as this page.
+    //
+
+    /// <summary>Loads the catalog, addons and installed index if this session has not yet.</summary>
+    public async Task EnsureLoadedAsync()
+    {
+        if (!HasLoadedResults) await SearchCommand.ExecuteAsync(null);
+    }
+
+    /// <summary>A card for any catalog mod, matched against the install exactly as this page's own
+    /// cards are.</summary>
+    public ModCardViewModel BuildCard(Mod mod)
+    {
+        var installed = FindInstalledMatch(mod);
+
+        var card = ModCardViewModel.From(
+            mod, AppServices.SptEnvironment.InstalledVersion, installed, _selectedLines,
+            AppServices.SptCatalog.Releases, AppServices.Addons.CountFor(mod.Id),
+            installed is null ? null : ModListPlanner.PinKeys(ModListCandidates.From(installed)));
+
+        card.RefreshPin(AppServices.ModLists.GetPins());
+        return card;
+    }
+
+    /// <summary>The installed copy of a catalog mod, if this install has one.</summary>
+    public InstalledModCardViewModel? InstalledMatchFor(Mod mod) => FindInstalledMatch(mod);
+
+    /// <summary>Every mod this page could show, before any filter - what the home page ranks.</summary>
+    public IEnumerable<Mod> Catalog => AppServices.ModCache.AllMods
+        .Where(m => !string.Equals(m.Id.ToString(), SelfMod.ModId, StringComparison.Ordinal));
+
+    /// <summary>Opens the results searched for <paramref name="text"/> - the home page's search box.</summary>
+    public void ShowSearch(string text) => SearchText = text.Trim();
+
+    /// <summary>Opens the results in one sort order - the home page's "View all".</summary>
+    public void ShowSortedBy(ModSortOrder order) =>
+        SelectedSortOption = SortOptions.FirstOrDefault(o => o.Value == order) ?? SelectedSortOption;
+
+    /// <summary>Opens one category - the home page's content type list.</summary>
+    public void ShowCategory(string title) =>
+        SelectedCategory = CategoryOptions.FirstOrDefault(c => string.Equals(c.Title, title, StringComparison.OrdinalIgnoreCase))
+            ?? SelectedCategory;
+
+    /// <summary>The sort panel's radio rows.</summary>
+    [RelayCommand]
+    private void SelectSort(SortOptionItem? option)
+    {
+        if (option is not null) SelectedSortOption = option;
     }
 
     public async Task LoadDetailsAsync(Mod mod)

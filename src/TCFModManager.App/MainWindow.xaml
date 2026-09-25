@@ -14,6 +14,7 @@
     MinWidth="720"
     WindowStartupLocation="CenterScreen"
     ExtendsContentIntoTitleBar="True"
+    WindowBackdropType="None"
     TextOptions.TextFormattingMode="Display"
     TextOptions.TextRenderingMode="ClearType">
     <!-- Small UI text, drawn on whole pixels. WPF's default TextFormattingMode is Ideal, which
@@ -31,8 +32,13 @@
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
     </Window.Resources>
-    <Grid>
+    <!-- The whole window sits on the Workshop browse page's background - #262B34 under Steam's two
+         faint grids - so every page reads as part of one Steam site. The item page draws the
+         legacy blue over it, as Steam's own item pages do. -->
+    <Grid Background="{StaticResource SteamWorkshopGrid}">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -48,6 +54,7 @@
         <ui:TitleBar
             x:Name="RootTitleBar"
             Grid.Row="0"
+            Background="{StaticResource SteamGlobalHeader}"
             Title="{Binding WindowTitle, Source={x:Static app:AppServices.SptEnvironment}}">
             <ui:TitleBar.Icon>
                 <ui:ImageIcon Source="pack://application:,,,/Assets/AppIcon.ico" />
@@ -97,132 +104,161 @@
             </Grid>
         </StackPanel>
 
+        <!--
+            The app hub header, where Steam shows a game's name, its "Store Page" button and the
+            All / Discussions / ... / Workshop tabs. Measured: 22px #F1F2F3 title, a #1A9FFF button
+            36px high, 15px/500 tabs at #C0C5CB with a 3px #1A9FFF bar under the current one.
+
+            The tabs are the app's pages. Workshop stands for all of Home, Browse, Subscribed items
+            and Collections - those are reached from the Workshop's own strip under it, as on Steam.
+            Which tab is lit follows AppNavigation, so it is right however the page was changed.
+        -->
+        <Grid Grid.Row="2" Background="{StaticResource SteamHubGlow}">
+            <Grid Margin="24,24,24,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <DockPanel Grid.Row="0">
+                    <Button
+                        DockPanel.Dock="Right"
+                        VerticalAlignment="Center"
+                        Style="{StaticResource SteamBlueButton}"
+                        ToolTip="{loc:Str Hub_ModSiteToolTip}"
+                        Click="ModSite_Click">
+                        <TextBlock Text="{loc:Str Hub_ModSite}" />
+                    </Button>
+                    <TextBlock
+                        VerticalAlignment="Center"
+                        FontSize="22"
+                        Foreground="{StaticResource SteamTextBright}"
+                        Text="{loc:Str Hub_Title}" />
+                </DockPanel>
+
+                <StackPanel x:Name="HubTabs" Grid.Row="1" Margin="0,18,0,0" Orientation="Horizontal">
+                    <ToggleButton Style="{StaticResource SteamHubTab}" Tag="{x:Type views:PlayPage}" Click="HubTab_Click">
+                        <TextBlock Text="{loc:Str Nav_Play}" />
+                    </ToggleButton>
+                    <ToggleButton Style="{StaticResource SteamHubTab}" Tag="{x:Type views:WorkshopHomePage}" Click="HubTab_Click">
+                        <TextBlock Text="{loc:Str Nav_Workshop}" />
+                    </ToggleButton>
+                    <ToggleButton Style="{StaticResource SteamHubTab}" Tag="{x:Type views:ConfigsPage}" Click="HubTab_Click">
+                        <TextBlock Text="{loc:Str Nav_Configs}" />
+                    </ToggleButton>
+                    <ToggleButton Style="{StaticResource SteamHubTab}" Tag="{x:Type views:DependenciesPage}" Click="HubTab_Click">
+                        <TextBlock Text="{loc:Str Nav_Dependencies}" />
+                    </ToggleButton>
+                    <!-- Hidden unless switched on in Options, as the sidebar item was - see FootprintGate. -->
+                    <ToggleButton
+                        Style="{StaticResource SteamHubTab}"
+                        Tag="{x:Type views:FootprintPage}"
+                        Click="HubTab_Click"
+                        DataContext="{x:Static app:AppServices.FootprintGate}"
+                        Visibility="{Binding IsPageEnabled, Converter={StaticResource BoolToVis}}">
+                        <TextBlock Text="{loc:Str Nav_Footprint}" />
+                    </ToggleButton>
+                    <!-- Hidden unless switched on in Options - see ServerMapGateViewModel. -->
+                    <ToggleButton
+                        Style="{StaticResource SteamHubTab}"
+                        Tag="{x:Type views:ServerMapPage}"
+                        Click="HubTab_Click"
+                        DataContext="{x:Static app:AppServices.ServerMap}"
+                        Visibility="{Binding IsPageEnabled, Converter={StaticResource BoolToVis}}">
+                        <TextBlock Text="{loc:Str Nav_ServerMap}" />
+                    </ToggleButton>
+                    <ToggleButton Style="{StaticResource SteamHubTab}" Tag="{x:Type views:DownloadsPage}" Click="HubTab_Click">
+                        <TextBlock Text="{loc:Str Nav_Downloads}" />
+                    </ToggleButton>
+                    <ToggleButton Style="{StaticResource SteamHubTab}" Tag="{x:Type views:OptionsPage}" Click="HubTab_Click">
+                        <TextBlock Text="{loc:Str Nav_Options}" />
+                    </ToggleButton>
+                    <!-- The dot only appears when there is an update, coloured as the banner is:
+                         informational for a fix, success for a feature release, attention for a
+                         major one. -->
+                    <ToggleButton Style="{StaticResource SteamHubTab}" Tag="{x:Type views:AppUpdatePage}" Click="HubTab_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{loc:Str Nav_AppUpdate}" />
+                            <ui:InfoBadge
+                                Width="8"
+                                Height="8"
+                                Margin="6,0,0,0"
+                                VerticalAlignment="Center"
+                                DataContext="{x:Static app:AppServices.AppUpdate}"
+                                Severity="{Binding BadgeSeverity}"
+                                Visibility="{Binding UpdateAvailable, Converter={StaticResource BoolToVis}}" />
+                        </StackPanel>
+                    </ToggleButton>
+                </StackPanel>
+            </Grid>
+        </Grid>
+
+        <!-- The Workshop strip for Subscribed items and Collections. Home and Browse carry their own,
+             under the banner inside their scrolling content, which is where Steam puts it. -->
+        <views:WorkshopSubNav
+            x:Name="WorkshopStrip"
+            Grid.Row="3"
+            Margin="24,16,24,0"
+            Visibility="Collapsed" />
+
+        <!--
+            NavigationView still hosts every page - it owns the page cache (NavigationCacheMode) and
+            the scroll wrapper each page opts in or out of - but its sidebar is gone: navigation is
+            the hub tabs above. The template below is the minimum NavigationView's code asks for
+            (the two menu ItemsControls and the content presenter; OnApplyTemplate throws without
+            them), with the menus collapsed. The menu items stay declared because they are what
+            maps each page type to its cache mode.
+        -->
         <ui:NavigationView
             x:Name="RootNavigationView"
-            Grid.Row="2"
+            Grid.Row="4"
             IsPaneOpen="False">
-            <!-- NavigationCacheMode is Disabled by default in WPF-UI, which builds a brand new
-                 Page - fresh BAML load, fresh visual tree, fresh ViewModel - on every click of a
-                 nav item, including going back to one you were just on. Required keeps one instance
-                 of each page for the app's lifetime, so switching views is a content swap rather
-                 than a rebuild. Each page's Loaded handler still runs on every visit, so anything
-                 that has to refresh on return still does. -->
+            <ui:NavigationView.Template>
+                <ControlTemplate TargetType="ui:NavigationView">
+                    <Grid>
+                        <ItemsControl x:Name="PART_MenuItemsItemsControl" Visibility="Collapsed" />
+                        <ItemsControl x:Name="PART_FooterMenuItemsItemsControl" Visibility="Collapsed" />
+                        <ui:NavigationViewContentPresenter
+                            x:Name="PART_NavigationViewContentPresenter"
+                            Padding="{TemplateBinding Padding}"
+                            Transition="{TemplateBinding Transition}"
+                            TransitionDuration="{TemplateBinding TransitionDuration}" />
+                        <ContentPresenter Content="{TemplateBinding ContentOverlay}" />
+                    </Grid>
+                </ControlTemplate>
+            </ui:NavigationView.Template>
             <ui:NavigationView.MenuItems>
-                <!-- First: the last thing you do before playing, and the one item on the list that
-                     is an action rather than a view of the install. -->
-                <ui:NavigationViewItem
-                    Content="{loc:Str Nav_Play}"
-                    Icon="{ui:SymbolIcon Play24}"
-                    NavigationCacheMode="Required"
-                    TargetPageType="{x:Type views:PlayPage}" />
-                <ui:NavigationViewItem
-                    Content="{loc:Str Nav_Browse}"
-                    Icon="{ui:SymbolIcon Apps24}"
-                    NavigationCacheMode="Required"
-                    TargetPageType="{x:Type views:BrowsePage}" />
-                <ui:NavigationViewItem
-                    Content="{loc:Str Nav_Installed}"
-                    Icon="{ui:SymbolIcon CheckmarkCircle24}"
-                    NavigationCacheMode="Required"
-                    TargetPageType="{x:Type views:InstalledPage}" />
-                <!-- Directly after Installed: a mod list is a named set of exactly what that page
-                     shows, and applying one is how that page's contents get changed wholesale. -->
-                <ui:NavigationViewItem
-                    Content="{loc:Str Nav_ModLists}"
-                    Icon="{ui:SymbolIcon AppsList24}"
-                    NavigationCacheMode="Required"
-                    TargetPageType="{x:Type views:ModListsPage}" />
-                <!-- Sits next to Installed because it is about the mods already on disk, and before
-                     Dependencies because it is the more everyday of the two. -->
-                <ui:NavigationViewItem
-                    Content="{loc:Str Nav_Configs}"
-                    Icon="{ui:SymbolIcon EditSettings24}"
-                    NavigationCacheMode="Required"
-                    TargetPageType="{x:Type views:ConfigsPage}" />
-                <ui:NavigationViewItem
-                    Content="{loc:Str Nav_Dependencies}"
-                    Icon="{ui:SymbolIcon Branch24}"
-                    NavigationCacheMode="Required"
-                    TargetPageType="{x:Type views:DependenciesPage}" />
-                <!-- After Dependencies: both answer questions about the mods already on disk,
-                     and this is the more occasional of the two.
-
-                     NOT a gauge or a speedometer icon, and not called "Performance": nothing on
-                     that page is timed or measured, and an icon that promises a metric is the
-                     same overclaim as the wording would be.
-
-                     Hidden unless it is switched on in Options, and off by default - the page
-                     needs its own explanation to be read correctly, and an unexplained "Heavy"
-                     badge in the sidebar is worse than no page at all. DataContext is set
-                     explicitly because a nav item does not inherit a useful one from here. -->
-                <ui:NavigationViewItem
-                    Content="{loc:Str Nav_Footprint}"
-                    Icon="{ui:SymbolIcon Scales24}"
-                    NavigationCacheMode="Required"
-                    TargetPageType="{x:Type views:FootprintPage}"
-                    DataContext="{x:Static app:AppServices.FootprintGate}"
-                    Visibility="{Binding IsPageEnabled, Converter={StaticResource BoolToVis}}" />
-                <!-- Hidden unless it is switched on in Options, and off by default, the same as
-                     Mod footprint above: the map needs an SPT server running the Server Map mod at
-                     the other end, which most installs will not have.
-
-                     Deliberately NOT tied to whether that server is currently up - see
-                     ServerMapGateViewModel. A sidebar item that comes and goes on its own is one
-                     nobody can rely on finding, and the page says "it did not answer" far better
-                     than a gap here can. DataContext is set explicitly because a nav item does not
-                     inherit a useful one from here. -->
-                <ui:NavigationViewItem
-                    Content="{loc:Str Nav_ServerMap}"
-                    Icon="{ui:SymbolIcon ServerSurfaceMultiple16}"
-                    NavigationCacheMode="Required"
-                    TargetPageType="{x:Type views:ServerMapPage}"
-                    DataContext="{x:Static app:AppServices.ServerMap}"
-                    Visibility="{Binding IsPageEnabled, Converter={StaticResource BoolToVis}}" />
-                <ui:NavigationViewItem
-                    Content="{loc:Str Nav_Downloads}"
-                    Icon="{ui:SymbolIcon ArrowDownload24}"
-                    NavigationCacheMode="Required"
-                    TargetPageType="{x:Type views:DownloadsPage}" />
+                <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:PlayPage}" />
+                <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:WorkshopHomePage}" />
+                <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:BrowsePage}" />
+                <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:InstalledPage}" />
+                <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:ModListsPage}" />
+                <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:ConfigsPage}" />
+                <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:DependenciesPage}" />
+                <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:FootprintPage}" />
+                <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:ServerMapPage}" />
+                <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:DownloadsPage}" />
             </ui:NavigationView.MenuItems>
             <ui:NavigationView.FooterMenuItems>
-                <!-- The badge only appears when there's actually an update, and its colour matches
-                     the banner's: informational for a bug fix, success for a feature release,
-                     attention for a major one. DataContext is set explicitly because an InfoBadge
-                     assigned to this property doesn't inherit one from the nav item. -->
-                <ui:NavigationViewItem
-                    Content="{loc:Str Nav_AppUpdate}"
-                    Icon="{ui:SymbolIcon ArrowCircleUp24}"
-                    NavigationCacheMode="Required"
-                    TargetPageType="{x:Type views:AppUpdatePage}">
-                    <ui:NavigationViewItem.InfoBadge>
-                        <!-- Width and Height are set, and equal, so the dot stays a circle: with
-                             neither given, the badge stretches to whatever slot the nav item hands
-                             it and comes out as an oval. Centred so the fixed size doesn't sit
-                             against one edge of that slot. -->
-                        <ui:InfoBadge
-                            Width="10"
-                            Height="10"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            DataContext="{x:Static app:AppServices.AppUpdate}"
-                            Severity="{Binding BadgeSeverity}"
-                            Visibility="{Binding UpdateAvailable, Converter={StaticResource BoolToVis}}" />
-                    </ui:NavigationViewItem.InfoBadge>
-                </ui:NavigationViewItem>
-                <ui:NavigationViewItem
-                    Content="{loc:Str Nav_Options}"
-                    Icon="{ui:SymbolIcon Settings24}"
-                    NavigationCacheMode="Required"
-                    TargetPageType="{x:Type views:OptionsPage}" />
+                <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:AppUpdatePage}" />
+                <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:OptionsPage}" />
             </ui:NavigationView.FooterMenuItems>
         </ui:NavigationView>
+
+        <!-- The Workshop item page, over the page area and under the hub header - on Steam an item
+             page keeps the app hub's tabs above it. Collapsed until a mod is opened. -->
+        <views:WorkshopItemView
+            x:Name="ItemPage"
+            Grid.Row="3"
+            Grid.RowSpan="2"
+            Visibility="Collapsed" />
 
         <!-- Loading overlay shown during the first mod catalog fetch. The scrim stays a
              literal rather than a theme brush on purpose: its job is to dim whatever is
              behind it, which a translucent black does correctly in either theme. -->
         <Border
             Grid.Row="0"
-            Grid.RowSpan="3"
+            Grid.RowSpan="5"
             Background="#AA000000"
             DataContext="{x:Static app:AppServices.ModCache}"
             Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}">
@@ -263,6 +299,6 @@
         <ContentPresenter
             x:Name="RootContentDialogPresenter"
             Grid.Row="0"
-            Grid.RowSpan="3" />
+            Grid.RowSpan="5" />
     </Grid>
 </ui:FluentWindow>

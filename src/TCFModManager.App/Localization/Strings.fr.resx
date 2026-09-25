@@ -331,7 +331,7 @@ Il a été écrit dans :
     <value>A des dépendances</value>
   </data>
   <data name="Browse_ByAuthorFormat" xml:space="preserve">
-    <value>par {0}</value>
+    <value>De {0}</value>
   </data>
   <data name="Browse_CategoryFilterToolTip" xml:space="preserve">
     <value>Filtrer par la catégorie sous laquelle un mod est listé</value>
@@ -1578,6 +1578,12 @@ Quel que soit votre choix, la version actuellement sur le disque est d'abord cop
   <data name="Footprint_WhatThisReadsHeader" xml:space="preserve">
     <value>Ce qui est analysé</value>
   </data>
+  <data name="Hub_ModSite" xml:space="preserve">
+    <value>sp-mod.com</value>
+  </data>
+  <data name="Hub_Title" xml:space="preserve">
+    <value>Single Player Tarkov</value>
+  </data>
   <data name="Install_StageDone" xml:space="preserve">
     <value>Terminé.</value>
   </data>
@@ -2172,6 +2178,60 @@ Annuler  -  ne rien supprimer</value>
   <data name="InstallRole_Title" xml:space="preserve">
     <value>On dirait une machine headless</value>
   </data>
+  <data name="Item_AuthorsWorkshopFormat" xml:space="preserve">
+    <value>Workshop de {0}</value>
+  </data>
+  <data name="Item_ChangeNotesFormat" xml:space="preserve">
+    <value>{0} notes de changement</value>
+  </data>
+  <data name="Item_ContentTypeLabel" xml:space="preserve">
+    <value>Type de contenu:</value>
+  </data>
+  <data name="Item_CreatedBy" xml:space="preserve">
+    <value>CRÉÉ PAR</value>
+  </data>
+  <data name="Item_DescriptionHeader" xml:space="preserve">
+    <value>DESCRIPTION</value>
+  </data>
+  <data name="Item_FileSize" xml:space="preserve">
+    <value>Taille du fichier</value>
+  </data>
+  <data name="Item_Posted" xml:space="preserve">
+    <value>Publié le</value>
+  </data>
+  <data name="Item_RequiredItems" xml:space="preserve">
+    <value>ÉLÉMENTS REQUIS</value>
+  </data>
+  <data name="Item_RequiredItemsNote" xml:space="preserve">
+    <value>Cet article nécessite tous les autres articles suivants</value>
+  </data>
+  <data name="Item_StatFavourites" xml:space="preserve">
+    <value>Favoris actuels</value>
+  </data>
+  <data name="Item_Subscribe" xml:space="preserve">
+    <value>S'abonner</value>
+  </data>
+  <data name="Item_Subscribed" xml:space="preserve">
+    <value>Abonné</value>
+  </data>
+  <data name="Item_SubscribeToDownload" xml:space="preserve">
+    <value>S'abonner pour télécharger</value>
+  </data>
+  <data name="Item_TabChangeNotes" xml:space="preserve">
+    <value>Notes de changement</value>
+  </data>
+  <data name="Item_TabDescription" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="Item_Unsubscribe" xml:space="preserve">
+    <value>Se désabonner</value>
+  </data>
+  <data name="Item_Updated" xml:space="preserve">
+    <value>Mis à jour le</value>
+  </data>
+  <data name="Item_View" xml:space="preserve">
+    <value>( voir )</value>
+  </data>
   <data name="MainWindow_LoadingCatalog" xml:space="preserve">
     <value>Chargement du catalogue de mods...</value>
   </data>
@@ -2195,12 +2255,6 @@ Annuler  -  ne rien supprimer</value>
   </data>
   <data name="Meta_TranslationCredit" xml:space="preserve">
     <value>Traduction automatique, pas encore relue par un locuteur natif. Corrections et signalements bienvenus sur GitHub.</value>
-  </data>
-  <data name="ModDetails_CategoryFormat" xml:space="preserve">
-    <value>Catégorie : {0}</value>
-  </data>
-  <data name="ModDetails_LicenseFormat" xml:space="preserve">
-    <value>Licence : {0}</value>
   </data>
   <data name="ModDisable_Note" xml:space="preserve">
     <value>Rien n'est supprimé dans un cas comme dans l'autre - les mods désactivés conservent leurs fichiers et leurs configurations, et reviennent intacts à la réactivation.</value>
@@ -3199,10 +3253,10 @@ Sauvegardez votre profil avant de continuer si vous y tenez.</value>
     <value>Empreinte des mods</value>
   </data>
   <data name="Nav_Installed" xml:space="preserve">
-    <value>Installés</value>
+    <value>Articles faisant l'objet d'un abonnement</value>
   </data>
   <data name="Nav_ModLists" xml:space="preserve">
-    <value>Listes de mods</value>
+    <value>Collections</value>
   </data>
   <data name="Nav_Options" xml:space="preserve">
     <value>Options</value>
@@ -3212,6 +3266,9 @@ Sauvegardez votre profil avant de continuer si vous y tenez.</value>
   </data>
   <data name="Nav_ServerMap" xml:space="preserve">
     <value>Carte du serveur</value>
+  </data>
+  <data name="Nav_Workshop" xml:space="preserve">
+    <value>Workshop</value>
   </data>
   <data name="Options_AppearanceDescription" xml:space="preserve">
     <value>Suivre le système s'aligne sur Windows et continue de s'y aligner quand vous le changez là-bas. Clair et Sombre fixent l'application sur l'un des deux quoi qu'il arrive.</value>
@@ -3856,19 +3913,19 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
     <value>Par auteur (Z-A)</value>
   </data>
   <data name="Sort_BrowseLastUpdated" xml:space="preserve">
-    <value>Mis à jour récemment</value>
+    <value>Dernières mises à jour</value>
   </data>
   <data name="Sort_BrowseMostDownloaded" xml:space="preserve">
-    <value>Plus téléchargés</value>
+    <value>Avec le plus d'abonnements</value>
   </data>
   <data name="Sort_BrowseMostEndorsed" xml:space="preserve">
-    <value>Plus recommandés</value>
+    <value>Meilleures évaluations de tous les temps</value>
   </data>
   <data name="Sort_BrowseMostFavourited" xml:space="preserve">
     <value>Plus mis en favoris</value>
   </data>
   <data name="Sort_BrowseNewest" xml:space="preserve">
-    <value>Plus récents d'abord</value>
+    <value>Les plus récents</value>
   </data>
   <data name="Sort_FootprintLargestOnDisk" xml:space="preserve">
     <value>Plus gros sur le disque</value>
@@ -3977,5 +4034,62 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
   </data>
   <data name="SptLaunch_StopFailedReasonFormat" xml:space="preserve">
     <value>Impossible d'arrêter {0} : {1}. Il s'exécute peut-être sous un autre utilisateur ou en administrateur - fermer sa fenêtre à la main puis le relancer fait le même travail.</value>
+  </data>
+  <data name="Workshop_BrowsingHint" xml:space="preserve">
+    <value>(Abonnez-vous pour l'ajouter à votre jeu)</value>
+  </data>
+  <data name="Workshop_BrowsingTitle" xml:space="preserve">
+    <value>Consulte : Mods</value>
+  </data>
+  <data name="Workshop_ContentType" xml:space="preserve">
+    <value>TYPE DE CONTENU</value>
+  </data>
+  <data name="Workshop_Home" xml:space="preserve">
+    <value>Accueil</value>
+  </data>
+  <data name="Workshop_LearnMore" xml:space="preserve">
+    <value>En savoir plus</value>
+  </data>
+  <data name="Workshop_PerPage" xml:space="preserve">
+    <value>Par page :</value>
+  </data>
+  <data name="Workshop_SortOrderHeader" xml:space="preserve">
+    <value>ORDRE DE TRI</value>
+  </data>
+  <data name="Workshop_SpecialFilters" xml:space="preserve">
+    <value>FILTRES SPÉCIAUX :</value>
+  </data>
+  <data name="Workshop_SubscribedItems" xml:space="preserve">
+    <value>Articles faisant l'objet d'un abonnement</value>
+  </data>
+  <data name="Workshop_TagSubscribed" xml:space="preserve">
+    <value>Abonné</value>
+  </data>
+  <data name="Workshop_YourCollections" xml:space="preserve">
+    <value>Vos collections</value>
+  </data>
+  <data name="Workshop_YourItems" xml:space="preserve">
+    <value>Vos articles</value>
+  </data>
+  <data name="Workshop_YourItemsHeader" xml:space="preserve">
+    <value>VOS ARTICLES</value>
+  </data>
+  <data name="WorkshopHome_FeaturedTitle" xml:space="preserve">
+    <value>Mods</value>
+  </data>
+  <data name="WorkshopHome_InThePastWeek" xml:space="preserve">
+    <value>La semaine dernière</value>
+  </data>
+  <data name="WorkshopHome_TabLastUpdated" xml:space="preserve">
+    <value>Dernières mises à jour</value>
+  </data>
+  <data name="WorkshopHome_TabMostSubscribed" xml:space="preserve">
+    <value>Avec le plus d'abonnements</value>
+  </data>
+  <data name="WorkshopHome_TabNew" xml:space="preserve">
+    <value>Nouveautés</value>
+  </data>
+  <data name="WorkshopHome_ViewAll" xml:space="preserve">
+    <value>Tout voir</value>
   </data>
 </root>

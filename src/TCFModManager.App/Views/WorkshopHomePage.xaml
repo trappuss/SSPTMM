@@ -1,0 +1,355 @@
+<!--
+    The Workshop's front page, as Steam's (steamcommunity.com/app/<id>/workshop/): banner and strip,
+    a panel with the week's row of cards, then a search box and the content types down the left
+    beside four ranked lists on the right.
+
+    Measured: the row's panel is rgba(0,0,0,.4) with a 7px radius and 16px padding, its heading 20px
+    semibold with a 15px #ACB2B8 line under it and an outlined "View All" on the right; its cards are
+    183px wide (preview 183, 15px title, 12px author). The lists' tabs are 20px semibold; each list
+    card is two to a row, a 100px thumbnail inside 7px, a 19px title, the author, #3D4450 tag chips
+    and a 12px count line. The content types are 15px #ACB2B8 with the count in #636B74.
+
+    Scrolls as one page, like Browse - see the note at the top of BrowsePage.xaml.
+-->
+<Page
+    x:Class="TCFModManager.App.Views.WorkshopHomePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:views="clr-namespace:TCFModManager.App.Views"
+    xmlns:vm="clr-namespace:TCFModManager.App.ViewModels"
+    xmlns:converters="clr-namespace:TCFModManager.App.Converters"
+    xmlns:behaviors="clr-namespace:TCFModManager.App.Behaviors"
+    xmlns:loc="clr-namespace:TCFModManager.App.Localization"
+    ScrollViewer.CanContentScroll="False"
+    Title="{loc:Str Workshop_Home}"
+    Loaded="Page_Loaded">
+    <Page.Resources>
+        <converters:NullToVisibilityConverter x:Key="NullToCollapsed" />
+        <converters:UpdateAvailableToVisibilityConverter x:Key="TrueToVisible" />
+        <converters:FalseToVisibilityConverter x:Key="FalseToVisible" />
+        <converters:EqualityConverter x:Key="IsSame" />
+
+        <!-- The four list tabs: 20px semibold, white when chosen with the 3px blue bar under it, a
+             dimmer white otherwise. -->
+        <Style x:Key="HomeTab" TargetType="ToggleButton" BasedOn="{StaticResource SteamHubTab}">
+            <Setter Property="FontFamily" Value="{StaticResource SteamFontMedium}" />
+            <Setter Property="FontSize" Value="20" />
+            <Setter Property="Margin" Value="0,0,24,0" />
+            <Setter Property="Foreground" Value="#9DA3A9" />
+        </Style>
+
+        <!-- The row's and the lists' own "View All": outlined blue. -->
+        <Style x:Key="ViewAllButton" TargetType="Button" BasedOn="{StaticResource SteamOutlineButton}">
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="MinHeight" Value="36" />
+        </Style>
+
+        <!-- The carousel's arrows: big white chevrons, dim until pointed at. -->
+        <Style x:Key="CarouselArrow" TargetType="Button">
+            <Setter Property="Foreground" Value="#80FFFFFF" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Width="46" Background="Transparent">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{StaticResource SteamWhite}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- A content type on the left: 15px, the count right-aligned and dimmer. -->
+        <Style x:Key="CategoryRow" TargetType="Button">
+            <Setter Property="Foreground" Value="{StaticResource SteamText}" />
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Height="23" Background="Transparent">
+                            <ContentPresenter VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{StaticResource SteamWhite}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Page.Resources>
+
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="24,16,24,24">
+            <views:WorkshopBanner />
+            <views:WorkshopSubNav />
+
+            <!-- The week's row. -->
+            <Border Margin="0,36,0,0" Padding="16" Background="#66000000" CornerRadius="7">
+                <StackPanel>
+                    <DockPanel>
+                        <Button
+                            DockPanel.Dock="Right"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource ViewAllButton}"
+                            Command="{Binding ViewAllFeaturedCommand}">
+                            <TextBlock Text="{loc:Str WorkshopHome_ViewAll}" />
+                        </Button>
+                        <StackPanel>
+                            <TextBlock FontFamily="{StaticResource SteamFontMedium}" FontSize="20" Foreground="{StaticResource SteamWhite}" Text="{loc:Str WorkshopHome_FeaturedTitle}" />
+                            <TextBlock FontSize="15" Foreground="{StaticResource SteamText}" Text="{loc:Str WorkshopHome_InThePastWeek}" />
+                        </StackPanel>
+                    </DockPanel>
+
+                    <Grid Margin="0,22,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Button Grid.Column="0" Style="{StaticResource CarouselArrow}" ToolTip="{loc:Str Common_Previous}" Click="CarouselLeft_Click">
+                            <Path Width="14" Height="26" Data="M12,0 L0,13 L12,26" Stretch="Fill" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="3" />
+                        </Button>
+
+                        <ScrollViewer
+                            x:Name="Carousel"
+                            Grid.Column="1"
+                            HorizontalScrollBarVisibility="Hidden"
+                            VerticalScrollBarVisibility="Disabled"
+                            PreviewMouseWheel="Carousel_PreviewMouseWheel">
+                            <ItemsControl ItemsSource="{Binding Featured}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Horizontal" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid
+                                            Width="183"
+                                            Margin="0,0,16,6"
+                                            Background="Transparent"
+                                            Cursor="Hand"
+                                            MouseLeftButtonUp="Card_MouseLeftButtonUp">
+                                            <Border Background="#1B1D21">
+                                                <Border.Effect>
+                                                    <DropShadowEffect BlurRadius="10" Direction="315" Opacity="0.58" ShadowDepth="1.4" Color="Black" />
+                                                </Border.Effect>
+                                            </Border>
+                                            <Border Background="{StaticResource SteamCardBackground}">
+                                                <StackPanel>
+                                                    <Grid Height="183" Background="{StaticResource SteamPreviewBackground}" ClipToBounds="True">
+                                                        <Image Stretch="UniformToFill" behaviors:ThumbnailLoader.Source="{Binding Thumbnail}" />
+                                                        <Border
+                                                            Margin="6"
+                                                            Padding="4,3"
+                                                            HorizontalAlignment="Left"
+                                                            VerticalAlignment="Top"
+                                                            Background="#CC000000"
+                                                            CornerRadius="2"
+                                                            Visibility="{Binding IsInstalled, Converter={StaticResource TrueToVisible}}">
+                                                            <ui:SymbolIcon FontSize="16" Symbol="{Binding StatusGlyph}" Style="{StaticResource StatusIcon}" ToolTip="{Binding StatusTooltip}" />
+                                                        </Border>
+                                                    </Grid>
+                                                    <StackPanel Height="75" Margin="10,8,10,0">
+                                                        <StackPanel Height="16" Orientation="Horizontal">
+                                                            <ui:SymbolIcon FontSize="14" Foreground="{StaticResource SteamBlue}" Symbol="ArrowDownload16" />
+                                                            <TextBlock Margin="3,0,0,0" FontSize="12" Foreground="{StaticResource SteamBlue}" Text="{Binding Downloads, StringFormat=N0}" />
+                                                        </StackPanel>
+                                                        <TextBlock Margin="0,4,0,0" FontSize="15" Foreground="{StaticResource SteamWhite}" TextTrimming="CharacterEllipsis" Text="{Binding Name}" />
+                                                        <TextBlock
+                                                            Margin="0,2,0,0"
+                                                            FontSize="12"
+                                                            Foreground="{StaticResource SteamAuthorText}"
+                                                            TextTrimming="CharacterEllipsis"
+                                                            Text="{Binding Author, StringFormat={loc:Str Browse_ByAuthorFormat}}"
+                                                            Visibility="{Binding Author, Converter={StaticResource NullToCollapsed}}" />
+                                                    </StackPanel>
+                                                </StackPanel>
+                                            </Border>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+
+                        <TextBlock
+                            Grid.Column="1"
+                            Margin="0,40"
+                            HorizontalAlignment="Center"
+                            FontSize="15"
+                            Foreground="{StaticResource SteamText}"
+                            Text="{loc:Str WorkshopHome_EmptyWeek}"
+                            Visibility="{Binding HasFeatured, Converter={StaticResource FalseToVisible}}" />
+
+                        <Button Grid.Column="2" Style="{StaticResource CarouselArrow}" ToolTip="{loc:Str Common_Next}" Click="CarouselRight_Click">
+                            <Path Width="14" Height="26" Data="M0,0 L12,13 L0,26" Stretch="Fill" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="3" />
+                        </Button>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Search and content types on the left, the four lists on the right. -->
+            <Grid Margin="0,54,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="300" />
+                    <ColumnDefinition Width="24" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <StackPanel Orientation="Horizontal">
+                        <Border Width="260" Height="42" Padding="8" Background="{StaticResource SteamGray}">
+                            <TextBox
+                                x:Name="SearchBox"
+                                Style="{StaticResource SteamSearchField}"
+                                Tag="{loc:Str Common_SearchPlaceholder}"
+                                Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}">
+                                <TextBox.InputBindings>
+                                    <KeyBinding Key="Enter" Command="{Binding SearchCommand}" />
+                                </TextBox.InputBindings>
+                            </TextBox>
+                        </Border>
+                        <Button
+                            Width="36"
+                            Height="42"
+                            Margin="4,0,0,0"
+                            Padding="0"
+                            Style="{StaticResource SteamButton}"
+                            ToolTip="{loc:Str Workshop_SearchOptionsToolTip}"
+                            Command="{Binding SearchCommand}">
+                            <ui:SymbolIcon FontSize="20" Foreground="{StaticResource SteamText}" Symbol="Search24" />
+                        </Button>
+                    </StackPanel>
+
+                    <Border Margin="0,4,0,0" Padding="10" Background="{StaticResource SteamSidebarBackground}">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource SteamSidebarHeader}" Text="{loc:Str Workshop_ContentType}" />
+                            <ItemsControl ItemsSource="{Binding Categories}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button
+                                            Style="{StaticResource CategoryRow}"
+                                            Command="{Binding DataContext.OpenCategoryCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                            CommandParameter="{Binding}">
+                                            <DockPanel>
+                                                <TextBlock DockPanel.Dock="Right" Foreground="#636B74" Text="{Binding Count, StringFormat='({0:N0})'}" />
+                                                <TextBlock TextTrimming="CharacterEllipsis" Text="{Binding Title}" />
+                                            </DockPanel>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2">
+                    <StackPanel x:Name="ListTabs" Orientation="Horizontal">
+                        <ToggleButton Style="{StaticResource HomeTab}" Tag="{x:Static vm:WorkshopHomeTab.TopRated}" Click="ListTab_Click">
+                            <TextBlock Text="{loc:Str WorkshopHome_TabTopRated}" />
+                        </ToggleButton>
+                        <ToggleButton Style="{StaticResource HomeTab}" Tag="{x:Static vm:WorkshopHomeTab.MostSubscribed}" Click="ListTab_Click">
+                            <TextBlock Text="{loc:Str WorkshopHome_TabMostSubscribed}" />
+                        </ToggleButton>
+                        <ToggleButton Style="{StaticResource HomeTab}" Tag="{x:Static vm:WorkshopHomeTab.LastUpdated}" Click="ListTab_Click">
+                            <TextBlock Text="{loc:Str WorkshopHome_TabLastUpdated}" />
+                        </ToggleButton>
+                        <ToggleButton Style="{StaticResource HomeTab}" Tag="{x:Static vm:WorkshopHomeTab.New}" Click="ListTab_Click">
+                            <TextBlock Text="{loc:Str WorkshopHome_TabNew}" />
+                        </ToggleButton>
+                    </StackPanel>
+                    <TextBlock Margin="0,2,0,0" FontSize="15" Foreground="{StaticResource SteamText}" Text="{Binding TabDescription}" />
+
+                    <ItemsControl Margin="0,22,-16,0" ItemsSource="{Binding TabItems}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Columns="2" VerticalAlignment="Top" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid
+                                    Height="114"
+                                    Margin="0,0,16,16"
+                                    Background="Transparent"
+                                    Cursor="Hand"
+                                    MouseLeftButtonUp="Card_MouseLeftButtonUp">
+                                    <Border Background="#1B1D21">
+                                        <Border.Effect>
+                                            <DropShadowEffect BlurRadius="10" Direction="315" Opacity="0.58" ShadowDepth="1.4" Color="Black" />
+                                        </Border.Effect>
+                                    </Border>
+                                    <Border Background="{StaticResource SteamCardBackground}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="114" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <Grid Grid.Column="0" Width="100" Height="100" Margin="7" Background="{StaticResource SteamPreviewBackground}" ClipToBounds="True">
+                                                <Image Stretch="UniformToFill" behaviors:ThumbnailLoader.Source="{Binding Thumbnail}" />
+                                            </Grid>
+                                            <StackPanel Grid.Column="1" Margin="4,8,0,0">
+                                                <TextBlock FontSize="19" Foreground="{StaticResource SteamWhite}" TextTrimming="CharacterEllipsis" Text="{Binding Name}" />
+                                                <TextBlock
+                                                    FontSize="12"
+                                                    Foreground="{StaticResource SteamAuthorText}"
+                                                    TextTrimming="CharacterEllipsis"
+                                                    Text="{Binding Author, StringFormat={loc:Str Browse_ByAuthorFormat}}"
+                                                    Visibility="{Binding Author, Converter={StaticResource NullToCollapsed}}" />
+                                                <WrapPanel Height="28" Margin="0,7,0,0" ClipToBounds="True">
+                                                    <Border Height="24" Margin="0,0,4,4" Padding="12,0" Background="{StaticResource SteamGray}" CornerRadius="2" Visibility="{Binding CategoryTag, Converter={StaticResource NullToCollapsed}}">
+                                                        <TextBlock VerticalAlignment="Center" FontSize="12" Foreground="{StaticResource SteamWhite}" Text="{Binding CategoryTag}" />
+                                                    </Border>
+                                                    <Border Height="24" Margin="0,0,4,4" Padding="12,0" Background="{StaticResource SteamGray}" CornerRadius="2" Visibility="{Binding IsFikaCompatible, Converter={StaticResource TrueToVisible}}">
+                                                        <TextBlock VerticalAlignment="Center" FontSize="12" Foreground="{StaticResource SteamWhite}" Text="{loc:Str Common_FlagFikaCompatible}" />
+                                                    </Border>
+                                                    <Border Height="24" Margin="0,0,4,4" Padding="12,0" Background="{StaticResource SteamGray}" CornerRadius="2" ToolTip="{loc:Str Browse_AddonBadgeToolTip}" Visibility="{Binding HasAddons, Converter={StaticResource TrueToVisible}}">
+                                                        <TextBlock VerticalAlignment="Center" FontSize="12" Foreground="{StaticResource SteamWhite}" Text="{Binding AddonBadgeText}" />
+                                                    </Border>
+                                                </WrapPanel>
+                                                <TextBlock FontSize="12" Foreground="{StaticResource SteamText}" Text="{Binding Downloads, StringFormat={loc:Str Common_DownloadsFormat}}" />
+                                            </StackPanel>
+                                            <!-- Where Steam's stars sit: the endorsement count. -->
+                                            <StackPanel
+                                                Grid.Column="2"
+                                                Margin="8,10,14,0"
+                                                VerticalAlignment="Top"
+                                                Orientation="Horizontal"
+                                                ToolTip="{Binding Endorsements, StringFormat={loc:Str Browse_EndorsementsFormat}}"
+                                                Visibility="{Binding Endorsements, Converter={StaticResource NullToCollapsed}}">
+                                                <ui:SymbolIcon FontSize="16" Filled="True" Foreground="{StaticResource SteamBlue}" Symbol="ThumbLike16" />
+                                                <TextBlock Margin="3,0,0,0" FontSize="13" Foreground="{StaticResource SteamBlue}" Text="{Binding Endorsements, StringFormat=N0}" />
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <Button
+                        Margin="0,4,0,0"
+                        HorizontalAlignment="Left"
+                        Style="{StaticResource ViewAllButton}"
+                        Command="{Binding ViewAllTabCommand}">
+                        <TextBlock Text="{loc:Str WorkshopHome_ViewAll}" />
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

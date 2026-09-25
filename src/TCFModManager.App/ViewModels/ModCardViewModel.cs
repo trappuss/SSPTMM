@@ -109,6 +109,25 @@ public sealed partial class ModCardViewModel : LocalizedViewModel
 
     public string AddonBadgeText => Strings.Browse_AddonBadge(AddonCount);
 
+    //
+    // The Steam card's rating row. sp-mod.com has no star ratings, so the row carries what it does
+    // publish - endorsements, favourites and downloads - rather than inventing a score. Each is null
+    // at zero so its part of the row collapses, the same way Endorsements above does.
+    //
+    public int? Favourites => Mod.FavouritesCount is > 0 ? Mod.FavouritesCount : null;
+
+    public bool ContainsAiContent => Mod.ContainsAiContent == true;
+
+    // "Posted" and "Updated" in the hover popup, as Steam's has. Posted falls back to the record's
+    // creation date for a mod that was never given a publish date; Updated is The Forge's own
+    // record date, the same one Last Updated sorts by when the newest release runs here.
+    public DateTimeOffset? PostedAt => Mod.PublishedAt ?? Mod.CreatedAt;
+
+    public DateTimeOffset? UpdatedAt => Mod.UpdatedAt;
+
+    // Steam's popup shows the description's first line; the teaser is this catalog's one-liner.
+    public bool HasTeaser => !string.IsNullOrWhiteSpace(Mod.Teaser);
+
     // 
     // Builds a card. <paramref name="selectedLines"/> is the SPT release lines currently ticked in
     // Browse's filter; the card's SPT text describes what the mod supports on exactly those lines,

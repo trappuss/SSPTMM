@@ -12,6 +12,13 @@
                      so whichever value sits here is never the one on screen. -->
                 <ui:ThemesDictionary Theme="Dark" />
                 <ui:ControlsDictionary />
+
+                <!-- The Steam Workshop palette, then the Steam styles. Both come AFTER WPF-UI's own
+                     dictionaries on purpose: a later merged dictionary wins a key lookup, and
+                     ApplicationThemeManager replaces the theme dictionary in place, so these stay
+                     after it whatever it does. See the header of each file. -->
+                <ResourceDictionary Source="Themes/SteamTheme.xaml" />
+                <ResourceDictionary Source="Themes/SteamStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
             <!--

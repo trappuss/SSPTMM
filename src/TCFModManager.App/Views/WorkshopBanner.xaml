@@ -1,0 +1,64 @@
+<!--
+    The Workshop banner that opens Steam's Workshop pages: game art on the left, a bold headline and
+    one sentence on the right, a "Learn More" link under them, on rgba(0,0,0,.24), 203px high.
+
+    The art is this app's own (Assets/WorkshopBanner.png); the words are this app's own too - Steam's
+    "Modding at its finest" is Valve's line, not something to borrow. 22px/800 headline (Noto Sans
+    Bold is the heaviest face shipped), 16px body, 16px underlined link, all measured.
+-->
+<UserControl
+    x:Class="TCFModManager.App.Views.WorkshopBanner"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:loc="clr-namespace:TCFModManager.App.Localization">
+    <Border Height="203" Background="{StaticResource SteamBanner}" ClipToBounds="True">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="600" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- The art sits on black and fades out to the right, as Steam's banner art does. -->
+            <Grid Grid.Column="0">
+                <Grid.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Offset="0" Color="#FF0E0E0E" />
+                        <GradientStop Offset="0.55" Color="#CC0E0E0E" />
+                        <GradientStop Offset="1" Color="#000E0E0E" />
+                    </LinearGradientBrush>
+                </Grid.Background>
+                <Image
+                    Width="203"
+                    Height="203"
+                    Margin="40,0,0,0"
+                    HorizontalAlignment="Left"
+                    RenderOptions.BitmapScalingMode="HighQuality"
+                    Source="pack://application:,,,/Assets/WorkshopBanner.png" />
+            </Grid>
+
+            <StackPanel Grid.Column="1" Margin="24,40,24,0">
+                <TextBlock
+                    FontFamily="{StaticResource SteamFont}"
+                    FontSize="22"
+                    FontWeight="Bold"
+                    Foreground="{StaticResource SteamWhite}"
+                    Text="{loc:Str Workshop_BannerHeadline}" />
+                <TextBlock
+                    Margin="0,10,0,0"
+                    FontSize="16"
+                    LineHeight="20"
+                    Foreground="#C5CAD0"
+                    TextWrapping="Wrap"
+                    Text="{loc:Str Workshop_BannerBody}" />
+                <Button
+                    Margin="0,18,0,0"
+                    HorizontalAlignment="Left"
+                    Foreground="{StaticResource SteamWhite}"
+                    Style="{StaticResource SteamLinkButton}"
+                    Click="LearnMore_Click">
+                    <TextBlock FontSize="16" TextDecorations="Underline" Text="{loc:Str Workshop_LearnMore}" />
+                </Button>
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>
