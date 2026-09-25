@@ -6,8 +6,9 @@ there underneath. This file records **where each value came from**, **what maps 
 **every place the fork knowingly differs from Steam or rests on a guess**.
 
 Update, rebuild and run: double-click `steam-ui-rebuild-and-run.bat` in the repo root. It takes the
-newest `steam-workshop-ui.bundle` from `Claude outputs\` (moving the branch forward only - it
-never drops commits), closes this build if it is open, clears the old build output (keeping
+newest `steam-workshop-ui.bundle` from `Claude outputs\` (moving the `steam-workshop-ui` branch
+forward only, and switching to it if another branch is checked out - it never drops commits),
+closes this build if it is open, clears the old build output (keeping
 `dist\steam-ui\Data`) and then runs the script below. It is kept out of git on purpose (see
 `.gitignore`): it switches the branch, and git must not replace the script while it runs.
 
@@ -101,10 +102,13 @@ labels `#939393`; "DESCRIPTION" 11px `#61696D`.
 | Your Items > Your collections | Mod lists |
 | Subscribe / Subscribed / Unsubscribe | Install / installed / Remove (same code paths) |
 | Star rating | Endorsements (and favourites, downloads) - the counts sp-mod.com publishes |
-| Most Recent / Last Updated / Most Subscribed / Top Rated All Time | Newest / Last updated / Most downloaded / Most endorsed |
+| Top Rated All Time / Most Recent / Last Updated / Total Unique Subscribers | Most endorsed / Newest / Last updated / Most downloaded (and the app's Most favourited, last) |
 | SPECIAL FILTERS | Featured include / exclude / only |
 | CONTENT TYPE | Category |
-| Tag rows [+]/[-] | The attribute filters: [+] Fika compatible, Has dependencies, Has addons; [-] Contains ads, AI content, Subscribed |
+| Tag rows [+]/[-] | The attribute filters: [+] Fika compatible, Has dependencies, Has addons; [-] Contains ads, Subscribed |
+| Filter chips on the count line | One per filter in force: search, content type, each SPT line, each tag, featured |
+| Additional Required Items dialog | The mod's missing dependencies, before the read-the-page gate |
+| "Added to your Subscriptions" bar | Shown once an install asked for on the item page has landed |
 | Required items | The shown version's dependencies (sp-mod.com sends no optional flag today) |
 | Comments | sp-mod.com's own comments, embedded |
 | Screenshots / videos | The pictures and videos in the description |
@@ -216,9 +220,87 @@ turns during a glide add to it. A list inside a page scrolls before the page doe
   there (reproduced with Wine 9 on every GIF tried, in a bare WPF program); description GIFs
   still play, through XamlAnimatedGif. Windows is unaffected.
 
+## Third round: audit, Steam and sp-mod.com gaps (2026-09-25)
+
+**Fixed after an audit of the second round.**
+- The app's own sp-mod.com listing can no longer be opened as an item page or installed, from any
+  link (a changelog link to it would have offered a working Subscribe that put the manager into
+  the SPT folder).
+- Infinite Browse stays bounded: installs, removals and addon counts redraw only the cards that
+  changed instead of rebuilding the whole list; the picture of any card more than two screens from
+  the view is let go (and comes back from the cache as it nears); the thumbnail cache is a
+  least-recently-used cache with a byte budget instead of growing for the whole session.
+- "Has dependencies" gets its data again: the lookup runs when a card is drawn, not only when its
+  hover popup opens.
+- `steam-ui-rebuild-and-run.bat` compares the bundle with the `steam-workshop-ui` branch itself,
+  not with whatever is checked out, so it can no longer move that branch past commits of yours
+  while another branch is checked out; both scripts work from a network share and with `&` in the
+  folder path.
+- Home redraws after Browse's installed index has caught up (it raced it before); a mod that
+  cannot be opened says why on Home and on the item page; a description link that cannot open
+  its item page opens in the browser.
+- A failure reading the install during Subscribe's lookup falls back to the queue's own check
+  instead of the crash dialog.
+- Late WebView2 starts no longer play a video that was closed, show comments for an item no
+  longer open, or open pages in the browser a second time.
+- The picture viewer opens over the update dialog; mod links inside that dialog go to the browser
+  (the item page would open underneath it).
+- Subscribed items: only the page's own instance rescans after installs, and a rescan that finds a
+  scan running waits for it instead of being dropped.
+- Required by tolerates a mod stored twice in the catalog and asks again, two minutes on, after a
+  lookup that could not reach every mod.
+- Formatted tooltips ("12 downloads") show their format; times are in this PC's time zone (they
+  were UTC); item page dates carry the year when it is not this year, as Steam's do.
+- The Change Notes count is every version, not the twenty loaded.
+
+**From Steam.**
+- *Additional Required Items* - Steam's own dialog when Subscribe finds missing requirements:
+  Subscribe to Just This Item / Subscribe to All / Cancel. The list's pages open from it and count
+  for the read-the-page gate that follows.
+- Steam's modal dialog (newmodal): `#25282E` with a top-left glow, the `#00CCFF`-`#3366FF` line
+  along the top, a 22px bold title, 16px `#ACB2B8` text, green/blue/grey buttons and the page
+  dimmed to 80% black behind it. The read-the-page gate is drawn the same way.
+- The *This item has been added to your Subscriptions* bar under the subscribe box.
+- Change Notes as Steam's page: "Showing 1-20 of 30 entries", an "Update: Sep 24 @ 2:34AM"
+  headline in light blue, the version and its SPT range where Steam names the author, the notes in
+  a dark box, and *Show older updates*.
+- Filter chips on Browse's count line, each removing its filter; *Clear search* in search fields.
+- The sort panel's and the Your Items menu's measured gradients; SORT ORDER in Steam's order and
+  wording (Total Unique Subscribers, in Steam's own translations).
+- Steam's tooltip: a light grey gradient with dark text.
+
+**From sp-mod.com.**
+- The site's two notices, in its words and colours: the multiplayer-cheat warning (red) and the
+  profile-binding notice (amber), above the subscribe box.
+- VirusTotal scans per version (Versions tab) and for the shown version (header), from
+  `include=virus_total_links`.
+- The licence links to its text; the plugin GUID; source code links (`include=source_code_links`).
+- A version's dependencies name the newest accepted version: "BigBrain (1.4.0)".
+- A mod whose page has no comments section says so on the Comments tab instead of showing the
+  whole page there.
+- The "Contains AI content" tag row is gone: the API has no such field (asked 2026-09-25, it
+  refuses `filter[contains_ai_content]` as an invalid filter), so it could never hide anything.
+
+### Where this round differs, and why
+
+- **Enter chooses Subscribe to All** in the required-items dialog; Steam's Enter chooses Just This
+  Item. A Workshop game fetches what an item needs regardless; SPT does not, and a mod installed
+  without its requirements fails to load, so the key that answers without reading gives the
+  working install. The dialog's second and third sentences are the app's own: a click opens the
+  sp-mod.com page, and the list already holds everything the items need in turn.
+- **One tooltip style.** Steam's legacy item page uses a flat grey `#C2C2C2` tooltip; the newer
+  Workshop pages' gradient is used everywhere.
+- **Menus are not blurred behind.** Steam blurs what is under its menu panels; a WPF popup cannot.
+- **The SPT line ticked by default shows as a chip.** Steam has no default tags; here the install's
+  own line is ticked on opening, and the chip says so.
+- **The infinite list is not virtualised.** The page scrolls as one (banner, sidebar and grid), and
+  a virtualising panel needs to own its scrolling; the pictures are what is released instead.
+- **The notices keep sp-mod.com's colours**; Steam has nothing like them.
+
 ## Values that could not be measured (marked HUNCH in the source)
 
 - The smooth-scroll distance and time (100px, 200ms) - chosen to feel like a browser, not measured.
+- The thumbnail cache's budget (160 MB) and how far from the view pictures are kept (two screens).
 
 - Critical/error red (`#E05A5A`): no error state on the pages measured.
 - Outlined "View All" hover fill.
