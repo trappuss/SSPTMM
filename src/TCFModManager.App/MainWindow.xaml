@@ -246,6 +246,7 @@
                 <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:BrowsePage}" />
                 <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:InstalledPage}" />
                 <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:ModListsPage}" />
+                <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:FollowedAuthorsPage}" />
                 <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:ConfigsPage}" />
                 <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:DependenciesPage}" />
                 <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:FootprintPage}" />

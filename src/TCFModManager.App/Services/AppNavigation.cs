@@ -59,5 +59,6 @@ public static class AppNavigation
         pageType == typeof(WorkshopHomePage)
         || pageType == typeof(BrowsePage)
         || pageType == typeof(InstalledPage)
-        || pageType == typeof(ModListsPage);
+        || pageType == typeof(ModListsPage)
+        || pageType == typeof(FollowedAuthorsPage);
 }

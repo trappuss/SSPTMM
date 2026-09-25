@@ -133,6 +133,7 @@ public partial class MainWindow : FluentWindow
         }
 
         WorkshopStrip.Visibility = pageType == typeof(InstalledPage) || pageType == typeof(ModListsPage)
+                || pageType == typeof(FollowedAuthorsPage)
             ? Visibility.Visible
             : Visibility.Collapsed;
     }

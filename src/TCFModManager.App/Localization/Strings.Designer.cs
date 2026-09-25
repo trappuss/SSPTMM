@@ -1552,4 +1552,12 @@ internal static class Strings
         LocalizationService.Plural("Installed_RemoveSkippedDisabled", count, values);
     internal static string Collection_SetAside => LocalizationService.Get("Collection_SetAside");
     internal static string Collection_RemoveAll => LocalizationService.Get("Collection_RemoveAll");
+    internal static string FollowedAuthors_Title => LocalizationService.Get("FollowedAuthors_Title");
+    internal static string FollowedAuthors_Header => LocalizationService.Get("FollowedAuthors_Header");
+    internal static string FollowedAuthors_Empty => LocalizationService.Get("FollowedAuthors_Empty");
+    internal static string FollowedAuthors_ViewAllItems => LocalizationService.Get("FollowedAuthors_ViewAllItems");
+    internal static string FollowedAuthors_TheirItems => LocalizationService.Get("FollowedAuthors_TheirItems");
+    internal static string FollowedAuthors_Items(int count, params object?[] values) =>
+        LocalizationService.Plural("FollowedAuthors_Items", count, values);
+    internal static string FollowedAuthors_NewestFormat => LocalizationService.Get("FollowedAuthors_NewestFormat");
 }

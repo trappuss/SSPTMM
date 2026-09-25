@@ -5768,4 +5768,36 @@ This was written to:
     <value>Remove</value>
     <comment>Unsubscribe from all answer: delete the collection's installed items.</comment>
   </data>
+  <data name="FollowedAuthors_Title" xml:space="preserve">
+    <value>Authors you follow</value>
+    <comment>Your Items menu entry and page title: the authors followed from the Workshop pages.</comment>
+  </data>
+  <data name="FollowedAuthors_Header" xml:space="preserve">
+    <value>AUTHORS YOU FOLLOW</value>
+    <comment>Heading over the followed authors; the count follows in Collection_ItemsCountFormat. Upper case in Steam's design.</comment>
+  </data>
+  <data name="FollowedAuthors_Empty" xml:space="preserve">
+    <value>You are not following anyone yet. Follow an author from the CREATED BY panel on one of their items, or from the right-click menu on anything they made.</value>
+    <comment>Followed authors page with nobody followed.</comment>
+  </data>
+  <data name="FollowedAuthors_ViewAllItems" xml:space="preserve">
+    <value>View all their items</value>
+    <comment>Followed authors page button: Browse, only items by followed authors, newest first.</comment>
+  </data>
+  <data name="FollowedAuthors_TheirItems" xml:space="preserve">
+    <value>Their items</value>
+    <comment>Button on a followed author: their items in Browse.</comment>
+  </data>
+  <data name="FollowedAuthors_Items_one" xml:space="preserve">
+    <value>{0:N0} item</value>
+    <comment>How many items the catalog has by a followed author. {0} is the count.</comment>
+  </data>
+  <data name="FollowedAuthors_Items_other" xml:space="preserve">
+    <value>{0:N0} items</value>
+    <comment>How many items the catalog has by a followed author. {0} is the count.</comment>
+  </data>
+  <data name="FollowedAuthors_NewestFormat" xml:space="preserve">
+    <value>- newest posted {0}</value>
+    <comment>After the item count on a followed author. {0} is a date as Steam writes it ("Sep 24 @ 2:34AM").</comment>
+  </data>
 </root>

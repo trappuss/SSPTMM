@@ -28,7 +28,8 @@ public partial class WorkshopSubNav : UserControl
     {
         HomeTab.IsChecked = pageType == typeof(WorkshopHomePage);
         BrowseTab.IsChecked = pageType == typeof(BrowsePage);
-        YourItemsTab.IsChecked = pageType == typeof(InstalledPage) || pageType == typeof(ModListsPage);
+        YourItemsTab.IsChecked = pageType == typeof(InstalledPage) || pageType == typeof(ModListsPage)
+            || pageType == typeof(FollowedAuthorsPage);
     }
 
     private void HomeTab_Click(object sender, RoutedEventArgs e) => Go(typeof(WorkshopHomePage));
@@ -55,6 +56,12 @@ public partial class WorkshopSubNav : UserControl
     {
         YourItemsPopup.IsOpen = false;
         Go(typeof(ModListsPage));
+    }
+
+    private void FollowedAuthors_Click(object sender, RoutedEventArgs e)
+    {
+        YourItemsPopup.IsOpen = false;
+        Go(typeof(FollowedAuthorsPage));
     }
 
     private void Go(Type pageType)
