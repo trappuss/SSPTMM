@@ -11,7 +11,7 @@
     <Page.Resources>
         <controls:BooleanToVisibilityConverter x:Key="BoolToVisibility" />
     </Page.Resources>
-    <StackPanel Margin="16" DataContext="{x:Static app:AppServices.ServerMap}">
+    <StackPanel Margin="24,16,24,16" DataContext="{x:Static app:AppServices.ServerMap}">
 
         <!-- The server's own card, pinned at the top. Client cards will sit under it once the
              registry routes exist; until then this page is honest about being one card, which is

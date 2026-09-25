@@ -225,6 +225,16 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
     // without checking IsAddon first.
     public int? ModId { get; init; }
 
+    // The catalog listing's preview image, for the Steam-style card. Looked up when a card first
+    // draws rather than carried through the scan: the scan does not need it, and the catalog is
+    // already in memory by the time anything is on screen.
+    //
+    // Mods only: an addon's ModId is an addon id, a separate sequence that would match some
+    // unrelated mod's listing here.
+    public string? Thumbnail => ModId is { } id && !IsAddon
+        ? AppServices.ModCache.AllMods.FirstOrDefault(m => m.Id == id)?.Thumbnail
+        : null;
+
     //
     // True when this card is an addon rather than a mod. Only ever set from an install record this
     // app wrote: addons carry no GUID and their ids don't overlap mods', so there is nothing for

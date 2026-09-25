@@ -13,7 +13,7 @@
         <converters:FalseToVisibilityConverter x:Key="FalseToVisible" />
         <converters:NullToVisibilityConverter x:Key="NullToCollapsed" />
     </Page.Resources>
-    <StackPanel Margin="16">
+    <StackPanel Margin="24,16,24,16">
         <ui:Card Padding="16" VerticalAlignment="Top">
             <StackPanel>
                 <TextBlock
@@ -152,7 +152,10 @@
             </StackPanel>
         </ui:Card>
 
-        <ui:Card Padding="16" VerticalAlignment="Top" Margin="0,16,0,0">
+        <!-- Hidden in the Steam Workshop fork: Steam has one look, so there is no light theme to
+             choose (see AppTheme.ApplyOnly). Left in place rather than deleted, so the setting it
+             edits is untouched and the upstream app finds it where it was left. -->
+        <ui:Card Padding="16" VerticalAlignment="Top" Margin="0,16,0,0" Visibility="Collapsed">
             <StackPanel>
                 <TextBlock
                     Text="{loc:Str Options_AppearanceHeader}"

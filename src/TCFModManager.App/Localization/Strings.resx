@@ -364,7 +364,7 @@
     <value>This mod is in both an enabled and a disabled folder - pick which copy to keep</value>
   </data>
   <data name="Installed_Remove" xml:space="preserve">
-    <value>Remove</value>
+    <value>Unsubscribe</value>
   </data>
   <data name="Installed_RemoveToolTip" xml:space="preserve">
     <value>Remove this mod</value>

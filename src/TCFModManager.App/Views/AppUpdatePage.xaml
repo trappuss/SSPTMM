@@ -20,7 +20,7 @@
     </Page.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel Margin="16">
+        <StackPanel Margin="24,16,24,16">
 
             <!-- Where this comes from. Stated up front rather than buried, because "an app that
                  updates itself" is worth being unambiguous about. -->

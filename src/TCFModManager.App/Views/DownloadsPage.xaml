@@ -27,7 +27,7 @@
             <Setter Property="Margin" Value="0,6,12,0" />
         </Style>
     </Page.Resources>
-    <Grid Margin="16">
+    <Grid Margin="24,16,24,16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />

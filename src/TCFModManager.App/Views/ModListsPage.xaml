@@ -91,7 +91,7 @@
 
     <Grid
         x:Name="RootGrid"
-        Margin="20"
+        Margin="24,16,24,16"
         Background="Transparent">
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />

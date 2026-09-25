@@ -1908,7 +1908,7 @@ Die Kopie, die du nicht behältst, wird in einen versteckten Ordner .tcfmm-dupli
     <value>{0} deaktiviert (aktiviere sie zuerst)</value>
   </data>
   <data name="Installed_Remove" xml:space="preserve">
-    <value>Entfernen</value>
+    <value>Abbestellen</value>
   </data>
   <data name="Installed_RemoveAppManagedBody" xml:space="preserve">
     <value>Das löscht genau die Dateien, die diese App dafür installiert hat.</value>

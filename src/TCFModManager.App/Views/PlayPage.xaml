@@ -10,7 +10,7 @@
     <Page.Resources>
         <controls:BooleanToVisibilityConverter x:Key="BoolToVisibility" />
     </Page.Resources>
-    <StackPanel Margin="16">
+    <StackPanel Margin="24,16,24,16">
 
         <!--
             The pre-launch check, above the buttons because that is the order it matters in.

@@ -1908,7 +1908,7 @@ La copie que vous ne gardez pas est déplacée dans un dossier caché .tcfmm-dup
     <value>{0} désactivés (activez-les d'abord)</value>
   </data>
   <data name="Installed_Remove" xml:space="preserve">
-    <value>Supprimer</value>
+    <value>Se désabonner</value>
   </data>
   <data name="Installed_RemoveAppManagedBody" xml:space="preserve">
     <value>Cela supprime exactement les fichiers que cette app a installés pour lui.</value>

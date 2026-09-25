@@ -1908,7 +1908,7 @@ La copia che non conservi viene spostata in una cartella nascosta .tcfmm-duplica
     <value>{0} disattivati (attivali prima)</value>
   </data>
   <data name="Installed_Remove" xml:space="preserve">
-    <value>Rimuovi</value>
+    <value>Annulla sottoscrizione</value>
   </data>
   <data name="Installed_RemoveAppManagedBody" xml:space="preserve">
     <value>Verranno eliminati esattamente i file che questa app ha installato per questo mod.</value>

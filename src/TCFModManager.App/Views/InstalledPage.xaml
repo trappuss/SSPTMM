@@ -19,6 +19,7 @@
     xmlns:converters="clr-namespace:TCFModManager.App.Converters"
     xmlns:viewmodels="clr-namespace:TCFModManager.App.ViewModels"
     xmlns:loc="clr-namespace:TCFModManager.App.Localization"
+    xmlns:behaviors="clr-namespace:TCFModManager.App.Behaviors"
     Title="{loc:Str Nav_Installed}"
     Loaded="InstalledPage_Loaded"
     ScrollViewer.CanContentScroll="False">
@@ -251,9 +252,12 @@
          resolve the hit test to whatever's rendered behind this whole page instead of to anything
          inside it - meaning the event's route would never even pass through the Page, so it
          wouldn't matter where the handler was attached. -->
+    <!-- Steam's "Subscribed items": the page's title over everything the Installed page has always
+         done. The rows below are the upstream page's, re-coloured by the Steam theme; its gutters
+         are Steam's 24px so it lines up under the hub tabs and the Workshop strip. -->
     <Grid
         x:Name="RootGrid"
-        Margin="16"
+        Margin="24,16,24,16"
         Background="Transparent">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -264,7 +268,7 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <DockPanel Grid.Row="0" Margin="0,0,0,8">
+        <DockPanel Grid.Row="0" Margin="0,0,0,12">
             <ui:Button
                 DockPanel.Dock="Right"
                 Content="{loc:Str Common_Rescan}"
@@ -352,11 +356,15 @@
                     Click="ListView_Click" />
             </StackPanel>
 
-            <TextBlock
-                VerticalAlignment="Center"
-                TextWrapping="Wrap"
-                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                Text="{Binding StatusMessage}" />
+            <StackPanel VerticalAlignment="Center">
+                <TextBlock FontSize="18" Foreground="{StaticResource SteamTextBright}" Text="{loc:Str Workshop_SubscribedItems}" />
+                <TextBlock
+                    Margin="0,2,0,0"
+                    FontSize="14"
+                    TextWrapping="Wrap"
+                    Foreground="{StaticResource SteamText}"
+                    Text="{Binding StatusMessage}" />
+            </StackPanel>
         </DockPanel>
 
         <!-- Search box and filter toggles. -->
@@ -735,8 +743,24 @@
                                     </StackPanel>
 
                                     <StackPanel Grid.Column="2" VerticalAlignment="Top">
+                                        <!-- The listing's preview, as a Steam subscription row
+                                             leads with one; absent for a mod the catalog does
+                                             not know, and the title simply starts the row. -->
+                                        <DockPanel>
+                                        <Grid
+                                            DockPanel.Dock="Left"
+                                            Width="56"
+                                            Height="56"
+                                            Margin="0,0,10,0"
+                                            Background="{StaticResource SteamPreviewBackground}"
+                                            ClipToBounds="True"
+                                            Visibility="{Binding Thumbnail, Converter={StaticResource NullToCollapsed}}">
+                                            <Image Stretch="UniformToFill" behaviors:ThumbnailLoader.Source="{Binding Thumbnail}" />
+                                        </Grid>
+                                        <StackPanel>
                                         <TextBlock
-                                            FontWeight="SemiBold"
+                                            FontSize="15"
+                                            Foreground="{StaticResource SteamWhite}"
                                             TextTrimming="CharacterEllipsis"
                                             Text="{Binding DisplayTitle}"
                                             ToolTip="{Binding DisplayTitle}" />
@@ -767,6 +791,8 @@
                                         <ContentPresenter
                                             ContentTemplate="{StaticResource ModListBadges}"
                                             Content="{Binding}" />
+                                        </StackPanel>
+                                        </DockPanel>
 
                                         <!-- Group and disabled state, both readable without
                                              opening the card. Under the summary rather than beside

@@ -24,7 +24,7 @@
 
     <Grid
         x:Name="RootGrid"
-        Margin="16"
+        Margin="24,16,24,16"
         Background="Transparent">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />

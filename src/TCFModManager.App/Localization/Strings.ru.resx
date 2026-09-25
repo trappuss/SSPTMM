@@ -2013,7 +2013,7 @@
     <value>{0} отключён (сначала включите его)</value>
   </data>
   <data name="Installed_Remove" xml:space="preserve">
-    <value>Удалить</value>
+    <value>Отписаться</value>
   </data>
   <data name="Installed_RemoveAppManagedBody" xml:space="preserve">
     <value>Будут удалены ровно те файлы, которые приложение установило для этого мода.</value>
