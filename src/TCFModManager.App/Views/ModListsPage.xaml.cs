@@ -22,7 +22,20 @@ public partial class ModListsPage : Page
         AddHandler(PreviewMouseWheelEvent, new MouseWheelEventHandler(Page_PreviewMouseWheel), handledEventsToo: true);
     }
 
-    private void ModListsPage_Loaded(object sender, RoutedEventArgs e) => ViewModel.Refresh();
+    private async void ModListsPage_Loaded(object sender, RoutedEventArgs e)
+    {
+        ViewModel.Refresh();
+
+        // A collection's page may have sent this page here with something to do - see
+        // ModListsViewModel.Request - or may send it while it is showing.
+        ModListsViewModel.Requested -= OnRequested;
+        ModListsViewModel.Requested += OnRequested;
+        await ViewModel.HandleRequestAsync();
+    }
+
+    private void ModListsPage_Unloaded(object sender, RoutedEventArgs e) => ModListsViewModel.Requested -= OnRequested;
+
+    private async void OnRequested(object? sender, EventArgs e) => await ViewModel.HandleRequestAsync();
 
     //
     // Sends the wheel to whichever list the pointer is nearest, so scrolling works anywhere on the

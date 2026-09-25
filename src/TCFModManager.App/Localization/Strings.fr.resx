@@ -486,6 +486,9 @@ Il a été écrit dans :
   <data name="Browse_UnexpectedRefreshFormat" xml:space="preserve">
     <value>Erreur inattendue lors de l'actualisation du catalogue de mods : {0}</value>
   </data>
+  <data name="Collection_Breadcrumb" xml:space="preserve">
+    <value>Vos collections</value>
+  </data>
   <data name="Common_AttributeFilterToolTip" xml:space="preserve">
     <value>Filtrer par compatibilité Fika, publicités, contenu IA, dépendances et addons</value>
   </data>

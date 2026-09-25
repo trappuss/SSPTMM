@@ -486,6 +486,9 @@
   <data name="Browse_UnexpectedRefreshFormat" xml:space="preserve">
     <value>Errore imprevisto durante il ricaricamento del catalogo mod: {0}</value>
   </data>
+  <data name="Collection_Breadcrumb" xml:space="preserve">
+    <value>Le tue collezioni</value>
+  </data>
   <data name="Common_AttributeFilterToolTip" xml:space="preserve">
     <value>Filtra per supporto Fika, pubblicità, contenuti IA, dipendenze e addon</value>
   </data>

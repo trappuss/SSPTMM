@@ -53,6 +53,8 @@ public partial class WorkshopItemView : UserControl
 
     public void Close()
     {
+        var wasOpen = _current is not null;
+
         _history.Clear();
         _current = null;
 
@@ -60,7 +62,12 @@ public partial class WorkshopItemView : UserControl
         DataContext = null;
         Visibility = Visibility.Collapsed;
         HideComments();
+
+        if (wasOpen) Closed?.Invoke(this, EventArgs.Empty);
     }
+
+    /// <summary>Raised when the page closes - the collection page opened under it comes back.</summary>
+    public event EventHandler? Closed;
 
     private void Detach()
     {

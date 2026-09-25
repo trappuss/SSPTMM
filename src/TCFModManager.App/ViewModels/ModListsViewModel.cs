@@ -210,9 +210,93 @@ public sealed class ModListEntrySort(string key, ListSortDirection direction) : 
 // ModListService and renders what comes back. See [ModListApplier] for the order an apply runs in
 // and why nothing is disabled until every download has worked.
 //
+// What another page asks the Collections page to do when it opens: choose a list (null: none, and
+// point at the capture box) and, with a policy, preview applying it that way.
+public sealed record ModListsRequest(Guid? ListId, ModListPolicy? Policy);
+
 public partial class ModListsViewModel : LocalizedViewModel
 {
     private readonly ModListService _service = AppServices.ModListWorkflow;
+
+    // ------------------------------------------------------------------ requests from other pages
+
+    //
+    // A collection's Workshop page hands its Subscribe to all over to this page, as a preview of the
+    // list applied the way the user chose - so what will happen is shown before anything does, by
+    // the same plan the Apply button runs. The request waits here until the page is on screen.
+    //
+    private static ModListsRequest? _pending;
+
+    public static event EventHandler? Requested;
+
+    public static void Request(ModListsRequest request)
+    {
+        _pending = request;
+        Requested?.Invoke(null, EventArgs.Empty);
+    }
+
+    /// <summary>Carries out a waiting request, if there is one. The page calls this once it is on
+    /// screen and whenever a request arrives while it is.</summary>
+    public async Task HandleRequestAsync()
+    {
+        if (_pending is not { } request) return;
+        _pending = null;
+
+        Refresh(request.ListId);
+
+        if (request.ListId is null)
+        {
+            StatusMessage = Strings.Collection_CaptureHint;
+            return;
+        }
+
+        if (request.Policy is not { } policy || Selected is not { } row) return;
+
+        await RunAsync(async () =>
+        {
+            var preview = await _service.PreviewAsync(WithPolicy(row.List, policy));
+
+            if (preview is null)
+            {
+                StatusMessage = AppMessages.NoSptInstallFolder;
+                return;
+            }
+
+            ShowPlan(preview);
+        });
+    }
+
+    // The list as it stands, applied one way this once. Same id, so an apply still marks this list
+    // as followed and counts its revision; the stored list's own setting is not touched.
+    private static ModList WithPolicy(ModList list, ModListPolicy policy)
+    {
+        if (list.Policy == policy) return list;
+
+        var copy = new ModList
+        {
+            Id = list.Id,
+            Name = list.Name,
+            Description = list.Description,
+            Revision = list.Revision,
+            Origin = list.Origin,
+            Policy = policy,
+            DerivedFrom = list.DerivedFrom,
+            Source = list.Source,
+            SptVersion = list.SptVersion,
+            IsSnapshot = list.IsSnapshot,
+            CreatedAt = list.CreatedAt,
+            UpdatedAt = list.UpdatedAt,
+        };
+        copy.Entries.AddRange(list.Entries);
+        return copy;
+    }
+
+    // This list's Workshop page.
+    [RelayCommand]
+    private void ViewCollection()
+    {
+        if (Selected is { } row) AppServices.CollectionOverlay.Show(row.Id);
+    }
 
     private static string Text(string format, params object?[] values) =>
         LocalizationService.Text(format, values);

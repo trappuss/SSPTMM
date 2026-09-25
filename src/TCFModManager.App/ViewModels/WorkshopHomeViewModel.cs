@@ -31,8 +31,10 @@ public sealed record WorkshopCategoryCount(string Title, int Count);
 // sp-mod.com actually records: Steam's "Most Popular" is a weekly popularity measure the catalog does
 // not have, so the first tab is Top Rated (endorsements), labelled as what it is.
 //
-public sealed partial class WorkshopHomeViewModel : LocalizedViewModel
+public sealed partial class WorkshopHomeViewModel : LocalizedViewModel, IModActionHost
 {
+    void IModActionHost.ShowActionMessage(string? message) => Message = message;
+
     // Ten per list, as Steam's front page shows; the carousel holds a few pages of six.
     private const int ListSize = 10;
     private const int FeaturedSize = 24;

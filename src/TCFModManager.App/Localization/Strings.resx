@@ -5276,4 +5276,208 @@ This was written to:
     <value>Clear search</value>
     <comment>Tooltip on the X inside a search box. Steam's words.</comment>
   </data>
+  <data name="Collection_AddTitle" xml:space="preserve">
+    <value>Add to Collection</value>
+    <comment>Title of the dialog that puts a mod on your collections (mod lists). Steam's words.</comment>
+  </data>
+  <data name="Collection_AddIntroFormat" xml:space="preserve">
+    <value>'{0}' will be added to the selected collections below:</value>
+    <comment>Top of the Add to Collection dialog, Steam's words. {0} is the mod.</comment>
+  </data>
+  <data name="Collection_AddNoneYet" xml:space="preserve">
+    <value>You don't have any saved collections. You can create a new one by entering a name for it below.</value>
+    <comment>Add to Collection dialog when there are no collections yet. Steam's words.</comment>
+  </data>
+  <data name="Collection_CreateNew" xml:space="preserve">
+    <value>Create New Collection</value>
+    <comment>Placeholder in the Add to Collection dialog's name box: typing a name makes a new collection with the mod in it. Steam's words.</comment>
+  </data>
+  <data name="Collection_AddConfirm" xml:space="preserve">
+    <value>Add to Selected Collections</value>
+    <comment>Add to Collection dialog button. Steam's words.</comment>
+  </data>
+  <data name="Collection_AddToolTip" xml:space="preserve">
+    <value>Add to one of your collections</value>
+    <comment>Tooltip on the Add to Collection button. Steam's words.</comment>
+  </data>
+  <data name="Collection_Added_one" xml:space="preserve">
+    <value>Added {0} to 1 collection.</value>
+    <comment>After Add to Collection. {0} is the mod, {1} how many collections.</comment>
+  </data>
+  <data name="Collection_Added_other" xml:space="preserve">
+    <value>Added {0} to {1} collections.</value>
+    <comment>After Add to Collection. {0} is the mod, {1} how many collections.</comment>
+  </data>
+  <data name="Collection_Removed_one" xml:space="preserve">
+    <value>Took {0} off 1 collection.</value>
+    <comment>After Add to Collection, for collections that were unticked. {0} is the mod, {1} how many.</comment>
+  </data>
+  <data name="Collection_Removed_other" xml:space="preserve">
+    <value>Took {0} off {1} collections.</value>
+    <comment>After Add to Collection, for collections that were unticked. {0} is the mod, {1} how many.</comment>
+  </data>
+  <data name="Collection_ItemCount_one" xml:space="preserve">
+    <value>1 item</value>
+    <comment>How many items a collection holds, beside its name.</comment>
+  </data>
+  <data name="Collection_ItemCount_other" xml:space="preserve">
+    <value>{0:N0} items</value>
+    <comment>How many items a collection holds, beside its name. {0} is the number.</comment>
+  </data>
+  <data name="Item_InCollections_one" xml:space="preserve">
+    <value>IN 1 OF YOUR COLLECTIONS</value>
+    <comment>Title over the item page's list of your collections holding the mod, after Steam's "In N Collections". Upper case in Steam's design.</comment>
+  </data>
+  <data name="Item_InCollections_other" xml:space="preserve">
+    <value>IN {0:N0} OF YOUR COLLECTIONS</value>
+    <comment>Title over the item page's list of your collections holding the mod. {0} is how many. Upper case in Steam's design.</comment>
+  </data>
+  <data name="Collection_ViewPage" xml:space="preserve">
+    <value>View collection</value>
+    <comment>Collections page button: opens the chosen list as a Workshop collection page.</comment>
+  </data>
+  <data name="Collection_ViewPageToolTip" xml:space="preserve">
+    <value>See this collection as its Workshop page</value>
+    <comment>Tooltip on View collection.</comment>
+  </data>
+  <data name="Collection_Breadcrumb" xml:space="preserve">
+    <value>Your collections</value>
+    <comment>Last breadcrumb on a collection's page. Steam's words (Your Items menu).</comment>
+  </data>
+  <data name="Collection_ItemsHeader" xml:space="preserve">
+    <value>ITEMS</value>
+    <comment>Heading over a collection's items. Upper case in Steam's design; the count follows in Collection_ItemsCountFormat.</comment>
+  </data>
+  <data name="Collection_ItemsCountFormat" xml:space="preserve">
+    <value>({0:N0})</value>
+    <comment>After ITEMS over a collection's items, in a lighter grey. {0} is how many.</comment>
+  </data>
+  <data name="Collection_CreatedBy_one" xml:space="preserve">
+    <value>A COLLECTION OF 1 ITEM CREATED BY</value>
+    <comment>Right-hand panel title on a collection's page, over its items' authors. Steam's words, upper case in its design.</comment>
+  </data>
+  <data name="Collection_CreatedBy_other" xml:space="preserve">
+    <value>A COLLECTION OF {0:N0} ITEMS CREATED BY</value>
+    <comment>Right-hand panel title on a collection's page. {0} is how many items. Steam's words, upper case in its design.</comment>
+  </data>
+  <data name="Collection_NoItems" xml:space="preserve">
+    <value>No items in this collection</value>
+    <comment>A collection with nothing in it. Steam's words.</comment>
+  </data>
+  <data name="Collection_SubscribeAll" xml:space="preserve">
+    <value>Subscribe to all</value>
+    <comment>Button over a collection's items. Steam's words.</comment>
+  </data>
+  <data name="Collection_UnsubscribeAll" xml:space="preserve">
+    <value>Unsubscribe from all</value>
+    <comment>Button over a collection's items, and the title of its confirmation. Steam's words.</comment>
+  </data>
+  <data name="Collection_SaveToCollection" xml:space="preserve">
+    <value>Save to Collection</value>
+    <comment>Button over a collection's items: saves a copy under a new name. Steam's words.</comment>
+  </data>
+  <data name="Collection_Manage" xml:space="preserve">
+    <value>Manage in Collections</value>
+    <comment>Button on a collection's page: opens it on the Collections page to rename, change or share it.</comment>
+  </data>
+  <data name="Collection_SubscribeAllTitle" xml:space="preserve">
+    <value>Subscribe to All</value>
+    <comment>Title of the question Subscribe to all asks. Steam's words.</comment>
+  </data>
+  <data name="Collection_SubscribeAllBody" xml:space="preserve">
+    <value>Do you want to add the items in this collection to your subscriptions, or overwrite your subscriptions to contain only items from this collection?</value>
+    <comment>The question Subscribe to all asks. Steam's words.</comment>
+  </data>
+  <data name="Collection_AddOnly" xml:space="preserve">
+    <value>Add Only</value>
+    <comment>Subscribe to all answer: install the collection alongside what is there. Steam's words.</comment>
+  </data>
+  <data name="Collection_Overwrite" xml:space="preserve">
+    <value>Overwrite My Subscriptions</value>
+    <comment>Subscribe to all answer: make the install exactly this collection. Also the title of the confirmation that follows. Steam's words.</comment>
+  </data>
+  <data name="Collection_OverwriteBody" xml:space="preserve">
+    <value>Are you sure you want to overwrite your subscriptions? Every mod that is not in this collection will be set aside (disabled, not deleted) and can be enabled again from Subscribed items. You may want to save your current subscriptions to a collection first. The Collections page shows everything that will change before it does.</value>
+    <comment>Confirmation before making the install exactly a collection. After Steam's wording, with what happens here.</comment>
+  </data>
+  <data name="Collection_OverwriteYes" xml:space="preserve">
+    <value>Yes, Overwrite My Subscriptions</value>
+    <comment>Confirms making the install exactly a collection. Steam's words.</comment>
+  </data>
+  <data name="Collection_SaveCurrent" xml:space="preserve">
+    <value>Save Current Subscriptions to a Collection</value>
+    <comment>Instead of overwriting: go and save what is installed now as a collection. Steam's words.</comment>
+  </data>
+  <data name="Collection_CaptureHint" xml:space="preserve">
+    <value>Name a new collection and choose Capture to save what is installed now.</value>
+    <comment>Status line on the Collections page when sent there to save the current subscriptions.</comment>
+  </data>
+  <data name="Collection_UnsubscribeAllBody_one" xml:space="preserve">
+    <value>The 1 installed item of this collection will be set aside (disabled), not deleted. It can be enabled again from Subscribed items.</value>
+    <comment>Confirmation before Unsubscribe from all. {0} is how many.</comment>
+  </data>
+  <data name="Collection_UnsubscribeAllBody_other" xml:space="preserve">
+    <value>The {0:N0} installed items of this collection will be set aside (disabled), not deleted. They can be enabled again from Subscribed items.</value>
+    <comment>Confirmation before Unsubscribe from all. {0} is how many.</comment>
+  </data>
+  <data name="Collection_NothingInstalled" xml:space="preserve">
+    <value>None of the items in this collection are installed.</value>
+    <comment>Unsubscribe from all when there is nothing to take out.</comment>
+  </data>
+  <data name="Collection_NamePrompt" xml:space="preserve">
+    <value>Enter a name for this collection:</value>
+    <comment>Save to Collection asks for the copy's name. Steam's words.</comment>
+  </data>
+  <data name="Collection_CopyNameFormat" xml:space="preserve">
+    <value>{0} (copy)</value>
+    <comment>The name Save to Collection suggests. {0} is the collection's name.</comment>
+  </data>
+  <data name="Collection_Save" xml:space="preserve">
+    <value>Save</value>
+    <comment>Save to Collection's button.</comment>
+  </data>
+  <data name="Collection_SavedFormat" xml:space="preserve">
+    <value>Saved as {0}.</value>
+    <comment>After Save to Collection. {0} is the new collection's name.</comment>
+  </data>
+  <data name="Collection_ByHandNote" xml:space="preserve">
+    <value>Not on sp-mod.com - install it by hand.</value>
+    <comment>On a collection item that sp-mod.com has no listing for.</comment>
+  </data>
+  <data name="Collection_AddonNote" xml:space="preserve">
+    <value>An addon - it installs from its mod's page.</value>
+    <comment>On a collection item that is an addon rather than a mod.</comment>
+  </data>
+  <data name="Collection_Posted" xml:space="preserve">
+    <value>Posted</value>
+    <comment>Label on a collection's page before when it was made. Steam's word.</comment>
+  </data>
+  <data name="Collection_Updated" xml:space="preserve">
+    <value>Updated</value>
+    <comment>Label on a collection's page before when it last changed. Steam's word.</comment>
+  </data>
+  <data name="Collection_SubscribeToolTip" xml:space="preserve">
+    <value>Subscribe</value>
+    <comment>Tooltip on a collection item's square subscribe button.</comment>
+  </data>
+  <data name="Collection_UnsubscribeToolTip" xml:space="preserve">
+    <value>Unsubscribe</value>
+    <comment>Tooltip on a subscribed collection item's square button.</comment>
+  </data>
+  <data name="Collection_ItemCreatedBy" xml:space="preserve">
+    <value>Created by</value>
+    <comment>Before the author's name on an item of a collection's page. Steam's words.</comment>
+  </data>
+  <data name="Menu_Open" xml:space="preserve">
+    <value>Open</value>
+    <comment>Right-click menu on a mod: opens its item page.</comment>
+  </data>
+  <data name="Menu_QuickView" xml:space="preserve">
+    <value>Quick View</value>
+    <comment>Right-click menu on a mod: a quick look at it without leaving the page.</comment>
+  </data>
+  <data name="Menu_AddToCollection" xml:space="preserve">
+    <value>Add to Collection...</value>
+    <comment>Right-click menu on a mod: opens Add to Collection. Steam's words; the dots say a dialog follows.</comment>
+  </data>
 </root>

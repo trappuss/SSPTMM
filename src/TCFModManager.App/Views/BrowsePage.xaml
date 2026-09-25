@@ -400,6 +400,7 @@
                                      the card itself would render its text without ClearType. -->
                                 <Grid
                                     x:Name="CardRoot"
+                                    behaviors:ModContextMenu.Mod="{Binding Mod}"
                                     Margin="0,0,16,16"
                                     VerticalAlignment="Top"
                                     Background="Transparent"

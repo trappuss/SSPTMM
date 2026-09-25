@@ -228,6 +228,9 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
     // without checking IsAddon first.
     public int? ModId { get; init; }
 
+    // ModId when it is a mod's (for the right-click menu); null for an addon.
+    public int? CatalogModId => IsAddon ? null : ModId;
+
     // The catalog listing's preview image, for the Steam-style card. Looked up when a card first
     // draws rather than carried through the scan: the scan does not need it, and the catalog is
     // already in memory by the time anything is on screen.

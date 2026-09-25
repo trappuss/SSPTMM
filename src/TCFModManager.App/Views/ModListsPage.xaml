@@ -16,6 +16,7 @@
     xmlns:loc="clr-namespace:TCFModManager.App.Localization"
     Title="{loc:Str Nav_ModLists}"
     Loaded="ModListsPage_Loaded"
+    Unloaded="ModListsPage_Unloaded"
     ScrollViewer.CanContentScroll="False">
     <Page.Resources>
         <converters:FalseToVisibilityConverter x:Key="FalseToVisible" />
@@ -403,6 +404,15 @@
                     Background="{DynamicResource DividerStrokeColorDefaultBrush}" />
 
                 <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                    <!-- The list as a Workshop collection page. -->
+                    <ui:Button
+                        Margin="0,0,8,0"
+                        Appearance="Transparent"
+                        Icon="{ui:SymbolIcon Grid24}"
+                        Content="{loc:Str Collection_ViewPage}"
+                        ToolTip="{loc:Str Collection_ViewPageToolTip}"
+                        Command="{Binding ViewCollectionCommand}" />
+
                     <ui:Button
                         Appearance="Transparent"
                         Icon="{ui:SymbolIcon ArrowExportLtr24}"

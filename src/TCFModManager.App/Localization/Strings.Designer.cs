@@ -1429,4 +1429,55 @@ internal static class Strings
     internal static string Browse_ChipCategoryFormat => LocalizationService.Get("Browse_ChipCategoryFormat");
     internal static string Browse_ChipRemoveToolTip => LocalizationService.Get("Browse_ChipRemoveToolTip");
     internal static string Workshop_ClearSearch => LocalizationService.Get("Workshop_ClearSearch");
+    internal static string Collection_AddTitle => LocalizationService.Get("Collection_AddTitle");
+    internal static string Collection_AddIntroFormat => LocalizationService.Get("Collection_AddIntroFormat");
+    internal static string Collection_AddNoneYet => LocalizationService.Get("Collection_AddNoneYet");
+    internal static string Collection_CreateNew => LocalizationService.Get("Collection_CreateNew");
+    internal static string Collection_AddConfirm => LocalizationService.Get("Collection_AddConfirm");
+    internal static string Collection_AddToolTip => LocalizationService.Get("Collection_AddToolTip");
+    internal static string Collection_Added(int count, params object?[] values) =>
+        LocalizationService.Plural("Collection_Added", count, values);
+    internal static string Collection_Removed(int count, params object?[] values) =>
+        LocalizationService.Plural("Collection_Removed", count, values);
+    internal static string Collection_ItemCount(int count, params object?[] values) =>
+        LocalizationService.Plural("Collection_ItemCount", count, values);
+    internal static string Item_InCollections(int count, params object?[] values) =>
+        LocalizationService.Plural("Item_InCollections", count, values);
+    internal static string Collection_ViewPage => LocalizationService.Get("Collection_ViewPage");
+    internal static string Collection_ViewPageToolTip => LocalizationService.Get("Collection_ViewPageToolTip");
+    internal static string Collection_Breadcrumb => LocalizationService.Get("Collection_Breadcrumb");
+    internal static string Collection_ItemsHeader => LocalizationService.Get("Collection_ItemsHeader");
+    internal static string Collection_ItemsCountFormat => LocalizationService.Get("Collection_ItemsCountFormat");
+    internal static string Collection_CreatedBy(int count, params object?[] values) =>
+        LocalizationService.Plural("Collection_CreatedBy", count, values);
+    internal static string Collection_NoItems => LocalizationService.Get("Collection_NoItems");
+    internal static string Collection_SubscribeAll => LocalizationService.Get("Collection_SubscribeAll");
+    internal static string Collection_UnsubscribeAll => LocalizationService.Get("Collection_UnsubscribeAll");
+    internal static string Collection_SaveToCollection => LocalizationService.Get("Collection_SaveToCollection");
+    internal static string Collection_Manage => LocalizationService.Get("Collection_Manage");
+    internal static string Collection_SubscribeAllTitle => LocalizationService.Get("Collection_SubscribeAllTitle");
+    internal static string Collection_SubscribeAllBody => LocalizationService.Get("Collection_SubscribeAllBody");
+    internal static string Collection_AddOnly => LocalizationService.Get("Collection_AddOnly");
+    internal static string Collection_Overwrite => LocalizationService.Get("Collection_Overwrite");
+    internal static string Collection_OverwriteBody => LocalizationService.Get("Collection_OverwriteBody");
+    internal static string Collection_OverwriteYes => LocalizationService.Get("Collection_OverwriteYes");
+    internal static string Collection_SaveCurrent => LocalizationService.Get("Collection_SaveCurrent");
+    internal static string Collection_CaptureHint => LocalizationService.Get("Collection_CaptureHint");
+    internal static string Collection_UnsubscribeAllBody(int count, params object?[] values) =>
+        LocalizationService.Plural("Collection_UnsubscribeAllBody", count, values);
+    internal static string Collection_NothingInstalled => LocalizationService.Get("Collection_NothingInstalled");
+    internal static string Collection_NamePrompt => LocalizationService.Get("Collection_NamePrompt");
+    internal static string Collection_CopyNameFormat => LocalizationService.Get("Collection_CopyNameFormat");
+    internal static string Collection_Save => LocalizationService.Get("Collection_Save");
+    internal static string Collection_SavedFormat => LocalizationService.Get("Collection_SavedFormat");
+    internal static string Collection_ByHandNote => LocalizationService.Get("Collection_ByHandNote");
+    internal static string Collection_AddonNote => LocalizationService.Get("Collection_AddonNote");
+    internal static string Collection_Posted => LocalizationService.Get("Collection_Posted");
+    internal static string Collection_Updated => LocalizationService.Get("Collection_Updated");
+    internal static string Collection_SubscribeToolTip => LocalizationService.Get("Collection_SubscribeToolTip");
+    internal static string Collection_UnsubscribeToolTip => LocalizationService.Get("Collection_UnsubscribeToolTip");
+    internal static string Collection_ItemCreatedBy => LocalizationService.Get("Collection_ItemCreatedBy");
+    internal static string Menu_Open => LocalizationService.Get("Menu_Open");
+    internal static string Menu_QuickView => LocalizationService.Get("Menu_QuickView");
+    internal static string Menu_AddToCollection => LocalizationService.Get("Menu_AddToCollection");
 }

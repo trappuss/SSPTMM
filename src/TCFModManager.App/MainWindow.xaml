@@ -251,6 +251,14 @@
 
         <!-- The Workshop item page, over the page area and under the hub header - on Steam an item
              page keeps the app hub's tabs above it. Collapsed until a mod is opened. -->
+        <!-- A collection's Workshop page, the same way. An item opened from it goes over it, so it
+             comes before the item page. -->
+        <views:WorkshopCollectionView
+            x:Name="CollectionPage"
+            Grid.Row="3"
+            Grid.RowSpan="2"
+            Visibility="Collapsed" />
+
         <views:WorkshopItemView
             x:Name="ItemPage"
             Grid.Row="3"

@@ -37,6 +37,12 @@ public enum WorkshopItemTab
     Comments,
 }
 
+// One of your collections holding the item - a row of Steam's "In N Collections" block.
+public sealed record WorkshopCollectionRow(Guid Id, string Name, int Count)
+{
+    public string CountText => Strings.Collection_ItemCount(Count, Count);
+}
+
 // A link to somewhere off sp-mod.com's mod pages - source code, a VirusTotal scan, a licence.
 public sealed record WorkshopLink(string Text, string Url)
 {
@@ -105,8 +111,10 @@ public sealed record WorkshopChangeNote(
 // It installs, updates and removes through the code the rest of the app uses - Browse's install
 // queue, the update dialog, Installed's removal - so Subscribe here is not a second install path.
 //
-public sealed partial class WorkshopItemViewModel : LocalizedViewModel
+public sealed partial class WorkshopItemViewModel : LocalizedViewModel, IModActionHost
 {
+    void IModActionHost.ShowActionMessage(string? message) => Message = message;
+
     private static string Text(string format, params object?[] values) =>
         LocalizationService.Text(format, values);
 
@@ -128,6 +136,8 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel
         }
 
         SelectedMedia = Gallery.FirstOrDefault();
+
+        RefreshCollections();
 
         // More by the same author, most downloaded first.
         if (Author is { } author)
@@ -780,6 +790,38 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel
     {
         if (!HasModPage) return;
         Process.Start(new ProcessStartInfo(Mod.DetailUrl!) { UseShellExecute = true });
+    }
+
+    // ------------------------------------------------------------------ collections
+
+    // Steam's "In N Collections" block: your collections holding this item.
+    public ObservableCollection<WorkshopCollectionRow> InCollections { get; } = [];
+
+    public bool HasInCollections => InCollections.Count > 0;
+
+    public string InCollectionsTitle => Strings.Item_InCollections(InCollections.Count, InCollections.Count);
+
+    private void RefreshCollections()
+    {
+        InCollections.Clear();
+        foreach (var list in ModListService.CollectionsWith(Mod))
+            InCollections.Add(new WorkshopCollectionRow(list.Id, list.Name, list.Entries.Count));
+
+        OnPropertyChanged(nameof(HasInCollections));
+        OnPropertyChanged(nameof(InCollectionsTitle));
+    }
+
+    [RelayCommand]
+    private void AddToCollection()
+    {
+        if (AddToCollectionDialog.Ask(Mod) is { } said) Message = said;
+        RefreshCollections();
+    }
+
+    [RelayCommand]
+    private static void OpenCollection(WorkshopCollectionRow? row)
+    {
+        if (row is not null) AppServices.CollectionOverlay.Show(row.Id);
     }
 
     [RelayCommand]

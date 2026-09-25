@@ -492,6 +492,9 @@
   <data name="Browse_UnexpectedRefreshFormat" xml:space="preserve">
     <value>Непредвиденная ошибка при перезагрузке каталога модов: {0}</value>
   </data>
+  <data name="Collection_Breadcrumb" xml:space="preserve">
+    <value>Ваши коллекции</value>
+  </data>
   <data name="Common_AttributeFilterToolTip" xml:space="preserve">
     <value>Фильтр по поддержке Fika, рекламе, ИИ-контенту, зависимостям и аддонам</value>
   </data>

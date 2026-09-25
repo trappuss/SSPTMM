@@ -1,0 +1,351 @@
+<!--
+    A collection's Workshop page (steamcommunity.com/sharedfiles/filedetails for a collection),
+    for one of this install's mod lists.
+
+    Measured on a 34-item collection (2026-09-24): the title bar rgba(27,27,27,.8), 75px, the name in
+    30px light white 16px in; the control row under it rgba(42,60,83,.8) with a 1px #233245 top edge.
+    Items: "ITEMS (34)" 11px upper case #61696D with the count #939393; an rgba(0,0,0,.2) bar with
+    Subscribe to all / Unsubscribe from all / Save to Collection (30px, 14px #939393 on
+    rgba(0,0,0,.4), radius 3, #97C0E3 with #3C3D3E text under the pointer); rows rgba(84,133,183,.2)
+    2px apart with a 100px picture, the name 16px light white, "Created by" 12px #969696 with the
+    name #8F98A0, one line of description 14px #969696, and a 32x30 square subscribe button - green
+    with a plus, or once subscribed a #567397 outline and a tick that turns into a grey x under the
+    pointer. The right-hand panel: "A COLLECTION OF N ITEMS CREATED BY" and a chip per author (14px
+    #66C0F4 on rgba(102,192,244,.4); white on #66C0F4 under the pointer), then Posted and Updated.
+
+    Steam's collections have a background picture, ratings and visitor counts; a mod list has none,
+    so the title bar stands on its own.
+-->
+<UserControl
+    x:Class="TCFModManager.App.Views.WorkshopCollectionView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:converters="clr-namespace:TCFModManager.App.Converters"
+    xmlns:behaviors="clr-namespace:TCFModManager.App.Behaviors"
+    xmlns:loc="clr-namespace:TCFModManager.App.Localization"
+    Focusable="True"
+    FocusVisualStyle="{x:Null}"
+    KeyDown="View_KeyDown">
+    <UserControl.Resources>
+        <converters:NullToVisibilityConverter x:Key="NullToCollapsed" />
+        <converters:UpdateAvailableToVisibilityConverter x:Key="TrueToVisible" />
+        <converters:FalseToVisibilityConverter x:Key="FalseToVisible" />
+
+        <Style x:Key="Crumb" TargetType="Button" BasedOn="{StaticResource SteamLinkButton}">
+            <Setter Property="Foreground" Value="{StaticResource SteamTextDim}" />
+            <Setter Property="FontSize" Value="12" />
+        </Style>
+
+        <!-- general_btn subscribe: the collection bar's three buttons. -->
+        <Style x:Key="CollectionBarButton" TargetType="Button">
+            <Setter Property="Foreground" Value="#939393" />
+            <Setter Property="Background" Value="#66000000" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Height" Value="30" />
+            <Setter Property="Margin" Value="0,0,5,0" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Face" Padding="10,0,12,0" Background="{TemplateBinding Background}" CornerRadius="3">
+                            <ContentPresenter VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Face" Property="Background" Value="#97C0E3" />
+                                <Setter Property="Foreground" Value="#3C3D3E" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- An author chip in the right-hand panel. -->
+        <Style x:Key="AuthorChip" TargetType="Button">
+            <Setter Property="Foreground" Value="#66C0F4" />
+            <Setter Property="Background" Value="#6666C0F4" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Margin" Value="0,0,4,4" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Chip" Padding="6,3,6,2" Background="{TemplateBinding Background}">
+                            <ContentPresenter />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Chip" Property="Background" Value="#66C0F4" />
+                                <Setter Property="Foreground" Value="White" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- The square subscribe button on each row. -->
+        <Style x:Key="SquareSubscribe" TargetType="Button">
+            <Setter Property="Width" Value="32" />
+            <Setter Property="Height" Value="30" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <!-- Not subscribed: Steam's green with a plus. -->
+                            <Border x:Name="Plus" Background="{StaticResource SteamGreenInner}" CornerRadius="2">
+                                <ui:SymbolIcon FontSize="16" Foreground="#D2E885" Symbol="Add16" />
+                            </Border>
+                            <!-- Subscribed: an outline and a tick... -->
+                            <Border x:Name="Tick" BorderBrush="#567397" BorderThickness="1" CornerRadius="2" Visibility="Collapsed">
+                                <ui:SymbolIcon FontSize="16" Foreground="#66C0F4" Symbol="Checkmark16" />
+                            </Border>
+                            <!-- ...that turns into Unsubscribe's grey x under the pointer. -->
+                            <Border x:Name="Cross" Background="#4B4F54" BorderBrush="#7E7E7E" BorderThickness="1" CornerRadius="2" Visibility="Collapsed">
+                                <ui:SymbolIcon FontSize="16" Foreground="White" Symbol="Dismiss16" />
+                            </Border>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <DataTrigger Binding="{Binding IsInstalled}" Value="True">
+                                <Setter TargetName="Plus" Property="Visibility" Value="Collapsed" />
+                                <Setter TargetName="Tick" Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding IsInstalled}" Value="True" />
+                                    <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}" Value="True" />
+                                </MultiDataTrigger.Conditions>
+                                <Setter TargetName="Tick" Property="Visibility" Value="Collapsed" />
+                                <Setter TargetName="Cross" Property="Visibility" Value="Visible" />
+                            </MultiDataTrigger>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding IsInstalled}" Value="False" />
+                                    <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}" Value="True" />
+                                </MultiDataTrigger.Conditions>
+                                <Setter TargetName="Plus" Property="Background" Value="{StaticResource SteamGreenInnerHover}" />
+                            </MultiDataTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Border Background="{StaticResource SteamLegacyBackground}">
+        <ScrollViewer x:Name="Scroll" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+            <StackPanel MaxWidth="950" Margin="24,20,24,40">
+
+                <!-- Breadcrumbs: SPT > Workshop > Your collections. -->
+                <StackPanel Orientation="Horizontal" TextElement.FontSize="12" TextElement.Foreground="{StaticResource SteamTextDim}">
+                    <Button Style="{StaticResource Crumb}" ToolTip="{loc:Str Item_CloseToolTip}" Click="Close_Click">
+                        <TextBlock Text="{loc:Str Hub_Title}" />
+                    </Button>
+                    <Path Width="4" Height="7" Margin="6,1,6,0" VerticalAlignment="Center" Data="M0,0 L4,3.5 L0,7" Stretch="Fill" Stroke="{StaticResource SteamTextDim}" StrokeThickness="1" />
+                    <Button Style="{StaticResource Crumb}" ToolTip="{loc:Str Item_CloseToolTip}" Click="Close_Click">
+                        <TextBlock Text="{loc:Str Nav_Workshop}" />
+                    </Button>
+                    <Path Width="4" Height="7" Margin="6,1,6,0" VerticalAlignment="Center" Data="M0,0 L4,3.5 L0,7" Stretch="Fill" Stroke="{StaticResource SteamTextDim}" StrokeThickness="1" />
+                    <Button Style="{StaticResource Crumb}" Command="{Binding ManageCommand}">
+                        <TextBlock Text="{loc:Str Collection_Breadcrumb}" />
+                    </Button>
+                </StackPanel>
+
+                <!-- The title bar, then the control row. -->
+                <Border Height="75" Margin="0,10,0,0" Padding="16,16,16,0" Background="#CC1B1B1B">
+                    <TextBlock
+                        FontFamily="{StaticResource SteamFontLight}"
+                        FontWeight="Light"
+                        FontSize="30"
+                        Foreground="White"
+                        TextTrimming="CharacterEllipsis"
+                        Text="{Binding Name}" />
+                </Border>
+                <Border Padding="6,6,1,6" Background="#CC2A3C53" BorderBrush="#233245" BorderThickness="0,1,0,0">
+                    <WrapPanel>
+                        <Button Margin="0" Style="{StaticResource SteamGeneralButton}" Command="{Binding ManageCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Margin="0,0,6,0" FontSize="14" Symbol="Edit16" />
+                                <TextBlock Text="{loc:Str Collection_Manage}" />
+                            </StackPanel>
+                        </Button>
+                    </WrapPanel>
+                </Border>
+
+                <TextBlock
+                    Margin="0,10,0,0"
+                    FontSize="13"
+                    Foreground="{StaticResource SteamLegacyBlue}"
+                    TextWrapping="Wrap"
+                    Text="{Binding Message}"
+                    Visibility="{Binding Message, Converter={StaticResource NullToCollapsed}}" />
+
+                <Grid Margin="0,20,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="645*" />
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="295*" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- The items. -->
+                    <StackPanel Grid.Column="0">
+                        <TextBlock FontSize="11">
+                            <Run Foreground="#61696D" Text="{Binding ItemsTitle, Mode=OneWay}" />
+                            <Run Foreground="#939393" Text="{Binding ItemsCount, Mode=OneWay}" />
+                        </TextBlock>
+
+                        <Border Margin="0,6,0,2" Padding="10" Background="#33000000">
+                            <WrapPanel>
+                                <Button Style="{StaticResource CollectionBarButton}" Command="{Binding SubscribeToAllCommand}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <ui:SymbolIcon Margin="0,0,6,0" FontSize="14" Symbol="Add16" />
+                                        <TextBlock Text="{loc:Str Collection_SubscribeAll}" />
+                                    </StackPanel>
+                                </Button>
+                                <Button Style="{StaticResource CollectionBarButton}" Command="{Binding UnsubscribeFromAllCommand}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <ui:SymbolIcon Margin="0,0,6,0" FontSize="14" Symbol="Dismiss16" />
+                                        <TextBlock Text="{loc:Str Collection_UnsubscribeAll}" />
+                                    </StackPanel>
+                                </Button>
+                                <Button Style="{StaticResource CollectionBarButton}" Command="{Binding SaveToCollectionCommand}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <ui:SymbolIcon Margin="0,0,6,0" FontSize="14" Symbol="Copy16" />
+                                        <TextBlock Text="{loc:Str Collection_SaveToCollection}" />
+                                    </StackPanel>
+                                </Button>
+                            </WrapPanel>
+                        </Border>
+
+                        <TextBlock
+                            Margin="0,16,0,0"
+                            FontSize="14"
+                            Foreground="{StaticResource SteamText}"
+                            Text="{loc:Str Collection_NoItems}"
+                            Visibility="{Binding IsEmpty, Converter={StaticResource TrueToVisible}}" />
+
+                        <ItemsControl ItemsSource="{Binding Items}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border x:Name="Row" Margin="0,0,0,2" Background="#335485B7" behaviors:ModContextMenu.Mod="{Binding Mod}">
+                                        <DockPanel>
+                                            <Button
+                                                Margin="12,0,14,0"
+                                                VerticalAlignment="Center"
+                                                DockPanel.Dock="Right"
+                                                Style="{StaticResource SquareSubscribe}"
+                                                ToolTip="{Binding SubscribeToolTip}"
+                                                Command="{Binding DataContext.ToggleSubscribeCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"
+                                                Visibility="{Binding CanSubscribe, Converter={StaticResource TrueToVisible}}" />
+
+                                            <!-- The picture: 100px on black, a 1px frame lit #97C0E3 under the pointer. -->
+                                            <Border
+                                                x:Name="Frame"
+                                                Width="102"
+                                                Height="102"
+                                                Margin="6"
+                                                Background="Black"
+                                                BorderBrush="Transparent"
+                                                BorderThickness="1"
+                                                Cursor="Hand"
+                                                MouseLeftButtonUp="Item_Click">
+                                                <Border.Effect>
+                                                    <DropShadowEffect BlurRadius="10" Opacity="1" ShadowDepth="2.8" Direction="315" Color="Black" />
+                                                </Border.Effect>
+                                                <Image Stretch="UniformToFill" behaviors:ThumbnailLoader.DecodeWidth="100" behaviors:ThumbnailLoader.Source="{Binding Thumbnail}" />
+                                            </Border>
+
+                                            <StackPanel Margin="6,13,0,6" Cursor="Hand" Background="Transparent" MouseLeftButtonUp="Item_Click">
+                                                <TextBlock
+                                                    FontFamily="{StaticResource SteamFontLight}"
+                                                    FontWeight="Light"
+                                                    FontSize="16"
+                                                    Foreground="White"
+                                                    TextTrimming="CharacterEllipsis"
+                                                    Text="{Binding Name}" />
+                                                <TextBlock FontSize="12" Foreground="#969696" Visibility="{Binding Author, Converter={StaticResource NullToCollapsed}}">
+                                                    <Run Text="{loc:Str Collection_ItemCreatedBy}" />
+                                                    <Run Foreground="#8F98A0" Text="{Binding Author, Mode=OneWay}" />
+                                                </TextBlock>
+                                                <TextBlock
+                                                    Margin="0,10,0,0"
+                                                    FontSize="14"
+                                                    Foreground="#969696"
+                                                    TextTrimming="CharacterEllipsis"
+                                                    Text="{Binding Teaser}"
+                                                    Visibility="{Binding Teaser, Converter={StaticResource NullToCollapsed}}" />
+                                                <TextBlock
+                                                    Margin="0,10,0,0"
+                                                    FontSize="13"
+                                                    Foreground="#969696"
+                                                    TextWrapping="Wrap"
+                                                    Text="{Binding Note}"
+                                                    Visibility="{Binding Note, Converter={StaticResource NullToCollapsed}}" />
+                                            </StackPanel>
+                                        </DockPanel>
+                                    </Border>
+                                    <DataTemplate.Triggers>
+                                        <Trigger SourceName="Row" Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="Frame" Property="BorderBrush" Value="#97C0E3" />
+                                        </Trigger>
+                                    </DataTemplate.Triggers>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+
+                    <!-- Who made the items, and when the collection was made. -->
+                    <StackPanel Grid.Column="2">
+                        <Border Padding="10" Background="{StaticResource SteamSubscribeBox}" Visibility="{Binding HasAuthors, Converter={StaticResource TrueToVisible}}">
+                            <StackPanel>
+                                <TextBlock Margin="0,0,0,8" FontSize="11" Foreground="#61696D" TextWrapping="Wrap" Text="{Binding CreatedByTitle}" />
+                                <ItemsControl ItemsSource="{Binding Authors}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Button
+                                                Style="{StaticResource AuthorChip}"
+                                                Command="{Binding DataContext.OpenAuthorCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"
+                                                ToolTip="{loc:Str Item_AuthorToolTip}">
+                                                <TextBlock Text="{Binding}" />
+                                            </Button>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Margin="0,10,0,0" Padding="10" Background="{StaticResource SteamSubscribeBox}">
+                            <Grid TextElement.FontSize="13" TextElement.Foreground="#8F98A0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Row="0" Margin="0,0,24,4" Text="{loc:Str Collection_Posted}" />
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding PostedText}" />
+                                <TextBlock Grid.Row="1" Margin="0,0,24,0" Text="{loc:Str Collection_Updated}" />
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding UpdatedText}" />
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
+    </Border>
+</UserControl>

@@ -24,7 +24,13 @@ public partial class MainWindow : FluentWindow
         AppNavigation.Attach(pageType => RootNavigationView.Navigate(pageType));
         RootNavigationView.Navigated += (_, args) => AppNavigation.ReportNavigated(args.Page.GetType());
         AppNavigation.Navigated += (_, pageType) => SyncHeader(pageType);
-        AppNavigation.CloseItemPageRequested += (_, _) => ItemPage.Close();
+        AppNavigation.CloseItemPageRequested += (_, _) =>
+        {
+            // The collection first, so the item page closing does not bring it back.
+            _collectionUnderItem = false;
+            CollectionPage.Close();
+            ItemPage.Close();
+        };
 
         Loaded += (_, _) =>
         {
@@ -46,7 +52,34 @@ public partial class MainWindow : FluentWindow
         };
 
         // A mod opened from anywhere opens as its Workshop item page, over the page it came from.
-        AppServices.ModDetailsOverlay.Requested += (_, request) => ItemPage.Show(request);
+        AppServices.ModDetailsOverlay.Requested += (_, request) =>
+        {
+            // An item opened from a collection's page goes over it; closing the item brings it back.
+            if (CollectionPage.Visibility == Visibility.Visible)
+            {
+                _collectionUnderItem = true;
+                CollectionPage.Hide();
+            }
+
+            ItemPage.Show(request);
+        };
+
+        ItemPage.Closed += (_, _) =>
+        {
+            if (!_collectionUnderItem) return;
+
+            _collectionUnderItem = false;
+            CollectionPage.Reveal();
+        };
+
+        // A collection opened from anywhere opens as its Workshop page, over the page it came from -
+        // and over an item page it was opened from, which then closes.
+        AppServices.CollectionOverlay.Requested += (_, listId) =>
+        {
+            _collectionUnderItem = false;
+            ItemPage.Close();
+            CollectionPage.Show(listId);
+        };
 
         // Constructs and shows the mod update dialog, awaitable so callers know when it closes.
         AppServices.ModUpdateOverlay.ShowAsync = async mod =>
@@ -65,6 +98,9 @@ public partial class MainWindow : FluentWindow
             return dialog.ViewModel.MadeChanges;
         };
     }
+
+    // True while an item page opened from a collection's page is over it.
+    private bool _collectionUnderItem;
 
     // How many SteamDialogs are open over this window; the backdrop shows while any is.
     private int _modalDims;

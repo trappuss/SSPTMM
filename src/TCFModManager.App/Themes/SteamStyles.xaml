@@ -909,4 +909,81 @@
         <Setter Property="Margin" Value="0,3,0,16" />
     </Style>
 
+    <!--  ============================================================ Popup menu  -->
+    <!--
+        Steam's popup menu (popup_block_new / popup_menu), measured from shared_global.css
+        (2026-09-25): the body #3D4450 with a 1px border of the same and a 0 0 12px black shadow, no
+        padding; each item 12px #DCDEDF, 5px 12px padding, no wrapping, and under the pointer (or
+        keyboard focus) #171D25 on #DCDEDF; a rule 1px #82807C, 10px above and 12px in from the sides.
+        Steam's own menus have no icons or check marks, and neither do these.
+    -->
+    <Style x:Key="SteamPopupMenu" TargetType="ContextMenu">
+        <Setter Property="FontFamily" Value="{StaticResource SteamFont}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="#DCDEDF" />
+        <Setter Property="HasDropShadow" Value="False" />
+        <Setter Property="Grid.IsSharedSizeScope" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContextMenu">
+                    <!-- Room around the body for the 12px shadow. -->
+                    <Border Padding="12" Background="Transparent">
+                        <Border MinWidth="150" Background="#3D4450" BorderBrush="#3D4450" BorderThickness="1">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="12" Opacity="1" ShadowDepth="0" Color="Black" />
+                            </Border.Effect>
+                            <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Cycle" />
+                        </Border>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="SteamPopupMenuItem" TargetType="MenuItem">
+        <Setter Property="Foreground" Value="#DCDEDF" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="MenuItem">
+                    <Border x:Name="Face" Padding="12,5" Background="Transparent">
+                        <ContentPresenter
+                            ContentSource="Header"
+                            RecognizesAccessKey="False"
+                            TextBlock.Foreground="{TemplateBinding Foreground}">
+                            <ContentPresenter.Resources>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                                    <Setter Property="MaxWidth" Value="320" />
+                                </Style>
+                            </ContentPresenter.Resources>
+                        </ContentPresenter>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsHighlighted" Value="True">
+                            <Setter TargetName="Face" Property="Background" Value="#DCDEDF" />
+                            <Setter Property="Foreground" Value="#171D25" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="#7A7E83" />
+                            <Setter Property="Cursor" Value="Arrow" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="SteamPopupMenuSeparator" TargetType="Separator">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Separator">
+                    <Border Height="1" Margin="12,10,12,0" Background="#82807C" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
 </ResourceDictionary>

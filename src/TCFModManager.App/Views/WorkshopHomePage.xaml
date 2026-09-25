@@ -151,6 +151,7 @@
                                             Margin="0,0,16,6"
                                             Background="Transparent"
                                             Cursor="Hand"
+                                            behaviors:ModContextMenu.Mod="{Binding Mod}"
                                             MouseLeftButtonUp="Card_MouseLeftButtonUp">
                                             <Border Background="#1B1D21">
                                                 <Border.Effect>
@@ -295,6 +296,7 @@
                                     Margin="0,0,16,16"
                                     Background="Transparent"
                                     Cursor="Hand"
+                                    behaviors:ModContextMenu.Mod="{Binding Mod}"
                                     MouseLeftButtonUp="Card_MouseLeftButtonUp">
                                     <Border Background="#1B1D21">
                                         <Border.Effect>

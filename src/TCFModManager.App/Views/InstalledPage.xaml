@@ -689,6 +689,7 @@
                             Style="{StaticResource TickableCardExpander}"
                             Margin="0,0,6,6"
                             IsExpanded="{Binding IsCardExpanded, Mode=TwoWay}"
+                            behaviors:ModContextMenu.ModId="{Binding CatalogModId}"
                             Opacity="{Binding CardOpacity}"
                             PreviewMouseLeftButtonDown="Card_PreviewMouseLeftButtonDown">
                             <ui:CardExpander.Header>
@@ -1020,6 +1021,7 @@
                                                     Margin="0,0,0,4"
                                                     Padding="8,6"
                                                     Opacity="{Binding CardOpacity}"
+                                                    behaviors:ModContextMenu.ModId="{Binding CatalogModId}"
                                                     ToolTip="{loc:Str Installed_GroupRowToolTip}"
                                                     PreviewMouseLeftButtonDown="ModRow_PreviewMouseLeftButtonDown"
                                                     PreviewMouseMove="ModRow_PreviewMouseMove"
@@ -1113,6 +1115,7 @@
                         <ui:CardExpander
                             Style="{StaticResource HoverCardExpander}"
                             Margin="0,0,6,6"
+                            behaviors:ModContextMenu.ModId="{Binding CatalogModId}"
                             IsExpanded="{Binding IsRowExpanded, Mode=TwoWay}"
                             Opacity="{Binding CardOpacity}">
                             <ui:CardExpander.Header>

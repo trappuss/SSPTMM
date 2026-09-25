@@ -71,6 +71,7 @@
             <Button
                 Padding="5"
                 Style="{StaticResource PanelRow}"
+                behaviors:ModContextMenu.Mod="{Binding Mod}"
                 Command="{Binding DataContext.OpenRelatedCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                 CommandParameter="{Binding}">
                 <DockPanel>
@@ -312,6 +313,12 @@
                                         <StackPanel Orientation="Horizontal">
                                             <ui:SymbolIcon Margin="0,0,6,0" FontSize="14" Symbol="Share16" />
                                             <TextBlock Text="{loc:Str Item_CopyLink}" />
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Margin="0,0,5,5" Style="{StaticResource SteamGeneralButton}" Command="{Binding AddToCollectionCommand}" ToolTip="{loc:Str Collection_AddToolTip}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <ui:SymbolIcon Margin="0,0,6,0" FontSize="14" Symbol="AddSquareMultiple16" />
+                                            <TextBlock Text="{loc:Str Collection_AddTitle}" />
                                         </StackPanel>
                                     </Button>
                                 </WrapPanel>
@@ -627,6 +634,42 @@
                                 </DockPanel>
                             </Border>
 
+                            <!-- Steam's "In N Collections": your collections holding this item.
+                                 Measured: an 11px upper-case #61696D title; rows rgba(84,133,183,.2),
+                                 30px, 5px inside, 1px apart, rgba(117,186,255,.3) under the pointer;
+                                 the name 14px bold white, the item count 14px #99A1A8 at the right. -->
+                            <StackPanel Margin="0,20,0,0" Visibility="{Binding HasInCollections, Converter={StaticResource TrueToVisible}}">
+                                <TextBlock Margin="0,0,0,6" FontSize="11" Foreground="#61696D" Text="{Binding InCollectionsTitle}" />
+                                <ItemsControl ItemsSource="{Binding InCollections}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Button
+                                                HorizontalAlignment="Stretch"
+                                                Command="{Binding DataContext.OpenCollectionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"
+                                                Cursor="Hand"
+                                                FocusVisualStyle="{x:Null}">
+                                                <Button.Template>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border x:Name="Row" Height="30" Margin="0,0,0,1" Padding="5,0" Background="#335485B7">
+                                                            <DockPanel VerticalAlignment="Center">
+                                                                <TextBlock Margin="12,0,0,0" DockPanel.Dock="Right" FontSize="14" Foreground="#99A1A8" Text="{Binding CountText}" />
+                                                                <TextBlock FontSize="14" FontWeight="Bold" Foreground="White" TextTrimming="CharacterEllipsis" Text="{Binding Name}" />
+                                                            </DockPanel>
+                                                        </Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter TargetName="Row" Property="Background" Value="#4D75BAFF" />
+                                                            </Trigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Button.Template>
+                                            </Button>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+
                             <!-- DESCRIPTION, with the rule over it. -->
                             <Rectangle Height="1" Margin="0,26,0,0" Fill="#1F2E40" />
                             <TextBlock Style="{StaticResource SteamDescriptionTitle}" Text="{loc:Str Item_DescriptionHeader}" />
@@ -669,6 +712,7 @@
                                                     Margin="0,0,0,1"
                                                     HorizontalAlignment="Stretch"
                                                     HorizontalContentAlignment="Left"
+                                                    behaviors:ModContextMenu.ModId="{Binding ModId}"
                                                     Command="{Binding DataContext.OpenRequiredCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                     CommandParameter="{Binding}"
                                                     Cursor="Hand">

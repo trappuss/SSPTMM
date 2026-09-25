@@ -14,8 +14,10 @@ using TCFModManager.Core.Services;
 
 namespace TCFModManager.App.ViewModels;
 
-public partial class BrowseViewModel : LocalizedViewModel
+public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
 {
+    void IModActionHost.ShowActionMessage(string? message) => StatusMessage = message;
+
     private static string Text(string format, params object?[] values) =>
         LocalizationService.Text(format, values);
 

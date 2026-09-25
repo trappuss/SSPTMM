@@ -486,6 +486,9 @@ Das wurde hier hingeschrieben:
   <data name="Browse_UnexpectedRefreshFormat" xml:space="preserve">
     <value>Unerwarteter Fehler beim Neuladen des Mod-Katalogs: {0}</value>
   </data>
+  <data name="Collection_Breadcrumb" xml:space="preserve">
+    <value>Ihre Kollektionen</value>
+  </data>
   <data name="Common_AttributeFilterToolTip" xml:space="preserve">
     <value>Nach Fika-Unterstützung, Werbung, KI-Inhalten, Abhängigkeiten und Addons filtern</value>
   </data>

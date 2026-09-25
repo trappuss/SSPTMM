@@ -703,6 +703,100 @@ public sealed class ModListService
         return options;
     }
 
+    // ------------------------------------------------------------------ collections, one mod at a time
+
+    //
+    // The Workshop's "Add to Collection": which of this install's own lists a mod is on, and putting
+    // it on or taking it off. Only lists made here can be changed - one received from someone else
+    // or served by a server is theirs, and is shown (see Collections) but not offered.
+    //
+
+    /// <summary>Every list this install holds, newest first - what "your collections" means here.</summary>
+    public static IReadOnlyList<ModList> Collections() =>
+        [.. AppServices.ModLists.Load().Lists.OrderByDescending(l => l.UpdatedAt)];
+
+    /// <summary>The lists holding <paramref name="mod"/>.</summary>
+    public static IReadOnlyList<ModList> CollectionsWith(Mod mod) =>
+        [.. Collections().Where(l => ModListEntries.Contains(l.Entries, Probe(mod)))];
+
+    //
+    // The entry the mod goes onto a list as: pinned to the version installed here, exactly as a
+    // capture of the install would write it, or - for a mod this install does not have - the
+    // unpinned catalog entry the Collections page's own picker adds.
+    //
+    public static ModListEntry EntryFor(Mod mod, InstalledModCardViewModel? installed)
+    {
+        if (installed is not null)
+        {
+            var entry = ModListCapture
+                .BuildEntries([ModListCandidates.From(installed)], CatalogVersions(), includeDisabled: true, CatalogAddonVersions())
+                .FirstOrDefault(e => e.ModId == mod.Id && !e.IsAddon);
+
+            if (entry is not null) return entry;
+        }
+
+        return ModListEntries.ForCatalogMod(mod.Id, mod.Name ?? mod.Id.ToString(), mod.Guid);
+    }
+
+    /// <summary>Puts <paramref name="mod"/> on exactly the lists in <paramref name="onLists"/> among
+    /// the editable ones, and on a new list named <paramref name="newListName"/> when one is given.
+    /// Returns how many lists it was added to and taken off.</summary>
+    public static (int Added, int Removed) SetCollections(
+        Mod mod,
+        InstalledModCardViewModel? installed,
+        IReadOnlySet<Guid> onLists,
+        string? newListName)
+    {
+        var probe = Probe(mod);
+        var added = 0;
+        var removed = 0;
+
+        foreach (var list in Collections().Where(l => l.IsEditable))
+        {
+            var has = ModListEntries.Contains(list.Entries, probe);
+            var wants = onLists.Contains(list.Id);
+            if (has == wants) continue;
+
+            var entries = wants
+                ? list.Entries.Append(EntryFor(mod, installed))
+                : list.Entries.Where(e => !ModListEntries.SameMod(e, probe));
+
+            AppServices.ModLists.ReplaceEntries(list.Id, ModListEntries.Sorted(entries));
+            if (wants) added++;
+            else removed++;
+        }
+
+        if (!string.IsNullOrWhiteSpace(newListName))
+        {
+            //
+            // Additive, unlike a capture: a capture describes the whole install, so applying it
+            // sets aside what it does not name. A collection started from one mod describes nothing
+            // of the kind, and applying it should only add. (It can be changed on the Collections
+            // page.)
+            //
+            var now = DateTimeOffset.UtcNow;
+            var list = new ModList
+            {
+                Id = Guid.NewGuid(),
+                Name = newListName.Trim(),
+                Origin = ModListOrigin.Local,
+                Policy = ModListPolicy.Additive,
+                SptVersion = AppServices.SptEnvironment.InstalledVersion,
+                CreatedAt = now,
+                UpdatedAt = now,
+            };
+            list.Entries.Add(EntryFor(mod, installed));
+            AppServices.ModLists.Add(list);
+            added++;
+        }
+
+        return (added, removed);
+    }
+
+    // What a list's entry for this mod is compared on: its id (see ModListEntries.SameMod).
+    private static ModListEntry Probe(Mod mod) =>
+        ModListEntries.ForCatalogMod(mod.Id, mod.Name ?? mod.Id.ToString(), mod.Guid);
+
     //
     // Pins a version id from the catalog's own embedded version list, so capture never touches the
     // network. A catalog Mod carries only its six most recent versions, so anything older resolves

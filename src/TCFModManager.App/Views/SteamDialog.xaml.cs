@@ -30,7 +30,11 @@ public partial class SteamDialog : Window
 
         Title = title;
         TitleText.Text = title;
-        Body.Content = body;
+
+        // Text wraps at a readable width, as Steam's dialog text does.
+        Body.Content = body is string text
+            ? new TextBlock { Text = text, TextWrapping = TextWrapping.Wrap, LineHeight = 21, MaxWidth = 640 }
+            : body;
 
         for (var i = 0; i < choices.Count; i++)
         {

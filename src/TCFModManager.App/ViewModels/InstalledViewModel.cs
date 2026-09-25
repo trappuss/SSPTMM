@@ -20,8 +20,10 @@ namespace TCFModManager.App.ViewModels;
 ///
 /// A fresh instance is created every time InstalledPage is navigated to, so it re-scans disk on every visit.
 /// </summary>
-public partial class InstalledViewModel : LocalizedViewModel
+public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 {
+    void IModActionHost.ShowActionMessage(string? message) => StatusMessage = message;
+
     private static string Text(string format, params object?[] values) =>
         LocalizationService.Text(format, values);
 
@@ -1412,6 +1414,18 @@ public partial class InstalledViewModel : LocalizedViewModel
     }
 
     private List<InstalledModCardViewModel> SelectedCards() => _all.Where(m => m.IsSelected).ToList();
+
+    /// <summary>Sets aside (disables) the installed mods with these sp-mod.com ids, through the same
+    /// path Disable takes here - it asks about anything else they take with them - scanning first
+    /// if this page has not yet. Returns what it said. A collection's Unsubscribe from all.</summary>
+    public async Task<string?> DisableModsAsync(IReadOnlySet<int> modIds)
+    {
+        if (_all.Count == 0) await ScanAsync();
+
+        var cards = _all.Where(c => c is { IsAddon: false, ModId: { } id } && modIds.Contains(id)).ToList();
+        await ApplyDisableAsync(cards, disable: true);
+        return StatusMessage;
+    }
 
     //
     // The one path every disable/enable goes through: works out what else the change reaches, asks
