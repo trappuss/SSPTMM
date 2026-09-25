@@ -38,6 +38,8 @@ public partial class InstalledViewModel : LocalizedViewModel
     public static event EventHandler? ModRemoved;
 
     private List<InstalledModCardViewModel> _all = [];
+
+    private readonly System.Windows.Threading.DispatcherTimer _rescanAfterInstall;
     private List<InstalledModCardViewModel> _filtered = [];
 
     //
@@ -355,6 +357,20 @@ public partial class InstalledViewModel : LocalizedViewModel
     public InstalledViewModel()
     {
         Current = this;
+
+        // Installs and updates finishing in the queue show here without a Rescan: a second after the
+        // last one of a batch lands, the page scans again, as Steam's list updates by itself.
+        _rescanAfterInstall = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+        _rescanAfterInstall.Tick += async (_, _) =>
+        {
+            _rescanAfterInstall.Stop();
+            if (!IsBusy && ScanCommand.CanExecute(null)) await ScanCommand.ExecuteAsync(null);
+        };
+        AppServices.DownloadQueue.ItemInstalled += (_, _) =>
+        {
+            _rescanAfterInstall.Stop();
+            _rescanAfterInstall.Start();
+        };
 
         var settings = new SettingsService().Load();
         _showListBadges = settings.ShowModListBadges;
@@ -798,6 +814,7 @@ public partial class InstalledViewModel : LocalizedViewModel
             DisableSelectedCommand.NotifyCanExecuteChanged();
             EnableSelectedCommand.NotifyCanExecuteChanged();
             UpdateSelectedCommand.NotifyCanExecuteChanged();
+            AnnounceUpdates();
             OnPropertyChanged(nameof(AllSelected));
             OnPropertyChanged(nameof(SelectAllLabel));
 
@@ -1177,7 +1194,33 @@ public partial class InstalledViewModel : LocalizedViewModel
     // gate off globally, which is strictly worse for them than one demanding prompt.
     //
     [RelayCommand(CanExecute = nameof(HasUpdatableSelection))]
-    private void UpdateSelected()
+    private void UpdateSelected() => UpdateCards(SelectedCards());
+
+    /// <summary>How many installed mods have an update this page can apply - the count on Update all.</summary>
+    public int UpdatableCount => _all.Count(IsUpdatable);
+
+    public bool HasUpdates => UpdatableCount > 0;
+
+    public string UpdateAllLabel => Strings.Installed_UpdateAll(UpdatableCount);
+
+    private bool CanUpdateAll() => HasUpdates;
+
+    //
+    // Every mod with an update, without selecting them first - the same pass as Update selected,
+    // over the whole install. The prompts are still asked once for the lot.
+    //
+    [RelayCommand(CanExecute = nameof(CanUpdateAll))]
+    private void UpdateAll() => UpdateCards(_all);
+
+    private void AnnounceUpdates()
+    {
+        OnPropertyChanged(nameof(UpdatableCount));
+        OnPropertyChanged(nameof(HasUpdates));
+        OnPropertyChanged(nameof(UpdateAllLabel));
+        UpdateAllCommand.NotifyCanExecuteChanged();
+    }
+
+    private void UpdateCards(IReadOnlyList<InstalledModCardViewModel> selected)
     {
         var installPath = AppServices.SptEnvironment.InstallPath;
         if (string.IsNullOrWhiteSpace(installPath))
@@ -1186,7 +1229,6 @@ public partial class InstalledViewModel : LocalizedViewModel
             return;
         }
 
-        var selected = SelectedCards();
         var targets = selected.Where(IsUpdatable).ToList();
 
         if (targets.Count == 0)
@@ -1523,6 +1565,16 @@ public partial class InstalledViewModel : LocalizedViewModel
             or nameof(InstalledModCardViewModel.IsRowExpanded))
         {
             NotifyExpandedState();
+            return;
+        }
+
+        // Update checks answer after the scan, card by card; Update all counts them as they land.
+        if (e.PropertyName is nameof(InstalledModCardViewModel.UpdateAvailable)
+            or nameof(InstalledModCardViewModel.IsDisabled)
+            or nameof(InstalledModCardViewModel.LatestPublishedVersion))
+        {
+            AnnounceUpdates();
+            UpdateSelectedCommand.NotifyCanExecuteChanged();
             return;
         }
 

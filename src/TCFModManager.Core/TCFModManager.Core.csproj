@@ -7,6 +7,8 @@
 
   <ItemGroup>
     <PackageReference Include="SharpCompress" Version="0.50.4" />
+    <!-- MIT. Reads the HTML sp-mod.com renders its markdown to - see Markup/SpModMarkup.cs. -->
+    <PackageReference Include="HtmlAgilityPack" Version="1.13.0" />
   </ItemGroup>
 
   <ItemGroup>

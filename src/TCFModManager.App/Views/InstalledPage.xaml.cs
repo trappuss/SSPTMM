@@ -128,7 +128,7 @@ public partial class InstalledPage : Page
 
         if (scroller is null) return;
 
-        scroller.ScrollToVerticalOffset(scroller.VerticalOffset - e.Delta);
+        Behaviors.SmoothScrolling.Glide(scroller, e.Delta);
         e.Handled = true;
     }
 

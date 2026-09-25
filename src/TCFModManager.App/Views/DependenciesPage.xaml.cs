@@ -40,7 +40,7 @@ public partial class DependenciesPage : Page
     {
         if (TreesScrollViewer.Visibility != Visibility.Visible) return;
 
-        TreesScrollViewer.ScrollToVerticalOffset(TreesScrollViewer.VerticalOffset - e.Delta);
+        Behaviors.SmoothScrolling.Glide(TreesScrollViewer, e.Delta);
         e.Handled = true;
     }
 }

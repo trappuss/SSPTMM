@@ -101,6 +101,9 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
     // the catalog hasn't loaded yet or nothing matched.
     public string? LatestPublishedVersion { get; init; }
 
+    /// <summary>The version an update installs - the newest release for the installed SPT.</summary>
+    public string? UpdateVersion { get; init; }
+
     // The matched sp-mod.com listing's UpdatedAt. Null under the same conditions as LatestPublishedVersion.
     public DateTimeOffset? LatestUpdatedAt { get; init; }
 
@@ -444,8 +447,8 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
             ? Strings.Installed_StatusDuplicate
             : IsMixedState
                 ? Strings.Installed_StatusMixed
-                : UpdateAvailable == true && !IsDisabled && LatestPublishedVersion is not null
-                    ? Text(Strings.Installed_StatusUpdateFormat, LatestPublishedVersion)
+                : UpdateAvailable == true && !IsDisabled && (UpdateVersion ?? LatestPublishedVersion) is { } updateVersion
+                    ? Text(Strings.Installed_StatusUpdateFormat, updateVersion)
                     : ModStatusWording.Tooltip(Status));
 
     // Groups raw scan results into one card per distinct mod and looks up each against the cached
@@ -1200,6 +1203,9 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
         var latestVersion = match is null ? null : ModCardViewModel.LatestVersion(match);
         var latestPublished = latestVersion?.Version;
 
+        // The release an update would install: the newest for this SPT, else the newest of all.
+        var updateTarget = match is null ? null : ModCardViewModel.PickDisplayVersion(match, installedSptVersion);
+
         // No installed version could be determined at all (no record, and nothing readable off the
         // files themselves) - plenty of mods never expose a usable version this way. Rather than
         // reading as an update forever, assume the latest published version is what's on disk.
@@ -1221,12 +1227,20 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
         }
         else
         {
+            //
             // A newer version alone isn't enough - it also has to target the installed SPT version.
-            isNewer = ModVersionComparer.IsUpdateAvailable(installedVersion, latestPublished);
+            //
+            // Compared against the newest release FOR this SPT (the one Subscribe and Update selected
+            // would fetch), not the newest release overall. Against the newest overall, a mod whose
+            // latest release is for the next SPT line never showed an update on this one, however
+            // many releases for this line came out after the installed one - SAIN 4.4.2 on SPT 4.0.13
+            // read "up to date" with 4.4.3 out for it, because 4.5.1 was for 4.1.
+            //
+            isNewer = ModVersionComparer.IsUpdateAvailable(installedVersion, updateTarget?.Version);
         }
 
         var updateAvailable = isNewer == true
-            ? SptVersionMatcher.IsSatisfiedBy(latestVersion?.SptVersionConstraint, installedSptVersion)
+            ? SptVersionMatcher.IsSatisfiedBy(updateTarget?.SptVersionConstraint, installedSptVersion)
             : isNewer;
 
         return new InstalledModCardViewModel
@@ -1242,6 +1256,7 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
             HasPatcher = patcher is not null,
             HasServer = server is not null,
             LatestPublishedVersion = latestPublished,
+            UpdateVersion = updateTarget?.Version,
             LatestUpdatedAt = match?.UpdatedAt,
             MatchedModName = match?.Name,
             Guid = match?.Guid,

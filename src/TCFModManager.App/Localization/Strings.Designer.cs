@@ -1362,4 +1362,38 @@ internal static class Strings
     internal static string Item_FileSizeKb => LocalizationService.Get("Item_FileSizeKb");
     internal static string Item_FileSizeMb => LocalizationService.Get("Item_FileSizeMb");
     internal static string Item_CloseToolTip => LocalizationService.Get("Item_CloseToolTip");
+    internal static string Workshop_PerPageInfinite => LocalizationService.Get("Workshop_PerPageInfinite");
+    internal static string Workshop_LoadingMore => LocalizationService.Get("Workshop_LoadingMore");
+    internal static string Viewer_OpenInBrowser => LocalizationService.Get("Viewer_OpenInBrowser");
+    internal static string Viewer_WatchOnYouTube => LocalizationService.Get("Viewer_WatchOnYouTube");
+    internal static string Browse_CheckingRequirementsFormat => LocalizationService.Get("Browse_CheckingRequirementsFormat");
+    internal static string Browse_QueuedWithRequirements(int count, params object?[] values) =>
+        LocalizationService.Plural("Browse_QueuedWithRequirements", count, values);
+    internal static string ModPage_StepFormat => LocalizationService.Get("ModPage_StepFormat");
+    internal static string ModPage_NextPage => LocalizationService.Get("ModPage_NextPage");
+    internal static string ModPage_PreviousPage => LocalizationService.Get("ModPage_PreviousPage");
+    internal static string ModPage_Done => LocalizationService.Get("ModPage_Done");
+    internal static string ModPage_Close => LocalizationService.Get("ModPage_Close");
+    internal static string Item_TabVersions => LocalizationService.Get("Item_TabVersions");
+    internal static string Item_TabComments => LocalizationService.Get("Item_TabComments");
+    internal static string Item_VersionInstall => LocalizationService.Get("Item_VersionInstall");
+    internal static string Item_VersionSwitch => LocalizationService.Get("Item_VersionSwitch");
+    internal static string Item_VersionInstalled => LocalizationService.Get("Item_VersionInstalled");
+    internal static string Item_VersionReleasedFormat => LocalizationService.Get("Item_VersionReleasedFormat");
+    internal static string Item_VersionDownloadsFormat => LocalizationService.Get("Item_VersionDownloadsFormat");
+    internal static string Item_VersionDependencies => LocalizationService.Get("Item_VersionDependencies");
+    internal static string Item_VersionFika => LocalizationService.Get("Item_VersionFika");
+    internal static string Item_VersionsMore => LocalizationService.Get("Item_VersionsMore");
+    internal static string Item_MoreByFormat => LocalizationService.Get("Item_MoreByFormat");
+    internal static string Item_RequiredBy(int count, params object?[] values) =>
+        LocalizationService.Plural("Item_RequiredBy", count, values);
+    internal static string Item_CommentsSignIn => LocalizationService.Get("Item_CommentsSignIn");
+    internal static string Item_CommentsUnavailable => LocalizationService.Get("Item_CommentsUnavailable");
+    internal static string Item_CommentsOpen => LocalizationService.Get("Item_CommentsOpen");
+    internal static string Item_AuthorToolTip => LocalizationService.Get("Item_AuthorToolTip");
+    internal static string Item_PlayVideo => LocalizationService.Get("Item_PlayVideo");
+    internal static string Item_Checking => LocalizationService.Get("Item_Checking");
+    internal static string Viewer_CounterFormat => LocalizationService.Get("Viewer_CounterFormat");
+    internal static string Installed_UpdateAll(int count, params object?[] values) =>
+        LocalizationService.Plural("Installed_UpdateAll", count, values);
 }

@@ -20,7 +20,7 @@ public partial class BrowsePage : Page
 
         // A new page of results starts at the top of the grid, as a Steam page load does - not at
         // the bottom of the page, where the pager that was just clicked is.
-        ViewModel.PageChanged += (_, _) => ScrollToResults();
+        ViewModel.NavigatedToPage += (_, _) => ScrollToResults();
     }
 
     private async void BrowsePage_Loaded(object sender, RoutedEventArgs e)
@@ -79,6 +79,20 @@ public partial class BrowsePage : Page
         menu.PlacementTarget = GearButton;
         menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
         menu.IsOpen = true;
+    }
+
+    // How close to the bottom, in pixels, the infinite list adds its next cards: about two rows of
+    // cards ahead, so the next ones are there before the end is reached.
+    private const double LoadMoreDistance = 800;
+
+    // Also fires when the list grows, so a window tall enough to show every card added still asks
+    // for more until the page is longer than the view.
+    private void PageScroll_ScrollChanged(object sender, ScrollChangedEventArgs e)
+    {
+        if (!ViewModel.HasMore) return;
+
+        var remaining = PageScroll.ExtentHeight - PageScroll.ViewportHeight - PageScroll.VerticalOffset;
+        if (remaining <= LoadMoreDistance) ViewModel.LoadMore();
     }
 
     private void ScrollToResults()

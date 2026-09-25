@@ -2220,6 +2220,9 @@ Annuler  -  ne rien supprimer</value>
   <data name="Item_TabChangeNotes" xml:space="preserve">
     <value>Notes de changement</value>
   </data>
+  <data name="Item_TabComments" xml:space="preserve">
+    <value>Commentaires</value>
+  </data>
   <data name="Item_TabDescription" xml:space="preserve">
     <value>Description</value>
   </data>

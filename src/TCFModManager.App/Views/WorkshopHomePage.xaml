@@ -152,7 +152,7 @@
                                             <Border Background="{StaticResource SteamCardBackground}">
                                                 <StackPanel>
                                                     <Grid Height="183" Background="{StaticResource SteamPreviewBackground}" ClipToBounds="True">
-                                                        <Image Stretch="UniformToFill" behaviors:ThumbnailLoader.Source="{Binding Thumbnail}" />
+                                                        <Image Stretch="UniformToFill" behaviors:ThumbnailLoader.DecodeWidth="183" behaviors:ThumbnailLoader.Source="{Binding Thumbnail}" />
                                                         <Border
                                                             Margin="6"
                                                             Padding="4,3"

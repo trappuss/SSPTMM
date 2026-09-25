@@ -2220,6 +2220,9 @@ Abbrechen  -  nichts entfernen</value>
   <data name="Item_TabChangeNotes" xml:space="preserve">
     <value>Änderungshinweise</value>
   </data>
+  <data name="Item_TabComments" xml:space="preserve">
+    <value>Kommentare</value>
+  </data>
   <data name="Item_TabDescription" xml:space="preserve">
     <value>Beschreibung</value>
   </data>

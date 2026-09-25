@@ -37,6 +37,13 @@
     <FontFamily x:Key="SteamFontLight">pack://application:,,,/Themes/Fonts/#Noto Sans Light, pack://application:,,,/Themes/Fonts/#Noto Sans, Segoe UI</FontFamily>
     <FontFamily x:Key="SteamFontMedium">pack://application:,,,/Themes/Fonts/#Noto Sans Medium, pack://application:,,,/Themes/Fonts/#Noto Sans, Segoe UI</FontFamily>
 
+    <!-- WPF UI's own control styles (text boxes, rich text, combo boxes) take their face from this
+         key rather than inheriting it, so without it they stayed in Segoe UI beside Noto Sans text. -->
+    <!-- Code in descriptions: Windows 11's code face, then the older ones. -->
+    <FontFamily x:Key="SteamMonospace">Cascadia Mono, Consolas, Courier New</FontFamily>
+
+    <FontFamily x:Key="ContentControlThemeFontFamily">pack://application:,,,/Themes/Fonts/#Noto Sans, Segoe UI</FontFamily>
+
     <!--  Steam rounds its buttons, fields and dropdowns by 2px and its popups barely at all. Both
           keys are read by WPF-UI's templates through DynamicResource, so this reaches every control.  -->
     <CornerRadius x:Key="ControlCornerRadius">2</CornerRadius>

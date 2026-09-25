@@ -102,7 +102,7 @@ public partial class BrowseViewModel : LocalizedViewModel
         // "N addons" badges are redrawn once it does rather than waiting for a page change.
         AppServices.Addons.AddonsChanged += (_, _) =>
         {
-            if (HasLoadedResults) GoToPage(CurrentPage);
+            if (HasLoadedResults) GoToPage(CurrentPage, isNavigation: false);
         };
     }
 
@@ -128,7 +128,7 @@ public partial class BrowseViewModel : LocalizedViewModel
             : FeaturedFilterOptions[0];
 
     private int DefaultPageSize() =>
-        SavedFilterDefaults.PageSize(_defaults?.PageSize, PageSizeOptions, DefaultPageSizeValue);
+        SavedFilterDefaults.PageSize(_defaults?.PageSize, PageSizeOptions, InfinitePageSize);
 
     // Described rather than looked up: the entry may not be in the list yet, or at all if The Forge
     // has stopped using that category. CategoryFilterItem.SameAs matches on the title.
@@ -145,7 +145,11 @@ public partial class BrowseViewModel : LocalizedViewModel
 
     partial void OnSelectedSortOptionChanged(SortOptionItem value) => AutoApplyFilter();
 
-    partial void OnPageSizeChanged(int value) => AutoApplyFilter();
+    partial void OnPageSizeChanged(int value)
+    {
+        OnPropertyChanged(nameof(IsInfinite));
+        AutoApplyFilter();
+    }
 
     partial void OnSelectedFeaturedFilterChanged(FeaturedFilterItem value) => AutoApplyFilter();
 
@@ -172,15 +176,23 @@ public partial class BrowseViewModel : LocalizedViewModel
     [ObservableProperty]
     private SortOptionItem _selectedSortOption;
 
-    // How many matching cards make up one page, when nothing has been saved as this page's
-    // default - see DefaultPageSize(). Steam's own choices, and its default of 30; a default saved
-    // from the upstream app's list (8/12/16/24/32) is not among them and falls back to this.
+    // Steam's page sizes and its default of 30. A size saved from the upstream app's list
+    // (8/12/16/24/32) is not among them and falls back to the default, Infinite.
     private const int DefaultPageSizeValue = 30;
 
-    public List<int> PageSizeOptions { get; } = [10, 15, DefaultPageSizeValue, 50];
+    /// <summary>The "Infinite" entry in Per page: no pager, and the next 30 cards are added each
+    /// time the page is scrolled to the bottom. The page opens this way unless a size was saved.</summary>
+    public const int InfinitePageSize = 0;
+
+    public List<int> PageSizeOptions { get; } = [InfinitePageSize, 10, 15, DefaultPageSizeValue, 50];
 
     [ObservableProperty]
-    private int _pageSize = DefaultPageSizeValue;
+    private int _pageSize = InfinitePageSize;
+
+    public bool IsInfinite => PageSize == InfinitePageSize;
+
+    // Cards per step: a page, or one load of the infinite list.
+    private int PageStep => IsInfinite ? DefaultPageSizeValue : PageSize;
 
     public List<FeaturedFilterItem> FeaturedFilterOptions { get; } =
     [
@@ -286,9 +298,13 @@ public partial class BrowseViewModel : LocalizedViewModel
     /// <summary>True once a search has actually completed. Lets BrowsePage skip redundantly re-running the initial search on re-navigation.</summary>
     public bool HasLoadedResults { get; private set; }
 
-    /// <summary>Raised after a page of results is on screen, so the page can scroll back to the top
-    /// of the grid the way a Steam page load does.</summary>
+    /// <summary>Raised whenever the cards on screen are redrawn, new page or not - the item page
+    /// re-reads its install state from it.</summary>
     public event EventHandler? PageChanged;
+
+    /// <summary>Raised after a new page of results is on screen, so the page can scroll back to the
+    /// top of the grid the way a Steam page load does. Not raised for a redraw of the same cards.</summary>
+    public event EventHandler? NavigatedToPage;
 
     //
     // As many Steam-sized cards as fit across, each keeping its 16px gap. Steam's page lays the grid
@@ -467,50 +483,81 @@ public partial class BrowseViewModel : LocalizedViewModel
     private bool CanGoToPreviousPage() => CurrentPage > 1;
 
     [RelayCommand(CanExecute = nameof(CanGoToPreviousPage))]
-    private void PreviousPage() => GoToPage(CurrentPage - 1);
+    private void PreviousPage() => GoToPage(CurrentPage - 1, isNavigation: true);
 
     private bool CanGoToNextPage() => CurrentPage < TotalPages;
 
     [RelayCommand(CanExecute = nameof(CanGoToNextPage))]
-    private void NextPage() => GoToPage(CurrentPage + 1);
+    private void NextPage() => GoToPage(CurrentPage + 1, isNavigation: true);
 
     // int? because the pager's "..." entries carry no number; they are not clickable, but the
     // command is still asked whether it can run for them.
     [RelayCommand]
     private void GoToPageNumber(int? page)
     {
-        if (page is { } number) GoToPage(number);
+        if (page is { } number) GoToPage(number, isNavigation: true);
     }
 
-    /// <summary>Replaces Results with exactly one page's worth of cards - never grows it, so only one page's thumbnails are ever in flight.</summary>
-    private void GoToPage(int page)
+    //
+    // Redraws the cards on screen. A page shows its own slice of the results; the infinite list
+    // shows everything loaded so far, which is the first CurrentPage steps. isNavigation is true
+    // when this is a new page (the view scrolls back to the grid) and false when the same cards are
+    // only being redrawn - an install finished, the addon counts arrived - and the view stays put.
+    //
+    private void GoToPage(int page, bool isNavigation)
     {
         var sw = Stopwatch.StartNew();
         CurrentPage = Math.Clamp(page, 1, TotalPages);
-        var installedVersion = AppServices.SptEnvironment.InstalledVersion;
+
+        var shown = IsInfinite
+            ? _filtered.Take(CurrentPage * PageStep)
+            : _filtered.Skip((CurrentPage - 1) * PageStep).Take(PageStep);
 
         var pins = AppServices.ModLists.GetPins();
 
         Results.Clear();
-        foreach (var mod in _filtered.Skip((CurrentPage - 1) * PageSize).Take(PageSize))
-        {
-            var installed = FindInstalledMatch(mod);
-
-            var card = ModCardViewModel.From(
-                mod, installedVersion, installed, _selectedLines, AppServices.SptCatalog.Releases,
-                AppServices.Addons.CountFor(mod.Id),
-                installed is null ? null : ModListPlanner.PinKeys(ModListCandidates.From(installed)));
-
-            card.RefreshPin(pins);
-            Results.Add(card);
-        }
+        foreach (var mod in shown) Results.Add(MakeCard(mod, pins));
 
         PageLinks.Clear();
         foreach (var link in PageLink.For(CurrentPage, TotalPages)) PageLinks.Add(link);
 
+        HasMore = IsInfinite && Results.Count < _filtered.Count;
+
         PageChanged?.Invoke(this, EventArgs.Empty);
+        if (isNavigation) NavigatedToPage?.Invoke(this, EventArgs.Empty);
 
         AppLog.Debug("Browse", $"GoToPage: page {CurrentPage}/{TotalPages} rendered in {sw.ElapsedMilliseconds}ms");
+    }
+
+    /// <summary>True while the infinite list has cards it has not added yet.</summary>
+    [ObservableProperty]
+    private bool _hasMore;
+
+    /// <summary>Adds the next 30 cards to the infinite list - called as the page nears its bottom.
+    /// Returns false when there was nothing left to add.</summary>
+    public bool LoadMore()
+    {
+        if (!IsInfinite || !HasLoadedResults || Results.Count >= _filtered.Count) return false;
+
+        var pins = AppServices.ModLists.GetPins();
+        foreach (var mod in _filtered.Skip(Results.Count).Take(PageStep)) Results.Add(MakeCard(mod, pins));
+
+        CurrentPage = (int)Math.Ceiling(Results.Count / (double)PageStep);
+        HasMore = Results.Count < _filtered.Count;
+        return true;
+    }
+
+    private ModCardViewModel MakeCard(Mod mod, IReadOnlySet<string> pins)
+    {
+        var installed = FindInstalledMatch(mod);
+
+        var card = ModCardViewModel.From(
+            mod, AppServices.SptEnvironment.InstalledVersion, installed, _selectedLines, AppServices.SptCatalog.Releases,
+            AppServices.Addons.CountFor(mod.Id),
+            installed is null ? null : ModListPlanner.PinKeys(ModListCandidates.From(installed)));
+
+        card.RefreshPin(pins);
+        return card;
     }
 
     /// <summary>Scans the configured SPT install folder and matches it against the cached catalog to drive the
@@ -568,13 +615,13 @@ public partial class BrowseViewModel : LocalizedViewModel
     {
         if (!IsOn(ModAttributeFilter.HideInstalled) || !HasLoadedResults)
         {
-            GoToPage(CurrentPage);
+            GoToPage(CurrentPage, isNavigation: false);
             return;
         }
 
         var page = CurrentPage;
         ApplyFilter();
-        if (page > 1) GoToPage(page);
+        if (page > 1) GoToPage(page, isNavigation: false);
     }
 
     // Re-reads the pins for the cards on screen, for a pin made on another page since.
@@ -665,8 +712,8 @@ public partial class BrowseViewModel : LocalizedViewModel
         AppLog.Debug("Browse", $"ApplyFilter: filter/sort took {sw.ElapsedMilliseconds}ms over {AppServices.ModCache.AllMods.Count} cached mods, {_filtered.Count} matched");
 
         // A fresh search always jumps back to page 1 of the new result set.
-        TotalPages = Math.Max(1, (int)Math.Ceiling(_filtered.Count / (double)PageSize));
-        GoToPage(1);
+        TotalPages = Math.Max(1, (int)Math.Ceiling(_filtered.Count / (double)PageStep));
+        GoToPage(1, isNavigation: true);
 
         // Steam's "N entries matching filters" line under the title. A message from before the
         // filter ran (queued, saved, failed) is left where it is below it.
@@ -880,19 +927,26 @@ public partial class BrowseViewModel : LocalizedViewModel
         || Matches(mod.Owner?.Name, authorQuery)
         || (mod.AdditionalAuthors?.Any(a => Matches(a.Name, authorQuery)) ?? false);
 
-    /// <summary>Queues <paramref name="card"/>'s mod for download and install. Picks the newest version
-    /// that targets the installed SPT version when known, otherwise the newest version overall. The
-    /// version's download link is resolved lazily once the queue reaches this item, so clicking
-    /// Install never waits on a network call. Gated on ReadModPageConfirmationWindow first; declining
-    /// leaves the card alone.</summary>
+    /// <summary>Subscribe: finds what the mod needs that this install lacks, asks once for the
+    /// mod and all of it (the read-the-mod-page gate), then queues the lot. Declining leaves the
+    /// card alone.</summary>
     [RelayCommand]
-    private void Install(ModCardViewModel? card) => QueueForDownload(card, DownloadAction.Install);
+    private Task InstallAsync(ModCardViewModel? card) => QueueForDownloadAsync(card, DownloadAction.Install, pinned: null);
 
     /// <summary>Re-queues an already-installed mod's currently displayed version - the same pick
     /// Install would make - for a fresh download and reinstall. Shown on the card in Install's place
     /// once a mod is installed, e.g. to recover from corrupted or hand-edited files.</summary>
     [RelayCommand]
-    private void Redownload(ModCardViewModel? card) => QueueForDownload(card, DownloadAction.Redownload);
+    private Task RedownloadAsync(ModCardViewModel? card) => QueueForDownloadAsync(card, DownloadAction.Redownload, pinned: null);
+
+    /// <summary>Installs one particular version of a mod that is not installed - the item page's
+    /// Versions tab. Same gate and queue as Subscribe.</summary>
+    public Task InstallVersionAsync(Mod mod, ModVersion version) =>
+        QueueForDownloadAsync(BuildCard(mod), DownloadAction.Install, version);
+
+    /// <summary>True while Subscribe is working out what a mod needs, before its gate opens.</summary>
+    [ObservableProperty]
+    private bool _isCheckingRequirements;
 
     // Which of the two buttons asked, rather than the word one of them is labelled with: the
     // cancellation message is a whole sentence per action, not a verb dropped into a shared one.
@@ -902,7 +956,7 @@ public partial class BrowseViewModel : LocalizedViewModel
         Redownload,
     }
 
-    private void QueueForDownload(ModCardViewModel? card, DownloadAction action)
+    private async Task QueueForDownloadAsync(ModCardViewModel? card, DownloadAction action, ModVersion? pinned)
     {
         if (card is null) return;
 
@@ -924,7 +978,53 @@ public partial class BrowseViewModel : LocalizedViewModel
             return;
         }
 
-        if (!ReadModPageConfirmationWindow.Confirm(mod.Name ?? Strings.Browse_ThisMod, mod.DetailUrl))
+        // The version asked for, or the same pick the card displays, so the queued version is the
+        // one it advertised.
+        string chosenVersion;
+        Func<Task<ModVersion?>> resolve;
+        if (pinned?.Version is { } pinnedVersion)
+        {
+            chosenVersion = pinnedVersion;
+            resolve = pinned.Link is null
+                ? () => ResolveVersionLinkAsync(mod, pinnedVersion)
+                : () => Task.FromResult<ModVersion?>(pinned);
+        }
+        else
+        {
+            var chosen = ModCardViewModel.PickDisplayVersion(mod, AppServices.SptEnvironment.InstalledVersion);
+            if (chosen?.Version is null)
+            {
+                StatusMessage = Text(Strings.Browse_NoVersionFormat, mod.Name);
+                return;
+            }
+
+            chosenVersion = chosen.Version;
+            resolve = () => ResolveVersionLinkAsync(mod, chosenVersion);
+        }
+
+        //
+        // What the mod needs, before anything is asked: the mod and every missing dependency then
+        // share one gate, instead of a second window appearing once the download has started.
+        // A lookup that cannot be made (offline, rate limited, no SPT version) is left to the queue,
+        // which asks about dependencies the way it always has.
+        //
+        var target = InstallTarget.For(mod);
+        IReadOnlyList<DownloadQueueViewModel.MissingDependency>? missing;
+        IsCheckingRequirements = true;
+        StatusMessage = Text(Strings.Browse_CheckingRequirementsFormat, mod.Name);
+        try
+        {
+            missing = await AppServices.DownloadQueue.FindMissingDependenciesAsync(target, chosenVersion, installPath);
+        }
+        finally
+        {
+            IsCheckingRequirements = false;
+        }
+
+        var links = new List<ModPageLink> { new(mod.Name ?? Strings.Browse_ThisMod, mod.DetailUrl) };
+        if (missing is not null) links.AddRange(DownloadQueueViewModel.PageLinks(missing));
+
+        if (!ReadModPageConfirmationWindow.ConfirmAll(links))
         {
             StatusMessage = Text(
                 action == DownloadAction.Install
@@ -934,20 +1034,12 @@ public partial class BrowseViewModel : LocalizedViewModel
             return;
         }
 
-        var installedSptVersion = AppServices.SptEnvironment.InstalledVersion;
+        var item = AppServices.DownloadQueue.Enqueue(target, chosenVersion, installPath, resolve, checkDependencies: missing is null);
+        if (missing is { Count: > 0 }) AppServices.DownloadQueue.EnqueueDependencies(item, missing);
 
-        // Same pick the card displays, so the queued version is the one it advertised.
-        var chosen = ModCardViewModel.PickDisplayVersion(mod, installedSptVersion);
-
-        if (chosen?.Version is null)
-        {
-            StatusMessage = Text(Strings.Browse_NoVersionFormat, mod.Name);
-            return;
-        }
-
-        var chosenVersion = chosen.Version;
-        AppServices.DownloadQueue.Enqueue(InstallTarget.For(mod), chosenVersion, installPath, () => ResolveVersionLinkAsync(mod, chosenVersion));
-        StatusMessage = Text(Strings.Browse_QueuedFormat, mod.Name, chosenVersion);
+        StatusMessage = missing is { Count: > 0 }
+            ? Strings.Browse_QueuedWithRequirements(missing.Count, mod.Name, chosenVersion, missing.Count)
+            : Text(Strings.Browse_QueuedFormat, mod.Name, chosenVersion);
     }
 
     /// <summary>Resolves the full ModVersion (with its download Link) for exactly one version string.
@@ -974,15 +1066,7 @@ public partial class BrowseViewModel : LocalizedViewModel
     /// cards are.</summary>
     public ModCardViewModel BuildCard(Mod mod)
     {
-        var installed = FindInstalledMatch(mod);
-
-        var card = ModCardViewModel.From(
-            mod, AppServices.SptEnvironment.InstalledVersion, installed, _selectedLines,
-            AppServices.SptCatalog.Releases, AppServices.Addons.CountFor(mod.Id),
-            installed is null ? null : ModListPlanner.PinKeys(ModListCandidates.From(installed)));
-
-        card.RefreshPin(AppServices.ModLists.GetPins());
-        return card;
+        return MakeCard(mod, AppServices.ModLists.GetPins());
     }
 
     /// <summary>The installed copy of a catalog mod, if this install has one.</summary>

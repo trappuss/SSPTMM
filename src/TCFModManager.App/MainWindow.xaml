@@ -143,6 +143,10 @@
                     <ToggleButton Style="{StaticResource SteamHubTab}" Tag="{x:Type views:WorkshopHomePage}" Click="HubTab_Click">
                         <TextBlock Text="{loc:Str Nav_Workshop}" />
                     </ToggleButton>
+                    <!-- Straight to your mods, without going through Workshop > Your Items. -->
+                    <ToggleButton Style="{StaticResource SteamHubTab}" Tag="{x:Type views:InstalledPage}" Click="HubTab_Click">
+                        <TextBlock Text="{loc:Str Workshop_SubscribedItems}" />
+                    </ToggleButton>
                     <ToggleButton Style="{StaticResource SteamHubTab}" Tag="{x:Type views:ConfigsPage}" Click="HubTab_Click">
                         <TextBlock Text="{loc:Str Nav_Configs}" />
                     </ToggleButton>
@@ -252,6 +256,9 @@
             Grid.Row="3"
             Grid.RowSpan="2"
             Visibility="Collapsed" />
+
+        <!-- Full-size pictures and videos from an item page, over everything but the title bar. -->
+        <views:MediaViewerOverlay Grid.Row="1" Grid.RowSpan="4" />
 
         <!-- Loading overlay shown during the first mod catalog fetch. The scrim stays a
              literal rather than a theme brush on purpose: its job is to dim whatever is

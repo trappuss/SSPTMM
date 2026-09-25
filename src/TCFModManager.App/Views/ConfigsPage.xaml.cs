@@ -60,7 +60,7 @@ public partial class ConfigsPage : Page
         if (e.OriginalSource is not DependencyObject source) return;
         if (!IsWithin(source, RailPanel)) return;
 
-        ListScrollViewer.ScrollToVerticalOffset(ListScrollViewer.VerticalOffset - e.Delta);
+        Behaviors.SmoothScrolling.Glide(ListScrollViewer, e.Delta);
         e.Handled = true;
     }
 

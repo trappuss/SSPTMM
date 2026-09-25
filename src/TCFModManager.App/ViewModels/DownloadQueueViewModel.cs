@@ -300,11 +300,41 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
     // failed lookup silently skips the check rather than failing the queued item.
     private async Task CheckDependenciesAsync(DownloadQueueItemViewModel item, ModVersion version)
     {
-        var target = item.Target;
-        var installPath = item.InstallPath;
+        if (string.IsNullOrWhiteSpace(version.Version)) return;
 
+        var missing = await FindMissingDependenciesAsync(item.Target, version.Version, item.InstallPath, item.Token);
+        if (missing is null || missing.Count == 0) return;
+
+        item.Token.ThrowIfCancellationRequested();
+
+        // One gate covering every missing dependency at once: each mod's page must be opened
+        // before Continue unlocks, replacing what was previously a separate Yes/No prompt plus a
+        // per-dependency read-page confirmation.
+        if (!ReadModPageConfirmationWindow.ConfirmAll(PageLinks(missing))) return;
+
+        item.Token.ThrowIfCancellationRequested();
+
+        EnqueueDependencies(item, missing);
+    }
+
+    /// <summary>A mod another one needs that this install does not have yet, with the version the
+    /// resolver picked for it.</summary>
+    public sealed record MissingDependency(DependencyNode Node, Mod Mod);
+
+    //
+    // The mods <paramref name="target"/> at <paramref name="version"/> needs that are neither
+    // installed nor already queued, its whole tree flattened. Null when the lookup could not be
+    // made (no SPT version known, rate limited, offline) - the caller then leaves the check to the
+    // queue, as it always did - and empty when nothing is missing.
+    //
+    // Subscribe asks this before its gate, so the mod and everything it needs are confirmed in one
+    // window instead of the dependencies' window appearing once the download has started.
+    //
+    public async Task<IReadOnlyList<MissingDependency>?> FindMissingDependenciesAsync(
+        InstallTarget target, string version, string installPath, CancellationToken token = default)
+    {
         var sptVersion = AppServices.SptEnvironment.InstalledVersion;
-        if (string.IsNullOrWhiteSpace(sptVersion) || string.IsNullOrWhiteSpace(version.Version)) return;
+        if (string.IsNullOrWhiteSpace(sptVersion) || string.IsNullOrWhiteSpace(version)) return null;
 
         List<DependencyNode> nodes;
         try
@@ -315,19 +345,19 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
             // addon is offered instead.
             var identifier = string.IsNullOrWhiteSpace(target.Guid) ? target.Id.ToString() : target.Guid;
             var result = target.IsAddon
-                ? await AppServices.SpModApi.GetAddonDependenciesAsync($"{identifier}:{version.Version}", sptVersion)
-                : await AppServices.SpModApi.GetModDependenciesAsync($"{identifier}:{version.Version}", sptVersion);
+                ? await AppServices.SpModApi.GetAddonDependenciesAsync($"{identifier}:{version}", sptVersion)
+                : await AppServices.SpModApi.GetModDependenciesAsync($"{identifier}:{version}", sptVersion);
             nodes = result.Values.FirstOrDefault() ?? [];
         }
         catch (Exception)
         {
             // Rate limited, network error, or an unrecognized SPT version - skip the check.
-            return;
+            return null;
         }
 
-        if (nodes.Count == 0) return;
+        if (nodes.Count == 0) return [];
 
-        item.Token.ThrowIfCancellationRequested();
+        token.ThrowIfCancellationRequested();
 
         // Fresh disk scan each time so it reflects whatever was just installed in this same batch.
         await AppServices.ModCache.EnsureLoadedAsync();
@@ -350,40 +380,34 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
             .Select(i => i.Target.Id)
             .ToHashSet();
 
-        var missing = Flatten(nodes)
+        // Prefer each cached catalog Mod when available; fall back to a minimal Mod built from
+        // the dependency node's own fields.
+        return Flatten(nodes)
             .Where(n => n.LatestCompatibleVersion is not null)
             .Where(n => !installedIds.Contains(n.Id) && !queuedIds.Contains(n.Id))
             .Where(n => n.Guid is null || !installedGuids.Contains(n.Guid))
             .GroupBy(n => n.Id)
             .Select(g => g.First())
-            .ToList();
-
-        if (missing.Count == 0) return;
-
-        item.Token.ThrowIfCancellationRequested();
-
-        // Prefer each cached catalog Mod when available; fall back to a minimal Mod built from
-        // the dependency node's own fields.
-        var depDetails = missing
-            .Select(dep => (
-                Dep: dep,
-                Mod: AppServices.ModCache.AllMods.FirstOrDefault(m => m.Id == dep.Id)
+            .Select(dep => new MissingDependency(
+                dep,
+                AppServices.ModCache.AllMods.FirstOrDefault(m => m.Id == dep.Id)
                     ?? new Mod { Id = dep.Id, Guid = dep.Guid, Name = dep.Name, Slug = dep.Slug }))
             .ToList();
+    }
 
-        // One gate covering every missing dependency at once: each mod's page must be opened
-        // before Continue unlocks, replacing what was previously a separate Yes/No prompt plus a
-        // per-dependency read-page confirmation.
-        var links = depDetails
+    /// <summary>The gate's rows for a set of missing dependencies.</summary>
+    public static List<ModPageLink> PageLinks(IEnumerable<MissingDependency> missing) =>
+        missing
             .Select(d => new ModPageLink(
-                d.Mod.Name ?? d.Dep.Name ?? Text(Strings.Downloads_UnnamedModFormat, d.Dep.Id),
+                d.Mod.Name ?? d.Node.Name ?? Text(Strings.Downloads_UnnamedModFormat, d.Node.Id),
                 d.Mod.DetailUrl))
             .ToList();
-        if (!ReadModPageConfirmationWindow.ConfirmAll(links)) return;
 
-        item.Token.ThrowIfCancellationRequested();
-
-        foreach (var (dep, depMod) in depDetails)
+    /// <summary>Queues each missing dependency behind <paramref name="item"/>, as one of its own:
+    /// cancelling the item cancels them.</summary>
+    public void EnqueueDependencies(DownloadQueueItemViewModel item, IEnumerable<MissingDependency> missing)
+    {
+        foreach (var (dep, depMod) in missing)
         {
             // LatestCompatibleVersion already has the Link/ContentLength needed; no further lookup required.
             var depVersion = new ModVersion
@@ -398,10 +422,11 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
             Enqueue(
                 InstallTarget.For(depMod),
                 depVersion.Version ?? Strings.Common_Unknown,
-                installPath,
+                item.InstallPath,
                 () => Task.FromResult<ModVersion?>(depVersion),
                 checkDependencies: false,
-                dependencyOf: item);
+                dependencyOf: item,
+                totalBytes: depVersion.ContentLength);
         }
     }
 

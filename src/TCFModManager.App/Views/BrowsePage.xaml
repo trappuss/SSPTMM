@@ -35,6 +35,7 @@
         <converters:FalseToVisibilityConverter x:Key="FalseToVisible" />
         <converters:CountToVisibilityConverter x:Key="HasCount" />
         <converters:EqualityConverter x:Key="IsSame" />
+        <converters:PageSizeLabelConverter x:Key="PageSizeLabel" />
 
         <!-- The sort order's face: rgba(0,0,0,.37), 283x42, 15px #C4C4C4. -->
         <Style x:Key="SortFace" TargetType="ToggleButton">
@@ -121,6 +122,7 @@
 
     <ScrollViewer
         x:Name="PageScroll"
+        ScrollChanged="PageScroll_ScrollChanged"
         HorizontalScrollBarVisibility="Disabled"
         VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="24,16,24,24">
@@ -444,7 +446,7 @@
                                                 Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
                                                 Background="{StaticResource SteamPreviewBackground}"
                                                 ClipToBounds="True">
-                                                <Image Stretch="UniformToFill" behaviors:ThumbnailLoader.Source="{Binding Thumbnail}" />
+                                                <Image Stretch="UniformToFill" behaviors:ThumbnailLoader.DecodeWidth="245" behaviors:ThumbnailLoader.Source="{Binding Thumbnail}" />
 
                                                 <!-- Installed / update / disabled, and the pin, over the
                                                      preview's corner. Not Steam's - Steam's page knows
@@ -619,6 +621,15 @@
                 </Grid>
             </Grid>
 
+            <!-- The infinite list's foot: shown while there are cards still to add as the page nears its end. -->
+            <TextBlock
+                Margin="0,16,0,0"
+                HorizontalAlignment="Center"
+                FontSize="14"
+                Foreground="{StaticResource SteamTextDim}"
+                Text="{loc:Str Workshop_LoadingMore}"
+                Visibility="{Binding HasMore, Converter={StaticResource TrueToVisible}}" />
+
             <!-- "Per page: [30]  < 1 2 3 ... 1,000 >", right-aligned under the grid. -->
             <StackPanel Margin="0,12,0,0" HorizontalAlignment="Right" Orientation="Horizontal">
                 <TextBlock VerticalAlignment="Center" FontSize="16" Foreground="{StaticResource SteamText}" Text="{loc:Str Workshop_PerPage}" />
@@ -629,7 +640,15 @@
                     FontSize="12"
                     ToolTip="{loc:Str Common_PageSizeToolTip}"
                     ItemsSource="{Binding PageSizeOptions}"
-                    SelectedItem="{Binding PageSize}" />
+                    SelectedItem="{Binding PageSize}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Converter={StaticResource PageSizeLabel}}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <!-- The pager itself; the infinite list has no pages to step through. -->
+                <StackPanel Orientation="Horizontal" Visibility="{Binding IsInfinite, Converter={StaticResource FalseToVisible}}">
                 <Button Style="{StaticResource PagerArrow}" Command="{Binding PreviousPageCommand}" ToolTip="{loc:Str Common_Previous}">
                     <Path Width="14" Height="10" Data="M5,0 L0,5 L5,10 M0,5 L14,5" Stretch="Fill" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2" />
                 </Button>
@@ -653,6 +672,7 @@
                 <Button Style="{StaticResource PagerArrow}" Command="{Binding NextPageCommand}" ToolTip="{loc:Str Common_Next}">
                     <Path Width="14" Height="10" Data="M9,0 L14,5 L9,10 M0,5 L14,5" Stretch="Fill" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2" />
                 </Button>
+                </StackPanel>
             </StackPanel>
         </StackPanel>
     </ScrollViewer>

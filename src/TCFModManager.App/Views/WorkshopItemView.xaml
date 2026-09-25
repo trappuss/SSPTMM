@@ -26,6 +26,7 @@
     xmlns:behaviors="clr-namespace:TCFModManager.App.Behaviors"
     xmlns:loc="clr-namespace:TCFModManager.App.Localization"
     xmlns:app="clr-namespace:TCFModManager.App"
+    xmlns:markup="clr-namespace:TCFModManager.App.Behaviors.Markup"
     Focusable="True"
     FocusVisualStyle="{x:Null}"
     KeyDown="View_KeyDown">
@@ -33,11 +34,91 @@
         <converters:NullToVisibilityConverter x:Key="NullToCollapsed" />
         <converters:UpdateAvailableToVisibilityConverter x:Key="TrueToVisible" />
         <converters:FalseToVisibilityConverter x:Key="FalseToVisible" />
+        <converters:EqualityConverter x:Key="IsSame" />
 
         <!-- A breadcrumb: 12px #8F98A0, white under the pointer. -->
         <Style x:Key="Crumb" TargetType="Button" BasedOn="{StaticResource SteamLinkButton}">
             <Setter Property="Foreground" Value="{StaticResource SteamTextDim}" />
             <Setter Property="FontSize" Value="12" />
+        </Style>
+
+        <!-- A row in a right-hand panel that opens something: Steam's required-item rows. -->
+        <Style x:Key="PanelRow" TargetType="Button">
+            <Setter Property="Margin" Value="0,0,0,1" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Row" Padding="{TemplateBinding Padding}" Background="{StaticResource SteamRequiredItem}">
+                            <ContentPresenter />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Row" Property="Background" Value="#555485B7" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- One of the right-hand panels' mod rows: a small picture and the name. -->
+        <DataTemplate x:Key="RelatedRow">
+            <Button
+                Padding="5"
+                Style="{StaticResource PanelRow}"
+                Command="{Binding DataContext.OpenRelatedCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                CommandParameter="{Binding}">
+                <DockPanel>
+                    <Border Width="40" Height="40" Margin="0,0,8,0" Background="Black" ClipToBounds="True">
+                        <Image Stretch="UniformToFill" behaviors:ThumbnailLoader.DecodeWidth="40" behaviors:ThumbnailLoader.Source="{Binding Thumbnail}" />
+                    </Border>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock FontSize="13" Foreground="{StaticResource SteamValueText}" TextTrimming="CharacterEllipsis" Text="{Binding Name}" />
+                        <TextBlock FontSize="11" Foreground="{StaticResource SteamTextDim}" TextTrimming="CharacterEllipsis" Text="{Binding Author, StringFormat={loc:Str Browse_ByAuthorFormat}}" />
+                    </StackPanel>
+                </DockPanel>
+            </Button>
+        </DataTemplate>
+
+        <!-- Steam's highlight strip slider: black track, a grey handle that lightens under the pointer. -->
+        <Style x:Key="StripScrollBar" TargetType="ScrollBar">
+            <Setter Property="Height" Value="13" />
+            <Setter Property="Margin" Value="0,2,0,0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollBar">
+                        <Border Background="Black">
+                            <Track x:Name="PART_Track" IsDirectionReversed="False">
+                                <Track.Thumb>
+                                    <Thumb>
+                                        <Thumb.Template>
+                                            <ControlTemplate TargetType="Thumb">
+                                                <Border x:Name="Handle" MinWidth="60">
+                                                    <Border.Background>
+                                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                                            <GradientStop Offset="0" Color="#706E6B" />
+                                                            <GradientStop Offset="1" Color="#5A5856" />
+                                                        </LinearGradientBrush>
+                                                    </Border.Background>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="Handle" Property="Background" Value="#82807C" />
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                            </Track>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <!-- The header's label/value pairs: "Content Type:" in #5C8699, the value in #EBEBEB 14px. -->
@@ -100,11 +181,25 @@
                         IsChecked="{Binding IsDescriptionShown, Mode=OneWay}">
                         <TextBlock Text="{loc:Str Item_TabDescription}" />
                     </ToggleButton>
+                    <!-- Steam's own order: Description, Comments, Change Notes. Versions is sp-mod.com's. -->
+                    <ToggleButton
+                        Style="{StaticResource SteamSectionTab}"
+                        Command="{Binding ShowCommentsCommand}"
+                        IsChecked="{Binding IsCommentsShown, Mode=OneWay}"
+                        Visibility="{Binding HasModPage, Converter={StaticResource TrueToVisible}}">
+                        <TextBlock Text="{loc:Str Item_TabComments}" />
+                    </ToggleButton>
                     <ToggleButton
                         Style="{StaticResource SteamSectionTab}"
                         Command="{Binding ShowChangeNotesCommand}"
                         IsChecked="{Binding IsChangeNotesShown, Mode=OneWay}">
                         <TextBlock Text="{loc:Str Item_TabChangeNotes}" />
+                    </ToggleButton>
+                    <ToggleButton
+                        Style="{StaticResource SteamSectionTab}"
+                        Command="{Binding ShowVersionsCommand}"
+                        IsChecked="{Binding IsVersionsShown, Mode=OneWay}">
+                        <TextBlock Text="{Binding VersionsTabTitle}" />
                     </ToggleButton>
                 </StackPanel>
 
@@ -121,9 +216,88 @@
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Grid.Column="0">
-                                <Grid Height="358" Background="Black" ClipToBounds="True">
-                                    <Image Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality" behaviors:ThumbnailLoader.Source="{Binding Thumbnail}" />
+                                <!-- The chosen picture or video, 636x358 on black; a click opens it full size. -->
+                                <Grid Height="358" Background="Black" ClipToBounds="True" Cursor="Hand" MouseLeftButtonUp="Preview_MouseLeftButtonUp">
+                                    <markup:RemotePicture
+                                        x:Name="PreviewPicture"
+                                        LimitToNaturalSize="False"
+                                        Stretch="Uniform"
+                                        Url="{Binding SelectedMedia.Thumbnail}" />
+                                    <Grid Width="68" Height="48" Visibility="{Binding SelectedIsVideo, Converter={StaticResource TrueToVisible}}">
+                                        <Border Background="#E6212121" CornerRadius="12" />
+                                        <Path Margin="4,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Center" Data="M0,0 L18,11 L0,22 Z" Fill="White" />
+                                    </Grid>
                                 </Grid>
+
+                                <!-- Steam's highlight strip: every picture and video, 116x65 on black, the
+                                     chosen one framed; a slider under it when they do not all fit. -->
+                                <Border Margin="0,1,0,0" Padding="7,7,7,0" Background="#80000000" Visibility="{Binding HasGallery, Converter={StaticResource TrueToVisible}}">
+                                    <StackPanel>
+                                        <ScrollViewer x:Name="Strip" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled" ScrollChanged="Strip_ScrollChanged">
+                                            <ItemsControl ItemsSource="{Binding Gallery}">
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <StackPanel Orientation="Horizontal" />
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Button
+                                                            Width="116"
+                                                            Height="65"
+                                                            Margin="0,0,3,6"
+                                                            Cursor="Hand"
+                                                            FocusVisualStyle="{x:Null}"
+                                                            Command="{Binding DataContext.SelectMediaCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                            CommandParameter="{Binding}">
+                                                            <Button.Template>
+                                                                <ControlTemplate TargetType="Button">
+                                                                    <Grid Background="Black">
+                                                                        <ContentPresenter />
+                                                                        <Border x:Name="Frame" BorderBrush="#97C0E3" BorderThickness="0" />
+                                                                    </Grid>
+                                                                    <ControlTemplate.Triggers>
+                                                                        <DataTrigger Value="True">
+                                                                            <DataTrigger.Binding>
+                                                                                <MultiBinding Converter="{StaticResource IsSame}">
+                                                                                    <Binding />
+                                                                                    <Binding Path="DataContext.SelectedMedia" RelativeSource="{RelativeSource AncestorType=UserControl}" />
+                                                                                </MultiBinding>
+                                                                            </DataTrigger.Binding>
+                                                                            <Setter TargetName="Frame" Property="BorderThickness" Value="1" />
+                                                                        </DataTrigger>
+                                                                    </ControlTemplate.Triggers>
+                                                                </ControlTemplate>
+                                                            </Button.Template>
+                                                            <Grid ClipToBounds="True">
+                                                                <Image Stretch="Uniform" behaviors:ThumbnailLoader.DecodeWidth="116" behaviors:ThumbnailLoader.Source="{Binding Thumbnail}" />
+                                                                <Grid Width="32" Height="32" ToolTip="{loc:Str Item_PlayVideo}">
+                                                                    <Grid.Style>
+                                                                        <Style TargetType="Grid">
+                                                                            <Setter Property="Visibility" Value="Collapsed" />
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding Kind}" Value="Video">
+                                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </Grid.Style>
+                                                                    <Ellipse Fill="#B3000000" Stroke="White" StrokeThickness="1.5" />
+                                                                    <Path Margin="3,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Center" Data="M0,0 L10,6 L0,12 Z" Fill="White" />
+                                                                </Grid>
+                                                            </Grid>
+                                                        </Button>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </ScrollViewer>
+                                        <ScrollBar
+                                            x:Name="StripSlider"
+                                            Orientation="Horizontal"
+                                            Style="{StaticResource StripScrollBar}"
+                                            Scroll="StripSlider_Scroll" />
+                                    </StackPanel>
+                                </Border>
 
                                 <!-- Steam's row of small buttons under the preview. -->
                                 <WrapPanel Margin="0,14,0,0">
@@ -229,10 +403,38 @@
                                             Command="{Binding SubscribeCommand}"
                                             ToolTip="{Binding InstallToolTip, Source={x:Static app:AppServices.ModPageGate}}"
                                             Visibility="{Binding IsSubscribed, Converter={StaticResource FalseToVisible}}">
-                                            <StackPanel Orientation="Horizontal">
-                                                <ui:SymbolIcon Margin="0,0,14,0" FontSize="16" Symbol="Add16" />
-                                                <TextBlock Text="{loc:Str Item_Subscribe}" />
-                                            </StackPanel>
+                                            <Grid>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <StackPanel.Style>
+                                                        <Style TargetType="StackPanel">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsInQueue}" Value="True">
+                                                                    <Setter Property="Visibility" Value="Hidden" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding IsCheckingRequirements}" Value="True">
+                                                                    <Setter Property="Visibility" Value="Hidden" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </StackPanel.Style>
+                                                    <ui:SymbolIcon Margin="0,0,14,0" FontSize="16" Symbol="Add16" />
+                                                    <TextBlock Text="{loc:Str Item_Subscribe}" />
+                                                </StackPanel>
+                                                <!-- While Subscribe works out what the mod needs. -->
+                                                <TextBlock HorizontalAlignment="Center" Text="{loc:Str Item_Checking}" Visibility="{Binding IsCheckingRequirements, Converter={StaticResource TrueToVisible}}" />
+                                                <!-- While it downloads and installs: how far, in the button. -->
+                                                <StackPanel MinWidth="160" Visibility="{Binding IsInQueue, Converter={StaticResource TrueToVisible}}">
+                                                    <TextBlock HorizontalAlignment="Center" FontSize="12" TextTrimming="CharacterEllipsis" Text="{Binding QueueStatus}" />
+                                                    <ProgressBar
+                                                        Height="4"
+                                                        Margin="0,4,0,0"
+                                                        Maximum="1"
+                                                        Foreground="White"
+                                                        Background="#40000000"
+                                                        IsIndeterminate="{Binding IsQueueIndeterminate, Mode=OneWay}"
+                                                        Value="{Binding QueueProgress, Mode=OneWay}" />
+                                                </StackPanel>
+                                            </Grid>
                                         </Button>
                                         <Button
                                             x:Name="SubscribedButton"
@@ -351,17 +553,27 @@
                             <Border Style="{StaticResource SteamRightPanel}">
                                 <StackPanel>
                                     <TextBlock Style="{StaticResource SteamRightPanelTitle}" Text="{loc:Str Item_CreatedBy}" />
+                                    <!-- Each name opens everything they made, in Browse. -->
                                     <ItemsControl ItemsSource="{Binding Authors}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <Border Margin="0,0,0,2" Padding="6" Background="{StaticResource SteamRequiredItem}">
+                                                <Button
+                                                    Margin="0,0,0,2"
+                                                    Padding="6"
+                                                    Style="{StaticResource PanelRow}"
+                                                    ToolTip="{loc:Str Item_AuthorToolTip}"
+                                                    Command="{Binding DataContext.OpenAuthorCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding}">
                                                     <StackPanel Orientation="Horizontal">
-                                                        <Border Width="32" Height="32" Margin="0,0,8,0" Background="#3D4450" BorderBrush="#57CBDE" BorderThickness="1">
-                                                            <ui:SymbolIcon FontSize="18" Foreground="{StaticResource SteamText}" Symbol="Person16" />
+                                                        <Border Width="32" Height="32" Margin="0,0,8,0" Background="#3D4450" BorderBrush="#57CBDE" BorderThickness="1" ClipToBounds="True">
+                                                            <Grid>
+                                                                <ui:SymbolIcon FontSize="18" Foreground="{StaticResource SteamText}" Symbol="Person16" />
+                                                                <Image Stretch="UniformToFill" behaviors:ThumbnailLoader.DecodeWidth="32" behaviors:ThumbnailLoader.Source="{Binding Photo}" />
+                                                            </Grid>
                                                         </Border>
-                                                        <TextBlock VerticalAlignment="Center" FontSize="12" Foreground="{StaticResource SteamValueText}" Text="{Binding}" />
+                                                        <TextBlock VerticalAlignment="Center" FontSize="12" Foreground="{StaticResource SteamValueText}" Text="{Binding Name}" />
                                                     </StackPanel>
-                                                </Border>
+                                                </Button>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
@@ -388,8 +600,105 @@
                                     <TextBlock Grid.Row="2" Grid.Column="1" Foreground="{StaticResource SteamStatLabel}" Text="{loc:Str Item_StatEndorsements}" />
                                 </Grid>
                             </Border>
+
+                            <!-- REQUIRED BY: the mods whose current release needs this one. -->
+                            <Border Style="{StaticResource SteamRightPanel}" Visibility="{Binding HasRequiredBy, Converter={StaticResource TrueToVisible}}">
+                                <StackPanel>
+                                    <TextBlock Style="{StaticResource SteamRightPanelTitle}" Text="{Binding RequiredByTitle}" />
+                                    <ItemsControl ItemsSource="{Binding RequiredBy}" ItemTemplate="{StaticResource RelatedRow}" />
+                                </StackPanel>
+                            </Border>
+
+                            <!-- MORE BY <author>. -->
+                            <Border Style="{StaticResource SteamRightPanel}" Visibility="{Binding HasMoreByAuthor, Converter={StaticResource TrueToVisible}}">
+                                <StackPanel>
+                                    <TextBlock Style="{StaticResource SteamRightPanelTitle}" Text="{Binding MoreByAuthorTitle}" />
+                                    <ItemsControl ItemsSource="{Binding MoreByAuthor}" ItemTemplate="{StaticResource RelatedRow}" />
+                                </StackPanel>
+                            </Border>
                         </StackPanel>
                     </Grid>
+                </StackPanel>
+
+                <!-- ============================================================ Versions tab -->
+                <!-- sp-mod.com's version cards: number and date, SPT, size, downloads, Fika, what
+                     it needs, and a button to install that version. -->
+                <StackPanel Visibility="{Binding IsVersionsShown, Converter={StaticResource TrueToVisible}}">
+                    <ItemsControl ItemsSource="{Binding Versions}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Margin="0,0,0,12" Padding="16" Background="#33000000">
+                                    <DockPanel>
+                                        <StackPanel DockPanel.Dock="Right" Margin="16,0,0,0" HorizontalAlignment="Right">
+                                            <TextBlock HorizontalAlignment="Right" FontSize="13" Foreground="{StaticResource SteamTextDim}" Text="{Binding PublishedAt, StringFormat={loc:Str Item_VersionReleasedFormat}}" Visibility="{Binding PublishedAt, Converter={StaticResource NullToCollapsed}}" />
+                                            <TextBlock Margin="0,4,0,0" HorizontalAlignment="Right" FontSize="13" Foreground="#A4D007" Text="{loc:Str Item_VersionFika}" Visibility="{Binding IsFikaCompatible, Converter={StaticResource TrueToVisible}}" />
+                                            <TextBlock Margin="0,10,0,0" HorizontalAlignment="Right" FontSize="13" Foreground="#A4D007" Text="{loc:Str Item_VersionInstalled}" Visibility="{Binding IsInstalled, Converter={StaticResource TrueToVisible}}" />
+                                            <Button
+                                                Margin="0,10,0,0"
+                                                HorizontalAlignment="Right"
+                                                Style="{StaticResource SteamButton}"
+                                                Command="{Binding InstallCommand}"
+                                                Content="{Binding InstallLabel}"
+                                                Visibility="{Binding CanInstall, Converter={StaticResource TrueToVisible}}" />
+                                        </StackPanel>
+                                        <StackPanel>
+                                            <TextBlock FontSize="20" Foreground="{StaticResource SteamWhite}" Text="{Binding Version}" />
+                                            <WrapPanel Margin="0,6,0,0">
+                                                <Border Margin="0,0,8,0" Padding="6,1" CornerRadius="2" Visibility="{Binding HasSptRange, Converter={StaticResource TrueToVisible}}">
+                                                    <Border.Style>
+                                                        <Style TargetType="Border">
+                                                            <Setter Property="Background" Value="#3D4450" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsCompatible}" Value="True">
+                                                                    <Setter Property="Background" Value="#4C6B22" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding IsCompatible}" Value="False">
+                                                                    <Setter Property="Background" Value="#6B2222" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
+                                                    <TextBlock FontSize="12" Foreground="White" Text="{Binding SptRange, StringFormat='SPT {0}'}" />
+                                                </Border>
+                                                <TextBlock Margin="0,0,12,0" FontSize="13" Foreground="{StaticResource SteamText}" Text="{Binding Size}" Visibility="{Binding Size, Converter={StaticResource NullToCollapsed}}" />
+                                                <TextBlock FontSize="13" Foreground="{StaticResource SteamText}" Text="{Binding Downloads, StringFormat={loc:Str Item_VersionDownloadsFormat}}" />
+                                            </WrapPanel>
+                                            <TextBlock Margin="0,10,0,0" FontSize="13" Foreground="{StaticResource SteamText}" TextWrapping="Wrap" Visibility="{Binding HasDependencies, Converter={StaticResource TrueToVisible}}">
+                                                <Run Foreground="{StaticResource SteamTextDim}" Text="{loc:Str Item_VersionDependencies}" />
+                                                <Run Text="{Binding Dependencies, Mode=OneWay}" />
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </DockPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock
+                        Margin="0,12,0,0"
+                        HorizontalAlignment="Center"
+                        Foreground="{StaticResource SteamText}"
+                        Text="{loc:Str ModUpdate_LoadingVersions}"
+                        Visibility="{Binding IsLoadingVersions, Converter={StaticResource TrueToVisible}}" />
+                    <Button
+                        Margin="0,4,0,0"
+                        HorizontalAlignment="Center"
+                        Style="{StaticResource SteamButton}"
+                        Command="{Binding LoadMoreVersionsCommand}"
+                        Content="{loc:Str Item_VersionsMore}"
+                        Visibility="{Binding CanLoadMoreVersions, Converter={StaticResource TrueToVisible}}" />
+                </StackPanel>
+
+                <!-- ============================================================ Comments tab -->
+                <!-- sp-mod.com's own comments, embedded (see WorkshopItemView.xaml.cs). The page
+                     does not scroll on this tab: the comments fill the space under the tabs and
+                     scroll themselves. -->
+                <StackPanel x:Name="CommentsTab" Visibility="{Binding IsCommentsShown, Converter={StaticResource TrueToVisible}}">
+                    <TextBlock Margin="0,0,0,8" FontSize="12" Foreground="{StaticResource SteamTextDim}" Text="{loc:Str Item_CommentsSignIn}" Visibility="{Binding Visibility, ElementName=CommentsHost}" />
+                    <Border x:Name="CommentsHost" Background="#1B2838" />
+                    <StackPanel x:Name="CommentsFallback" Margin="0,20,0,0" HorizontalAlignment="Center" Visibility="Collapsed">
+                        <TextBlock MaxWidth="520" Foreground="{StaticResource SteamText}" TextAlignment="Center" TextWrapping="Wrap" Text="{loc:Str Item_CommentsUnavailable}" />
+                        <Button Margin="0,12,0,0" HorizontalAlignment="Center" Style="{StaticResource SteamBlueButton}" Content="{loc:Str Item_CommentsOpen}" Click="OpenComments_Click" />
+                    </StackPanel>
                 </StackPanel>
 
                 <!-- ============================================================ Change Notes tab -->

@@ -5008,4 +5008,140 @@ This was written to:
     <value>Back to the Workshop (Esc)</value>
     <comment>Tooltip on the Workshop breadcrumb, which closes the item page.</comment>
   </data>
+  <data name="Workshop_PerPageInfinite" xml:space="preserve">
+    <value>Infinite</value>
+    <comment>Per page dropdown entry: no pages; more cards are added as you scroll to the bottom.</comment>
+  </data>
+  <data name="Workshop_LoadingMore" xml:space="preserve">
+    <value>Scroll for more...</value>
+    <comment>Under the infinite list while it has more cards to add.</comment>
+  </data>
+  <data name="Viewer_OpenInBrowser" xml:space="preserve">
+    <value>Open in browser</value>
+    <comment>Button in the full-size picture/video viewer: opens the picture or the video on YouTube in the browser.</comment>
+  </data>
+  <data name="Viewer_WatchOnYouTube" xml:space="preserve">
+    <value>Watch on YouTube</value>
+    <comment>Shown in the viewer in place of a video when it cannot play inside the app.</comment>
+  </data>
+  <data name="Browse_CheckingRequirementsFormat" xml:space="preserve">
+    <value>Checking what {0} needs...</value>
+    <comment>Shown while Subscribe looks up the mods a mod requires, before asking to open their pages. {0} is the mod.</comment>
+  </data>
+  <data name="Browse_QueuedWithRequirements_one" xml:space="preserve">
+    <value>Queued {0} {1} and the 1 mod it needs - see the Downloads page for progress.</value>
+    <comment>{0} is the mod, {1} its version, {2} how many required mods were queued with it.</comment>
+  </data>
+  <data name="Browse_QueuedWithRequirements_other" xml:space="preserve">
+    <value>Queued {0} {1} and the {2} mods it needs - see the Downloads page for progress.</value>
+    <comment>{0} is the mod, {1} its version, {2} how many required mods were queued with it.</comment>
+  </data>
+  <data name="ModPage_StepFormat" xml:space="preserve">
+    <value>{0} of {1}: {2}</value>
+    <comment>Heading over a mod page shown inside the app when several are to be read. {0} is which one, {1} how many, {2} the mod.</comment>
+  </data>
+  <data name="ModPage_NextPage" xml:space="preserve">
+    <value>Next page</value>
+    <comment>Steps to the next mod page to read.</comment>
+  </data>
+  <data name="ModPage_PreviousPage" xml:space="preserve">
+    <value>Previous page</value>
+    <comment>Steps back to the previous mod page.</comment>
+  </data>
+  <data name="ModPage_Done" xml:space="preserve">
+    <value>Done</value>
+    <comment>Closes the mod page window once every page has been shown.</comment>
+  </data>
+  <data name="ModPage_Close" xml:space="preserve">
+    <value>Close</value>
+    <comment>Closes the mod page window while pages are still unread.</comment>
+  </data>
+  <data name="Item_TabVersions" xml:space="preserve">
+    <value>Versions</value>
+    <comment>Item page tab listing every published version, as sp-mod.com has it.</comment>
+  </data>
+  <data name="Item_TabComments" xml:space="preserve">
+    <value>Comments</value>
+    <comment>Item page tab: the mod's comments on sp-mod.com.</comment>
+  </data>
+  <data name="Item_VersionInstall" xml:space="preserve">
+    <value>Install this version</value>
+    <comment>Button on a version on the Versions tab, when the mod is not installed.</comment>
+  </data>
+  <data name="Item_VersionSwitch" xml:space="preserve">
+    <value>Switch to this version</value>
+    <comment>Button on a version on the Versions tab, when another version of the mod is installed. Opens the update dialog.</comment>
+  </data>
+  <data name="Item_VersionInstalled" xml:space="preserve">
+    <value>Installed</value>
+    <comment>Marks the installed version on the Versions tab.</comment>
+  </data>
+  <data name="Item_VersionReleasedFormat" xml:space="preserve">
+    <value>Released {0:MMM d, yyyy @ h:mmtt}</value>
+    <comment>{0} is when the version was published.</comment>
+  </data>
+  <data name="Item_VersionDownloadsFormat" xml:space="preserve">
+    <value>{0:N0} Downloads</value>
+    <comment>{0} is how many times this version was downloaded.</comment>
+  </data>
+  <data name="Item_VersionDependencies" xml:space="preserve">
+    <value>Dependencies:</value>
+    <comment>Label before the list of mods a version needs.</comment>
+  </data>
+  <data name="Item_VersionFika" xml:space="preserve">
+    <value>Fika Compatible</value>
+    <comment>Shown on a version that works with Fika, as sp-mod.com words it.</comment>
+  </data>
+  <data name="Item_VersionsMore" xml:space="preserve">
+    <value>Show more versions</value>
+    <comment>Button under the Versions tab when there are older versions not loaded yet.</comment>
+  </data>
+  <data name="Item_MoreByFormat" xml:space="preserve">
+    <value>MORE BY {0}</value>
+    <comment>Right-hand panel title: other mods by the same author. Upper case in Steam's panel style. {0} is the author.</comment>
+  </data>
+  <data name="Item_RequiredBy_one" xml:space="preserve">
+    <value>REQUIRED BY 1 ITEM</value>
+    <comment>Right-hand panel title: the mods that need this one. Upper case in Steam's panel style.</comment>
+  </data>
+  <data name="Item_RequiredBy_other" xml:space="preserve">
+    <value>REQUIRED BY {0:N0} ITEMS</value>
+    <comment>Right-hand panel title: the mods that need this one. {0} is how many.</comment>
+  </data>
+  <data name="Item_CommentsSignIn" xml:space="preserve">
+    <value>Sign in to sp-mod.com here to comment or react; you stay signed in.</value>
+    <comment>Note over the embedded comments.</comment>
+  </data>
+  <data name="Item_CommentsUnavailable" xml:space="preserve">
+    <value>Comments open on sp-mod.com in your browser - this PC has no WebView2 runtime to show them here.</value>
+    <comment>Shown on the Comments tab when the page cannot be embedded.</comment>
+  </data>
+  <data name="Item_CommentsOpen" xml:space="preserve">
+    <value>Open the comments</value>
+    <comment>Button on the Comments tab when they cannot be shown inside the app.</comment>
+  </data>
+  <data name="Item_AuthorToolTip" xml:space="preserve">
+    <value>Browse everything by this author</value>
+    <comment>Tooltip on a name under CREATED BY.</comment>
+  </data>
+  <data name="Item_PlayVideo" xml:space="preserve">
+    <value>Play video</value>
+    <comment>Tooltip on a video in the screenshot strip.</comment>
+  </data>
+  <data name="Item_Checking" xml:space="preserve">
+    <value>Checking...</value>
+    <comment>On the Subscribe button while it looks up which mods this one needs.</comment>
+  </data>
+  <data name="Viewer_CounterFormat" xml:space="preserve">
+    <value>{0} / {1}</value>
+    <comment>In the full-size viewer: which picture or video this is, of how many.</comment>
+  </data>
+  <data name="Installed_UpdateAll_one" xml:space="preserve">
+    <value>Update 1 item</value>
+    <comment>Button beside the Subscribed items title: updates the one installed mod that has an update.</comment>
+  </data>
+  <data name="Installed_UpdateAll_other" xml:space="preserve">
+    <value>Update all ({0})</value>
+    <comment>Button beside the Subscribed items title: updates every installed mod that has an update. {0} is how many.</comment>
+  </data>
 </root>

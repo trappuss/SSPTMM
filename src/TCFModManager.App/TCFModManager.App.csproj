@@ -49,6 +49,11 @@
   <ItemGroup>
     <PackageReference Include="WPF-UI" Version="4.3.0" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <!-- Apache-2.0. Plays animated GIFs in descriptions frame by frame instead of decoding them whole. -->
+    <PackageReference Include="XamlAnimatedGif" Version="2.3.2" />
+    <!-- Microsoft's WebView2 SDK (BSD-style licence). The sp-mod.com comments, the in-app mod page and
+         video playback; everything that uses it falls back to the browser when the runtime is absent. -->
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4191.47" />
   </ItemGroup>
 
   <ItemGroup>

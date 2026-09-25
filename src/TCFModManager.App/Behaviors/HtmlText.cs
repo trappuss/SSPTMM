@@ -1,15 +1,18 @@
-using System.Diagnostics;
-using System.Net;
-using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using TCFModManager.App.Behaviors.Markup;
+using TCFModManager.Core.Markup;
 
 namespace TCFModManager.App.Behaviors;
 
-// 
-// Attached property that renders an HTML fragment into a RichTextBox's FlowDocument.
-// 
+//
+// Attached property that renders sp-mod.com HTML (a description or a changelog) into a
+// RichTextBox, in the site's markdown style - see Markup/MarkupRenderer.cs for what it lays out and
+// Core/Markup/SpModMarkup.cs for what it reads.
+//
 public static class HtmlText
 {
     public static readonly DependencyProperty HtmlProperty = DependencyProperty.RegisterAttached(
@@ -23,8 +26,30 @@ public static class HtmlText
     {
         if (d is not RichTextBox richTextBox) return;
 
-        var document = HtmlFragmentParser.Parse(e.NewValue as string);
+        ForwardWheel(richTextBox);
 
+        var document = MarkupRenderer.Render(SpModMarkup.Parse(e.NewValue as string), richTextBox.FontSize);
+        Attach(richTextBox, document);
+    }
+
+    /// <summary>Sets a RichTextBox up the way the XAML hosts are: read-only, frameless, no scroll
+    /// bars of its own, links clickable. Used for the boxes a tab set creates.</summary>
+    internal static void PrepareHost(RichTextBox host, double fontSize)
+    {
+        host.Padding = new Thickness(0);
+        host.Background = Brushes.Transparent;
+        host.BorderThickness = new Thickness(0);
+        host.FontSize = fontSize;
+        host.Focusable = false;
+        host.IsReadOnly = true;
+        host.IsDocumentEnabled = true;
+        host.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
+        host.VerticalScrollBarVisibility = ScrollBarVisibility.Disabled;
+        ForwardWheel(host);
+    }
+
+    internal static void Attach(RichTextBox host, FlowDocument document)
+    {
         //
         // A FlowDocument does not take its text properties from the RichTextBox hosting it - it
         // applies its own defaults, which are a serif face and justified text. Left alone, every
@@ -34,8 +59,12 @@ public static class HtmlText
         // Font comes from the host so the changelog matches whatever it is sitting in, rather than
         // being pinned to a font of its own here.
         //
-        document.FontFamily = richTextBox.FontFamily;
-        document.FontSize = richTextBox.FontSize;
+        // The app's Steam face, set on the box itself: WPF UI's RichTextBox style pins its own font,
+        // and that font had no bold, so every <strong> and heading came out regular.
+        if (host.TryFindResource("SteamFont") is FontFamily steamFont) host.FontFamily = steamFont;
+
+        document.FontFamily = host.FontFamily;
+        document.FontSize = host.FontSize;
         document.TextAlignment = TextAlignment.Left;
 
         // SetResourceReference rather than copying the host's brush: this is the code equivalent of
@@ -43,222 +72,36 @@ public static class HtmlText
         // whatever the theme was when the changelog was parsed.
         document.SetResourceReference(TextElement.ForegroundProperty, "TextFillColorPrimaryBrush");
 
-        richTextBox.Document = document;
-    }
-}
-
-// 
-// A small hand-rolled HTML-fragment-to-FlowDocument converter for a limited tag set.
-// 
-internal static class HtmlFragmentParser
-{
-    // Matches a tag (open, close, or self-closing) or a run of plain text.
-    private static readonly Regex TagOrText =
-        new(@"<(?<close>/?)(?<tag>[a-zA-Z0-9]+)(?<attrs>[^>]*)>|(?<text>[^<]+)", RegexOptions.Compiled);
-
-    private static readonly Regex HrefAttribute =
-        new("href\\s*=\\s*[\"']([^\"']*)[\"']", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-    private static readonly Regex WhitespaceRun = new(@"\s+", RegexOptions.Compiled);
-
-    public static FlowDocument Parse(string? html)
-    {
-        var document = new FlowDocument { PagePadding = new Thickness(0) };
-        if (string.IsNullOrWhiteSpace(html)) return document;
-
-        // Where new top-level blocks (Paragraphs, Lists) get added.
-        var blockTargets = new Stack<BlockCollection>();
-        blockTargets.Push(document.Blocks);
-
-        // The <ul>/<ol> currently open, if any.
-        var openLists = new Stack<List>();
-
-        // Inline formatting elements (Bold/Italic/Underline/Hyperlink) currently open, innermost on top.
-        var openInlines = new Stack<Span>();
-
-        Paragraph? currentParagraph = null;
-
-        void EnsureParagraph()
-        {
-            if (currentParagraph is not null) return;
-            currentParagraph = new Paragraph { Margin = new Thickness(0, 0, 0, 8) };
-            blockTargets.Peek().Add(currentParagraph);
-        }
-
-        void EndParagraph() => currentParagraph = null;
-
-        InlineCollection InlineTarget()
-        {
-            if (openInlines.Count > 0) return openInlines.Peek().Inlines;
-            EnsureParagraph();
-            return currentParagraph!.Inlines;
-        }
-
-        void AddText(string raw)
-        {
-            var text = WhitespaceRun.Replace(WebUtility.HtmlDecode(raw), " ");
-            if (text.Length == 0) return;
-
-            // Drop a lone whitespace gap between block-level tags with no inline content yet.
-            if (text == " " && currentParagraph is null && openInlines.Count == 0) return;
-
-            InlineTarget().Add(new Run(text));
-        }
-
-        void OpenInline(Span span)
-        {
-            InlineTarget().Add(span);
-            openInlines.Push(span);
-        }
-
-        void CloseInline()
-        {
-            if (openInlines.Count > 0) openInlines.Pop();
-        }
-
-        void OpenHeading(int level)
-        {
-            EndParagraph();
-            currentParagraph = new Paragraph
-            {
-                FontWeight = FontWeights.SemiBold,
-                FontSize = level switch { 1 => 20, 2 => 18, 3 => 16, _ => 14 },
-                Margin = new Thickness(0, 8, 0, 4),
-            };
-            blockTargets.Peek().Add(currentParagraph);
-        }
-
-        void OpenBlockquote()
-        {
-            EndParagraph();
-            currentParagraph = new Paragraph
-            {
-                FontStyle = FontStyles.Italic,
-                Margin = new Thickness(12, 4, 0, 4),
-            };
-            blockTargets.Peek().Add(currentParagraph);
-        }
-
-        foreach (Match match in TagOrText.Matches(html))
-        {
-            if (match.Groups["text"].Success)
-            {
-                AddText(match.Groups["text"].Value);
-                continue;
-            }
-
-            var isClose = match.Groups["close"].Value == "/";
-            var tag = match.Groups["tag"].Value.ToLowerInvariant();
-
-            switch (tag)
-            {
-                case "p":
-                case "div":
-                    EndParagraph();
-                    break;
-
-                case "br":
-                    InlineTarget().Add(new LineBreak());
-                    break;
-
-                case "h1" or "h2" or "h3" or "h4" or "h5" or "h6":
-                    if (!isClose) OpenHeading(tag[1] - '0');
-                    else EndParagraph();
-                    break;
-
-                case "blockquote":
-                    if (!isClose) OpenBlockquote();
-                    else EndParagraph();
-                    break;
-
-                case "strong" or "b":
-                    if (!isClose) OpenInline(new Bold()); else CloseInline();
-                    break;
-
-                case "em" or "i":
-                    if (!isClose) OpenInline(new Italic()); else CloseInline();
-                    break;
-
-                case "u":
-                    if (!isClose) OpenInline(new Underline()); else CloseInline();
-                    break;
-
-                case "code":
-                    if (!isClose) OpenInline(new Span { FontFamily = new System.Windows.Media.FontFamily("Consolas") });
-                    else CloseInline();
-                    break;
-
-                case "a":
-                    if (!isClose)
-                    {
-                        var hyperlink = new Hyperlink
-                        {
-                            Foreground = Converters.ThemeBrush.Resolve(
-                                "AccentTextFillColorPrimaryBrush",
-                                System.Windows.Media.Brushes.DodgerBlue),
-                        };
-                        var href = HrefAttribute.Match(match.Groups["attrs"].Value);
-                        if (href.Success && Uri.TryCreate(href.Groups[1].Value, UriKind.Absolute, out var uri))
-                        {
-                            hyperlink.NavigateUri = uri;
-                            hyperlink.Click += OpenHyperlink;
-                        }
-                        OpenInline(hyperlink);
-                    }
-                    else
-                    {
-                        CloseInline();
-                    }
-                    break;
-
-                case "ul" or "ol":
-                    if (!isClose)
-                    {
-                        EndParagraph();
-                        var list = new List
-                        {
-                            MarkerStyle = tag == "ol" ? TextMarkerStyle.Decimal : TextMarkerStyle.Disc,
-                            Margin = new Thickness(0, 0, 0, 8),
-                        };
-                        blockTargets.Peek().Add(list);
-                        openLists.Push(list);
-                    }
-                    else if (openLists.Count > 0)
-                    {
-                        openLists.Pop();
-                    }
-                    break;
-
-                case "li":
-                    if (!isClose)
-                    {
-                        EndParagraph();
-                        if (openLists.Count > 0)
-                        {
-                            var item = new ListItem();
-                            openLists.Peek().ListItems.Add(item);
-                            blockTargets.Push(item.Blocks);
-                        }
-                    }
-                    else
-                    {
-                        EndParagraph();
-                        if (blockTargets.Count > 1) blockTargets.Pop();
-                    }
-                    break;
-
-                // Anything else (span, font, unknown tags) is unwrapped.
-            }
-        }
-
-        return document;
+        // A document is only ever in one box; a tab shown again is handed back to the same one.
+        if (!ReferenceEquals(host.Document, document)) host.Document = document;
     }
 
-    private static void OpenHyperlink(object sender, RoutedEventArgs e)
-    {
-        if (sender is not Hyperlink { NavigateUri: { } uri }) return;
+    private static readonly DependencyProperty WheelForwardedProperty = DependencyProperty.RegisterAttached(
+        "WheelForwarded", typeof(bool), typeof(HtmlText), new PropertyMetadata(false));
 
-        // UseShellExecute opens the URL in the OS's default browser.
-        Process.Start(new ProcessStartInfo(uri.AbsoluteUri) { UseShellExecute = true });
+    //
+    // A RichTextBox takes every wheel turn over it for its own scroll viewer, even with its scroll
+    // bars off - so the page stopped scrolling whenever the pointer crossed a description. The turn
+    // is passed on to whatever the box sits in instead.
+    //
+    private static void ForwardWheel(RichTextBox host)
+    {
+        if ((bool)host.GetValue(WheelForwardedProperty)) return;
+        host.SetValue(WheelForwardedProperty, true);
+
+        host.PreviewMouseWheel += (sender, e) =>
+        {
+            if (e.Handled || sender is not DependencyObject source) return;
+
+            var parent = VisualTreeHelper.GetParent(source) as UIElement;
+            if (parent is null) return;
+
+            e.Handled = true;
+            parent.RaiseEvent(new MouseWheelEventArgs(e.MouseDevice, e.Timestamp, e.Delta)
+            {
+                RoutedEvent = UIElement.MouseWheelEvent,
+                Source = source,
+            });
+        };
     }
 }

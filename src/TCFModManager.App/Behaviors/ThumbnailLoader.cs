@@ -3,6 +3,7 @@ using System.IO;
 using System.Net.Http;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 using TCFModManager.Core.Services;
@@ -18,11 +19,40 @@ public static class ThumbnailLoader
     // Caps concurrent thumbnail downloads.
     private static readonly SemaphoreSlim Gate = new(6, 6);
 
-    // Decode resolution for thumbnails, which are only ever shown small.
-    private const int DecodePixelWidth = 128;
+    // Decode width when an Image does not set DecodeWidth - the small list thumbnails.
+    private const int DefaultDecodeWidth = 128;
 
-    // In-memory cache of decoded thumbnails, keyed by URL. Only touched from the UI thread.
-    private static readonly Dictionary<string, BitmapImage> Cache = new();
+    // In-memory cache of decoded thumbnails, keyed by decode width and URL. Only touched from the UI thread.
+    private static readonly Dictionary<string, BitmapSource> Cache = new();
+
+    //
+    // The width the image is shown at, in device-independent pixels. Decoding at the shown size
+    // (times the screen's scale) keeps a large preview sharp without holding every small one at
+    // full resolution: a 245px Workshop card decoded at 128 was being stretched to twice its size.
+    //
+    public static readonly DependencyProperty DecodeWidthProperty = DependencyProperty.RegisterAttached(
+        "DecodeWidth", typeof(int), typeof(ThumbnailLoader), new PropertyMetadata(DefaultDecodeWidth));
+
+    public static void SetDecodeWidth(DependencyObject element, int value) => element.SetValue(DecodeWidthProperty, value);
+
+    public static int GetDecodeWidth(DependencyObject element) => (int)element.GetValue(DecodeWidthProperty);
+
+    private static int PixelWidth(Image image)
+    {
+        var scale = 1.0;
+        try
+        {
+            scale = VisualTreeHelper.GetDpi(image).DpiScaleX;
+        }
+        catch (InvalidOperationException)
+        {
+            // Not in a visual tree yet: decode at 1:1.
+        }
+
+        return (int)Math.Ceiling(GetDecodeWidth(image) * Math.Max(1.0, scale));
+    }
+
+    private static string KeyFor(string url, int width) => width + "|" + url;
 
     // files.sp-mod.com serves images only to requests carrying a Referer from sp-mod.com itself;
     // anything else gets a 403.
@@ -53,25 +83,27 @@ public static class ThumbnailLoader
         image.Source = null;
         if (string.IsNullOrWhiteSpace(url)) return;
 
-        if (Cache.TryGetValue(url, out var cached))
+        var width = PixelWidth(image);
+        if (Cache.TryGetValue(KeyFor(url, width), out var cached))
         {
             image.Source = cached;
             return;
         }
 
         AppLog.Debug("Thumbnails", $"ThumbnailLoader: queuing {url}");
-        _ = LoadAsync(image, url);
+        _ = LoadAsync(image, url, width);
     }
 
-    private static async Task LoadAsync(Image image, string url)
+    private static async Task LoadAsync(Image image, string url, int width)
     {
+        var key = KeyFor(url, width);
         var sw = Stopwatch.StartNew();
         await Gate.WaitAsync();
         AppLog.Debug("Thumbnails", $"ThumbnailLoader: gate acquired after {sw.ElapsedMilliseconds}ms for {url}");
         try
         {
             // Re-check the cache in case another card loaded this URL while waiting on the gate.
-            if (Cache.TryGetValue(url, out var cached))
+            if (Cache.TryGetValue(key, out var cached))
             {
                 if (GetSource(image) as string == url) image.Source = cached;
                 return;
@@ -88,33 +120,51 @@ public static class ThumbnailLoader
                 return;
             }
 
-            BitmapImage bitmap;
-            try
+            // Decoded off the UI thread: thirty cards arriving at once used to decode one after
+            // another on it, which is the stutter a fast scroll through the grid ran into.
+            var bitmap = await DecodeThread.Run(() => Decode(bytes, width));
+            if (bitmap is null)
             {
-                bitmap = new BitmapImage();
-                bitmap.BeginInit();
-                bitmap.DecodePixelWidth = DecodePixelWidth;
-                bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                bitmap.StreamSource = new MemoryStream(bytes);
-                bitmap.EndInit();
-
-                // Freeze so the same instance can be shared with other Images.
-                bitmap.Freeze();
-            }
-            catch (Exception ex) when (ex is NotSupportedException or ArgumentException or IOException or OverflowException)
-            {
-                AppLog.Debug("Thumbnails", $"ThumbnailLoader: {url} could not be decoded - {ex.Message}");
+                AppLog.Debug("Thumbnails", $"ThumbnailLoader: {url} could not be decoded");
                 return;
             }
 
             AppLog.Debug("Thumbnails", $"ThumbnailLoader: loaded {bytes.Length} bytes after {sw.ElapsedMilliseconds}ms total for {url}");
 
-            Cache[url] = bitmap;
+            Cache[key] = bitmap;
             if (GetSource(image) as string == url) image.Source = bitmap;
         }
         finally
         {
             Gate.Release();
+        }
+    }
+
+    // Null when the bytes are not an image WPF can read.
+    internal static BitmapSource? Decode(byte[] bytes, int width)
+    {
+        if (!ImageSupport.CanDecode(bytes)) return null;
+
+        try
+        {
+            // Never decoded larger than the picture itself: that only spends memory on a blur.
+            // (Read from the header - see ImageHeader - when it can be; otherwise at the width asked.)
+            var natural = TCFModManager.Core.Markup.ImageHeader.Width(bytes) ?? int.MaxValue;
+
+            var bitmap = new BitmapImage();
+            bitmap.BeginInit();
+            if (width > 0 && width < natural) bitmap.DecodePixelWidth = width;
+            bitmap.CacheOption = BitmapCacheOption.OnLoad;
+            bitmap.StreamSource = new MemoryStream(bytes);
+            bitmap.EndInit();
+
+            // Frozen so it can cross back to the UI thread and be shared between Images.
+            bitmap.Freeze();
+            return bitmap;
+        }
+        catch (Exception ex) when (ex is NotSupportedException or ArgumentException or IOException or OverflowException or FileFormatException or InvalidOperationException or System.Runtime.InteropServices.COMException)
+        {
+            return null;
         }
     }
 }

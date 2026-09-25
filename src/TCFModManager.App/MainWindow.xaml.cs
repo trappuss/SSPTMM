@@ -57,7 +57,8 @@ public partial class MainWindow : FluentWindow
         };
     }
 
-    // Lights the hub tab for the page on screen - the Workshop tab for every Workshop page - and
+    // Lights the hub tab for the page on screen - the Workshop tab for every Workshop page but
+    // Subscribed items, which has a tab of its own - and
     // shows the Workshop strip over the two Workshop pages that have no banner of their own.
     private void SyncHeader(Type pageType)
     {
@@ -65,7 +66,7 @@ public partial class MainWindow : FluentWindow
         {
             var target = tab.Tag as Type;
             tab.IsChecked = target == pageType
-                || (target == typeof(WorkshopHomePage) && AppNavigation.IsWorkshopPage(pageType));
+                || (target == typeof(WorkshopHomePage) && AppNavigation.IsWorkshopPage(pageType) && pageType != typeof(InstalledPage));
         }
 
         WorkshopStrip.Visibility = pageType == typeof(InstalledPage) || pageType == typeof(ModListsPage)

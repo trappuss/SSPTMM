@@ -271,7 +271,20 @@
         <DockPanel Grid.Row="0" Margin="0,0,0,12">
             <!-- The page's title on a line of its own, as a Steam page has it, with what the scan
                  found under it. Docked first so it spans the row above the toolbar. -->
-            <StackPanel DockPanel.Dock="Top" Margin="0,0,0,12">
+            <DockPanel DockPanel.Dock="Top" Margin="0,0,0,12">
+                <!-- Every waiting update in one go, when there is any. -->
+                <Button
+                    DockPanel.Dock="Right"
+                    VerticalAlignment="Top"
+                    Style="{StaticResource SteamBlueButton}"
+                    Command="{Binding UpdateAllCommand}"
+                    Visibility="{Binding HasUpdates, Converter={StaticResource BoolToVis}}">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Margin="0,0,8,0" FontSize="16" Symbol="ArrowSync16" />
+                        <TextBlock Text="{Binding UpdateAllLabel}" />
+                    </StackPanel>
+                </Button>
+            <StackPanel>
                 <TextBlock FontSize="18" Foreground="{StaticResource SteamTextBright}" Text="{loc:Str Workshop_SubscribedItems}" />
                 <TextBlock
                     Margin="0,2,0,0"
@@ -280,6 +293,7 @@
                     Foreground="{StaticResource SteamText}"
                     Text="{Binding StatusMessage}" />
             </StackPanel>
+            </DockPanel>
 
             <ui:Button
                 DockPanel.Dock="Right"

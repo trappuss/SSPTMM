@@ -156,10 +156,7 @@ public partial class ReadModPageConfirmationWindow : FluentWindow
     // Every link with a page that has not been opened yet, in list order.
     private List<ModPageLink> Unopened() => [.. _links.Where(l => l is { HasUrl: true, IsOpened: false })];
 
-    private void OpenBatchButton_Click(object sender, RoutedEventArgs e)
-    {
-        foreach (var link in Unopened().Take(BatchSize)) Open(link);
-    }
+    private void OpenBatchButton_Click(object sender, RoutedEventArgs e) => Open(Unopened().Take(BatchSize).ToList());
 
     //
     // Waves the rest through. Deliberately not the same thing as the Options switch: it applies to
@@ -172,17 +169,27 @@ public partial class ReadModPageConfirmationWindow : FluentWindow
         UpdateContinueEnabled();
     }
 
-    private static void Open(ModPageLink link)
+    //
+    // The pages open inside the app (ModPageWindow), stepped through one at a time - the real
+    // sp-mod.com page, so it still counts as a visit. Without a web view they open in the browser,
+    // as they always did.
+    //
+    private void Open(IReadOnlyList<ModPageLink> links)
     {
-        Process.Start(new ProcessStartInfo(link.Url!) { UseShellExecute = true });
-        link.IsOpened = true;
+        if (ModPageWindow.Show(this, links)) return;
+
+        foreach (var link in links.Where(l => l.HasUrl))
+        {
+            Process.Start(new ProcessStartInfo(link.Url!) { UseShellExecute = true });
+            link.IsOpened = true;
+        }
     }
 
     private void OpenLinkButton_Click(object sender, RoutedEventArgs e)
     {
         if (sender is not FrameworkElement { DataContext: ModPageLink link } || !link.HasUrl) return;
 
-        Open(link);
+        Open([link]);
     }
 
     private void ContinueButton_Click(object sender, RoutedEventArgs e) => DialogResult = true;
