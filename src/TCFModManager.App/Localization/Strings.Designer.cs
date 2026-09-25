@@ -1519,4 +1519,15 @@ internal static class Strings
     internal static string Item_VersionFiles(int count, params object?[] values) =>
         LocalizationService.Plural("Item_VersionFiles", count, values);
     internal static string Item_VersionFilesTruncated => LocalizationService.Get("Item_VersionFilesTruncated");
+    internal static string Play_StopServer => LocalizationService.Get("Play_StopServer");
+    internal static string Play_StopServerToolTip => LocalizationService.Get("Play_StopServerToolTip");
+    internal static string Play_StopServerWarning => LocalizationService.Get("Play_StopServerWarning");
+    internal static string Play_StopServerConfirm => LocalizationService.Get("Play_StopServerConfirm");
+    internal static string Play_StoppedFormat => LocalizationService.Get("Play_StoppedFormat");
+    internal static string Play_WaitingForServer => LocalizationService.Get("Play_WaitingForServer");
+    internal static string Play_ServerNotUpFormat => LocalizationService.Get("Play_ServerNotUpFormat");
+    internal static string Options_LaunchHeader => LocalizationService.Get("Options_LaunchHeader");
+    internal static string Options_LaunchDescription => LocalizationService.Get("Options_LaunchDescription");
+    internal static string Options_LaunchSwitchOn => LocalizationService.Get("Options_LaunchSwitchOn");
+    internal static string Options_LaunchSwitchOff => LocalizationService.Get("Options_LaunchSwitchOff");
 }

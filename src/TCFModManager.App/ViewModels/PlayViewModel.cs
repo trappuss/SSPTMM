@@ -14,8 +14,8 @@ namespace TCFModManager.App.ViewModels;
 // headless launcher, and say which of them is already up.
 //
 // The server and the headless can also be RESTARTED, one at a time and never as a side effect of
-// each other. Stopping on its own is still not offered: a server left down is a state somebody has
-// to notice, while a restart puts back what it took.
+// each other, and the server STOPPED: while it is up, Start server gives way to a red Stop server,
+// confirmed on the card like a restart.
 //
 public partial class PlayViewModel : LocalizedViewModel
 {
@@ -34,7 +34,10 @@ public partial class PlayViewModel : LocalizedViewModel
     [NotifyPropertyChangedFor(nameof(ServerPath))]
     [NotifyPropertyChangedFor(nameof(CanStartServer))]
     [NotifyPropertyChangedFor(nameof(CanRestartServer))]
+    [NotifyPropertyChangedFor(nameof(IsServerRunning))]
+    [NotifyPropertyChangedFor(nameof(CanStopServer))]
     [NotifyCanExecuteChangedFor(nameof(AskRestartServerCommand))]
+    [NotifyCanExecuteChangedFor(nameof(AskStopServerCommand))]
     private SptLaunchTargetInfo? _server;
 
     [ObservableProperty]
@@ -98,6 +101,11 @@ public partial class PlayViewModel : LocalizedViewModel
     //
     public bool CanRestartServer => Server?.IsRunning == true && !IsRestarting;
 
+    // While the server is up the Start button is Stop server instead.
+    public bool IsServerRunning => Server?.IsRunning == true;
+
+    public bool CanStopServer => Server?.IsRunning == true && !IsRestarting;
+
     public bool CanRestartHeadless => Headless?.IsRunning == true && !IsRestarting;
 
     //
@@ -113,11 +121,17 @@ public partial class PlayViewModel : LocalizedViewModel
     [NotifyPropertyChangedFor(nameof(ConfirmingHeadlessRestart))]
     private SptLaunchTarget? _confirmingRestart;
 
+    // Asking before Stop server, on the card, for the same reason as a restart.
+    [ObservableProperty]
+    private bool _confirmingServerStop;
+
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanRestartServer))]
     [NotifyPropertyChangedFor(nameof(CanRestartHeadless))]
+    [NotifyPropertyChangedFor(nameof(CanStopServer))]
     [NotifyCanExecuteChangedFor(nameof(AskRestartServerCommand))]
     [NotifyCanExecuteChangedFor(nameof(AskRestartHeadlessCommand))]
+    [NotifyCanExecuteChangedFor(nameof(AskStopServerCommand))]
     private bool _isRestarting;
 
     public bool ConfirmingServerRestart => ConfirmingRestart == SptLaunchTarget.Server;
@@ -196,7 +210,60 @@ public partial class PlayViewModel : LocalizedViewModel
     }
 
     [RelayCommand]
-    private void StartServer() => Start(SptLaunchTarget.Server);
+    private async Task StartServerAsync()
+    {
+        Start(SptLaunchTarget.Server);
+
+        if (HasError || !new SettingsService().Load().StartLauncherAfterServer || Client is not { CanLaunch: true }) return;
+
+        await StartLauncherWhenServerIsUpAsync();
+    }
+
+    // Set while the page waits for the server to open its port.
+    [ObservableProperty]
+    private bool _isWaitingForServer;
+
+    //
+    // The Options switch: once the server is listening, the launcher. Given three minutes - a
+    // heavily modded server can take a while to load - and dropped if the server goes down or the
+    // launcher is started some other way meanwhile.
+    //
+    private async Task StartLauncherWhenServerIsUpAsync()
+    {
+        IsWaitingForServer = true;
+        Message = Strings.Play_WaitingForServer;
+
+        try
+        {
+            var installPath = AppServices.SptEnvironment.InstallPath;
+            var ports = SptServerReadiness.PortsFor(Server?.ExePath);
+            var started = DateTime.UtcNow;
+
+            // Looked at afresh each second (the page's own poll stops when it is left). The first
+            // seconds are given regardless: the new process may not be listed yet.
+            bool StillWanted() =>
+                DateTime.UtcNow - started < TimeSpan.FromSeconds(15)
+                || (SptLaunchService.Describe(installPath, SptLaunchTarget.Server).IsRunning
+                    && !SptLaunchService.Describe(installPath, SptLaunchTarget.Client).IsRunning);
+
+            var up = await SptServerReadiness.WaitUntilListeningAsync(ports, TimeSpan.FromMinutes(3), StillWanted);
+
+            Refresh();
+            if (up && Client is { CanLaunch: true })
+            {
+                Start(SptLaunchTarget.Client);
+            }
+            else if (!up && Server?.IsRunning == true && Client?.IsRunning != true)
+            {
+                HasError = true;
+                Message = Text(Strings.Play_ServerNotUpFormat, string.Join(", ", ports.Order()));
+            }
+        }
+        finally
+        {
+            IsWaitingForServer = false;
+        }
+    }
 
     [RelayCommand]
     private void StartClient() => Start(SptLaunchTarget.Client);
@@ -218,13 +285,55 @@ public partial class PlayViewModel : LocalizedViewModel
     }
 
     [RelayCommand(CanExecute = nameof(CanRestartServer))]
-    private void AskRestartServer() => ConfirmingRestart = SptLaunchTarget.Server;
+    private void AskRestartServer()
+    {
+        ConfirmingServerStop = false;
+        ConfirmingRestart = SptLaunchTarget.Server;
+    }
 
     [RelayCommand(CanExecute = nameof(CanRestartHeadless))]
     private void AskRestartHeadless() => ConfirmingRestart = SptLaunchTarget.Headless;
 
     [RelayCommand]
     private void CancelRestart() => ConfirmingRestart = null;
+
+    [RelayCommand(CanExecute = nameof(CanStopServer))]
+    private void AskStopServer()
+    {
+        ConfirmingRestart = null;
+        ConfirmingServerStop = true;
+    }
+
+    [RelayCommand]
+    private void CancelStopServer() => ConfirmingServerStop = false;
+
+    // Off the UI thread, as a restart: stopping waits on the process to go.
+    [RelayCommand]
+    private async Task ConfirmStopServerAsync()
+    {
+        if (!ConfirmingServerStop) return;
+
+        ConfirmingServerStop = false;
+        IsRestarting = true;
+        _poll.Stop();
+
+        try
+        {
+            var installPath = AppServices.SptEnvironment.InstallPath;
+            var result = await Task.Run(() => SptLaunchService.StopTarget(installPath, SptLaunchTarget.Server));
+
+            HasError = result.Problem != SptLaunchProblem.None;
+            Message = HasError
+                ? SptLaunchProblems.Describe(result)
+                : Text(Strings.Play_StoppedFormat, result.Info.ProcessName);
+        }
+        finally
+        {
+            IsRestarting = false;
+            Refresh();
+            _poll.Start();
+        }
+    }
 
     //
     // Off the UI thread: stopping waits on a process to actually go, up to five seconds twice over,

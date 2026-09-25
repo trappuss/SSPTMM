@@ -85,11 +85,11 @@ public sealed record SptLaunchResult
 // Starts an install's server, its game launcher, and - where one exists - its Fika headless
 // launcher, and reports which of them is already up.
 //
-// It also RESTARTS one, which is the single exception to a rule this file used to state absolutely:
-// nothing here stops a process. Stopping still is not offered on its own - a server left down is a
-// state somebody has to notice - but a restart is a thing an operator does constantly (a config
-// edited, a server mod dropped in) and the alternative was hunting a console window. Every stop is
-// scoped to ONE target of THIS install and is asked for explicitly.
+// It also RESTARTS and STOPS one. The Play page offers Stop server in place of Start server while
+// the server is up (asked for, and confirmed on the page first, since a raid in progress does not
+// survive it), and a restart is a thing an operator does constantly (a config edited, a server mod
+// dropped in) - the alternative was hunting a console window. Every stop is scoped to ONE target of
+// THIS install and is asked for explicitly.
 //
 public static class SptLaunchService
 {
@@ -267,6 +267,38 @@ public static class SptLaunchService
         var result = Launch(installPath, target, headlessExePath);
 
         return result with { Stopped = stopped };
+    }
+
+    //
+    // Stops this target on this install and leaves it down. Stopped says how many processes went;
+    // Started is always false.
+    //
+    public static SptLaunchResult StopTarget(
+        string? installPath, SptLaunchTarget target, string? headlessExePath = null)
+    {
+        var info = Describe(installPath, target, headlessExePath);
+
+        if (info.Problem != SptLaunchProblem.None)
+        {
+            return new SptLaunchResult { Info = info, Problem = info.Problem };
+        }
+
+        if (!info.IsRunning)
+        {
+            return new SptLaunchResult { Info = info, Problem = SptLaunchProblem.NotRunning };
+        }
+
+        try
+        {
+            var stopped = Stop(info);
+            return stopped == 0
+                ? new SptLaunchResult { Info = info, Problem = SptLaunchProblem.StopFailed }
+                : new SptLaunchResult { Info = info, Stopped = stopped };
+        }
+        catch (Exception ex)
+        {
+            return new SptLaunchResult { Info = info, Problem = SptLaunchProblem.StopFailed, Error = ex };
+        }
     }
 
     private static readonly TimeSpan StopSettleDelay = TimeSpan.FromMilliseconds(750);

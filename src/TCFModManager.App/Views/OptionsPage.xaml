@@ -152,6 +152,26 @@
             </StackPanel>
         </ui:Card>
 
+        <!-- Start server can bring the launcher up after it. -->
+        <ui:Card Padding="16" VerticalAlignment="Top" Margin="0,16,0,0">
+            <StackPanel>
+                <TextBlock
+                    Text="{loc:Str Options_LaunchHeader}"
+                    FontWeight="SemiBold"
+                    Margin="0,0,0,4" />
+                <TextBlock
+                    TextWrapping="Wrap"
+                    Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                    Margin="0,0,0,8"
+                    Text="{loc:Str Options_LaunchDescription}" />
+                <ui:ToggleSwitch
+                    HorizontalAlignment="Left"
+                    IsChecked="{Binding StartLauncherAfterServer}"
+                    OnContent="{loc:Str Options_LaunchSwitchOn}"
+                    OffContent="{loc:Str Options_LaunchSwitchOff}" />
+            </StackPanel>
+        </ui:Card>
+
         <!-- Hidden in the Steam Workshop fork: Steam has one look, so there is no light theme to
              choose (see AppTheme.ApplyOnly). Left in place rather than deleted, so the setting it
              edits is untouched and the upstream app finds it where it was left. -->

@@ -3622,9 +3622,6 @@ Puoi riattivarla quando vuoi.</value>
   <data name="Play_RolePlaysAndHosts" xml:space="preserve">
     <value>Configurato come macchina che gioca e ospita insieme, così una lista mod servita arriva completa.</value>
   </data>
-  <data name="Play_ServerDescription" xml:space="preserve">
-    <value>Avvia il server di questa installazione e lo lascia in esecuzione in una finestra di console tutta sua. Continua a funzionare anche se chiudi questa app. Riavvia lo ferma e lo avvia di nuovo - per una configurazione modificata o un mod server appena aggiunto - e qui niente lo ferma per sempre; chiudi la sua finestra quando hai finito.</value>
-  </data>
   <data name="Play_ServerHeader" xml:space="preserve">
     <value>Server SPT</value>
   </data>

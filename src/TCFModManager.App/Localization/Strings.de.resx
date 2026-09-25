@@ -3622,9 +3622,6 @@ Du kannst es jederzeit wieder einschalten.</value>
   <data name="Play_RolePlaysAndHosts" xml:space="preserve">
     <value>Als Rechner eingerichtet, der spielt und hostet, sodass eine vom Server gelieferte Modliste vollständig ankommt.</value>
   </data>
-  <data name="Play_ServerDescription" xml:space="preserve">
-    <value>Startet den Server dieser Installation und lässt ihn in einem eigenen Konsolenfenster laufen. Er läuft weiter, wenn du diese App schließt. Neu starten stoppt ihn und startet ihn erneut - etwa für eine geänderte Konfiguration oder einen neu abgelegten Server-Mod - und nichts hier beendet ihn endgültig; schließe sein Fenster, wenn du fertig bist.</value>
-  </data>
   <data name="Play_ServerHeader" xml:space="preserve">
     <value>SPT-Server</value>
   </data>

@@ -80,6 +80,21 @@ public partial class OptionsViewModel : LocalizedViewModel
     [ObservableProperty]
     private bool _showModFootprintPage;
 
+    // Whether Start server also opens the launcher once the server is up - see AppSettings.
+    [ObservableProperty]
+    private bool _startLauncherAfterServer;
+
+    partial void OnStartLauncherAfterServerChanged(bool value)
+    {
+        if (!_loaded) return;
+
+        var settings = _settings.Load();
+        settings.StartLauncherAfterServer = value;
+        _settings.Save(settings);
+
+        AppLog.Info("Launch", value ? "launcher follows the server" : "launcher no longer follows the server");
+    }
+
     // Same arrangement as ModPageGate: one description of the setting, shared with the nav item.
     public FootprintGateViewModel FootprintGate => AppServices.FootprintGate;
 
@@ -184,6 +199,7 @@ public partial class OptionsViewModel : LocalizedViewModel
         var settings = _settings.Load();
         _skipModPageConfirmation = settings.SkipModPageConfirmation;
         _showModFootprintPage = settings.ShowModFootprintPage;
+        _startLauncherAfterServer = settings.StartLauncherAfterServer;
 
         _selectedWindowStartup = WindowStartupOptions.FirstOrDefault(o => o.Value == settings.Window.StartupMode)
             ?? WindowStartupOptions[0];

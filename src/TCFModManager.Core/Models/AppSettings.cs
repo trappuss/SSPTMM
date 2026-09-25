@@ -45,6 +45,13 @@ public sealed class AppSettings
     public string? HeadlessLauncherPath { get; set; }
 
     //
+    // Whether Start server on the Play page also opens the SPT launcher once the server is up -
+    // up meaning listening on its port, which is when the launcher can reach it. Off by default:
+    // a machine that hosts for others often has nobody playing on it.
+    //
+    public bool StartLauncherAfterServer { get; set; }
+
+    //
     // The two answers as the roles the rest of the app reasons about.
     //
     // An unanswered PlaysHere reads as yes. An install nobody has been asked about is overwhelmingly

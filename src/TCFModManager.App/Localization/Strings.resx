@@ -842,7 +842,7 @@ A mod list records which mods to install and enable. Applying one downloads what
     <value>SPT server</value>
   </data>
   <data name="Play_ServerDescription" xml:space="preserve">
-    <value>Starts this install's server and leaves it running in its own console window. It keeps running if you close this app. Restart stops it and starts it again - for a config edited or a server mod dropped in - and nothing here will stop it for good; close its window when you're done.</value>
+    <value>Starts this install's server and leaves it running in its own console window. It keeps running if you close this app. While it runs, Start server becomes Stop server. Restart stops it and starts it again - for a config edited or a server mod dropped in.</value>
     <comment>Restart is the button named in Play_Restart - translate it the same way.</comment>
   </data>
   <data name="Play_StartServer" xml:space="preserve">
@@ -5635,5 +5635,49 @@ This was written to:
   <data name="Item_VersionFilesTruncated" xml:space="preserve">
     <value>The download has more files than sp-mod.com records, so this list is incomplete.</value>
     <comment>Under a file list sp-mod.com cut short.</comment>
+  </data>
+  <data name="Play_StopServer" xml:space="preserve">
+    <value>Stop server</value>
+    <comment>Play page: the red button in place of Start server while the server is running.</comment>
+  </data>
+  <data name="Play_StopServerToolTip" xml:space="preserve">
+    <value>Shut this install's server down</value>
+    <comment>Tooltip on Stop server.</comment>
+  </data>
+  <data name="Play_StopServerWarning" xml:space="preserve">
+    <value>Anyone in a raid on this server loses it. Stop the server?</value>
+    <comment>Asked on the Play page before Stop server does anything.</comment>
+  </data>
+  <data name="Play_StopServerConfirm" xml:space="preserve">
+    <value>Stop it</value>
+    <comment>Confirms Stop server.</comment>
+  </data>
+  <data name="Play_StoppedFormat" xml:space="preserve">
+    <value>{0} stopped.</value>
+    <comment>After Stop server. {0} is the process, e.g. SPT.Server.</comment>
+  </data>
+  <data name="Play_WaitingForServer" xml:space="preserve">
+    <value>Server starting - the launcher opens once the server is up.</value>
+    <comment>Play page while it waits for the server to open its port (the Options switch is on).</comment>
+  </data>
+  <data name="Play_ServerNotUpFormat" xml:space="preserve">
+    <value>The server did not start listening on port {0} within three minutes, so the launcher was not opened. Open it yourself once the server is ready.</value>
+    <comment>Play page when the server took too long. {0} is the port or ports watched.</comment>
+  </data>
+  <data name="Options_LaunchHeader" xml:space="preserve">
+    <value>Starting the game</value>
+    <comment>Options card heading.</comment>
+  </data>
+  <data name="Options_LaunchDescription" xml:space="preserve">
+    <value>Start server on the Play page can open the SPT launcher for you as soon as the server is up (listening on its port).</value>
+    <comment>Options card text.</comment>
+  </data>
+  <data name="Options_LaunchSwitchOn" xml:space="preserve">
+    <value>Open the launcher once the server is up</value>
+    <comment>Options switch, on.</comment>
+  </data>
+  <data name="Options_LaunchSwitchOff" xml:space="preserve">
+    <value>Only start the server</value>
+    <comment>Options switch, off.</comment>
   </data>
 </root>

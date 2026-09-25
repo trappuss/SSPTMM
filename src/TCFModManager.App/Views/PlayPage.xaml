@@ -6,9 +6,11 @@
     xmlns:loc="clr-namespace:TCFModManager.App.Localization"
     xmlns:controls="clr-namespace:System.Windows.Controls;assembly=PresentationFramework"
     xmlns:app="clr-namespace:TCFModManager.App"
+    xmlns:converters="clr-namespace:TCFModManager.App.Converters"
     Title="{loc:Str Nav_Play}">
     <Page.Resources>
         <controls:BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+        <converters:FalseToVisibilityConverter x:Key="InverseBoolToVisibility" />
     </Page.Resources>
     <StackPanel Margin="24,16,24,16">
 
@@ -91,7 +93,16 @@
                         Content="{loc:Str Play_StartServer}"
                         Icon="{ui:SymbolIcon Play24}"
                         IsEnabled="{Binding CanStartServer}"
-                        Command="{Binding StartServerCommand}" />
+                        Command="{Binding StartServerCommand}"
+                        Visibility="{Binding IsServerRunning, Converter={StaticResource InverseBoolToVisibility}}" />
+                    <!-- While the server is up: stop it, red, asked about on the card first. -->
+                    <ui:Button
+                        Appearance="Danger"
+                        Content="{loc:Str Play_StopServer}"
+                        Icon="{ui:SymbolIcon Stop24}"
+                        ToolTip="{loc:Str Play_StopServerToolTip}"
+                        Command="{Binding AskStopServerCommand}"
+                        Visibility="{Binding IsServerRunning, Converter={StaticResource BoolToVisibility}}" />
                     <ui:Button
                         Margin="8,0,0,0"
                         Content="{loc:Str Play_Restart}"
@@ -127,6 +138,28 @@
                             Appearance="Transparent"
                             Content="{loc:Str Common_Cancel}"
                             Command="{Binding CancelRestartCommand}" />
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel
+                    Margin="0,0,0,8"
+                    Visibility="{Binding ConfirmingServerStop, Converter={StaticResource BoolToVisibility}}">
+                    <TextBlock
+                        TextWrapping="Wrap"
+                        Margin="0,0,0,8"
+                        Foreground="{DynamicResource SystemFillColorCautionBrush}"
+                        Text="{loc:Str Play_StopServerWarning}" />
+                    <StackPanel Orientation="Horizontal">
+                        <ui:Button
+                            Appearance="Danger"
+                            Content="{loc:Str Play_StopServerConfirm}"
+                            Icon="{ui:SymbolIcon Stop24}"
+                            Command="{Binding ConfirmStopServerCommand}" />
+                        <ui:Button
+                            Margin="8,0,0,0"
+                            Appearance="Transparent"
+                            Content="{loc:Str Common_Cancel}"
+                            Command="{Binding CancelStopServerCommand}" />
                     </StackPanel>
                 </StackPanel>
 
