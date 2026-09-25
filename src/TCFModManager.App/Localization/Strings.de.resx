@@ -3919,7 +3919,7 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
     <value>Zuletzt aktualisiert</value>
   </data>
   <data name="Sort_BrowseMostDownloaded" xml:space="preserve">
-    <value>Am häufigsten abonniert</value>
+    <value>Einzelabonnenten gesamt</value>
   </data>
   <data name="Sort_BrowseMostEndorsed" xml:space="preserve">
     <value>Bestbewertete aller Zeiten</value>

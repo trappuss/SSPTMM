@@ -4129,7 +4129,7 @@
     <value>Дата последнего обновления</value>
   </data>
   <data name="Sort_BrowseMostDownloaded" xml:space="preserve">
-    <value>Больше всего подписчиков</value>
+    <value>Общее число уникальных подписчиков</value>
   </data>
   <data name="Sort_BrowseMostEndorsed" xml:space="preserve">
     <value>С наивысшим рейтингом за всё время</value>

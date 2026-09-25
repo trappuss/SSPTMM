@@ -48,3 +48,12 @@ public sealed class FeaturedFilterItem(string key, FeaturedFilter value) : Local
 
     public override string ToString() => Label;
 }
+
+// One of Steam's filter chips on Browse's count line: what it says, whether it carries a [+]
+// (true) or [-] (false) tag box or none (null), and how to take its filter off.
+public sealed record BrowseFilterChip(string Text, bool? Include, Action Remove)
+{
+    public bool IsInclude => Include == true;
+
+    public bool IsExclude => Include == false;
+}

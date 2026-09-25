@@ -3919,7 +3919,7 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
     <value>Ultimo aggiornamento</value>
   </data>
   <data name="Sort_BrowseMostDownloaded" xml:space="preserve">
-    <value>Più sottoscritti</value>
+    <value>Sottoscrittori unici totali</value>
   </data>
   <data name="Sort_BrowseMostEndorsed" xml:space="preserve">
     <value>I più votati di tutti i tempi</value>

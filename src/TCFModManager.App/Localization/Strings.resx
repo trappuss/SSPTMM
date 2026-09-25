@@ -2357,7 +2357,7 @@ That happens legitimately if the server was rebuilt or you're reaching it throug
     <value>Last Updated</value>
   </data>
   <data name="Sort_BrowseMostDownloaded" xml:space="preserve">
-    <value>Most Subscribed</value>
+    <value>Total Unique Subscribers</value>
   </data>
   <data name="Sort_BrowseMostFavourited" xml:space="preserve">
     <value>Most Favorited</value>
@@ -5259,5 +5259,21 @@ This was written to:
   <data name="Item_JustSubscribedLink" xml:space="preserve">
     <value>Subscriptions</value>
     <comment>The link inside Item_JustSubscribedFormat; opens Subscribed items. Steam's word.</comment>
+  </data>
+  <data name="Browse_ChipSearchFormat" xml:space="preserve">
+    <value>Results for: "{0}"</value>
+    <comment>A filter chip on the Browse count line for the search text, in Steam's words. {0} is what was searched for. Clicking the chip clears the search.</comment>
+  </data>
+  <data name="Browse_ChipCategoryFormat" xml:space="preserve">
+    <value>Content Type: {0}</value>
+    <comment>A filter chip on the Browse count line for the chosen category. {0} is the category.</comment>
+  </data>
+  <data name="Browse_ChipRemoveToolTip" xml:space="preserve">
+    <value>Remove this filter</value>
+    <comment>Tooltip on a filter chip on the Browse count line.</comment>
+  </data>
+  <data name="Workshop_ClearSearch" xml:space="preserve">
+    <value>Clear search</value>
+    <comment>Tooltip on the X inside a search box. Steam's words.</comment>
   </data>
 </root>

@@ -44,20 +44,18 @@
             <Popup
                 x:Name="YourItemsPopup"
                 AllowsTransparency="True"
+                HorizontalOffset="-10"
                 Placement="Bottom"
                 PlacementTarget="{Binding ElementName=YourItemsTab}"
                 StaysOpen="False"
                 Closed="YourItemsPopup_Closed">
-                <!-- The margin leaves room for the drop shadow inside the popup's own surface. -->
-                <Border Margin="0,0,12,12" MinWidth="220" Style="{StaticResource SteamMenuPanel}">
+                <!-- The margin leaves room for the shadow, which falls on every side, inside the
+                     popup's own surface; the offset keeps the panel's edge under the tab's. -->
+                <Border Margin="10,0,10,10" MinWidth="220" Style="{StaticResource SteamYourItemsPanel}">
                     <StackPanel>
-                        <TextBlock Style="{StaticResource SteamMenuHeader}" Text="{loc:Str Workshop_YourItemsHeader}" />
-                        <Button Style="{StaticResource SteamMenuItem}" Click="SubscribedItems_Click">
-                            <TextBlock Text="{loc:Str Workshop_SubscribedItems}" />
-                        </Button>
-                        <Button Style="{StaticResource SteamMenuItem}" Click="YourCollections_Click">
-                            <TextBlock Text="{loc:Str Workshop_YourCollections}" />
-                        </Button>
+                        <TextBlock Style="{StaticResource SteamYourItemsHeader}" Text="{loc:Str Workshop_YourItemsHeader}" />
+                        <Button Style="{StaticResource SteamYourItemsEntry}" Content="{loc:Str Workshop_SubscribedItems}" Click="SubscribedItems_Click" />
+                        <Button Margin="0" Style="{StaticResource SteamYourItemsEntry}" Content="{loc:Str Workshop_YourCollections}" Click="YourCollections_Click" />
                     </StackPanel>
                 </Border>
             </Popup>

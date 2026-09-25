@@ -120,10 +120,14 @@ public partial class BrowseViewModel : LocalizedViewModel
     // catalog, so the first build is the earliest moment it can be resolved to a real entry.
     private bool _categoryDefaultApplied;
 
-    private SortOptionItem DefaultSortOption() =>
-        SavedFilterDefaults.Parse<ModSortOrder>(_defaults?.Sort) is { } value
-            ? SortOptions.FirstOrDefault(o => o.Value == value) ?? SortOptions[0]
-            : SortOptions[0];
+    private SortOptionItem DefaultSortOption()
+    {
+        var newest = SortOptions.First(o => o.Value == ModSortOrder.Newest);
+
+        return SavedFilterDefaults.Parse<ModSortOrder>(_defaults?.Sort) is { } value
+            ? SortOptions.FirstOrDefault(o => o.Value == value) ?? newest
+            : newest;
+    }
 
     private FeaturedFilterItem DefaultFeaturedFilter() =>
         SavedFilterDefaults.Parse<FeaturedFilter>(_defaults?.Featured) is { } value
@@ -166,14 +170,17 @@ public partial class BrowseViewModel : LocalizedViewModel
     [ObservableProperty]
     private string _searchText = string.Empty;
 
+    // Steam's SORT ORDER, in its order - Top Rated All Time, Most Recent, Last Updated, Total
+    // Unique Subscribers - less its Most Popular (a trend over a time frame the catalog has no data
+    // for), with this app's Most Favorited last. The page still opens on Most Recent: see
+    // DefaultSortOption.
     public List<SortOptionItem> SortOptions { get; } =
     [
-        // Read as orderings without the "Sort:" label that used to sit beside them.
+        new(nameof(Strings.Sort_BrowseMostEndorsed), ModSortOrder.MostEndorsed),
         new(nameof(Strings.Sort_BrowseNewest), ModSortOrder.Newest),
         new(nameof(Strings.Sort_BrowseLastUpdated), ModSortOrder.LastUpdated),
         new(nameof(Strings.Sort_BrowseMostDownloaded), ModSortOrder.MostDownloaded),
         new(nameof(Strings.Sort_BrowseMostFavourited), ModSortOrder.MostFavourited),
-        new(nameof(Strings.Sort_BrowseMostEndorsed), ModSortOrder.MostEndorsed),
     ];
 
     [ObservableProperty]
@@ -291,6 +298,42 @@ public partial class BrowseViewModel : LocalizedViewModel
     /// <summary>"N entries matching filters" under the page title.</summary>
     [ObservableProperty]
     private string? _entriesText;
+
+    /// <summary>Steam's chips after the count: one per filter in force, each removing its filter
+    /// when clicked.</summary>
+    public ObservableCollection<BrowseFilterChip> FilterChips { get; } = [];
+
+    [RelayCommand]
+    private static void RemoveFilterChip(BrowseFilterChip? chip) => chip?.Remove();
+
+    //
+    // What is filtering the results, as Steam lists it on the count line: the search ("Results
+    // for: ..."), the content type, each SPT line and tag ticked (with its [+] or [-] box), and the
+    // featured choice when it is not the default "include".
+    //
+    private void RebuildFilterChips()
+    {
+        FilterChips.Clear();
+
+        var query = SearchText.Trim();
+        if (query.Length > 0)
+            FilterChips.Add(new(Text(Strings.Browse_ChipSearchFormat, query), null, () => SearchText = string.Empty));
+
+        if (SelectedCategory.Title is { } category)
+            FilterChips.Add(new(Text(Strings.Browse_ChipCategoryFormat, category), null, () => SelectedCategory = CategoryOptions[0]));
+
+        foreach (var line in SptVersionOptions.Where(o => o.IsSelected))
+            FilterChips.Add(new(Text(Strings.Browse_SptVersionItemFormat, line.Label), true, () => line.IsSelected = false));
+
+        foreach (var row in TagRows)
+        {
+            if (row.IncludeOn) FilterChips.Add(new(row.Label, true, () => row.IncludeOn = false));
+            if (row.ExcludeOn) FilterChips.Add(new(row.Label, false, () => row.ExcludeOn = false));
+        }
+
+        if (SelectedFeaturedFilter.Value != FeaturedFilter.Include)
+            FilterChips.Add(new(SelectedFeaturedFilter.Label, null, () => SelectedFeaturedFilter = FeaturedFilterOptions[0]));
+    }
 
     /// <summary>The Steam card's width at 1:1 - the grid's columns are counted from it.</summary>
     public const double CardWidth = 245;
@@ -790,6 +833,7 @@ public partial class BrowseViewModel : LocalizedViewModel
         AppLog.Debug("Browse", $"ApplyFilter: filter/sort took {sw.ElapsedMilliseconds}ms over {AppServices.ModCache.AllMods.Count} cached mods, {_filtered.Count} matched");
 
         TotalPages = Math.Max(1, (int)Math.Ceiling(_filtered.Count / (double)PageStep));
+        RebuildFilterChips();
 
         // Steam's "N entries matching filters" line under the title. A message from before the
         // filter ran (queued, saved, failed) is left where it is below it.

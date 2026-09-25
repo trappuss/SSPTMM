@@ -1425,4 +1425,8 @@ internal static class Strings
     internal static string Subscribe_All => LocalizationService.Get("Subscribe_All");
     internal static string Item_JustSubscribedFormat => LocalizationService.Get("Item_JustSubscribedFormat");
     internal static string Item_JustSubscribedLink => LocalizationService.Get("Item_JustSubscribedLink");
+    internal static string Browse_ChipSearchFormat => LocalizationService.Get("Browse_ChipSearchFormat");
+    internal static string Browse_ChipCategoryFormat => LocalizationService.Get("Browse_ChipCategoryFormat");
+    internal static string Browse_ChipRemoveToolTip => LocalizationService.Get("Browse_ChipRemoveToolTip");
+    internal static string Workshop_ClearSearch => LocalizationService.Get("Workshop_ClearSearch");
 }

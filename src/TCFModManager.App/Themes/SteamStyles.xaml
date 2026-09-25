@@ -17,7 +17,9 @@
 <ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml">
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:behaviors="clr-namespace:TCFModManager.App.Behaviors"
+    xmlns:loc="clr-namespace:TCFModManager.App.Localization">
 
     <!--  ============================================================ Fonts  -->
     <!--
@@ -446,6 +448,33 @@
         </Setter>
     </Style>
 
+    <!--
+        A filter chip on Browse's count line: 24px, rgba(0,0,0,.3), radius 2, 12px white; #67707B
+        under the pointer. Padding 1 12 for a text chip; a tag chip's box sits 2px in from the left.
+    -->
+    <Style x:Key="SteamFilterChip" TargetType="Button">
+        <Setter Property="Foreground" Value="{StaticResource SteamWhite}" />
+        <Setter Property="Background" Value="#4D000000" />
+        <Setter Property="Padding" Value="12,0" />
+        <Setter Property="Height" Value="24" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Chip" Padding="{TemplateBinding Padding}" Background="{TemplateBinding Background}" CornerRadius="2">
+                        <ContentPresenter VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Chip" Property="Background" Value="#67707B" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!--  A bare text link: Steam blue, lighter on hover.  -->
     <Style x:Key="SteamLinkButton" TargetType="Button">
         <Setter Property="Foreground" Value="{StaticResource SteamLegacyBlue}" />
@@ -553,13 +582,78 @@
         <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
 
-    <!--  A dropdown panel (sort order, Your Items): the sort panel's dark fill, a drop shadow.  -->
+    <!--
+        The sort order panel. Measured on Browse: radial-gradient(85.9% 84.18% at 34.28% 100%,
+        #29323D 27.5%, #1C1E24 67.94%), shadow 1px 1px 10px #000, padding 20. (Steam also blurs
+        what is behind it, which a WPF popup cannot.)
+    -->
     <Style x:Key="SteamMenuPanel" TargetType="Border">
-        <Setter Property="Background" Value="#21262E" />
-        <Setter Property="Padding" Value="20,16" />
+        <Setter Property="Background">
+            <Setter.Value>
+                <RadialGradientBrush Center="0.3428,1" GradientOrigin="0.3428,1" RadiusX="0.859" RadiusY="0.8418">
+                    <GradientStop Offset="0.275" Color="#29323D" />
+                    <GradientStop Offset="0.6794" Color="#1C1E24" />
+                </RadialGradientBrush>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Padding" Value="20" />
         <Setter Property="Effect">
             <Setter.Value>
-                <DropShadowEffect BlurRadius="10" Direction="315" Opacity="0.75" ShadowDepth="4" Color="Black" />
+                <DropShadowEffect BlurRadius="10" Direction="315" Opacity="1" ShadowDepth="1.4" Color="Black" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--
+        The Your Items menu under the Workshop strip. Measured: radial-gradient(85.9% 84.18% at
+        34.28% 100%, rgba(63,83,109,.88) 27.5%, rgba(25,35,48,.92) 67.94%), shadow 0 0 10px
+        rgba(0,0,0,.75), padding 20; its header 14px light, upper case, white at 66%; its entries
+        13px white, 8px apart, underlined under the pointer rather than recoloured.
+    -->
+    <Style x:Key="SteamYourItemsPanel" TargetType="Border">
+        <Setter Property="Background">
+            <Setter.Value>
+                <RadialGradientBrush Center="0.3428,1" GradientOrigin="0.3428,1" RadiusX="0.859" RadiusY="0.8418">
+                    <GradientStop Offset="0.275" Color="#E03F536D" />
+                    <GradientStop Offset="0.6794" Color="#EB192330" />
+                </RadialGradientBrush>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Padding" Value="20" />
+        <Setter Property="Effect">
+            <Setter.Value>
+                <DropShadowEffect BlurRadius="10" Opacity="0.75" ShadowDepth="0" Color="Black" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="SteamYourItemsHeader" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource SteamFontLight}" />
+        <Setter Property="FontWeight" Value="Light" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Foreground" Value="#A9FFFFFF" />
+        <Setter Property="Margin" Value="0,0,0,12" />
+    </Style>
+
+    <Style x:Key="SteamYourItemsEntry" TargetType="Button">
+        <Setter Property="Foreground" Value="{StaticResource SteamWhite}" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="Margin" Value="0,0,0,8" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border Background="Transparent">
+                        <TextBlock x:Name="Label" LineHeight="19.5" Text="{Binding Content, RelativeSource={RelativeSource TemplatedParent}}" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Label" Property="TextDecorations" Value="Underline" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
             </Setter.Value>
         </Setter>
     </Style>
@@ -605,10 +699,15 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="TextBox">
-                    <Border Background="#1C2025" Padding="10,0">
+                    <Border Background="#1C2025" Padding="10,0,0,0">
                         <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
                             <TextBlock
                                 x:Name="Hint"
+                                Margin="0,0,10,0"
                                 VerticalAlignment="Center"
                                 FontStyle="Italic"
                                 Foreground="{StaticResource SteamText}"
@@ -617,11 +716,40 @@
                                 Text="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}"
                                 Visibility="Collapsed" />
                             <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center" Focusable="False" />
+
+                            <!-- Steam's "Clear search": a 10px white x in a 26px hit area, while
+                                 there is text to clear. -->
+                            <Button
+                                x:Name="ClearButton"
+                                Grid.Column="1"
+                                Width="26"
+                                Cursor="Hand"
+                                Focusable="False"
+                                Command="{x:Static behaviors:TextBoxCommands.Clear}"
+                                CommandParameter="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                                ToolTip="{loc:Str Workshop_ClearSearch}">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Grid Background="Transparent">
+                                            <Path
+                                                Width="10"
+                                                Height="10"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
+                                                Data="M0,0 L10,10 M10,0 L0,10"
+                                                Stretch="Fill"
+                                                Stroke="White"
+                                                StrokeThickness="1.5" />
+                                        </Grid>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
                         </Grid>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="Text" Value="">
                             <Setter TargetName="Hint" Property="Visibility" Value="Visible" />
+                            <Setter TargetName="ClearButton" Property="Visibility" Value="Collapsed" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

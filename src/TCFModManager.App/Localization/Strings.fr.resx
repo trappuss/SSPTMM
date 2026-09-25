@@ -3919,7 +3919,7 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
     <value>Dernières mises à jour</value>
   </data>
   <data name="Sort_BrowseMostDownloaded" xml:space="preserve">
-    <value>Avec le plus d'abonnements</value>
+    <value>Total d'abonnements uniques</value>
   </data>
   <data name="Sort_BrowseMostEndorsed" xml:space="preserve">
     <value>Meilleures évaluations de tous les temps</value>

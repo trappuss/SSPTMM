@@ -135,12 +135,59 @@
                 <Run Text="{loc:Str Workshop_BrowsingTitle}" />
                 <Run FontFamily="{StaticResource SteamFontLight}" FontWeight="Light" Text="{loc:Str Workshop_BrowsingHint}" />
             </TextBlock>
-            <TextBlock
-                Margin="0,4,0,0"
-                FontSize="14"
-                Foreground="{StaticResource SteamText}"
-                TextWrapping="Wrap"
-                Text="{Binding EntriesText}" />
+            <!-- The count, then Steam's chips: one per filter in force, 5px apart, each removing its
+                 filter when clicked. Measured: 24px tall, rgba(0,0,0,.3), radius 2, 12px white, a
+                 16px #D9D9D9 x 10px after the text, #67707B under the pointer; a tag's chip starts
+                 with its 20px [+] or [-] box. -->
+            <WrapPanel Margin="0,4,0,0">
+                <TextBlock
+                    Margin="0,0,5,0"
+                    VerticalAlignment="Center"
+                    FontSize="14"
+                    Foreground="{StaticResource SteamText}"
+                    TextWrapping="Wrap"
+                    Text="{Binding EntriesText}" />
+                <ItemsControl VerticalAlignment="Center" ItemsSource="{Binding FilterChips}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button
+                                Margin="0,2,5,2"
+                                Command="{Binding DataContext.RemoveFilterChipCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                CommandParameter="{Binding}"
+                                ToolTip="{loc:Str Browse_ChipRemoveToolTip}">
+                                <!-- Steam's padding: 1 12 for text, 1 4 1 2 around a tag's box. -->
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource SteamFilterChip}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsInclude}" Value="True">
+                                                <Setter Property="Padding" Value="2,0,4,0" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsExclude}" Value="True">
+                                                <Setter Property="Padding" Value="2,0,4,0" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                                <StackPanel Orientation="Horizontal">
+                                    <Border Width="20" Height="20" Margin="0,0,6,0" Background="#5DB7C7" CornerRadius="2" Visibility="{Binding IsInclude, Converter={StaticResource TrueToVisible}}">
+                                        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" Foreground="Black" Text="+" />
+                                    </Border>
+                                    <Border Width="20" Height="20" Margin="0,0,6,0" Background="#D3AC42" CornerRadius="2" Visibility="{Binding IsExclude, Converter={StaticResource TrueToVisible}}">
+                                        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" Foreground="Black" Text="-" />
+                                    </Border>
+                                    <TextBlock VerticalAlignment="Center" FontSize="12" Text="{Binding Text}" />
+                                    <ui:SymbolIcon Margin="10,0,0,0" VerticalAlignment="Center" FontSize="16" Foreground="#D9D9D9" Symbol="Dismiss16" />
+                                </StackPanel>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </WrapPanel>
 
             <!-- Anything the page has to say that isn't the count: queued, saved, failed. Steam has
                  nowhere for this; it sits under the count so it is still read. -->
