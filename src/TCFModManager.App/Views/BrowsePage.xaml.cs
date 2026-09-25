@@ -90,16 +90,21 @@ public partial class BrowsePage : Page
     // Choosing a sort order closes the panel, as Steam's does.
     private void SortChoice_Click(object sender, RoutedEventArgs e) => SortToggle.IsChecked = false;
 
-    // The gear's menu opens on a left click, below the gear - the way Steam's gear opens its panel.
+    // The gear opens Steam's search options panel below it.
+    // A click on the gear while the panel is open closes it (StaysOpen="False" does that on the
+    // press); the click that follows must not open it straight back.
     private void GearButton_Click(object sender, RoutedEventArgs e)
     {
-        if (GearButton.ContextMenu is not { } menu) return;
-
-        menu.DataContext = ViewModel;
-        menu.PlacementTarget = GearButton;
-        menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
-        menu.IsOpen = true;
+        if (Environment.TickCount64 - _searchOptionsClosedAt < 250) return;
+        SearchOptions.IsOpen = true;
     }
+
+    private long _searchOptionsClosedAt;
+
+    private void SearchOptions_Closed(object? sender, EventArgs e) => _searchOptionsClosedAt = Environment.TickCount64;
+
+    // Refresh and Save as default close the panel behind them.
+    private void SearchOption_Click(object sender, RoutedEventArgs e) => SearchOptions.IsOpen = false;
 
     // ------------------------------------------------------------------ hover slideshow
 

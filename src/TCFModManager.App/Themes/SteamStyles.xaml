@@ -986,4 +986,39 @@
         </Setter>
     </Style>
 
+    <!--  ============================================================ Search options panel  -->
+    <!--
+        The panel under Browse's gear, measured (2026-09-25): 500 wide, 20px padding,
+        radial-gradient(85.9% 84.18% at 34.28% 100%, #29323D 27.5%, #1C1E24 67.94%), a 1px 1px 10px
+        black shadow. The prompt 15px #ACB2B8 on 20px lines; each option a 12px #3D4450 circle -
+        #1A9FFF once chosen - and 13px #ACB2B8 text 8px over, rows 25px apart.
+    -->
+    <RadialGradientBrush x:Key="SteamOptionsPanelBackground" Center="0.3428,1" GradientOrigin="0.3428,1" RadiusX="0.859" RadiusY="0.8418">
+        <GradientStop Offset="0.275" Color="#29323D" />
+        <GradientStop Offset="0.6794" Color="#1C1E24" />
+    </RadialGradientBrush>
+
+    <Style x:Key="SteamOptionRadio" TargetType="RadioButton">
+        <Setter Property="Foreground" Value="#ACB2B8" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="Margin" Value="0,0,0,8" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <StackPanel Background="Transparent" Orientation="Horizontal">
+                        <Ellipse x:Name="Dot" Width="12" Height="12" Margin="0,2,8,0" VerticalAlignment="Top" Fill="#3D4450" />
+                        <ContentPresenter VerticalAlignment="Center" />
+                    </StackPanel>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Dot" Property="Fill" Value="#1A9FFF" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
 </ResourceDictionary>

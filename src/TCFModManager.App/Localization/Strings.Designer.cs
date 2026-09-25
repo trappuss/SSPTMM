@@ -1489,4 +1489,23 @@ internal static class Strings
     internal static string QuickView_SeeMore => LocalizationService.Get("QuickView_SeeMore");
     internal static string Browse_Endorsements(int count, params object?[] values) =>
         LocalizationService.Plural("Browse_Endorsements", count, values);
+    internal static string Browse_SearchFieldsPrompt => LocalizationService.Get("Browse_SearchFieldsPrompt");
+    internal static string Browse_SearchTitleAndDescription => LocalizationService.Get("Browse_SearchTitleAndDescription");
+    internal static string Browse_SearchTitleOnly => LocalizationService.Get("Browse_SearchTitleOnly");
+    internal static string Browse_SearchDescriptionOnly => LocalizationService.Get("Browse_SearchDescriptionOnly");
+    internal static string Browse_SearchAuthorHint => LocalizationService.Get("Browse_SearchAuthorHint");
+    internal static string Browse_SearchDescriptionNote => LocalizationService.Get("Browse_SearchDescriptionNote");
+    internal static string Browse_ChipSearchTitleOnlyFormat => LocalizationService.Get("Browse_ChipSearchTitleOnlyFormat");
+    internal static string Browse_ChipSearchDescriptionOnlyFormat => LocalizationService.Get("Browse_ChipSearchDescriptionOnlyFormat");
+    internal static string Browse_FilterByDate => LocalizationService.Get("Browse_FilterByDate");
+    internal static string Browse_PostedDate => LocalizationService.Get("Browse_PostedDate");
+    internal static string Browse_DateLastUpdated => LocalizationService.Get("Browse_DateLastUpdated");
+    internal static string Browse_DateBetween => LocalizationService.Get("Browse_DateBetween");
+    internal static string Browse_DateAnd => LocalizationService.Get("Browse_DateAnd");
+    internal static string Browse_ChipPostedBetween => LocalizationService.Get("Browse_ChipPostedBetween");
+    internal static string Browse_ChipPostedAfter => LocalizationService.Get("Browse_ChipPostedAfter");
+    internal static string Browse_ChipPostedBefore => LocalizationService.Get("Browse_ChipPostedBefore");
+    internal static string Browse_ChipUpdatedBetween => LocalizationService.Get("Browse_ChipUpdatedBetween");
+    internal static string Browse_ChipUpdatedAfter => LocalizationService.Get("Browse_ChipUpdatedAfter");
+    internal static string Browse_ChipUpdatedBefore => LocalizationService.Get("Browse_ChipUpdatedBefore");
 }

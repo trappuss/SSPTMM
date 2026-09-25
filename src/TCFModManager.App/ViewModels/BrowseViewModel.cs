@@ -150,7 +150,28 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
     // OnXxxChanged below doesn't run its own ApplyFilter.
     private bool _suppressAutoApplyFilter;
 
-    partial void OnSearchTextChanged(string value) => AutoApplyFilter();
+    partial void OnSearchTextChanged(string value)
+    {
+        AutoApplyFilter();
+        ScheduleDescriptionSearch();
+    }
+
+    partial void OnSearchScopeChanged(BrowseSearchScope value)
+    {
+        OnPropertyChanged(nameof(IsTitleAndDescription));
+        OnPropertyChanged(nameof(IsTitleOnly));
+        OnPropertyChanged(nameof(IsDescriptionOnly));
+        AutoApplyFilter();
+        ScheduleDescriptionSearch();
+    }
+
+    partial void OnPostedAfterChanged(DateTime? value) => AutoApplyFilter();
+
+    partial void OnPostedBeforeChanged(DateTime? value) => AutoApplyFilter();
+
+    partial void OnUpdatedAfterChanged(DateTime? value) => AutoApplyFilter();
+
+    partial void OnUpdatedBeforeChanged(DateTime? value) => AutoApplyFilter();
 
     partial void OnSelectedSortOptionChanged(SortOptionItem value) => AutoApplyFilter();
 
@@ -171,6 +192,131 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
 
     [ObservableProperty]
     private string _searchText = string.Empty;
+
+    // ------------------------------------------------------------------ search options (the gear)
+
+    //
+    // Steam's gear: which text fields the search looks in. The title is the mod's name and slug;
+    // the description is its teaser - which every cached mod has - plus whatever sp-mod.com's own
+    // full-text search finds for the words in the full descriptions, which the cached catalog does
+    // not carry. That search answers with its best 20 at most (observed on every query tried,
+    // 2026-09-25), so a word that is in more descriptions than that finds the 20 it ranks first.
+    //
+    [ObservableProperty]
+    private BrowseSearchScope _searchScope = BrowseSearchScope.TitleAndDescription;
+
+    public bool IsTitleAndDescription
+    {
+        get => SearchScope == BrowseSearchScope.TitleAndDescription;
+        set { if (value) SearchScope = BrowseSearchScope.TitleAndDescription; }
+    }
+
+    public bool IsTitleOnly
+    {
+        get => SearchScope == BrowseSearchScope.TitleOnly;
+        set { if (value) SearchScope = BrowseSearchScope.TitleOnly; }
+    }
+
+    public bool IsDescriptionOnly
+    {
+        get => SearchScope == BrowseSearchScope.DescriptionOnly;
+        set { if (value) SearchScope = BrowseSearchScope.DescriptionOnly; }
+    }
+
+    // The mods sp-mod.com's full-text search found for _descriptionHitsFor.
+    private IReadOnlySet<int> _descriptionHits = new HashSet<int>();
+    private string? _descriptionHitsFor;
+    private CancellationTokenSource? _descriptionSearch;
+
+    // Asked a moment after the typing stops, not on every key.
+    private void ScheduleDescriptionSearch()
+    {
+        _descriptionSearch?.Cancel();
+
+        var query = SearchText.Trim();
+        if (query.Length < 3 || query.StartsWith('@') || SearchScope == BrowseSearchScope.TitleOnly
+            || string.Equals(query, _descriptionHitsFor, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        var cancel = _descriptionSearch = new CancellationTokenSource();
+        _ = SearchDescriptionsAsync(query, cancel.Token);
+    }
+
+    private async Task SearchDescriptionsAsync(string query, CancellationToken ct)
+    {
+        try
+        {
+            await Task.Delay(450, ct);
+            var found = await _spModApi.GetModsAsync(new ModsQuery { SearchQuery = query, Fields = "id", PerPage = 50 }, ct);
+            if (ct.IsCancellationRequested || !string.Equals(SearchText.Trim(), query, StringComparison.Ordinal)) return;
+
+            _descriptionHits = found.Data.Select(m => m.Id).ToHashSet();
+            _descriptionHitsFor = query;
+            AppLog.Debug("Browse", $"description search '{query}': {_descriptionHits.Count} from sp-mod.com");
+
+            if (HasLoadedResults && _descriptionHits.Count > 0) ApplyFilter();
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        catch (Exception ex)
+        {
+            // Offline or refused: the search still covers names and teasers.
+            AppLog.Warn("Browse", $"description search failed: {ex.Message}");
+        }
+    }
+
+    private bool MatchesDescription(Mod mod, string query) =>
+        Matches(mod.Teaser, query)
+        || (string.Equals(query, _descriptionHitsFor, StringComparison.OrdinalIgnoreCase) && _descriptionHits.Contains(mod.Id));
+
+    private bool MatchesSearch(Mod mod, string query) => SearchScope switch
+    {
+        BrowseSearchScope.TitleOnly => Matches(mod.Name, query) || Matches(mod.Slug, query),
+        BrowseSearchScope.DescriptionOnly => MatchesDescription(mod, query),
+        _ => Matches(mod.Name, query) || Matches(mod.Slug, query) || MatchesDescription(mod, query),
+    };
+
+    // ------------------------------------------------------------------ Filter by Date
+
+    // Steam's sidebar panel under the tags: posted between, and last updated between. Either end
+    // may be left empty; the "and" day counts in full.
+    [ObservableProperty]
+    private bool _isDateFilterOpen;
+
+    [ObservableProperty]
+    private DateTime? _postedAfter;
+
+    [ObservableProperty]
+    private DateTime? _postedBefore;
+
+    [ObservableProperty]
+    private DateTime? _updatedAfter;
+
+    [ObservableProperty]
+    private DateTime? _updatedBefore;
+
+    [RelayCommand]
+    private void ToggleDateFilter() => IsDateFilterOpen = !IsDateFilterOpen;
+
+    private static bool InRange(DateTimeOffset? when, DateTime? after, DateTime? before) =>
+        DateRangeFilter.Contains(when, after, before);
+
+    // Steam's chip wording: "Posted between X and Y", "Posted after X", "Posted before Y".
+    private static string? RangeChip(DateTime? after, DateTime? before, string between, string afterFormat, string beforeFormat)
+    {
+        static string Day(DateTime d) => d.ToString("d", System.Globalization.CultureInfo.CurrentCulture);
+
+        return (after, before) switch
+        {
+            ({ } a, { } b) => Text(between, Day(a), Day(b)),
+            ({ } a, null) => Text(afterFormat, Day(a)),
+            (null, { } b) => Text(beforeFormat, Day(b)),
+            _ => null,
+        };
+    }
 
     // Steam's SORT ORDER, in its order - Top Rated All Time, Most Recent, Last Updated, Total
     // Unique Subscribers - less its Most Popular (a trend over a time frame the catalog has no data
@@ -327,10 +473,21 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
 
         var query = SearchText.Trim();
         if (query.Length > 0)
-            FilterChips.Add(new(Text(Strings.Browse_ChipSearchFormat, query), null, () => SearchText = string.Empty));
+            FilterChips.Add(new(Text(SearchScope switch
+            {
+                BrowseSearchScope.TitleOnly when !query.StartsWith('@') => Strings.Browse_ChipSearchTitleOnlyFormat,
+                BrowseSearchScope.DescriptionOnly when !query.StartsWith('@') => Strings.Browse_ChipSearchDescriptionOnlyFormat,
+                _ => Strings.Browse_ChipSearchFormat,
+            }, query), null, () => SearchText = string.Empty));
 
         if (SelectedCategory.Title is { } category)
             FilterChips.Add(new(Text(Strings.Browse_ChipCategoryFormat, category), null, () => SelectedCategory = CategoryOptions[0]));
+
+        if (RangeChip(PostedAfter, PostedBefore, Strings.Browse_ChipPostedBetween, Strings.Browse_ChipPostedAfter, Strings.Browse_ChipPostedBefore) is { } posted)
+            FilterChips.Add(new(posted, null, () => { PostedAfter = null; PostedBefore = null; }));
+
+        if (RangeChip(UpdatedAfter, UpdatedBefore, Strings.Browse_ChipUpdatedBetween, Strings.Browse_ChipUpdatedAfter, Strings.Browse_ChipUpdatedBefore) is { } updated)
+            FilterChips.Add(new(updated, null, () => { UpdatedAfter = null; UpdatedBefore = null; }));
 
         foreach (var line in SptVersionOptions.Where(o => o.IsSelected))
             FilterChips.Add(new(Text(Strings.Browse_SptVersionItemFormat, line.Label), true, () => line.IsSelected = false));
@@ -480,6 +637,7 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
         try
         {
             SearchText = string.Empty;
+            PostedAfter = PostedBefore = UpdatedAfter = UpdatedBefore = null;
             foreach (var option in SptVersionOptions) option.IsSelected = option.IsDefault;
             UpdateSptVersionFilterSummary();
             SelectedSortOption = DefaultSortOption();
@@ -801,7 +959,9 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
             .Where(m => !IsSelf(m))
             .Where(m => authorQuery is not null
                 ? MatchesAuthor(m, authorQuery)
-                : query.Length == 0 || Matches(m.Name, query) || Matches(m.Teaser, query) || Matches(m.Slug, query))
+                : query.Length == 0 || MatchesSearch(m, query))
+            .Where(m => InRange(m.PublishedAt ?? m.CreatedAt, PostedAfter, PostedBefore))
+            .Where(m => InRange(m.UpdatedAt, UpdatedAfter, UpdatedBefore))
             .Where(m => selectedLines.Count == 0 || MatchesSptVersionFilter(m, selectedLines))
             .Where(m => featured switch
             {
@@ -1323,4 +1483,12 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
     /// <summary>A catalog mod by id, leaving out this app's own listing - what a link or a required
     /// item may open.</summary>
     public Mod? FindInCatalog(int id) => Catalog.FirstOrDefault(m => m.Id == id);
+}
+
+/// <summary>Which text fields Browse's search looks in - Steam's gear options.</summary>
+public enum BrowseSearchScope
+{
+    TitleAndDescription,
+    TitleOnly,
+    DescriptionOnly,
 }

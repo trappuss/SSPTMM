@@ -5516,4 +5516,80 @@ This was written to:
     <value>{0:N0} endorsements</value>
     <comment>A mod's endorsement count. {0} is the count.</comment>
   </data>
+  <data name="Browse_SearchFieldsPrompt" xml:space="preserve">
+    <value>Specify what text fields of the item you want to search:</value>
+    <comment>Top of the search options panel under the gear. Steam's words.</comment>
+  </data>
+  <data name="Browse_SearchTitleAndDescription" xml:space="preserve">
+    <value>Title &amp; Description</value>
+    <comment>Search option: look in names and descriptions. Steam's words.</comment>
+  </data>
+  <data name="Browse_SearchTitleOnly" xml:space="preserve">
+    <value>Title Only</value>
+    <comment>Search option: look in names only. Steam's words.</comment>
+  </data>
+  <data name="Browse_SearchDescriptionOnly" xml:space="preserve">
+    <value>Description Only</value>
+    <comment>Search option: look in descriptions only. Steam's words.</comment>
+  </data>
+  <data name="Browse_SearchAuthorHint" xml:space="preserve">
+    <value>Start the search with @ to find a mod author's items instead: @Acidphantasm lists everything Acidphantasm made.</value>
+    <comment>Under the search options. "@Acidphantasm" is an example author name - keep the @.</comment>
+  </data>
+  <data name="Browse_SearchDescriptionNote" xml:space="preserve">
+    <value>Descriptions are searched on sp-mod.com, which answers with its 20 best matches.</value>
+    <comment>Under the search options: why a common word may not find every mod that mentions it.</comment>
+  </data>
+  <data name="Browse_ChipSearchTitleOnlyFormat" xml:space="preserve">
+    <value>Results for: "{0}" (title only)</value>
+    <comment>Filter chip for the search when only titles are searched. Steam's words. {0} is the search text.</comment>
+  </data>
+  <data name="Browse_ChipSearchDescriptionOnlyFormat" xml:space="preserve">
+    <value>Results for: "{0}" (description only)</value>
+    <comment>Filter chip for the search when only descriptions are searched. Steam's words. {0} is the search text.</comment>
+  </data>
+  <data name="Browse_FilterByDate" xml:space="preserve">
+    <value>Filter by Date</value>
+    <comment>Sidebar button that opens the date filter. Steam's words.</comment>
+  </data>
+  <data name="Browse_PostedDate" xml:space="preserve">
+    <value>POSTED DATE</value>
+    <comment>Date filter heading. Steam's words, upper case in its design.</comment>
+  </data>
+  <data name="Browse_DateLastUpdated" xml:space="preserve">
+    <value>DATE LAST UPDATED</value>
+    <comment>Date filter heading. Steam's words, upper case in its design.</comment>
+  </data>
+  <data name="Browse_DateBetween" xml:space="preserve">
+    <value>Between</value>
+    <comment>Date filter: label over the first date. Steam's word.</comment>
+  </data>
+  <data name="Browse_DateAnd" xml:space="preserve">
+    <value>And</value>
+    <comment>Date filter: label over the second date. Steam's word.</comment>
+  </data>
+  <data name="Browse_ChipPostedBetween" xml:space="preserve">
+    <value>Posted between {0} and {1}</value>
+    <comment>Filter chip. Steam's words. {0} and {1} are dates.</comment>
+  </data>
+  <data name="Browse_ChipPostedAfter" xml:space="preserve">
+    <value>Posted after {0}</value>
+    <comment>Filter chip. Steam's words. {0} is a date.</comment>
+  </data>
+  <data name="Browse_ChipPostedBefore" xml:space="preserve">
+    <value>Posted before {0}</value>
+    <comment>Filter chip. Steam's words. {0} is a date.</comment>
+  </data>
+  <data name="Browse_ChipUpdatedBetween" xml:space="preserve">
+    <value>Updated between {0} and {1}</value>
+    <comment>Filter chip. Steam's words. {0} and {1} are dates.</comment>
+  </data>
+  <data name="Browse_ChipUpdatedAfter" xml:space="preserve">
+    <value>Updated after {0}</value>
+    <comment>Filter chip. Steam's words. {0} is a date.</comment>
+  </data>
+  <data name="Browse_ChipUpdatedBefore" xml:space="preserve">
+    <value>Updated before {0}</value>
+    <comment>Filter chip. Steam's words. {0} is a date.</comment>
+  </data>
 </root>

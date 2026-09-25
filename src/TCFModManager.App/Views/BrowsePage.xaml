@@ -279,8 +279,7 @@
                             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
                     </Border>
 
-                    <!-- Steam's gear holds the search options; here, the page's own: refresh the
-                         catalog, and keep these filters as how the page opens. -->
+                    <!-- Steam's gear: the search options panel below. -->
                     <Button
                         x:Name="GearButton"
                         Width="36"
@@ -291,13 +290,44 @@
                         ToolTip="{loc:Str Workshop_SearchOptionsToolTip}"
                         Click="GearButton_Click">
                         <ui:SymbolIcon FontSize="22" Foreground="{StaticResource SteamText}" Filled="True" Symbol="Settings24" />
-                        <Button.ContextMenu>
-                            <ContextMenu>
-                                <MenuItem Command="{Binding RefreshCacheCommand}" Header="{loc:Str Browse_RefreshCache}" />
-                                <MenuItem Command="{Binding SaveAsDefaultCommand}" Header="{loc:Str Common_SaveAsDefault}" ToolTip="{loc:Str Browse_SaveAsDefaultToolTip}" />
-                            </ContextMenu>
-                        </Button.ContextMenu>
                     </Button>
+
+                    <!-- Steam's search options, under the gear: which fields the search looks in.
+                         Then this page's own two: refresh the catalog, and keep these filters as
+                         how the page opens. -->
+                    <Popup
+                        x:Name="SearchOptions"
+                        AllowsTransparency="True"
+                        Placement="Bottom"
+                        PlacementTarget="{Binding ElementName=GearButton}"
+                        StaysOpen="False"
+                        VerticalOffset="2"
+                        Closed="SearchOptions_Closed">
+                        <Border Margin="0,0,12,12" Width="500" Padding="20" Background="{StaticResource SteamOptionsPanelBackground}">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="10" Direction="315" Opacity="1" ShadowDepth="1.4" Color="Black" />
+                            </Border.Effect>
+                            <StackPanel>
+                                <TextBlock FontSize="15" Foreground="#ACB2B8" LineHeight="20" TextWrapping="Wrap" Text="{loc:Str Browse_SearchFieldsPrompt}" />
+                                <StackPanel Margin="0,4,0,0">
+                                    <RadioButton GroupName="SearchScope" Style="{StaticResource SteamOptionRadio}" IsChecked="{Binding IsTitleAndDescription, Mode=TwoWay}" Content="{loc:Str Browse_SearchTitleAndDescription}" />
+                                    <RadioButton GroupName="SearchScope" Style="{StaticResource SteamOptionRadio}" IsChecked="{Binding IsTitleOnly, Mode=TwoWay}" Content="{loc:Str Browse_SearchTitleOnly}" />
+                                    <RadioButton GroupName="SearchScope" Style="{StaticResource SteamOptionRadio}" IsChecked="{Binding IsDescriptionOnly, Mode=TwoWay}" Content="{loc:Str Browse_SearchDescriptionOnly}" />
+                                </StackPanel>
+                                <TextBlock Margin="0,4,0,0" FontSize="15" Foreground="#ACB2B8" LineHeight="20" TextWrapping="Wrap" Text="{loc:Str Browse_SearchAuthorHint}" />
+                                <TextBlock Margin="0,12,0,0" FontSize="13" Foreground="{StaticResource SteamTextDim}" TextWrapping="Wrap" Text="{loc:Str Browse_SearchDescriptionNote}" />
+                                <Rectangle Height="1" Margin="0,16,0,12" Fill="{StaticResource SteamDivider}" />
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Margin="0,0,8,0" Style="{StaticResource SteamButton}" Command="{Binding RefreshCacheCommand}" Click="SearchOption_Click">
+                                        <TextBlock Text="{loc:Str Browse_RefreshCache}" />
+                                    </Button>
+                                    <Button Style="{StaticResource SteamButton}" Command="{Binding SaveAsDefaultCommand}" ToolTip="{loc:Str Browse_SaveAsDefaultToolTip}" Click="SearchOption_Click">
+                                        <TextBlock Text="{loc:Str Common_SaveAsDefault}" />
+                                    </Button>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </Popup>
                 </StackPanel>
             </DockPanel>
 
@@ -368,15 +398,53 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
 
-                        <!-- Where Steam has "Filter by Date": the one button this sidebar needs. -->
-                        <Button
-                            Margin="0,20,0,0"
-                            HorizontalAlignment="Left"
-                            Style="{StaticResource SteamButton}"
-                            ToolTip="{loc:Str Common_ClearFiltersToolTip}"
-                            Command="{Binding ClearFiltersCommand}">
-                            <TextBlock Text="{loc:Str Common_ClearFilters}" />
-                        </Button>
+                        <!-- Steam's "Filter by Date", and beside it Clear filters. -->
+                        <StackPanel Margin="0,20,0,0" Orientation="Horizontal">
+                            <Button Style="{StaticResource SteamButton}" Command="{Binding ToggleDateFilterCommand}">
+                                <TextBlock Text="{loc:Str Browse_FilterByDate}" />
+                            </Button>
+                            <Button
+                                Margin="8,0,0,0"
+                                Style="{StaticResource SteamButton}"
+                                ToolTip="{loc:Str Common_ClearFiltersToolTip}"
+                                Command="{Binding ClearFiltersCommand}">
+                                <TextBlock Text="{loc:Str Common_ClearFilters}" />
+                            </Button>
+                        </StackPanel>
+
+                        <!-- Steam's date panel: headings 13px white upper case, "Between" and "And"
+                             13px #ACB2B8, the fields 196x36 on #3D4450 with a calendar. -->
+                        <StackPanel Visibility="{Binding IsDateFilterOpen, Converter={StaticResource TrueToVisible}}">
+                            <StackPanel.Resources>
+                                <Style x:Key="DateHeading" TargetType="TextBlock">
+                                    <Setter Property="FontSize" Value="13" />
+                                    <Setter Property="Foreground" Value="White" />
+                                    <Setter Property="Margin" Value="0,14,0,6" />
+                                </Style>
+                                <Style x:Key="DateLabel" TargetType="TextBlock">
+                                    <Setter Property="FontSize" Value="13" />
+                                    <Setter Property="Foreground" Value="#ACB2B8" />
+                                    <Setter Property="Margin" Value="0,0,0,4" />
+                                </Style>
+                                <Style x:Key="DateField" TargetType="DatePicker" BasedOn="{StaticResource {x:Type DatePicker}}">
+                                    <Setter Property="Height" Value="36" />
+                                    <Setter Property="Background" Value="#3D4450" />
+                                    <Setter Property="BorderThickness" Value="0" />
+                                    <Setter Property="Foreground" Value="White" />
+                                    <Setter Property="SelectedDateFormat" Value="Short" />
+                                </Style>
+                            </StackPanel.Resources>
+                            <TextBlock Style="{StaticResource DateHeading}" Text="{loc:Str Browse_PostedDate}" />
+                            <TextBlock Style="{StaticResource DateLabel}" Text="{loc:Str Browse_DateBetween}" />
+                            <Border Width="196" Margin="0,0,0,10" HorizontalAlignment="Left"><DatePicker Style="{StaticResource DateField}" SelectedDate="{Binding PostedAfter, Mode=TwoWay}" /></Border>
+                            <TextBlock Style="{StaticResource DateLabel}" Text="{loc:Str Browse_DateAnd}" />
+                            <Border Width="196" Margin="0,0,0,10" HorizontalAlignment="Left"><DatePicker Style="{StaticResource DateField}" SelectedDate="{Binding PostedBefore, Mode=TwoWay}" /></Border>
+                            <TextBlock Style="{StaticResource DateHeading}" Text="{loc:Str Browse_DateLastUpdated}" />
+                            <TextBlock Style="{StaticResource DateLabel}" Text="{loc:Str Browse_DateBetween}" />
+                            <Border Width="196" Margin="0,0,0,10" HorizontalAlignment="Left"><DatePicker Style="{StaticResource DateField}" SelectedDate="{Binding UpdatedAfter, Mode=TwoWay}" /></Border>
+                            <TextBlock Style="{StaticResource DateLabel}" Text="{loc:Str Browse_DateAnd}" />
+                            <Border Width="196" Margin="0,0,0,10" HorizontalAlignment="Left"><DatePicker Style="{StaticResource DateField}" SelectedDate="{Binding UpdatedBefore, Mode=TwoWay}" /></Border>
+                        </StackPanel>
                     </StackPanel>
                 </Border>
 
