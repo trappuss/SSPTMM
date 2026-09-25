@@ -41,6 +41,10 @@ public sealed partial class ModCardViewModel : LocalizedViewModel
     // The mod while the card is near the view, for the dependency lookup that should run only then.
     public Mod? NearViewMod => IsNearView ? Mod : null;
 
+    /// <summary>The picture the hover popup is showing, while it is open - see BrowsePage's slideshow.</summary>
+    [ObservableProperty]
+    private string? _hoverPicture;
+
     /// <summary>True when this card, built afresh for the same mod, would look no different from
     /// <paramref name="other"/> - what Browse's redraw checks before replacing a card. Covers what can
     /// change without the catalog changing: the install state, the pin and the addon count.</summary>

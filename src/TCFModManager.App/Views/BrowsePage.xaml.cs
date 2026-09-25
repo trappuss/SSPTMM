@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
+using TCFModManager.App.Behaviors;
 using TCFModManager.App.ViewModels;
 
 using TCFModManager.Core.Services;
@@ -89,6 +90,108 @@ public partial class BrowsePage : Page
         menu.PlacementTarget = GearButton;
         menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
         menu.IsOpen = true;
+    }
+
+    // ------------------------------------------------------------------ hover slideshow
+
+    //
+    // The hover popup's pictures: the mod's own at once, then - if the pointer stays a moment, so a
+    // pass across the grid does not ask sp-mod.com about every card it crosses - the pictures in its
+    // description, one after another every two seconds. Only pictures that loaded and decoded take
+    // part, so the slideshow never stops on a blank; with only one there is no slideshow.
+    //
+    private const int SlideWidth = 254;
+
+    private static readonly TimeSpan SlideTime = TimeSpan.FromSeconds(2);
+
+    private static readonly TimeSpan HoverSettle = TimeSpan.FromMilliseconds(350);
+
+    private DispatcherTimer? _slideTimer;
+    private DispatcherTimer? _settleTimer;
+    private ModCardViewModel? _hovered;
+    private readonly List<string> _slides = [];
+    private int _slide;
+
+    // Which opening of a popup the running work is for: a popup closed and opened again on the same
+    // card must not have the first opening's work carry on beside the second's.
+    private int _hoverGeneration;
+
+    private void CardPopup_Opened(object sender, RoutedEventArgs e)
+    {
+        if (sender is not FrameworkElement { DataContext: ModCardViewModel card }) return;
+
+        StopSlideshow();
+        _hoverGeneration++;
+        _hovered = card;
+        card.HoverPicture = card.Thumbnail;
+
+        _settleTimer ??= NewTimer(HoverSettle, SettleTimer_Tick);
+        _settleTimer.Start();
+    }
+
+    private void CardPopup_Closed(object sender, RoutedEventArgs e)
+    {
+        if (sender is FrameworkElement { DataContext: ModCardViewModel card } && ReferenceEquals(card, _hovered))
+            StopSlideshow();
+    }
+
+    private async void SettleTimer_Tick(object? sender, EventArgs e)
+    {
+        _settleTimer?.Stop();
+        if (_hovered is not { } card) return;
+
+        var generation = _hoverGeneration;
+        bool StillShowing() => generation == _hoverGeneration && ReferenceEquals(card, _hovered);
+
+        var pictures = await AppServices.ModPictures.ForAsync(card.Mod);
+        if (!StillShowing()) return;
+
+        // Each is fetched and decoded before it may be shown, in order; the show starts as soon as
+        // there is a second one to change to.
+        foreach (var picture in pictures)
+        {
+            var loaded = await ThumbnailLoader.PrefetchAsync(picture, SlideWidth);
+            if (!StillShowing()) return;
+            if (!loaded) continue;
+
+            _slides.Add(picture);
+            if (_slides.Count == 1) card.HoverPicture = picture;
+            if (_slides.Count == 2)
+            {
+                _slideTimer ??= NewTimer(SlideTime, SlideTimer_Tick);
+                _slideTimer.Start();
+            }
+        }
+    }
+
+    private void SlideTimer_Tick(object? sender, EventArgs e)
+    {
+        if (_hovered is not { } card || _slides.Count < 2)
+        {
+            _slideTimer?.Stop();
+            return;
+        }
+
+        _slide = (_slide + 1) % _slides.Count;
+        card.HoverPicture = _slides[_slide];
+    }
+
+    private void StopSlideshow()
+    {
+        _settleTimer?.Stop();
+        _slideTimer?.Stop();
+        if (_hovered is not null) _hovered.HoverPicture = null;
+        _hovered = null;
+        _hoverGeneration++;
+        _slides.Clear();
+        _slide = 0;
+    }
+
+    private static DispatcherTimer NewTimer(TimeSpan interval, EventHandler tick)
+    {
+        var timer = new DispatcherTimer { Interval = interval };
+        timer.Tick += tick;
+        return timer;
     }
 
     // How close to the bottom, in pixels, the infinite list adds its next cards: about two rows of

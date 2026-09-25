@@ -415,9 +415,25 @@
                                     <!-- Steam's hover popup: title, one line of description, the
                                          dates and the tags, #344352 at 270px. -->
                                     <Grid.ToolTip>
-                                        <ToolTip Padding="8,5" Background="{StaticResource SteamPopupBackground}" HasDropShadow="True">
+                                        <ToolTip
+                                            Padding="8,5"
+                                            Background="{StaticResource SteamPopupBackground}"
+                                            HasDropShadow="True"
+                                            Opened="CardPopup_Opened"
+                                            Closed="CardPopup_Closed">
                                             <StackPanel Width="254">
                                                 <TextBlock FontSize="17" Foreground="{StaticResource SteamWhite}" TextTrimming="CharacterEllipsis" Text="{Binding Name}" />
+                                                <!-- The mod's pictures under its title, a new one every two
+                                                     seconds when there is more than one (BrowsePage's
+                                                     slideshow). Letterboxed on black: screenshots are all
+                                                     shapes. -->
+                                                <Border
+                                                    Height="143"
+                                                    Margin="0,6,0,0"
+                                                    Background="Black"
+                                                    Visibility="{Binding HoverPicture, Converter={StaticResource NullToCollapsed}}">
+                                                    <Image Stretch="Uniform" behaviors:ThumbnailLoader.DecodeWidth="254" behaviors:ThumbnailLoader.Source="{Binding HoverPicture}" />
+                                                </Border>
                                                 <TextBlock
                                                     Margin="0,8,0,0"
                                                     FontSize="13"

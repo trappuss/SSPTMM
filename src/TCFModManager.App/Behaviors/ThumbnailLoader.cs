@@ -103,7 +103,29 @@ public static class ThumbnailLoader
         _ = LoadAsync(image, url, width);
     }
 
-    private static async Task LoadAsync(Image image, string url, int width)
+    /// <summary>Loads <paramref name="url"/> into the cache at <paramref name="width"/> device-independent
+    /// pixels (times the main window's scale), without an Image to show it in - so it is there, already
+    /// decoded, when one asks. True once it is; false when it cannot be fetched or decoded here.</summary>
+    public static Task<bool> PrefetchAsync(string url, int width)
+    {
+        var scale = 1.0;
+        if (Application.Current?.MainWindow is { } window)
+        {
+            try
+            {
+                scale = VisualTreeHelper.GetDpi(window).DpiScaleX;
+            }
+            catch (InvalidOperationException)
+            {
+                // Not shown yet: 1:1.
+            }
+        }
+
+        var pixels = (int)Math.Ceiling(width * Math.Max(1.0, scale));
+        return Cache.TryGetValue(KeyFor(url, pixels), out _) ? Task.FromResult(true) : LoadAsync(null, url, pixels);
+    }
+
+    private static async Task<bool> LoadAsync(Image? image, string url, int width)
     {
         var key = KeyFor(url, width);
         var sw = Stopwatch.StartNew();
@@ -114,8 +136,8 @@ public static class ThumbnailLoader
             // Re-check the cache in case another card loaded this URL while waiting on the gate.
             if (Cache.TryGetValue(key, out var cached))
             {
-                if (GetSource(image) as string == url) image.Source = cached;
-                return;
+                if (image is not null && GetSource(image) as string == url) image.Source = cached;
+                return true;
             }
 
             byte[] bytes;
@@ -126,7 +148,7 @@ public static class ThumbnailLoader
             catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or UriFormatException or InvalidOperationException)
             {
                 AppLog.Debug("Thumbnails", $"ThumbnailLoader: {url} failed after {sw.ElapsedMilliseconds}ms - {ex.Message}");
-                return;
+                return false;
             }
 
             // Decoded off the UI thread: thirty cards arriving at once used to decode one after
@@ -135,13 +157,14 @@ public static class ThumbnailLoader
             if (bitmap is null)
             {
                 AppLog.Debug("Thumbnails", $"ThumbnailLoader: {url} could not be decoded");
-                return;
+                return false;
             }
 
             AppLog.Debug("Thumbnails", $"ThumbnailLoader: loaded {bytes.Length} bytes after {sw.ElapsedMilliseconds}ms total for {url}");
 
             Cache.Add(key, bitmap);
-            if (GetSource(image) as string == url) image.Source = bitmap;
+            if (image is not null && GetSource(image) as string == url) image.Source = bitmap;
+            return true;
         }
         finally
         {

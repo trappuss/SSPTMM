@@ -59,6 +59,9 @@ internal static class AppServices
     // Which mods need which - the item page's "Required by" panel.
     public static RequiredByIndex RequiredBy { get; } = new();
 
+    // A mod's pictures for the hover slideshow and Quick View - see ModPictures.
+    public static ModPictures ModPictures { get; } = new();
+
     // Whether a newer release of this app has been published on sp-mod.com. Shared between the
     // banner in MainWindow, the nav item's badge and the App update page, so all three read one
     // check rather than each running their own.
