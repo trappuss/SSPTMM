@@ -880,6 +880,53 @@
         </Setter>
     </Style>
 
+    <!--  ============================================================ Card hover buttons  -->
+    <!--  Steam's Quick View magnifier on a card under the pointer: 30x30, rgba(255,255,255,.1),
+          radius 3, a 24px glass; rgba(255,255,255,.2) under the pointer. Collapsed until the card's
+          hover trigger shows it.  -->
+    <Style x:Key="SteamQuickViewButton" TargetType="Button">
+        <Setter Property="Width" Value="30" />
+        <Setter Property="Height" Value="30" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="ToolTip" Value="{loc:Str Menu_QuickView}" />
+        <Setter Property="Visibility" Value="Collapsed" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Face" Background="#1AFFFFFF" CornerRadius="3">
+                        <ui:SymbolIcon FontSize="20" Foreground="White" Symbol="Search20" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Face" Property="Background" Value="#33FFFFFF" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--  Not Steam's: subscribe straight from a card, beside the magnifier, for a mod that is not
+          installed yet. Collapsed until the card's hover trigger shows it.  -->
+    <Style x:Key="SteamQuickSubscribeButton" TargetType="Button" BasedOn="{StaticResource SteamButton}">
+        <Setter Property="Width" Value="24" />
+        <Setter Property="Height" Value="24" />
+        <Setter Property="MinHeight" Value="24" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Visibility" Value="Collapsed" />
+        <!--  A template, not the icon as Content: one icon cannot sit in every card's button at
+              once. The Content is only there for the template to be used.  -->
+        <Setter Property="Content" Value="+" />
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <ui:SymbolIcon FontSize="16" Foreground="{StaticResource SteamWhite}" Symbol="Add16" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!--  ============================================================ Pieces  -->
     <!--  Tag chip in the hover popup: rgba(255,255,255,.09), white 12px, 4 8 padding.  -->
     <Style x:Key="SteamChip" TargetType="Border">

@@ -479,90 +479,11 @@
                                     Background="Transparent"
                                     Cursor="Hand"
                                     MouseLeftButtonUp="Card_MouseLeftButtonUp"
-                                    ToolTipService.InitialShowDelay="150"
-                                    ToolTipService.Placement="Right"
-                                    ToolTipService.ShowDuration="60000">
+                                    behaviors:CardHover.Enabled="True">
                                     <Grid.RenderTransform>
                                         <TranslateTransform Y="0" />
                                     </Grid.RenderTransform>
 
-                                    <!-- Steam's hover popup: title, one line of description, the
-                                         dates and the tags, #344352 at 270px. -->
-                                    <Grid.ToolTip>
-                                        <ToolTip
-                                            Padding="8,5"
-                                            Background="{StaticResource SteamPopupBackground}"
-                                            HasDropShadow="True"
-                                            Opened="CardPopup_Opened"
-                                            Closed="CardPopup_Closed">
-                                            <StackPanel Width="254">
-                                                <TextBlock FontSize="17" Foreground="{StaticResource SteamWhite}" TextTrimming="CharacterEllipsis" Text="{Binding Name}" />
-                                                <!-- The mod's pictures under its title, a new one every two
-                                                     seconds when there is more than one (BrowsePage's
-                                                     slideshow). Letterboxed on black: screenshots are all
-                                                     shapes. -->
-                                                <Border
-                                                    Height="143"
-                                                    Margin="0,6,0,0"
-                                                    Background="Black"
-                                                    Visibility="{Binding HoverPicture, Converter={StaticResource NullToCollapsed}}">
-                                                    <Image Stretch="Uniform" behaviors:ThumbnailLoader.DecodeWidth="254" behaviors:ThumbnailLoader.Source="{Binding HoverPicture}" />
-                                                </Border>
-                                                <TextBlock
-                                                    Margin="0,8,0,0"
-                                                    FontSize="13"
-                                                    Foreground="{StaticResource SteamText}"
-                                                    TextTrimming="CharacterEllipsis"
-                                                    Text="{Binding Teaser}"
-                                                    Visibility="{Binding HasTeaser, Converter={StaticResource TrueToVisible}}" />
-                                                <TextBlock
-                                                    Margin="0,5,0,0"
-                                                    FontSize="13"
-                                                    Foreground="#949CA4"
-                                                    Text="{Binding PostedAt, Converter={StaticResource LocalTime}, StringFormat={loc:Str Workshop_PostedFormat}}"
-                                                    Visibility="{Binding PostedAt, Converter={StaticResource NullToCollapsed}}" />
-                                                <TextBlock
-                                                    FontSize="13"
-                                                    Foreground="#949CA4"
-                                                    Text="{Binding UpdatedAt, Converter={StaticResource LocalTime}, StringFormat={loc:Str Workshop_UpdatedFormat}}"
-                                                    Visibility="{Binding UpdatedAt, Converter={StaticResource NullToCollapsed}}" />
-                                                <!-- Which SPT the shown release runs on, coloured the way
-                                                     the card used to colour it. -->
-                                                <TextBlock Margin="0,5,0,0" FontSize="13" TextWrapping="Wrap">
-                                                    <Run Style="{StaticResource CompatibilityText}" Text="{Binding SptVersionDisplay, Mode=OneWay}" />
-                                                    <Run Foreground="#949CA4" Text="{Binding DisplayReleaseVersion, Mode=OneWay, StringFormat='v{0}'}" />
-                                                </TextBlock>
-                                                <TextBlock
-                                                    FontSize="12"
-                                                    FontStyle="Italic"
-                                                    Foreground="{DynamicResource SystemFillColorCautionBrush}"
-                                                    TextWrapping="Wrap"
-                                                    Text="{Binding AlternateCompatibleVersionNote}"
-                                                    Visibility="{Binding AlternateCompatibleVersionNote, Converter={StaticResource NullToCollapsed}}" />
-                                                <WrapPanel Margin="0,5,0,0">
-                                                    <Border Style="{StaticResource SteamChip}" Visibility="{Binding CategoryTag, Converter={StaticResource NullToCollapsed}}">
-                                                        <TextBlock FontSize="12" Foreground="{StaticResource SteamWhite}" Text="{Binding CategoryTag}" />
-                                                    </Border>
-                                                    <Border Style="{StaticResource SteamChip}" Visibility="{Binding IsFikaCompatible, Converter={StaticResource TrueToVisible}}">
-                                                        <TextBlock FontSize="12" Foreground="{StaticResource SteamWhite}" Text="{loc:Str Common_FlagFikaCompatible}" />
-                                                    </Border>
-                                                    <Border Style="{StaticResource SteamChip}" Visibility="{Binding ContainsAds, Converter={StaticResource TrueToVisible}}">
-                                                        <TextBlock FontSize="12" Foreground="{StaticResource SteamWhite}" Text="{loc:Str Common_FlagContainsAds}" />
-                                                    </Border>
-                                                    <Border Style="{StaticResource SteamChip}" Visibility="{Binding ContainsAiContent, Converter={StaticResource TrueToVisible}}">
-                                                        <TextBlock FontSize="12" Foreground="{StaticResource SteamWhite}" Text="{loc:Str Common_FlagContainsAiContent}" />
-                                                    </Border>
-                                                    <Border Style="{StaticResource SteamChip}" Visibility="{Binding HasAddons, Converter={StaticResource TrueToVisible}}">
-                                                        <TextBlock FontSize="12" Foreground="{StaticResource SteamWhite}" Text="{Binding AddonBadgeText}" />
-                                                    </Border>
-                                                    <!-- Resolved per card in the background, like the badge it replaces. -->
-                                                    <Border Style="{StaticResource SteamChip}" Visibility="Collapsed" behaviors:DependencyBadgeLoader.Mod="{Binding Mod}">
-                                                        <TextBlock FontSize="12" Foreground="{StaticResource SteamWhite}" Text="{loc:Str Browse_BadgeHasDependencies}" />
-                                                    </Border>
-                                                </WrapPanel>
-                                            </StackPanel>
-                                        </ToolTip>
-                                    </Grid.ToolTip>
 
                                     <!-- Starts this card's dependency lookup once the card is near the
                                          view, as upstream's badge on the card did. The badge in the
@@ -692,52 +613,24 @@
                                                         Visibility="{Binding Author, Converter={StaticResource NullToCollapsed}}" />
                                                 </StackPanel>
 
-                                                <!-- Steam's Quick View magnifier, on hover: 30x30,
-                                                     rgba(255,255,255,.1), radius 3, a 24px glass. -->
+                                                <!-- Steam's Quick View magnifier, and beside it the
+                                                     app's quick Subscribe - see SteamStyles. -->
                                                 <Button
                                                     x:Name="QuickViewButton"
-                                                    Width="30"
-                                                    Height="30"
                                                     Margin="0,0,-4,5"
                                                     HorizontalAlignment="Right"
                                                     VerticalAlignment="Bottom"
-                                                    Cursor="Hand"
-                                                    FocusVisualStyle="{x:Null}"
-                                                    ToolTip="{loc:Str Menu_QuickView}"
-                                                    Visibility="Collapsed"
-                                                    Click="QuickView_Click">
-                                                    <Button.Template>
-                                                        <ControlTemplate TargetType="Button">
-                                                            <Border x:Name="Face" Background="#1AFFFFFF" CornerRadius="3">
-                                                                <ui:SymbolIcon FontSize="20" Foreground="White" Symbol="Search20" />
-                                                            </Border>
-                                                            <ControlTemplate.Triggers>
-                                                                <Trigger Property="IsMouseOver" Value="True">
-                                                                    <Setter TargetName="Face" Property="Background" Value="#33FFFFFF" />
-                                                                </Trigger>
-                                                            </ControlTemplate.Triggers>
-                                                        </ControlTemplate>
-                                                    </Button.Template>
-                                                </Button>
-
-                                                <!-- Beside it, not Steam's: subscribe straight from the
-                                                     grid, for a mod that is not installed yet. -->
+                                                    Style="{StaticResource SteamQuickViewButton}"
+                                                    Click="QuickView_Click" />
                                                 <Button
                                                     x:Name="QuickSubscribe"
-                                                    Width="24"
-                                                    Height="24"
-                                                    MinHeight="24"
                                                     Margin="0,0,32,8"
-                                                    Padding="0"
                                                     HorizontalAlignment="Right"
                                                     VerticalAlignment="Bottom"
-                                                    Style="{StaticResource SteamButton}"
+                                                    Style="{StaticResource SteamQuickSubscribeButton}"
                                                     Command="{Binding DataContext.InstallCommand, RelativeSource={RelativeSource AncestorType=Page}}"
                                                     CommandParameter="{Binding}"
-                                                    ToolTip="{Binding InstallToolTip, Source={x:Static app:AppServices.ModPageGate}}"
-                                                    Visibility="Collapsed">
-                                                    <ui:SymbolIcon FontSize="16" Foreground="{StaticResource SteamWhite}" Symbol="Add16" />
-                                                </Button>
+                                                    ToolTip="{Binding InstallToolTip, Source={x:Static app:AppServices.ModPageGate}}" />
                                             </Grid>
                                         </StackPanel>
                                     </Border>

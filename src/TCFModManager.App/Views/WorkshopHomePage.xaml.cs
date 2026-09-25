@@ -49,6 +49,33 @@ public partial class WorkshopHomePage : Page
         await ViewModel.OpenCommand.ExecuteAsync(card);
     }
 
+    // The magnifier: Quick View, stepping through the cards of the row or list it is in.
+    private void QuickView_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not FrameworkElement { DataContext: ModCardViewModel card } button) return;
+
+        e.Handled = true;
+        AppServices.QuickView.Show(card.Mod, Behaviors.ModContextMenu.SequenceAround(button));
+    }
+
+    // Subscribe straight from the card, the same way its right-click menu does; what it says shows
+    // on this page.
+    private async void QuickSubscribe_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not FrameworkElement { DataContext: ModCardViewModel card }) return;
+
+        e.Handled = true;
+        try
+        {
+            if (await Services.ModActions.SubscribeAsync(card.Mod) is { } message) ViewModel.Message = message;
+        }
+        catch (Exception ex)
+        {
+            // A click handler has nowhere to throw to.
+            Core.Services.AppLog.Warn("Workshop", $"subscribe from the front page: {ex.Message}");
+        }
+    }
+
     // The arrows move the row by what is on screen, less one card, so the card at the edge stays in
     // view as the one the next page starts from.
     private const double CarouselStep = 183 + 16;

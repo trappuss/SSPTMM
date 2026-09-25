@@ -1,0 +1,91 @@
+<!--
+    Steam's hover popup for a Workshop item - on Browse's cards and the front page's carousel, lists
+    and "From Followed Authors" alike: title, the mod's pictures, up to five lines of its teaser,
+    Posted and Updated, which SPT it runs on, and its tags. #344352, 270px with its padding
+    (measured on the live pages). Attached to a card by CardHover, which builds it only when the
+    popup first opens. Its DataContext is the card's ModCardViewModel.
+-->
+<UserControl
+    x:Class="TCFModManager.App.Views.CardHoverPopup"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:TCFModManager.App.Converters"
+    xmlns:behaviors="clr-namespace:TCFModManager.App.Behaviors"
+    xmlns:loc="clr-namespace:TCFModManager.App.Localization">
+    <UserControl.Resources>
+        <converters:NullToVisibilityConverter x:Key="NullToCollapsed" />
+        <converters:LocalTimeConverter x:Key="LocalTime" />
+        <converters:UpdateAvailableToVisibilityConverter x:Key="TrueToVisible" />
+    </UserControl.Resources>
+
+    <StackPanel Width="254">
+        <TextBlock FontSize="17" Foreground="{StaticResource SteamWhite}" TextTrimming="CharacterEllipsis" Text="{Binding Name}" />
+        <!-- The mod's pictures under its title, a new one every two seconds when there is more
+             than one (CardHover's slideshow). Letterboxed on black: screenshots are all shapes. -->
+        <Border
+            Height="143"
+            Margin="0,6,0,0"
+            Background="Black"
+            Visibility="{Binding HoverPicture, Converter={StaticResource NullToCollapsed}}">
+            <Image Stretch="Uniform" behaviors:ThumbnailLoader.DecodeWidth="254" behaviors:ThumbnailLoader.Source="{Binding HoverPicture}" />
+        </Border>
+        <!-- Up to five lines, the last cut short with an ellipsis: Steam's -webkit-line-clamp: 5
+             on 19px lines (measured on the live Home and Browse pages). -->
+        <TextBlock
+            MaxHeight="95"
+            Margin="0,8,0,0"
+            FontSize="13"
+            Foreground="{StaticResource SteamText}"
+            LineHeight="19"
+            LineStackingStrategy="BlockLineHeight"
+            TextAlignment="Left"
+            TextTrimming="CharacterEllipsis"
+            TextWrapping="Wrap"
+            Text="{Binding Teaser}"
+            Visibility="{Binding HasTeaser, Converter={StaticResource TrueToVisible}}" />
+        <TextBlock
+            Margin="0,5,0,0"
+            FontSize="13"
+            Foreground="#949CA4"
+            Text="{Binding PostedAt, Converter={StaticResource LocalTime}, StringFormat={loc:Str Workshop_PostedFormat}}"
+            Visibility="{Binding PostedAt, Converter={StaticResource NullToCollapsed}}" />
+        <TextBlock
+            FontSize="13"
+            Foreground="#949CA4"
+            Text="{Binding UpdatedAt, Converter={StaticResource LocalTime}, StringFormat={loc:Str Workshop_UpdatedFormat}}"
+            Visibility="{Binding UpdatedAt, Converter={StaticResource NullToCollapsed}}" />
+        <!-- Which SPT the shown release runs on, coloured the way the card used to colour it. -->
+        <TextBlock Margin="0,5,0,0" FontSize="13" TextWrapping="Wrap">
+            <Run Style="{StaticResource CompatibilityText}" Text="{Binding SptVersionDisplay, Mode=OneWay}" />
+            <Run Foreground="#949CA4" Text="{Binding DisplayReleaseVersion, Mode=OneWay, StringFormat='v{0}'}" />
+        </TextBlock>
+        <TextBlock
+            FontSize="12"
+            FontStyle="Italic"
+            Foreground="{DynamicResource SystemFillColorCautionBrush}"
+            TextWrapping="Wrap"
+            Text="{Binding AlternateCompatibleVersionNote}"
+            Visibility="{Binding AlternateCompatibleVersionNote, Converter={StaticResource NullToCollapsed}}" />
+        <WrapPanel Margin="0,5,0,0">
+            <Border Style="{StaticResource SteamChip}" Visibility="{Binding CategoryTag, Converter={StaticResource NullToCollapsed}}">
+                <TextBlock FontSize="12" Foreground="{StaticResource SteamWhite}" Text="{Binding CategoryTag}" />
+            </Border>
+            <Border Style="{StaticResource SteamChip}" Visibility="{Binding IsFikaCompatible, Converter={StaticResource TrueToVisible}}">
+                <TextBlock FontSize="12" Foreground="{StaticResource SteamWhite}" Text="{loc:Str Common_FlagFikaCompatible}" />
+            </Border>
+            <Border Style="{StaticResource SteamChip}" Visibility="{Binding ContainsAds, Converter={StaticResource TrueToVisible}}">
+                <TextBlock FontSize="12" Foreground="{StaticResource SteamWhite}" Text="{loc:Str Common_FlagContainsAds}" />
+            </Border>
+            <Border Style="{StaticResource SteamChip}" Visibility="{Binding ContainsAiContent, Converter={StaticResource TrueToVisible}}">
+                <TextBlock FontSize="12" Foreground="{StaticResource SteamWhite}" Text="{loc:Str Common_FlagContainsAiContent}" />
+            </Border>
+            <Border Style="{StaticResource SteamChip}" Visibility="{Binding HasAddons, Converter={StaticResource TrueToVisible}}">
+                <TextBlock FontSize="12" Foreground="{StaticResource SteamWhite}" Text="{Binding AddonBadgeText}" />
+            </Border>
+            <!-- Resolved per card in the background, like the badge it replaces. -->
+            <Border Style="{StaticResource SteamChip}" Visibility="Collapsed" behaviors:DependencyBadgeLoader.Mod="{Binding Mod}">
+                <TextBlock FontSize="12" Foreground="{StaticResource SteamWhite}" Text="{loc:Str Browse_BadgeHasDependencies}" />
+            </Border>
+        </WrapPanel>
+    </StackPanel>
+</UserControl>
