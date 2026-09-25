@@ -62,6 +62,69 @@ public static class WebViews
         }
     }
 
+    //
+    // YouTube videos, played from a page of this app's own rather than by opening the embed address
+    // directly.
+    //
+    // YouTube refuses an embed that arrives with no Referer - "Video player configuration error,
+    // Error 153" - and a web view navigated straight to youtube-nocookie.com/embed/<id> sends none:
+    // there is no page it was embedded from. So the viewer opens https://player.tcfmodmanager/,
+    // which never reaches the network (ServeVideoPlayer answers it from here), and that page embeds
+    // the video in an iframe the way a web page does, with this origin as the referrer. Reproduced
+    // and checked in Chromium on 2026-09-25: the direct address shows Error 153, the same video
+    // embedded from an https page loads its player.
+    //
+    private const string PlayerHost = "https://player.tcfmodmanager/";
+
+    private static readonly System.Text.RegularExpressions.Regex VideoId =
+        new(@"^[A-Za-z0-9_-]{11}$", System.Text.RegularExpressions.RegexOptions.Compiled);
+
+    private static readonly System.Text.RegularExpressions.Regex EmbedId =
+        new(@"/embed/(?<id>[A-Za-z0-9_-]{11})(?:[/?#]|$)", System.Text.RegularExpressions.RegexOptions.Compiled);
+
+    /// <summary>Where the viewer's web view plays <paramref name="embedUrl"/> (a YouTube embed
+    /// address), or null when it names no video.</summary>
+    public static string? PlayerUrl(string? embedUrl)
+    {
+        var match = EmbedId.Match(embedUrl ?? string.Empty);
+        return match.Success ? PlayerHost + "?v=" + match.Groups["id"].Value : null;
+    }
+
+    /// <summary>Answers requests for the player page on <paramref name="core"/>. Call once per web
+    /// view, before navigating it to a PlayerUrl.</summary>
+    public static void ServeVideoPlayer(CoreWebView2 core)
+    {
+        core.AddWebResourceRequestedFilter(PlayerHost + "*", CoreWebView2WebResourceContext.All);
+        core.WebResourceRequested += (_, e) =>
+        {
+            if (!e.Request.Uri.StartsWith(PlayerHost, StringComparison.OrdinalIgnoreCase)) return;
+
+            // Only an 11-character video id goes into the page; nothing else from the address does.
+            var id = System.Web.HttpUtility.ParseQueryString(new Uri(e.Request.Uri).Query)["v"];
+            var html = id is not null && VideoId.IsMatch(id) ? PlayerPage(id) : "<!doctype html><title></title>";
+
+            e.Response = core.Environment.CreateWebResourceResponse(
+                new MemoryStream(System.Text.Encoding.UTF8.GetBytes(html)),
+                200,
+                "OK",
+                "Content-Type: text/html; charset=utf-8");
+        };
+    }
+
+    private static string PlayerPage(string id) => $$"""
+        <!doctype html>
+        <html>
+        <head>
+        <meta charset="utf-8">
+        <meta name="referrer" content="strict-origin-when-cross-origin">
+        <style>html, body { margin: 0; height: 100%; background: #000; overflow: hidden; } iframe { border: 0; width: 100%; height: 100%; }</style>
+        </head>
+        <body>
+        <iframe src="https://www.youtube-nocookie.com/embed/{{id}}?autoplay=1&rel=0" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+        </body>
+        </html>
+        """;
+
     /// <summary>True for addresses on sp-mod.com itself, which a web view here may show. Anything
     /// else a page links to opens in the browser.</summary>
     public static bool IsSpModPage(Uri uri) =>

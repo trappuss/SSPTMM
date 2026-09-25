@@ -68,11 +68,12 @@ public partial class MediaViewerOverlay : UserControl
         // closed or moved on - and then this video must not start playing behind it.
         if (!ViewModel.IsOpen || !ReferenceEquals(ViewModel.Current, media)) return;
 
-        if (ready && media.EmbedUrl is { } embed)
+        if (ready && WebViews.PlayerUrl(media.EmbedUrl) is { } player)
         {
+            ServeOnce(_player!.CoreWebView2);
             VideoFallback.Visibility = Visibility.Collapsed;
-            _player!.Visibility = Visibility.Visible;
-            _player.CoreWebView2.Navigate(embed);
+            _player.Visibility = Visibility.Visible;
+            _player.CoreWebView2.Navigate(player);
             return;
         }
 
@@ -80,6 +81,23 @@ public partial class MediaViewerOverlay : UserControl
         if (_player is not null) _player.Visibility = Visibility.Collapsed;
         VideoThumbnail.Url = media.Thumbnail;
         VideoFallback.Visibility = Visibility.Visible;
+    }
+
+    private bool _serving;
+
+    // The player page (see WebViews.ServeVideoPlayer), and YouTube's own links - its logo, "Watch on
+    // YouTube" - out to the browser rather than into a window of the web view's own.
+    private void ServeOnce(Microsoft.Web.WebView2.Core.CoreWebView2 core)
+    {
+        if (_serving) return;
+        _serving = true;
+
+        WebViews.ServeVideoPlayer(core);
+        core.NewWindowRequested += (_, e) =>
+        {
+            e.Handled = true;
+            MarkupActions.OpenInBrowser(e.Uri);
+        };
     }
 
     private void StopVideo()

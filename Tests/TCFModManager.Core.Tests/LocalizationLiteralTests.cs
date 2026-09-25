@@ -40,6 +40,15 @@ public class LocalizationLiteralTests
         ("ModListFileDialog.cs",
             "|{Strings.ModListFile_AllFiles} ({ModListFile.AllFilesPattern})|{ModListFile.AllFilesPattern}",
             "Win32 filter syntax; both names in it are keyed"),
+        ("WebViews.cs",
+            "<!doctype html><title></title>",
+            "an empty web page, for a player address naming no video"),
+        ("WebViews.cs",
+            "Content-Type: text/html; charset=utf-8",
+            "an HTTP header"),
+        ("WebViews.cs",
+            "autoplay; encrypted-media; picture-in-picture; fullscreen",
+            "an iframe's permission list, inside the video player page"),
     ];
 
     //

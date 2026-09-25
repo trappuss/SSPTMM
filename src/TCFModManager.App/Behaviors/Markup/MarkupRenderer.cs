@@ -11,39 +11,64 @@ using TCFModManager.Core.Markup;
 namespace TCFModManager.App.Behaviors.Markup;
 
 //
-// Lays a parsed sp-mod.com description out as a FlowDocument, in the site's own markdown style:
-// sizes, spacing and colours measured off sp-mod.com's user-markdown styles (2026-09-24, see
-// docs/steam-workshop-ui.md), scaled from the site's 16px body to whatever size the host sets, so
-// the Workshop page's 14px description keeps its proportions.
+// Lays a parsed sp-mod.com description out as a FlowDocument, drawn the way a Steam Workshop item
+// description is: Steam's BBCode styles (shared_global.css and the live item page, measured
+// 2026-09-25 - see docs/steam-workshop-ui.md) at the Workshop page's 14px, scaled to whatever size
+// the host sets.
+//
+// sp-mod.com's descriptions can hold things Steam's BBCode has no form for - tab sets, inline code,
+// warning callouts, YouTube embeds. Those keep their shape and take Steam's palette.
 //
 // Tab sets, pictures, GIFs and videos are real controls inside the document. Plain text stays text,
 // so it wraps, reflows and reads the same as it did.
 //
 public sealed class MarkupRenderer
 {
-    // ---------------------------------------------------------------- sp-mod.com's colours
+    // ---------------------------------------------------------------- Steam's colours
 
     private static readonly Brush White = Frozen(0xFF, 0xFF, 0xFF);
-    private static readonly Brush InlineCodeBackground = Frozen(0x36, 0x41, 0x53);   // gray-700
-    private static readonly Brush InlineCodeText = Frozen(0xD1, 0xD5, 0xDC);         // gray-300
-    private static readonly Brush TabContentBackground = Frozen(0x10, 0x18, 0x28);   // gray-900
-    private static readonly Brush TabBackground = Frozen(0x0F, 0x17, 0x2B);          // slate-900
-    private static readonly Brush TabActiveBackground = Frozen(0x1D, 0x29, 0x3D);    // slate-800
-    private static readonly Brush TabActiveText = Frozen(0x53, 0xEA, 0xFD);          // cyan-300
-    private static readonly Brush Cyan = Frozen(0x00, 0x92, 0xB8);                   // cyan-600
-    private static readonly Brush QuoteBackground = TabContentBackground;
-    private static readonly Brush WarningBackground = Frozen(0x43, 0x20, 0x04);      // amber-950
-    private static readonly Brush WarningBorder = Frozen(0xD0, 0x87, 0x00);          // amber-600
-    private static readonly Brush WarningText = Frozen(0xFE, 0xF9, 0xC2);            // yellow-100
-    private static readonly Brush RuleColour = Frozen(0x33, 0x33, 0x33);
 
-    // Not measured: sp-mod.com's code block sits on the page's own colour with no box. On the
-    // Workshop page's blue that read as ordinary text in another font, so it gets a faint shade.
-    private static readonly Brush CodeBlockBackground = Frozen(0x33, 0x00, 0x00, 0x00);
+    // div.bb_h1 / bb_h2 / bb_h3: #5AA9D6.
+    private static readonly Brush HeadingBlue = Frozen(0x5A, 0xA9, 0xD6);
+
+    // a.bb_link on the item page: #EBEBEB, not underlined (measured, hover included).
+    private static readonly Brush LinkText = Frozen(0xEB, 0xEB, 0xEB);
+
+    // blockquote.bb_blockquote: 1px #56707F.
+    private static readonly Brush QuoteBorder = Frozen(0x56, 0x70, 0x7F);
+
+    // div.bb_code: 1px #535354.
+    private static readonly Brush CodeBorder = Frozen(0x53, 0x53, 0x54);
+
+    // div.bb_table cells: 1px #4D4D4D.
+    private static readonly Brush TableBorder = Frozen(0x4D, 0x4D, 0x4D);
+
+    // The Workshop page's own rule (.rightDetailsBlock hr): 1px #1F2C41.
+    private static readonly Brush RuleColour = Frozen(0x1F, 0x2C, 0x41);
+
+    //
+    // Not Steam's - it has no form for these - drawn in its palette:
+    //  - a tab set's buttons as the item page's own tabs (#ACB2B8, white and a #1A9FFF bar when
+    //    chosen), the content in the rgba(0,0,0,.2) box Steam puts change notes in;
+    //  - a warning callout as a Steam quote with an amber edge and a faint amber wash, so it still
+    //    reads as a warning;
+    //  - inline code in the code face on the same faint shade, in Steam's light #C6D4DF.
+    //
+    private static readonly Brush TabText = Frozen(0xAC, 0xB2, 0xB8);
+    private static readonly Brush TabChosenBar = Frozen(0x1A, 0x9F, 0xFF);
+    private static readonly Brush TabContentBackground = Frozen(0x33, 0x00, 0x00, 0x00);
+    private static readonly Brush WarningBorder = Frozen(0xD0, 0x87, 0x00);
+    private static readonly Brush WarningBackground = Frozen(0x1F, 0xD0, 0x87, 0x00);
+    private static readonly Brush InlineCodeBackground = Frozen(0x33, 0x00, 0x00, 0x00);
+    private static readonly Brush InlineCodeText = Frozen(0xC6, 0xD4, 0xDF);
 
     // Themes/SteamStyles.xaml's code face (Cascadia Mono, then Consolas, then Courier New).
     private static FontFamily Monospace =>
         Application.Current?.TryFindResource("SteamMonospace") as FontFamily ?? new FontFamily("Consolas");
+
+    // Themes/SteamStyles.xaml's light face, for bb_h3's weight 300.
+    private static FontFamily? LightFace =>
+        Application.Current?.TryFindResource("SteamFontLight") as FontFamily;
 
     private readonly double _scale;
     private readonly double _base;
@@ -52,7 +77,9 @@ public sealed class MarkupRenderer
     private MarkupRenderer(double baseSize, IReadOnlyList<MarkupMedia> gallery)
     {
         _base = baseSize;
-        _scale = baseSize / 16.0;
+
+        // Steam's description is 14px; every measurement below is at that size.
+        _scale = baseSize / 14.0;
         _gallery = gallery;
     }
 
@@ -107,55 +134,66 @@ public sealed class MarkupRenderer
         {
             var row = new WrapPanel();
             foreach (var (image, href) in Pictures(paragraph.Inlines, null)) row.Children.Add(Picture(image, href));
-            return new BlockUIContainer(row) { Margin = new Thickness(0, Px(8), 0, Px(8)) };
+            return new BlockUIContainer(row) { Margin = new Thickness(0, Px(7), 0, Px(7)) };
         }
 
-        var built = new Paragraph { Margin = new Thickness(0, Px(8), 0, Px(8)) };
+        // Steam's descriptions separate their lines with breaks rather than paragraphs; a paragraph
+        // here keeps half a line either side, which is how a blank line between them reads there.
+        var built = new Paragraph { Margin = new Thickness(0, Px(7), 0, Px(7)) };
         AddInlines(built.Inlines, paragraph.Inlines);
         return built;
     }
 
     private Block Heading(MarkupHeading heading)
     {
-        // h1 30/36, h2 24/32, h3 20/28, h4 18/28, all bold white with 16px above and 8px below.
-        var (size, line) = heading.Level switch
-        {
-            1 => (30.0, 36.0),
-            2 => (24.0, 32.0),
-            3 => (20.0, 28.0),
-            4 => (18.0, 28.0),
-            _ => (16.0, 24.0),
-        };
+        // Steam's three: bb_h1 20/23 normal, 10px below; bb_h2 18/21 normal, 8 above and 6 below;
+        // bb_h3 16/19 light, 8 above and 6 below - all #5AA9D6. BBCode stops at h3, so h4-h6 take
+        // its style.
+        var built = new Paragraph { Foreground = HeadingBlue, FontWeight = FontWeights.Normal };
 
-        var built = new Paragraph
+        switch (heading.Level)
         {
-            FontSize = Px(size),
-            LineHeight = Px(line),
-            FontWeight = FontWeights.Bold,
-            Foreground = White,
-            Margin = new Thickness(0, Px(16), 0, Px(8)),
-        };
+            case 1:
+                built.FontSize = Px(20);
+                built.LineHeight = Px(23);
+                built.Margin = new Thickness(0, Px(7), 0, Px(10));
+                break;
+            case 2:
+                built.FontSize = Px(18);
+                built.LineHeight = Px(21);
+                built.Margin = new Thickness(0, Px(8), 0, Px(6));
+                break;
+            default:
+                built.FontSize = Px(16);
+                built.LineHeight = Px(19);
+                built.Margin = new Thickness(0, Px(8), 0, Px(6));
+                built.FontWeight = FontWeights.Light;
+                if (LightFace is { } light) built.FontFamily = light;
+                break;
+        }
+
         AddInlines(built.Inlines, heading.Inlines);
         return built;
     }
 
     private Block List(MarkupList list)
     {
+        // .bb_ul: disc markers outside, the browser's 40px indent, items line after line.
         var built = new List
         {
             MarkerStyle = list.Ordered ? TextMarkerStyle.Decimal : TextMarkerStyle.Disc,
             StartIndex = Math.Max(1, list.Start),
-            Margin = new Thickness(0, 0, 0, Px(8)),
-            Padding = new Thickness(Px(28), 0, 0, 0),
+            Margin = new Thickness(0, 0, 0, Px(7)),
+            Padding = new Thickness(Px(40), 0, 0, 0),
         };
 
         foreach (var item in list.Items)
         {
-            var listItem = new ListItem { Margin = new Thickness(0, Px(4), 0, Px(4)) };
+            var listItem = new ListItem { Margin = new Thickness(0) };
             AddBlocks(listItem.Blocks, item);
 
             // An item's first paragraph sits on the marker's line; its own margins would push it off.
-            foreach (var block in listItem.Blocks.OfType<Paragraph>()) block.Margin = new Thickness(0, 0, 0, Px(4));
+            foreach (var block in listItem.Blocks.OfType<Paragraph>()) block.Margin = new Thickness(0);
             if (listItem.Blocks.Count == 0) listItem.Blocks.Add(new Paragraph());
 
             built.ListItems.Add(listItem);
@@ -168,17 +206,18 @@ public sealed class MarkupRenderer
     {
         var warning = quote.Kind == MarkupQuoteKind.Warning;
 
-        // A 4px bar down the left, 16px inside, 16px above and below.
+        // blockquote.bb_blockquote: 1px #56707F all round, 12px inside, 8px outside, text at 92%.
+        // (Its 3px corner radius is left out: a FlowDocument section cannot round its corners.)
         var section = new Section
         {
-            Background = warning ? WarningBackground : QuoteBackground,
-            BorderBrush = warning ? WarningBorder : Cyan,
-            BorderThickness = new Thickness(4, 0, 0, 0),
-            Padding = new Thickness(Px(16)),
-            Margin = new Thickness(0, Px(16), 0, Px(16)),
+            BorderBrush = warning ? WarningBorder : QuoteBorder,
+            BorderThickness = new Thickness(1),
+            Padding = new Thickness(Px(12)),
+            Margin = new Thickness(Px(8)),
+            FontSize = Math.Round(_base * 0.92, 1),
         };
 
-        if (warning) section.Foreground = WarningText;
+        if (warning) section.Background = WarningBackground;
 
         AddBlocks(section.Blocks, quote.Blocks);
         TrimOuterMargins(section.Blocks);
@@ -187,16 +226,16 @@ public sealed class MarkupRenderer
 
     private Block CodeBlock(MarkupCode code)
     {
-        // 14px on 20px lines, 14px inside.
+        // div.bb_code: 11px in the code face, 1px #535354 all round, 12px inside, 8px outside,
+        // text as it was written. (Its 3px corners are left out, as a quote's are.)
         var built = new Paragraph
         {
             FontFamily = Monospace,
-            FontSize = Px(14),
-            LineHeight = Px(20),
-            Foreground = White,
-            Background = CodeBlockBackground,
-            Padding = new Thickness(Px(14)),
-            Margin = new Thickness(0, Px(8), 0, Px(8)),
+            FontSize = Px(11),
+            BorderBrush = CodeBorder,
+            BorderThickness = new Thickness(1),
+            Padding = new Thickness(Px(12)),
+            Margin = new Thickness(Px(8)),
         };
 
         var lines = code.Text.Replace("\r\n", "\n").Split('\n');
@@ -210,15 +249,16 @@ public sealed class MarkupRenderer
     }
 
     private Block Rule() =>
-        // 2px of #333 with 16px either side.
-        new BlockUIContainer(new Rectangle { Height = 2, Fill = RuleColour, SnapsToDevicePixels = true })
+        // The Workshop page's rule: 1px #1F2C41, 10px either side.
+        new BlockUIContainer(new Rectangle { Height = 1, Fill = RuleColour, SnapsToDevicePixels = true })
         {
-            Margin = new Thickness(0, Px(16), 0, Px(16)),
+            Margin = new Thickness(0, Px(10), 0, Px(10)),
         };
 
     private Block Table(MarkupTable table)
     {
-        var built = new Table { CellSpacing = 0, Margin = new Thickness(0, Px(8), 0, Px(8)) };
+        // div.bb_table: 12px text; every cell 4px inside a 1px #4D4D4D border, headers bold.
+        var built = new Table { CellSpacing = 0, FontSize = Px(12), Margin = new Thickness(0, Px(7), 0, Px(7)) };
 
         // sp-mod.com sizes columns to their content. A FlowDocument table cannot, so each column
         // gets a share of the width in proportion to how much text it holds, within limits.
@@ -241,21 +281,22 @@ public sealed class MarkupRenderer
             var builtRow = new TableRow();
             foreach (var cell in row.Cells)
             {
-                var builtCell = new TableCell { Padding = new Thickness(0, Px(2), Px(12), Px(2)) };
+                var builtCell = new TableCell
+                {
+                    Padding = new Thickness(Px(4)),
+                    BorderBrush = TableBorder,
+                    BorderThickness = new Thickness(1),
+                };
                 AddBlocks(builtCell.Blocks, cell.Blocks);
                 TrimOuterMargins(builtCell.Blocks);
 
-                if (cell.IsHeader)
-                {
-                    builtCell.FontWeight = FontWeights.Bold;
-                    builtCell.Foreground = White;
-                }
+                if (cell.IsHeader) builtCell.FontWeight = FontWeights.Bold;
 
                 var alignment = cell.Align switch
                 {
                     MarkupAlign.Center => TextAlignment.Center,
                     MarkupAlign.Right => TextAlignment.Right,
-                    _ => cell.IsHeader ? TextAlignment.Center : TextAlignment.Left,
+                    _ => TextAlignment.Left,
                 };
                 builtCell.TextAlignment = alignment;
 
@@ -279,9 +320,9 @@ public sealed class MarkupRenderer
     // ---------------------------------------------------------------- tab sets
 
     //
-    // sp-mod.com's tab row: upper-case buttons 4px 12px inside, rounded 4px at the top, 4px apart,
-    // slate on slate; the chosen one bold cyan on a lighter slate with a 2px cyan line under it.
-    // The chosen tab's content sits 4px below in a gray-900 box, 16px inside, rounded 4/4/16/16.
+    // sp-mod.com's tab sets, which Steam has no form for, drawn as the Workshop item page's own tabs:
+    // the names in #ACB2B8, the chosen one white over a 3px #1A9FFF bar; its content 4px below in
+    // the rgba(0,0,0,.2) box Steam puts change notes in, 16px inside.
     //
     private Block TabSet(MarkupTabSet set)
     {
@@ -292,7 +333,6 @@ public sealed class MarkupRenderer
         var box = new Border
         {
             Background = TabContentBackground,
-            CornerRadius = new CornerRadius(4, 4, 16, 16),
             Padding = new Thickness(Px(16)),
             Margin = new Thickness(0, 4, 0, 0),
             Child = content,
@@ -315,9 +355,9 @@ public sealed class MarkupRenderer
             var index = i;
             var button = new ToggleButton
             {
-                Content = set.Tabs[i].Title.ToUpperInvariant(),
+                Content = set.Tabs[i].Title,
                 Style = TabStyle(),
-                Margin = new Thickness(0, 4, 4, 0),
+                Margin = new Thickness(0, 4, Px(16), 0),
             };
             button.Click += (_, _) => Select(index);
             buttons.Add(button);
@@ -340,30 +380,31 @@ public sealed class MarkupRenderer
 
         var template = new ControlTemplate(typeof(ToggleButton));
         var border = new FrameworkElementFactory(typeof(Border), "Chrome");
-        border.SetValue(Border.CornerRadiusProperty, new CornerRadius(4, 4, 0, 0));
-        border.SetValue(Border.PaddingProperty, new Thickness(12, 4, 12, 4));
-        border.SetValue(Border.BorderThicknessProperty, new Thickness(0, 0, 0, 2));
-        border.SetValue(Border.BackgroundProperty, TabBackground);
+        border.SetValue(Border.PaddingProperty, new Thickness(0, 4, 0, 5));
+        border.SetValue(Border.BorderThicknessProperty, new Thickness(0, 0, 0, 3));
+        border.SetValue(Border.BackgroundProperty, Brushes.Transparent);
         border.SetValue(Border.BorderBrushProperty, Brushes.Transparent);
         var text = new FrameworkElementFactory(typeof(ContentPresenter));
         border.AppendChild(text);
         template.VisualTree = border;
 
         var chosen = new Trigger { Property = ToggleButton.IsCheckedProperty, Value = true };
-        chosen.Setters.Add(new Setter(Border.BackgroundProperty, TabActiveBackground, "Chrome"));
-        chosen.Setters.Add(new Setter(Border.BorderBrushProperty, Cyan, "Chrome"));
+        chosen.Setters.Add(new Setter(Border.BorderBrushProperty, TabChosenBar, "Chrome"));
         template.Triggers.Add(chosen);
 
         var style = new Style(typeof(ToggleButton));
         style.Setters.Add(new Setter(Control.TemplateProperty, template));
         style.Setters.Add(new Setter(Control.FontSizeProperty, _base));
-        style.Setters.Add(new Setter(Control.ForegroundProperty, White));
+        style.Setters.Add(new Setter(Control.ForegroundProperty, TabText));
         style.Setters.Add(new Setter(FrameworkElement.CursorProperty, Cursors.Hand));
         style.Setters.Add(new Setter(FrameworkElement.FocusVisualStyleProperty, null));
 
+        var hover = new Trigger { Property = UIElement.IsMouseOverProperty, Value = true };
+        hover.Setters.Add(new Setter(Control.ForegroundProperty, White));
+        style.Triggers.Add(hover);
+
         var styleChosen = new Trigger { Property = ToggleButton.IsCheckedProperty, Value = true };
-        styleChosen.Setters.Add(new Setter(Control.ForegroundProperty, TabActiveText));
-        styleChosen.Setters.Add(new Setter(Control.FontWeightProperty, FontWeights.Bold));
+        styleChosen.Setters.Add(new Setter(Control.ForegroundProperty, White));
         style.Triggers.Add(styleChosen);
 
         return _tabStyle = style;
@@ -427,12 +468,12 @@ public sealed class MarkupRenderer
                     break;
 
                 case MarkupInlineCode code:
-                    // 12.8px gray-300 on gray-700. The site's 2px 6px padding and rounded corners
-                    // need a box that would stop long paths from wrapping, so the shade is kept alone.
+                    // Steam has no inline code (its [code] is a block): the code face at 12px on a
+                    // faint shade, light enough to tell from the text around it.
                     into.Add(new Run(code.Text)
                     {
                         FontFamily = Monospace,
-                        FontSize = Px(12.8),
+                        FontSize = Px(12),
                         Foreground = InlineCodeText,
                         Background = InlineCodeBackground,
                     });
@@ -467,11 +508,11 @@ public sealed class MarkupRenderer
                 break;
             case MarkupStyle.Superscript:
                 built.BaselineAlignment = BaselineAlignment.Superscript;
-                built.FontSize = Px(12);
+                built.FontSize = Px(10.5);
                 break;
             case MarkupStyle.Subscript:
                 built.BaselineAlignment = BaselineAlignment.Subscript;
-                built.FontSize = Px(12);
+                built.FontSize = Px(10.5);
                 break;
         }
 
@@ -479,13 +520,13 @@ public sealed class MarkupRenderer
         return built;
     }
 
-    // White and underlined, as sp-mod.com's external links are.
+    // a.bb_link: #EBEBEB and not underlined, pointed at or not (measured on the item page).
     private static Hyperlink Link(string href)
     {
         var link = new Hyperlink
         {
-            Foreground = White,
-            TextDecorations = TextDecorations.Underline,
+            Foreground = LinkText,
+            TextDecorations = null,
             Cursor = Cursors.Hand,
             ToolTip = href,
         };
@@ -513,8 +554,7 @@ public sealed class MarkupRenderer
             host.Content = new TextBlock
             {
                 Text = label,
-                TextDecorations = TextDecorations.Underline,
-                Foreground = White,
+                Foreground = LinkText,
                 Cursor = Cursors.Hand,
                 TextWrapping = TextWrapping.Wrap,
             };
