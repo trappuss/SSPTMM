@@ -406,13 +406,41 @@ turns during a glide add to it. A list inside a page scrolls before the page doe
 
 - **The file-clash question is the app's own.** Steam gives every item its own folder, so it never
   has to ask; SPT mods share BepInEx and user/mods.
-- **A lighter description view is planned, not built.** Measured under the build machine's software
-  renderer, on SAIN's 14,858-character description (3,156px tall): about 40ms to read and build and
-  510-550ms until it is laid out and drawn. Showing the same document in a read-only viewer instead
-  of the RichTextBox took the same time; the same text as plain text blocks, a lower bound for
-  rewriting the renderer, about 330ms. Scrolling was the same (13-14 frames a second) in all three
-  and on a plain page there. Tabs inside a description and the Change Notes tab are already built
-  only when first shown. Which change is worth making waits on the numbers from a real PC.
+- **Descriptions: see the sixth round.** (The 510-550ms first measured here for SAIN turned out to
+  be the whole item page opening, not its description - see below.)
+
+## Sixth round: descriptions, lighter without changing them (2026-09-25)
+
+Every description shows exactly what its author wrote, as before - the same text, pictures, GIFs,
+tabs, tables and spacing. What changed is only when and how often the work is done. Measured under
+the build machine's software renderer, with a harness that opens an item page by id and logs every
+frame that took 50ms or more:
+
+- *Long descriptions go in a part at a time.* The first part (a screen or two) is laid out with the
+  page; the rest follows in parts of about 3,000 characters, each after the window has drawn and
+  answered input. A long list or section is itself handed in item by item, and tabs inside a
+  description go in the same way. MoreCheckmarks (12,000 characters, no tabs): the window was held
+  still 1.13s as its page opened; now 0.77s, then four parts of 50-170ms. It is one document the
+  whole time, blocks only held back and added in order: screenshots of the finished description
+  laid out whole and in parts match pixel for pixel (one line differed by 3 of 255 in brightness,
+  anti-aliasing). If cutting a document into parts ever fails, it is shown whole.
+- *GIFs pause while none of them can be seen* - scrolled out of view, or on a hidden page or tab -
+  and carry on from the same frame when any of it comes back. Fontaine's FOV Fix with its GIF off
+  screen: the app's processor use went from 12.7% to 0.2%; on screen it plays as before.
+- *Pictures are kept for the session* (up to 96 MB, least recently used out first), shared by
+  descriptions, the item page's pictures, Quick View and the picture viewer. An item opened again
+  shows its pictures at once instead of fetching, decoding and laying the page out again for each.
+
+Measured and not changed:
+- Most long descriptions on sp-mod.com are split into tabs by their authors (every one of the 40
+  most downloaded mods over 5,000 characters but two), and only the chosen tab is laid out. For
+  those the description is a small part of opening the page: SAIN's page held the window 0.84s with
+  its description and 0.84s with none; a mod with a 1,200-character description, 0.42s. The rest
+  is the page around the description; which part of it costs that was not measured this round.
+- Decoding pictures at the size they are shown instead of up to 1,600px wide made no difference to
+  scrolling (13.8 and 13.7 frames a second), so pictures are left as they were.
+- Scrolling was 13-15 frames a second on every page tried, with or without a description - the
+  software renderer's own ceiling. steam-ui-measure.bat measures it on a real PC.
 
 ## Values that could not be measured (marked HUNCH in the source)
 

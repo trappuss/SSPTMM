@@ -73,6 +73,13 @@ public sealed class RemotePicture : Image
 
     private async Task LoadAsync(string url)
     {
+        // Seen before this session: shown at once, without fetching or decoding it again.
+        if (PictureCache.Find(url) is { } cached)
+        {
+            Show(cached);
+            return;
+        }
+
         byte[] bytes;
         await Gate.WaitAsync();
         try
@@ -95,23 +102,137 @@ public sealed class RemotePicture : Image
         if (IsGif(bytes) && GifSize(bytes) is { } gifSize)
         {
             // A GIF of one frame is still handed over this way: the library shows it as a still.
-            if (LimitToNaturalSize) MaxWidth = gifSize.Width;
-            AnimationBehavior.SetSourceStream(this, new MemoryStream(bytes));
+            var gif = new CachedPicture(null, bytes, gifSize.Width, bytes.Length);
+            PictureCache.Add(url, gif);
+            Show(gif);
             return;
         }
 
         var decoded = await DecodeThread.Run(() => Decode(bytes));
-        if (Url != url) return;
 
         if (decoded is null)
         {
+            if (Url != url) return;
             AppLog.Debug("Markup", $"picture {url} could not be read");
             Failed?.Invoke(this, EventArgs.Empty);
             return;
         }
 
-        if (LimitToNaturalSize) MaxWidth = decoded.Value.NaturalWidth;
-        Source = decoded.Value.Bitmap;
+        var still = new CachedPicture(
+            decoded.Value.Bitmap,
+            null,
+            decoded.Value.NaturalWidth,
+            (long)decoded.Value.Bitmap.PixelWidth * decoded.Value.Bitmap.PixelHeight * 4);
+        PictureCache.Add(url, still);
+
+        if (Url != url) return;
+        Show(still);
+    }
+
+    private void Show(CachedPicture picture)
+    {
+        if (LimitToNaturalSize) MaxWidth = picture.NaturalWidth;
+
+        if (picture.Gif is { } gif)
+        {
+            AnimationBehavior.SetSourceStream(this, new MemoryStream(gif, writable: false));
+            WatchVisibility();
+        }
+        else
+        {
+            Source = picture.Bitmap;
+        }
+    }
+
+    // ---------------------------------------------------------------- animated GIFs off screen
+
+    //
+    // An animated GIF keeps drawing its frames whether or not any of it is on screen: one GIF
+    // scrolled out of view still kept the build machine's processor about an eighth busy with the
+    // page otherwise still. So it is paused while none of it can be seen - scrolled out of every
+    // scroll area it sits in, or on a page or tab that is hidden - and carries on from the same
+    // frame the moment any of it comes back. Nothing that can be seen changes: every GIF plays
+    // whenever it is in view, as sp-mod.com shows it.
+    //
+    private readonly List<ScrollViewer> _viewers = [];
+
+    private bool _watching;
+
+    private void WatchVisibility()
+    {
+        if (_watching) return;
+        _watching = true;
+
+        Loaded += (_, _) => Rewatch();
+        Unloaded += (_, _) =>
+        {
+            Unwatch();
+            UpdatePlaying();
+        };
+        IsVisibleChanged += (_, _) => UpdatePlaying();
+        AnimationBehavior.AddLoadedHandler(this, (_, _) => UpdatePlaying());
+
+        if (IsLoaded) Rewatch();
+    }
+
+    // Every scroll area this picture sits in, however deep.
+    private void Rewatch()
+    {
+        Unwatch();
+
+        for (var parent = VisualTreeHelper.GetParent(this); parent is not null; parent = VisualTreeHelper.GetParent(parent))
+        {
+            if (parent is not ScrollViewer viewer) continue;
+            viewer.ScrollChanged += Viewer_ScrollChanged;
+            _viewers.Add(viewer);
+        }
+
+        UpdatePlaying();
+    }
+
+    private void Unwatch()
+    {
+        foreach (var viewer in _viewers) viewer.ScrollChanged -= Viewer_ScrollChanged;
+        _viewers.Clear();
+    }
+
+    // Scrolled, resized, or the content above it changed height (a picture arriving, a part of the
+    // description going in): all of them raise this.
+    private void Viewer_ScrollChanged(object sender, ScrollChangedEventArgs e) => UpdatePlaying();
+
+    private void UpdatePlaying()
+    {
+        if (AnimationBehavior.GetAnimator(this) is not { } animator) return;
+
+        if (IsVisible && InView())
+        {
+            if (animator.IsPaused && !animator.IsComplete) animator.Play();
+        }
+        else if (!animator.IsPaused)
+        {
+            animator.Pause();
+        }
+    }
+
+    private bool InView()
+    {
+        if (!IsLoaded) return false;
+
+        var bounds = new Rect(RenderSize);
+        foreach (var viewer in _viewers)
+        {
+            try
+            {
+                var where = TransformToAncestor(viewer).TransformBounds(bounds);
+                if (!where.IntersectsWith(new Rect(0, 0, viewer.ActualWidth, viewer.ActualHeight))) return false;
+            }
+            catch (InvalidOperationException)
+            {
+                // No longer inside that scroll area; when in doubt it plays.
+            }
+        }
+
+        return true;
     }
 
     private static bool IsGif(byte[] bytes) =>
@@ -150,6 +271,65 @@ public sealed class RemotePicture : Image
         catch (Exception ex) when (ex is NotSupportedException or ArgumentException or IOException or OverflowException or FileFormatException or InvalidOperationException or System.Runtime.InteropServices.COMException)
         {
             return null;
+        }
+    }
+}
+
+// A picture as it is shown: a decoded (frozen) still, or a GIF's file for the animator to play.
+internal sealed record CachedPicture(BitmapSource? Bitmap, byte[]? Gif, double NaturalWidth, long Cost);
+
+//
+// The pictures shown this session, most recently used kept, up to a budget: an item page opened
+// again - from Browse, a collection, Quick View's See More, the picture viewer - shows its pictures
+// at once instead of fetching and decoding every one again, and its description is laid out once
+// rather than again as each arrives. Only pictures that loaded are kept; one that failed is tried
+// again next time.
+//
+internal static class PictureCache
+{
+    // About twenty full-width screenshots' worth of decoded pixels.
+    private const long Budget = 96L * 1024 * 1024;
+
+    private static readonly object Lock = new();
+    private static readonly Dictionary<string, LinkedListNode<(string Url, CachedPicture Picture)>> ByUrl = new(StringComparer.Ordinal);
+    private static readonly LinkedList<(string Url, CachedPicture Picture)> ByUse = new();
+    private static long _held;
+
+    public static CachedPicture? Find(string url)
+    {
+        lock (Lock)
+        {
+            if (!ByUrl.TryGetValue(url, out var node)) return null;
+
+            ByUse.Remove(node);
+            ByUse.AddFirst(node);
+            return node.Value.Picture;
+        }
+    }
+
+    public static void Add(string url, CachedPicture picture)
+    {
+        // One picture bigger than the whole budget is shown but not kept.
+        if (picture.Cost > Budget) return;
+
+        lock (Lock)
+        {
+            if (ByUrl.TryGetValue(url, out var old))
+            {
+                ByUse.Remove(old);
+                _held -= old.Value.Picture.Cost;
+            }
+
+            var node = ByUse.AddFirst((url, picture));
+            ByUrl[url] = node;
+            _held += picture.Cost;
+
+            while (_held > Budget && ByUse.Last is { } last)
+            {
+                ByUse.RemoveLast();
+                ByUrl.Remove(last.Value.Url);
+                _held -= last.Value.Picture.Cost;
+            }
         }
     }
 }

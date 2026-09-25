@@ -347,7 +347,7 @@ public sealed class MarkupRenderer
             for (var i = 0; i < buttons.Count; i++) buttons[i].IsChecked = i == index;
 
             documents[index] ??= Document(set.Tabs[index].Blocks);
-            HtmlText.Attach(content, documents[index]!);
+            HtmlText.Show(content, documents[index]!);
         }
 
         for (var i = 0; i < set.Tabs.Count; i++)
