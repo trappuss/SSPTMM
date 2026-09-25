@@ -307,6 +307,14 @@
             </ui:Card>
         </Border>
 
+        <!-- Steam's Quick View, over the pages and under the title bar; the update dialog and the
+             picture viewer it can open go over it. -->
+        <views:QuickViewOverlay
+            x:Name="QuickView"
+            Grid.Row="1"
+            Grid.RowSpan="4"
+            Visibility="Collapsed" />
+
         <!-- Host presenter for content dialogs, over everything but the picture viewer. -->
         <ContentPresenter
             x:Name="RootContentDialogPresenter"

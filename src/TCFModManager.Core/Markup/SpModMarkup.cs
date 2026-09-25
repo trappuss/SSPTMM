@@ -38,6 +38,96 @@ public static class SpModMarkup
     }
 
     //
+    // The document as one run of plain text, the way Steam's Quick View shows an item's
+    // description: every block's words in reading order, separated by single spaces, list items
+    // led by "- ", pictures, videos and rules left out. Tab sets give their first tab only (the one
+    // the page opens on). Cut at maxLength characters, on a word where one is near, with "..." -
+    // null when there are no words at all.
+    //
+    public static string? PlainText(MarkupDocument document, int maxLength = 800)
+    {
+        var text = new System.Text.StringBuilder();
+
+        void Space()
+        {
+            if (text.Length > 0 && text[^1] != ' ') text.Append(' ');
+        }
+
+        void Inlines(IEnumerable<MarkupInline> inlines)
+        {
+            foreach (var inline in inlines)
+            {
+                switch (inline)
+                {
+                    case MarkupText t:
+                        foreach (var ch in t.Text)
+                        {
+                            if (char.IsWhiteSpace(ch)) Space();
+                            else text.Append(ch);
+                        }
+                        break;
+                    case MarkupInlineCode code:
+                        text.Append(code.Text);
+                        break;
+                    case MarkupBreak:
+                        Space();
+                        break;
+                    case MarkupSpan span:
+                        Inlines(span.Children);
+                        break;
+                }
+            }
+        }
+
+        void Blocks(IEnumerable<MarkupBlock> blocks)
+        {
+            foreach (var block in blocks)
+            {
+                if (text.Length > maxLength) return;
+
+                switch (block)
+                {
+                    case MarkupParagraph p:
+                        Space(); Inlines(p.Inlines);
+                        break;
+                    case MarkupHeading h:
+                        Space(); Inlines(h.Inlines);
+                        break;
+                    case MarkupList list:
+                        foreach (var item in list.Items)
+                        {
+                            Space(); text.Append("- ");
+                            Blocks(item);
+                        }
+                        break;
+                    case MarkupQuote quote:
+                        Blocks(quote.Blocks);
+                        break;
+                    case MarkupCode code:
+                        Space(); Inlines([new MarkupText(code.Text)]);
+                        break;
+                    case MarkupTable table:
+                        foreach (var cell in table.Rows.SelectMany(r => r.Cells)) Blocks(cell.Blocks);
+                        break;
+                    case MarkupTabSet tabs when tabs.Tabs.Count > 0:
+                        Blocks(tabs.Tabs[0].Blocks);
+                        break;
+                }
+            }
+        }
+
+        Blocks(document.Blocks);
+
+        var result = text.ToString().Trim();
+        if (result.Length == 0) return null;
+        if (result.Length <= maxLength) return result;
+
+        var cut = result.LastIndexOf(' ', maxLength);
+        if (cut < maxLength * 3 / 4) cut = maxLength;
+        return result[..cut].TrimEnd() + "...";
+    }
+
+    //
     // Every picture and video in the document, in reading order and without repeats - the
     // screenshot strip under the item page's preview. Tab sets are walked through all their tabs.
     //

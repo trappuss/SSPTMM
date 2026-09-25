@@ -343,7 +343,7 @@
                                                 Visibility="{Binding Endorsements, Converter={StaticResource NullToCollapsed}}">
                                                 <StackPanel.ToolTip>
                                                     <ToolTip>
-                                                        <TextBlock Text="{Binding Endorsements, StringFormat={loc:Str Browse_EndorsementsFormat}}" />
+                                                        <TextBlock Text="{Binding EndorsementsText}" />
                                                     </ToolTip>
                                                 </StackPanel.ToolTip>
                                                 <ui:SymbolIcon FontSize="16" Filled="True" Foreground="{StaticResource SteamBlue}" Symbol="ThumbLike16" />

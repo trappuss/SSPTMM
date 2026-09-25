@@ -45,7 +45,6 @@ internal static class Strings
     internal static string Browse_CategoryFilterToolTip => LocalizationService.Get("Browse_CategoryFilterToolTip");
     internal static string Browse_FeaturedFilterToolTip => LocalizationService.Get("Browse_FeaturedFilterToolTip");
     internal static string Browse_ByAuthorFormat => LocalizationService.Get("Browse_ByAuthorFormat");
-    internal static string Browse_EndorsementsFormat => LocalizationService.Get("Browse_EndorsementsFormat");
     internal static string Common_FlagFikaCompatible => LocalizationService.Get("Common_FlagFikaCompatible");
     internal static string Common_FlagContainsAds => LocalizationService.Get("Common_FlagContainsAds");
     internal static string Browse_BadgeHasDependencies => LocalizationService.Get("Browse_BadgeHasDependencies");
@@ -1480,4 +1479,14 @@ internal static class Strings
     internal static string Menu_Open => LocalizationService.Get("Menu_Open");
     internal static string Menu_QuickView => LocalizationService.Get("Menu_QuickView");
     internal static string Menu_AddToCollection => LocalizationService.Get("Menu_AddToCollection");
+    internal static string QuickView_CreatedBy => LocalizationService.Get("QuickView_CreatedBy");
+    internal static string QuickView_Posted => LocalizationService.Get("QuickView_Posted");
+    internal static string QuickView_Updated => LocalizationService.Get("QuickView_Updated");
+    internal static string QuickView_FileSize => LocalizationService.Get("QuickView_FileSize");
+    internal static string QuickView_Downloads => LocalizationService.Get("QuickView_Downloads");
+    internal static string QuickView_Favorites => LocalizationService.Get("QuickView_Favorites");
+    internal static string QuickView_Tags => LocalizationService.Get("QuickView_Tags");
+    internal static string QuickView_SeeMore => LocalizationService.Get("QuickView_SeeMore");
+    internal static string Browse_Endorsements(int count, params object?[] values) =>
+        LocalizationService.Plural("Browse_Endorsements", count, values);
 }

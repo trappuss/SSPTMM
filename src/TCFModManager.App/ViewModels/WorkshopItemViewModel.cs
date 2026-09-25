@@ -414,6 +414,8 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel, IModActi
 
     public bool HasEndorsements => Endorsements > 0;
 
+    public string EndorsementsText => Strings.Browse_Endorsements(Endorsements, Endorsements);
+
     public DateTimeOffset? PostedAt => Mod.PublishedAt ?? Mod.CreatedAt;
 
     public DateTimeOffset? UpdatedAt => Mod.UpdatedAt;

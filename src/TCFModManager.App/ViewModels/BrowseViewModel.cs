@@ -1276,36 +1276,44 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
             return null;
         }
 
-        string message;
-        try
+        var (details, message) = await FetchDetailsAsync(mod);
+        if (details is not null)
         {
-            // source_code_links only arrives when asked for; the item page lists them.
-            var details = await _spModApi.GetModAsync(mod.Id.ToString(), include: "versions,license,category,source_code_links");
-
             // The installed version is what this mod's addons check their own constraints against.
             AppServices.ModDetailsOverlay.Show(details, FindInstalledMatch(mod)?.InstalledVersion);
             return null;
         }
+
+        StatusMessage = message;
+        return message;
+    }
+
+    /// <summary>The mod's full listing (description, versions, license, category, source links) -
+    /// what the item page and Quick View show - or what went wrong.</summary>
+    public async Task<(Mod? Details, string? Failure)> FetchDetailsAsync(Mod mod)
+    {
+        try
+        {
+            // source_code_links only arrives when asked for; the item page lists them.
+            return (await _spModApi.GetModAsync(mod.Id.ToString(), include: "versions,license,category,source_code_links"), null);
+        }
         catch (SpModApiException ex)
         {
-            message = Text(Strings.Browse_DetailsFailedFormat, mod.Name, ex.Message);
+            return (null, Text(Strings.Browse_DetailsFailedFormat, mod.Name, ex.Message));
         }
         catch (HttpRequestException ex)
         {
-            message = Text(Strings.Browse_DetailsNetworkFormat, mod.Name, ex.Message);
+            return (null, Text(Strings.Browse_DetailsNetworkFormat, mod.Name, ex.Message));
         }
         catch (OperationCanceledException)
         {
-            message = Text(Strings.Browse_DetailsTimedOutFormat, mod.Name);
+            return (null, Text(Strings.Browse_DetailsTimedOutFormat, mod.Name));
         }
         catch (Exception ex)
         {
             // Last-resort catch-all so a failure here doesn't silently look like a no-op click.
-            message = Text(Strings.Browse_DetailsUnexpectedFormat, mod.Name, ex.Message);
+            return (null, Text(Strings.Browse_DetailsUnexpectedFormat, mod.Name, ex.Message));
         }
-
-        StatusMessage = message;
-        return message;
     }
 
     /// <summary>True for this app's own sp-mod.com listing.</summary>

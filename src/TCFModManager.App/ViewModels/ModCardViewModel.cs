@@ -69,6 +69,8 @@ public sealed partial class ModCardViewModel : LocalizedViewModel
     // height for no information.
     public int? Endorsements => Mod.EndorsementsCount is > 0 ? Mod.EndorsementsCount : null;
 
+    public string EndorsementsText => Strings.Browse_Endorsements(Endorsements ?? 0, Endorsements ?? 0);
+
     // The mod's primary owner/author.
     public string? Author => Mod.Owner?.Name;
 

@@ -565,7 +565,7 @@
                                                             Visibility="{Binding Endorsements, Converter={StaticResource NullToCollapsed}}">
                                                             <StackPanel.ToolTip>
                                                                 <ToolTip>
-                                                                    <TextBlock Text="{Binding Endorsements, StringFormat={loc:Str Browse_EndorsementsFormat}}" />
+                                                                    <TextBlock Text="{Binding EndorsementsText}" />
                                                                 </ToolTip>
                                                             </StackPanel.ToolTip>
                                                             <ui:SymbolIcon FontSize="15" Filled="True" Foreground="{StaticResource SteamBlue}" Symbol="ThumbLike16" />
@@ -608,15 +608,42 @@
                                                         Visibility="{Binding Author, Converter={StaticResource NullToCollapsed}}" />
                                                 </StackPanel>
 
-                                                <!-- Where Steam puts its quick-look magnifier on hover:
-                                                     subscribe, straight from the grid, for a mod that is
-                                                     not installed yet. -->
+                                                <!-- Steam's Quick View magnifier, on hover: 30x30,
+                                                     rgba(255,255,255,.1), radius 3, a 24px glass. -->
+                                                <Button
+                                                    x:Name="QuickViewButton"
+                                                    Width="30"
+                                                    Height="30"
+                                                    Margin="0,0,-4,5"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Bottom"
+                                                    Cursor="Hand"
+                                                    FocusVisualStyle="{x:Null}"
+                                                    ToolTip="{loc:Str Menu_QuickView}"
+                                                    Visibility="Collapsed"
+                                                    Click="QuickView_Click">
+                                                    <Button.Template>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border x:Name="Face" Background="#1AFFFFFF" CornerRadius="3">
+                                                                <ui:SymbolIcon FontSize="20" Foreground="White" Symbol="Search20" />
+                                                            </Border>
+                                                            <ControlTemplate.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter TargetName="Face" Property="Background" Value="#33FFFFFF" />
+                                                                </Trigger>
+                                                            </ControlTemplate.Triggers>
+                                                        </ControlTemplate>
+                                                    </Button.Template>
+                                                </Button>
+
+                                                <!-- Beside it, not Steam's: subscribe straight from the
+                                                     grid, for a mod that is not installed yet. -->
                                                 <Button
                                                     x:Name="QuickSubscribe"
                                                     Width="24"
                                                     Height="24"
                                                     MinHeight="24"
-                                                    Margin="0,0,-2,8"
+                                                    Margin="0,0,32,8"
                                                     Padding="0"
                                                     HorizontalAlignment="Right"
                                                     VerticalAlignment="Bottom"
@@ -651,6 +678,7 @@
                                         </Trigger.ExitActions>
                                         <Setter TargetName="Shadow" Property="Visibility" Value="Hidden" />
                                         <Setter TargetName="Glow" Property="Visibility" Value="Visible" />
+                                        <Setter TargetName="QuickViewButton" Property="Visibility" Value="Visible" />
                                     </Trigger>
                                     <MultiDataTrigger>
                                         <MultiDataTrigger.Conditions>

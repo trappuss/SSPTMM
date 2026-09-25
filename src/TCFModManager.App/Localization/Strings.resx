@@ -204,10 +204,6 @@
     <value>By {0}</value>
     <comment>{0} is an author's name, shown under a mod's title on its card.</comment>
   </data>
-  <data name="Browse_EndorsementsFormat" xml:space="preserve">
-    <value>{0:N0} endorsements</value>
-    <comment>{0} is a count, never zero - a card with none hides this line. Keep the :N0.</comment>
-  </data>
   <data name="Common_FlagFikaCompatible" xml:space="preserve">
     <value>Fika compatible</value>
     <comment>Badge on a mod card and one flag on an installed card's summary line. Fika is a mod's name and stays as it is.</comment>
@@ -5479,5 +5475,45 @@ This was written to:
   <data name="Menu_AddToCollection" xml:space="preserve">
     <value>Add to Collection...</value>
     <comment>Right-click menu on a mod: opens Add to Collection. Steam's words; the dots say a dialog follows.</comment>
+  </data>
+  <data name="QuickView_CreatedBy" xml:space="preserve">
+    <value>CREATED BY:</value>
+    <comment>Quick View, before the author's name. Steam's words, upper case in its design.</comment>
+  </data>
+  <data name="QuickView_Posted" xml:space="preserve">
+    <value>POSTED:</value>
+    <comment>Quick View stats box label. Steam's word, upper case in its design.</comment>
+  </data>
+  <data name="QuickView_Updated" xml:space="preserve">
+    <value>UPDATED:</value>
+    <comment>Quick View stats box label. Steam's word, upper case in its design.</comment>
+  </data>
+  <data name="QuickView_FileSize" xml:space="preserve">
+    <value>FILE SIZE:</value>
+    <comment>Quick View stats box label. Steam's words, upper case in its design.</comment>
+  </data>
+  <data name="QuickView_Downloads" xml:space="preserve">
+    <value>DOWNLOADS:</value>
+    <comment>Quick View stats box label, where Steam has SUBSCRIBERS: sp-mod.com counts downloads. Upper case in Steam's design.</comment>
+  </data>
+  <data name="QuickView_Favorites" xml:space="preserve">
+    <value>FAVORITES:</value>
+    <comment>Quick View stats box label. Steam's word, upper case in its design.</comment>
+  </data>
+  <data name="QuickView_Tags" xml:space="preserve">
+    <value>TAGS</value>
+    <comment>Quick View, over the tag chips. Steam's word, upper case in its design.</comment>
+  </data>
+  <data name="QuickView_SeeMore" xml:space="preserve">
+    <value>See More</value>
+    <comment>Quick View button that opens the whole item page. Steam's words.</comment>
+  </data>
+  <data name="Browse_Endorsements_one" xml:space="preserve">
+    <value>{0:N0} endorsement</value>
+    <comment>A mod's endorsement count, e.g. on the item page under the thumb. {0} is the count.</comment>
+  </data>
+  <data name="Browse_Endorsements_other" xml:space="preserve">
+    <value>{0:N0} endorsements</value>
+    <comment>A mod's endorsement count. {0} is the count.</comment>
   </data>
 </root>

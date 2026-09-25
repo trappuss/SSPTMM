@@ -65,6 +65,15 @@ public partial class BrowsePage : Page
         await ViewModel.LoadDetailsAsync(card.Mod);
     }
 
+    // The magnifier: Quick View, stepping through the cards on the page.
+    private void QuickView_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not FrameworkElement { DataContext: ModCardViewModel card } button) return;
+
+        e.Handled = true;
+        AppServices.QuickView.Show(card.Mod, ModContextMenu.SequenceAround(button));
+    }
+
     private void ResultsGrid_SizeChanged(object sender, SizeChangedEventArgs e)
     {
         SyncColumns(e.NewSize.Width);

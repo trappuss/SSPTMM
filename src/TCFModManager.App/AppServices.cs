@@ -65,6 +65,9 @@ internal static class AppServices
     // A collection's Workshop page - see WorkshopCollectionView.
     public static CollectionOverlayViewModel CollectionOverlay { get; } = new();
 
+    // Steam's Quick View - see QuickViewOverlay.
+    public static QuickViewOverlayViewModel QuickView { get; } = new();
+
     // Whether a newer release of this app has been published on sp-mod.com. Shared between the
     // banner in MainWindow, the nav item's badge and the App update page, so all three read one
     // check rather than each running their own.

@@ -26,6 +26,7 @@ public partial class MainWindow : FluentWindow
         AppNavigation.Navigated += (_, pageType) => SyncHeader(pageType);
         AppNavigation.CloseItemPageRequested += (_, _) =>
         {
+            QuickView.Close();
             // The collection first, so the item page closing does not bring it back.
             _collectionUnderItem = false;
             CollectionPage.Close();
@@ -54,6 +55,8 @@ public partial class MainWindow : FluentWindow
         // A mod opened from anywhere opens as its Workshop item page, over the page it came from.
         AppServices.ModDetailsOverlay.Requested += (_, request) =>
         {
+            QuickView.Close();
+
             // An item opened from a collection's page goes over it; closing the item brings it back.
             if (CollectionPage.Visibility == Visibility.Visible)
             {
@@ -71,6 +74,8 @@ public partial class MainWindow : FluentWindow
             _collectionUnderItem = false;
             CollectionPage.Reveal();
         };
+
+        AppServices.QuickView.Requested += (_, request) => QuickView.Show(request);
 
         // A collection opened from anywhere opens as its Workshop page, over the page it came from -
         // and over an item page it was opened from, which then closes.

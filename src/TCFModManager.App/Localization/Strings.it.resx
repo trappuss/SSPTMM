@@ -363,7 +363,10 @@
   <data name="Browse_DisabledFormat" xml:space="preserve">
     <value>{0} è disattivato - attivalo nella pagina Installati prima di reinstallarlo.</value>
   </data>
-  <data name="Browse_EndorsementsFormat" xml:space="preserve">
+  <data name="Browse_Endorsements_one" xml:space="preserve">
+    <value>{0:N0} consenso</value>
+  </data>
+  <data name="Browse_Endorsements_other" xml:space="preserve">
     <value>{0:N0} consensi</value>
   </data>
   <data name="Browse_FeaturedFilterToolTip" xml:space="preserve">

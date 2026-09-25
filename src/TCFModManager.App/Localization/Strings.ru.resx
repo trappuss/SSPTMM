@@ -369,7 +369,10 @@
   <data name="Browse_DisabledFormat" xml:space="preserve">
     <value>{0} отключён - включите его на странице Установленные перед повторной установкой.</value>
   </data>
-  <data name="Browse_EndorsementsFormat" xml:space="preserve">
+  <data name="Browse_Endorsements_one" xml:space="preserve">
+    <value>{0:N0} одобрение</value>
+  </data>
+  <data name="Browse_Endorsements_other" xml:space="preserve">
     <value>{0:N0} одобрений</value>
   </data>
   <data name="Browse_FeaturedFilterToolTip" xml:space="preserve">

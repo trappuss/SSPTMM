@@ -190,4 +190,39 @@ public class SpModMarkupTests
         Assert.True(SpModMarkup.Parse(null).IsEmpty);
         Assert.True(SpModMarkup.Parse("   ").IsEmpty);
     }
+
+    [Fact]
+    public void Plain_text_runs_the_blocks_together_the_way_quick_view_shows_them()
+    {
+        var doc = SpModMarkup.Parse(
+            """
+            <h2>Escape From Low Frames</h2>
+            <p>A way to escape   that <strong>disturbingly</strong> low<br>framerate</p>
+            <p><img src="https://example.com/a.png" alt="shot"></p>
+            <ul><li>Faster</li><li>Smoother</li></ul>
+            <hr>
+            <div class="tabset"><div id="tabset-1-panel-1" class="tab-panel"><div class="tab-title">Features</div>
+            <div class="tab-content"><p>First tab</p></div></div>
+            <div id="tabset-1-panel-2" class="tab-panel"><div class="tab-title">Install</div>
+            <div class="tab-content"><p>Second tab</p></div></div></div>
+            """);
+
+        Assert.Equal(
+            "Escape From Low Frames A way to escape that disturbingly low framerate - Faster - Smoother First tab",
+            SpModMarkup.PlainText(doc));
+    }
+
+    [Fact]
+    public void Plain_text_is_cut_on_a_word_with_an_ellipsis()
+    {
+        var doc = SpModMarkup.Parse("<p>one two three four five six seven</p>");
+
+        Assert.Equal("one two three...", SpModMarkup.PlainText(doc, maxLength: 15));
+    }
+
+    [Fact]
+    public void Plain_text_of_a_description_with_no_words_is_null()
+    {
+        Assert.Null(SpModMarkup.PlainText(SpModMarkup.Parse("<p><img src=\"https://example.com/a.png\"></p>")));
+    }
 }

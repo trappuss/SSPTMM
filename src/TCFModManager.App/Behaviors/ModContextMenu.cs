@@ -36,9 +36,6 @@ public static class ModContextMenu
 
     public static void SetModId(DependencyObject element, int? value) => element.SetValue(ModIdProperty, value);
 
-    /// <summary>Quick View, when the app has one to show; set once at startup.</summary>
-    public static Action<Mod, FrameworkElement>? QuickView { get; set; }
-
     private static void OnTargetChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         if (d is not FrameworkElement element) return;
@@ -81,8 +78,7 @@ public static class ModContextMenu
 
         menu.Items.Add(Item(Strings.Menu_Open, async () => Report(await ModActions.OpenAsync(mod))));
 
-        if (QuickView is { } quickView)
-            menu.Items.Add(Item(Strings.Menu_QuickView, () => quickView(mod, source)));
+        menu.Items.Add(Item(Strings.Menu_QuickView, () => AppServices.QuickView.Show(mod, SequenceAround(source))));
 
         menu.Items.Add(Rule());
 
@@ -150,6 +146,33 @@ public static class ModContextMenu
     private static Style MenuStyle() => (Style)Application.Current.FindResource("SteamPopupMenu");
 
     private static Style ItemStyle() => (Style)Application.Current.FindResource("SteamPopupMenuItem");
+
+    /// <summary>The mods listed beside this element - every item of the list it is in - for Quick
+    /// View's arrows. Only the mod itself when it is not in a list.</summary>
+    public static IReadOnlyList<Mod> SequenceAround(DependencyObject element)
+    {
+        for (var node = element; node is not null; node = VisualTreeHelper.GetParent(node))
+        {
+            if (node is not ItemsControl list) continue;
+
+            var mods = list.Items.OfType<object>().Select(ModOf).OfType<Mod>().ToList();
+            if (mods.Count > 0) return mods;
+        }
+
+        return ResolveMod((FrameworkElement)element) is { } mod ? [mod] : [];
+    }
+
+    // The mod a list item stands for, whatever kind of row it is.
+    private static Mod? ModOf(object item) => item switch
+    {
+        Mod mod => mod,
+        ViewModels.ModCardViewModel card => card.Mod,
+        ViewModels.WorkshopCollectionItem row => row.Mod,
+        ViewModels.WorkshopRelatedItem related => related.Mod,
+        ViewModels.WorkshopRequiredItem required => AppServices.Browse.FindInCatalog(required.ModId),
+        ViewModels.InstalledModCardViewModel { CatalogModId: { } id } => AppServices.Browse.FindInCatalog(id),
+        _ => null,
+    };
 
     private static IModActionHost? HostOf(DependencyObject? node)
     {

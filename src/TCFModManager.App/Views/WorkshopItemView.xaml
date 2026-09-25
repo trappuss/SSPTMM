@@ -164,7 +164,7 @@
                             <ui:SymbolIcon FontSize="26" Filled="True" Foreground="#8BC53F" Symbol="ThumbLike24" />
                             <TextBlock Margin="6,0,0,0" VerticalAlignment="Center" FontSize="22" Foreground="#8BC53F" Text="{Binding Endorsements, StringFormat=N0}" />
                         </StackPanel>
-                        <TextBlock HorizontalAlignment="Right" FontSize="11" Foreground="#919191" Text="{Binding Endorsements, StringFormat={loc:Str Browse_EndorsementsFormat}}" />
+                        <TextBlock HorizontalAlignment="Right" FontSize="11" Foreground="#919191" Text="{Binding EndorsementsText}" />
                     </StackPanel>
                     <TextBlock
                         FontFamily="{StaticResource SteamFontLight}"
