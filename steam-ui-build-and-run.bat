@@ -5,9 +5,10 @@ rem  Steam Workshop UI fork - build, test and run, in one double-click.
 rem
 rem   1. Finds a .NET 9 SDK. If there isn't one, installs one into .dotnet\ beside this file
 rem      (Microsoft's own dotnet-install script: no admin rights, nothing installed system-wide).
-rem   2. Runs the test suite. A failure stops here and says so.
-rem   3. Publishes a self-contained TCFModManager.exe into dist\steam-ui\.
-rem   4. Starts it.
+rem   2. Builds the app once (that build also writes the pseudo-locale file the tests read).
+rem   3. Runs the test suite. A failure stops here and says so.
+rem   4. Publishes a self-contained TCFModManager.exe into dist\steam-ui\.
+rem   5. Starts it.
 rem
 rem  Everything it does is also written to steam-ui-build.log beside this file.
 rem
@@ -26,7 +27,7 @@ set "DOTNET_NOLOGO=1"
 
 > "%LOG%" echo Steam Workshop UI build - %DATE% %TIME%
 
-call :say "[1/4] Looking for the .NET 9 SDK..."
+call :say "[1/5] Looking for the .NET 9 SDK..."
 set "DOTNET="
 if exist "%LOCALSDK%\dotnet.exe" (
     "%LOCALSDK%\dotnet.exe" --list-sdks 2>nul | findstr /b /c:"9." >nul
@@ -48,17 +49,21 @@ if not defined DOTNET (
 )
 call :say "      Found: %DOTNET%"
 
-call :say "[2/4] Running the tests..."
+call :say "[2/5] Building the app..."
+"%DOTNET%" build "src\TCFModManager.App" -c Release --nologo >> "%LOG%" 2>&1
+if errorlevel 1 goto :fail_build
+
+call :say "[3/5] Running the tests..."
 "%DOTNET%" test "Tests\TCFModManager.Core.Tests" -c Release --nologo >> "%LOG%" 2>&1
 if errorlevel 1 goto :fail_tests
 call :say "      All tests passed."
 
-call :say "[3/4] Building TCFModManager.exe into dist\steam-ui\ ..."
+call :say "[4/5] Publishing TCFModManager.exe into dist\steam-ui\ ..."
 "%DOTNET%" publish "src\TCFModManager.App" -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o "%OUT%" --nologo >> "%LOG%" 2>&1
 if errorlevel 1 goto :fail_build
 if not exist "%OUT%\TCFModManager.exe" goto :fail_build
 
-call :say "[4/4] Starting it..."
+call :say "[5/5] Starting it..."
 start "" "%OUT%\TCFModManager.exe"
 call :say ""
 call :say "Done. The exe is dist\steam-ui\TCFModManager.exe"
