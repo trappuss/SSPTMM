@@ -322,6 +322,14 @@
                 Content="{loc:Str Common_Rescan}"
                 Command="{Binding ScanCommand}" />
 
+            <!-- Which mods would come along to a later SPT release. -->
+            <ui:Button
+                DockPanel.Dock="Right"
+                Margin="0,0,8,0"
+                Content="{loc:Str Upgrade_Button}"
+                ToolTip="{loc:Str Upgrade_ButtonToolTip}"
+                Command="{Binding CheckSptUpgradeCommand}" />
+
             <!-- An archive already on this PC, installed the same way as a download. -->
             <ui:Button
                 DockPanel.Dock="Right"

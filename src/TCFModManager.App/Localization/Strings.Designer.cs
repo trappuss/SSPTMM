@@ -1782,4 +1782,16 @@ internal static class Strings
     internal static string Installed_LocalConfirmUnmatchedFormat => LocalizationService.Get("Installed_LocalConfirmUnmatchedFormat");
     internal static string Installed_LocalQueuedFormat => LocalizationService.Get("Installed_LocalQueuedFormat");
     internal static string Downloads_CopyingLocal => LocalizationService.Get("Downloads_CopyingLocal");
+    internal static string Upgrade_Button => LocalizationService.Get("Upgrade_Button");
+    internal static string Upgrade_ButtonToolTip => LocalizationService.Get("Upgrade_ButtonToolTip");
+    internal static string Upgrade_Title => LocalizationService.Get("Upgrade_Title");
+    internal static string Upgrade_Intro => LocalizationService.Get("Upgrade_Intro");
+    internal static string Upgrade_Target => LocalizationService.Get("Upgrade_Target");
+    internal static string Upgrade_SummaryFormat => LocalizationService.Get("Upgrade_SummaryFormat");
+    internal static string Upgrade_ReadyFormat => LocalizationService.Get("Upgrade_ReadyFormat");
+    internal static string Upgrade_UpdateFormat => LocalizationService.Get("Upgrade_UpdateFormat");
+    internal static string Upgrade_NotYetFormat => LocalizationService.Get("Upgrade_NotYetFormat");
+    internal static string Upgrade_UnknownConstraint => LocalizationService.Get("Upgrade_UnknownConstraint");
+    internal static string Upgrade_UnknownNotListed => LocalizationService.Get("Upgrade_UnknownNotListed");
+    internal static string Upgrade_Offline => LocalizationService.Get("Upgrade_Offline");
 }

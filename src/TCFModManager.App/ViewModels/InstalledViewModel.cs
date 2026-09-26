@@ -914,6 +914,30 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         }
     }
 
+    // What each installed mod has for a later SPT release - see SptUpgradeReport.
+    [RelayCommand]
+    private async Task CheckSptUpgradeAsync()
+    {
+        try
+        {
+            await AppServices.SptCatalog.EnsureLoadedAsync();
+            await AppServices.ModCache.EnsureLoadedAsync();
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException || ex is TaskCanceledException)
+        {
+            StatusMessage = Strings.Upgrade_Offline;
+            return;
+        }
+
+        var installed = _all
+            .Where(c => !c.IsAddon)
+            .Select(c => new SptUpgradeInput(c.DisplayTitle, c.ModId is > 0 ? c.ModId : null, c.InstalledVersion))
+            .ToList();
+
+        Views.SptUpgradeWindow.Open(installed, AppServices.ModCache.AllMods, AppServices.SptCatalog.Releases,
+            AppServices.SptEnvironment.InstalledVersion);
+    }
+
     //
     // Installs an archive the user already has (see LocalArchive), through the download queue like
     // any other install - matched to its sp-mod.com listing by what is inside it when it can be.

@@ -6700,4 +6700,52 @@ Install it? It can be removed like any other.</value>
     <value>Copying the archive...</value>
     <comment>Queue status while a local archive is copied before installing.</comment>
   </data>
+  <data name="Upgrade_Button" xml:space="preserve">
+    <value>SPT upgrade check</value>
+    <comment>Subscribed items button: which mods have versions for a later SPT release.</comment>
+  </data>
+  <data name="Upgrade_ButtonToolTip" xml:space="preserve">
+    <value>Before moving to a newer SPT: which of your mods already run on it, which need an update first, and which have nothing for it yet</value>
+    <comment>Tooltip.</comment>
+  </data>
+  <data name="Upgrade_Title" xml:space="preserve">
+    <value>SPT upgrade check</value>
+    <comment>Window title.</comment>
+  </data>
+  <data name="Upgrade_Intro" xml:space="preserve">
+    <value>Pick the SPT release you are thinking of moving to. Nothing is changed here: this only says what each installed mod has on sp-mod.com for that release.</value>
+    <comment>Window intro.</comment>
+  </data>
+  <data name="Upgrade_Target" xml:space="preserve">
+    <value>Moving to SPT</value>
+    <comment>Label before the release picker.</comment>
+  </data>
+  <data name="Upgrade_SummaryFormat" xml:space="preserve">
+    <value>On SPT {0}: {1} ready, {2} need an update first, {3} with nothing for it yet, {4} to check by hand.</value>
+    <comment>{0} release, then four counts.</comment>
+  </data>
+  <data name="Upgrade_ReadyFormat" xml:space="preserve">
+    <value>{0} (installed) is published for SPT {1}.</value>
+    <comment>{0} installed version, {1} release.</comment>
+  </data>
+  <data name="Upgrade_UpdateFormat" xml:space="preserve">
+    <value>{0} (installed) is not published for SPT {2}; {1} is - update to it after moving.</value>
+    <comment>{0} installed version, {1} the version for the release, {2} release.</comment>
+  </data>
+  <data name="Upgrade_NotYetFormat" xml:space="preserve">
+    <value>Nothing published for SPT {0} yet.</value>
+    <comment>{0} release.</comment>
+  </data>
+  <data name="Upgrade_UnknownConstraint" xml:space="preserve">
+    <value>Its versions do not say which SPT they are for in a way that can be read - check its page.</value>
+    <comment>A listed mod whose SPT requirements cannot be read.</comment>
+  </data>
+  <data name="Upgrade_UnknownNotListed" xml:space="preserve">
+    <value>Not matched to an sp-mod.com page (installed by hand or from a file) - check it by hand.</value>
+    <comment>A mod not matched to the catalog.</comment>
+  </data>
+  <data name="Upgrade_Offline" xml:space="preserve">
+    <value>sp-mod.com could not be reached, so the upgrade check cannot say anything yet. Try again once you are online.</value>
+    <comment>Status when the catalog or release list is unavailable.</comment>
+  </data>
 </root>

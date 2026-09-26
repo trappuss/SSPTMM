@@ -1,0 +1,82 @@
+<ui:FluentWindow
+    x:Class="TCFModManager.App.Views.SptUpgradeWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:loc="clr-namespace:TCFModManager.App.Localization"
+    Width="720"
+    Height="640"
+    ShowInTaskbar="False"
+    ExtendsContentIntoTitleBar="True"
+    TextOptions.TextFormattingMode="Display"
+    TextOptions.TextRenderingMode="ClearType">
+    <!--
+        "If I moved to SPT x.y, which of my mods would come with me?" - see SptUpgradeReport. Read
+        only: it changes nothing, and says what each installed mod has for the release picked.
+    -->
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <ui:TitleBar Grid.Row="0" Title="{loc:Str Upgrade_Title}" />
+
+        <StackPanel Grid.Row="1" Margin="24,12,24,8">
+            <TextBlock
+                TextWrapping="Wrap"
+                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                Margin="0,0,0,12"
+                Text="{loc:Str Upgrade_Intro}" />
+
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                <TextBlock VerticalAlignment="Center" Margin="0,0,8,0" Text="{loc:Str Upgrade_Target}" />
+                <ComboBox
+                    x:Name="TargetBox"
+                    MinWidth="160"
+                    DisplayMemberPath="Label"
+                    SelectionChanged="TargetBox_SelectionChanged" />
+            </StackPanel>
+
+            <TextBlock
+                x:Name="SummaryText"
+                TextWrapping="Wrap"
+                FontWeight="SemiBold"
+                Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="2" Margin="24,0,24,0" VerticalScrollBarVisibility="Auto">
+            <ItemsControl x:Name="RowsList">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <ui:SymbolIcon
+                                Margin="0,2,10,0"
+                                VerticalAlignment="Top"
+                                FontSize="18"
+                                Symbol="{Binding Glyph}"
+                                Foreground="{Binding Brush}" />
+                            <StackPanel Grid.Column="1">
+                                <TextBlock FontWeight="SemiBold" TextWrapping="Wrap" Text="{Binding Name}" />
+                                <TextBlock
+                                    TextWrapping="Wrap"
+                                    Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                    Text="{Binding Detail}" />
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="24,12,24,20">
+            <ui:Button Appearance="Primary" Content="{loc:Str Common_Close}" Click="CloseButton_Click" />
+        </StackPanel>
+    </Grid>
+</ui:FluentWindow>
