@@ -3784,9 +3784,6 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
   <data name="ServerMap_ListFailedReasonFormat" xml:space="preserve">
     <value>Non è stato possibile scaricare la lista: {0}.</value>
   </data>
-  <data name="ServerMap_ListFetchDropped" xml:space="preserve">
-    <value>Il server ha risposto la prima volta e poi si è fermato, così la lista non è stata scaricata.</value>
-  </data>
   <data name="ServerMap_ListSaved_one" xml:space="preserve">
     <value>"{0}" (revisione {1}, 1 mod) è salvata nelle tue liste mod. Si applica dalla pagina Liste mod, che prima mostra cosa cambierebbe.</value>
   </data>

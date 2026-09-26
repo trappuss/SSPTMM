@@ -56,30 +56,50 @@ public sealed class ModDownloadService(HttpClient? httpClient = null) : IDisposa
         var saved = have > 0 ? ReadValidator(validatorPath) : null;
         if (saved is null) have = 0;
 
-        using var request = new HttpRequestMessage(HttpMethod.Get, downloadUrl);
-        if (have > 0)
+        async Task<HttpResponseMessage> SendAsync(long from)
         {
-            request.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(have, null);
-            request.Headers.TryAddWithoutValidation("If-Range", saved!.Value.Identity);
+            using var request = new HttpRequestMessage(HttpMethod.Get, downloadUrl);
+            if (from > 0)
+            {
+                request.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(from, null);
+                request.Headers.TryAddWithoutValidation("If-Range", saved!.Value.Identity);
+            }
+
+            return await _http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct).ConfigureAwait(false);
         }
 
-        using var response = await _http
-            .SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct)
-            .ConfigureAwait(false);
+        // Nothing left to send (416), or a range that is not exactly the rest of the same file.
+        bool Unusable(HttpResponseMessage r, long from) =>
+            r.StatusCode == System.Net.HttpStatusCode.RequestedRangeNotSatisfiable
+            || (r.StatusCode == System.Net.HttpStatusCode.PartialContent
+                && !(from > 0 && r.Content.Headers.ContentRange is { From: { } start, To: { } to, Length: { } length }
+                     && start == have && to == length - 1 && length == saved!.Value.Length));
 
-        // Nothing left to send (416), or a range that is not exactly the rest of the same file: what
-        // is on disk cannot be trusted to join, so it goes, and the retry starts from the beginning.
-        var range = response.Content.Headers.ContentRange;
-        if (response.StatusCode == System.Net.HttpStatusCode.RequestedRangeNotSatisfiable
-            || (response.StatusCode == System.Net.HttpStatusCode.PartialContent
-                && !(have > 0 && range is { From: { } from, To: { } to, Length: { } length }
-                     && from == have && to == length - 1 && length == saved!.Value.Length)))
+        var response = await SendAsync(have).ConfigureAwait(false);
+
+        //
+        // What is on disk cannot be trusted to join, so it goes - and the whole file is asked for
+        // again at once, rather than spending one of the queue's retries on it.
+        //
+        if (Unusable(response, have))
         {
+            AppLog.Info("Downloads", $"{Path.GetFileName(destinationPath)}: the server did not send the rest as asked ({(int)response.StatusCode}); starting again");
+            response.Dispose();
             TryDelete(destinationPath);
             TryDelete(validatorPath);
-            throw new HttpIOException(HttpRequestError.ResponseEnded,
-                $"the server did not send the rest of the file as asked ({(int)response.StatusCode} {range}); starting again");
+            have = 0;
+
+            response = await SendAsync(0).ConfigureAwait(false);
+            if (Unusable(response, 0))
+            {
+                var status = (int)response.StatusCode;
+                response.Dispose();
+                throw new HttpIOException(HttpRequestError.ResponseEnded, $"the server sent part of the file when all of it was asked for ({status})");
+            }
         }
+
+        using var _ = response;
+        var range = response.Content.Headers.ContentRange;
 
         response.EnsureSuccessStatusCode();
 
@@ -93,9 +113,14 @@ public sealed class ModDownloadService(HttpClient? httpClient = null) : IDisposa
         // What identifies this file, for a later attempt to resume against.
         if (!resuming && (resumable || resume))
         {
-            var identity = response.Headers.ETag is { IsWeak: false } etag
-                ? etag.ToString()
-                : response.Content.Headers.LastModified?.ToString("R");
+            // A strong ETag, or with none at all Last-Modified; a weak one says the file may differ
+            // byte for byte, and a date may not stand in for it (RFC 9110 13.1.5) - not resumable.
+            var identity = response.Headers.ETag switch
+            {
+                { IsWeak: false } etag => etag.ToString(),
+                null => response.Content.Headers.LastModified?.ToString("R"),
+                _ => null,
+            };
 
             if (identity is not null && totalBytes is > 0 && response.Headers.AcceptRanges.Contains("bytes"))
                 WriteValidator(validatorPath, identity, totalBytes.Value);

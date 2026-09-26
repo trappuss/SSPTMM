@@ -160,4 +160,14 @@ public class LocalArchiveTests : IDisposable
         Assert.NotEqual(LocalArchive.IdFor(mod, "release"), LocalArchive.IdFor(other, "release"));
         Assert.Equal(LocalArchive.IdFor("release"), LocalArchive.IdFor(nothing, "release"));
     }
+
+    [Fact]
+    public async Task AnSpt4ServerMod_IsKnownByItsFolder_NotTheFileName()
+    {
+        var a = await LocalArchive.InspectAsync(Zip(("user/mods/ModA/ModA.dll", "a")));
+        var b = await LocalArchive.InspectAsync(Zip(("user/mods/ModB/ModB.dll", "b")));
+
+        Assert.Equal(["ModA"], a.ServerFolders);
+        Assert.NotEqual(LocalArchive.IdFor(a, "release"), LocalArchive.IdFor(b, "release"));
+    }
 }

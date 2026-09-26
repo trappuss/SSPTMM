@@ -303,9 +303,13 @@ public sealed partial class DownloadQueueItemViewModel : LocalizedViewModel
         Progress = 0;
         Status = DownloadQueueItemStatus.Pending;
         StatusMessage = Strings.Downloads_WaitingInQueue;
+        IsRetry = true;
 
         Requeue!(this);
     }
+
+    // Set by Retry: the user asked for this one again, so a question answered "no" is asked again.
+    internal bool IsRetry { get; private set; }
 
     // Items queued because this one declared them as missing dependencies. Cancelling this
     // item cancels them too.

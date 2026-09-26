@@ -26,6 +26,9 @@ public class ModVersionComparerTests
     [InlineData("1.2.0-fix1", "1.2.0", false)]
     [InlineData("1.2.0-beta", "1.2.0-hotfix", true)]
     [InlineData("1.2.0-hotfix", "1.3.0-beta", true)]
+    [InlineData("1.2.0-hotfix9", "1.2.0-hotfix10", true)] // the number glued to the word, as a number
+    [InlineData("1.2.0-fix2", "1.2.0-fix10", true)]
+    [InlineData("1.2.0-beta2", "1.2.0-beta10", true)]
     public void IsUpdateAvailable_ComparesNumerically(string installed, string latest, bool expected)
     {
         Assert.Equal(expected, ModVersionComparer.IsUpdateAvailable(installed, latest));
@@ -50,4 +53,13 @@ public class ModVersionComparerTests
     [InlineData("1.2.1.0", "1.2.0", false)]
     public void IsSameRelease(string installed, string published, bool expected) =>
         Assert.Equal(expected, ModVersionComparer.IsSameRelease(installed, published));
+
+    [Fact]
+    public void BestSameRelease_PrefersTheExactVersion_ThenThePlainRelease()
+    {
+        Assert.Equal("1.2.0-beta", ModVersionComparer.BestSameRelease("1.2.0-beta", ["1.2.0-hotfix", "1.2.0", "1.2.0-beta"]));
+        Assert.Equal("1.2.0", ModVersionComparer.BestSameRelease("1.2.0.0", ["1.2.0-hotfix", "1.2.0", "1.2.0-beta"]));
+        Assert.Equal("1.2.0-hotfix", ModVersionComparer.BestSameRelease("1.2.0.0", ["1.2.0-hotfix", "1.3.0"]));
+        Assert.Null(ModVersionComparer.BestSameRelease("1.2.0.0", ["1.3.0"]));
+    }
 }

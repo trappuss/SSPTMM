@@ -265,4 +265,13 @@ public class ModConfigStoreTests : IDisposable
 
         Assert.Equal(["v1", "v0"], backups.Select(b => File.ReadAllText(b.Path)));
     }
+
+    [Fact]
+    public void BackupsOf_TheSameInstallWrittenWithATrailingSeparator_IsTheSameInstall()
+    {
+        var path = WriteFile("BepInEx/config/sep.cfg", "v0");
+        Save(path, "v1", ModConfigStore.Load(path));
+
+        Assert.Single(ModConfigStore.BackupsOf(_installRoot + Path.DirectorySeparatorChar, path));
+    }
 }

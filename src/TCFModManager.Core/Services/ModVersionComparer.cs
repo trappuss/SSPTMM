@@ -90,12 +90,44 @@ public static class ModVersionComparer
                 (true, true) => an.CompareTo(bn),
                 (true, false) => -1,
                 (false, true) => 1,
-                _ => string.Compare(a[i], b[i], StringComparison.OrdinalIgnoreCase),
+                _ => CompareWords(a[i], b[i]),
             };
             if (order != 0) return Math.Sign(order);
         }
 
         return a.Length.CompareTo(b.Length);
+    }
+
+    // A word with a number glued on - "hotfix9", "beta10", "rc2" - compares by the word, then the
+    // number as a number: hotfix9 before hotfix10. Anything else as text.
+    private static int CompareWords(string a, string b)
+    {
+        static (string Word, int? Number) Split(string s)
+        {
+            var end = s.Length;
+            while (end > 0 && char.IsDigit(s[end - 1])) end--;
+            return end < s.Length && end > 0 && int.TryParse(s[end..], out var n) ? (s[..end], n) : (s, null);
+        }
+
+        var (aWord, aNumber) = Split(a);
+        var (bWord, bNumber) = Split(b);
+
+        var words = string.Compare(aWord, bWord, StringComparison.OrdinalIgnoreCase);
+        if (words != 0 || (aNumber is null && bNumber is null)) return words != 0 ? words : string.Compare(a, b, StringComparison.OrdinalIgnoreCase);
+
+        return (aNumber ?? 0).CompareTo(bNumber ?? 0);
+    }
+
+    /// <summary>Of <paramref name="published"/>, the one <paramref name="installed"/> is: the exact
+    /// same version first; for a version read from a DLL (no label), the plain release before any
+    /// labelled one (a -beta, a -hotfix) with the same numbers. Null when none is.</summary>
+    public static string? BestSameRelease(string? installed, IEnumerable<string?> published)
+    {
+        var candidates = published.Where(p => p is not null && IsSameRelease(installed, p)).ToList();
+
+        return candidates.FirstOrDefault(p => Compare(p, installed) == 0)
+            ?? candidates.FirstOrDefault(p => Parse(p) is { Pre.Length: 0 })
+            ?? candidates.FirstOrDefault();
     }
 
     private static (Version Core, string[] Pre)? Parse(string? raw)

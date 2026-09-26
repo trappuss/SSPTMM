@@ -484,7 +484,6 @@ internal static class Strings
     internal static string ServerMap_KeyRequired => LocalizationService.Get("ServerMap_KeyRequired");
     internal static string ServerMap_KeyRejected => LocalizationService.Get("ServerMap_KeyRejected");
     internal static string ServerMap_ListUnreadableFormat => LocalizationService.Get("ServerMap_ListUnreadableFormat");
-    internal static string ServerMap_ListFetchDropped => LocalizationService.Get("ServerMap_ListFetchDropped");
     internal static string ServerMap_ListCertificateRejected => LocalizationService.Get("ServerMap_ListCertificateRejected");
     internal static string ServerMap_ListFailed => LocalizationService.Get("ServerMap_ListFailed");
     internal static string ServerMap_ListFailedReasonFormat => LocalizationService.Get("ServerMap_ListFailedReasonFormat");

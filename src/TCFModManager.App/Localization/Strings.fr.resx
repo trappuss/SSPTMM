@@ -3784,9 +3784,6 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
   <data name="ServerMap_ListFailedReasonFormat" xml:space="preserve">
     <value>La liste n'a pas pu être récupérée : {0}.</value>
   </data>
-  <data name="ServerMap_ListFetchDropped" xml:space="preserve">
-    <value>Le serveur a répondu la première fois puis s'est arrêté, donc la liste n'a pas été récupérée.</value>
-  </data>
   <data name="ServerMap_ListSaved_one" xml:space="preserve">
     <value>« {0} » (révision {1}, {2} mod) est enregistrée dans vos listes de mods. Son application se fait depuis la page Listes de mods, qui montre d'abord ce qui changerait.</value>
   </data>

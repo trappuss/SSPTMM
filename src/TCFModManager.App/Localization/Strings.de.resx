@@ -3784,9 +3784,6 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   <data name="ServerMap_ListFailedReasonFormat" xml:space="preserve">
     <value>Die Liste konnte nicht geholt werden: {0}.</value>
   </data>
-  <data name="ServerMap_ListFetchDropped" xml:space="preserve">
-    <value>Der Server hat beim ersten Mal geantwortet und dann aufgehört, also wurde die Liste nicht geholt.</value>
-  </data>
   <data name="ServerMap_ListSaved_one" xml:space="preserve">
     <value>"{0}" (Revision {1}, 1 Mod) ist in deinen Modlisten gespeichert. Angewendet wird sie auf der Seite Modlisten, die vorher zeigt, was sich ändern würde.</value>
   </data>

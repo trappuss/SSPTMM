@@ -42,9 +42,7 @@ public partial class AddonCacheViewModel : LocalizedViewModel
 
         if (_loadTask is null)
         {
-            _loadTask = LoadAsync(CancellationToken.None);
-            _loadTask.ContinueWith(_ => _failedAt = DateTime.UtcNow, CancellationToken.None,
-                TaskContinuationOptions.NotOnRanToCompletion, TaskScheduler.Default);
+            _loadTask = MarkingFailureAsync(LoadAsync(CancellationToken.None));
         }
 
         return ct.CanBeCanceled ? _loadTask.WaitAsync(ct) : _loadTask;
@@ -52,6 +50,20 @@ public partial class AddonCacheViewModel : LocalizedViewModel
 
     // When the last load failed, and how long until another is tried by itself (Refresh tries at once).
     private DateTime _failedAt;
+
+    // Set before anyone awaiting the load sees it fail, so a call straight after waits its turn too.
+    private async Task<List<Addon>> MarkingFailureAsync(Task<List<Addon>> load)
+    {
+        try
+        {
+            return await load;
+        }
+        catch
+        {
+            _failedAt = DateTime.UtcNow;
+            throw;
+        }
+    }
 
     private static readonly TimeSpan RetryAfter = TimeSpan.FromSeconds(60);
 

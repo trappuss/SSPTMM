@@ -7,10 +7,13 @@ namespace TCFModManager.Core.Services;
 /// <param name="Recognised">False when nothing in it says where its files go (see ArchiveLayout).</param>
 /// <param name="Plugins">Each BepInEx plugin DLL: its [BepInPlugin] GUID and file version.</param>
 /// <param name="ServerMods">Each server mod folder with a package.json: its name and version.</param>
+/// <param name="ServerFolders">The folder names under user/mods - all an SPT 4 server mod (a DLL, no
+/// package.json) has to be known by.</param>
 public sealed record LocalArchiveContents(
     bool Recognised,
     IReadOnlyList<(string Guid, string? Version)> Plugins,
-    IReadOnlyList<(string Name, string? Version)> ServerMods);
+    IReadOnlyList<(string Name, string? Version)> ServerMods,
+    IReadOnlyList<string>? ServerFolders = null);
 
 //
 // Installing an archive the user already has - from GitHub, a Discord post, an older version kept
@@ -43,6 +46,7 @@ public static class LocalArchive
     {
         var identity = contents.Plugins.Select(p => p.Guid)
             .Concat(contents.ServerMods.Select(m => "server:" + m.Name))
+            .Concat((contents.ServerFolders ?? []).Select(f => "folder:" + f))
             .Select(i => i.ToLowerInvariant())
             .Distinct()
             .Order(StringComparer.Ordinal)
@@ -80,10 +84,15 @@ public static class LocalArchive
 
             var plugins = new List<(string, string?)>();
             var server = new List<(string, string?)>();
+            var folders = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var entry in layout)
             {
                 var relative = entry.Relative.Replace('\\', '/');
+
+                var mods = relative.IndexOf("user/mods/", StringComparison.OrdinalIgnoreCase);
+                if (mods >= 0 && relative[(mods + 10)..].Split('/') is { Length: > 1 } below) folders.Add(below[0]);
+
                 if (relative.StartsWith("BepInEx/", StringComparison.OrdinalIgnoreCase)
                     && relative.EndsWith(".dll", StringComparison.OrdinalIgnoreCase)
                     && InstalledModScanner.ReadPlugin(entry.Source) is { Guid: { Length: > 0 } guid } plugin)
@@ -98,7 +107,7 @@ public static class LocalArchive
                 }
             }
 
-            return new LocalArchiveContents(true, plugins, server);
+            return new LocalArchiveContents(true, plugins, server, [.. folders]);
         }
         finally
         {
@@ -145,8 +154,10 @@ public static class LocalArchive
                 ?? contents.ServerMods.Select(p => p.Version).FirstOrDefault(v => v is not null)
             : contents.Plugins.FirstOrDefault(p => string.Equals(p.Guid, match.Guid, StringComparison.OrdinalIgnoreCase)).Version;
 
-        var published = match?.Versions?.FirstOrDefault(v => ModVersionComparer.IsSameRelease(dllVersion, v.Version));
-        return published?.Version ?? dllVersion;
+        var published = match?.Versions is { } versions
+            ? ModVersionComparer.BestSameRelease(dllVersion, versions.Select(v => v.Version))
+            : null;
+        return published ?? dllVersion;
     }
 
     private static (string Name, string? Version)? ReadPackage(string path)

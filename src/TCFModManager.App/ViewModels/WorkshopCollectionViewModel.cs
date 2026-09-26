@@ -124,8 +124,13 @@ public sealed partial class WorkshopCollectionItem : ObservableObject
     private bool _versionIsWarning;
 
     /// <summary>An update is available for the installed copy, to the version for this SPT.</summary>
-    public bool NeedsUpdate => IsInstalled && Pick is { Found: true } pick
-        && ModVersionComparer.IsUpdateAvailable(_installedVersion, pick.Version) == true;
+    public bool NeedsUpdate => IsInstalled && Pick is { Found: true } pick && IsNewer(pick.Version);
+
+    // Newer than what is installed - where a version read from a DLL (the mod installed by hand)
+    // is taken to be the same release as a published one with the same numbers and a label.
+    private bool IsNewer(string? version) =>
+        ModVersionComparer.IsUpdateAvailable(_installedVersion, version) == true
+        && !(_installed is { IsAppManaged: false, IsManualOverride: false } && ModVersionComparer.IsSameRelease(_installedVersion, version));
 
     public bool HasNoVersion => Pick is { Found: false, CouldNotCheck: false };
 
@@ -160,7 +165,7 @@ public sealed partial class WorkshopCollectionItem : ObservableObject
         if (IsPublic)
         {
             version = Pick is { Found: true } pick ? pick.Version : null;
-            if (version is null || ModVersionComparer.IsUpdateAvailable(_installedVersion, version) != true) return null;
+            if (version is null || !IsNewer(version)) return null;
         }
         else
         {

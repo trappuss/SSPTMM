@@ -3976,9 +3976,6 @@
   <data name="ServerMap_ListFailedReasonFormat" xml:space="preserve">
     <value>Не удалось получить список: {0}.</value>
   </data>
-  <data name="ServerMap_ListFetchDropped" xml:space="preserve">
-    <value>Сервер ответил в первый раз и затем замолчал, поэтому список не получен.</value>
-  </data>
   <data name="ServerMap_ListSaved_few" xml:space="preserve">
     <value>Список «{0}» (ревизия {1}, {2} мода) сохранён в ваших списках модов. Применяется он на странице Списки модов, которая сначала показывает, что изменится.</value>
   </data>

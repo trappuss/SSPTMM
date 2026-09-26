@@ -125,7 +125,12 @@ public static class ServerMapProblems
 
         ServerMapProblem.ListUnreadable => Format(Strings.ServerMap_ListUnreadableFormat, result.ParseError),
 
-        ServerMapProblem.Unreachable => Strings.ServerMap_ListFetchDropped,
+        // Also what a list fetch without a handshake of its own reports when nothing answered.
+        ServerMapProblem.Unreachable => Format(
+            Strings.ServerMap_UnreachableFormat, result.Endpoint.Host, result.Endpoint.Port),
+
+        ServerMapProblem.NotServerMap => Format(
+            Strings.ServerMap_NotServerMapFormat, result.Endpoint.Host, result.Endpoint.Port),
 
         ServerMapProblem.CertificateRejected => Strings.ServerMap_ListCertificateRejected,
 

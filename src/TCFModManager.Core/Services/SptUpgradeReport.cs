@@ -51,8 +51,8 @@ public static class SptUpgradeReport
             // Each version's answer for the target; null when its constraint cannot be read.
             var fits = versions.Select(v => (v.Version, Fits: SptVersionMatcher.IsSatisfiedBy(v.SptVersionConstraint, targetSpt))).ToList();
 
-            var mine = fits.FirstOrDefault(v => v.Version is not null && mod.Installed is not null
-                && ModVersionComparer.IsSameRelease(mod.Installed, v.Version));
+            var best = ModVersionComparer.BestSameRelease(mod.Installed, fits.Select(v => v.Version));
+            var mine = fits.FirstOrDefault(v => best is not null && v.Version == best);
             if (mine.Fits == true)
             {
                 rows.Add(new SptUpgradeRow(mod.Name, id, mod.Installed, SptUpgradeStanding.Ready, mine.Version));

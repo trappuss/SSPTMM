@@ -163,7 +163,7 @@ public static class ModConfigStore
 
             // Which SPT install these copies came from, so another install's are not offered back.
             var marker = Path.Combine(folder, InstallMarker);
-            if (!File.Exists(marker)) File.WriteAllText(marker, Path.GetFullPath(installPath));
+            if (!File.Exists(marker)) File.WriteAllText(marker, SameInstallKey(installPath));
 
             return destination;
         }
@@ -227,6 +227,10 @@ public static class ModConfigStore
     // In each backup folder: the SPT install its copies came from.
     private const string InstallMarker = ".install";
 
+    // "C:\SPT\" and "C:\SPT" are one install.
+    private static string SameInstallKey(string installPath) =>
+        Path.TrimEndingDirectorySeparator(Path.GetFullPath(installPath));
+
     /// <summary>The copies of a config kept by earlier saves (Backup), newest first.</summary>
     public static IReadOnlyList<ModConfigBackup> BackupsOf(string installPath, string path)
     {
@@ -247,7 +251,7 @@ public static class ModConfigStore
 
                 // Kept from another SPT install (copies from before this was written down are shown).
                 var marker = Path.Combine(dir, InstallMarker);
-                if (File.Exists(marker) && !string.Equals(File.ReadAllText(marker).Trim(), Path.GetFullPath(installPath),
+                if (File.Exists(marker) && !string.Equals(File.ReadAllText(marker).Trim(), SameInstallKey(installPath),
                         StringComparison.OrdinalIgnoreCase)) continue;
 
                 var copy = Path.Combine(dir, relative);

@@ -83,7 +83,11 @@ public partial class PlayViewModel : LocalizedViewModel
 
     partial void OnShowServerLogChanged(bool value)
     {
-        if (value) UpdateServerLog(AppServices.SptEnvironment.InstallPath);
+        if (!value) return;
+
+        // Opened: at the bottom, following.
+        FollowServerLog = true;
+        UpdateServerLog(AppServices.SptEnvironment.InstallPath);
     }
 
     private void UpdateServerLog(string? installPath)

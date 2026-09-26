@@ -201,18 +201,15 @@ public class ModDownloadServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task OnlyPartOfTheRest_IsNotTakenForTheWholeFile()
+    public async Task OnlyPartOfTheRest_IsNotTakenForTheWholeFile_TheWholeFileIsAskedForInstead()
     {
         var (server, service) = await BrokenOffAt70k();
         server.CapRange = 10_000;
 
-        await Assert.ThrowsAsync<HttpIOException>(() => service.DownloadAsync("http://x/mod.zip", Part, resume: true, resumable: true));
-        Assert.False(File.Exists(Part));
-
-        // The next attempt starts again, and finishes.
-        server.CapRange = null;
         await service.DownloadAsync("http://x/mod.zip", Part, resume: true, resumable: true);
+
         Assert.Equal(_file, File.ReadAllBytes(Part));
+        Assert.Null(server.Requests[^1].Headers.Range);
     }
 
     [Fact]
@@ -221,23 +218,33 @@ public class ModDownloadServiceTests : IDisposable
         var (server, service) = await BrokenOffAt70k();
         server.IgnoreIfRange = true;
         server.ETag = "\"v2\"";
-        server.File = [.. _file, .. _file[..50_000]];
+        var changed = (byte[])[.. _file, .. _file[..50_000]];
+        server.File = changed;
 
-        await Assert.ThrowsAsync<HttpIOException>(() => service.DownloadAsync("http://x/mod.zip", Part, resume: true, resumable: true));
-        Assert.False(File.Exists(Part));
+        await service.DownloadAsync("http://x/mod.zip", Part, resume: true, resumable: true);
+
+        Assert.Equal(changed, File.ReadAllBytes(Part));
     }
 
     [Fact]
-    public async Task A416_StartsAgainInsteadOfFailingForGood()
+    public async Task A416_StartsAgainAtOnce()
     {
         var (server, service) = await BrokenOffAt70k();
         server.Refuse416 = true;
 
-        await Assert.ThrowsAsync<HttpIOException>(() => service.DownloadAsync("http://x/mod.zip", Part, resume: true, resumable: true));
-        Assert.False(File.Exists(ModDownloadService.ValidatorPathFor(Part)));
-
-        server.Refuse416 = false;
         await service.DownloadAsync("http://x/mod.zip", Part, resume: true, resumable: true);
+
         Assert.Equal(_file, File.ReadAllBytes(Part));
+    }
+
+    [Fact]
+    public async Task AWeakETag_IsNotResumedAgainst()
+    {
+        var server = new Server(_file) { BreakAfter = 70_000, ETag = "W/\"weak\"" };
+        using var service = new ModDownloadService(new HttpClient(server));
+
+        await Assert.ThrowsAnyAsync<Exception>(() => service.DownloadAsync("http://x/mod.zip", Part, resumable: true));
+
+        Assert.False(File.Exists(ModDownloadService.ValidatorPathFor(Part)));
     }
 }

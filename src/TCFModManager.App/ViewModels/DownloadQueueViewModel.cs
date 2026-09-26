@@ -338,7 +338,7 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
             // said before it is downloaded, and it can stop here.
             if (string.Equals(version.FikaCompatibility, "incompatible", StringComparison.OrdinalIgnoreCase)
                 && await RunsFikaAsync(item.InstallPath)
-                && !ConfirmFikaIncompatible(item.ModName))
+                && !ConfirmFikaIncompatible(item.ModName, askAgain: item.IsRetry))
             {
                 item.CancelCommand.Execute(null);
                 token.ThrowIfCancellationRequested();
@@ -639,7 +639,7 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
 
         // What is installed but will not do (disabled, too new, the wrong version, nothing for this
         // SPT): said before anything is downloaded, and the install can be stopped here.
-        if (check.Problems.Count > 0 && !ConfirmDespite(item.ModName, check.Problems))
+        if (check.Problems.Count > 0 && !ConfirmDespite(item.ModName, check.Problems, askAgain: item.IsRetry))
         {
             item.CancelCommand.Execute(null);
             token.ThrowIfCancellationRequested();
@@ -705,9 +705,9 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
 
     private static readonly TimeSpan ProblemAnswerLifetime = TimeSpan.FromMinutes(10);
 
-    // A "no" stands only for the batch it was given in: asked again a minute later - a retry, or
-    // subscribing again - rather than cancelled without a word.
-    private static readonly TimeSpan ProblemRefusalLifetime = TimeSpan.FromMinutes(1);
+    // A "no" stands for the batch it was given in (a collection can take a few minutes to queue),
+    // and never for a card's own Retry - which asks again.
+    private static readonly TimeSpan ProblemRefusalLifetime = TimeSpan.FromMinutes(5);
 
     private static bool StillStands((bool Install, DateTime At) answer, DateTime now) =>
         now - answer.At <= (answer.Install ? ProblemAnswerLifetime : ProblemRefusalLifetime);
@@ -725,16 +725,21 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
         var runs = await Task.Run(() =>
             InstalledModScanner.LoadedPluginGuids(installPath).Any(g => g.StartsWith("com.fika.", StringComparison.OrdinalIgnoreCase))
             || InstalledModScanner.Scan(installPath).Any(m => m is { Target: InstalledModTarget.Server, IsDisabled: false }
-                && (m.Name.Contains("fika", StringComparison.OrdinalIgnoreCase)
-                    || Path.GetFileName(m.FolderPath).Contains("fika", StringComparison.OrdinalIgnoreCase))));
+                && (IsFikaServer(m.Name) || IsFikaServer(Path.GetFileName(m.FolderPath)))));
         _fika = (installPath, runs, DateTime.UtcNow);
         return runs;
     }
 
-    private bool ConfirmFikaIncompatible(string modName)
+    // Fika's own server mod ("fika-server", "Fika.Server"...), not a mod that merely mentions Fika.
+    private static bool IsFikaServer(string? name) =>
+        name is not null
+        && name.StartsWith("fika", StringComparison.OrdinalIgnoreCase)
+        && name.Contains("server", StringComparison.OrdinalIgnoreCase);
+
+    private bool ConfirmFikaIncompatible(string modName, bool askAgain = false)
     {
         var key = "fika:" + modName;
-        if (_problemAnswers.TryGetValue(key, out var answer) && StillStands(answer, DateTime.UtcNow)) return answer.Install;
+        if (!askAgain && _problemAnswers.TryGetValue(key, out var answer) && StillStands(answer, DateTime.UtcNow)) return answer.Install;
 
         var install = System.Windows.MessageBox.Show(
             Text(Strings.Downloads_FikaIncompatibleFormat, modName),

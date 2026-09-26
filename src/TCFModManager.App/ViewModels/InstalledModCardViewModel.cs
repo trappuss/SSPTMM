@@ -793,14 +793,15 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
         // can't be talked into matching a listing called "Epic's All in One".
         if (recordsByFolder.TryGetValue(folderName, out var record))
         {
+            // Installed from a file as a local item (LocalArchive): its record is what it is known
+            // by - never a listing its plugin GUID happens to match (a pack, or one installed
+            // offline), which would split it into hand installs and leave the record behind.
+            if (LocalArchive.IsLocalId(record.ModId))
+                return new Mod { Id = record.ModId, Name = record.Name, Guid = record.Guid };
+
             var fromRecord = index.ById.GetValueOrDefault(record.ModId)
                 ?? (string.IsNullOrWhiteSpace(record.Guid) ? null : index.ByGuid.GetValueOrDefault(record.Guid));
             if (fromRecord is not null) return fromRecord;
-
-            // Installed from a file that matched no listing (LocalArchive): its record is all there
-            // is to know it by - so it is the app's to remove, not a hand install's folder to delete.
-            if (LocalArchive.IsLocalId(record.ModId))
-                return new Mod { Id = record.ModId, Name = record.Name, Guid = record.Guid };
         }
 
         // The real GUID, read from a client DLL's [BepInPlugin] attribute, is tried first as an
@@ -1302,6 +1303,11 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
             // read "up to date" with 4.4.3 out for it, because 4.5.1 was for 4.1.
             //
             isNewer = ModVersionComparer.IsUpdateAvailable(installedVersion, updateTarget?.Version);
+
+            // Read from a DLL, which cannot carry a "-hotfix": the same numbers are the same release
+            // as far as anything here can tell - not an update for ever.
+            if (isNewer == true && record is null && ModVersionComparer.IsSameRelease(installedVersion, updateTarget?.Version))
+                isNewer = false;
         }
 
         var updateAvailable = isNewer == true

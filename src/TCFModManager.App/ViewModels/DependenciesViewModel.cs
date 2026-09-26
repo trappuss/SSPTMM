@@ -237,7 +237,8 @@ public partial class DependenciesViewModel : LocalizedViewModel
             string.Equals(v.Version, card.InstalledVersion, StringComparison.OrdinalIgnoreCase));
         if (exact?.Version is not null) return exact.Version;
 
-        var equivalent = published.FirstOrDefault(v => ModVersionComparer.IsSameRelease(card.InstalledVersion, v.Version));
+        var best = ModVersionComparer.BestSameRelease(card.InstalledVersion, published.Select(v => v.Version));
+        var equivalent = best is null ? null : published.FirstOrDefault(v => v.Version == best);
         if (equivalent?.Version is not null) return equivalent.Version;
 
         return ModCardViewModel.LatestVersion(mod)?.Version;
