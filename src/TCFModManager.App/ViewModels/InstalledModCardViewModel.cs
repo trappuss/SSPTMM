@@ -540,8 +540,22 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
             .GroupBy(a => a.ModId!.Value)
             .ToDictionary(g => g.Key, g => g.Count());
 
-        var cards = MergeSplitClientServerHalves(MergePatcherFolders(groups))
-            .Select(g => BuildCard(g.Entries, g.Match, installedSptVersion, recordsByModId, addonsByParent))
+        var merged = MergeSplitClientServerHalves(MergePatcherFolders(groups)).ToList();
+
+        // Mods more than one card resolves to: an install and a copy of it (a renamed DLL, a second
+        // folder), which match the same listing by GUID. Only the card holding the folders the
+        // record placed is that install - see BuildCard.
+        var sharedIds = merged
+            .Where(g => g.Match is not null)
+            .GroupBy(g => g.Match!.Id)
+            .Where(g => g.Count() > 1)
+            .Select(g => g.Key)
+            .ToHashSet();
+
+        var cards = merged
+            .Select(g => BuildCard(
+                g.Entries, g.Match, installedSptVersion, recordsByModId, addonsByParent,
+                shared: g.Match is not null && sharedIds.Contains(g.Match.Id)))
             .ToList();
 
         if (addonFolders.Count == 0) return cards;
@@ -1172,7 +1186,8 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
         Mod? match,
         string? installedSptVersion,
         IReadOnlyDictionary<int, InstalledModRecord> recordsByModId,
-        IReadOnlyDictionary<int, int> addonsByParent)
+        IReadOnlyDictionary<int, int> addonsByParent,
+        bool shared)
     {
         // The plugin half speaks for the client side wherever there's a choice - it's the one with
         // the mod's real name, version and GUID on it, where a patcher is a support file whose
@@ -1183,6 +1198,18 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
         var server = entries.FirstOrDefault(m => m.Target == InstalledModTarget.Server);
 
         var record = match is not null && recordsByModId.TryGetValue(match.Id, out var found) ? found : null;
+
+        //
+        // With another card on the same mod, an app-managed record is this card's only when this
+        // card holds a folder it placed. Otherwise the card is a copy: shown as installed by hand,
+        // so removing it deletes its own folder or file. Given the record, removing the copy
+        // deleted the files the record placed - the real install - and left the copy behind.
+        //
+        if (shared && record is { IsAppManaged: true }
+            && !InstalledModFolders.Placed(record, entries.SelectMany(FolderNamesOf)))
+        {
+            record = null;
+        }
 
         // Not done for addon cards: an addon's record names its PARENT's folders, so comparing them
         // against the addon's own scan entries would report every one of them as missing.

@@ -231,7 +231,7 @@
     <comment>Button label - turns the card grid into a tick list.</comment>
   </data>
   <data name="Installed_MultiSelectToolTip" xml:space="preserve">
-    <value>Tick several mods to enable or disable them together</value>
+    <value>Tick several items to enable, disable, update or unsubscribe them together</value>
   </data>
   <data name="Installed_ExpandAllToolTip" xml:space="preserve">
     <value>Open every mod the filters match</value>
@@ -5798,14 +5798,6 @@ This was written to:
     <value>Before removing</value>
     <comment>Title of the check shown before a collection's Unsubscribe from all removes its items, when something needs a second look.</comment>
   </data>
-  <data name="RemoveCheck_NeededIntro" xml:space="preserve">
-    <value>These installed items use items being removed, and may stop working:</value>
-    <comment>Above the list of installed mods that depend on mods about to be removed.</comment>
-  </data>
-  <data name="RemoveCheck_FoldersIntro" xml:space="preserve">
-    <value>These items were installed by hand, so removing them deletes these folders:</value>
-    <comment>Above the list of folders of hand-installed mods about to be removed.</comment>
-  </data>
   <data name="RemoveCheck_RemoveAnyway" xml:space="preserve">
     <value>Remove Anyway</value>
     <comment>Button on the check before removing a collection's items.</comment>
@@ -5909,5 +5901,21 @@ This was written to:
   <data name="Installed_CategoryRowToolTip" xml:space="preserve">
     <value>Click for details</value>
     <comment>Tooltip on an item in the Groups view while it is sorted by category (where it cannot be dragged into a group).</comment>
+  </data>
+  <data name="RemoveCheck_NeededIntro_one" xml:space="preserve">
+    <value>These installed items use the one being removed, and may stop working:</value>
+    <comment>Above the list of installed mods that depend on the one mod about to be removed. {0} is how many are being removed.</comment>
+  </data>
+  <data name="RemoveCheck_NeededIntro_other" xml:space="preserve">
+    <value>These installed items use items being removed, and may stop working:</value>
+    <comment>Same, several being removed.</comment>
+  </data>
+  <data name="RemoveCheck_FoldersIntro_one" xml:space="preserve">
+    <value>This item was installed by hand, so removing it deletes:</value>
+    <comment>Above the folder(s) of the one hand-installed mod about to be removed. {0} is how many hand-installed mods.</comment>
+  </data>
+  <data name="RemoveCheck_FoldersIntro_other" xml:space="preserve">
+    <value>These items were installed by hand, so removing them deletes these folders:</value>
+    <comment>Same, several hand-installed mods.</comment>
   </data>
 </root>

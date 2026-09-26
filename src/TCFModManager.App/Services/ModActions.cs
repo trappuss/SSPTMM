@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using System.Windows;
 using TCFModManager.App.Localization;
 using TCFModManager.App.ViewModels;
@@ -43,32 +42,17 @@ public static class ModActions
         return AppServices.Browse.StatusMessage;
     }
 
-    // Through the Subscribed items page's own removal, confirmations and all. The removal's own
-    // message is the first thing that page says; the reload it sets off then replaces it with the
-    // page's mod count, which means nothing elsewhere.
+    // Through the Subscribed items page's own removal, confirmations and all, answering with what
+    // the removal said (null when it was cancelled).
     public static async Task<string?> UnsubscribeAsync(Mod mod)
     {
         if (AppServices.Browse.InstalledMatchFor(mod) is not { } installed) return null;
 
         var page = InstalledViewModel.Current ?? new InstalledViewModel();
 
-        string? said = null;
-        void Listen(object? sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(InstalledViewModel.StatusMessage)) said ??= page.StatusMessage;
-        }
-
-        page.PropertyChanged += Listen;
-        try
-        {
-            await page.RemoveCommand.ExecuteAsync(installed);
-        }
-        finally
-        {
-            page.PropertyChanged -= Listen;
-        }
-
-        return said;
+        // What the removal itself said - not whatever the page's status line said last (its rescan
+        // puts a count there).
+        return await page.RemoveOneAsync(installed);
     }
 
     // The same dialog Subscribed items opens for a mod: every version, its changelog, Update.

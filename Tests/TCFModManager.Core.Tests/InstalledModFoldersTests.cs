@@ -198,4 +198,27 @@ public class InstalledModFoldersTests
 
         Assert.Empty(InstalledModFolders.MissingFrom(record, []));
     }
+
+    private static InstalledModRecord OpenSesame() => new()
+    {
+        ModId = 1184,
+        Name = "Open Sesame",
+        Version = "2.5.0",
+        InstalledAt = DateTimeOffset.UnixEpoch,
+        Files = ["BepInEx/plugins/SPTOpenSesame.dll"],
+    };
+
+    [Fact]
+    public void Placed_IsTrueForTheFolderTheRecordPlaced()
+    {
+        Assert.True(InstalledModFolders.Placed(OpenSesame(), ["SPTOpenSesame", "SPTOpenSesame.dll"]));
+    }
+
+    [Fact]
+    public void Placed_IsFalseForACopyUnderAnotherName()
+    {
+        // A renamed copy of the same DLL matches the same listing by GUID, but this app did not put
+        // it there: removing it must not delete the files the record placed.
+        Assert.False(InstalledModFolders.Placed(OpenSesame(), ["Dummy01", "Dummy01.dll"]));
+    }
 }

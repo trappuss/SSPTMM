@@ -174,6 +174,16 @@ public partial class InstalledPage : Page
             return;
         }
 
+        // In Multi select a click ticks the row, as on the cards and in List view - no details, no drag.
+        if (ViewModel.SelectionMode)
+        {
+            _dragCandidate = null;
+            _dragStarted = false;
+            if (sender is FrameworkElement { DataContext: InstalledModCardViewModel ticked }) ticked.IsSelected = !ticked.IsSelected;
+            e.Handled = true;
+            return;
+        }
+
         _dragStart = e.GetPosition(null);
         _dragCandidate = (sender as FrameworkElement)?.DataContext as InstalledModCardViewModel;
         _dragStarted = false;

@@ -41,6 +41,23 @@ public static class InstalledModFolders
         record.Folders.Count > 0 ? record.Folders : FromPlacedFiles(record.Files);
 
     //
+    // Whether a scanned mod whose folder names are <paramref name="presentFolders"/> is the one an
+    // app-managed record installed: it holds at least one of the folders the record placed. What
+    // tells the install apart from a copy of the same mod under another name - a renamed backup
+    // DLL, a second folder - which matches the same catalog listing by its GUID but was not put
+    // there by this app, and whose removal must delete the copy, not the files the record placed.
+    //
+    public static bool Placed(InstalledModRecord record, IEnumerable<string> presentFolders)
+    {
+        var present = presentFolders
+            .Where(f => !string.IsNullOrWhiteSpace(f))
+            .Select(f => f.Trim())
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        return Resolve(record).Any(present.Contains);
+    }
+
+    //
     // The folders a record placed that the scan can no longer find.
     //
     // A record naming three folders where only one is on disk is a HALF-INSTALLED mod: the scanner

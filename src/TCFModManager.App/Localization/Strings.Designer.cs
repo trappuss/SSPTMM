@@ -1560,8 +1560,6 @@ internal static class Strings
     internal static string Installed_NotForSptWithFormat => LocalizationService.Get("Installed_NotForSptWithFormat");
     internal static string FileClash_Partial => LocalizationService.Get("FileClash_Partial");
     internal static string RemoveCheck_Title => LocalizationService.Get("RemoveCheck_Title");
-    internal static string RemoveCheck_NeededIntro => LocalizationService.Get("RemoveCheck_NeededIntro");
-    internal static string RemoveCheck_FoldersIntro => LocalizationService.Get("RemoveCheck_FoldersIntro");
     internal static string RemoveCheck_RemoveAnyway => LocalizationService.Get("RemoveCheck_RemoveAnyway");
     internal static string Options_ScrollingHeader => LocalizationService.Get("Options_ScrollingHeader");
     internal static string Options_ScrollingDescription => LocalizationService.Get("Options_ScrollingDescription");
@@ -1588,4 +1586,8 @@ internal static class Strings
     internal static string Installed_NoCategory => LocalizationService.Get("Installed_NoCategory");
     internal static string Installed_ByCategoryNote => LocalizationService.Get("Installed_ByCategoryNote");
     internal static string Installed_CategoryRowToolTip => LocalizationService.Get("Installed_CategoryRowToolTip");
+    internal static string RemoveCheck_NeededIntro(int count, params object?[] values) =>
+        LocalizationService.Plural("RemoveCheck_NeededIntro", count, values);
+    internal static string RemoveCheck_FoldersIntro(int count, params object?[] values) =>
+        LocalizationService.Plural("RemoveCheck_FoldersIntro", count, values);
 }

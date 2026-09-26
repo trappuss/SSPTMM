@@ -162,6 +162,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     [NotifyPropertyChangedFor(nameof(ShowCards))]
     [NotifyPropertyChangedFor(nameof(ShowPager))]
     [NotifyPropertyChangedFor(nameof(ShowGroups))]
+    [NotifyPropertyChangedFor(nameof(ShowGroupBar))]
     [NotifyPropertyChangedFor(nameof(ShowList))]
     [NotifyPropertyChangedFor(nameof(ShowExpanders))]
     [NotifyCanExecuteChangedFor(nameof(ExpandAllCommand))]
@@ -209,11 +210,17 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     /// groups are in their manual order; an alphabetical group sort would just override them.</summary>
     public bool CanReorderGroups => SelectedGroupSortOption.Value == GroupSortOption.Manual;
 
-    // ON turns the flat grid's cards into a tick-list so several can be disabled/enabled at once;
-    // a card click toggles its tick instead of opening the details dialog while this is on.
+    // ON turns the cards, List's rows and Groups' rows into a tick-list so several can be disabled,
+    // enabled, updated or unsubscribed at once; a click toggles its tick instead of opening the
+    // details dialog while this is on. The ticks are the same in all three views.
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SelectionModeOff))]
+    [NotifyPropertyChangedFor(nameof(ShowGroupBar))]
     private bool _selectionMode;
+
+    /// <summary>The group management bar: Groups view, except while selecting - the selection bar
+    /// takes its place then.</summary>
+    public bool ShowGroupBar => ShowGroups && !SelectionMode;
 
     /// <summary>Inverse of SelectionMode, for controls that only show while it's off.</summary>
     public bool SelectionModeOff => !SelectionMode;
@@ -525,10 +532,6 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
     partial void OnViewModeChanged(InstalledViewMode value)
     {
-        // Multi-select is built on the card grid, so leaving Cards turns it off rather than leaving
-        // it running invisibly behind another view.
-        if (value != InstalledViewMode.Cards) SelectionMode = false;
-
         // Deliberately not AutoApplyFilter: no filter, search or sort has changed, so re-running
         // ApplyFilter would produce the same _filtered it already holds. Refreshing the view being
         // switched to is all that's needed, and that does nothing at all when it is already current.
@@ -898,34 +901,32 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     [RelayCommand]
     private async Task RemoveAsync(InstalledModCardViewModel? mod)
     {
-        if (mod is null) return;
+        if (mod is not null) await RemoveOneAsync(mod);
+    }
 
+    /// <summary>What RemoveCommand does, answering with what it said - the item page and the
+    /// right-click menu show that. Null when it was cancelled.</summary>
+    public async Task<string?> RemoveOneAsync(InstalledModCardViewModel mod)
+    {
         var installPath = AppServices.SptEnvironment.InstallPath;
-        if (string.IsNullOrWhiteSpace(installPath))
-        {
-            StatusMessage = AppMessages.NoSptInstallFolder;
-            return;
-        }
+        if (string.IsNullOrWhiteSpace(installPath)) return StatusMessage = AppMessages.NoSptInstallFolder;
+
+        mod = await OwnCardAsync(mod);
 
         // A disabled mod's install record still points at the folders it was installed into, which
         // it no longer occupies - so removal would delete nothing and report success. Enabling it
         // first puts those paths back where the record expects them.
-        if (mod.IsDisabled)
-        {
-            StatusMessage = Text(Strings.Installed_RemoveDisabledFirstFormat, mod.DisplayTitle);
-            return;
-        }
+        if (mod.IsDisabled) return StatusMessage = Text(Strings.Installed_RemoveDisabledFirstFormat, mod.DisplayTitle);
+
+        // Installed items that use this one, for the question (or, unasked, the check) to name.
+        var needed = NeededBy([mod]);
 
         ConfigAction configAction;
         if (mod.IsAppManaged && mod.ModId is { } modId)
         {
             var manifest = AppServices.InstallManifest.Load();
             var record = manifest.Mods.FirstOrDefault(m => m.ModId == modId && m.IsAddon == mod.IsAddon);
-            if (record is null)
-            {
-                StatusMessage = Text(Strings.Installed_RemoveNoRecordFormat, mod.Name);
-                return;
-            }
+            if (record is null) return StatusMessage = Text(Strings.Installed_RemoveNoRecordFormat, mod.Name);
 
             //
             // Counted with the mod's own entry in hand, so a mod that keeps settings somewhere
@@ -939,10 +940,10 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToList();
 
-            if (ConfirmRemoval(mod.DisplayTitle, Strings.Installed_RemoveAppManagedBody, configs.Count)
+            if (ConfirmRemoval(mod.DisplayTitle, Strings.Installed_RemoveAppManagedBody, configs.Count, needed)
                 is not { } answer)
             {
-                return;
+                return null;
             }
 
             configAction = answer;
@@ -950,19 +951,16 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         else
         {
             var paths = LegacyPaths(mod);
-            if (paths.Count == 0)
-            {
-                StatusMessage = Text(Strings.Installed_RemoveNoFolderFormat, mod.Name);
-                return;
-            }
+            if (paths.Count == 0) return StatusMessage = Text(Strings.Installed_RemoveNoFolderFormat, mod.Name);
 
             var configs = ModInstallService.FindLegacyConfigs(installPath, paths);
             if (ConfirmRemoval(
                     mod.DisplayTitle,
                     Text(Strings.Installed_RemoveLegacyBodyFormat, string.Join("\n", paths)),
-                    configs.Count) is not { } answer)
+                    configs.Count,
+                    needed) is not { } answer)
             {
-                return;
+                return null;
             }
 
             configAction = answer;
@@ -970,30 +968,50 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
         // Unasked, the check a removal of several makes still comes first when it has something to
         // say: other installed items that use this one, or folders a hand-installed item's removal
-        // deletes - the question would have listed those folders.
-        if (!new SettingsService().Load().ConfirmUnsubscribe && !CheckBeforeRemoving([mod])) return;
+        // deletes - the question would have listed both.
+        if (!new SettingsService().Load().ConfirmUnsubscribe && !CheckBeforeRemoving([mod])) return null;
 
+        string said;
         IsBusy = true;
         try
         {
-            StatusMessage = (await RemoveConfirmedAsync(mod, installPath, configAction)).Message;
+            said = (await RemoveConfirmedAsync(mod, installPath, configAction)).Message;
             ModRemoved?.Invoke(this, EventArgs.Empty);
         }
         catch (ModInstallException ex)
         {
             // SPT or its server is running - the message names what to close.
-            StatusMessage = ModInstallProblems.Describe(ex);
+            said = ModInstallProblems.Describe(ex);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
-            StatusMessage = Text(Strings.Installed_RemoveFailedFormat, mod.Name, ex.Message);
+            said = Text(Strings.Installed_RemoveFailedFormat, mod.Name, ex.Message);
         }
         finally
         {
             IsBusy = false;
         }
 
+        // Said after the rescan, which puts the page's count in the status line: said before it,
+        // "Removed X." was replaced before it could be read.
         await ScanAsync();
+        return StatusMessage = said;
+    }
+
+    //
+    // The card as this page's own scan has it. The item page and the right-click menu hand in the
+    // card from Browse's scan, whose files the dependency check here does not know - so what uses
+    // the mod would go unfound. Matched by folder; the card handed in if this scan has no match.
+    //
+    private async Task<InstalledModCardViewModel> OwnCardAsync(InstalledModCardViewModel mod)
+    {
+        if (_all.Contains(mod)) return mod;
+        if (_all.Count == 0) await ScanAsync();
+
+        return _all.FirstOrDefault(c =>
+                   c.IsAddon == mod.IsAddon
+                   && string.Equals(c.FolderPath, mod.FolderPath, StringComparison.OrdinalIgnoreCase))
+               ?? mod;
     }
 
     // A hand-installed mod's folders - what removing it deletes.
@@ -1078,7 +1096,12 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         {
             var body = new System.Windows.Controls.StackPanel { MaxWidth = 640 };
             body.Children.Add(Paragraph(Strings.Installed_UnsubscribeSelectedBody(removing.Count, removing.Count, AppPaths.LegacyConfigsDirectory)));
-            body.Children.Add(RemoveCheckDialog.List(removing.Select(c => (c.DisplayTitle, "")).ToList(), monospace: false));
+            // Each by its title, and beside it the folder or file it is installed as when that says more
+            // - two copies of one mod share a title.
+            body.Children.Add(RemoveCheckDialog.List(
+                removing.Select(c => (c.DisplayTitle,
+                    string.Equals(c.DisplayTitle, c.Name, StringComparison.OrdinalIgnoreCase) ? "" : c.Name)).ToList(),
+                monospace: false));
             body.Children.Add(Paragraph(Strings.Installed_UnsubscribeSelectedDisableHint, top: 12));
             dontAsk = AddDontAsk(body);
 
@@ -1099,14 +1122,20 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     // ones deletes - asked about only when there is either. False when that was cancelled.
     private bool CheckBeforeRemoving(IReadOnlyList<InstalledModCardViewModel> targets)
     {
-        var needed = AffectedCards(targets.ToList(), disable: true)
+        var needed = NeededBy(targets);
+        var handInstalled = targets.Where(c => !c.IsAppManaged).ToList();
+        var folders = handInstalled.SelectMany(LegacyPaths).ToList();
+
+        return (needed.Count == 0 && folders.Count == 0)
+            || RemoveCheckDialog.Ask(needed, folders, targets.Count, handInstalled.Count);
+    }
+
+    // Enabled installed items, outside these, that use one of them - and how.
+    private List<(string Name, string Detail)> NeededBy(IReadOnlyList<InstalledModCardViewModel> targets) =>
+        AffectedCards(targets.ToList(), disable: true)
             .Where(a => !a.Card.IsDisabled)
             .Select(a => (a.Card.DisplayTitle, a.Detail))
             .ToList();
-        var folders = targets.Where(c => !c.IsAppManaged).SelectMany(LegacyPaths).ToList();
-
-        return (needed.Count == 0 && folders.Count == 0) || RemoveCheckDialog.Ask(needed, folders);
-    }
 
     // What RemoveModsAsync and Unsubscribe selected share. Returns what to say, or null when the
     // check was cancelled.
@@ -1850,13 +1879,24 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     // again" was ticked (Options > Unsubscribing turns it back on): then the configs are kept, the
     // answer that deletes nothing.
     //
-    private static ConfigAction? ConfirmRemoval(string modName, string message, int configCount)
+    private static ConfigAction? ConfirmRemoval(
+        string modName, string message, int configCount, IReadOnlyList<(string Name, string Detail)> needed)
     {
         var settingsService = new SettingsService();
         if (!settingsService.Load().ConfirmUnsubscribe) return ConfigAction.Keep;
 
         var body = new System.Windows.Controls.StackPanel { MaxWidth = 640 };
         body.Children.Add(Paragraph(message));
+
+        // What may stop working - what a removal of several checks for, named here too.
+        if (needed.Count > 0)
+        {
+            body.Children.Add(Paragraph(Strings.RemoveCheck_NeededIntro(1, 1)));
+            var list = RemoveCheckDialog.List(needed, monospace: false);
+            list.Margin = new Thickness(0, 0, 0, 12);
+            body.Children.Add(list);
+        }
+
         if (configCount > 0)
             body.Children.Add(Paragraph(Strings.Installed_UnsubscribeConfigs(configCount, modName, configCount, AppPaths.LegacyConfigsDirectory)));
 
@@ -1907,6 +1947,10 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         {
             Content = Strings.Installed_UnsubscribeDontAsk,
             Margin = new Thickness(0, 4, 0, 0),
+
+            // WPF UI's check box keeps 11px of padding before its box (CheckBoxPadding 11,5,11,6);
+            // without it the box lines up with the text above, as Steam's dialogs have it.
+            Padding = new Thickness(0, 5, 11, 6),
 
             // The dialog's own text colour: it is Steam-dark whatever the app's theme.
             Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0xAC, 0xB2, 0xB8)),

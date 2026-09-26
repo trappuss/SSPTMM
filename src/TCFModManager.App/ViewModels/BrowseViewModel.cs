@@ -816,15 +816,17 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
         });
 
         // Keyed by Guid when available, MatchedModName as a fallback. Only matched entries are indexed.
+        // With a mod on disk twice (the install and a copy), the one this app installed speaks for
+        // it: it is what the item page's Unsubscribe and Update act on.
         _installedByGuid = matched
             .Where(m => !string.IsNullOrWhiteSpace(m.Guid))
             .GroupBy(m => m.Guid!, StringComparer.OrdinalIgnoreCase)
-            .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
+            .ToDictionary(g => g.Key, g => g.OrderByDescending(m => m.IsAppManaged).First(), StringComparer.OrdinalIgnoreCase);
 
         _installedByName = matched
             .Where(m => !string.IsNullOrWhiteSpace(m.MatchedModName))
             .GroupBy(m => m.MatchedModName!, StringComparer.OrdinalIgnoreCase)
-            .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
+            .ToDictionary(g => g.Key, g => g.OrderByDescending(m => m.IsAppManaged).First(), StringComparer.OrdinalIgnoreCase);
     }
 
     //

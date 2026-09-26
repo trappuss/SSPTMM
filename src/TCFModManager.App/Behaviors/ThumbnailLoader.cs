@@ -427,6 +427,20 @@ public static class ThumbnailLoader
         return $"https://files.sp-mod.com/mods/{match.Groups[1].Value}_{copyWidth}w.webp";
     }
 
+    // Whether a smaller copy has been shown, and whether one has had to give way to the full
+    // picture, this session: each logged once at Info, so a normal log (not only a verbose one)
+    // says whether the smaller copies work on this machine.
+    private static bool _smallerShownLogged;
+    private static bool _smallerFailedLogged;
+
+    // error: why the download failed, or null when it arrived but could not be decoded.
+    private static void SmallerFailed(string smaller, string? error)
+    {
+        if (_smallerFailedLogged) return;
+        _smallerFailedLogged = true;
+        AppLog.Info("Thumbnails", $"a smaller copy gave way to the full picture ({error ?? "not decoded"}), first time this session: {smaller}");
+    }
+
     private static async Task<Outcome> LoadAsync(Request request)
     {
         var url = request.Url;
@@ -441,11 +455,18 @@ public static class ThumbnailLoader
                 if (fromSmall is not null)
                 {
                     AppLog.Debug("Thumbnails", $"ThumbnailLoader: loaded {small.Length} bytes after {sw.ElapsedMilliseconds}ms for {smaller}");
+                    if (!_smallerShownLogged)
+                    {
+                        _smallerShownLogged = true;
+                        AppLog.Info("Thumbnails", $"smaller copies in use - the first: {small.Length:N0} bytes for {smaller}");
+                    }
+
                     return Shown(request, fromSmall);
                 }
 
                 // Fetched but unreadable: the full one below.
                 AppLog.Debug("Thumbnails", $"ThumbnailLoader: {smaller} could not be decoded; fetching the full picture");
+                SmallerFailed(smaller, null);
             }
             catch (OperationCanceledException) when (request.Cancel.IsCancellationRequested)
             {
@@ -455,6 +476,7 @@ public static class ThumbnailLoader
             {
                 // No smaller copy after all, or it failed: the full one below decides.
                 AppLog.Debug("Thumbnails", $"ThumbnailLoader: {smaller} - {ex.Message}; fetching the full picture");
+                SmallerFailed(smaller, ex.Message);
             }
         }
 

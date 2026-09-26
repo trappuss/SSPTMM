@@ -864,25 +864,8 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel, IModActi
 
         var installed = InstalledViewModel.Current ?? new InstalledViewModel();
 
-        // The removal's own message is the first thing that page says; the reload it sets off
-        // then replaces it with the page's mod count, which means nothing here.
-        string? said = null;
-        void Listen(object? sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(InstalledViewModel.StatusMessage)) said ??= installed.StatusMessage;
-        }
-
-        installed.PropertyChanged += Listen;
-        try
-        {
-            await installed.RemoveCommand.ExecuteAsync(Installed);
-        }
-        finally
-        {
-            installed.PropertyChanged -= Listen;
-        }
-
-        if (said is not null) Message = said;
+        // What the removal itself said (null when cancelled) - not the page's count after it.
+        if (await installed.RemoveOneAsync(Installed) is { } said) Message = said;
     }
 
     // The same dialog Subscribed items opens for a mod: every version, its changelog, Update.

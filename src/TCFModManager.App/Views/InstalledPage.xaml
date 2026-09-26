@@ -332,8 +332,8 @@
                 Command="{Binding UndoCommand}"
                 Visibility="{Binding CanUndo, Converter={StaticResource BoolToVis}}" />
 
-            <!-- Turns the card grid into a tick-list for disabling several mods at once. Cards
-                 view only; group view has its own per-group buttons. -->
+            <!-- Turns the cards, or List's and Groups' rows, into a tick-list for acting on several
+                 items at once. -->
             <ui:Button
                 DockPanel.Dock="Right"
                 Margin="0,0,8,0"
@@ -341,7 +341,6 @@
                 Icon="{ui:SymbolIcon SelectAllOn24}"
                 ToolTip="{loc:Str Installed_MultiSelectToolTip}"
                 Appearance="{Binding SelectionMode, Converter={StaticResource BoolToAppearance}}"
-                Visibility="{Binding ShowCards, Converter={StaticResource BoolToVis}}"
                 Click="SelectMode_Click" />
 
             <!-- Open/close everything the filters match, in whichever of the two expandable views
@@ -605,9 +604,8 @@
             </WrapPanel>
         </DockPanel>
 
-        <!-- Multi-select bar. Shares row 3 with the group management bar below, which is safe
-             because switching to group view turns selection mode off (see
-             InstalledViewModel.OnViewModeChanged) - the two can never show together. -->
+        <!-- Multi-select bar. Shares row 3 with the group management bar below, which steps
+             aside while selecting (InstalledViewModel.ShowGroupBar) - the two never show together. -->
         <DockPanel
             Grid.Row="3"
             Margin="0,0,0,8"
@@ -668,11 +666,12 @@
                 Text="{Binding SelectedCountLabel}" />
         </DockPanel>
 
-        <!-- Group management bar - only meaningful, so only shown, in group view. -->
+        <!-- Group management bar - only meaningful, so only shown, in group view, and not while
+             selecting, when the selection bar has this row. -->
         <DockPanel
             Grid.Row="3"
             Margin="0,0,0,8"
-            Visibility="{Binding ShowGroups, Converter={StaticResource BoolToVis}}">
+            Visibility="{Binding ShowGroupBar, Converter={StaticResource BoolToVis}}">
             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
                 <TextBlock Text="{loc:Str Installed_SortGroupsLabel}" Foreground="{DynamicResource TextFillColorPrimaryBrush}" VerticalAlignment="Center" Margin="0,0,6,0" />
                 <ComboBox
@@ -1103,12 +1102,22 @@
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="Auto" />
+                                                            <ColumnDefinition Width="Auto" />
                                                             <ColumnDefinition Width="*" />
                                                             <ColumnDefinition Width="Auto" />
                                                         </Grid.ColumnDefinitions>
 
-                                                        <ui:SymbolIcon
+                                                        <!-- Multi select only; a click on the row ticks it then
+                                                             (ModRow_PreviewMouseLeftButtonDown). -->
+                                                        <CheckBox
                                                             Grid.Column="0"
+                                                            Margin="0,0,8,0"
+                                                            VerticalAlignment="Center"
+                                                            IsChecked="{Binding IsSelected}"
+                                                            Visibility="{Binding DataContext.SelectionMode, RelativeSource={RelativeSource AncestorType={x:Type Page}}, Converter={StaticResource BoolToVis}}" />
+
+                                                        <ui:SymbolIcon
+                                                            Grid.Column="1"
                                                             Margin="0,0,8,0"
                                                             VerticalAlignment="Center"
                                                             FontSize="20"
@@ -1116,7 +1125,7 @@
                                                             Style="{StaticResource StatusIcon}"
                                                             ToolTip="{Binding StatusTooltip}" />
 
-                                                        <StackPanel Grid.Column="1">
+                                                        <StackPanel Grid.Column="2">
                                                             <TextBlock
                                                                 FontWeight="SemiBold"
                                                                 TextTrimming="CharacterEllipsis"
@@ -1140,7 +1149,7 @@
                                                         <!-- Per-row disable toggle. ModRow_PreviewMouseLeftButtonDown
                                                              steps aside for anything inside a button, so this click
                                                              isn't swallowed by the row's own click/drag gesture. -->
-                                                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                                        <StackPanel Grid.Column="3" VerticalAlignment="Center">
                                                             <ui:Button
                                                                 Padding="4"
                                                                 Appearance="Transparent"
@@ -1187,23 +1196,35 @@
             <ItemsControl Focusable="False" ItemsSource="{Binding ListItems}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="{x:Type viewmodels:InstalledModCardViewModel}">
+                        <!-- TickableCardExpander, as the cards: in Multi select a ticked row
+                             carries the accent edge, and a click on it ticks it. -->
                         <ui:CardExpander
-                            Style="{StaticResource HoverCardExpander}"
+                            Style="{StaticResource TickableCardExpander}"
                             Margin="0,0,6,6"
                             behaviors:ModContextMenu.ModId="{Binding CatalogModId}"
                             IsExpanded="{Binding IsRowExpanded, Mode=TwoWay}"
-                            Opacity="{Binding CardOpacity}">
+                            Opacity="{Binding CardOpacity}"
+                            PreviewMouseLeftButtonDown="Card_PreviewMouseLeftButtonDown">
                             <ui:CardExpander.Header>
                                 <Grid Margin="0,0,8,0">
                                     <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
 
-                                    <ui:SymbolIcon
+                                    <!-- Multi select only, as on the cards. -->
+                                    <CheckBox
                                         Grid.Column="0"
+                                        Margin="0,0,8,0"
+                                        VerticalAlignment="Center"
+                                        IsChecked="{Binding IsSelected}"
+                                        Visibility="{Binding DataContext.SelectionMode, RelativeSource={RelativeSource AncestorType={x:Type Page}}, Converter={StaticResource BoolToVis}}" />
+
+                                    <ui:SymbolIcon
+                                        Grid.Column="1"
                                         Margin="0,0,12,0"
                                         VerticalAlignment="Center"
                                         FontSize="20"
@@ -1211,7 +1232,7 @@
                                         Style="{StaticResource StatusIcon}"
                                         ToolTip="{Binding StatusTooltip}" />
 
-                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
                                         <TextBlock
                                             FontWeight="SemiBold"
                                             TextTrimming="CharacterEllipsis"
@@ -1235,7 +1256,7 @@
                                     <!-- Group membership and disabled state, both readable without
                                          opening the row. -->
                                     <StackPanel
-                                        Grid.Column="2"
+                                        Grid.Column="3"
                                         Orientation="Horizontal"
                                         VerticalAlignment="Center"
                                         Margin="12,0,12,0">
@@ -1262,7 +1283,7 @@
 
                                     <!-- Only the non-destructive actions live in the header; Remove
                                          and Sort out are inside the row, which has to be opened first. -->
-                                    <StackPanel Grid.Column="3" VerticalAlignment="Center">
+                                    <StackPanel Grid.Column="4" VerticalAlignment="Center">
                                         <ui:Button
                                             Padding="6"
                                             Appearance="Transparent"
