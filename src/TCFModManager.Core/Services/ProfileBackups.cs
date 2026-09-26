@@ -25,6 +25,11 @@ public sealed record ProfileBackup(string Path, DateTime TakenAt, string Reason,
 //
 // Never a reason for an install not to go ahead: a copy that cannot be taken is logged and skipped.
 //
+// SPT keeps copies of its own inside the profiles folder (user/profiles/backups on SPT 4.1, up to
+// fifteen, one each time the server starts - SPT_Data/configs/backup.json). They are left out of
+// these copies and never written back: they are not the profiles, they would make every copy many
+// times the size, and each server start would count as a change.
+//
 public sealed class ProfileBackups(string? root = null, int keep = 10)
 {
     public const string BeforeInstall = "install";
@@ -48,6 +53,56 @@ public sealed class ProfileBackups(string? root = null, int keep = 10)
         var folder = System.IO.Path.Combine(installPath!, serverRoot, "user", "profiles");
         return Directory.Exists(folder) ? folder : null;
     }
+
+    /// <summary>Where, inside the profiles folder, SPT keeps its own backups ("backups"), as a
+    /// relative path with '/' separators - or null when its backup config names a folder outside
+    /// the profiles folder. Read from the server's backup.json; SPT's shipped default when that
+    /// cannot be read.</summary>
+    public static string? SptOwnBackupFolder(string installPath)
+    {
+        const string shippedDefault = "backups";
+
+        if (!SptInstallationService.TryGetServerRoot(installPath, out var serverRoot)) return shippedDefault;
+
+        var server = System.IO.Path.GetFullPath(System.IO.Path.Combine(installPath, serverRoot));
+        var profiles = System.IO.Path.Combine(server, "user", "profiles");
+        var config = System.IO.Path.Combine(server, "SPT_Data", "configs", "backup.json");
+
+        string? directory = null;
+        try
+        {
+            if (File.Exists(config))
+            {
+                using var doc = System.Text.Json.JsonDocument.Parse(File.ReadAllText(config),
+                    new System.Text.Json.JsonDocumentOptions { CommentHandling = System.Text.Json.JsonCommentHandling.Skip, AllowTrailingCommas = true });
+                if (doc.RootElement.ValueKind == System.Text.Json.JsonValueKind.Object
+                    && doc.RootElement.TryGetProperty("directory", out var value)
+                    && value.ValueKind == System.Text.Json.JsonValueKind.String)
+                {
+                    directory = value.GetString();
+                }
+            }
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Text.Json.JsonException)
+        {
+            AppLog.Debug("Profiles", $"couldn't read {config}: {ex.Message}");
+        }
+
+        if (string.IsNullOrWhiteSpace(directory)) return shippedDefault;
+
+        // Relative to the server's folder, the way the server reads it ("./user/profiles/backups").
+        var full = System.IO.Path.GetFullPath(System.IO.Path.Combine(server, directory.Replace('\\', '/')));
+        var relative = System.IO.Path.GetRelativePath(profiles, full).Replace('\\', '/').TrimEnd('/');
+        return relative == "." || relative.StartsWith("..", StringComparison.Ordinal) || System.IO.Path.IsPathRooted(relative)
+            ? null
+            : relative;
+    }
+
+    // Whether a path inside the profiles folder ('/' separators) is inside SPT's own backups.
+    private static bool IsSptOwnBackup(string relative, string? sptBackups) =>
+        sptBackups is not null
+        && (relative.Equals(sptBackups, StringComparison.OrdinalIgnoreCase)
+            || relative.StartsWith(sptBackups + "/", StringComparison.OrdinalIgnoreCase));
 
     /// <summary>The folder this install's copies are kept in.</summary>
     public string FolderFor(string installPath)
@@ -85,6 +140,7 @@ public sealed class ProfileBackups(string? root = null, int keep = 10)
         if (!Directory.Exists(folder)) return [];
 
         var found = new List<ProfileBackup>();
+        var sptBackups = SptOwnBackupFolder(installPath);
         foreach (var zip in Directory.EnumerateFiles(folder, "*.zip"))
         {
             if (Parse(zip) is not { } name) continue;
@@ -92,8 +148,10 @@ public sealed class ProfileBackups(string? root = null, int keep = 10)
             int files;
             try
             {
+                // What a restore would put back: a copy taken before SPT's own backups were left
+                // out still holds them, and they are not counted.
                 using var archive = ZipFile.OpenRead(zip);
-                files = archive.Entries.Count(e => !string.IsNullOrEmpty(e.Name));
+                files = archive.Entries.Count(e => !string.IsNullOrEmpty(e.Name) && !IsSptOwnBackup(e.FullName.Replace('\\', '/'), sptBackups));
             }
             catch (Exception ex) when (ex is IOException or InvalidDataException or UnauthorizedAccessException)
             {
@@ -124,10 +182,14 @@ public sealed class ProfileBackups(string? root = null, int keep = 10)
             // Read in full first: taking the copy of what is there now may make room by deleting the
             // oldest copy - which can be this one (it is also spared, so it stays in the list).
             var full = System.IO.Path.GetFullPath(folder) + System.IO.Path.DirectorySeparatorChar;
+            var sptBackups = SptOwnBackupFolder(installPath);
             var files = new List<(string Destination, byte[] Bytes)>();
             using (var archive = ZipFile.OpenRead(backup.Path))
             {
-                foreach (var entry in archive.Entries.Where(e => !string.IsNullOrEmpty(e.Name)))
+                // SPT's own backups are never written back (a copy taken before they were left out
+                // still has them): SPT has pruned those since, and keeps its own count.
+                foreach (var entry in archive.Entries.Where(e => !string.IsNullOrEmpty(e.Name)
+                             && !IsSptOwnBackup(e.FullName.Replace('\\', '/'), sptBackups)))
                 {
                     var destination = System.IO.Path.GetFullPath(System.IO.Path.Combine(folder, entry.FullName));
                     if (!destination.StartsWith(full, StringComparison.OrdinalIgnoreCase)) continue;
@@ -153,8 +215,10 @@ public sealed class ProfileBackups(string? root = null, int keep = 10)
     {
         if (ProfilesFolder(installPath) is not { } profiles) return null;
 
+        var sptBackups = SptOwnBackupFolder(installPath);
         var files = Directory.GetFiles(profiles, "*", SearchOption.AllDirectories)
             .Select(f => (Full: f, Relative: System.IO.Path.GetRelativePath(profiles, f).Replace('\\', '/')))
+            .Where(f => !IsSptOwnBackup(f.Relative, sptBackups))
             .OrderBy(f => f.Relative, StringComparer.Ordinal)
             .ToList();
         if (files.Count == 0) return null;

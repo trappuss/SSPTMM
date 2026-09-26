@@ -156,4 +156,74 @@ public class ProfileBackupsTests : IDisposable
         Assert.Equal("v0", ProfileText("a.json"));
         Assert.Contains(_backups.List(_install), b => b.Path == oldest.Path);
     }
+
+    // ---- SPT's own backups (user/profiles/backups, one per server start) ----
+
+    private void SptBackup(string stamp, string text)
+    {
+        var folder = Path.Combine(_profiles, "backups", stamp);
+        Directory.CreateDirectory(folder);
+        File.WriteAllText(Path.Combine(folder, "a.json"), text);
+    }
+
+    [Fact]
+    public void SptsOwnBackups_AreLeftOut_AndANewOneIsNotAChange()
+    {
+        Profile("a.json", "1");
+        SptBackup("2026-09-25_23-23-04", "0");
+
+        var backup = _backups.BackupIfChanged(_install, ProfileBackups.BeforeInstall);
+
+        Assert.NotNull(backup);
+        Assert.Equal(1, backup.Files);
+        using (var zip = ZipFile.OpenRead(backup.Path)) Assert.Equal(["a.json"], zip.Entries.Select(e => e.FullName));
+
+        // The server started again and made another of its own: the profiles are as they were.
+        SptBackup("2026-09-26_16-33-36", "1");
+        Assert.Null(_backups.BackupIfChanged(_install, ProfileBackups.BeforeRemove));
+    }
+
+    [Fact]
+    public void WhereSptKeepsItsBackups_IsReadFromItsConfig()
+    {
+        var configs = Path.Combine(_install, "SPT", "SPT_Data", "configs");
+        Directory.CreateDirectory(configs);
+
+        File.WriteAllText(Path.Combine(configs, "backup.json"), """{ "enabled": true, "directory": "./user/profiles/old copies", }""");
+        Assert.Equal("old copies", ProfileBackups.SptOwnBackupFolder(_install));
+
+        // Somewhere else entirely: nothing in the profiles folder is SPT's.
+        File.WriteAllText(Path.Combine(configs, "backup.json"), """{ "directory": "./user/profile-backups" }""");
+        Assert.Null(ProfileBackups.SptOwnBackupFolder(_install));
+        SptBackup("x", "kept");
+        Profile("a.json", "1");
+        Assert.Equal(2, _backups.BackupIfChanged(_install, ProfileBackups.BeforeInstall)?.Files);
+
+        // Unreadable: SPT's shipped default.
+        File.WriteAllText(Path.Combine(configs, "backup.json"), "{ not json");
+        Assert.Equal("backups", ProfileBackups.SptOwnBackupFolder(_install));
+    }
+
+    [Fact]
+    public void RestoringAnOlderCopyThatHoldsSptsBackups_DoesNotWriteThemBack()
+    {
+        // A copy taken before they were left out.
+        var folder = _backups.FolderFor(_install);
+        Directory.CreateDirectory(folder);
+        var old = Path.Combine(folder, "20260101-000000-000_install_abcdef123456.zip");
+        using (var zip = ZipFile.Open(old, ZipArchiveMode.Create))
+        {
+            using (var w = new StreamWriter(zip.CreateEntry("a.json").Open())) w.Write("old");
+            using (var w = new StreamWriter(zip.CreateEntry("backups/2025-01-01_00-00-00/a.json").Open())) w.Write("ancient");
+        }
+
+        Profile("a.json", "new");
+        var listed = Assert.Single(_backups.List(_install));
+        Assert.Equal(1, listed.Files);
+
+        _backups.Restore(listed, _install);
+
+        Assert.Equal("old", ProfileText("a.json"));
+        Assert.False(Directory.Exists(Path.Combine(_profiles, "backups")));
+    }
 }
