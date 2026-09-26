@@ -153,11 +153,8 @@ public static class ServerModMetadataReader
                 if (name == ".ctor" && ParameterCount(reader, method) == 0)
                 {
                     var start = 0;
-                    var branched = false;
                     for (var i = 0; i < il.Count; i++)
                     {
-                        if (IsBranch(il[i].Op)) branched = true;
-
                         var property = il[i].Op == Stfld ? BackingFieldOf(reader, il[i].Token)
                             : il[i].Op is Call or Callvirt ? SetterOf(reader, il[i].Token, chain)
                             : null;
@@ -166,10 +163,11 @@ public static class ServerModMetadataReader
                         {
                             var region = il.GetRange(start, i - start);
 
-                            // A store to this object ("ldarg.0; <value>; stfld/call"), made every time:
-                            // after a branch it may not be, and to another object it is not this one's.
-                            // Either still counts as a place the property is set, with no value.
-                            Add(property, !branched && region is [{ Op: Ldarg0 }, ..] ? region : []);
+                            // A store to this object ("ldarg.0; <value>; stfld/call"), made exactly once:
+                            // one a branch can skip or repeat may not be, and one to another object is
+                            // not this one's. Either still counts as a place the property is set, with
+                            // no value.
+                            Add(property, !MaybeSkipped(il, i) && region is [{ Op: Ldarg0 }, ..] ? region : []);
                         }
 
                         // Each store, and the call of the base constructor, ends the one before.
@@ -339,9 +337,6 @@ public static class ServerModMetadataReader
             : null;
     }
 
-    // br, br.s, the conditional branches, switch, leave: past one of these, a store may not happen.
-    private static bool IsBranch(int op) => op is (>= 0x2B and <= 0x45) or 0xDD or 0xDE;
-
     private static (string? Declaring, string? Member) MethodName(MetadataReader reader, int token)
     {
         var handle = MetadataTokens.EntityHandle(token);
@@ -377,7 +372,8 @@ public static class ServerModMetadataReader
     private const int Nop = 0x00, Ldarg0 = 0x02, Ldnull = 0x14, Dup = 0x25, Ldstr = 0x72, Ldfld = 0x7B, Stfld = 0x7D,
         Newobj = 0x73, Call = 0x28, Callvirt = 0x6F, Ret = 0x2A;
 
-    private readonly record struct Instruction(int Op, int Token, string? Text, int? Int)
+    // One IL instruction: where it starts, and for a branch, where it can go.
+    private readonly record struct Instruction(int Op, int Token, string? Text, int? Int, int Offset = 0, int[]? Targets = null)
     {
         public bool IsInt => Int is not null;
     }
@@ -389,6 +385,7 @@ public static class ServerModMetadataReader
 
         while (reader.RemainingBytes > 0)
         {
+            var at = reader.Offset;
             int op = reader.ReadByte();
 
             // A debug build's padding, between every step: nothing to read, and it would only split
@@ -399,7 +396,7 @@ public static class ServerModMetadataReader
             {
                 op = 0xFE00 | reader.ReadByte();
                 SkipTwoByteOperand(ref reader, op);
-                instructions.Add(new Instruction(op, 0, null, null));
+                instructions.Add(new Instruction(op, 0, null, null, at));
                 continue;
             }
 
@@ -407,32 +404,66 @@ public static class ServerModMetadataReader
             {
                 case Ldstr:
                     var token = reader.ReadInt32();
-                    instructions.Add(new Instruction(op, token, metadata.GetUserString(MetadataTokens.UserStringHandle(token & 0x00FFFFFF)), null));
+                    instructions.Add(new Instruction(op, token, metadata.GetUserString(MetadataTokens.UserStringHandle(token & 0x00FFFFFF)), null, at));
                     break;
                 case >= 0x15 and <= 0x1E: // ldc.i4.m1 .. ldc.i4.8
-                    instructions.Add(new Instruction(op, 0, null, op - 0x16));
+                    instructions.Add(new Instruction(op, 0, null, op - 0x16, at));
                     break;
                 case 0x1F: // ldc.i4.s
-                    instructions.Add(new Instruction(op, 0, null, reader.ReadSByte()));
+                    instructions.Add(new Instruction(op, 0, null, reader.ReadSByte(), at));
                     break;
                 case 0x20: // ldc.i4
-                    instructions.Add(new Instruction(op, 0, null, reader.ReadInt32()));
+                    instructions.Add(new Instruction(op, 0, null, reader.ReadInt32(), at));
                     break;
-                case 0x45: // switch
-                    var count = reader.ReadUInt32();
-                    for (var i = 0; i < count; i++) reader.ReadInt32();
-                    instructions.Add(new Instruction(op, 0, null, null));
+                case (>= 0x2B and <= 0x37) or 0xDE: // short branches, leave.s
+                {
+                    var delta = reader.ReadSByte();
+                    instructions.Add(new Instruction(op, 0, null, null, at, [reader.Offset + delta]));
                     break;
+                }
+                case (>= 0x38 and <= 0x44) or 0xDD: // branches, leave
+                {
+                    var delta = reader.ReadInt32();
+                    instructions.Add(new Instruction(op, 0, null, null, at, [reader.Offset + delta]));
+                    break;
+                }
+                case 0x45: // switch: relative to the end of the whole instruction
+                {
+                    var count = (int)reader.ReadUInt32();
+                    var deltas = new int[count];
+                    for (var i = 0; i < count; i++) deltas[i] = reader.ReadInt32();
+                    var next = reader.Offset;
+                    instructions.Add(new Instruction(op, 0, null, null, at, [.. deltas.Select(d => next + d)]));
+                    break;
+                }
                 default:
                     var size = OperandSize(op);
                     var operand = size == 4 ? reader.ReadInt32() : 0;
                     if (size is not (0 or 4)) reader.Offset += size;
-                    instructions.Add(new Instruction(op, operand, null, null));
+                    instructions.Add(new Instruction(op, operand, null, null, at));
                     break;
             }
         }
 
         return instructions;
+    }
+
+    //
+    // Whether the instruction at <paramref name="index"/> might not run, or might run more than once:
+    // a branch before it jumps past it, or one after it jumps back to or before it (a loop). A branch
+    // that only lands on it, as a ternary's does, still leaves it running once.
+    //
+    private static bool MaybeSkipped(List<Instruction> il, int index)
+    {
+        var at = il[index].Offset;
+        foreach (var branch in il)
+        {
+            if (branch.Targets is not { } targets) continue;
+            if (branch.Offset < at && targets.Any(t => t > at)) return true;
+            if (branch.Offset > at && targets.Any(t => t <= at)) return true;
+        }
+
+        return false;
     }
 
     private static int OperandSize(int op) => op switch

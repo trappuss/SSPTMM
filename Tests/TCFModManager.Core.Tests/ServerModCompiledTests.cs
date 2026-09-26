@@ -299,4 +299,29 @@ public class ServerModCompiledTests : IDisposable
         Assert.Null(metadata?.Author);
         Assert.Null(metadata?.Name);
     }
+
+    [Theory]
+    [MemberData(nameof(Levels))]
+    public void ABranchInOneInitialiser_LeavesTheOthersRead(OptimizationLevel level)
+    {
+        var metadata = Build("""
+            public record ModMetadata : IModMetadata
+            {
+                public static bool Beta;
+                public string Name { get; init; } = Beta ? "T (beta)" : "T";
+                public System.Func<string> Label { get; init; } = () => "x";
+                public string Author { get; init; } = Beta switch { true => "b", _ => "a" };
+                public string ModGuid { get; init; } = "com.after.branches";
+                public Version Version { get; init; } = new("1.2.3");
+                public Range SptVersion { get; init; } = new("~4.1.0");
+                public Dictionary<string, Range> ModDependencies { get; init; } = new() { { "com.dep", new Range("~1.0.0") } };
+            }
+            """, level);
+
+        Assert.Equal("com.after.branches", metadata?.Guid);
+        Assert.Equal("1.2.3", metadata?.Version);
+        Assert.Equal([new ModDependencyRef("com.dep", false)], metadata!.Dependencies);
+        Assert.Null(metadata.Name);
+        Assert.Null(metadata.Author);
+    }
 }
