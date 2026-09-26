@@ -31,8 +31,11 @@ internal static class AppServices
     // self-defined group. Purely organizational; nothing else in the app reads it.
     public static ModGroupStore ModGroups { get; } = new();
 
+    // Copies of the SPT profiles, taken before the app changes the install - see ProfileBackups.
+    public static ProfileBackups ProfileBackups { get; } = new();
+
     // Places (and removes) a mod's files in the SPT install.
-    public static ModInstallService ModInstall { get; } = new(Downloads, InstallManifest);
+    public static ModInstallService ModInstall { get; } = new(Downloads, InstallManifest, profileBackups: ProfileBackups);
 
     // App-lifetime download queue. Declared before Browse because BrowseViewModel's
     // constructor subscribes to DownloadQueue.ItemInstalled and needs it already constructed.

@@ -1740,6 +1740,9 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         ModDisableOutcome outcome;
         try
         {
+            if (AppServices.SptEnvironment.InstallPath is { Length: > 0 } profilesOf)
+                AppServices.ProfileBackups.BackupIfChanged(profilesOf, ProfileBackups.BeforeDisable);
+
             outcome = ModDisableService.Apply(entries, disable, AppServices.SptEnvironment.InstallPath);
         }
         catch (ModInstallException ex)

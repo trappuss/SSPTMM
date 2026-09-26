@@ -21,6 +21,7 @@ public partial class OptionsPage : Page
     {
         AppServices.ServerMap.RefreshLocalKey();
         ViewModel.Reload();
+        ViewModel.Profiles.Refresh();
     }
 
     private void DataFiles_Click(object sender, RoutedEventArgs e) =>

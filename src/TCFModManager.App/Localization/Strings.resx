@@ -6474,4 +6474,106 @@ This was written to:
     <value>{0} is being installed right now. Wait for it to finish (see Downloads), then try again.</value>
     <comment>Removing, disabling or sorting out mods while the queue installs one. {0} is the mod being installed.</comment>
   </data>
+  <data name="ModLists_ImportClashTitle" xml:space="preserve">
+    <value>Import mod list</value>
+    <comment>Title of the question asked when an imported file would replace a list already here.</comment>
+  </data>
+  <data name="ModLists_ImportOwnListFormat" xml:space="preserve">
+    <value>This file holds "{0}", a list you made in this app. Importing it over yours would make yours read-only and undo any changes made since the file was saved.
+
+Yes - import it as a separate list, and keep yours as it is
+No - replace yours with the file
+Cancel - don't import</value>
+    <comment>Asked when importing a file of one of the user's own lists. {0} is the list. The three lines name the buttons Yes, No and Cancel.</comment>
+  </data>
+  <data name="ModLists_ImportOlderFormat" xml:space="preserve">
+    <value>This file holds an older revision of "{0}" (revision {1}; you have revision {2}). Replace yours with the older one?</value>
+    <comment>{0} the list, {1} the file's revision, {2} the stored one.</comment>
+  </data>
+  <data name="ModLists_ImportedCopyNameFormat" xml:space="preserve">
+    <value>{0} (imported)</value>
+    <comment>Name of a list imported beside one of the user's own with the same identity. {0} is the list's name.</comment>
+  </data>
+  <data name="ModInstall_InUseRestoreProfilesFormat" xml:space="preserve">
+    <value>Close {0} before putting profiles back - the SPT server saves the profiles when it closes, and would save over the ones put back.</value>
+    <comment>Refusal while the server or game runs. {0} lists the programs.</comment>
+  </data>
+  <data name="Profiles_Header" xml:space="preserve">
+    <value>SPT profile backups</value>
+    <comment>Options card heading: copies of the SPT profiles.</comment>
+  </data>
+  <data name="Profiles_DescriptionFormat" xml:space="preserve">
+    <value>A copy of your SPT profiles (user/profiles) is kept before the app installs, updates, removes or disables mods, or applies a collection - whenever the profiles have changed since the last copy. Removing a mod can leave a profile holding items SPT no longer knows, and then it will not load; putting back a copy from before brings your character back. The last {0} copies are kept.</value>
+    <comment>Options card description. {0} is how many copies are kept.</comment>
+  </data>
+  <data name="Profiles_Empty" xml:space="preserve">
+    <value>No copies yet.</value>
+    <comment>Profile backups card with nothing in it.</comment>
+  </data>
+  <data name="Profiles_DetailFormat" xml:space="preserve">
+    <value>Files: {0} - {1}</value>
+    <comment>Under a copy: {0} how many files, {1} its size.</comment>
+  </data>
+  <data name="Profiles_Restore" xml:space="preserve">
+    <value>Put back</value>
+    <comment>Button on a copy: restore it.</comment>
+  </data>
+  <data name="Profiles_BackUpNow" xml:space="preserve">
+    <value>Back up now</value>
+    <comment>Button: take a copy of the profiles now.</comment>
+  </data>
+  <data name="Profiles_OpenFolder" xml:space="preserve">
+    <value>Open folder</value>
+    <comment>Button: open the folder the copies are kept in.</comment>
+  </data>
+  <data name="Profiles_ReasonInstall" xml:space="preserve">
+    <value>Before installing or updating a mod</value>
+    <comment>Why a copy was taken.</comment>
+  </data>
+  <data name="Profiles_ReasonRemove" xml:space="preserve">
+    <value>Before removing a mod</value>
+    <comment>Why a copy was taken.</comment>
+  </data>
+  <data name="Profiles_ReasonList" xml:space="preserve">
+    <value>Before applying a collection</value>
+    <comment>Why a copy was taken.</comment>
+  </data>
+  <data name="Profiles_ReasonDisable" xml:space="preserve">
+    <value>Before disabling or enabling mods</value>
+    <comment>Why a copy was taken.</comment>
+  </data>
+  <data name="Profiles_ReasonRestore" xml:space="preserve">
+    <value>Before putting back an older copy</value>
+    <comment>Why a copy was taken.</comment>
+  </data>
+  <data name="Profiles_ReasonManual" xml:space="preserve">
+    <value>Taken by hand</value>
+    <comment>Why a copy was taken.</comment>
+  </data>
+  <data name="Profiles_NoneFound" xml:space="preserve">
+    <value>There are no SPT profiles in this install yet - they are made the first time the server runs.</value>
+    <comment>Back up now with nothing to copy.</comment>
+  </data>
+  <data name="Profiles_BackedUp" xml:space="preserve">
+    <value>The profiles have been copied.</value>
+    <comment>After Back up now.</comment>
+  </data>
+  <data name="Profiles_FailedFormat" xml:space="preserve">
+    <value>That did not work: {0}</value>
+    <comment>A backup or restore failed. {0} the reason.</comment>
+  </data>
+  <data name="Profiles_RestoreTitle" xml:space="preserve">
+    <value>Put profiles back</value>
+    <comment>Title of the restore question.</comment>
+  </data>
+  <data name="Profiles_RestoreConfirmFormat" xml:space="preserve">
+    <value>Put back the profiles as they were on {0} ({1})?
+
+What is in them now is copied first, so this can be undone the same way. Profiles made since then are left as they are.</value>
+    <comment>{0} when the copy was taken, {1} why.</comment>
+  </data>
+  <data name="Profiles_RestoredFormat" xml:space="preserve">
+    <value>The profiles from {0} have been put back. What was there before is at the top of the list.</value>
+    <comment>After a restore. {0} when the copy was taken.</comment>
+  </data>
 </root>

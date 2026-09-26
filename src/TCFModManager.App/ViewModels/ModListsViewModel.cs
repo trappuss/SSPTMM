@@ -1649,12 +1649,50 @@ public partial class ModListsViewModel : LocalizedViewModel
         var list = read.List!;
         var existing = AppServices.ModLists.Find(list.Id);
 
+        // Replacing by Id is right for a newer revision of a list received before; for one's own
+        // list read back from a file, or an older file of a received one, the user is asked.
+        switch (AppServices.ModLists.ClashFor(list))
+        {
+            case ModListImportClash.YourOwnList:
+                var own = System.Windows.MessageBox.Show(
+                    Text(Strings.ModLists_ImportOwnListFormat, existing!.Name),
+                    Strings.ModLists_ImportClashTitle,
+                    System.Windows.MessageBoxButton.YesNoCancel,
+                    System.Windows.MessageBoxImage.Question);
+                if (own == System.Windows.MessageBoxResult.Yes)
+                {
+                    ImportAsSeparateList(list);
+                    return;
+                }
+
+                if (own != System.Windows.MessageBoxResult.No) return;
+                break;
+
+            case ModListImportClash.OlderThanStored:
+                var older = System.Windows.MessageBox.Show(
+                    Text(Strings.ModLists_ImportOlderFormat, existing!.Name, list.Revision, existing.Revision),
+                    Strings.ModLists_ImportClashTitle,
+                    System.Windows.MessageBoxButton.YesNo,
+                    System.Windows.MessageBoxImage.Question);
+                if (older != System.Windows.MessageBoxResult.Yes) return;
+                break;
+        }
+
         AppServices.ModLists.Add(list);
         Refresh(list.Id);
 
         StatusMessage = existing is null
             ? Text(Strings.ModLists_ImportedFormat, list.Name)
             : Text(Strings.ModLists_ImportUpdatedFormat, list.Name, existing.Revision, list.Revision);
+    }
+
+    // Beside the list it would have replaced, under a name that tells the two apart.
+    private void ImportAsSeparateList(ModList list)
+    {
+        var copy = ModListStore.AsSeparateList(list, Text(Strings.ModLists_ImportedCopyNameFormat, list.Name));
+        AppServices.ModLists.Add(copy);
+        Refresh(copy.Id);
+        StatusMessage = Text(Strings.ModLists_ImportedFormat, copy.Name);
     }
 
     private async Task RunAsync(Func<Task> work)

@@ -171,6 +171,8 @@ public sealed class ModListService
     {
         prompts ??= ModListPrompts.Reject;
 
+        await BackUpProfilesAsync(preview.Install.InstallPath);
+
         var result = await ModListApplier.ApplyAsync(
             preview.Plan,
             preview.Install.Candidates,
@@ -209,6 +211,12 @@ public sealed class ModListService
         return result;
     }
 
+    // A copy of the SPT profiles from before the list changes the install, off the UI thread.
+    private static Task BackUpProfilesAsync(string? installPath) =>
+        string.IsNullOrWhiteSpace(installPath)
+            ? Task.CompletedTask
+            : Task.Run(() => AppServices.ProfileBackups.BackupIfChanged(installPath, ProfileBackups.BeforeList));
+
     //
     // Puts the install back the way it was before the last list was applied.
     //
@@ -225,6 +233,8 @@ public sealed class ModListService
 
         var preview = await PreviewAsync(snapshot);
         if (preview is null) return null;
+
+        await BackUpProfilesAsync(preview.Install.InstallPath);
 
         var result = await ModListApplier.ApplyAsync(
             preview.Plan,

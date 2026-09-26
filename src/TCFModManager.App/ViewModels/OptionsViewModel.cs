@@ -267,6 +267,9 @@ public partial class OptionsViewModel : LocalizedViewModel
     //
     public ServerMapGateViewModel ServerMap => AppServices.ServerMap;
 
+    // Copies of the SPT profiles - see ProfileBackupsViewModel.
+    public ProfileBackupsViewModel Profiles { get; } = new();
+
     public OptionsViewModel()
     {
         InstallPathInput = SptEnvironment.InstallPath;

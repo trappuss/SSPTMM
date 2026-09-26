@@ -652,6 +652,73 @@
             </StackPanel>
         </ui:Card>
 
+        <!--
+            Copies of the SPT profiles, taken before the app changes the install (ProfileBackups).
+        -->
+        <ui:Card Padding="16" VerticalAlignment="Top" Margin="0,16,0,0">
+            <StackPanel DataContext="{Binding Profiles}">
+                <TextBlock
+                    Text="{loc:Str Profiles_Header}"
+                    FontWeight="SemiBold"
+                    Margin="0,0,0,4" />
+                <TextBlock
+                    TextWrapping="Wrap"
+                    Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                    Margin="0,0,0,8"
+                    Text="{Binding KeepText}" />
+
+                <TextBlock
+                    Margin="0,0,0,8"
+                    Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                    Text="{loc:Str Profiles_Empty}"
+                    Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibility}}" />
+
+                <ItemsControl ItemsSource="{Binding Backups}" Margin="0,0,0,8">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="0,0,0,6">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="170" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock VerticalAlignment="Center" Text="{Binding When}" />
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Why}" TextWrapping="Wrap" />
+                                    <TextBlock
+                                        Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                        Text="{Binding Detail}" />
+                                </StackPanel>
+                                <ui:Button
+                                    Grid.Column="2"
+                                    Margin="8,0,0,0"
+                                    Content="{loc:Str Profiles_Restore}"
+                                    Command="{Binding DataContext.RestoreCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                    CommandParameter="{Binding}" />
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <StackPanel Orientation="Horizontal">
+                    <ui:Button
+                        Content="{loc:Str Profiles_BackUpNow}"
+                        Command="{Binding BackUpNowCommand}" />
+                    <ui:Button
+                        Margin="8,0,0,0"
+                        Content="{loc:Str Profiles_OpenFolder}"
+                        Command="{Binding OpenFolderCommand}" />
+                </StackPanel>
+
+                <TextBlock
+                    Margin="0,8,0,0"
+                    TextWrapping="Wrap"
+                    Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                    Text="{Binding StatusMessage}"
+                    Visibility="{Binding StatusMessage, Converter={StaticResource NullToCollapsed}}" />
+            </StackPanel>
+        </ui:Card>
+
         <ui:Card Padding="16" VerticalAlignment="Top" Margin="0,16,0,0">
             <StackPanel>
                 <TextBlock

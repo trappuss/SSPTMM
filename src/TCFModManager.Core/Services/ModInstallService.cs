@@ -15,7 +15,8 @@ public sealed class ModInstallService(
     ConfigCarryOver? configCarryOver = null,
     ConfigUpdateLog? configUpdateLog = null,
     ModConfigOptionsStore? configOptions = null,
-    string? replacedFilesRoot = null)
+    string? replacedFilesRoot = null,
+    ProfileBackups? profileBackups = null)
 {
     // Copies of files installs have put their own over - see ReplacedFileStore.
     private readonly ReplacedFileStore _replaced = new(replacedFilesRoot ?? Path.Combine(AppPaths.DataDirectory, "ReplacedFiles"));
@@ -191,6 +192,9 @@ public sealed class ModInstallService(
         // An earlier install left half-done in this folder is put back before anything else changes
         // it - otherwise putting it back later would undo this one too.
         RecoverInterruptedInstalls(installPath);
+
+        // A copy of the SPT profiles from before the change, when they changed since the last one.
+        profileBackups?.BackupIfChanged(installPath, ProfileBackups.BeforeInstall);
 
         AppLog.Info("Install",
             $"{target.Name} {version.Version} ({(target.IsAddon ? "addon" : "mod")} {target.Id}) -> {installPath}");
@@ -672,6 +676,7 @@ public sealed class ModInstallService(
 
         // As for an install: anything left half-done is put back first.
         RecoverInterruptedInstalls(installPath);
+        profileBackups?.BackupIfChanged(installPath, ProfileBackups.BeforeRemove);
 
         var result = RemoveRecordedFiles(installPath, record, configs, null, ct);
 

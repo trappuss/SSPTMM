@@ -20,6 +20,9 @@ public enum ModInstallAction
 
     // Applying a mod list, which enables and disables mods in one pass.
     ApplyList,
+
+    // Putting a copy of the SPT profiles back.
+    RestoreProfiles,
 }
 
 //

@@ -470,4 +470,63 @@ public class ModListStoreTests : IDisposable
         Assert.Null(_store.BumpRevision(list.Id));
         Assert.Equal(1, _store.Find(list.Id)!.Revision);
     }
+
+    // ---------------------------------------------------------------- importing over a list here
+
+    private ModList ReadBack(ModList list)
+    {
+        var file = Path.Combine(_directory, "export.json");
+        ModListFile.Save(list, file);
+        return ModListFile.Load(file).List!;
+    }
+
+    [Fact]
+    public void ImportingYourOwnListFromAFile_IsAClash_NotAQuietReplace()
+    {
+        var mine = NewList("Mine", ModListOrigin.Local, new ModListEntry { Name = "SAIN" });
+        _store.Add(mine);
+
+        var incoming = ReadBack(mine);
+
+        Assert.Equal(ModListOrigin.Imported, incoming.Origin);
+        Assert.Equal(ModListImportClash.YourOwnList, _store.ClashFor(incoming));
+    }
+
+    [Fact]
+    public void AnOlderFileOfAReceivedList_IsAClash_ANewerOneIsNot()
+    {
+        var received = NewList("Theirs", ModListOrigin.Imported);
+        received.Revision = 3;
+        _store.Add(received);
+
+        var older = ReadBack(received);
+        older.Revision = 2;
+        var newer = ReadBack(received);
+        newer.Revision = 4;
+
+        Assert.Equal(ModListImportClash.OlderThanStored, _store.ClashFor(older));
+        Assert.Equal(ModListImportClash.None, _store.ClashFor(newer));
+        Assert.Equal(ModListImportClash.None, _store.ClashFor(NewList("Unknown", ModListOrigin.Imported)));
+    }
+
+    [Fact]
+    public void ASeparateImport_LeavesYourListAsItWas()
+    {
+        var mine = NewList("Mine", ModListOrigin.Local, new ModListEntry { Name = "SAIN" });
+        _store.Add(mine);
+
+        var incoming = ReadBack(mine);
+        var copy = ModListStore.AsSeparateList(incoming, "Mine (imported)");
+        _store.Add(copy);
+
+        var lists = new ModListStore(_store.FilePath).Load().Lists;
+        Assert.Equal(2, lists.Count);
+        Assert.True(lists.Single(l => l.Id == mine.Id).IsEditable);
+
+        var stored = lists.Single(l => l.Id != mine.Id);
+        Assert.Equal("Mine (imported)", stored.Name);
+        Assert.Equal(mine.Id, stored.DerivedFrom);
+        Assert.Equal(ModListOrigin.Imported, stored.Origin);
+        Assert.Equal("SAIN", Assert.Single(stored.Entries).Name);
+    }
 }
