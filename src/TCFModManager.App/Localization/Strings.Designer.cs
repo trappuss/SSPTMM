@@ -1658,4 +1658,5 @@ internal static class Strings
     internal static string Collection_SkipNotChecked => LocalizationService.Get("Collection_SkipNotChecked");
     internal static string Collection_ShowMore => LocalizationService.Get("Collection_ShowMore");
     internal static string Collection_ShowLess => LocalizationService.Get("Collection_ShowLess");
+    internal static string Collection_NothingToSubscribeFormat => LocalizationService.Get("Collection_NothingToSubscribeFormat");
 }

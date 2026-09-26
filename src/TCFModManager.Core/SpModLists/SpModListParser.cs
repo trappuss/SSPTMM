@@ -135,10 +135,12 @@ public static partial class SpModListParser
     {
         var doc = Load(html);
 
-        // The page's own component; the site's header and search sit outside it.
+        // The page's own component; the site's header and search sit outside it. A page without it
+        // is not a list's page - a sign-in page, a notice - and reading it anyway took the site's
+        // own "Forge" heading for the list's title.
         var root = doc.DocumentNode.Descendants()
-            .FirstOrDefault(n => Attribute(n, "wire:name") == "pages::list.show")
-            ?? doc.DocumentNode;
+            .FirstOrDefault(n => Attribute(n, "wire:name") == "pages::list.show");
+        if (root is null) return null;
 
         var title = root.Descendants("h1").FirstOrDefault() is { } heading ? Text(heading) : null;
         if (string.IsNullOrWhiteSpace(title)) return null;

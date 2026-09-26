@@ -264,7 +264,7 @@ public sealed class ModListService
         ModListPrompts prompts,
         CancellationToken ct)
     {
-        var resolution = await ResolveAsync(fetches, install.Candidates, ct);
+        var resolution = await ResolveAsync(fetches, install.Candidates, install.SptVersion, ct);
 
         var accepted = prompts.ApproveVersionChanges(resolution.Changes);
         var acceptedActions = accepted.Select(c => c.Action).ToHashSet();
@@ -355,6 +355,7 @@ public sealed class ModListService
     private static async Task<ModListResolution> ResolveAsync(
         IReadOnlyList<ModListAction> fetches,
         IReadOnlyList<ModListCandidate> installed,
+        string? sptVersion,
         CancellationToken ct)
     {
         var catalog = AppServices.ModCache.AllMods
@@ -419,6 +420,14 @@ public sealed class ModListService
                     continue;
                 }
 
+                // This app's own listing, on a list someone else wrote: never fetched - it would put a
+                // second copy of the manager into BepInEx\plugins (see BrowseViewModel.IsSelf).
+                if (BrowseViewModel.IsSelf(mod))
+                {
+                    unavailable.Add(new ModListFetchFailure(action.Name, Strings.ModList_ReasonNoListing));
+                    continue;
+                }
+
                 target = InstallTarget.For(mod);
             }
 
@@ -443,7 +452,7 @@ public sealed class ModListService
                 // only thing it can mean, so it needs no asking.
                 if (string.IsNullOrWhiteSpace(wanted))
                 {
-                    var newest = await NewestAsync(id, action.IsAddon, ct);
+                    var newest = await NewestAsync(id, action.IsAddon, sptVersion, ct);
 
                     if (newest is null)
                         unavailable.Add(new ModListFetchFailure(
@@ -464,7 +473,7 @@ public sealed class ModListService
                     continue;
                 }
 
-                var replacement = await NewestAsync(id, action.IsAddon, ct);
+                var replacement = await NewestAsync(id, action.IsAddon, sptVersion, ct);
 
                 if (replacement is null)
                     unavailable.Add(new ModListFetchFailure(
@@ -527,8 +536,28 @@ public sealed class ModListService
         return [.. addons.Data.Select(AsModVersion)];
     }
 
-    private static async Task<ModVersion?> NewestAsync(string id, bool isAddon, CancellationToken ct)
+    //
+    // The newest version of a mod for the SPT version installed here, or - when it has none, or the
+    // installed version is not known - the newest there is. "Newest" for an entry that names no
+    // version, and the replacement offered for one that is gone, both mean a version that runs here
+    // before one that does not.
+    //
+    private static async Task<ModVersion?> NewestAsync(string id, bool isAddon, string? sptVersion, CancellationToken ct)
     {
+        if (!isAddon && !string.IsNullOrWhiteSpace(sptVersion))
+        {
+            try
+            {
+                var forSpt = await AppServices.SpModApi.GetModVersionsAsync(
+                    id, new ModVersionsQuery { FilterSptVersion = sptVersion, Sort = "-published_at", PerPage = 1 }, ct);
+                if (forSpt.Data.FirstOrDefault() is { } found) return found;
+            }
+            catch (SpModApiException ex) when (IsUnmatchableFilter(ex))
+            {
+                // An SPT version the API does not know: the newest overall, below.
+            }
+        }
+
         if (!isAddon)
         {
             // Sorted, as every other caller asks: left to itself the API answers oldest first

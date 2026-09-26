@@ -62,6 +62,17 @@ public sealed class ModArchiveCacheTests : IDisposable
     }
 
     [Fact]
+    public void A_mismatched_archive_another_item_is_using_is_passed_over_not_deleted()
+    {
+        var cache = new ModArchiveCache(_dir, 1000);
+        var path = cache.PathFor(Mod, Version(5))!;
+        Write(path, 10);
+
+        Assert.False(cache.TryGet(Mod, Version(5, size: 11), out _, new HashSet<string> { Path.GetFullPath(path) }));
+        Assert.True(File.Exists(path));
+    }
+
+    [Fact]
     public void An_unfinished_download_is_not_taken_for_a_kept_one()
     {
         var cache = new ModArchiveCache(_dir, 1000);

@@ -109,17 +109,15 @@ public sealed partial class SpModListsClient : IDisposable
     // token: 419, or a checksum it no longer accepts).
     private async Task<string?> UpdateAsync(LivewirePage page, int pageNumber, string? search, int? sptVersionId, CancellationToken ct)
     {
-        var calls = new JsonArray();
-        if (pageNumber > 1)
+        // Always the page asked for, page 1 included: the state sent may be from a later page (a plain
+        // ?page=N read last), and changing the search does not by itself go back to the first.
+        var calls = new JsonArray(new JsonObject
         {
-            calls.Add(new JsonObject
-            {
-                ["path"] = string.Empty,
-                ["method"] = "gotoPage",
-                ["params"] = new JsonArray(pageNumber, "page"),
-                ["metadata"] = new JsonObject(),
-            });
-        }
+            ["path"] = string.Empty,
+            ["method"] = "gotoPage",
+            ["params"] = new JsonArray(pageNumber, "page"),
+            ["metadata"] = new JsonObject(),
+        });
 
         var body = new JsonObject
         {

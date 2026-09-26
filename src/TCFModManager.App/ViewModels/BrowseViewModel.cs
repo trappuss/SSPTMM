@@ -64,11 +64,23 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
         // Category and SPT version are resolved later: both lists are built from the catalog, and
         // neither exists yet - see EnsureCategoryOptionsBuilt/EnsureSptVersionOptionsBuilt.
 
-        // Refreshes each card's install/update status dot once a queued install completes.
-        AppServices.DownloadQueue.ItemInstalled += async (_, _) =>
+        //
+        // Refreshes each card's install/update status dot once queued installs complete - once for
+        // a run of them, not once each: every refresh scans the whole install and redraws every
+        // card, and a forty-mod collection applied was forty of each back to back. Installs that
+        // land within a moment of each other are one refresh, as the Subscribed items page does it.
+        //
+        _refreshAfterInstall = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(600) };
+        _refreshAfterInstall.Tick += async (_, _) =>
         {
+            _refreshAfterInstall.Stop();
             await RefreshInstalledIndexAsync();
             ShowInstalledChange();
+        };
+        AppServices.DownloadQueue.ItemInstalled += (_, _) =>
+        {
+            _refreshAfterInstall.Stop();
+            _refreshAfterInstall.Start();
         };
 
         // Refreshes the status dots when a mod is removed from the Installed page, or set aside
@@ -790,8 +802,15 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
     /// <summary>Scans the configured SPT install folder and matches it against the cached catalog to drive the
     /// install/update status dot on Browse's cards. Best-effort: no install path or nothing found just means
     /// no dot shows, not an error.</summary>
+    private readonly System.Windows.Threading.DispatcherTimer _refreshAfterInstall;
+
+    // Which refresh is the newest: two can overlap (an install, then a removal), and the one that
+    // read the folder first must not be the one that finishes last and wins.
+    private int _indexGeneration;
+
     private async Task RefreshInstalledIndexAsync()
     {
+        var generation = ++_indexGeneration;
         var installPath = AppServices.SptEnvironment.InstallPath;
         if (string.IsNullOrWhiteSpace(installPath))
         {
@@ -820,6 +839,8 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
                 .Where(m => !m.IsAddon)
                 .ToList();
         });
+
+        if (generation != _indexGeneration) return;
 
         // Keyed by Guid when available, MatchedModName as a fallback. Only matched entries are indexed.
         // With a mod on disk twice (the install and a copy), the one this app installed speaks for

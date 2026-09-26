@@ -24,8 +24,17 @@ internal static class GifPlayback
     private static readonly DependencyProperty WatcherProperty = DependencyProperty.RegisterAttached(
         "Watcher", typeof(Watcher), typeof(GifPlayback), new PropertyMetadata(null));
 
+    //
+    // <paramref name="restoreStill"/> puts back whatever still the image should show when it is
+    // not playing. Needed because XamlAnimatedGif, once it has played in an Image, keeps handlers on
+    // it that clear the image's Source every time it is unloaded and loaded again - even after its
+    // stream is taken away (read in its InitAnimation / Image_Unloaded, 2.3.2). A still shown there
+    // afterwards (a hover popup's slide that was a GIF, then is not, and the popup reopens) would
+    // go blank. So after each load, once the library's own handler has run, a still that is missing
+    // is asked for again.
+    //
     /// <summary>Plays <paramref name="gif"/> in <paramref name="image"/>, from its first frame.</summary>
-    public static void Play(Image image, byte[] gif)
+    public static void Play(Image image, byte[] gif, Action<Image> restoreStill)
     {
         AnimationBehavior.SetSourceStream(image, new MemoryStream(gif, writable: false));
 
@@ -35,6 +44,7 @@ internal static class GifPlayback
             image.SetValue(WatcherProperty, watcher);
         }
 
+        watcher.Restore = restoreStill;
         watcher.Start();
     }
 
@@ -58,6 +68,8 @@ internal static class GifPlayback
 
         public bool IsPlaying { get; private set; }
 
+        public Action<Image>? Restore { get; set; }
+
         public Watcher(Image image) => _image = image;
 
         public void Start()
@@ -67,7 +79,11 @@ internal static class GifPlayback
             if (!_hooked)
             {
                 _hooked = true;
-                _image.Loaded += (_, _) => Rewatch();
+                _image.Loaded += (_, _) =>
+                {
+                    Rewatch();
+                    if (!IsPlaying) RestoreStillLater();
+                };
                 _image.Unloaded += (_, _) =>
                 {
                     Unwatch();
@@ -91,6 +107,13 @@ internal static class GifPlayback
             IsPlaying = false;
             Unwatch();
         }
+
+        // After the library's own Loaded handler, which runs in the same pass and clears Source.
+        private void RestoreStillLater() =>
+            _image.Dispatcher.BeginInvoke(() =>
+            {
+                if (!IsPlaying && _image.Source is null) Restore?.Invoke(_image);
+            }, System.Windows.Threading.DispatcherPriority.Loaded);
 
         // Every scroll area the image sits in, however deep.
         private void Rewatch()

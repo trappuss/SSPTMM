@@ -6103,7 +6103,7 @@ This was written to:
     <comment>On a public collection's item: the version it gets. {0} is a mod version, {1} the SPT version.</comment>
   </data>
   <data name="Collection_SummarySubscribedFormat" xml:space="preserve">
-    <value>{0:N0} of {1:N0} items subscribed</value>
+    <value>{0:N0} of {1:N0} mods subscribed</value>
     <comment>Over a public collection's items. {0} is how many are installed, {1} how many there are.</comment>
   </data>
   <data name="Collection_SummaryChecking" xml:space="preserve">
@@ -6189,5 +6189,9 @@ This was written to:
   <data name="Collection_ShowLess" xml:space="preserve">
     <value>Show less</value>
     <comment>The same link once the description is open: folds it again.</comment>
+  </data>
+  <data name="Collection_NothingToSubscribeFormat" xml:space="preserve">
+    <value>None of the items in this collection has a version for SPT {0}, so there is nothing to subscribe to.</value>
+    <comment>Subscribe to all, when every item is left out. {0} is the SPT version.</comment>
   </data>
 </root>

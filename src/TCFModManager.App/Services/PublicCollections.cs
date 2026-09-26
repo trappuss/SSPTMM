@@ -95,7 +95,8 @@ public static class PublicCollections
                 ? new CollectionVersionPick(version.Version, version.Id > 0 ? version.Id : null)
                 : CollectionVersionPick.None;
         }
-        catch (Exception ex) when (ex is SpModApiException or HttpRequestException or TaskCanceledException && !ct.IsCancellationRequested)
+        catch (Exception ex) when (ex is SpModApiException or HttpRequestException or TaskCanceledException or System.Text.Json.JsonException
+                                   && !ct.IsCancellationRequested)
         {
             AppLog.Info("Collections", $"versions of mod {modId} for SPT {spt} could not be read: {ex.Message}");
             return CollectionVersionPick.Unknown;
@@ -121,9 +122,11 @@ public static class PublicCollections
         return fitting is null ? new CollectionVersionPick(null, null) : new CollectionVersionPick(fitting.Version, fitting.Id > 0 ? fitting.Id : null);
     }
 
-    // No constraint means any version of the mod.
+    // No constraint means any version of the mod. The mod-version matcher, not SPT's: SPT's reads a
+    // bare "1.5.3" as any 1.5.x, which for a mod version would let an addon needing 1.5.3 in beside
+    // 1.5.0.
     private static bool ModVersionFits(string? constraint, string version) =>
-        string.IsNullOrWhiteSpace(constraint) || SptVersionMatcher.IsSatisfiedBy(constraint, version) != false;
+        string.IsNullOrWhiteSpace(constraint) || ModVersionMatcher.IsSatisfiedBy(constraint, version) != false;
 
     // ------------------------------------------------------------------ the whole list
 
@@ -145,6 +148,10 @@ public static class PublicCollections
 
         foreach (var item in details.Items)
         {
+            // This app's own listing is never installed from a list: it is not a mod, and applying
+            // it would drop a second copy of the manager into BepInEx\plugins.
+            if (item.ModId.ToString() == SelfMod.ModId) continue;
+
             var mod = catalog.GetValueOrDefault(item.ModId);
             var pick = picks[item.ModId];
             var name = mod?.Name ?? item.Name;

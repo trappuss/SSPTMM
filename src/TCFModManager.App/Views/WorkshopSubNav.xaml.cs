@@ -79,7 +79,12 @@ public partial class WorkshopSubNav : UserControl
     {
         _closeTimer.Stop();
 
-        foreach (var (popup, tab, _) in Menus) popup.IsOpen = ReferenceEquals(tab, sender);
+        foreach (var (popup, tab, _) in Menus)
+        {
+            var mine = ReferenceEquals(tab, sender);
+            if (mine && !popup.IsOpen) popup.StaysOpen = true;
+            popup.IsOpen = mine;
+        }
     }
 
     private void Menu_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e) => _closeTimer.Start();
@@ -128,11 +133,23 @@ public partial class WorkshopSubNav : UserControl
 
     // A click opens the menu as well as the pointer does - on a touch screen there is no pointer -
     // and changes no page, so the tab goes back to saying whether one of its own pages is showing.
+    //
+    // Opened this way (the keyboard, a touch) the pointer may never leave anything, so the menu
+    // closes the ordinary way instead: a click anywhere else. Under the pointer it stays open by
+    // itself and closes when the pointer leaves - see Menu_MouseEnter.
+    //
     private void YourItemsTab_Click(object sender, RoutedEventArgs e)
     {
         SyncToPage(AppNavigation.Current);
         _closeTimer.Stop();
         BrowsePopup.IsOpen = false;
+
+        if (!YourItemsTab.IsMouseOver)
+        {
+            YourItemsPopup.IsOpen = false;
+            YourItemsPopup.StaysOpen = false;
+        }
+
         YourItemsPopup.IsOpen = true;
     }
 

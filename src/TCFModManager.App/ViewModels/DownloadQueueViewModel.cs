@@ -34,7 +34,15 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
 
     // Stage 1's queue, and stage 3's.
     private readonly Channel<DownloadQueueItemViewModel> _channel = Channel.CreateUnbounded<DownloadQueueItemViewModel>();
-    private readonly Channel<DownloadQueueItemViewModel> _installs = Channel.CreateUnbounded<DownloadQueueItemViewModel>();
+    private readonly Channel<InstallTurn> _installs = Channel.CreateUnbounded<InstallTurn>();
+
+    //
+    // One item's turn to install: the attempt it belongs to (its token) and that attempt's archive.
+    // Carried together because a retry starts a NEW attempt on the same item - a turn left in the
+    // channel by the attempt it replaced must not install the old archive, or settle the new
+    // attempt with the old one's cancellation.
+    //
+    private sealed record InstallTurn(DownloadQueueItemViewModel Item, CancellationToken Token, Task<string> Archive);
 
     // How many downloads run at once. Three keeps a slow host from holding up the rest without
     // opening more connections at once than a browser would to one site.
@@ -263,11 +271,12 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
     // Stage 3, likewise.
     private async Task InstallLoopAsync()
     {
-        await foreach (var item in _installs.Reader.ReadAllAsync())
+        await foreach (var turn in _installs.Reader.ReadAllAsync())
         {
+            var item = turn.Item;
             try
             {
-                await InstallAsync(item);
+                await InstallAsync(turn);
             }
             catch (Exception ex)
             {
@@ -309,6 +318,10 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
             item.StatusMessage = Strings.Downloads_ResolvingLink;
 
             var version = await item.ResolveVersionAsync();
+
+            // Retried since: the new attempt is the one that goes on.
+            if (token != item.Token) return;
+
             if (version?.Link is null)
             {
                 item.Status = DownloadQueueItemStatus.Failed;
@@ -319,7 +332,7 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
 
             item.TotalBytes ??= version.ContentLength;
 
-            item.Token.ThrowIfCancellationRequested();
+            token.ThrowIfCancellationRequested();
 
             // Asked before this item's own download starts, so an accepted missing dependency
             // lands right behind it in the queue.
@@ -329,24 +342,25 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
                 await CheckDependenciesAsync(item, version);
             }
 
-            item.Token.ThrowIfCancellationRequested();
+            token.ThrowIfCancellationRequested();
+            if (token != item.Token) return;
 
             item.Version = version;
-            item.Archive = FetchArchiveAsync(item, version);
-            _installs.Writer.TryWrite(item);
+            _installs.Writer.TryWrite(new InstallTurn(item, token, FetchArchiveAsync(item, version, token)));
         }
         catch (Exception ex)
         {
-            Settle(item, ex);
+            // An attempt a retry has replaced says nothing: the card is the new attempt's now.
+            if (token == item.Token) Settle(item, ex);
         }
     }
 
     // Stage 2: the archive for this item, from the ones kept or downloaded now, as a file path.
-    private async Task<string> FetchArchiveAsync(DownloadQueueItemViewModel item, ModVersion version)
+    private async Task<string> FetchArchiveAsync(DownloadQueueItemViewModel item, ModVersion version, CancellationToken token)
     {
         var keep = new SettingsService().Load().KeepDownloads;
 
-        if (keep && _archives.TryGet(item.Target, version, out var kept))
+        if (keep && _archives.TryGet(item.Target, version, out var kept, ArchivesInUse))
         {
             Use(kept);
             item.Progress = 1.0;
@@ -367,7 +381,7 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
             Use(path);
 
             item.StatusMessage = Strings.Downloads_WaitingToDownload;
-            await _downloadSlots.WaitAsync(item.Token);
+            await _downloadSlots.WaitAsync(token);
             slot = true;
 
             var progress = new Progress<double>(p => item.Progress = p);
@@ -378,17 +392,17 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
                     new ModInstallProgress(ModInstallStage.Downloading, item.ModName, version.Version));
                 try
                 {
-                    await AppServices.Downloads.DownloadAsync(version.Link!, part, progress, item.Token);
+                    await AppServices.Downloads.DownloadAsync(version.Link!, part, progress, token);
                     File.Move(part, path, overwrite: true);
                     break;
                 }
-                catch (Exception ex) when (attempt < RetryDelays.Length && IsPassing(ex, item.Token))
+                catch (Exception ex) when (attempt < RetryDelays.Length && IsPassing(ex, token))
                 {
                     var wait = RetryDelays[attempt];
                     AppLog.Info("Downloads", $"{item.ModName} {item.VersionLabel}: {ex.Message} - trying again in {wait.TotalSeconds:F0}s");
                     item.Progress = 0;
                     item.StatusMessage = Text(Strings.Downloads_RetryingFormat, wait.TotalSeconds);
-                    await Task.Delay(wait, item.Token);
+                    await Task.Delay(wait, token);
                 }
             }
         }
@@ -397,8 +411,8 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
             if (Unuse(path)) TryDelete(path);
             TryDelete(part);
 
-            // Said now, not when the installs reach this item.
-            Settle(item, ex);
+            // Said now, not when the installs reach this item - unless a retry has replaced this attempt.
+            if (token == item.Token) Settle(item, ex);
             throw;
         }
         finally
@@ -425,12 +439,26 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
     };
 
     // Stage 3.
-    private async Task InstallAsync(DownloadQueueItemViewModel item)
+    private async Task InstallAsync(InstallTurn turn)
     {
-        // Settled already - its download failed, or it was cancelled while waiting its turn.
-        if (item.IsFinished)
+        var item = turn.Item;
+
+        //
+        // Settled already - its download failed, or it was cancelled while waiting its turn - or a
+        // retry has replaced this attempt. Its archive, if it arrived, is let go: left marked in
+        // use it would never be trimmed or cleared, and a one-off file would stay on disk.
+        //
+        if (item.IsFinished || turn.Token != item.Token)
         {
-            _ = item.Archive?.Exception;
+            try
+            {
+                Release(await turn.Archive, keep: true);
+            }
+            catch (Exception)
+            {
+                // It failed or was cancelled; its own failure path let the file go.
+            }
+
             return;
         }
 
@@ -438,9 +466,9 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
         var keepArchive = true;
         try
         {
-            archive = await item.Archive!;
+            archive = await turn.Archive;
 
-            item.Token.ThrowIfCancellationRequested();
+            turn.Token.ThrowIfCancellationRequested();
 
             // Core reports which stage it is in; every phase past the download (removing the
             // previous version, extracting, copying files) is bucketed under Installing.
@@ -455,7 +483,7 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
             item.Status = DownloadQueueItemStatus.Installing;
 
             var result = await AppServices.ModInstall.InstallAsync(
-                item.Target, item.Version!, item.InstallPath, status, null, item.Token, downloadedArchive: archive);
+                item.Target, item.Version!, item.InstallPath, status, null, turn.Token, downloadedArchive: archive);
 
             item.Status = DownloadQueueItemStatus.Completed;
             item.Progress = 1.0;

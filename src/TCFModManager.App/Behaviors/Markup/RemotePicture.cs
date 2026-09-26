@@ -174,7 +174,10 @@ public sealed class RemotePicture : Image
         if (picture.Gif is { } gif)
         {
             // Played while any of it is on screen - see GifPlayback.
-            GifPlayback.Play(this, gif);
+            GifPlayback.Play(this, gif, image =>
+            {
+                if (image is RemotePicture { Url: { Length: > 0 } url } picture) _ = picture.LoadAsync(url);
+            });
         }
         else
         {

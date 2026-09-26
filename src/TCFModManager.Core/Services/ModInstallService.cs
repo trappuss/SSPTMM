@@ -205,6 +205,17 @@ public sealed class ModInstallService(
                     ModInstallStage.Downloading, target.Name, version.Version));
                 await downloadService.DownloadAsync(version.Link, archivePath, downloadProgress, ct).ConfigureAwait(false);
             }
+            else
+            {
+                //
+                // Off the caller's thread for the rest, as the download's ConfigureAwait(false) put
+                // it before archives were downloaded ahead: the queue calls this from the UI thread,
+                // and extracting a .7z or .rar (synchronous, in SharpCompress), placing the files
+                // and saving the records would otherwise all run there - the window frozen for the
+                // whole install.
+                //
+                await Task.CompletedTask.ConfigureAwait(ConfigureAwaitOptions.ForceYielding);
+            }
 
             ct.ThrowIfCancellationRequested();
 

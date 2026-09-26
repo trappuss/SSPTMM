@@ -274,6 +274,14 @@ public sealed partial class WorkshopCollectionViewModel : LocalizedViewModel, IM
             LoadFailed = LocalizationService.Text(Strings.Collection_PublicLoadFailedFormat, ex.Message);
             return false;
         }
+        catch (Exception ex)
+        {
+            // Anything else (a page read wrong, the catalog failing to load) still ends in a message
+            // and Try again, not a page with a header and nothing under it.
+            AppLog.Warn("Collections", $"list {_publicId} could not be shown: {ex}");
+            LoadFailed = LocalizationService.Text(Strings.Collection_PublicLoadFailedFormat, ex.Message);
+            return false;
+        }
         finally
         {
             IsLoading = false;
@@ -573,6 +581,17 @@ public sealed partial class WorkshopCollectionViewModel : LocalizedViewModel, IM
         {
             if (Details is null) return;
             if ((resolution = await ResolveAsync()) is null) return;
+
+            // Nothing it names can be had here: said, and nothing stored - an empty copy applied as
+            // Overwrite would set aside everything installed.
+            if (resolution.Entries.Count == 0)
+            {
+                SteamDialog.Show(
+                    Strings.Collection_SubscribeAllTitle,
+                    QuestionBody(LocalizationService.Text(Strings.Collection_NothingToSubscribeFormat, resolution.SptVersion), resolution.Skipped),
+                    new SteamDialogChoice(Strings.Common_Close, SteamDialogButton.Blue, IsDefault: true));
+                return;
+            }
         }
         else if (List is null)
         {

@@ -332,11 +332,8 @@ public sealed partial class DownloadQueueItemViewModel : LocalizedViewModel
 
     internal Task<ModVersion?> ResolveVersionAsync() => _resolveVersion();
 
-    // Set once the item is prepared: the version being installed, and its archive - downloading,
-    // or there - for the install to wait for.
+    // Set once the item is prepared: the version being installed.
     internal ModVersion? Version { get; set; }
-
-    internal Task<string>? Archive { get; set; }
 
     internal void AddDependency(DownloadQueueItemViewModel item) => _dependencies.Add(item);
 
@@ -360,8 +357,10 @@ public sealed partial class DownloadQueueItemViewModel : LocalizedViewModel
             Status = DownloadQueueItemStatus.Cancelled;
             StatusMessage = Strings.Downloads_CancelledBeforeStart;
         }
-        else
+        else if (!IsFinished)
         {
+            // Not when the cancellation settled it already (waiting for a slot or its turn): that
+            // said "Cancelled" itself, and nothing would come along to replace "Cancelling...".
             StatusMessage = Strings.Downloads_Cancelling;
         }
     }

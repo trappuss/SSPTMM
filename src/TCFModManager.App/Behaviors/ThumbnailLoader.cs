@@ -125,7 +125,7 @@ public static class ThumbnailLoader
     {
         if (Gifs.TryGetValue(url, out var gif))
         {
-            GifPlayback.Play(image, gif);
+            GifPlayback.Play(image, gif, RestoreStill);
             return;
         }
 
@@ -138,6 +138,12 @@ public static class ThumbnailLoader
 
         AppLog.Debug("Thumbnails", $"ThumbnailLoader: queuing {url}");
         _ = Enqueue(image, url, width);
+    }
+
+    // What an Image that has played a GIF shows again once it is not playing - see GifPlayback.Play.
+    private static void RestoreStill(Image image)
+    {
+        if (GetSource(image) is { Length: > 0 } url) Show(image, url);
     }
 
     private static readonly DependencyProperty WatchedProperty = DependencyProperty.RegisterAttached(
@@ -566,7 +572,7 @@ public static class ThumbnailLoader
         Gifs.Add(request.Url, gif);
         foreach (var weak in request.Images)
         {
-            if (weak.TryGetTarget(out var image) && GetSource(image) as string == request.Url) GifPlayback.Play(image, gif);
+            if (weak.TryGetTarget(out var image) && GetSource(image) as string == request.Url) GifPlayback.Play(image, gif, RestoreStill);
         }
 
         return Outcome.Loaded;

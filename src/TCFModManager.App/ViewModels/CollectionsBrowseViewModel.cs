@@ -10,7 +10,7 @@ using TCFModManager.Core.SpModLists;
 namespace TCFModManager.App.ViewModels;
 
 // One card on Browsing: Collections - one of sp-mod.com's public lists.
-public sealed class CollectionCardViewModel(SpModListSummary summary, string? installedSpt) : LocalizedViewModel
+public sealed partial class CollectionCardViewModel(SpModListSummary summary, string? installedSpt, bool subscribed) : LocalizedViewModel
 {
     public SpModListSummary Summary { get; } = summary;
 
@@ -35,7 +35,8 @@ public sealed class CollectionCardViewModel(SpModListSummary summary, string? in
     public string? SptToolTip => Summary.SptVersion is { } spt ? LocalizationService.Text(Strings.Collection_ForSptFormat, spt) : null;
 
     // Subscribed to from here before: this install holds a copy of it.
-    public bool IsSubscribed { get; } = PublicCollections.Stored(summary.Id) is not null;
+    [ObservableProperty]
+    private bool _isSubscribed = subscribed;
 }
 
 // One choice in the SPT version filter: every version, or one, by the id sp-mod.com filters on.
@@ -106,8 +107,19 @@ public sealed partial class CollectionsBrowseViewModel : LocalizedViewModel
         _selectedSpt = SptChoices[0];
     }
 
-    /// <summary>The first page, once per session - the page calls this each time it is shown.</summary>
-    public Task EnsureLoadedAsync() => _loaded ? Task.CompletedTask : LoadAsync(1);
+    /// <summary>The first page, once per session - the page calls this each time it is shown, and
+    /// the cards' Subscribed marks are brought up to date then (a collection subscribed to since).</summary>
+    public Task EnsureLoadedAsync()
+    {
+        if (!_loaded) return LoadAsync(1);
+
+        var stored = StoredIds();
+        foreach (var card in Lists) card.IsSubscribed = stored.Contains(PublicCollections.IdFor(card.Summary.Id));
+        return Task.CompletedTask;
+    }
+
+    // One read of the store for a page of cards, rather than one per card.
+    private static HashSet<Guid> StoredIds() => AppServices.ModLists.Load().Lists.Select(l => l.Id).ToHashSet();
 
     partial void OnSelectedSptChanged(CollectionSptChoice? value)
     {
@@ -175,7 +187,8 @@ public sealed partial class CollectionsBrowseViewModel : LocalizedViewModel
         {
             // Another page or search asked for since.
         }
-        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or SpModListsException)
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or SpModListsException
+                                   && ReferenceEquals(_loading, loading))
         {
             AppLog.Info("Collections", $"sp-mod.com/lists could not be read: {ex.Message}");
             StatusMessage = LocalizationService.Text(Strings.Collections_LoadFailedFormat, ex.Message);
@@ -195,8 +208,10 @@ public sealed partial class CollectionsBrowseViewModel : LocalizedViewModel
         _loaded = true;
 
         var installed = AppServices.SptEnvironment.InstalledVersion;
+        var stored = StoredIds();
         Lists.Clear();
-        foreach (var summary in result.Lists) Lists.Add(new CollectionCardViewModel(summary, installed));
+        foreach (var summary in result.Lists)
+            Lists.Add(new CollectionCardViewModel(summary, installed, stored.Contains(PublicCollections.IdFor(summary.Id))));
 
         CurrentPage = result.Page;
         LastPage = result.LastPage;

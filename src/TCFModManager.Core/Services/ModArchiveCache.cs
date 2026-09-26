@@ -36,8 +36,10 @@ public sealed class ModArchiveCache(string directory, long budgetBytes)
             ? Path.Combine(Directory, $"{(target.IsAddon ? "addon" : "mod")}-{target.Id}-{version.Id}{Extension}")
             : null;
 
-    /// <summary>The kept archive for this version, if there is one that can be used.</summary>
-    public bool TryGet(InstallTarget target, ModVersion version, out string path)
+    /// <summary>The kept archive for this version, if there is one that can be used. One in
+    /// <paramref name="inUse"/> that does not match is passed over, not deleted: another item is
+    /// about to install from it.</summary>
+    public bool TryGet(InstallTarget target, ModVersion version, out string path, IReadOnlySet<string>? inUse = null)
     {
         path = PathFor(target, version) ?? string.Empty;
         if (path.Length == 0) return false;
@@ -49,6 +51,8 @@ public sealed class ModArchiveCache(string directory, long budgetBytes)
 
             if (version.ContentLength is > 0 and var expected && file.Length != expected)
             {
+                if (inUse?.Contains(file.FullName) == true) return false;
+
                 AppLog.Info("Downloads", $"kept {file.Name} is {file.Length:N0} bytes, sp-mod.com says {expected:N0} - downloading it again");
                 file.Delete();
                 return false;
