@@ -49,6 +49,18 @@ public static class ModInstallProblems
             Size(problem.ExpectedBytes)),
 
         // Nothing changed: said as plainly as that, with why.
+        ModInstallFailure.NotPutBackYet => string.Format(
+            CultureInfo.CurrentCulture,
+            Strings.ModInstall_NotPutBackYetFormat,
+            problem.ModName,
+            problem.Version,
+            problem.InnerException?.Message),
+
+        ModInstallFailure.EarlierInstallPending => string.Format(
+            CultureInfo.CurrentCulture,
+            Strings.ModInstall_EarlierInstallPendingFormat,
+            problem.ModName),
+
         ModInstallFailure.RolledBack => string.Format(
             CultureInfo.CurrentCulture,
             Strings.ModInstall_RolledBackFormat,

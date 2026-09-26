@@ -211,9 +211,10 @@ public sealed class ModListService
         return result;
     }
 
-    // A copy of the SPT profiles from before the list changes the install, off the UI thread.
+    // A copy of the SPT profiles from before the list changes the install, off the UI thread - not
+    // while SPT runs (the apply is refused then, and its server may be writing them).
     private static Task BackUpProfilesAsync(string? installPath) =>
-        string.IsNullOrWhiteSpace(installPath)
+        string.IsNullOrWhiteSpace(installPath) || ModInstallService.RunningBlockers(installPath).Count > 0
             ? Task.CompletedTask
             : Task.Run(() => AppServices.ProfileBackups.BackupIfChanged(installPath, ProfileBackups.BeforeList));
 

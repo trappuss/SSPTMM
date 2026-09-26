@@ -121,29 +121,35 @@ public sealed class ProfileBackups(string? root = null, int keep = 10)
 
         lock (_gate)
         {
-            var before = Directory.Exists(folder) ? Take(installPath, BeforeRestore, force: false) : null;
+            // Read in full first: taking the copy of what is there now may make room by deleting the
+            // oldest copy - which can be this one (it is also spared, so it stays in the list).
+            var full = System.IO.Path.GetFullPath(folder) + System.IO.Path.DirectorySeparatorChar;
+            var files = new List<(string Destination, byte[] Bytes)>();
+            using (var archive = ZipFile.OpenRead(backup.Path))
+            {
+                foreach (var entry in archive.Entries.Where(e => !string.IsNullOrEmpty(e.Name)))
+                {
+                    var destination = System.IO.Path.GetFullPath(System.IO.Path.Combine(folder, entry.FullName));
+                    if (!destination.StartsWith(full, StringComparison.OrdinalIgnoreCase)) continue;
+
+                    using var stream = entry.Open();
+                    using var bytes = new MemoryStream();
+                    stream.CopyTo(bytes);
+                    files.Add((destination, bytes.ToArray()));
+                }
+            }
+
+            var before = Directory.Exists(folder) ? Take(installPath, BeforeRestore, force: false, spare: backup.Path) : null;
 
             Directory.CreateDirectory(folder);
-            var full = System.IO.Path.GetFullPath(folder) + System.IO.Path.DirectorySeparatorChar;
-
-            using var archive = ZipFile.OpenRead(backup.Path);
-            foreach (var entry in archive.Entries.Where(e => !string.IsNullOrEmpty(e.Name)))
-            {
-                var destination = System.IO.Path.GetFullPath(System.IO.Path.Combine(folder, entry.FullName));
-                if (!destination.StartsWith(full, StringComparison.OrdinalIgnoreCase)) continue;
-
-                using var stream = entry.Open();
-                using var bytes = new MemoryStream();
-                stream.CopyTo(bytes);
-                SafeFile.WriteAllBytes(destination, bytes.ToArray());
-            }
+            foreach (var (destination, bytes) in files) SafeFile.WriteAllBytes(destination, bytes);
 
             AppLog.Info("Profiles", $"restored {System.IO.Path.GetFileName(backup.Path)} into {folder}");
             return before;
         }
     }
 
-    private ProfileBackup? Take(string installPath, string reason, bool force)
+    private ProfileBackup? Take(string installPath, string reason, bool force, string? spare = null)
     {
         if (ProfilesFolder(installPath) is not { } profiles) return null;
 
@@ -169,7 +175,11 @@ public sealed class ProfileBackups(string? root = null, int keep = 10)
             .FirstOrDefault();
         if (!force && latest.Name?.Hash == hash) return null;
 
+        // Strictly after the newest copy, so the order of copies is the order they were taken even
+        // within one millisecond (or with the clock set back).
         var now = DateTime.Now;
+        if (latest.Name is { } newest && newest.TakenAt >= now.AddTicks(-(now.Ticks % TimeSpan.TicksPerMillisecond)))
+            now = newest.TakenAt.AddMilliseconds(1);
         var zipPath = System.IO.Path.Combine(folder, $"{now:yyyyMMdd-HHmmss-fff}_{reason}_{hash}.zip");
         for (var n = 2; File.Exists(zipPath); n++)
             zipPath = System.IO.Path.Combine(folder, $"{now:yyyyMMdd-HHmmss-fff}_{reason}_{hash}_{n}.zip");
@@ -180,7 +190,7 @@ public sealed class ProfileBackups(string? root = null, int keep = 10)
         {
             foreach (var (relative, bytes) in contents)
             {
-                using var entry = archive.CreateEntry(relative, CompressionLevel.Optimal).Open();
+                using var entry = archive.CreateEntry(relative, CompressionLevel.Fastest).Open();
                 entry.Write(bytes);
             }
         }
@@ -188,14 +198,15 @@ public sealed class ProfileBackups(string? root = null, int keep = 10)
         File.Move(temp, zipPath);
         AppLog.Info("Profiles", $"backed up {contents.Count} profile file(s) before {reason}: {System.IO.Path.GetFileName(zipPath)}");
 
-        Prune(folder);
+        Prune(folder, spare);
         return new ProfileBackup(zipPath, now, reason, contents.Count, new FileInfo(zipPath).Length);
     }
 
-    // The newest Keep stay.
-    private void Prune(string folder)
+    // The newest Keep stay - and <paramref name="spare"/>, the copy being put back.
+    private void Prune(string folder, string? spare)
     {
         var old = Directory.EnumerateFiles(folder, "*.zip")
+            .Where(z => spare is null || !string.Equals(System.IO.Path.GetFullPath(z), System.IO.Path.GetFullPath(spare), StringComparison.OrdinalIgnoreCase))
             .Select(z => (Zip: z, Name: Parse(z)))
             .Where(z => z.Name is not null)
             .OrderByDescending(z => z.Name!.Value.TakenAt)

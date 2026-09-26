@@ -63,6 +63,15 @@ public enum ModInstallFailure
     // Not enough free space on the install's drive to copy the files in. Carries ModName, Version,
     // ExpectedBytes (needed) and ReceivedBytes (free).
     NotEnoughSpace,
+
+    // Placing the files failed, and putting the install back was stopped part-way too (a file held
+    // open). The way back is kept and is finished before anything else is installed or removed.
+    // Carries ModName, Version and the underlying exception as InnerException.
+    NotPutBackYet,
+
+    // An earlier install stopped part-way has not been put back yet (a file still held open), so
+    // nothing is changed until it has. Carries ModName (that earlier install's).
+    EarlierInstallPending,
 }
 
 //

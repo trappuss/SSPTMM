@@ -9,6 +9,10 @@ namespace TCFModManager.Core.Services;
 // mod's own earlier copy, and the file worth putting back is still the one that was there before the
 // mod was ever installed.
 //
+// Mods can stack on one path (a file placed by hand, mod A over it, mod B over A's): each keeps the
+// file that was under it. Removing the top one puts its copy back; removing one from under another
+// hands its copy up (HandOver), so each removal still ends with what was under it.
+//
 public sealed class ReplacedFileStore(string root)
 {
     public string Root { get; } = root;
@@ -55,6 +59,21 @@ public sealed class ReplacedFileStore(string root)
         Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
         File.Copy(copy, destination, overwrite: true);
         Drop(modId, isAddon, relative);
+        return true;
+    }
+
+    /// <summary>Gives one mod's kept copy of a path to another, replacing that one's copy - for a mod
+    /// removed from under another that had placed over its file: what was under the removed mod is
+    /// now what is under the other. False when the first had no copy.</summary>
+    public bool HandOver(int fromId, bool fromAddon, int toId, bool toAddon, string relative)
+    {
+        var copy = PathFor(fromId, fromAddon, relative);
+        if (!File.Exists(copy)) return false;
+
+        var destination = PathFor(toId, toAddon, relative);
+        Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
+        File.Copy(copy, destination, overwrite: true);
+        Drop(fromId, fromAddon, relative);
         return true;
     }
 

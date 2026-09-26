@@ -41,6 +41,7 @@ public class InstallPipelineTests : IDisposable
     private string Zip(string name, params (string Path, string Content)[] files)
     {
         var path = Path.Combine(_root, name + ".zip");
+        File.Delete(path);
         using var zip = ZipFile.Open(path, ZipArchiveMode.Create);
         foreach (var (entry, content) in files)
         {
@@ -305,5 +306,133 @@ public class InstallPipelineTests : IDisposable
         Assert.Equal("O1", File.ReadAllText(InSpt("BepInEx/plugins/Old.dll")));
         Assert.False(File.Exists(InSpt("BepInEx/plugins/New.dll")));
         Assert.Equal("1.0", _manifest.Load().Mods.Single(m => m.ModId == 9).Version);
+    }
+
+    // ---------------------------------------------------------------- review round 2
+
+    [Fact]
+    public async Task APatchOverAnInstalledModsFile_IsUndoneWhenThePatchGoes()
+    {
+        await Install(20, "Parent", "1.0", ("BepInEx/plugins/Parent/Parent.dll", "p"), ("BepInEx/plugins/Parent/data.json", "orig"));
+        await Install(21, "Patch", "1.0", ("BepInEx/plugins/Parent/data.json", "patched"));
+
+        await Remove(21);
+
+        Assert.Equal("orig", File.ReadAllText(InSpt("BepInEx/plugins/Parent/data.json")));
+        Assert.Equal("p", File.ReadAllText(InSpt("BepInEx/plugins/Parent/Parent.dll")));
+    }
+
+    [Fact]
+    public async Task APatchOverAHandInstalledModsFile_IsUndoneWhenThePatchGoes()
+    {
+        Directory.CreateDirectory(InSpt("BepInEx/plugins/Parent"));
+        File.WriteAllText(InSpt("BepInEx/plugins/Parent/Parent.dll"), "p");
+        File.WriteAllText(InSpt("BepInEx/plugins/Parent/data.json"), "orig");
+
+        await Install(21, "Patch", "1.0", ("BepInEx/plugins/Parent/data.json", "patched"));
+        await Remove(21);
+
+        // The patch does not place Parent.dll, so the folder is not its own: what it replaced comes back.
+        Assert.Equal("orig", File.ReadAllText(InSpt("BepInEx/plugins/Parent/data.json")));
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task ModsStackedOnOneFile_EndWithTheOriginalInEitherRemovalOrder(bool lowerFirst)
+    {
+        File.WriteAllText(InSpt("BepInEx/plugins/H.dll"), "orig");
+        await Install(1, "ModA", "1.0", ("BepInEx/plugins/H.dll", "a"));
+        await Task.Delay(20);
+        await Install(2, "ModB", "1.0", ("BepInEx/plugins/H.dll", "b"));
+
+        if (lowerFirst)
+        {
+            await Remove(1);
+            Assert.Equal("b", File.ReadAllText(InSpt("BepInEx/plugins/H.dll")));
+            await Remove(2);
+        }
+        else
+        {
+            await Remove(2);
+            Assert.Equal("a", File.ReadAllText(InSpt("BepInEx/plugins/H.dll")));
+            await Remove(1);
+        }
+
+        Assert.Equal("orig", File.ReadAllText(InSpt("BepInEx/plugins/H.dll")));
+    }
+
+    [Fact]
+    public async Task AModUpdatedOverTheModAboveIt_IsGoneWhenBothAre()
+    {
+        await Install(2, "ModB", "1.0", ("BepInEx/plugins/Lib.dll", "lib-b1"));
+        await Task.Delay(20);
+        await Install(1, "ModA", "1.0", ("BepInEx/plugins/Lib.dll", "lib-a"));
+        await Task.Delay(20);
+        await Install(2, "ModB", "2.0", ("BepInEx/plugins/Lib.dll", "lib-b2"));
+
+        // Nothing was there before B: B's old version must not come back.
+        await Remove(2);
+        Assert.Equal("lib-a", File.ReadAllText(InSpt("BepInEx/plugins/Lib.dll")));
+        await Remove(1);
+        Assert.False(File.Exists(InSpt("BepInEx/plugins/Lib.dll")));
+    }
+
+    [Fact]
+    public async Task AFileTheUpdateTurnedIntoAFolder_ComesBackWhenItFails()
+    {
+        await Install(9, "ModI", "1.0", ("BepInEx/plugins/I.dll", "I1"), ("BepInEx/plugins/Lib", "lib1"));
+
+        // Writing the record fails, after every file is placed.
+        Directory.CreateDirectory(Path.Combine(_root, "installed-mods.json.tmp"));
+
+        var failure = await Assert.ThrowsAsync<ModInstallException>(() =>
+            Install(9, "ModI", "2.0", ("BepInEx/plugins/I.dll", "I2"), ("BepInEx/plugins/Lib/inner.dll", "inner")));
+
+        Assert.Equal(ModInstallFailure.RolledBack, failure.Reason);
+        Assert.Equal("lib1", File.ReadAllText(InSpt("BepInEx/plugins/Lib")));
+        Assert.Equal("I1", File.ReadAllText(InSpt("BepInEx/plugins/I.dll")));
+    }
+
+    [Fact]
+    public async Task AnUndoThatCannotFinish_KeepsTheWayBack_AndHoldsOtherChangesUntilItIsDone()
+    {
+        await Install(9, "ModI", "1.0", ("BepInEx/plugins/I.dll", "I1"));
+
+        // An update stopped half-way whose previous file cannot go back: something now sits where it was.
+        var work = Path.Combine(_spt, ".tcfmm-work", "stuck");
+        var journal = InstallJournal.Begin(work, _spt, Mod(9, "ModI"));
+        journal.Planned = ["BepInEx/plugins/I.dll"];
+        Directory.CreateDirectory(Path.Combine(journal.PreviousDirectory, "BepInEx", "plugins"));
+        File.Move(InSpt("BepInEx/plugins/I.dll"), Path.Combine(journal.PreviousDirectory, "BepInEx", "plugins", "I.dll"));
+        Directory.CreateDirectory(InSpt("BepInEx/plugins/I.dll"));
+        File.WriteAllText(InSpt("BepInEx/plugins/I.dll/in-the-way.txt"), "x");
+        journal.Save();
+
+        Assert.Empty(_service.RecoverInterruptedInstalls(_spt));
+        Assert.True(File.Exists(Path.Combine(journal.PreviousDirectory, "BepInEx", "plugins", "I.dll")));
+
+        var refused = await Assert.ThrowsAsync<ModInstallException>(() => Install(1, "ModA", "1.0", ("BepInEx/plugins/A.dll", "a")));
+        Assert.Equal(ModInstallFailure.EarlierInstallPending, refused.Reason);
+        Assert.False(File.Exists(InSpt("BepInEx/plugins/A.dll")));
+
+        // Once it is out of the way, the next change finishes the undo first.
+        Directory.Delete(InSpt("BepInEx/plugins/I.dll"), recursive: true);
+        await Install(1, "ModA", "1.0", ("BepInEx/plugins/A.dll", "a"));
+
+        Assert.Equal("I1", File.ReadAllText(InSpt("BepInEx/plugins/I.dll")));
+        Assert.False(Directory.Exists(work));
+    }
+
+    [Fact]
+    public async Task APictureBesideAWrapperFolder_DoesNotStopTheInstall()
+    {
+        await Install(30, "ModP", "1.0", ("preview.png", "img"), ("ModP-1.0/BepInEx/plugins/P.dll", "p"));
+        await Install(31, "ModQ", "1.0", ("icon.png", "img"), ("plugins/Q.dll", "q"));
+
+        Assert.Equal("p", File.ReadAllText(InSpt("BepInEx/plugins/P.dll")));
+        Assert.Equal("q", File.ReadAllText(InSpt("BepInEx/plugins/Q.dll")));
+        Assert.False(File.Exists(InSpt("preview.png")));
+        Assert.False(File.Exists(InSpt("icon.png")));
     }
 }

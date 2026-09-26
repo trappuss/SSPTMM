@@ -138,4 +138,22 @@ public class ProfileBackupsTests : IDisposable
         Assert.Equal(ProfileBackups.ByHand, manual.Reason);
         Assert.Equal(2, _backups.List(_install).Count);
     }
+
+    [Fact]
+    public void PuttingBackTheOldestCopy_WhenAllAreKept_StillWorks_AndKeepsIt()
+    {
+        for (var i = 0; i < 3; i++)
+        {
+            Profile("a.json", "v" + i);
+            _backups.BackupIfChanged(_install, ProfileBackups.BeforeInstall);
+        }
+
+        Profile("a.json", "now");
+        var oldest = _backups.List(_install).Last();
+
+        _backups.Restore(oldest, _install);
+
+        Assert.Equal("v0", ProfileText("a.json"));
+        Assert.Contains(_backups.List(_install), b => b.Path == oldest.Path);
+    }
 }

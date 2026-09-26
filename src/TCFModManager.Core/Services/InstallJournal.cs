@@ -24,6 +24,10 @@ namespace TCFModManager.Core.Services;
 //
 // A journal whose Record is already in the manifest was finished; only the tidying was left.
 //
+// A planned path the previous version had is never written down as Absent: its file is in
+// "previous", and once undoing has moved it back, a second attempt must not take it for new.
+//
+//
 public sealed class InstallJournal
 {
     public const string FileName = "journal.json";
@@ -46,6 +50,14 @@ public sealed class InstallJournal
 
     // The record the install writes last; in the manifest means the install finished.
     public InstalledModRecord? Record { get; set; }
+
+    // What the previous version had replaced (its Replaced list), for the tidying after the record is
+    // written - which may happen at the next start, when that record is no longer in the manifest.
+    public List<string> PreviousReplaced { get; set; } = [];
+
+    // Other mods' kept copies of the previous version's files, which this install places again: they
+    // are copies of a version that is gone, let go once the install is written.
+    public List<StaleCopy> StaleCopies { get; set; } = [];
 
     [JsonIgnore]
     public string WorkDirectory { get; private set; } = string.Empty;
@@ -115,6 +127,12 @@ public sealed class InstallJournal
         var absent = Absent.ToHashSet(StringComparer.OrdinalIgnoreCase);
         var touched = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
+        //
+        // In three passes, so a previous version's FILE can come back where the new version made a
+        // FOLDER (v1 "Lib", v2 "Lib/inner.dll"): the new files go first, then the folders they leave
+        // empty, then the previous version's files. Each pass is safe to run again - a second attempt
+        // after a partial one (a file held open) redoes only what is still undone.
+        //
         foreach (var relative in Planned)
         {
             var destination = Resolve(relative);
@@ -125,8 +143,7 @@ public sealed class InstallJournal
             {
                 if (File.Exists(stashed))
                 {
-                    Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
-                    File.Move(stashed, destination, overwrite: true);
+                    // Pass three puts it back.
                 }
                 else if (File.Exists(before))
                 {
@@ -147,7 +164,24 @@ public sealed class InstallJournal
             }
         }
 
-        // The previous version's files the new one does not place: back too.
+        // Folders the install created and left empty.
+        foreach (var dir in touched.OrderByDescending(d => d.Length))
+        {
+            for (var current = dir; IsInsideInstall(current); current = Path.GetDirectoryName(current))
+            {
+                try
+                {
+                    if (!Directory.Exists(current) || Directory.EnumerateFileSystemEntries(current).Any()) break;
+                    Directory.Delete(current);
+                }
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+                {
+                    break;
+                }
+            }
+        }
+
+        // The previous version's files, placed again by the new one or not.
         if (Directory.Exists(previous))
         {
             foreach (var stashed in Directory.GetFiles(previous, "*", SearchOption.AllDirectories))
@@ -166,24 +200,7 @@ public sealed class InstallJournal
             }
         }
 
-        // Folders the install created and left empty.
-        foreach (var dir in touched.OrderByDescending(d => d.Length))
-        {
-            for (var current = dir; IsInsideInstall(current); current = Path.GetDirectoryName(current))
-            {
-                try
-                {
-                    if (!Directory.Exists(current) || Directory.EnumerateFileSystemEntries(current).Any()) break;
-                    Directory.Delete(current);
-                }
-                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-                {
-                    break;
-                }
-            }
-        }
-
-        return failed;
+        return [.. failed.Distinct(StringComparer.OrdinalIgnoreCase)];
     }
 
     private string Resolve(string relative) =>
@@ -198,3 +215,6 @@ public sealed class InstallJournal
         return full.Length > install.Length && full.StartsWith(install, StringComparison.OrdinalIgnoreCase);
     }
 }
+
+/// <summary>Another mod's kept copy of one path, no longer wanted.</summary>
+public sealed record StaleCopy(int ModId, bool IsAddon, string Path);

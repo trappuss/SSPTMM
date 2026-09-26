@@ -1050,7 +1050,8 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
             var record = AppServices.InstallManifest.Load().Mods.FirstOrDefault(m => m.ModId == modId && m.IsAddon == mod.IsAddon);
             if (record is null) return (false, Text(Strings.Installed_RemoveNoRecordFormat, mod.Name), true);
 
-            var result = await AppServices.ModInstall.UninstallAsync(installPath, record, configAction);
+            // Off the UI thread: deleting a large mod's files and copying the SPT profiles first.
+            var result = await Task.Run(() => AppServices.ModInstall.UninstallAsync(installPath, record, configAction));
             return (
                 true,
                 DescribeRemoval(mod.Name, result.FailedFiles.Count, result.ConfigsKept, result.ConfigsFolder),
@@ -1740,7 +1741,9 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         ModDisableOutcome outcome;
         try
         {
-            if (AppServices.SptEnvironment.InstallPath is { Length: > 0 } profilesOf)
+            // Not while SPT runs: the move is refused then, and its server may be writing them.
+            if (AppServices.SptEnvironment.InstallPath is { Length: > 0 } profilesOf
+                && ModInstallService.RunningBlockers(profilesOf).Count == 0)
                 AppServices.ProfileBackups.BackupIfChanged(profilesOf, ProfileBackups.BeforeDisable);
 
             outcome = ModDisableService.Apply(entries, disable, AppServices.SptEnvironment.InstallPath);

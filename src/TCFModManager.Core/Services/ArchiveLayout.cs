@@ -11,8 +11,9 @@ namespace TCFModManager.Core.Services;
 //   README.md + BepInEx/...            - a read-me beside the real content
 //   plugins/MyMod.dll                  - BepInEx's own folders without the BepInEx folder around them
 //
-// Read-me files, licences, change logs and pictures at the top of the archive are for the person
-// reading it, not for the game: they are left out rather than dropped into the SPT folder.
+// Read-me files, licences and change logs at the top of the archive are for the person reading it,
+// not for the game: they are left out rather than dropped into the SPT folder. Pictures and web pages
+// beside a wrapper folder or plugins/ are left out too; beside BepInEx/ or user/ they are placed.
 //
 // A lone DLL with nothing to say where it goes is NOT placed: under SPT 4 a server mod is a DLL too,
 // and putting one in BepInEx\plugins would be a guess. It stays "not recognised", as before.
@@ -55,13 +56,24 @@ public static class ArchiveLayout
             : DocumentExtensions.Contains(extension);
     }
 
+    // Pictures and web pages: placed when the archive has the install's own layout (nothing says one
+    // there is not for the game), but no reason to doubt a wrapper folder or plugins/ beside them -
+    // a preview.png next to "MyMod-1.0/" is the archive's cover, not content without a home.
+    private static readonly HashSet<string> PresentationExtensions = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".html", ".htm",
+    };
+
+    private static bool IsBeside(string path) =>
+        IsDocument(path) || PresentationExtensions.Contains(Path.GetExtension(path));
+
     /// <summary>Every file to place, with its install-relative path; null when nothing in the
     /// archive says where it goes.</summary>
     public static List<Entry>? Read(string extractDir)
     {
         var root = ContentRoot(extractDir);
         var directories = Directory.GetDirectories(root);
-        var looseFiles = Directory.GetFiles(root).Where(f => !IsDocument(f)).ToList();
+        var looseFiles = Directory.GetFiles(root).Where(f => !IsBeside(f)).ToList();
 
         // The install's own layout: everything below the root, except the read-me files at its top.
         if (directories.Any(d => KnownRoots.Contains(Path.GetFileName(d))))
@@ -94,7 +106,7 @@ public static class ArchiveLayout
 
     //
     // Looks through wrapper folders: a level holding exactly one folder - and at most read-me files
-    // beside it - is a wrapper, unless that folder is already one of the install's own. Four levels
+    // or pictures beside it - is a wrapper, unless that folder is already one of the install's own. Four levels
     // at most.
     //
     public static string ContentRoot(string extractDir)
@@ -105,7 +117,7 @@ public static class ArchiveLayout
         {
             var directories = Directory.GetDirectories(current);
             var files = Directory.GetFiles(current);
-            if (directories.Length != 1 || files.Any(f => !IsDocument(f))) break;
+            if (directories.Length != 1 || files.Any(f => !IsBeside(f))) break;
 
             var name = Path.GetFileName(directories[0]);
             if (KnownRoots.Contains(name) || BepInExFolders.ContainsKey(name)) break;

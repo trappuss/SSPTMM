@@ -6576,4 +6576,12 @@ What is in them now is copied first, so this can be undone the same way. Profile
     <value>The profiles from {0} have been put back. What was there before is at the top of the list.</value>
     <comment>After a restore. {0} when the copy was taken.</comment>
   </data>
+  <data name="ModInstall_NotPutBackYetFormat" xml:space="preserve">
+    <value>Installing {0} {1} failed, and some of its files could not be put back yet because another program holds them open. Nothing is lost: the way back is kept, and it is finished before anything else is installed or removed, or at the next start. Close the game, its server and anything else using the SPT folder (an antivirus scan, a file browser), then try again. Why it failed: {2}</value>
+    <comment>{0} mod, {1} version, {2} the error.</comment>
+  </data>
+  <data name="ModInstall_EarlierInstallPendingFormat" xml:space="preserve">
+    <value>An earlier install of {0} stopped part-way and could not be put back yet - a file in the SPT folder is held open by another program. Nothing else is changed until it has been put back: close the game, its server and anything else using the SPT folder (an antivirus scan, a file browser), then try again.</value>
+    <comment>{0} the mod whose install is waiting to be put back.</comment>
+  </data>
 </root>
