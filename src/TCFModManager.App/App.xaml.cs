@@ -11,9 +11,38 @@ namespace TCFModManager.App;
 
 public partial class App : Application
 {
+    // Held for the app's lifetime: while it exists, a second copy using the same Data folder knows
+    // this one is running.
+    private static Mutex? _singleInstance;
+
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+
+        // First, so nothing that follows - building every service, reading settings - can fail
+        // without a line in the log. The off-thread handler flushes: the process ends as it returns,
+        // before the log's own writer would get to the line that says why.
+        DispatcherUnhandledException += OnDispatcherUnhandledException;
+        AppDomain.CurrentDomain.UnhandledException += (_, args) =>
+        {
+            AppLog.Error("App", "Unhandled exception", args.ExceptionObject as Exception);
+            AppLog.Flush();
+        };
+        TaskScheduler.UnobservedTaskException += (_, args) =>
+        {
+            AppLog.Error("App", "Unobserved task exception", args.Exception);
+            args.SetObserved();
+        };
+
+        // One copy per Data folder. Two would each load settings, collections and the install
+        // records, and each save would quietly undo the other's changes.
+        if (!ClaimSingleInstance())
+        {
+            AppLanguage.ApplyStored();
+            MessageBox.Show(Strings.App_AlreadyRunning, Strings.App_AlreadyRunningTitle, MessageBoxButton.OK, MessageBoxImage.Information);
+            Environment.Exit(0);
+            return;
+        }
 
         AppLog.Start($"{AppVersion.Current}, SPT install: {AppServices.SptEnvironment.InstallPath ?? "(not set)"}");
 
@@ -64,18 +93,57 @@ public partial class App : Application
         // is gone, so its own log is the only record of it) and clears out the staged files.
         AppUpdateInstaller.SweepAfterStartup();
 
-        // Shows unhandled dispatcher exceptions instead of crashing/hanging silently.
-        DispatcherUnhandledException += OnDispatcherUnhandledException;
+        // A data file found damaged or unreadable - now or later - is said, once the window is up.
+        SafeFile.ProblemFound += (_, _) => Dispatcher.BeginInvoke(ReportDataProblems, DispatcherPriority.ApplicationIdle);
+    }
 
-        // Catches anything thrown off the UI thread, which the dispatcher handler never sees.
-        AppDomain.CurrentDomain.UnhandledException += (_, args) =>
-            AppLog.Error("App", "Unhandled exception", args.ExceptionObject as Exception);
+    private static bool ClaimSingleInstance()
+    {
+        var key = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(
+            System.Text.Encoding.UTF8.GetBytes(AppPaths.DataDirectory.ToUpperInvariant())))[..16];
 
-        TaskScheduler.UnobservedTaskException += (_, args) =>
+        _singleInstance = new Mutex(initiallyOwned: true, $"Local\\TCFModManager-{key}", out var created);
+        if (created) return true;
+
+        // Left over from a copy that ended without letting go: Windows hands it over as abandoned.
+        try
         {
-            AppLog.Error("App", "Unobserved task exception", args.Exception);
-            args.SetObserved();
-        };
+            if (_singleInstance.WaitOne(0)) return true;
+        }
+        catch (AbandonedMutexException)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private static readonly HashSet<string> ReportedData = new(StringComparer.OrdinalIgnoreCase);
+
+    //
+    // What SafeFile found: a settings file, the collections or the install records damaged by a
+    // crash or a power cut, or held open by another program. Said plainly, with where the damaged
+    // copy was kept - nothing was thrown away - rather than the app quietly starting over.
+    //
+    public static void ReportDataProblems()
+    {
+        if (Current?.MainWindow is not { IsLoaded: true }) return;
+
+        foreach (var problem in SafeFile.Problems)
+        {
+            if (!ReportedData.Add(problem.Path)) continue;
+
+            var name = System.IO.Path.GetFileName(problem.Path);
+            var kept = problem.KeptAs ?? Strings.App_DataNotKept;
+            var body = problem switch
+            {
+                { CouldNotRead: true } => LocalizationService.Text(Strings.App_DataUnreadableFormat, name),
+                { RestoredFromBackup: true } => LocalizationService.Text(Strings.App_DataRestoredFormat, name, kept),
+                _ => LocalizationService.Text(Strings.App_DataDamagedFormat, name, kept),
+            };
+
+            MessageBox.Show(Current.MainWindow, body, Strings.App_DataProblemTitle, MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
     }
 
     //

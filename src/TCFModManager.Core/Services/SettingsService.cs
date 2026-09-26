@@ -12,23 +12,13 @@ public sealed class SettingsService
 
     public AppSettings Load()
     {
-        if (!File.Exists(_filePath)) return new AppSettings();
-
-        try
-        {
-            var json = File.ReadAllText(_filePath);
-            return JsonSerializer.Deserialize<AppSettings>(json) ?? new AppSettings();
-        }
-        catch (JsonException)
-        {
-            // Corrupt or hand-edited settings file - fall back to defaults.
-            return new AppSettings();
-        }
+        // A damaged file is kept aside and its backup put back - see SafeFile.
+        return SafeFile.ReadJson(_filePath, json => JsonSerializer.Deserialize<AppSettings>(json)) ?? new AppSettings();
     }
 
     public void Save(AppSettings settings)
     {
         var json = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
-        File.WriteAllText(_filePath, json);
+        SafeFile.WriteAllText(_filePath, json, keepBackup: true);
     }
 }

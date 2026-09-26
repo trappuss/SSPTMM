@@ -151,7 +151,8 @@
                                 Appearance="Primary"
                                 Content="{loc:Str AppUpdate_DownloadAndInstall}"
                                 Icon="{ui:SymbolIcon ArrowDownload24}"
-                                Command="{Binding InstallUpdateCommand}" />
+                                Command="{Binding InstallUpdateCommand}"
+                                Visibility="{Binding CanInstallHere, Converter={StaticResource BoolToVis}}" />
                             <ui:Button
                                 Margin="8,0,0,0"
                                 Content="{loc:Str Common_Cancel}"
@@ -164,7 +165,14 @@
                             Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                             FontSize="12"
                             TextWrapping="Wrap"
-                            Text="{loc:Str AppUpdate_InstallNote}" />
+                            Text="{loc:Str AppUpdate_InstallNote}"
+                            Visibility="{Binding CanInstallHere, Converter={StaticResource BoolToVis}}" />
+                        <!-- The fork: why there is no Install button - see SelfMod.IsFork. -->
+                        <TextBlock
+                            Margin="0,8,0,0"
+                            TextWrapping="Wrap"
+                            Text="{loc:Str AppUpdate_ForkNote}"
+                            Visibility="{Binding IsFork, Converter={StaticResource BoolToVis}}" />
 
                         <StackPanel
                             Margin="0,12,0,0"

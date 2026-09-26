@@ -15,23 +15,13 @@ public sealed class ModGroupStore
 
     public ModGroupData Load()
     {
-        if (!File.Exists(_filePath)) return new ModGroupData();
-
-        try
-        {
-            var json = File.ReadAllText(_filePath);
-            return JsonSerializer.Deserialize<ModGroupData>(json) ?? new ModGroupData();
-        }
-        catch (JsonException)
-        {
-            return new ModGroupData();
-        }
+        return SafeFile.ReadJson(_filePath, json => JsonSerializer.Deserialize<ModGroupData>(json)) ?? new ModGroupData();
     }
 
     public void Save(ModGroupData data)
     {
         var json = JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true });
-        File.WriteAllText(_filePath, json);
+        SafeFile.WriteAllText(_filePath, json, keepBackup: true);
     }
 
     // The key an installed mod is tracked under - InstalledModCardViewModel.Name, lowercased so

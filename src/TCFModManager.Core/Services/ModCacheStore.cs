@@ -61,7 +61,7 @@ public sealed class ModCacheStore
                 FetchedAt = DateTimeOffset.UtcNow,
                 Mods = mods.ToList(),
             };
-            File.WriteAllText(_filePath, JsonSerializer.Serialize(data));
+            SafeFile.WriteAllText(_filePath, JsonSerializer.Serialize(data));
         }
         catch (IOException)
         {

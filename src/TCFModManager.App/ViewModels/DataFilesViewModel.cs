@@ -132,8 +132,9 @@ public partial class DataFilesViewModel : LocalizedViewModel
 
         try
         {
-            if (File.Exists(path)) File.Copy(path, path + ".bak", overwrite: true);
-            File.WriteAllText(path, Text);
+            // All or nothing, the previous version kept as .bak - see SafeFile.
+            if (!SafeFile.WriteAllText(path, Text, keepBackup: true))
+                throw new IOException(LocalizationService.Text(Strings.DataFiles_UnreadableNotSaved, Path.GetFileName(path)));
             _savedText = Text;
             HasError = false;
             StatusMessage = LocalizationService.Text(

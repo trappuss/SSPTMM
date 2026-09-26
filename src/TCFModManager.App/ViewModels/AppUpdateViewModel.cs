@@ -240,12 +240,17 @@ public partial class AppUpdateViewModel : LocalizedViewModel
         System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true });
     }
 
-    private bool CanInstallUpdate() => Update?.CanInstall == true && !IsInstalling;
+    // Never in the fork: the listing's download is the original app - see SelfMod.IsFork.
+    private bool CanInstallUpdate() => !SelfMod.IsFork && Update?.CanInstall == true && !IsInstalling;
+
+    public bool IsFork => SelfMod.IsFork;
+
+    public bool CanInstallHere => !SelfMod.IsFork;
 
     [RelayCommand(CanExecute = nameof(CanInstallUpdate))]
     private async Task InstallUpdateAsync()
     {
-        if (Update is not { CanInstall: true } update) return;
+        if (SelfMod.IsFork || Update is not { CanInstall: true } update) return;
 
         // The same gate every other install in this app goes through, for the same reason: the
         // mod page gets opened first, so nothing is downloaded without the author's page - and

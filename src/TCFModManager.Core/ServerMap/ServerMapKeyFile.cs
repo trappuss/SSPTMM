@@ -75,7 +75,7 @@ public static class ServerMapKeyFile
 
         try
         {
-            File.WriteAllText(path, generated + Environment.NewLine, new UTF8Encoding(false));
+            Services.SafeFile.WriteAllText(path, generated + Environment.NewLine, new UTF8Encoding(false));
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {

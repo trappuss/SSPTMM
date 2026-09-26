@@ -22,4 +22,12 @@ public static class SelfMod
     // Fallback only. The live Mod.DetailUrl from the API is preferred wherever one is available,
     // so a slug change on sp-mod.com doesn't leave the app pointing at a dead link.
     public const string ModPageUrl = "https://sp-mod.com/mod/2945/tcf-mod-manager";
+
+    //
+    // True in the steam-workshop-ui fork. The listing above is the original app's: its download is
+    // the original build, so installing it over this one would replace the fork with the original
+    // and every change the fork makes would be gone. The update check still runs - a newer version
+    // of the original is worth knowing about, to merge - but the in-app installer does not.
+    //
+    public const bool IsFork = true;
 }

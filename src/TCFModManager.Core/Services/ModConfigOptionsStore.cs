@@ -62,8 +62,8 @@ public sealed class ModConfigOptionsStore(string? filePath = null)
 
         try
         {
-            var read = JsonSerializer.Deserialize<Dictionary<string, ModConfigOptions>>(
-                File.ReadAllText(_filePath), Options);
+            // A damaged file is kept aside and its backup put back - see SafeFile.
+            var read = SafeFile.ReadJson(_filePath, json => JsonSerializer.Deserialize<Dictionary<string, ModConfigOptions>>(json, Options));
 
             return read is null
                 ? new Dictionary<string, ModConfigOptions>(StringComparer.OrdinalIgnoreCase)
@@ -156,8 +156,7 @@ public sealed class ModConfigOptionsStore(string? filePath = null)
     {
         try
         {
-            Directory.CreateDirectory(Path.GetDirectoryName(_filePath)!);
-            File.WriteAllText(_filePath, JsonSerializer.Serialize(options, Options));
+            SafeFile.WriteAllText(_filePath, JsonSerializer.Serialize(options, Options), keepBackup: true);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {

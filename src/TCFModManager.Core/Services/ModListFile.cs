@@ -155,7 +155,7 @@ public static class ModListFile
         var directory = Path.GetDirectoryName(path);
         if (!string.IsNullOrWhiteSpace(directory)) Directory.CreateDirectory(directory);
 
-        File.WriteAllText(path, Write(list, author));
+        SafeFile.WriteAllText(path, Write(list, author));
     }
 
     //

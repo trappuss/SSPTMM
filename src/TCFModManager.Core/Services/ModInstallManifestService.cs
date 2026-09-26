@@ -13,23 +13,15 @@ public sealed class ModInstallManifestService
 
     public ModInstallManifest Load()
     {
-        if (!File.Exists(_filePath)) return new ModInstallManifest();
-
-        try
-        {
-            var json = File.ReadAllText(_filePath);
-            return JsonSerializer.Deserialize<ModInstallManifest>(json) ?? new ModInstallManifest();
-        }
-        catch (JsonException)
-        {
-            return new ModInstallManifest();
-        }
+        // A damaged file is kept aside and its backup put back - see SafeFile. Losing this one would
+        // make every mod the app installed look hand-installed.
+        return SafeFile.ReadJson(_filePath, json => JsonSerializer.Deserialize<ModInstallManifest>(json)) ?? new ModInstallManifest();
     }
 
     public void Save(ModInstallManifest manifest)
     {
         var json = JsonSerializer.Serialize(manifest, new JsonSerializerOptions { WriteIndented = true });
-        File.WriteAllText(_filePath, json);
+        SafeFile.WriteAllText(_filePath, json, keepBackup: true);
     }
 
     //

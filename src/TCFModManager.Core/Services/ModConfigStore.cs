@@ -109,7 +109,7 @@ public static class ModConfigStore
 
             var backup = Backup(installPath, path, timestamp);
 
-            File.WriteAllText(path, text, loaded.HasByteOrderMark ? Utf8WithBom : Utf8NoBom);
+            SafeFile.WriteAllText(path, text, loaded.HasByteOrderMark ? Utf8WithBom : Utf8NoBom);
 
             AppLog.Info("Configs", $"saved {Path.GetFileName(path)}{(backup is null ? "" : $" (backup: {backup})")}");
 

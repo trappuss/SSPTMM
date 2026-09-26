@@ -38,12 +38,12 @@ public sealed class ModListStore
 
     public ModListData Load()
     {
-        if (!File.Exists(_filePath)) return new ModListData { SchemaVersion = SchemaVersion };
+        // A damaged file is kept aside and its backup put back - see SafeFile.
+        var read = SafeFile.ReadJson(_filePath, json => JsonSerializer.Deserialize<ModListData>(json, Options) ?? new ModListData());
+        if (read is null) return new ModListData { SchemaVersion = SchemaVersion };
 
-        try
         {
-            var json = File.ReadAllText(_filePath);
-            var data = JsonSerializer.Deserialize<ModListData>(json, Options) ?? new ModListData();
+            var data = read;
 
             var storedVersion = data.SchemaVersion;
 
@@ -71,10 +71,6 @@ public sealed class ModListStore
             }
 
             return data;
-        }
-        catch (JsonException)
-        {
-            return new ModListData { SchemaVersion = SchemaVersion };
         }
     }
 
@@ -146,8 +142,7 @@ public sealed class ModListStore
     {
         data.SchemaVersion = SchemaVersion;
 
-        Directory.CreateDirectory(Path.GetDirectoryName(_filePath)!);
-        File.WriteAllText(_filePath, JsonSerializer.Serialize(data, Options));
+        SafeFile.WriteAllText(_filePath, JsonSerializer.Serialize(data, Options), keepBackup: true);
     }
 
     public ModList? Find(Guid id) => Load().Lists.FirstOrDefault(l => l.Id == id);

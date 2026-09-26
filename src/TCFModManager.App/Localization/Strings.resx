@@ -6410,4 +6410,40 @@ This was written to:
     <value>Could not be checked just now</value>
     <comment>On a favorite whose page could not be read from sp-mod.com.</comment>
   </data>
+  <data name="AppUpdate_ForkNote" xml:space="preserve">
+    <value>This is the Steam Workshop fork of TCF Mod Manager. The download on sp-mod.com is the original app, and installing it would replace this build and everything the fork changes - so it is not installed from here. A newer original version is worth merging into the fork instead.</value>
+    <comment>App update page, in the fork: why there is no Install button.</comment>
+  </data>
+  <data name="DataFiles_UnreadableNotSaved" xml:space="preserve">
+    <value>{0} could not be read when the app started, so it is not saved over now. Close whatever holds it open (a sync client, an antivirus scan) and restart the app.</value>
+    <comment>Data files editor: why a save was refused. {0} is the file name.</comment>
+  </data>
+  <data name="App_AlreadyRunningTitle" xml:space="preserve">
+    <value>TCF Mod Manager is already running</value>
+    <comment>Title of the message when a second copy is started.</comment>
+  </data>
+  <data name="App_AlreadyRunning" xml:space="preserve">
+    <value>TCF Mod Manager is already open. Two copies would each save over the other's settings and collections, so this one will close - switch to the one that is open.</value>
+    <comment>Shown when a second copy of the app is started with the same Data folder.</comment>
+  </data>
+  <data name="App_DataProblemTitle" xml:space="preserve">
+    <value>A data file needs attention</value>
+    <comment>Title of the message about a damaged or unreadable data file.</comment>
+  </data>
+  <data name="App_DataRestoredFormat" xml:space="preserve">
+    <value>{0} was damaged - most likely by a crash or a power cut while it was being saved - and has been put back from its last backup. The damaged copy is kept as {1}.</value>
+    <comment>{0} is the file name, {1} where the damaged copy was kept.</comment>
+  </data>
+  <data name="App_DataDamagedFormat" xml:space="preserve">
+    <value>{0} was damaged - most likely by a crash or a power cut while it was being saved - and there was no usable backup, so the app starts without what was in it. Nothing has been deleted: the damaged copy is kept as {1}.</value>
+    <comment>{0} is the file name, {1} where the damaged copy was kept.</comment>
+  </data>
+  <data name="App_DataUnreadableFormat" xml:space="preserve">
+    <value>{0} could not be read - another program (a sync client, an antivirus scan) may be holding it open. It has been left as it is, and the app will not save over it until it is restarted.</value>
+    <comment>{0} is the file name.</comment>
+  </data>
+  <data name="App_DataNotKept" xml:space="preserve">
+    <value>(no copy could be made - see the log)</value>
+    <comment>In place of where a damaged file was kept, when copying it failed.</comment>
+  </data>
 </root>

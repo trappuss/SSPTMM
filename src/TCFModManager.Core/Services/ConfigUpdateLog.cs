@@ -52,8 +52,7 @@ public sealed class ConfigUpdateLog(string? filePath = null)
             history.Reports.Insert(0, report);
             if (history.Reports.Count > Keep) history.Reports.RemoveRange(Keep, history.Reports.Count - Keep);
 
-            Directory.CreateDirectory(Path.GetDirectoryName(_filePath)!);
-            File.WriteAllText(_filePath, JsonSerializer.Serialize(history, Options));
+            SafeFile.WriteAllText(_filePath, JsonSerializer.Serialize(history, Options));
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {

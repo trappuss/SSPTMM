@@ -58,6 +58,9 @@ public partial class MainWindow : FluentWindow
             // configured just leaves the Server Map tab without anything to show, so nothing here is
             // worth holding the window open for.
             _ = AppServices.ServerMap.ConnectOnStartupAsync();
+
+            // A data file found damaged while the app was starting: said now the window is up.
+            Dispatcher.BeginInvoke(App.ReportDataProblems, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
         };
 
         // A mod opened from anywhere opens as its Workshop item page, over the page it came from.

@@ -1713,4 +1713,13 @@ internal static class Strings
     internal static string Favorites_Empty => LocalizationService.Get("Favorites_Empty");
     internal static string Favorites_Changed => LocalizationService.Get("Favorites_Changed");
     internal static string Favorites_CouldNotCheck => LocalizationService.Get("Favorites_CouldNotCheck");
+    internal static string AppUpdate_ForkNote => LocalizationService.Get("AppUpdate_ForkNote");
+    internal static string DataFiles_UnreadableNotSaved => LocalizationService.Get("DataFiles_UnreadableNotSaved");
+    internal static string App_AlreadyRunningTitle => LocalizationService.Get("App_AlreadyRunningTitle");
+    internal static string App_AlreadyRunning => LocalizationService.Get("App_AlreadyRunning");
+    internal static string App_DataProblemTitle => LocalizationService.Get("App_DataProblemTitle");
+    internal static string App_DataRestoredFormat => LocalizationService.Get("App_DataRestoredFormat");
+    internal static string App_DataDamagedFormat => LocalizationService.Get("App_DataDamagedFormat");
+    internal static string App_DataUnreadableFormat => LocalizationService.Get("App_DataUnreadableFormat");
+    internal static string App_DataNotKept => LocalizationService.Get("App_DataNotKept");
 }
