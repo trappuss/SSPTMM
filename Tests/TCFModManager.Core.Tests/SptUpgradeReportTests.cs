@@ -55,4 +55,24 @@ public class SptUpgradeReportTests
 
         Assert.Equal(SptUpgradeStanding.Ready, rows.Single().Standing);
     }
+
+    [Fact]
+    public void AnOlderVersionForTheTarget_IsNotOfferedAsAnUpdate()
+    {
+        var catalog = new[] { Listing(5, ("2.0.0", "~4.0.0"), ("1.9.0", ">=3.11.0")) };
+
+        var row = SptUpgradeReport.Build([new SptUpgradeInput("E", 5, "2.0.0")], catalog, "4.1.0").Single();
+
+        Assert.Equal(SptUpgradeStanding.NotYet, row.Standing);
+    }
+
+    [Fact]
+    public void AnInstalledVersionNotAmongTheKnownOnes_CannotBeJudged()
+    {
+        var catalog = new[] { Listing(6, ("3.0.0", "~4.1.0")) };
+
+        var row = SptUpgradeReport.Build([new SptUpgradeInput("F", 6, "1.0.0")], catalog, "4.0.13").Single();
+
+        Assert.Equal(SptUpgradeStanding.Unknown, row.Standing);
+    }
 }

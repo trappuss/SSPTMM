@@ -1801,4 +1801,7 @@ internal static class Strings
     internal static string Configs_BackupLoadedFormat => LocalizationService.Get("Configs_BackupLoadedFormat");
     internal static string Downloads_FikaIncompatibleTitle => LocalizationService.Get("Downloads_FikaIncompatibleTitle");
     internal static string Downloads_FikaIncompatibleFormat => LocalizationService.Get("Downloads_FikaIncompatibleFormat");
+    internal static string Installed_LocalConfirmOfflineFormat => LocalizationService.Get("Installed_LocalConfirmOfflineFormat");
+    internal static string Installed_LocalConfirmPackFormat => LocalizationService.Get("Installed_LocalConfirmPackFormat");
+    internal static string Upgrade_NoReleases => LocalizationService.Get("Upgrade_NoReleases");
 }

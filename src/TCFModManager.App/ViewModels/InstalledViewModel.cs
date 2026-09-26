@@ -963,10 +963,11 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         var stem = Path.GetFileNameWithoutExtension(file);
         StatusMessage = Text(Strings.Installed_LocalReadingFormat, Path.GetFileName(file));
 
+        // Off the UI thread: a .7z or .rar is extracted to be looked into, which can take a while.
         LocalArchiveContents contents;
         try
         {
-            contents = await LocalArchive.InspectAsync(file);
+            contents = await Task.Run(() => LocalArchive.InspectAsync(file));
         }
         catch (Exception ex)
         {
@@ -981,22 +982,36 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
             return;
         }
 
+        var catalogKnown = true;
         try
         {
             await AppServices.ModCache.EnsureLoadedAsync();
         }
         catch (Exception ex) when (ex is not OperationCanceledException || ex is TaskCanceledException)
         {
-            // Offline: installed under its own name, without its listing.
+            catalogKnown = false;
         }
 
-        var match = LocalArchive.MatchIn(contents, AppServices.ModCache.AllMods);
+        var match = catalogKnown ? LocalArchive.MatchIn(contents, AppServices.ModCache.AllMods) : null;
+        var listings = catalogKnown ? LocalArchive.ListingsIn(contents, AppServices.ModCache.AllMods) : [];
         var version = LocalArchive.VersionOf(contents, match) ?? stem;
         var name = match?.Name ?? stem;
 
-        var question = match is null
-            ? Text(Strings.Installed_LocalConfirmUnmatchedFormat, Path.GetFileName(file), name, version)
-            : Text(Strings.Installed_LocalConfirmMatchedFormat, Path.GetFileName(file), name, version);
+        //
+        // Recorded under a local id only when that is what the user chose knowing why: a pack of
+        // listed mods loses each one's page and updates that way, and with the site unreachable it
+        // could not be looked up at all.
+        //
+        string question;
+        if (match is not null)
+            question = Text(Strings.Installed_LocalConfirmMatchedFormat, Path.GetFileName(file), name, version);
+        else if (!catalogKnown)
+            question = Text(Strings.Installed_LocalConfirmOfflineFormat, Path.GetFileName(file), name, version);
+        else if (listings.Count > 1)
+            question = Text(Strings.Installed_LocalConfirmPackFormat, Path.GetFileName(file), TextLists.Join([.. listings.Select(l => l.Name ?? l.Id.ToString())]), name);
+        else
+            question = Text(Strings.Installed_LocalConfirmUnmatchedFormat, Path.GetFileName(file), name, version);
+
         if (MessageBox.Show(question, Strings.Installed_InstallFromFileTitle, MessageBoxButton.YesNo, MessageBoxImage.Question)
             != MessageBoxResult.Yes)
         {
@@ -1005,7 +1020,8 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         }
 
         var target = match is null
-            ? new InstallTarget(LocalArchive.IdFor(name), false, name, null, null, null)
+            ? new InstallTarget(LocalArchive.IdFor(contents, name), false, name,
+                contents.Plugins.Select(p => p.Guid).FirstOrDefault(), null, null)
             : InstallTarget.For(match);
         var published = match?.Versions?.FirstOrDefault(v => string.Equals(v.Version, version, StringComparison.OrdinalIgnoreCase));
         var modVersion = new ModVersion { Id = published?.Id ?? 0, Version = version, Link = LocalArchive.LinkFor(file) };

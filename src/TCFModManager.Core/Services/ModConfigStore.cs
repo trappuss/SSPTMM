@@ -145,17 +145,25 @@ public static class ModConfigStore
             // over an install to undo a round of edits.
             var relative = RelativeForBackup(installPath, path);
             var stamp = $"{timestamp.ToLocalTime():yyyyMMdd-HHmmss}";
-            var destination = Path.Combine(BackupDirectory, stamp, relative);
+            var folder = Path.Combine(BackupDirectory, stamp);
+            var destination = Path.Combine(folder, relative);
 
             // A second save of the same file within the same second must not replace the backup of
             // what was there before the first: that one is the copy worth having.
             for (var n = 2; File.Exists(destination); n++)
-                destination = Path.Combine(BackupDirectory, $"{stamp}-{n}", relative);
+            {
+                folder = Path.Combine(BackupDirectory, $"{stamp}-{n}");
+                destination = Path.Combine(folder, relative);
+            }
 
             var directory = Path.GetDirectoryName(destination);
             if (!string.IsNullOrEmpty(directory)) Directory.CreateDirectory(directory);
 
             File.Copy(path, destination, overwrite: false);
+
+            // Which SPT install these copies came from, so another install's are not offered back.
+            var marker = Path.Combine(folder, InstallMarker);
+            if (!File.Exists(marker)) File.WriteAllText(marker, Path.GetFullPath(installPath));
 
             return destination;
         }
@@ -216,6 +224,9 @@ public static class ModConfigStore
         return index < 0 ? message : message[..index].Trim();
     }
 
+    // In each backup folder: the SPT install its copies came from.
+    private const string InstallMarker = ".install";
+
     /// <summary>The copies of a config kept by earlier saves (Backup), newest first.</summary>
     public static IReadOnlyList<ModConfigBackup> BackupsOf(string installPath, string path)
     {
@@ -233,6 +244,11 @@ public static class ModConfigStore
                 if (name.Length < 15 || !DateTime.TryParseExact(name[..15], "yyyyMMdd-HHmmss",
                         System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var savedAt))
                     continue;
+
+                // Kept from another SPT install (copies from before this was written down are shown).
+                var marker = Path.Combine(dir, InstallMarker);
+                if (File.Exists(marker) && !string.Equals(File.ReadAllText(marker).Trim(), Path.GetFullPath(installPath),
+                        StringComparison.OrdinalIgnoreCase)) continue;
 
                 var copy = Path.Combine(dir, relative);
                 if (File.Exists(copy)) found.Add(new ModConfigBackup(copy, savedAt, name));

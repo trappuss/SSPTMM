@@ -77,6 +77,10 @@ public partial class PlayViewModel : LocalizedViewModel
     [ObservableProperty]
     private string? _serverLogPath;
 
+    // Set by the page: false while the user has scrolled up to read, so the text is not replaced
+    // (and their place lost) under them. Back at the bottom, it follows again.
+    public bool FollowServerLog { get; set; } = true;
+
     partial void OnShowServerLogChanged(bool value)
     {
         if (value) UpdateServerLog(AppServices.SptEnvironment.InstallPath);
@@ -258,7 +262,7 @@ public partial class PlayViewModel : LocalizedViewModel
         PlaysHere = roles.HasFlag(InstallRoles.Player);
         RunsHeadlessClient = roles.HasFlag(InstallRoles.Headless);
 
-        if (ShowServerLog) UpdateServerLog(installPath);
+        if (ShowServerLog && FollowServerLog) UpdateServerLog(installPath);
     }
 
     [RelayCommand]

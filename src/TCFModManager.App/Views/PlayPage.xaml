@@ -181,7 +181,8 @@
                             HorizontalScrollBarVisibility="Auto"
                             VerticalScrollBarVisibility="Auto"
                             Text="{Binding ServerLogText, Mode=OneWay}"
-                            TextChanged="ServerLogBox_TextChanged" />
+                            TextChanged="ServerLogBox_TextChanged"
+                            ScrollViewer.ScrollChanged="ServerLogBox_ScrollChanged" />
                         <DockPanel Margin="0,6,0,0">
                             <ui:Button
                                 DockPanel.Dock="Right"

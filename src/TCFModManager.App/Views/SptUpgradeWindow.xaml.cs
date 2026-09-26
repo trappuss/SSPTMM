@@ -31,6 +31,10 @@ public partial class SptUpgradeWindow : FluentWindow
 
         TargetBox.ItemsSource = releases;
         TargetBox.SelectedIndex = releases.Count > 0 ? 0 : -1;
+
+        // The installed SPT is newer than every release known here (a test build, or a list not
+        // fetched yet): nothing to pick, said so rather than left blank.
+        if (releases.Count == 0) SummaryText.Text = Strings.Upgrade_NoReleases;
     }
 
     /// <summary>Opens the check for these installed mods, offering the releases from

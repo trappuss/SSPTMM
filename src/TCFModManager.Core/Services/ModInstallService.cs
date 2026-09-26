@@ -1356,13 +1356,29 @@ public sealed class ModInstallService(
         IProgress<ModInstallProgress>? status,
         CancellationToken ct)
     {
-        using var archive = ArchiveFactory.OpenArchive(archivePath);
+        // What kind of archive it is, when the archive reader can tell; a .tar.gz it may not be able
+        // to open as an archive at all, and then only the general reader below is used.
+        IArchive? archive;
+        try
+        {
+            archive = ArchiveFactory.OpenArchive(archivePath);
+        }
+        catch (Exception ex) when (ex is ArchiveOperationException or InvalidOperationException)
+        {
+            archive = null;
+        }
 
-        var total = TryCountEntries(archive);
+        using var opened = archive;
+        var total = archive is null ? 0 : TryCountEntries(archive);
 
+        //
         // Forward-only reader rather than random-access Entries: a solid archive decompresses its
-        // blocks once here, instead of once per entry.
-        using var reader = archive.ExtractAllEntries();
+        // blocks once here, instead of once per entry. The archive's own reader only does that for a
+        // 7z or a solid archive; anything else - a tar, a .tar.gz, a rar that is not solid - is read
+        // by the general reader, which also looks through a .gz into the tar inside it.
+        //
+        using var stream = archive is not null && (archive.Type == ArchiveType.SevenZip || archive.IsSolid) ? null : File.OpenRead(archivePath);
+        using var reader = stream is null ? archive!.ExtractAllEntries() : ReaderFactory.OpenReader(stream, new ReaderOptions());
         var extracted = 0;
         var reportClock = Stopwatch.StartNew();
 

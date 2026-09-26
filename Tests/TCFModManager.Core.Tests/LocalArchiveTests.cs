@@ -107,4 +107,57 @@ public class LocalArchiveTests : IDisposable
         // Its own version then, as the files report it.
         Assert.Equal("1.0", LocalArchive.VersionOf(new LocalArchiveContents(true, [("com.someone.else", "1.0")], []), null));
     }
+
+    private string Tar(bool gzip, params (string Path, string Content)[] files)
+    {
+        var source = Path.Combine(_root, "src-" + Guid.NewGuid().ToString("N"));
+        foreach (var (entry, content) in files)
+        {
+            var full = Path.Combine(source, entry.Replace('/', Path.DirectorySeparatorChar));
+            Directory.CreateDirectory(Path.GetDirectoryName(full)!);
+            File.WriteAllText(full, content);
+        }
+
+        var path = Path.Combine(_root, Guid.NewGuid().ToString("N") + (gzip ? ".tar.gz" : ".tar"));
+        using (var output = File.Create(path))
+        {
+            if (gzip)
+            {
+                using var zipped = new GZipStream(output, CompressionLevel.Fastest);
+                System.Formats.Tar.TarFile.CreateFromDirectory(source, zipped, includeBaseDirectory: false);
+            }
+            else
+            {
+                System.Formats.Tar.TarFile.CreateFromDirectory(source, output, includeBaseDirectory: false);
+            }
+        }
+
+        return path;
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task TarAndTarGz_AreRead(bool gzip)
+    {
+        var archive = Tar(gzip, ("user/mods/TarMod/package.json", """{ "name": "TarMod", "version": "3.0.0" }"""));
+
+        var contents = await LocalArchive.InspectAsync(archive);
+
+        Assert.True(contents.Recognised);
+        Assert.Equal([("TarMod", "3.0.0")], contents.ServerMods);
+    }
+
+    [Fact]
+    public void TheLocalId_FollowsWhatIsInside_NotTheFileName()
+    {
+        var mod = new LocalArchiveContents(true, [("com.x.mod", "1.0"), ("com.x.mod.api", "1.0")], []);
+        var sameModNewer = new LocalArchiveContents(true, [("com.x.mod.api", "1.1"), ("COM.X.MOD", "1.1")], []);
+        var other = new LocalArchiveContents(true, [("com.y.other", "1.0")], []);
+        var nothing = new LocalArchiveContents(true, [], []);
+
+        Assert.Equal(LocalArchive.IdFor(mod, "MyMod-1.0"), LocalArchive.IdFor(sameModNewer, "MyMod-1.1"));
+        Assert.NotEqual(LocalArchive.IdFor(mod, "release"), LocalArchive.IdFor(other, "release"));
+        Assert.Equal(LocalArchive.IdFor("release"), LocalArchive.IdFor(nothing, "release"));
+    }
 }

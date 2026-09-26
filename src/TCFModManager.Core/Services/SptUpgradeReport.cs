@@ -59,25 +59,25 @@ public static class SptUpgradeReport
                 continue;
             }
 
+            // The installed version is not among the versions known here (the catalog keeps only the
+            // latest few), or what it needs cannot be read: nothing can be said about it.
+            if (mine.Version is null || mine.Fits is null)
+            {
+                rows.Add(new SptUpgradeRow(mod.Name, id, mod.Installed, SptUpgradeStanding.Unknown, null));
+                continue;
+            }
+
+            // Only a newer version is an update: an older one published for the target is not.
             var newest = fits
-                .Where(v => v.Fits == true && v.Version is not null)
+                .Where(v => v.Fits == true && v.Version is not null
+                    && ModVersionComparer.IsUpdateAvailable(mod.Installed, v.Version) == true)
                 .OrderByDescending(v => v.Version, Comparer<string?>.Create((a, b) => ModVersionComparer.Compare(a, b) ?? 0))
                 .Select(v => v.Version)
                 .FirstOrDefault();
 
-            if (newest is not null)
-            {
-                rows.Add(new SptUpgradeRow(mod.Name, id, mod.Installed, SptUpgradeStanding.UpdateNeeded, newest));
-            }
-            else if (fits.All(v => v.Fits is null))
-            {
-                // No version's constraint could be read: nothing can be said.
-                rows.Add(new SptUpgradeRow(mod.Name, id, mod.Installed, SptUpgradeStanding.Unknown, null));
-            }
-            else
-            {
-                rows.Add(new SptUpgradeRow(mod.Name, id, mod.Installed, SptUpgradeStanding.NotYet, null));
-            }
+            rows.Add(newest is not null
+                ? new SptUpgradeRow(mod.Name, id, mod.Installed, SptUpgradeStanding.UpdateNeeded, newest)
+                : new SptUpgradeRow(mod.Name, id, mod.Installed, SptUpgradeStanding.NotYet, null));
         }
 
         // What stands in the way first.

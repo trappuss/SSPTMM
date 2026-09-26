@@ -512,7 +512,28 @@ public sealed partial class ConfigsViewModel : LocalizedViewModel
 
     partial void OnSelectedBackupChanged(ConfigBackupRow? value)
     {
-        if (value is null || _loaded is null) return;
+        if (value is null || _loaded is null || _restoringSelection) return;
+
+        // Edits not saved yet would be replaced: asked first, as switching files does.
+        if (IsDirty && _loadedEntry is not null
+            && MessageBox.Show(
+                Text(Strings.Configs_DiscardFormat, _loadedEntry.FileName),
+                Strings.Configs_DiscardTitle,
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question) != MessageBoxResult.Yes)
+        {
+            _restoringSelection = true;
+            try
+            {
+                SelectedBackup = null;
+            }
+            finally
+            {
+                _restoringSelection = false;
+            }
+
+            return;
+        }
 
         try
         {
@@ -663,6 +684,17 @@ public sealed partial class ConfigsViewModel : LocalizedViewModel
         EditorText = _loaded.Text;
         IsDirty = false;
         EditorError = null;
+
+        // Nothing picked any more: the file is as it was.
+        _restoringSelection = true;
+        try
+        {
+            SelectedBackup = null;
+        }
+        finally
+        {
+            _restoringSelection = false;
+        }
     }
 
     [RelayCommand(CanExecute = nameof(HasSelection))]

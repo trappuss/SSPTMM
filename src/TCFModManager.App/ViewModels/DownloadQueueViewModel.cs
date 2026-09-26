@@ -378,6 +378,7 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
             try
             {
                 item.StatusMessage = Strings.Downloads_CopyingLocal;
+                Directory.CreateDirectory(Path.GetDirectoryName(copy)!);
                 await Task.Run(() => File.Copy(local, copy, overwrite: true), token);
                 item.Progress = 1.0;
             }
@@ -704,16 +705,28 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
 
     private static readonly TimeSpan ProblemAnswerLifetime = TimeSpan.FromMinutes(10);
 
+    // A "no" stands only for the batch it was given in: asked again a minute later - a retry, or
+    // subscribing again - rather than cancelled without a word.
+    private static readonly TimeSpan ProblemRefusalLifetime = TimeSpan.FromMinutes(1);
+
+    private static bool StillStands((bool Install, DateTime At) answer, DateTime now) =>
+        now - answer.At <= (answer.Install ? ProblemAnswerLifetime : ProblemRefusalLifetime);
+
     // Whether Fika is installed (any plugin of Project Fika's, "com.fika.*", loaded from the
-    // install), read at most every few minutes - a collection queues many mods at once.
+    // install, or an enabled server mod named for it), read at most every few minutes - a
+    // collection queues many mods at once.
     private (string Path, bool Runs, DateTime At)? _fika;
 
     private async Task<bool> RunsFikaAsync(string installPath)
     {
         if (_fika is { } known && known.Path == installPath && DateTime.UtcNow - known.At < TimeSpan.FromMinutes(5)) return known.Runs;
 
-        var runs = await Task.Run(() => InstalledModScanner.LoadedPluginGuids(installPath)
-            .Any(g => g.StartsWith("com.fika.", StringComparison.OrdinalIgnoreCase)));
+        // Its client plugins, or - on a machine that only hosts - its server mod's folder.
+        var runs = await Task.Run(() =>
+            InstalledModScanner.LoadedPluginGuids(installPath).Any(g => g.StartsWith("com.fika.", StringComparison.OrdinalIgnoreCase))
+            || InstalledModScanner.Scan(installPath).Any(m => m is { Target: InstalledModTarget.Server, IsDisabled: false }
+                && (m.Name.Contains("fika", StringComparison.OrdinalIgnoreCase)
+                    || Path.GetFileName(m.FolderPath).Contains("fika", StringComparison.OrdinalIgnoreCase))));
         _fika = (installPath, runs, DateTime.UtcNow);
         return runs;
     }
@@ -721,7 +734,7 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
     private bool ConfirmFikaIncompatible(string modName)
     {
         var key = "fika:" + modName;
-        if (_problemAnswers.TryGetValue(key, out var answer) && DateTime.UtcNow - answer.At <= ProblemAnswerLifetime) return answer.Install;
+        if (_problemAnswers.TryGetValue(key, out var answer) && StillStands(answer, DateTime.UtcNow)) return answer.Install;
 
         var install = System.Windows.MessageBox.Show(
             Text(Strings.Downloads_FikaIncompatibleFormat, modName),
@@ -739,7 +752,7 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
     public bool ConfirmDespite(string modName, IReadOnlyList<DependencyProblem> problems, bool askAgain = false)
     {
         var now = DateTime.UtcNow;
-        foreach (var stale in _problemAnswers.Where(a => now - a.Value.At > ProblemAnswerLifetime).Select(a => a.Key).ToList())
+        foreach (var stale in _problemAnswers.Where(a => !StillStands(a.Value, now)).Select(a => a.Key).ToList())
             _problemAnswers.Remove(stale);
 
         var unanswered = new List<DependencyProblem>();

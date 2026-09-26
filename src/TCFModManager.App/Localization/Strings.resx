@@ -6778,4 +6778,20 @@ Install it? It can be removed like any other.</value>
 Install it anyway?</value>
     <comment>{0} the mod.</comment>
   </data>
+  <data name="Installed_LocalConfirmOfflineFormat" xml:space="preserve">
+    <value>sp-mod.com could not be reached, so which mod {0} is cannot be looked up. Installed now, it is kept as {1} ({2}) - without a Workshop page or updates, even once you are online.
+
+Install it anyway? (Or try again when you are online.)</value>
+    <comment>{0} file, {1} the name it gets, {2} its version.</comment>
+  </data>
+  <data name="Installed_LocalConfirmPackFormat" xml:space="preserve">
+    <value>{0} holds several mods from sp-mod.com: {1}. Installed from this file they are kept together as {2} - without their Workshop pages or updates. Installing each from its page keeps them up to date instead.
+
+Install the file as it is anyway?</value>
+    <comment>{0} file, {1} list of mods, {2} the name the whole file gets.</comment>
+  </data>
+  <data name="Upgrade_NoReleases" xml:space="preserve">
+    <value>No SPT release newer than the one installed is known yet, so there is nothing to check against.</value>
+    <comment>Upgrade window with no release to pick.</comment>
+  </data>
 </root>

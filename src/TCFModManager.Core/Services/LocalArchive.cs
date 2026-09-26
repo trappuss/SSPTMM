@@ -36,7 +36,22 @@ public static class LocalArchive
         return path.Length > 0;
     }
 
-    /// <summary>The id an archive that matches no listing is recorded under: negative, stable for its name.</summary>
+    /// <summary>The id an archive that matches no listing is recorded under: negative, and the same
+    /// for the same mod whatever its file is called - worked out from what it holds (its plugin
+    /// GUIDs and server mod names); from the name only when it holds neither.</summary>
+    public static int IdFor(LocalArchiveContents contents, string fallbackName)
+    {
+        var identity = contents.Plugins.Select(p => p.Guid)
+            .Concat(contents.ServerMods.Select(m => "server:" + m.Name))
+            .Select(i => i.ToLowerInvariant())
+            .Distinct()
+            .Order(StringComparer.Ordinal)
+            .ToList();
+
+        return IdFor(identity.Count > 0 ? string.Join("|", identity) : fallbackName);
+    }
+
+    /// <summary>The id for a name (see the overload above).</summary>
     public static int IdFor(string name)
     {
         // FNV-1a over the lowered name: stable across runs, unlike string.GetHashCode.
@@ -98,8 +113,9 @@ public static class LocalArchive
         }
     }
 
-    /// <summary>The one listing every plugin GUID in the archive belongs to, or null when there is
-    /// no such single listing (none, or a pack of several).</summary>
+    /// <summary>The one listing the archive's plugins belong to - a mod's own helper plugins, with no
+    /// listing of their own, come along with it - or null when there is no such single listing
+    /// (none, or a pack of several).</summary>
     public static Mod? MatchIn(LocalArchiveContents contents, IEnumerable<Mod> catalog)
     {
         var guids = contents.Plugins.Select(p => p.Guid).ToHashSet(StringComparer.OrdinalIgnoreCase);
@@ -111,6 +127,13 @@ public static class LocalArchive
             .ToList();
 
         return matches.Count == 1 ? matches[0] : null;
+    }
+
+    /// <summary>Every listing the archive's plugins belong to - more than one for a pack.</summary>
+    public static List<Mod> ListingsIn(LocalArchiveContents contents, IEnumerable<Mod> catalog)
+    {
+        var guids = contents.Plugins.Select(p => p.Guid).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        return [.. catalog.Where(m => !string.IsNullOrWhiteSpace(m.Guid) && guids.Contains(m.Guid!)).DistinctBy(m => m.Id)];
     }
 
     /// <summary>The version to record: the published version the matched plugin's DLL version is,

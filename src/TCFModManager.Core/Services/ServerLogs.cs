@@ -8,7 +8,8 @@ namespace TCFModManager.Core.Services;
 // has - nothing about how it is started or stopped changes - and what it logs shows on the Play page.
 //
 // Whichever log file there was written last is the one shown; the file names are the server's
-// business and have changed between SPT versions, so none is assumed.
+// business and have changed between SPT versions, so none is assumed - except that the launcher's
+// own log, when it writes one there, is not the server's.
 //
 public static class ServerLogs
 {
@@ -32,7 +33,8 @@ public static class ServerLogs
         {
             return new DirectoryInfo(folder)
                 .EnumerateFiles("*", new EnumerationOptions { RecurseSubdirectories = true, IgnoreInaccessible = true })
-                .Where(f => Extensions.Contains(f.Extension, StringComparer.OrdinalIgnoreCase))
+                .Where(f => Extensions.Contains(f.Extension, StringComparer.OrdinalIgnoreCase)
+                    && !f.Name.StartsWith("launcher", StringComparison.OrdinalIgnoreCase))
                 .OrderByDescending(f => f.LastWriteTimeUtc)
                 .FirstOrDefault()?.FullName;
         }

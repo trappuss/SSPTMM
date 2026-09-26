@@ -181,7 +181,8 @@ public partial class ModUpdateDialogViewModel : LocalizedViewModel
     // Loads the mod's version history. Called once by ModUpdateContentDialog's constructor.
     public async Task LoadAsync()
     {
-        if (_mod.ModId is not { } modId)
+        // Not a listing (none matched, or installed from a file under a local id): nothing to ask.
+        if (_mod.ModId is not { } modId || LocalArchive.IsLocalId(modId))
         {
             StatusMessage = Text(Strings.ModUpdate_NotMatchedFormat, _mod.DisplayTitle);
             IsLoading = false;

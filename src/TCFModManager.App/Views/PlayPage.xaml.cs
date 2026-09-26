@@ -32,4 +32,11 @@ public partial class PlayPage : Page
 
     // The newest lines at the bottom, as a console has them.
     private void ServerLogBox_TextChanged(object sender, TextChangedEventArgs e) => ServerLogBox.ScrollToEnd();
+
+    // Scrolled up by the user: stop replacing the text until they are back at the bottom.
+    private void ServerLogBox_ScrollChanged(object sender, ScrollChangedEventArgs e)
+    {
+        if (e.ExtentHeightChange != 0) return;
+        ViewModel.FollowServerLog = e.VerticalOffset + e.ViewportHeight >= e.ExtentHeight - 2;
+    }
 }
