@@ -735,6 +735,77 @@ what following does here.
 are uncommitted changes to tracked files, then moves steam-workshop-ui forward to the bundle -
 fast-forward only; if the branch has commits the bundle does not, it says so and changes nothing.
 
+## Fourteenth round: the tool itself - data safety, right answers, network, new tools (2026-09-26)
+
+Not the look this time: what the app does. Five audits of the whole codebase, each finding
+reproduced before it was fixed, every phase reviewed again by a separate agent until nothing it
+found was left, and each checked under Wine.
+
+**Your data is not lost any more.**
+- The fork never installs the upstream app over itself (the next upstream release would have
+  replaced it); App update still says when a newer upstream version is out.
+- Settings, collections, install records and the other data files are written so a crash or power
+  cut leaves the old file or the new one, never half; the ones you make keep a `.bak`. A damaged
+  file is kept aside as `<name>.corrupt-<time>`, the backup is put back, and a message says so. A
+  file another program holds open is never saved over with defaults.
+- One copy of the app per Data folder: a second start says so and closes.
+- Installing is undoable at every step (a journal in the install's work folder): a failure, or the
+  app closing half way, puts the install back exactly as it was - previous version included - at
+  once or at the next start. Nothing that was there before is ever deleted by an undo; an undo that
+  cannot finish (a file held open) holds every other change until it has.
+- Files an install replaces - one placed by hand, another mod's copy of a shared library - are
+  kept and put back when that mod is removed; mods stacked on one file (hand copy, A over it, B over
+  A) end with the original whichever is removed first. A file another installed mod also lists is
+  never deleted. BepInEx `.cfg` files in an archive never replace your settings.
+- Read-me files and pictures beside an archive's content are not dropped into the SPT folder; a
+  `plugins/` folder without `BepInEx/` around it goes where it belongs.
+- Importing a list file of one of your own lists asks (import beside it, replace, cancel) instead
+  of turning yours read-only.
+- **SPT profile backups** (Options): `user/profiles` is zipped before installs, updates, removals,
+  disabling and applying a collection, whenever the profiles changed since the last copy; the last
+  10 per install are kept; Put back copies what is there first and refuses while SPT runs.
+
+**Right answers.**
+- A dependency a major version past what the mod needing it was made for reads "too new", not
+  installed. Before an install, a required mod that is disabled, too new, not an accepted version,
+  in conflict, or has nothing for your SPT is named, and you can stop there (asked once per batch).
+- Subscribed items: a mod whose own files say it needs something that is not installed or is
+  disabled says so - offline, and for mods installed by hand.
+- Versions: 1.2.0-beta then 1.2.0 is an update; "-hotfix"/"-fix"/"-patch" come after their release.
+- Offline with no saved catalog, Subscribed items still lists your SPT folder; a failed catalog load
+  is tried again (after a minute) instead of leaving every page empty until Refresh.
+- A config value whose type the new version changed is not carried over; `.json5` configs save.
+- Play: "running" means running from this install.
+
+**Speed and network.** The catalog is fetched compressed (about a quarter of the size) and not at
+all when the saved copy is under 20 minutes old; one failing page is asked for again rather than
+losing the other thirty-eight; a download with nothing arriving for 60 seconds gives up and is
+retried, resuming where it broke off when the server can send exactly the rest of the same file;
+the Server Map key is never sent on the handshake, and only to a server that is pinned or has
+answered as one.
+
+**New.**
+- **Install from file...** (Subscribed items): an archive you already have (.zip, .7z, .rar, .tar,
+  .tar.gz), installed the same way as a download. Matched to its sp-mod.com page by its plugin ID
+  when exactly one fits; otherwise kept as a local item (named from the file, identified by what is
+  inside), removable like any other, after saying what that costs. Your file is copied, never moved.
+- **SPT upgrade check** (Subscribed items): pick a release; each installed mod is ready, needs an
+  update first (to which version), has nothing yet, or has to be checked by hand.
+- **Server log** (Play): the server's own log file, live, under its card - the server still runs in
+  its own window.
+- **Earlier versions of a config** (Configs): the copies kept at each save, brought back through
+  the editor.
+- **Fika**: a version sp-mod.com marks as not for Fika is asked about before it goes onto an install
+  that runs Fika.
+
+**Not done, and why.**
+- sp-mod.com's recommended update version (`/mods/updates`) is not used for the update pick: the
+  version comparison fix covers the wrong answer it would have fixed, and changing the pick means
+  changing every update path at once.
+- Dropping an archive on the window: the Subscribed items page's own drag and drop (groups) would
+  have to be reworked to tell the two apart; the button does the same.
+- Install records per SPT install (asked about before doing it, as said at the start).
+
 ## Values that could not be measured (marked HUNCH in the source)
 
 - The smooth-scroll distance and time (100px, 250ms) - chosen to feel like a browser, not measured.
@@ -748,6 +819,11 @@ fast-forward only; if the branch has commits the bundle does not, it says so and
   "Favorites" entry: both only show for someone signed in.
 - The page behind Quick View is darkened to about 40% (measured from a screenshot, not the CSS).
 - The thumbnail cache's budget (160 MB) and how far from the view pictures are kept (two screens).
+- Round 14, not checkable here (no real SPT 4 install on this machine): that Fika's plugins all
+  use GUIDs starting "com.fika." and its server mod's folder name contains "fika"; that the SPT 4
+  server writes its log under `<server folder>/user/logs` (the newest file there is shown, whatever
+  it is called); that profiles live in `<server folder>/user/profiles`. Each is read from disk, so a
+  different layout shows nothing rather than something wrong.
 
 - Critical/error red (`#E05A5A`): no error state on the pages measured.
 - Outlined "View All" hover fill.
@@ -768,6 +844,7 @@ translators.
 
 ## Upstream updates
 
-The app's self-updater still points at the upstream TCFModManager listing on sp-mod.com. When the
-upstream author publishes a newer version, this build will offer it, and installing it replaces
-this fork with the upstream app.
+The app's self-updater points at the upstream TCFModManager listing on sp-mod.com. Since round 14
+this build only says when a newer upstream version is out; it never installs it, because that
+would replace this fork with the upstream app. A newer upstream version is worth merging into the
+fork instead.
