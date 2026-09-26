@@ -6768,4 +6768,14 @@ Install it? It can be removed like any other.</value>
     <value>The copy kept on {0} is in the editor. Save to put it back, or Revert to leave the file as it is.</value>
     <comment>{0} when the copy was kept.</comment>
   </data>
+  <data name="Downloads_FikaIncompatibleTitle" xml:space="preserve">
+    <value>Not for Fika</value>
+    <comment>Title of the warning when installing a Fika-incompatible version on a Fika install.</comment>
+  </data>
+  <data name="Downloads_FikaIncompatibleFormat" xml:space="preserve">
+    <value>Fika is installed here, and sp-mod.com marks this version of {0} as not working with Fika. Installed anyway, it may break co-op raids or stop Fika from loading.
+
+Install it anyway?</value>
+    <comment>{0} the mod.</comment>
+  </data>
 </root>

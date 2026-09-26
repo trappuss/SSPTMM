@@ -334,6 +334,17 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
 
             token.ThrowIfCancellationRequested();
 
+            // A version sp-mod.com marks as not working with Fika, on an install that runs Fika:
+            // said before it is downloaded, and it can stop here.
+            if (string.Equals(version.FikaCompatibility, "incompatible", StringComparison.OrdinalIgnoreCase)
+                && await RunsFikaAsync(item.InstallPath)
+                && !ConfirmFikaIncompatible(item.ModName))
+            {
+                item.CancelCommand.Execute(null);
+                token.ThrowIfCancellationRequested();
+                return;
+            }
+
             // Asked before this item's own download starts, so an accepted missing dependency
             // lands right behind it in the queue.
             if (item.CheckDependencies)
@@ -692,6 +703,35 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
     private readonly Dictionary<string, (bool Install, DateTime At)> _problemAnswers = [];
 
     private static readonly TimeSpan ProblemAnswerLifetime = TimeSpan.FromMinutes(10);
+
+    // Whether Fika is installed (any plugin of Project Fika's, "com.fika.*", loaded from the
+    // install), read at most every few minutes - a collection queues many mods at once.
+    private (string Path, bool Runs, DateTime At)? _fika;
+
+    private async Task<bool> RunsFikaAsync(string installPath)
+    {
+        if (_fika is { } known && known.Path == installPath && DateTime.UtcNow - known.At < TimeSpan.FromMinutes(5)) return known.Runs;
+
+        var runs = await Task.Run(() => InstalledModScanner.LoadedPluginGuids(installPath)
+            .Any(g => g.StartsWith("com.fika.", StringComparison.OrdinalIgnoreCase)));
+        _fika = (installPath, runs, DateTime.UtcNow);
+        return runs;
+    }
+
+    private bool ConfirmFikaIncompatible(string modName)
+    {
+        var key = "fika:" + modName;
+        if (_problemAnswers.TryGetValue(key, out var answer) && DateTime.UtcNow - answer.At <= ProblemAnswerLifetime) return answer.Install;
+
+        var install = System.Windows.MessageBox.Show(
+            Text(Strings.Downloads_FikaIncompatibleFormat, modName),
+            Strings.Downloads_FikaIncompatibleTitle,
+            System.Windows.MessageBoxButton.YesNo,
+            System.Windows.MessageBoxImage.Warning) == System.Windows.MessageBoxResult.Yes;
+
+        _problemAnswers[key] = (install, DateTime.UtcNow);
+        return install;
+    }
 
     /// <summary>Says what will not do and asks whether to install anyway. Problems already answered
     /// in the last few minutes are not asked about again (unless <paramref name="askAgain"/>): a

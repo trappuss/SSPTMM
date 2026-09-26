@@ -1799,4 +1799,6 @@ internal static class Strings
     internal static string Play_ServerLogOpenFolder => LocalizationService.Get("Play_ServerLogOpenFolder");
     internal static string Configs_BackupsToolTip => LocalizationService.Get("Configs_BackupsToolTip");
     internal static string Configs_BackupLoadedFormat => LocalizationService.Get("Configs_BackupLoadedFormat");
+    internal static string Downloads_FikaIncompatibleTitle => LocalizationService.Get("Downloads_FikaIncompatibleTitle");
+    internal static string Downloads_FikaIncompatibleFormat => LocalizationService.Get("Downloads_FikaIncompatibleFormat");
 }
