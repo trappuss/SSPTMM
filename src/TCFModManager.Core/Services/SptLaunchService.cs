@@ -203,20 +203,25 @@ public static class SptLaunchService
             // WorkingDirectory is the exe's own folder because SPT resolves its data folders
             // relative to it; started from this app's directory it looks for them here.
             //
-            if (hidden && target == SptLaunchTarget.Server)
+            // Never while a stop has this app ignoring Ctrl+C (see Interrupt): a process started then
+            // would inherit that, and could not be asked to stop with it later.
+            lock (Consoles)
             {
-                StartHidden(info.ExePath!);
+                if (hidden && target == SptLaunchTarget.Server)
+                {
+                    StartHidden(info.ExePath!);
+                    return new SptLaunchResult { Info = info, Started = true };
+                }
+
+                using var process = Process.Start(new ProcessStartInfo
+                {
+                    FileName = info.ExePath!,
+                    WorkingDirectory = Path.GetDirectoryName(info.ExePath!),
+                    UseShellExecute = true,
+                });
+
                 return new SptLaunchResult { Info = info, Started = true };
             }
-
-            using var process = Process.Start(new ProcessStartInfo
-            {
-                FileName = info.ExePath!,
-                WorkingDirectory = Path.GetDirectoryName(info.ExePath!),
-                UseShellExecute = true,
-            });
-
-            return new SptLaunchResult { Info = info, Started = true };
         }
         catch (Exception ex)
         {
@@ -395,8 +400,8 @@ public static class SptLaunchService
     //
     // Ctrl+C to a console process with no window: this app joins its console for a moment, sends the
     // event, and leaves - ignoring the event itself meanwhile, since everything on that console gets
-    // it. The ignore is lifted once the process has gone (or the grace is over): it is inherited by
-    // processes started later, and a server started with it set could not be asked to stop.
+    // it. The ignore is lifted straight after: it is inherited by processes started meanwhile (Launch
+    // waits for it), and a server started with it set could not be asked to stop.
     //
     // False when it could not be sent (not Windows, the process has no console, this app has one of
     // its own): the caller then kills it, as before.
@@ -416,23 +421,31 @@ public static class SptLaunchService
 
     private static bool InterruptAttached(Process process)
     {
-        if (!NativeConsole.AttachConsole((uint)process.Id)) return false;
+        // Ignoring Ctrl+C first, and not at all without it: everything on the console gets the
+        // event, and this app, with no handler of its own, would be closed by it.
+        if (!NativeConsole.SetConsoleCtrlHandler(IntPtr.Zero, true)) return false;
 
-        var ignoring = NativeConsole.SetConsoleCtrlHandler(IntPtr.Zero, true);
         try
         {
+            if (!NativeConsole.AttachConsole((uint)process.Id)) return false;
+
             var sent = NativeConsole.GenerateConsoleCtrlEvent(NativeConsole.CtrlCEvent, 0);
             NativeConsole.FreeConsole();
-            if (!sent) return false;
 
-            process.WaitForExit((int)CloseGrace.TotalMilliseconds);
-            return true;
+            // Long enough for the event to have been handed out (it goes to each process on the
+            // console on a thread of its own); the caller waits for the process to go.
+            if (sent) Thread.Sleep(InterruptSettle);
+            return sent;
         }
         finally
         {
-            if (ignoring) NativeConsole.SetConsoleCtrlHandler(IntPtr.Zero, false);
+            NativeConsole.SetConsoleCtrlHandler(IntPtr.Zero, false);
         }
     }
+
+    // HUNCH: how long the console takes to hand a Ctrl+C to the processes on it - a few
+    // milliseconds in practice; half a second is a wide margin that still keeps the ignore short.
+    private static readonly TimeSpan InterruptSettle = TimeSpan.FromMilliseconds(500);
 
     private static class NativeConsole
     {

@@ -6827,4 +6827,8 @@ Install the file as it is anyway?</value>
     <value>Starts this install's server with no window (Options) - what it is doing shows in the server log here. It keeps running if you close this app. While it runs, Start server becomes Stop server, which closes it properly. Restart stops it and starts it again - for a config edited or a server mod dropped in.</value>
     <comment>Play page server card text when the server is set to start without its window.</comment>
   </data>
+  <data name="Play_ServerNotUpOnlyFormat" xml:space="preserve">
+    <value>The server is running but did not start listening on port {0} within three minutes. The server log may say why.</value>
+    <comment>Play page when a server started without its window took too long. {0} is the port or ports watched.</comment>
+  </data>
 </root>

@@ -860,6 +860,29 @@ things to know:
 **Not done.** More tests for older code (Browse filters, collections, list import) - the time went
 to the records change and two review rounds instead.
 
+## Sixteenth round: the server without its window (2026-09-26)
+
+**Options > Starting the game > Run the server without its window.** Start server then starts
+SPT.Server with no console window and opens the server log on the Play page. With "Open the
+launcher once the server is up" also on, the launcher opens as soon as the server listens.
+
+- SPT 4.1.6's server, when it cannot start (its port is taken, a mod fails its checks), writes
+  "Press any key to exit..." and waits for a key. With no window nobody could press one, so the
+  server is given no input: it finds none and exits, and the Play page says it closed before it was
+  ready, with the log open. A server that is still not listening after three minutes is said too.
+- Stop server (and Restart) asks a server with no window to stop with Ctrl+C, which SPT answers by
+  shutting down properly (the same as closing its window); it is killed only if it has not gone in
+  time. A server hosted in Windows Terminal, which has no window of its own, was killed outright
+  before; it is now asked the same way.
+- The server keeps running if you close this app, as a visible one does; stop it from the Play page.
+- A restart of a server with no window opens the log and watches it come back up.
+
+HUNCH: that Windows 11 set to open console programs in Windows Terminal leaves a program started
+with no window alone (the console it gets is never shown, so there is nothing to hand over) - not
+checkable here. SPT's own code only checks whether its output is redirected and reads a key on
+failure (both handled); a server mod that draws on the console itself (cursor, window size) may
+fail without a window - none of yours do.
+
 ## Values that could not be measured (marked HUNCH in the source)
 
 - The smooth-scroll distance and time (100px, 250ms) - chosen to feel like a browser, not measured.

@@ -348,6 +348,9 @@ public partial class PlayViewModel : LocalizedViewModel
                 return;
             }
 
+            // Stopped or restarted meanwhile: that says what happened.
+            if (cancel.IsCancellationRequested) return;
+
             Refresh();
             if (up && openLauncher && Client is { CanLaunch: true })
             {
@@ -362,13 +365,23 @@ public partial class PlayViewModel : LocalizedViewModel
                 HasError = true;
                 Message = Text(Strings.Play_ServerNotUpFormat, string.Join(", ", ports.Order()));
             }
-            else if (!up && Server?.IsRunning != true && !cancel.IsCancellationRequested)
+            else if (!up && Server?.IsRunning != true)
             {
                 // It went before it was up - on startup SPT gives up on a taken port or a mod that
                 // fails its checks, and says why in its log (the only place, when it has no window).
                 HasError = true;
                 Message = openLauncher ? Strings.Play_ServerStoppedStarting : Strings.Play_ServerStoppedStartingOnly;
                 ShowServerLog = true;
+            }
+            else if (!up && !openLauncher)
+            {
+                HasError = true;
+                Message = Text(Strings.Play_ServerNotUpOnlyFormat, string.Join(", ", ports.Order()));
+            }
+            else if (!up)
+            {
+                // The launcher was opened some other way meanwhile: nothing left to wait for or say.
+                Message = null;
             }
         }
         finally
@@ -465,6 +478,11 @@ public partial class PlayViewModel : LocalizedViewModel
         ConfirmingRestart = null;
         IsRestarting = true;
 
+        // A wait for the server before the restart is about a process that is going.
+        _launcherWait?.Cancel();
+        var hidden = false;
+        var watchRestart = false;
+
         // The poll would otherwise redraw the card mid-stop and offer a Start for the gap between
         // the process going and the new one appearing.
         _poll.Stop();
@@ -474,19 +492,30 @@ public partial class PlayViewModel : LocalizedViewModel
             var installPath = AppServices.SptEnvironment.InstallPath;
             var headless = HeadlessOverride();
 
-            var hidden = new SettingsService().Load().HideServerWindow;
+            hidden = new SettingsService().Load().HideServerWindow;
             var result = await Task.Run(() => SptLaunchService.Restart(installPath, target, headless, hidden));
 
             HasError = !result.Started;
             Message = result.Started
                 ? Text(Strings.Play_RestartedFormat, result.Info.ProcessName)
                 : SptLaunchProblems.Describe(result);
+
+            watchRestart = result.Started && hidden && target == SptLaunchTarget.Server;
         }
         finally
         {
             IsRestarting = false;
             Refresh();
             _poll.Start();
+        }
+
+        // With no window, the log is where it says how the restart went, and a start that fails is
+        // reported rather than just gone. Every port it uses was freed by the stop.
+        if (watchRestart)
+        {
+            ShowServerLog = true;
+            _portsBeforeStart = SptServerReadiness.PortsFor(Server?.ExePath);
+            await StartLauncherWhenServerIsUpAsync(openLauncher: false);
         }
     }
 

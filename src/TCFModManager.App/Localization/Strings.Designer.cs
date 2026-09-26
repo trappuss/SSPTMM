@@ -1812,4 +1812,5 @@ internal static class Strings
     internal static string Play_ServerIsUp => LocalizationService.Get("Play_ServerIsUp");
     internal static string Play_ServerStoppedStartingOnly => LocalizationService.Get("Play_ServerStoppedStartingOnly");
     internal static string Play_ServerDescriptionHidden => LocalizationService.Get("Play_ServerDescriptionHidden");
+    internal static string Play_ServerNotUpOnlyFormat => LocalizationService.Get("Play_ServerNotUpOnlyFormat");
 }
