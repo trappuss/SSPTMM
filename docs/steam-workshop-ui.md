@@ -587,6 +587,62 @@ was never busy for long under Wine, whose drawing is the slow part. `steam-ui-me
 also lists what kept the app busy for 50 ms or more, by name, so the next report shows what they
 are before anything is changed for them.
 
+## Eleventh round: collections from sp-mod.com, playing GIFs (2026-09-26)
+
+sp-mod.com's public mod lists (sp-mod.com/lists) are the Workshop's collections now. The API has
+no list endpoints, so the app reads the site's own pages (`Core/SpModLists`); searching and the
+SPT filter go through the page's own Livewire request, the way the site's page asks for them.
+
+**Browse menu.** Browse opens Steam's two-column menu under the pointer: MODS (Top Rated All
+Time, Most Recent, Last Updated - Steam's Most Popular has nothing to be measured by) and
+COLLECTIONS (Most Recent, the only order sp-mod.com has). A click on Browse still goes to the
+mods. Your Items opens under the pointer too, and on a click as before.
+
+**Browsing: Collections.** Steam's collections browse page, measured: two cards to a row, 152px
+high, the list's picture at the left (sp-mod.com's list glyph when it has none), title, "By
+author", three lines of description, "Contains N items". Where Steam has stars: the SPT version
+the list was made for, green when it is yours. A card of a list you subscribed to says so. Search,
+SPT version filter, pages of twelve. A list's address pasted into the search box opens it.
+
+**A collection's page** (public lists): the page as for your own collections, plus its picture,
+who made it, "For SPT x", its description exactly as written (folded after a few lines; Show
+more), each item's note from the list's author, and for each mod the version it gets on your SPT
+version - or "No version for SPT x" - and whether the one installed is older. A line over the
+items says how much of it you have: "12 of 96 mods subscribed · 3 can be updated · 2 have no
+version for SPT 4.0.13 · 1 is no longer on sp-mod.com". View on sp-mod.com opens it there.
+
+**Subscribe to all.** A list on sp-mod.com names mods, not versions (the version its page shows
+is the newest for the list's SPT, worked out as the page is drawn). So subscribing pins each item
+to the newest version for the SPT version it will run on:
+- your SPT version when the list was made for it;
+- when it was made for another, you choose: *For My SPT* (items with no version for it are left
+  out) or *For the Collection's SPT*;
+- addons get the newest release that fits the version of the mod they go with.
+Items left out are named in the Add Only / Overwrite question, with why. The collection is then
+kept as one of your collections (imported, "from" its author, linked to its page - subscribing
+again brings the same copy up to date) and the Collections page shows what applying it will do
+before anything does, as for your own. Nothing is stored if you cancel. Save to Collection makes
+a copy of your own; Unsubscribe from all works as before. Opening your copy later reads the list
+from sp-mod.com again, so what its author has changed since shows; offline, the copy shows.
+
+**GIFs.** No mod's cover on sp-mod.com is a GIF today (every catalog thumbnail was checked), but
+wherever one can be shown it now plays while on screen and stops off it: card covers, the hover
+popup's slideshow, Quick View, and the item page's picture strip (which is where GIFs from
+descriptions appear - Live Flea Prices' install video, for one, verified playing under Wine).
+Description GIFs already played.
+
+**Fixed.**
+- *Installing from a downloaded .7z/.rar froze the window* for the whole install (since the tenth
+  round's downloads-ahead); it runs off the window's thread again.
+- *A list entry with no version installed the OLDEST release*: sp-mod.com answers oldest first
+  unless asked otherwise. Now it is the newest for your SPT version, then the newest.
+- Cancel then Retry on a download no longer fails the retry or shows the dependency question for
+  the cancelled attempt; cancelling one waiting to install no longer sticks at "Cancelling..." or
+  keeps its file marked in use.
+- Browse redraws its installed marks once per run of installs, not once per install (a
+  forty-mod collection was forty full scans).
+- The app's own listing is never installed from any list.
+
 ## Values that could not be measured (marked HUNCH in the source)
 
 - The smooth-scroll distance and time (100px, 250ms) - chosen to feel like a browser, not measured.
