@@ -66,12 +66,18 @@ public sealed class ProfileBackups(string? root = null, int keep = 10)
 
         var server = System.IO.Path.GetFullPath(System.IO.Path.Combine(installPath, serverRoot));
         var profiles = System.IO.Path.Combine(server, "user", "profiles");
-        var config = System.IO.Path.Combine(server, "SPT_Data", "configs", "backup.json");
+        // SPT 4 keeps its configs in SPT_Data/configs, SPT 3 in SPT_Data/Server/configs.
+        var config = new[]
+            {
+                System.IO.Path.Combine(server, "SPT_Data", "configs", "backup.json"),
+                System.IO.Path.Combine(server, "SPT_Data", "Server", "configs", "backup.json"),
+            }
+            .FirstOrDefault(File.Exists);
 
         string? directory = null;
         try
         {
-            if (File.Exists(config))
+            if (config is not null)
             {
                 using var doc = System.Text.Json.JsonDocument.Parse(File.ReadAllText(config),
                     new System.Text.Json.JsonDocumentOptions { CommentHandling = System.Text.Json.JsonCommentHandling.Skip, AllowTrailingCommas = true });

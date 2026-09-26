@@ -50,6 +50,10 @@ public sealed class ModDependencyGraph
             }
         }
 
+        // An enabled server mod whose GUID could not be read might be what a server dependency
+        // names: none is called missing then, only unresolved.
+        var serverUnknown = all.Any(m => m is { Target: InstalledModTarget.Server, IdentityUnknown: true, IsDisabled: false });
+
         foreach (var mod in all)
         {
             // What the mod provides itself (a second plugin in its own folder) is never missing,
@@ -61,7 +65,8 @@ public sealed class ModDependencyGraph
                 if (!byIdentifier.TryGetValue((mod.Target, declared.Identifier), out var matches))
                 {
                     graph.AddUnresolved(mod, declared.Identifier);
-                    if (!declared.IsSoft) graph.AddMissing(mod, new ModMissingDependency(declared.Identifier, null));
+                    if (!declared.IsSoft && !(mod.Target == InstalledModTarget.Server && serverUnknown))
+                        graph.AddMissing(mod, new ModMissingDependency(declared.Identifier, null));
                     continue;
                 }
 

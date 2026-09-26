@@ -93,10 +93,14 @@ public partial class DataFilesViewModel : LocalizedViewModel
         return Path.Combine(AppPaths.DataDirectory, file);
     }
 
+    // The file Text was loaded from: Save writes back to it, not to whatever PathFor would say now -
+    // installed-mods.json follows the install setting, which can change while this window is open.
+    private string? _loadedPath;
+
     private void Load()
     {
         HasError = false;
-        var path = PathFor(SelectedFile);
+        var path = _loadedPath = PathFor(SelectedFile);
         if (path is null)
         {
             Text = string.Empty;
@@ -141,7 +145,7 @@ public partial class DataFilesViewModel : LocalizedViewModel
     [RelayCommand(CanExecute = nameof(CanSave))]
     private void Save()
     {
-        var path = PathFor(SelectedFile);
+        var path = _loadedPath;
         if (path is null) return;
 
         if (!TryValidate(SelectedFile!, Text, out var error))

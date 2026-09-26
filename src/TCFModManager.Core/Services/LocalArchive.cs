@@ -9,6 +9,8 @@ namespace TCFModManager.Core.Services;
 /// <param name="ServerMods">Each server mod folder with a package.json: its name and version.</param>
 /// <param name="ServerFolders">The folder names under user/mods - what an SPT 4 server mod (a DLL, no
 /// package.json) is known by for its local id.</param>
+/// <param name="PluginVersions">A plugin's [BepInPlugin] version, by GUID, where it differs from the
+/// file version in Plugins.</param>
 /// <param name="ServerGuids">Each SPT 4 server mod's ModGuid and version, from its DLL's metadata
 /// (see ServerModMetadataReader) - for matching to a listing only; never part of the local id, so an
 /// archive installed before these were read keeps the id it was recorded under.</param>
@@ -17,7 +19,8 @@ public sealed record LocalArchiveContents(
     IReadOnlyList<(string Guid, string? Version)> Plugins,
     IReadOnlyList<(string Name, string? Version)> ServerMods,
     IReadOnlyList<string>? ServerFolders = null,
-    IReadOnlyList<(string Guid, string? Version)>? ServerGuids = null);
+    IReadOnlyList<(string Guid, string? Version)>? ServerGuids = null,
+    IReadOnlyDictionary<string, string>? PluginVersions = null);
 
 //
 // Installing an archive the user already has - from GitHub, a Discord post, an older version kept
@@ -88,6 +91,7 @@ public static class LocalArchive
             if (layout is null) return new LocalArchiveContents(false, [], []);
 
             var plugins = new List<(string, string?)>();
+            var pluginVersions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             var server = new List<(string, string?)>();
             var serverGuids = new List<(string, string?)>();
             var folders = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -101,9 +105,11 @@ public static class LocalArchive
 
                 if (relative.StartsWith("BepInEx/", StringComparison.OrdinalIgnoreCase)
                     && relative.EndsWith(".dll", StringComparison.OrdinalIgnoreCase)
-                    && InstalledModScanner.ReadPlugin(entry.Source) is { Guid: { Length: > 0 } guid } plugin)
+                    && InstalledModScanner.ReadPluginVersions(entry.Source) is { Guid: { Length: > 0 } guid } plugin)
                 {
-                    plugins.Add((guid, plugin.Version));
+                    plugins.Add((guid, plugin.FileVersion ?? plugin.PluginVersion));
+                    if (plugin is { FileVersion: not null, PluginVersion: { } stated } && !string.Equals(stated, plugin.FileVersion, StringComparison.OrdinalIgnoreCase))
+                        pluginVersions[guid] = stated;
                 }
                 else if (relative.EndsWith("/package.json", StringComparison.OrdinalIgnoreCase)
                          && relative.Contains("user/mods/", StringComparison.OrdinalIgnoreCase)
@@ -119,7 +125,7 @@ public static class LocalArchive
                 }
             }
 
-            return new LocalArchiveContents(true, plugins, server, [.. folders], serverGuids);
+            return new LocalArchiveContents(true, plugins, server, [.. folders], serverGuids, pluginVersions);
         }
         finally
         {
@@ -139,47 +145,52 @@ public static class LocalArchive
     /// (none, or a pack of several).</summary>
     public static Mod? MatchIn(LocalArchiveContents contents, IEnumerable<Mod> catalog)
     {
-        var guids = GuidsOf(contents);
-        if (guids.Count == 0) return null;
-
-        var matches = catalog
-            .Where(m => !string.IsNullOrWhiteSpace(m.Guid) && guids.Contains(m.Guid!))
-            .DistinctBy(m => m.Id)
-            .ToList();
-
+        var matches = ListingsIn(contents, catalog);
         return matches.Count == 1 ? matches[0] : null;
     }
 
-    /// <summary>Every listing the archive's plugins belong to - more than one for a pack.</summary>
+    /// <summary>Every listing the archive's plugins belong to - more than one for a pack. Its SPT 4
+    /// server mods' ModGuids only when no plugin belongs to one: a mod's listing is keyed on its
+    /// plugin, and a server library it bundles may have a listing of its own.</summary>
     public static List<Mod> ListingsIn(LocalArchiveContents contents, IEnumerable<Mod> catalog)
     {
-        var guids = GuidsOf(contents);
-        return [.. catalog.Where(m => !string.IsNullOrWhiteSpace(m.Guid) && guids.Contains(m.Guid!)).DistinctBy(m => m.Id)];
+        var all = catalog as IReadOnlyCollection<Mod> ?? [.. catalog];
+
+        var byPlugin = Listed(contents.Plugins.Select(p => p.Guid), all);
+        return byPlugin.Count > 0 ? byPlugin : Listed((contents.ServerGuids ?? []).Select(g => g.Guid), all);
     }
 
-    // What a listing can be matched by: its plugins' GUIDs and its server mods' ModGuids - an SPT 4
-    // mod that is only a server mod has no plugin at all.
-    private static HashSet<string> GuidsOf(LocalArchiveContents contents) =>
-        contents.Plugins.Select(p => p.Guid)
-            .Concat((contents.ServerGuids ?? []).Select(g => g.Guid))
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+    private static List<Mod> Listed(IEnumerable<string> guids, IEnumerable<Mod> catalog)
+    {
+        var set = guids.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        return set.Count == 0 ? [] : [.. catalog.Where(m => !string.IsNullOrWhiteSpace(m.Guid) && set.Contains(m.Guid!)).DistinctBy(m => m.Id)];
+    }
 
-    /// <summary>The version to record: the published version the matched plugin's DLL version is,
-    /// when there is one, else the DLL's own.</summary>
+    /// <summary>The version to record: the published version the matched plugin's DLL is, when there
+    /// is one, else the DLL's own.</summary>
     public static string? VersionOf(LocalArchiveContents contents, Mod? match)
     {
         var serverGuids = contents.ServerGuids ?? [];
-        var dllVersion = match is null
-            ? contents.Plugins.Select(p => p.Version).FirstOrDefault(v => v is not null)
-                ?? contents.ServerMods.Select(p => p.Version).FirstOrDefault(v => v is not null)
-                ?? serverGuids.Select(p => p.Version).FirstOrDefault(v => v is not null)
-            : contents.Plugins.FirstOrDefault(p => string.Equals(p.Guid, match.Guid, StringComparison.OrdinalIgnoreCase)).Version
-                ?? serverGuids.FirstOrDefault(p => string.Equals(p.Guid, match.Guid, StringComparison.OrdinalIgnoreCase)).Version;
+        var published = match?.Versions?.Select(v => v.Version).ToList() ?? [];
 
-        var published = match?.Versions is { } versions
-            ? ModVersionComparer.BestSameRelease(dllVersion, versions.Select(v => v.Version))
-            : null;
-        return published ?? dllVersion;
+        string? dllVersion;
+        if (match is null)
+        {
+            dllVersion = contents.Plugins.Select(p => p.Version).FirstOrDefault(v => v is not null)
+                ?? contents.ServerMods.Select(p => p.Version).FirstOrDefault(v => v is not null)
+                ?? serverGuids.Select(p => p.Version).FirstOrDefault(v => v is not null);
+        }
+        else
+        {
+            var plugin = contents.Plugins.FirstOrDefault(p => string.Equals(p.Guid, match.Guid, StringComparison.OrdinalIgnoreCase));
+            var stated = match.Guid is not null && contents.PluginVersions?.TryGetValue(match.Guid, out var v) == true ? v : null;
+            dllVersion = plugin.Guid is not null
+                ? InstalledModScanner.PluginVersionOf(plugin.Version, stated, published)
+                : serverGuids.FirstOrDefault(p => string.Equals(p.Guid, match.Guid, StringComparison.OrdinalIgnoreCase)).Version;
+        }
+
+        var best = match?.Versions is not null ? ModVersionComparer.BestSameRelease(dllVersion, published) : null;
+        return best ?? dllVersion;
     }
 
     private static (string Name, string? Version)? ReadPackage(string path)

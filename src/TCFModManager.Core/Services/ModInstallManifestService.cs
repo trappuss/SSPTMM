@@ -18,16 +18,16 @@ namespace TCFModManager.Core.Services;
 // The single list kept before (Data\installed-mods.json, Data\ReplacedFiles) is moved over the first
 // time each install is opened: the records whose files are in that install go to it, with their
 // kept copies; the rest wait in the old list for the install they belong to. A record none of whose
-// files is anywhere stays there - it describes nothing on disk.
+// files is anywhere stays there - it describes nothing on disk. An install that has moved (its
+// folder gone, its drive still there) hands its records to the one they are found in the same way.
 //
 // A corrupt or hand-edited list falls back to its backup, else an empty one (see SafeFile).
 //
 public sealed class ModInstallManifestService
 {
     private const string RecordsFileName = "installed-mods.json";
+    private const string InstallNameFile = "install.txt";
 
-    private readonly string? _fixedFile;
-    private readonly string? _fixedReplaced;
     private readonly string _dataDirectory;
 
     // One migration at a time, and one read-modify-write of the old list.
@@ -38,29 +38,15 @@ public sealed class ModInstallManifestService
     public ModInstallManifestService(string? dataDirectory = null) =>
         _dataDirectory = dataDirectory ?? AppPaths.DataDirectory;
 
-    private ModInstallManifestService(string filePath, string? replacedFilesRoot)
-    {
-        _fixedFile = filePath;
-        _fixedReplaced = replacedFilesRoot;
-        _dataDirectory = Path.GetDirectoryName(filePath) ?? AppPaths.DataDirectory;
-    }
-
-    /// <summary>One list at <paramref name="filePath"/> whatever the install - for tests that deal in
-    /// a single install.</summary>
-    public static ModInstallManifestService SingleFile(string filePath, string? replacedFilesRoot = null) =>
-        new(filePath, replacedFilesRoot);
+    private string RecordsRoot => Path.Combine(_dataDirectory, "InstallRecords");
 
     /// <summary>The folder an install's records live in.</summary>
-    public string FolderFor(string installPath) =>
-        Path.Combine(_dataDirectory, "InstallRecords", KeyFor(installPath));
+    public string FolderFor(string installPath) => Path.Combine(RecordsRoot, KeyFor(installPath));
 
     /// <summary>Where the copies of files this install's installs replaced are kept.</summary>
-    public string ReplacedFilesRootFor(string installPath) =>
-        _fixedFile is not null
-            ? _fixedReplaced ?? Path.Combine(_dataDirectory, "ReplacedFiles")
-            : Path.Combine(FolderFor(installPath), "ReplacedFiles");
+    public string ReplacedFilesRootFor(string installPath) => Path.Combine(FolderFor(installPath), "ReplacedFiles");
 
-    private string FileFor(string installPath) => _fixedFile ?? Path.Combine(FolderFor(installPath), RecordsFileName);
+    private string FileFor(string installPath) => Path.Combine(FolderFor(installPath), RecordsFileName);
 
     /// <summary>The file this install's records are in (moved over from the old list first, when
     /// they have not been yet) - for the Data files editor.</summary>
@@ -77,13 +63,18 @@ public sealed class ModInstallManifestService
         return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(full)))[..12].ToLowerInvariant();
     }
 
-    /// <summary>This install's records - none when there is no install.</summary>
+    /// <summary>This install's records - none when there is no install, or its folder is not there
+    /// right now (a drive not plugged in: nothing is moved to it, or marked as done, until it is).</summary>
     public ModInstallManifest Load(string? installPath)
     {
-        if (string.IsNullOrWhiteSpace(installPath) && _fixedFile is null) return new ModInstallManifest();
+        if (string.IsNullOrWhiteSpace(installPath)) return new ModInstallManifest();
 
-        var file = FileFor(installPath!);
-        if (_fixedFile is null && !File.Exists(file)) MigrateInto(installPath!);
+        var file = FileFor(installPath);
+        if (!File.Exists(file))
+        {
+            if (!Directory.Exists(installPath)) return new ModInstallManifest();
+            MigrateInto(installPath);
+        }
 
         // A damaged file is kept aside and its backup put back - see SafeFile. Losing this one would
         // make every mod the app installed look hand-installed.
@@ -91,34 +82,83 @@ public sealed class ModInstallManifestService
         // One that cannot be read at all (held open elsewhere) throws, as it always did: read as
         // empty, an update would take its mod for a new one and a removal would find no record.
         //
-        return SafeFile.ReadJson(file, json => JsonSerializer.Deserialize<ModInstallManifest>(json), throwIfUnreadable: true)
-            ?? new ModInstallManifest();
+        return ReadList(file) ?? new ModInstallManifest();
     }
 
     public void Save(string installPath, ModInstallManifest manifest)
     {
-        var file = FileFor(installPath);
-        if (_fixedFile is null) WriteInstallName(installPath);
-
-        var json = JsonSerializer.Serialize(manifest, Json);
-        if (!SafeFile.WriteAllText(file, json, keepBackup: true))
-            throw new IOException($"{Path.GetFileName(file)} could not be read this session, so it is not saved over");
+        WriteInstallName(installPath);
+        WriteList(FileFor(installPath), manifest);
     }
 
     private static readonly JsonSerializerOptions Json = new() { WriteIndented = true };
+
+    private static ModInstallManifest? ReadList(string file) =>
+        SafeFile.ReadJson(file, json => JsonSerializer.Deserialize<ModInstallManifest>(json), throwIfUnreadable: true);
+
+    private static void WriteList(string file, ModInstallManifest manifest)
+    {
+        if (!SafeFile.WriteAllText(file, JsonSerializer.Serialize(manifest, Json), keepBackup: true))
+            throw new IOException($"{Path.GetFileName(file)} could not be read this session, so it is not saved over");
+    }
 
     private void WriteInstallName(string installPath)
     {
         var folder = FolderFor(installPath);
         Directory.CreateDirectory(folder);
-        var name = Path.Combine(folder, "install.txt");
+        var name = Path.Combine(folder, InstallNameFile);
         if (!File.Exists(name)) File.WriteAllText(name, installPath);
     }
 
+    // Where records waiting for their install are: the old single list, and the records of an
+    // install whose folder has gone (moved or renamed - its drive is there, the folder is not).
+    private sealed record Source(string File, string ReplacedRoot, bool Legacy);
+
+    private IEnumerable<Source> SourcesFor(string installPath)
+    {
+        yield return new Source(Path.Combine(_dataDirectory, RecordsFileName), Path.Combine(_dataDirectory, "ReplacedFiles"), Legacy: true);
+
+        if (!Directory.Exists(RecordsRoot)) yield break;
+
+        var mine = FolderFor(installPath);
+        foreach (var folder in Directory.EnumerateDirectories(RecordsRoot))
+        {
+            if (string.Equals(Path.GetFullPath(folder), Path.GetFullPath(mine), StringComparison.OrdinalIgnoreCase)) continue;
+
+            var nameFile = Path.Combine(folder, InstallNameFile);
+            var records = Path.Combine(folder, RecordsFileName);
+            if (!File.Exists(nameFile) || !File.Exists(records)) continue;
+
+            string was;
+            try
+            {
+                was = File.ReadAllText(nameFile).Trim();
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                continue;
+            }
+
+            if (was.Length == 0 || Directory.Exists(was)) continue;
+
+            // A drive that is not there (unplugged, a network share offline) is not a move: its
+            // install is simply out of reach for now, and keeps its records.
+            var root = Path.GetPathRoot(Path.GetFullPath(was));
+            if (string.IsNullOrEmpty(root) || !Directory.Exists(root)) continue;
+
+            yield return new Source(records, Path.Combine(folder, "ReplacedFiles"), Legacy: false);
+        }
+    }
+
     //
-    // The first time an install is opened: the records in the old single list whose files are in
-    // it, with their kept copies, become its own. Always leaves the install a records file (empty
-    // when nothing was its), so this runs once per install.
+    // The first time an install is opened: the records waiting in the old single list (or left by
+    // an install that has since moved) whose files are in it become its own, with their kept copies.
+    // Always leaves the install a records file (empty when nothing was its), so this runs once per
+    // install.
+    //
+    // Safe to stop at any point: copies are moved first, then this install's list is written, then
+    // each source's. Stopped before the last step, a record is in both - and one already in an
+    // install's list is never claimed again, only taken off the list it waited in.
     //
     private void MigrateInto(string installPath)
     {
@@ -127,64 +167,132 @@ public sealed class ModInstallManifestService
             var file = FileFor(installPath);
             if (File.Exists(file)) return;
 
-            var legacyFile = Path.Combine(_dataDirectory, RecordsFileName);
-            var legacy = File.Exists(legacyFile)
-                ? SafeFile.ReadJson(legacyFile, json => JsonSerializer.Deserialize<ModInstallManifest>(json), throwIfUnreadable: true)
-                  ?? new ModInstallManifest()
-                : new ModInstallManifest();
+            var evidence = new Evidence(installPath);
+            var changes = new List<(Source Source, ModInstallManifest List, List<InstalledModRecord> Mine, List<InstalledModRecord> Done)>();
 
-            var mine = legacy.Mods.Where(r => BelongsTo(r, installPath)).ToList();
-
-            // The kept copies first, then the records: a record without its copies would put nothing
-            // back on removal, where copies without their record are only picked up next time.
-            var legacyReplaced = Path.Combine(_dataDirectory, "ReplacedFiles");
-            var replacedRoot = ReplacedFilesRootFor(installPath);
-            foreach (var record in mine)
+            foreach (var source in SourcesFor(installPath).Where(s => File.Exists(s.File)).ToList())
             {
-                var name = (record.IsAddon ? "addon-" : "mod-") + record.ModId;
-                var from = Path.Combine(legacyReplaced, name);
-                var to = Path.Combine(replacedRoot, name);
-                if (!Directory.Exists(from) || Directory.Exists(to)) continue;
+                var list = ReadList(source.File) ?? new ModInstallManifest();
 
-                Directory.CreateDirectory(replacedRoot);
-                Directory.Move(from, to);
+                // Already in another install's list (a move stopped part way): only taken off here.
+                var elsewhere = RecordsInInstallsOtherThan(source.File);
+                var done = list.Mods.Where(r => elsewhere.Contains(Key(r))).ToList();
+                var mine = list.Mods.Where(r => !done.Contains(r) && evidence.BelongsHere(r)).ToList();
+
+                if (mine.Count > 0 || done.Count > 0) changes.Add((source, list, mine, done));
             }
 
-            Save(installPath, new ModInstallManifest { Mods = mine });
-
-            if (mine.Count > 0)
+            // The kept copies first, then this install's records, then each source's: a record
+            // without its copies would put nothing back on removal, where copies without their
+            // record are picked up next time.
+            var replacedRoot = ReplacedFilesRootFor(installPath);
+            foreach (var (source, _, mine, _) in changes)
             {
-                legacy.Mods.RemoveAll(r => mine.Contains(r));
-                var json = JsonSerializer.Serialize(legacy, Json);
-                if (!SafeFile.WriteAllText(legacyFile, json, keepBackup: true))
-                    throw new IOException($"{RecordsFileName} could not be read this session, so it is not saved over");
+                foreach (var record in mine)
+                {
+                    var name = (record.IsAddon ? "addon-" : "mod-") + record.ModId;
+                    var from = Path.Combine(source.ReplacedRoot, name);
+                    var to = Path.Combine(replacedRoot, name);
+                    if (!Directory.Exists(from) || Directory.Exists(to)) continue;
 
-                AppLog.Info("Install", $"records of {mine.Count} mod(s) moved to their install, {installPath}; {legacy.Mods.Count} left for other installs");
+                    Directory.CreateDirectory(replacedRoot);
+                    Directory.Move(from, to);
+                }
+            }
+
+            Save(installPath, new ModInstallManifest { Mods = [.. changes.SelectMany(c => c.Mine)] });
+
+            foreach (var (source, list, mine, done) in changes)
+            {
+                list.Mods.RemoveAll(r => mine.Contains(r) || done.Contains(r));
+                WriteList(source.File, list);
+
+                if (mine.Count > 0)
+                    AppLog.Info("Install", $"records of {mine.Count} mod(s) moved to {installPath} from {(source.Legacy ? "the shared list" : "an install that has moved")}; {list.Mods.Count} left there");
             }
         }
     }
 
-    //
-    // Whether a record from the old list is this install's: a file it placed is there (or in the
-    // disabled folder beside it), or - for a version confirmed by hand, which placed nothing - one
-    // of its folders is.
-    //
-    private static bool BelongsTo(InstalledModRecord record, string installPath)
+    // A record is the same install of a mod wherever its copy is: the mod, and when it was installed.
+    private static (int, bool, DateTimeOffset) Key(InstalledModRecord record) => (record.ModId, record.IsAddon, record.InstalledAt);
+
+    private HashSet<(int, bool, DateTimeOffset)> RecordsInInstallsOtherThan(string sourceFile)
     {
-        if (record.Files.Count > 0)
+        var keys = new HashSet<(int, bool, DateTimeOffset)>();
+        if (!Directory.Exists(RecordsRoot)) return keys;
+
+        foreach (var file in Directory.EnumerateFiles(RecordsRoot, RecordsFileName, SearchOption.AllDirectories))
         {
-            return record.Files.Any(relative =>
-                File.Exists(Path.Combine(installPath, relative.Replace('/', Path.DirectorySeparatorChar)))
-                || (DisabledModPaths.TryGetRelativeCounterpart(relative, out var other)
-                    && File.Exists(Path.Combine(installPath, other.Replace('/', Path.DirectorySeparatorChar)))));
+            if (string.Equals(Path.GetFullPath(file), Path.GetFullPath(sourceFile), StringComparison.OrdinalIgnoreCase)) continue;
+
+            // One of another install that cannot be read now says nothing either way.
+            try
+            {
+                foreach (var record in ReadList(file)?.Mods ?? []) keys.Add(Key(record));
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                AppLog.Debug("Install", $"couldn't read {file}: {ex.Message}");
+            }
         }
 
-        if (record.Folders.Count == 0) return false;
+        return keys;
+    }
 
-        var present = InstalledModScanner.Scan(installPath)
-            .Select(m => Path.GetFileName(m.FolderPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)))
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
-        return record.Folders.Any(present.Contains);
+    //
+    // Whether a waiting record is this install's.
+    //
+    // By the files it placed in its own mod folders (BepInEx/plugins/<mod>/..., user/mods/<mod>/...),
+    // there or in the ".disabled" folder beside it - not by files any install can have: a loose DLL
+    // straight in BepInEx/plugins, or a file it placed over another's (Replaced), are only looked at
+    // when it placed nothing else. A version confirmed by hand placed nothing: by its folders.
+    //
+    private sealed class Evidence(string installPath)
+    {
+        private HashSet<string>? _folders;
+
+        public bool BelongsHere(InstalledModRecord record)
+        {
+            if (record.Files.Count > 0)
+            {
+                var own = record.Files
+                    .Where(f => InOwnFolder(f) && !record.Replaced.Contains(f, StringComparer.OrdinalIgnoreCase))
+                    .ToList();
+                return (own.Count > 0 ? own : record.Files).Any(Present);
+            }
+
+            if (record.Folders.Count == 0) return false;
+
+            _folders ??= InstalledModScanner.Scan(installPath)
+                .Select(m => Path.GetFileName(m.FolderPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)))
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            return record.Folders.Any(_folders.Contains);
+        }
+
+        private bool Present(string relative) =>
+            File.Exists(Path.Combine(installPath, relative.Replace('/', Path.DirectorySeparatorChar)))
+            || (DisabledModPaths.TryGetRelativeCounterpart(relative, out var other)
+                && File.Exists(Path.Combine(installPath, other.Replace('/', Path.DirectorySeparatorChar))));
+
+        // Inside a folder of its own under a mod container, not loose in the container.
+        private static bool InOwnFolder(string relative)
+        {
+            var segments = relative.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            for (var i = 0; i + 3 < segments.Length; i++)
+            {
+                var container = (segments[i], segments[i + 1]) switch
+                {
+                    var (a, b) when a.Equals("BepInEx", StringComparison.OrdinalIgnoreCase)
+                        && (b.StartsWith("plugins", StringComparison.OrdinalIgnoreCase) || b.StartsWith("patchers", StringComparison.OrdinalIgnoreCase)) => true,
+                    var (a, b) when a.Equals("user", StringComparison.OrdinalIgnoreCase)
+                        && b.StartsWith("mods", StringComparison.OrdinalIgnoreCase) => true,
+                    _ => false,
+                };
+                if (container) return true;
+            }
+
+            return false;
+        }
     }
 
     //

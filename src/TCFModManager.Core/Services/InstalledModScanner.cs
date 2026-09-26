@@ -141,14 +141,16 @@ public static class InstalledModScanner
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToList();
 
+            // A DLL built without a file version still states one in its [BepInPlugin].
             var pluginVersion = (dll is null ? null : ReadPluginMetadata(dll).Version)
                 ?? metadata.Select(m => m.Version).FirstOrDefault(v => !string.IsNullOrWhiteSpace(v));
-            var version = ClientVersion(dll is null ? null : TryGetFileVersion(dll), pluginVersion);
+            var version = (dll is null ? null : TryGetFileVersion(dll)) ?? pluginVersion;
 
             results.Add(new InstalledMod
             {
                 Name = name,
                 Version = version,
+                PluginVersion = string.Equals(pluginVersion, version, StringComparison.OrdinalIgnoreCase) ? null : pluginVersion,
                 Guid = guids.FirstOrDefault(),
                 Guids = guids,
                 Target = InstalledModTarget.Client,
@@ -170,7 +172,10 @@ public static class InstalledModScanner
             results.Add(new InstalledMod
             {
                 Name = name,
-                Version = ClientVersion(TryGetFileVersion(dll), metadata.Version),
+                Version = TryGetFileVersion(dll) ?? metadata.Version,
+                PluginVersion = TryGetFileVersion(dll) is { } file && !string.Equals(file, metadata.Version, StringComparison.OrdinalIgnoreCase)
+                    ? metadata.Version
+                    : null,
                 Guid = metadata.Guid,
                 Guids = metadata.Guid is null ? [] : [metadata.Guid],
                 Target = InstalledModTarget.Client,
@@ -240,13 +245,17 @@ public static class InstalledModScanner
             // An SPT 4 server mod has no package.json: it says who it is in its DLL instead (see
             // ServerModMetadataReader). Its GUID is what other server mods depend on it by, and its
             // version there is the one SPT reports - the DLL's file version need not be.
-            var dlls = Directory.EnumerateFiles(dir, "*.dll", SearchOption.TopDirectoryOnly)
-                .OrderBy(d => string.Equals(Path.GetFileNameWithoutExtension(d), name, StringComparison.OrdinalIgnoreCase) ? 0 : 1)
-                .ThenBy(d => d, StringComparer.OrdinalIgnoreCase)
-                .ToList();
-            var (metadataDll, metadata) = dlls
+            //
+            // The DLL named after the folder, or the only one with metadata; with several and none
+            // named for the folder, which one is the mod cannot be told, and none is taken.
+            var dlls = Directory.EnumerateFiles(dir, "*.dll", SearchOption.TopDirectoryOnly).ToList();
+            var described = dlls
                 .Select(d => (Dll: d, Metadata: ServerModMetadataReader.Read(d)))
-                .FirstOrDefault(m => m.Metadata is not null);
+                .Where(m => m.Metadata is not null)
+                .ToList();
+            var (metadataDll, metadata) = described.FirstOrDefault(m =>
+                string.Equals(Path.GetFileNameWithoutExtension(m.Dll), folderName, StringComparison.OrdinalIgnoreCase));
+            if (metadata is null && described.Count == 1) (metadataDll, metadata) = described[0];
 
             if (metadata is not null)
             {
@@ -255,8 +264,11 @@ public static class InstalledModScanner
                 dependencies.AddRange(metadata.Dependencies);
             }
 
-            // Last, a DLL's file version: the one with the metadata, else one named after the folder.
-            if (version is null && (metadataDll ?? dlls.FirstOrDefault()) is { } dll) version = TryGetFileVersion(dll);
+            // Last, a DLL's file version: the one with the metadata, else one named after the mod.
+            var named = metadataDll
+                ?? dlls.FirstOrDefault(d => string.Equals(Path.GetFileNameWithoutExtension(d), name, StringComparison.OrdinalIgnoreCase))
+                ?? dlls.FirstOrDefault();
+            if (version is null && named is not null) version = TryGetFileVersion(named);
 
             var guid = metadata?.Guid;
 
@@ -271,6 +283,10 @@ public static class InstalledModScanner
                 FolderPath = dir,
                 InstalledAt = TryGetCreationTime(dir),
                 IsDisabled = disabled,
+
+                // What other mods would name it by could not be read: no package.json, no GUID in
+                // its DLL - so a server dependency nothing is found for might still be this one.
+                IdentityUnknown = guid is null && !File.Exists(packageJsonPath) && dlls.Count > 0,
                 Dependencies = MergeDependencies(dependencies),
             });
         }
@@ -325,16 +341,22 @@ public static class InstalledModScanner
     }
 
     //
-    // A plugin's version: its file version, as it always was - unless its [BepInPlugin] states the
-    // same release, when that is the one given. It is what BepInEx loads it as and reports
-    // ("Loading [ORBIT 2.0.0]"), where the file version can carry a build number on top (ORBIT's
-    // is 2.0.0.42986) that no published version has. Where the two disagree on the release, the
-    // file version still stands; where there is no file version at all, the plugin's does.
+    // Which of a plugin's two versions to go by - its file version, or the one its [BepInPlugin]
+    // states (what BepInEx loads it as: "Loading [ORBIT 2.0.0]") - given the versions published for
+    // it, when known. Whichever one is published; failing that, the plugin's when it is the same
+    // release with a build number on top (ORBIT's file version is 2.0.0.42986, no published version
+    // has that); otherwise the file version, as it always was.
     //
-    private static string? ClientVersion(string? fileVersion, string? pluginVersion)
+    public static string? PluginVersionOf(string? fileVersion, string? pluginVersion, IEnumerable<string?>? published = null)
     {
         if (fileVersion is null) return pluginVersion;
-        if (pluginVersion is null) return fileVersion;
+        if (pluginVersion is null || string.Equals(fileVersion, pluginVersion, StringComparison.OrdinalIgnoreCase)) return fileVersion;
+
+        var known = (published ?? []).Where(p => !string.IsNullOrWhiteSpace(p)).ToList();
+        if (known.Contains(fileVersion, StringComparer.OrdinalIgnoreCase)) return fileVersion;
+        if (known.Contains(pluginVersion, StringComparer.OrdinalIgnoreCase)) return pluginVersion;
+        if (ModVersionComparer.BestSameRelease(fileVersion, known) is not null) return fileVersion;
+        if (ModVersionComparer.BestSameRelease(pluginVersion, known) is not null) return pluginVersion;
 
         // A file version with a label ("1.2.0-beta", read from the product version) says more.
         return ModVersionComparer.SameNumbers(fileVersion, pluginVersion) && !fileVersion.Contains('-')
@@ -356,11 +378,19 @@ public static class InstalledModScanner
         }
     }
 
-    /// <summary>A plugin DLL's [BepInPlugin] GUID (null when it declares none) and file version.</summary>
+    /// <summary>A plugin DLL's [BepInPlugin] GUID (null when it declares none) and file version (its
+    /// [BepInPlugin] version when it has none).</summary>
     public static (string? Guid, string? Version) ReadPlugin(string dllPath)
     {
-        var metadata = ReadPluginMetadata(dllPath);
-        return (metadata.Guid, ClientVersion(TryGetFileVersion(dllPath), metadata.Version));
+        var (guid, file, plugin) = ReadPluginVersions(dllPath);
+        return (guid, file ?? plugin);
+    }
+
+    /// <summary>A plugin DLL's [BepInPlugin] GUID, file version and [BepInPlugin] version.</summary>
+    public static (string? Guid, string? FileVersion, string? PluginVersion) ReadPluginVersions(string dllPath)
+    {
+        var read = ReadPluginMetadata(dllPath);
+        return (read.Guid, TryGetFileVersion(dllPath), read.Version);
     }
 
     // What a compiled BepInEx plugin DLL declares about itself.

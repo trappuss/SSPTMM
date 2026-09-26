@@ -155,16 +155,30 @@ public class ServerModMetadataTests : IDisposable
         Assert.Equal("2.0.0", mod.Version);
     }
 
-    [Theory]
-    [InlineData("2.0.0.42986", "2.0.0", "2.0.0")]    // a build number on top: the plugin's own
-    [InlineData("1.0.8.0", "1.0.8", "1.0.8")]
-    [InlineData("1.3.0.0", "1.2.0", "1.3.0.0")]      // they disagree: the file version, as before
-    public void APluginsFileVersion_GivesWayOnlyToTheSameRelease(string fileVersion, string pluginVersion, string expected)
+    [Fact]
+    public void APlugin_KeepsBothItsFileVersionAndItsOwn()
     {
         var install = Install();
-        Plugin(Path.Combine(install, "BepInEx", "plugins", "Mod", "Mod.dll"), "com.x.mod", "Mod", pluginVersion, fileVersion);
+        Plugin(Path.Combine(install, "BepInEx", "plugins", "ORBIT", "ORBIT.dll"), "com.chazut.orbit", "ORBIT", "2.0.0", "2.0.0.42986");
 
-        Assert.Equal(expected, Assert.Single(InstalledModScanner.Scan(install)).Version);
+        var mod = Assert.Single(InstalledModScanner.Scan(install));
+
+        Assert.Equal("2.0.0.42986", mod.Version);
+        Assert.Equal("2.0.0", mod.PluginVersion);
+    }
+
+    [Theory]
+    // What is published decides, either way round.
+    [InlineData("2.0.0.42986", "2.0.0", new[] { "2.0.0", "1.9.0" }, "2.0.0")]
+    [InlineData("1.0.0.1", "1.0.0", new[] { "1.0.0.1", "1.0.0" }, "1.0.0.1")]
+    [InlineData("1.2.0.0", "1.2.0", new[] { "1.2.0-beta" }, "1.2.0.0")]
+    // Nothing published to go by: a build number on top gives way to the plugin's own.
+    [InlineData("2.0.0.42986", "2.0.0", new string[0], "2.0.0")]
+    [InlineData("1.3.0.0", "1.2.0", new string[0], "1.3.0.0")]
+    [InlineData("1.2.0-beta", "1.2.0", new string[0], "1.2.0-beta")]
+    public void WhichOfAPluginsTwoVersions_IsGoneBy(string file, string plugin, string[] published, string expected)
+    {
+        Assert.Equal(expected, InstalledModScanner.PluginVersionOf(file, plugin, published));
     }
 
     [Fact]
@@ -230,5 +244,51 @@ public class ServerModMetadataTests : IDisposable
         Assert.Equal(
             LocalArchive.IdFor(new LocalArchiveContents(true, [], [], ["DynMaps"]), "dm"),
             LocalArchive.IdFor(contents, "dm"));
+    }
+
+    [Fact]
+    public void AServerModWhoseGuidCannotBeRead_MeansNoServerDependencyIsCalledMissing()
+    {
+        var install = Install();
+        ServerMod(Path.Combine(ServerFolder(install, "Lib"), "Lib.dll"), new Str("Name", "Lib"), new Computed("Version"));
+        ServerMod(Path.Combine(ServerFolder(install, "User"), "User.dll"),
+            new Str("ModGuid", "com.user"), new Deps("ModDependencies", Indexer: false, ("com.lib", "~1.0.0")));
+
+        var scanned = InstalledModScanner.Scan(install);
+        var graph = ModDependencyGraph.Build(scanned);
+        var user = scanned.Single(m => m.Name == "User");
+
+        Assert.True(scanned.Single(m => m.Name == "Lib").IdentityUnknown);
+        Assert.Empty(graph.MissingOf(user));
+        Assert.Equal(["com.lib"], graph.UnresolvedOf(user));
+    }
+
+    [Fact]
+    public void TwoDescribedDllsInAFolder_NeitherNamedForIt_GiveNoGuid()
+    {
+        var install = Install();
+        ServerMod(Path.Combine(ServerFolder(install, "Pack"), "A.dll"), new Str("ModGuid", "com.a"));
+        ServerMod(Path.Combine(ServerFolder(install, "Pack"), "B.dll"), new Str("ModGuid", "com.b"));
+        ServerMod(Path.Combine(ServerFolder(install, "Named"), "Helper.dll"), new Str("ModGuid", "com.helper"));
+        ServerMod(Path.Combine(ServerFolder(install, "Named"), "Named.dll"), new Str("ModGuid", "com.named"));
+
+        var scanned = InstalledModScanner.Scan(install);
+
+        Assert.Null(scanned.Single(m => m.Name == "Pack").Guid);
+        Assert.Equal("com.named", scanned.Single(m => m.Name == "Named").Guid);
+    }
+
+    [Fact]
+    public void AnArchive_IsMatchedByItsPluginFirst_NotByAServerLibraryItBundles()
+    {
+        var contents = new LocalArchiveContents(true, [("com.mod.plugin", "1.0.0")], [], ["ModSrv", "LibSrv"],
+            [("com.mod.plugin", "1.0.0"), ("com.shared.lib", "2.0.0")]);
+        var catalog = new[]
+        {
+            new Mod { Id = 1, Name = "Mod", Guid = "com.mod.plugin" },
+            new Mod { Id = 2, Name = "Shared lib", Guid = "com.shared.lib" },
+        };
+
+        Assert.Equal(1, LocalArchive.MatchIn(contents, catalog)?.Id);
     }
 }

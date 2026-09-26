@@ -24,6 +24,13 @@ public sealed class InstalledMod
     public string? Version { get; init; }
 
     //
+    // A plugin's own version, from its [BepInPlugin] - the one BepInEx loads it as - when that differs
+    // from Version (the DLL's file version). Which of the two a published version is, is decided
+    // where the published versions are known (InstalledModCardViewModel.PluginVersionOf).
+    //
+    public string? PluginVersion { get; init; }
+
+    //
     // The GUID that stands for this mod's identity - the first [BepInPlugin] GUID found in its
     // folder, or an SPT 4 server mod's ModGuid (from the metadata class in its DLL). Null for an
     // SPT 3 server mod (package.json), and wherever none could be read. Catalog matching and the
@@ -76,6 +83,13 @@ public sealed class InstalledMod
     // (e.g. user\mods.disabled) rather than the live one - still on disk, but not loaded by SPT.
     //
     public bool IsDisabled { get; init; }
+
+    //
+    // True for a server mod whose name for dependencies could not be read - an SPT 4 mod whose DLL
+    // gives no GUID as a plain literal. A server dependency nothing installed is found for may then
+    // be this one, so none is called missing (see ModDependencyGraph).
+    //
+    public bool IdentityUnknown { get; init; }
 
     // What this mod declares it needs, read from its own files. Empty when it declares nothing.
     public IReadOnlyList<ModDependencyRef> Dependencies { get; init; } = [];

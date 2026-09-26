@@ -167,4 +167,72 @@ public class InstallRecordsPerInstallTests : IDisposable
         Assert.Equal(service.FolderFor(_a), service.FolderFor(_a + Path.DirectorySeparatorChar));
         Assert.NotEqual(service.FolderFor(_a), service.FolderFor(_b));
     }
+
+    [Fact]
+    public void AnInstallNotThereRightNow_TakesNothing_AndIsNotMarkedDone()
+    {
+        Put(_a, "BepInEx/plugins/ModOne/One.dll");
+        Legacy(Record(1, "BepInEx/plugins/ModOne/One.dll"));
+        var service = new ModInstallManifestService(_data);
+        var unplugged = Path.Combine(_root, "Q drive", "SPT");
+
+        Assert.Empty(service.Load(unplugged).Mods);
+        Assert.False(File.Exists(Path.Combine(service.FolderFor(unplugged), "installed-mods.json")));
+        Assert.Equal([1], LegacyIds());
+    }
+
+    [Fact]
+    public void FilesAnyInstallCanHave_DoNotClaimARecord()
+    {
+        // Mod 1 placed its own folder on A, plus a loose DLL and a file over another's that B has too.
+        Put(_a, "BepInEx/plugins/ModOne/One.dll");
+        Put(_b, "BepInEx/plugins/Loose.dll");
+        Put(_b, "BepInEx/plugins/Other/Shared.dll");
+        var record = Record(1, "BepInEx/plugins/ModOne/One.dll", "BepInEx/plugins/Loose.dll", "BepInEx/plugins/Other/Shared.dll");
+        Legacy(new InstalledModRecord
+        {
+            ModId = record.ModId, Name = record.Name, Version = record.Version, InstalledAt = record.InstalledAt,
+            Files = record.Files, Folders = record.Folders, Replaced = ["BepInEx/plugins/Other/Shared.dll"],
+        });
+
+        var service = new ModInstallManifestService(_data);
+
+        Assert.Empty(service.Load(_b).Mods);
+        Assert.Equal([1], service.Load(_a).Mods.Select(m => m.ModId));
+    }
+
+    [Fact]
+    public void AnInstallThatMoved_HandsItsRecordsToWhereItsFilesAreNow()
+    {
+        Put(_a, "BepInEx/plugins/ModOne/One.dll");
+        var service = new ModInstallManifestService(_data);
+        service.Save(_a, new ModInstallManifest { Mods = [Record(1, "BepInEx/plugins/ModOne/One.dll")] });
+        var copy = Path.Combine(service.ReplacedFilesRootFor(_a), "mod-1", "kept.dll");
+        Directory.CreateDirectory(Path.GetDirectoryName(copy)!);
+        File.WriteAllText(copy, "kept");
+
+        // Renamed: A's folder is gone, the same files are at the new name.
+        var moved = Path.Combine(_root, "SPT A moved");
+        Directory.Move(_a, moved);
+
+        Assert.Equal([1], service.Load(moved).Mods.Select(m => m.ModId));
+        Assert.Equal("kept", File.ReadAllText(Path.Combine(service.ReplacedFilesRootFor(moved), "mod-1", "kept.dll")));
+        Assert.Empty(JsonSerializer.Deserialize<ModInstallManifest>(
+            File.ReadAllText(Path.Combine(service.FolderFor(_a), "installed-mods.json")))!.Mods);
+    }
+
+    [Fact]
+    public void ARecordAMoveAlreadyGaveAnInstall_IsNotClaimedAgain()
+    {
+        // A move stopped part way: the record is in A's list and still in the old one.
+        Put(_a, "BepInEx/plugins/ModOne/One.dll");
+        Put(_b, "BepInEx/plugins/ModOne/One.dll");
+        var record = Record(1, "BepInEx/plugins/ModOne/One.dll");
+        var service = new ModInstallManifestService(_data);
+        service.Save(_a, new ModInstallManifest { Mods = [record] });
+        Legacy(record);
+
+        Assert.Empty(service.Load(_b).Mods);
+        Assert.Empty(LegacyIds());
+    }
 }

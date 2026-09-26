@@ -1251,21 +1251,25 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
 
         // The version recorded at install time beats anything read off disk: plenty of authors never
         // bump the assembly version, so a mod installed as 1.2.1 can still report 1.0.0.0 from its
-        // DLL - which then reads as an update being available forever.
-        var fileVersion = client?.Version ?? server?.Version;
+        // DLL - which then reads as an update being available forever. A plugin's own two (file,
+        // and [BepInPlugin]) are settled against what is published for it.
+        var clientVersion = client is null
+            ? null
+            : InstalledModScanner.PluginVersionOf(client.Version, client.PluginVersion, match?.Versions?.Select(v => v.Version));
+        var fileVersion = clientVersion ?? server?.Version;
         var installedVersion = record?.Version ?? fileVersion;
 
         (string Key, object?[] Values)? detail = null;
         // Only when the halves are different releases: a plugin's 1.2.1.0 and its server mod's
         // 1.2.1 are one version written two ways.
-        if (client is not null && server is not null
-            && !string.Equals(client.Version, server.Version, StringComparison.OrdinalIgnoreCase)
-            && !ModVersionComparer.IsSameRelease(client.Version, server.Version)
-            && !ModVersionComparer.IsSameRelease(server.Version, client.Version))
+        if (clientVersion is not null && server is not null
+            && !string.Equals(clientVersion, server.Version, StringComparison.OrdinalIgnoreCase)
+            && !ModVersionComparer.IsSameRelease(clientVersion, server.Version)
+            && !ModVersionComparer.IsSameRelease(server.Version, clientVersion))
         {
             detail = (
                 nameof(Strings.Installed_DetailFilesReportPairFormat),
-                [client.Version, server.Version]);
+                [clientVersion, server.Version]);
         }
         else if (record is not null && fileVersion is not null
                  && ModVersionComparer.IsUpdateAvailable(record.Version, fileVersion) is null or false

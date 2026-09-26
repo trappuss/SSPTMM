@@ -105,10 +105,44 @@ public partial class InstalledPage : Page
         e.Handled = true;
         if (e.Data.GetData(DataFormats.FileDrop) is not string[] files || files.Length == 0) return;
 
+        // A copy, never a move: the dropped file stays where it is.
+        e.Effects = DragDropEffects.Copy;
+
+        // An archive dragged out of 7-Zip or WinRAR is a file they unpacked to the temp folder for
+        // the drag, and delete as soon as the drop returns - so it is copied now, before that.
+        var kept = KeepDroppedTempFiles(files);
+
         // Not while OLE is still waiting for the drop to finish: Explorer's window stays stuck
         // until this returns, and the install asks a question first.
         await System.Windows.Threading.Dispatcher.Yield(System.Windows.Threading.DispatcherPriority.Background);
-        await ViewModel.InstallArchivesAsync(files);
+        await ViewModel.InstallArchivesAsync(kept);
+    }
+
+    private static string[] KeepDroppedTempFiles(string[] files)
+    {
+        var temp = System.IO.Path.GetFullPath(System.IO.Path.GetTempPath());
+        return [.. files.Select(file =>
+        {
+            try
+            {
+                if (!InstalledViewModel.IsModArchive(file) || !System.IO.File.Exists(file)
+                    || !System.IO.Path.GetFullPath(file).StartsWith(temp, StringComparison.OrdinalIgnoreCase))
+                {
+                    return file;
+                }
+
+                var folder = System.IO.Path.Combine(temp, "TCFModManager-dropped", Guid.NewGuid().ToString("N"));
+                System.IO.Directory.CreateDirectory(folder);
+                var copy = System.IO.Path.Combine(folder, System.IO.Path.GetFileName(file));
+                System.IO.File.Copy(file, copy);
+                return copy;
+            }
+            catch (Exception ex) when (ex is System.IO.IOException or UnauthorizedAccessException)
+            {
+                TCFModManager.Core.Services.AppLog.Warn("Install", $"couldn't keep a copy of the dropped {System.IO.Path.GetFileName(file)}: {ex.Message}");
+                return file;
+            }
+        })];
     }
 
     private bool OverGroupList(DragEventArgs e)

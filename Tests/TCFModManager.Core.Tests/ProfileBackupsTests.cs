@@ -199,6 +199,14 @@ public class ProfileBackupsTests : IDisposable
         Profile("a.json", "1");
         Assert.Equal(2, _backups.BackupIfChanged(_install, ProfileBackups.BeforeInstall)?.Files);
 
+        // SPT 3 keeps its configs a folder deeper.
+        File.Delete(Path.Combine(configs, "backup.json"));
+        var spt3 = Path.Combine(_install, "SPT", "SPT_Data", "Server", "configs");
+        Directory.CreateDirectory(spt3);
+        File.WriteAllText(Path.Combine(spt3, "backup.json"), """{ "directory": "./user/profiles/spt3-backups" }""");
+        Assert.Equal("spt3-backups", ProfileBackups.SptOwnBackupFolder(_install));
+        File.Delete(Path.Combine(spt3, "backup.json"));
+
         // Unreadable: SPT's shipped default.
         File.WriteAllText(Path.Combine(configs, "backup.json"), "{ not json");
         Assert.Equal("backups", ProfileBackups.SptOwnBackupFolder(_install));

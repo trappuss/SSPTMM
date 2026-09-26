@@ -40,7 +40,7 @@ public static class ServerModMetadataReader
     private const string SptModNamespace = "SPTarkov.Server.Core.Models.Spt.Mod";
 
     /// <summary>The metadata in <paramref name="dllPath"/>, or null when it holds no SPT mod
-    /// metadata class (not a server mod's main DLL, not managed code, unreadable).</summary>
+    /// metadata class, or more than one (not a server mod's main DLL, not managed code, unreadable).</summary>
     public static ServerModMetadata? Read(string dllPath)
     {
         try
@@ -50,25 +50,29 @@ public static class ServerModMetadataReader
             if (!pe.HasMetadata) return null;
 
             var reader = pe.GetMetadataReader();
-            foreach (var handle in reader.TypeDefinitions)
-            {
-                var type = reader.GetTypeDefinition(handle);
-                if (!IsModMetadata(reader, type)) continue;
 
-                return ReadType(pe, reader, handle, type);
-            }
+            // The class SPT makes: concrete, and mod metadata itself or through a base class of its
+            // own. Two such classes (or none) and which one counts cannot be told: nothing is read.
+            var candidates = reader.TypeDefinitions
+                .Where(h => !reader.GetTypeDefinition(h).Attributes.HasFlag(System.Reflection.TypeAttributes.Abstract)
+                    && IsModMetadata(reader, h, depth: 0))
+                .ToList();
 
-            return null;
+            return candidates.Count == 1 ? ReadChain(pe, reader, candidates[0]) : null;
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or BadImageFormatException
-                                       or InvalidOperationException or ArgumentException)
+        catch (Exception ex)
         {
+            // Never a reason for the scan to stop: whatever this DLL is, it is read as saying nothing.
+            AppLog.Debug("Scan", $"couldn't read server mod metadata from {Path.GetFileName(dllPath)}: {ex.Message}");
             return null;
         }
     }
 
-    private static bool IsModMetadata(MetadataReader reader, TypeDefinition type)
+    private static bool IsModMetadata(MetadataReader reader, TypeDefinitionHandle handle, int depth)
     {
+        if (depth > 8) return false;
+
+        var type = reader.GetTypeDefinition(handle);
         foreach (var implementation in type.GetInterfaceImplementations())
         {
             if (NameOf(reader, reader.GetInterfaceImplementation(implementation).Interface) is ("IModMetadata", var ns)
@@ -78,7 +82,11 @@ public static class ServerModMetadataReader
             }
         }
 
-        return NameOf(reader, type.BaseType) is ("AbstractModMetadata", var baseNs) && baseNs == SptModNamespace;
+        if (NameOf(reader, type.BaseType) is ("AbstractModMetadata", var baseNs) && baseNs == SptModNamespace) return true;
+
+        // Through a base class in the same DLL.
+        return type.BaseType.Kind == HandleKind.TypeDefinition && !type.BaseType.IsNil
+            && IsModMetadata(reader, (TypeDefinitionHandle)type.BaseType, depth + 1);
     }
 
     private static (string Name, string Namespace)? NameOf(MetadataReader reader, EntityHandle handle)
@@ -99,56 +107,78 @@ public static class ServerModMetadataReader
         }
     }
 
-    private static ServerModMetadata ReadType(PEReader pe, MetadataReader reader, TypeDefinitionHandle handle, TypeDefinition type)
+    //
+    // Every place a property is given a value, in the class and the base classes it has in the same
+    // DLL: an initialiser or a constructor assignment (a store to the property's backing field, or
+    // a call of its setter), or an expression-bodied getter. A property given a value in exactly one
+    // place is read from it; given one in more than one place (a base class's default the class
+    // overrides, an initialiser the constructor then replaces), which one wins is a matter of run
+    // time order - it is left unread rather than guessed.
+    //
+    private static ServerModMetadata ReadChain(PEReader pe, MetadataReader reader, TypeDefinitionHandle handle)
     {
-        var values = new Dictionary<string, List<Instruction>>(StringComparer.Ordinal);
+        var writes = new Dictionary<string, List<List<Instruction>>>(StringComparer.Ordinal);
 
-        foreach (var methodHandle in type.GetMethods())
+        void Add(string property, List<Instruction> value)
         {
-            var method = reader.GetMethodDefinition(methodHandle);
-            if (method.RelativeVirtualAddress == 0) continue;
+            if (!writes.TryGetValue(property, out var list)) writes[property] = list = [];
+            list.Add(value);
+        }
 
-            var name = reader.GetString(method.Name);
+        var current = handle;
+        for (var depth = 0; depth <= 8; depth++)
+        {
+            var type = reader.GetTypeDefinition(current);
 
-            // The parameterless constructor, where the initialisers are. A record also has a copy
-            // constructor, which only copies fields and says nothing.
-            if (name == ".ctor" && ParameterCount(reader, method) == 0)
+            foreach (var methodHandle in type.GetMethods())
             {
-                var il = Decode(reader, pe.GetMethodBody(method.RelativeVirtualAddress).GetILReader());
-                var start = 0;
-                for (var i = 0; i < il.Count; i++)
-                {
-                    if (il[i].Op != Stfld) continue;
+                var method = reader.GetMethodDefinition(methodHandle);
+                if (method.RelativeVirtualAddress == 0) continue;
 
-                    if (BackingFieldOf(reader, handle, il[i].Token) is { } property)
-                        values.TryAdd(property, il.GetRange(start, i - start));
-                    start = i + 1;
+                var name = reader.GetString(method.Name);
+                var il = Decode(reader, pe.GetMethodBody(method.RelativeVirtualAddress).GetILReader());
+
+                // The parameterless constructor, where the initialisers are. A record also has a copy
+                // constructor, which only copies fields and says nothing.
+                if (name == ".ctor" && ParameterCount(reader, method) == 0)
+                {
+                    var start = 0;
+                    for (var i = 0; i < il.Count; i++)
+                    {
+                        var property = il[i].Op == Stfld ? BackingFieldOf(reader, il[i].Token)
+                            : il[i].Op is Call or Callvirt ? SetterOf(reader, il[i].Token)
+                            : null;
+
+                        if (property is not null) Add(property, il.GetRange(start, i - start));
+
+                        // Each store, and the call of the base constructor, ends the one before.
+                        if (property is not null || il[i].Op == Stfld
+                            || (il[i].Op == Call && MethodName(reader, il[i].Token).Member == ".ctor"))
+                        {
+                            start = i + 1;
+                        }
+                    }
+                }
+                else if (name.StartsWith("get_", StringComparison.Ordinal) && il is [.., { Op: Ret }]
+                         && il is not [{ Op: Ldarg0 }, { Op: Ldfld }, { Op: Ret }])
+                {
+                    // An expression-bodied property ("public override string Name => \"x\";").
+                    Add(name[4..], il.GetRange(0, il.Count - 1));
                 }
             }
+
+            if (type.BaseType.IsNil || type.BaseType.Kind != HandleKind.TypeDefinition) break;
+            current = (TypeDefinitionHandle)type.BaseType;
         }
 
-        // An expression-bodied property ("public string Name => \"x\";") has no backing field; its
-        // getter returns the value instead. Only where the constructor gave nothing.
-        foreach (var methodHandle in type.GetMethods())
-        {
-            var method = reader.GetMethodDefinition(methodHandle);
-            var name = reader.GetString(method.Name);
-            if (method.RelativeVirtualAddress == 0 || !name.StartsWith("get_", StringComparison.Ordinal)) continue;
+        List<Instruction>? Only(string property) =>
+            writes.TryGetValue(property, out var list) && list.Count == 1 ? list[0] : null;
 
-            var property = name[4..];
-            if (values.ContainsKey(property)) continue;
+        string? Text(string property) => Only(property) is { } il ? StringValue(il) : null;
 
-            var il = Decode(reader, pe.GetMethodBody(method.RelativeVirtualAddress).GetILReader());
-            if (il.Count > 0 && il[^1].Op == Ret) values[property] = il.GetRange(0, il.Count - 1);
-        }
+        string? Wrapped(string property, string typeName) => Only(property) is { } il ? WrappedValue(reader, il, typeName) : null;
 
-        string? Text(string property) =>
-            values.TryGetValue(property, out var il) ? StringValue(il) : null;
-
-        string? Wrapped(string property, string typeName) =>
-            values.TryGetValue(property, out var il) ? WrappedValue(reader, il, typeName) : null;
-
-        var dependencies = values.TryGetValue("ModDependencies", out var deps) ? Dependencies(reader, deps) : [];
+        var dependencies = Only("ModDependencies") is { } deps ? Dependencies(reader, deps) : [];
 
         return new ServerModMetadata(
             Blank(Text("ModGuid")),
@@ -203,10 +233,11 @@ public static class ServerModMetadataReader
     }
 
     //
-    // A dictionary filled where it is made:
+    // A dictionary filled where it is made, one entry at a time:
     //     newobj Dictionary::.ctor; { dup; ldstr "guid"; <a Range>; callvirt Add | set_Item }*
-    // Each Add or indexer store takes the first string loaded since the one before it: the GUID.
-    // Anything not of that shape gives nothing rather than a wrong list.
+    // Each entry's key is the literal straight after its dup. Anything not of exactly that shape -
+    // a key that is not a literal, a dictionary filled some other way - gives nothing rather than
+    // a wrong list.
     //
     private static List<ModDependencyRef> Dependencies(MetadataReader reader, List<Instruction> il)
     {
@@ -214,47 +245,63 @@ public static class ServerModMetadataReader
         if (body.Count == 0 || body[0].Op != Newobj) return [];
 
         var found = new List<ModDependencyRef>();
-        string? key = null;
-        var sawAny = false;
-
-        for (var i = 1; i < body.Count; i++)
+        var i = 1;
+        while (i < body.Count)
         {
-            var instruction = body[i];
-            if (instruction.Op == Ldstr)
+            if (body[i].Op != Dup || i + 1 >= body.Count || body[i + 1] is not { Op: Ldstr, Text: { } key } || string.IsNullOrWhiteSpace(key))
+                return [];
+
+            // To the entry's own Add: nothing in the value may start another entry.
+            var j = i + 2;
+            while (j < body.Count && !(body[j].Op is Call or Callvirt && MethodName(reader, body[j].Token).Member is "Add" or "set_Item"))
             {
-                key ??= instruction.Text;
-                continue;
+                if (body[j].Op == Dup) return [];
+                j++;
             }
 
-            if (instruction.Op is Call or Callvirt && MethodName(reader, instruction.Token).Member is "Add" or "set_Item")
-            {
-                if (string.IsNullOrWhiteSpace(key)) return [];
+            if (j >= body.Count || j == i + 2) return [];
 
-                found.Add(new ModDependencyRef(key.Trim(), IsSoft: false));
-                key = null;
-                sawAny = true;
-            }
+            found.Add(new ModDependencyRef(key.Trim(), IsSoft: false));
+            i = j + 1;
         }
 
-        return sawAny && key is null ? found : [];
+        return found;
     }
 
     private static List<Instruction> WithoutThis(List<Instruction> il) =>
         il is [{ Op: Ldarg0 }, ..] ? il.GetRange(1, il.Count - 1) : il;
 
-    // The property a backing field of this type stands for ("<Version>k__BackingField" -> "Version").
-    private static string? BackingFieldOf(MetadataReader reader, TypeDefinitionHandle owner, int token)
+    // The property a backing field stands for ("<Version>k__BackingField" -> "Version").
+    private static string? BackingFieldOf(MetadataReader reader, int token)
     {
         var handle = MetadataTokens.EntityHandle(token);
-        if (handle.Kind != HandleKind.FieldDefinition) return null;
+        var name = handle.Kind switch
+        {
+            HandleKind.FieldDefinition => reader.GetString(reader.GetFieldDefinition((FieldDefinitionHandle)handle).Name),
+            HandleKind.MemberReference => reader.GetString(reader.GetMemberReference((MemberReferenceHandle)handle).Name),
+            _ => null,
+        };
 
-        var field = reader.GetFieldDefinition((FieldDefinitionHandle)handle);
-        if (field.GetDeclaringType() != owner) return null;
-
-        var name = reader.GetString(field.Name);
         const string suffix = ">k__BackingField";
-        return name.StartsWith('<') && name.EndsWith(suffix, StringComparison.Ordinal)
+        return name is not null && name.StartsWith('<') && name.EndsWith(suffix, StringComparison.Ordinal)
             ? name[1..^suffix.Length]
+            : null;
+    }
+
+    // The property a setter call stands for ("set_ModGuid" -> "ModGuid") - a setter of the class
+    // itself (defined in this DLL) or of SPT's metadata base, never another object's: filling the
+    // dependencies dictionary calls its set_Item.
+    private static string? SetterOf(MetadataReader reader, int token)
+    {
+        var handle = MetadataTokens.EntityHandle(token);
+        var own = handle.Kind == HandleKind.MethodDefinition
+            || (handle.Kind == HandleKind.MemberReference
+                && reader.GetMemberReference((MemberReferenceHandle)handle).Parent is var parent
+                && parent.Kind is HandleKind.TypeReference or HandleKind.TypeDefinition
+                && NameOf(reader, (EntityHandle)parent) is ("AbstractModMetadata" or "IModMetadata", SptModNamespace));
+
+        return own && MethodName(reader, token).Member is { } member && member.StartsWith("set_", StringComparison.Ordinal)
+            ? member[4..]
             : null;
     }
 
@@ -290,8 +337,8 @@ public static class ServerModMetadataReader
 
     // ---- IL ----
 
-    private const int Ldarg0 = 0x02, Ldnull = 0x14, Ldstr = 0x72, Stfld = 0x7D, Newobj = 0x73,
-        Call = 0x28, Callvirt = 0x6F, Ret = 0x2A;
+    private const int Nop = 0x00, Ldarg0 = 0x02, Ldnull = 0x14, Dup = 0x25, Ldstr = 0x72, Ldfld = 0x7B, Stfld = 0x7D,
+        Newobj = 0x73, Call = 0x28, Callvirt = 0x6F, Ret = 0x2A;
 
     private readonly record struct Instruction(int Op, int Token, string? Text, int? Int)
     {
@@ -306,6 +353,11 @@ public static class ServerModMetadataReader
         while (reader.RemainingBytes > 0)
         {
             int op = reader.ReadByte();
+
+            // A debug build's padding, between every step: nothing to read, and it would only split
+            // the shapes looked for above.
+            if (op == Nop) continue;
+
             if (op == 0xFE)
             {
                 op = 0xFE00 | reader.ReadByte();
