@@ -74,7 +74,7 @@ public sealed class ModListService
         await AppServices.ModCache.EnsureLoadedAsync();
         await AppServices.Addons.EnsureLoadedAsync();
 
-        var records = AppServices.InstallManifest.Load().Mods;
+        var records = AppServices.InstallManifest.Load(installPath).Mods;
         var catalog = AppServices.ModCache.AllMods;
         var sptVersion = AppServices.SptEnvironment.InstalledVersion;
 

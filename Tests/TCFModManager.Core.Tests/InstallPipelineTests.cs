@@ -23,14 +23,13 @@ public class InstallPipelineTests : IDisposable
         Directory.CreateDirectory(Path.Combine(_spt, "BepInEx", "plugins"));
         Directory.CreateDirectory(Path.Combine(_spt, "BepInEx", "config"));
 
-        _manifest = new ModInstallManifestService(Path.Combine(_root, "installed-mods.json"));
+        _manifest = new ModInstallManifestService(Path.Combine(_root, "data"));
         _service = new ModInstallService(
             new ModDownloadService(),
             _manifest,
             new ConfigCarryOver(new ConfigBaselineStore(Path.Combine(_root, "baselines")), Path.Combine(_root, "legacy"), new ModConfigOptionsStore(Path.Combine(_root, "options.json"))),
             new ConfigUpdateLog(Path.Combine(_root, "config_updates.json")),
-            new ModConfigOptionsStore(Path.Combine(_root, "options.json")),
-            Path.Combine(_root, "replaced"));
+            new ModConfigOptionsStore(Path.Combine(_root, "options.json")));
     }
 
     public void Dispose()
@@ -62,7 +61,7 @@ public class InstallPipelineTests : IDisposable
         _service.InstallAsync(Mod(id, name), Version(id * 10, version), _spt, downloadedArchive: Zip($"{name}-{version}", files));
 
     private Task Remove(int id) =>
-        _service.UninstallAsync(_spt, _manifest.Load().Mods.Single(m => m.ModId == id), ConfigAction.Keep);
+        _service.UninstallAsync(_spt, _manifest.Load(_spt).Mods.Single(m => m.ModId == id), ConfigAction.Keep);
 
     [Fact]
     public async Task RemovingOneMod_LeavesAFileAnotherModAlsoInstalled()
@@ -207,7 +206,7 @@ public class InstallPipelineTests : IDisposable
         Assert.Equal("HAND", File.ReadAllText(InSpt("BepInEx/plugins/Hand.dll")));
         Assert.False(File.Exists(InSpt("BepInEx/plugins/I.New.dll")));
         Assert.False(Directory.Exists(journal.WorkDirectory));
-        Assert.Equal("1.0", _manifest.Load().Mods.Single(m => m.ModId == 9).Version);
+        Assert.Equal("1.0", _manifest.Load(_spt).Mods.Single(m => m.ModId == 9).Version);
     }
 
     [Fact]
@@ -287,7 +286,7 @@ public class InstallPipelineTests : IDisposable
         Assert.Equal("I2", File.ReadAllText(InSpt("BepInEx/plugins/I.dll")));
         var work = Path.Combine(_spt, ".tcfmm-work");
         Assert.True(!Directory.Exists(work) || Directory.GetFiles(work, InstallJournal.FileName, SearchOption.AllDirectories).Length == 0);
-        Assert.Equal("2.0", _manifest.Load().Mods.Single(m => m.ModId == 9).Version);
+        Assert.Equal("2.0", _manifest.Load(_spt).Mods.Single(m => m.ModId == 9).Version);
     }
 
     [Fact]
@@ -305,7 +304,7 @@ public class InstallPipelineTests : IDisposable
         Assert.Equal("I1", File.ReadAllText(InSpt("BepInEx/plugins/I.dll")));
         Assert.Equal("O1", File.ReadAllText(InSpt("BepInEx/plugins/Old.dll")));
         Assert.False(File.Exists(InSpt("BepInEx/plugins/New.dll")));
-        Assert.Equal("1.0", _manifest.Load().Mods.Single(m => m.ModId == 9).Version);
+        Assert.Equal("1.0", _manifest.Load(_spt).Mods.Single(m => m.ModId == 9).Version);
     }
 
     // ---------------------------------------------------------------- review round 2
@@ -384,7 +383,7 @@ public class InstallPipelineTests : IDisposable
         await Install(9, "ModI", "1.0", ("BepInEx/plugins/I.dll", "I1"), ("BepInEx/plugins/Lib", "lib1"));
 
         // Writing the record fails, after every file is placed.
-        Directory.CreateDirectory(Path.Combine(_root, "installed-mods.json.tmp"));
+        Directory.CreateDirectory(_manifest.RecordsFileFor(_spt) + ".tmp");
 
         var failure = await Assert.ThrowsAsync<ModInstallException>(() =>
             Install(9, "ModI", "2.0", ("BepInEx/plugins/I.dll", "I2"), ("BepInEx/plugins/Lib/inner.dll", "inner")));
@@ -517,7 +516,7 @@ public class InstallPipelineTests : IDisposable
     public async Task ARemovalAndAnInstall_DoNotWriteOverEachOthersRecords()
     {
         await Install(1, "ModA", "1.0", ("BepInEx/plugins/A.dll", "a"));
-        var stale = _manifest.Load().Mods.Single(m => m.ModId == 1);
+        var stale = _manifest.Load(_spt).Mods.Single(m => m.ModId == 1);
 
         // Both at once, many times over: each must end with its own result in the records.
         var tasks = new List<Task>();
@@ -530,7 +529,7 @@ public class InstallPipelineTests : IDisposable
         tasks.Add(Task.Run(() => _service.UninstallAsync(_spt, stale, ConfigAction.Keep)));
         await Task.WhenAll(tasks);
 
-        var mods = _manifest.Load().Mods;
+        var mods = _manifest.Load(_spt).Mods;
         Assert.DoesNotContain(mods, m => m.ModId == 1);
         Assert.Equal(5, mods.Count(m => m.ModId >= 100));
     }
@@ -574,9 +573,9 @@ public class InstallPipelineTests : IDisposable
     public async Task ChoosingAVersionByHand_DoesNotMakeAFinishedInstallLookUnfinished()
     {
         await Install(9, "ModI", "1.0", ("BepInEx/plugins/I.dll", "I1"));
-        var record = _manifest.Load().Mods.Single(m => m.ModId == 9);
+        var record = _manifest.Load(_spt).Mods.Single(m => m.ModId == 9);
 
-        _manifest.SetManualVersion(record.ModId, null, record.Name, "9.9", 999, record.Folders, record.IsAddon);
+        _manifest.SetManualVersion(_spt, record.ModId, null, record.Name, "9.9", 999, record.Folders, record.IsAddon);
 
         var work = Path.Combine(_spt, ".tcfmm-work", "finished");
         var journal = InstallJournal.Begin(work, _spt, Mod(9, "ModI"));

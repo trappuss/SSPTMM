@@ -806,7 +806,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
             // What this app itself installed, and which folders it placed - identifies those mods
             // exactly instead of inferring them from folder names.
-            var installRecords = AppServices.InstallManifest.Load().Mods;
+            var installRecords = AppServices.InstallManifest.Load(installPath).Mods;
 
             // Read once here rather than inside the background work, so a catalog refresh landing
             // mid-scan can't swap the list out from under it.
@@ -1109,7 +1109,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         ConfigAction configAction;
         if (mod.IsAppManaged && mod.ModId is { } modId)
         {
-            var manifest = AppServices.InstallManifest.Load();
+            var manifest = AppServices.InstallManifest.Load(installPath);
             var record = manifest.Mods.FirstOrDefault(m => m.ModId == modId && m.IsAddon == mod.IsAddon);
             if (record is null) return StatusMessage = Text(Strings.Installed_RemoveNoRecordFormat, mod.Name);
 
@@ -1228,7 +1228,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
         if (mod.IsAppManaged && mod.ModId is { } modId)
         {
-            var record = AppServices.InstallManifest.Load().Mods.FirstOrDefault(m => m.ModId == modId && m.IsAddon == mod.IsAddon);
+            var record = AppServices.InstallManifest.Load(installPath).Mods.FirstOrDefault(m => m.ModId == modId && m.IsAddon == mod.IsAddon);
             if (record is null) return (false, Text(Strings.Installed_RemoveNoRecordFormat, mod.Name), true);
 
             // Off the UI thread: deleting a large mod's files and copying the SPT profiles first.
@@ -1252,7 +1252,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         // A manually-confirmed version record would otherwise dangle, pointing at a mod that's no
         // longer on disk.
         if (mod.IsManualOverride && mod.ModId is { } overriddenModId)
-            AppServices.InstallManifest.ClearManualVersion(overriddenModId, mod.IsAddon);
+            AppServices.InstallManifest.ClearManualVersion(installPath, overriddenModId, mod.IsAddon);
 
         return (true, DescribeRemoval(mod.Name, failedFiles: 0, kept.Count, kept.Folder), kept.Count > 0);
     }

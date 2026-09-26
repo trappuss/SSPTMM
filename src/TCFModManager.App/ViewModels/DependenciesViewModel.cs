@@ -77,7 +77,7 @@ public partial class DependenciesViewModel : LocalizedViewModel
 
             var scanned = await Task.Run(() => InstalledModScanner.Scan(installPath));
             var installed = InstalledModCardViewModel.BuildFrom(
-                scanned, AppServices.ModCache.AllMods, sptVersion, AppServices.InstallManifest.Load().Mods,
+                scanned, AppServices.ModCache.AllMods, sptVersion, AppServices.InstallManifest.Load(installPath).Mods,
                 AppServices.Addons.AllAddons);
 
             // Only mods that matched the catalog can be asked about; a hand-installed mod we

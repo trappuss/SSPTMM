@@ -69,8 +69,29 @@ public partial class DataFilesViewModel : LocalizedViewModel
 
     partial void OnSelectedFileChanged(string? value) => Load();
 
-    private string? PathFor(string? file) =>
-        file is null ? null : Path.Combine(AppPaths.DataDirectory, file);
+    // installed-mods.json is the current install's records (each install keeps its own - see
+    // ModInstallManifestService); with no install set, the old shared list.
+    private static string? PathFor(string? file)
+    {
+        if (file is null) return null;
+
+        if (string.Equals(file, "installed-mods.json", StringComparison.OrdinalIgnoreCase)
+            && AppServices.SptEnvironment.InstallPath is { Length: > 0 } installPath)
+        {
+            try
+            {
+                return AppServices.InstallManifest.RecordsFileFor(installPath);
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                // Not the old shared list instead: an edit there would not be what this install reads.
+                AppLog.Warn("DataFiles", $"couldn't open this install's records: {ex.Message}");
+                return null;
+            }
+        }
+
+        return Path.Combine(AppPaths.DataDirectory, file);
+    }
 
     private void Load()
     {

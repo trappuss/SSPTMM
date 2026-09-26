@@ -839,7 +839,7 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
         var catalog = AppServices.ModCache.AllMods;
         var addons = AppServices.Addons.AllAddons;
         var sptVersion = AppServices.SptEnvironment.InstalledVersion;
-        var records = AppServices.InstallManifest.Load().Mods;
+        var records = AppServices.InstallManifest.Load(installPath).Mods;
 
         // Scan and match together off the UI thread. The match is the slow half - InstalledViewModel
         // has run it this way since the matching rewrite, and doing it inline here was the last
@@ -1489,7 +1489,7 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
             var own = FindInstalledMatch(mod);
 
             clashes = ModFileConflicts.Find(
-                installPath, paths, target, AppServices.InstallManifest.Load().Mods,
+                installPath, paths, target, AppServices.InstallManifest.Load(installPath).Mods,
                 full => own is not null && own.Entries.Any(e =>
                     string.Equals(System.IO.Path.GetFullPath(e.FolderPath), System.IO.Path.GetFullPath(full), StringComparison.OrdinalIgnoreCase)
                     || ModFileConflicts.IsInside(full, e.FolderPath)),

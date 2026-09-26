@@ -18,8 +18,10 @@ public sealed class ModInstallService(
     string? replacedFilesRoot = null,
     ProfileBackups? profileBackups = null)
 {
-    // Copies of files installs have put their own over - see ReplacedFileStore.
-    private readonly ReplacedFileStore _replaced = new(replacedFilesRoot ?? Path.Combine(AppPaths.DataDirectory, "ReplacedFiles"));
+    // Copies of files installs have put their own over - see ReplacedFileStore. Each install keeps
+    // its own (see ModInstallManifestService).
+    private ReplacedFileStore Replaced(string installPath) =>
+        new(replacedFilesRoot ?? manifestService.ReplacedFilesRootFor(installPath));
 
     private readonly ConfigCarryOver _configs = configCarryOver ?? new ConfigCarryOver();
     private readonly ModConfigOptionsStore _options = configOptions ?? new ModConfigOptionsStore();
@@ -289,7 +291,7 @@ public sealed class ModInstallService(
             // (off the caller's thread by now, and only once SPT is known not to be running).
             profileBackups?.BackupIfChanged(installPath, ProfileBackups.BeforeInstall);
 
-            var manifest = manifestService.Load();
+            var manifest = manifestService.Load(installPath);
             var existing = manifest.Mods.FirstOrDefault(target.Matches);
 
             //
@@ -458,12 +460,12 @@ public sealed class ModInstallService(
                 // Written last: once the record says this version, the install is done.
                 journal.Record = record;
                 journal.Save();
-                SaveRecord(record);
+                SaveRecord(installPath, record);
 
                 journal.Committed = true;
                 journal.Save();
             }
-            catch (Exception ex) when (record is null || !IsRecorded(record))
+            catch (Exception ex) when (record is null || !IsRecorded(installPath, record))
             {
                 AppLog.Error("Install",
                     $"{target.Name} {version.Version} failed after {placedFiles.Count}/{sourceFiles.Length} file(s); putting the install back", ex);
@@ -545,16 +547,16 @@ public sealed class ModInstallService(
     }
 
     // True when the manifest holds exactly this record - the install finished writing it.
-    private bool IsRecorded(InstalledModRecord record) => RecordedState(record) == true;
+    private bool IsRecorded(string installPath, InstalledModRecord record) => RecordedState(installPath, record) == true;
 
     // As IsRecorded; null when the manifest cannot be read, so it cannot be told.
-    private bool? RecordedState(InstalledModRecord record)
+    private bool? RecordedState(string installPath, InstalledModRecord record)
     {
         try
         {
             // By when it was installed, not by version: confirming or choosing a version by hand
             // changes those on the same record (SetManualVersion keeps InstalledAt).
-            return manifestService.Load().Mods.Any(m => m.ModId == record.ModId && m.IsAddon == record.IsAddon
+            return manifestService.Load(installPath).Mods.Any(m => m.ModId == record.ModId && m.IsAddon == record.IsAddon
                 && m.InstalledAt == record.InstalledAt);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
@@ -618,6 +620,7 @@ public sealed class ModInstallService(
     //
     private bool KeepReplacedCopies(string installPath, InstallJournal journal, InstallTarget target, IReadOnlyList<string> replaced)
     {
+        var replacedStore = Replaced(installPath);
         try
         {
             //
@@ -631,9 +634,9 @@ public sealed class ModInstallService(
             while (journal.StaleCopies.Count > 0)
             {
                 var stale = journal.StaleCopies[0];
-                var handed = _replaced.HandOver(target.Id, target.IsAddon, stale.ModId, stale.IsAddon, stale.Path);
-                if (!handed) _replaced.Drop(stale.ModId, stale.IsAddon, stale.Path);
-                UpdateReplaced(stale.ModId, stale.IsAddon, stale.Path, keep: handed);
+                var handed = replacedStore.HandOver(target.Id, target.IsAddon, stale.ModId, stale.IsAddon, stale.Path);
+                if (!handed) replacedStore.Drop(stale.ModId, stale.IsAddon, stale.Path);
+                UpdateReplaced(installPath, stale.ModId, stale.IsAddon, stale.Path, keep: handed);
 
                 journal.StaleCopies.RemoveAt(0);
                 journal.Save();
@@ -642,7 +645,7 @@ public sealed class ModInstallService(
             foreach (var relative in replaced)
             {
                 var copy = journal.BeforeCopyOf(relative);
-                if (File.Exists(copy)) _replaced.KeepCopy(copy, target.Id, target.IsAddon, relative);
+                if (File.Exists(copy)) replacedStore.KeepCopy(copy, target.Id, target.IsAddon, relative);
             }
 
             //
@@ -653,7 +656,7 @@ public sealed class ModInstallService(
             var gone = journal.PreviousReplaced.Where(o => !replaced.Contains(o, StringComparer.OrdinalIgnoreCase)).ToList();
             if (gone.Count > 0)
             {
-                var others = manifestService.Load().Mods.Where(m => !target.Matches(m)).ToList();
+                var others = manifestService.Load(installPath).Mods.Where(m => !target.Matches(m)).ToList();
                 foreach (var old in gone)
                 {
                     var above = others
@@ -662,9 +665,9 @@ public sealed class ModInstallService(
                         .OrderBy(m => m.InstalledAt)
                         .FirstOrDefault();
 
-                    if (above is null) _replaced.Restore(installPath, target.Id, target.IsAddon, old);
-                    else if (_replaced.HandOver(target.Id, target.IsAddon, above.ModId, above.IsAddon, old))
-                        UpdateReplaced(above.ModId, above.IsAddon, old, keep: true);
+                    if (above is null) replacedStore.Restore(installPath, target.Id, target.IsAddon, old);
+                    else if (replacedStore.HandOver(target.Id, target.IsAddon, above.ModId, above.IsAddon, old))
+                        UpdateReplaced(installPath, above.ModId, above.IsAddon, old, keep: true);
                 }
             }
 
@@ -678,9 +681,9 @@ public sealed class ModInstallService(
     }
 
     // Adds a path to (keep) or takes it off another record's Replaced list, in the manifest.
-    private void UpdateReplaced(int modId, bool isAddon, string relative, bool keep)
+    private void UpdateReplaced(string installPath, int modId, bool isAddon, string relative, bool keep)
     {
-        var manifest = manifestService.Load();
+        var manifest = manifestService.Load(installPath);
         var i = manifest.Mods.FindIndex(m => m.ModId == modId && m.IsAddon == isAddon);
         if (i < 0) return;
 
@@ -691,7 +694,7 @@ public sealed class ModInstallService(
         manifest.Mods[i] = WithReplaced(other, keep
             ? [.. other.Replaced, relative]
             : [.. other.Replaced.Where(r => !string.Equals(r, relative, StringComparison.OrdinalIgnoreCase))]);
-        manifestService.Save(manifest);
+        manifestService.Save(installPath, manifest);
     }
 
     //
@@ -767,18 +770,18 @@ public sealed class ModInstallService(
         return null;
     }
 
-    private InstalledModRecord SaveRecord(InstallTarget target, ModVersion version, List<string> placedFiles, bool incomplete, List<string> replaced) =>
-        SaveRecord(BuildRecord(target, version, placedFiles, incomplete, replaced));
+    private InstalledModRecord SaveRecord(string installPath, InstallTarget target, ModVersion version, List<string> placedFiles, bool incomplete, List<string> replaced) =>
+        SaveRecord(installPath, BuildRecord(target, version, placedFiles, incomplete, replaced));
 
     // Writes the record for what an install placed, replacing any previous record for the same mod.
     // The manifest is reloaded rather than reusing an earlier copy, since UninstallAsync may have
     // saved a removal of the old record in between.
-    private InstalledModRecord SaveRecord(InstalledModRecord record)
+    private InstalledModRecord SaveRecord(string installPath, InstalledModRecord record)
     {
-        var current = manifestService.Load();
+        var current = manifestService.Load(installPath);
         current.Mods.RemoveAll(m => m.ModId == record.ModId && m.IsAddon == record.IsAddon);
         current.Mods.Add(record);
-        manifestService.Save(current);
+        manifestService.Save(installPath, current);
 
         return record;
     }
@@ -820,7 +823,7 @@ public sealed class ModInstallService(
             RecoverOrRefuse(installPath);
 
             // The record as it is now - an install may have updated it while this waited.
-            var current = manifestService.Load().Mods.FirstOrDefault(m => m.ModId == record.ModId && m.IsAddon == record.IsAddon);
+            var current = manifestService.Load(installPath).Mods.FirstOrDefault(m => m.ModId == record.ModId && m.IsAddon == record.IsAddon);
             if (current is null) return new UninstallResult(0, [], 0, null);
 
             profileBackups?.BackupIfChanged(installPath, ProfileBackups.BeforeRemove);
@@ -885,8 +888,9 @@ public sealed class ModInstallService(
         var shared = 0;
         var touchedDirectories = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var removal = stashDirectory is null;
+        var replacedStore = Replaced(installPath);
 
-        var manifest = manifestService.Load();
+        var manifest = manifestService.Load(installPath);
         bool IsThis(InstalledModRecord m) => m.ModId == record.ModId && m.IsAddon == record.IsAddon;
 
         // Every file some other installed mod's record lists.
@@ -965,13 +969,13 @@ public sealed class ModInstallService(
                     var upper = others[above];
                     var theirs = upper.Replaced.Contains(relative, StringComparer.OrdinalIgnoreCase);
 
-                    if (replaced.Contains(relative) && _replaced.HandOver(record.ModId, record.IsAddon, upper.ModId, upper.IsAddon, relative))
+                    if (replaced.Contains(relative) && replacedStore.HandOver(record.ModId, record.IsAddon, upper.ModId, upper.IsAddon, relative))
                     {
                         if (!theirs) others[above] = WithReplaced(upper, [.. upper.Replaced, relative]);
                     }
                     else if (theirs)
                     {
-                        _replaced.Drop(upper.ModId, upper.IsAddon, relative);
+                        replacedStore.Drop(upper.ModId, upper.IsAddon, relative);
                         others[above] = WithReplaced(upper, [.. upper.Replaced.Where(r => !string.Equals(r, relative, StringComparison.OrdinalIgnoreCase))]);
                     }
 
@@ -981,7 +985,7 @@ public sealed class ModInstallService(
                 }
 
                 // What was there before this mod: back in its place.
-                if (removal && replaced.Contains(relative) && _replaced.Restore(installPath, record.ModId, record.IsAddon, relative))
+                if (removal && replaced.Contains(relative) && replacedStore.Restore(installPath, record.ModId, record.IsAddon, relative))
                 {
                     restored++;
                     continue;
@@ -1038,11 +1042,11 @@ public sealed class ModInstallService(
         if (removal)
         {
             // The copies of this mod's own that were never put back (their files already gone).
-            _replaced.DropAll(record.ModId, record.IsAddon);
+            replacedStore.DropAll(record.ModId, record.IsAddon);
 
             manifest.Mods.Clear();
             manifest.Mods.AddRange(others);
-            manifestService.Save(manifest);
+            manifestService.Save(installPath, manifest);
             if (changedOthers) AppLog.Info("Install", $"{record.Name}: handed what was under its files to the mods installed over them");
         }
 
@@ -1089,7 +1093,7 @@ public sealed class ModInstallService(
                 if (!string.Equals(Path.GetFullPath(journal.InstallPath).TrimEnd(Path.DirectorySeparatorChar),
                         Path.GetFullPath(installPath).TrimEnd(Path.DirectorySeparatorChar), StringComparison.OrdinalIgnoreCase)) continue;
 
-                var state = journal.Committed ? true : journal.Record is { } record ? RecordedState(record) : false;
+                var state = journal.Committed ? true : journal.Record is { } record ? RecordedState(installPath, record) : false;
                 if (state is null)
                 {
                     // The manifest cannot be read, so whether it finished cannot be told: left as it is.
@@ -1103,7 +1107,7 @@ public sealed class ModInstallService(
                 {
                     // Written in full: only the tidying up was left - and only while its record is
                     // still the current one; once a later change replaced it, there is nothing to tidy.
-                    if (journal.Record is { } finished && IsRecorded(finished))
+                    if (journal.Record is { } finished && IsRecorded(installPath, finished))
                     {
                         var target = new InstallTarget(journal.ModId, journal.IsAddon, journal.ModName, null, null, null);
                         if (!KeepReplacedCopies(installPath, journal, target, finished.Replaced))

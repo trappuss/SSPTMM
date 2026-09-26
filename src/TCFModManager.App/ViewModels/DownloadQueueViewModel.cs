@@ -830,7 +830,7 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
         await AppServices.ModCache.EnsureLoadedAsync();
         var scanned = await Task.Run(() => InstalledModScanner.Scan(installPath));
         var installedMatches = InstalledModCardViewModel.BuildFrom(
-            scanned, AppServices.ModCache.AllMods, sptVersion, AppServices.InstallManifest.Load().Mods,
+            scanned, AppServices.ModCache.AllMods, sptVersion, AppServices.InstallManifest.Load(installPath).Mods,
             AppServices.Addons.AllAddons);
 
         // Every dependency node is a mod, so addon cards - whose ModId is an addon id - are left

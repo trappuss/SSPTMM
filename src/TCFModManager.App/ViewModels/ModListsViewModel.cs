@@ -693,7 +693,7 @@ public partial class ModListsViewModel : LocalizedViewModel
 
         _recordFolders = _pins.Count == 0
             ? []
-            : AppServices.InstallManifest.Load().Mods
+            : AppServices.InstallManifest.Load(AppServices.SptEnvironment.InstallPath).Mods
                 .GroupBy(r => (r.ModId, r.IsAddon))
                 .ToDictionary(g => g.Key, g => g.SelectMany(r => r.Folders).ToList());
     }

@@ -500,6 +500,7 @@ public partial class ModUpdateDialogViewModel : LocalizedViewModel
     private void ApplyManualVersion(string version, int? versionId)
     {
         if (!CanManageVersion) return;
+        if (AppServices.SptEnvironment.InstallPath is not { Length: > 0 } installPath) return;
 
         var folders = new[] { _mod.ClientFolderName, _mod.ServerFolderName }
             .Where(f => !string.IsNullOrWhiteSpace(f))
@@ -512,7 +513,7 @@ public partial class ModUpdateDialogViewModel : LocalizedViewModel
             if (_catalogAddon is not { } addon) return;
 
             AppServices.InstallManifest.SetManualVersion(
-                addon.Id, guid: null, addon.Name ?? _mod.DisplayTitle, version, versionId, folders, isAddon: true);
+                installPath, addon.Id, guid: null, addon.Name ?? _mod.DisplayTitle, version, versionId, folders, isAddon: true);
             MadeChanges = true;
             return;
         }
@@ -520,7 +521,7 @@ public partial class ModUpdateDialogViewModel : LocalizedViewModel
         if (_catalogMod is not { } catalogMod) return;
 
         AppServices.InstallManifest.SetManualVersion(
-            catalogMod.Id, catalogMod.Guid, catalogMod.Name ?? _mod.DisplayTitle, version, versionId, folders);
+            installPath, catalogMod.Id, catalogMod.Guid, catalogMod.Name ?? _mod.DisplayTitle, version, versionId, folders);
         MadeChanges = true;
     }
 
@@ -532,8 +533,9 @@ public partial class ModUpdateDialogViewModel : LocalizedViewModel
     private void ClearOverride()
     {
         if (_mod.ModId is not { } modId) return;
+        if (AppServices.SptEnvironment.InstallPath is not { Length: > 0 } installPath) return;
 
-        AppServices.InstallManifest.ClearManualVersion(modId, _mod.IsAddon);
+        AppServices.InstallManifest.ClearManualVersion(installPath, modId, _mod.IsAddon);
         MadeChanges = true;
         StatusMessage = Text(Strings.ModUpdate_ClearedOverrideFormat, _mod.DisplayTitle);
     }

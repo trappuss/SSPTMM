@@ -158,33 +158,32 @@ public class AddonManifestFileTests
     [Fact]
     public void SetManualVersion_KeepsAModAndAnAddonWithTheSameIdApart()
     {
-        var manifestPath = Path.Combine(AppPaths.DataDirectory, "installed-mods.json");
-        var backup = File.Exists(manifestPath) ? File.ReadAllText(manifestPath) : null;
+        var data = Path.Combine(Path.GetTempPath(), "tcf-addonrecords-" + Guid.NewGuid().ToString("N"));
+        var install = Path.Combine(data, "SPT");
+        Directory.CreateDirectory(install);
 
         try
         {
-            File.Delete(manifestPath);
-            var service = new ModInstallManifestService();
+            var service = new ModInstallManifestService(data);
 
-            service.SetManualVersion(116, "com.example.mod", "Some Mod", "2.0.0", versionId: 1, folders: ["SomeMod"]);
-            service.SetManualVersion(116, null, "Some Addon", "1.0.1", versionId: 2, folders: ["SomeAddon"], isAddon: true);
+            service.SetManualVersion(install, 116, "com.example.mod", "Some Mod", "2.0.0", versionId: 1, folders: ["SomeMod"]);
+            service.SetManualVersion(install, 116, null, "Some Addon", "1.0.1", versionId: 2, folders: ["SomeAddon"], isAddon: true);
 
-            var records = service.Load().Mods;
+            var records = service.Load(install).Mods;
             Assert.Equal(2, records.Count);
             Assert.Equal("2.0.0", records.Single(r => r is { ModId: 116, IsAddon: false }).Version);
             Assert.Equal("1.0.1", records.Single(r => r is { ModId: 116, IsAddon: true }).Version);
 
             // Clearing one leaves the other exactly as it was.
-            service.ClearManualVersion(116, isAddon: true);
+            service.ClearManualVersion(install, 116, isAddon: true);
 
-            var remaining = Assert.Single(service.Load().Mods);
+            var remaining = Assert.Single(service.Load(install).Mods);
             Assert.False(remaining.IsAddon);
             Assert.Equal("2.0.0", remaining.Version);
         }
         finally
         {
-            if (backup is null) File.Delete(manifestPath);
-            else File.WriteAllText(manifestPath, backup);
+            try { Directory.Delete(data, recursive: true); } catch (IOException) { }
         }
     }
 
