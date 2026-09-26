@@ -498,10 +498,52 @@ public sealed partial class ConfigsViewModel : LocalizedViewModel
         if (SelectedEntry is not null && !filtered.Contains(SelectedEntry) && !IsDirty) SelectedEntry = null;
     }
 
+    //
+    // The copies earlier saves kept of the open file (ModConfigStore.Backup), to bring one back: it
+    // is put in the editor, not written - Save puts it back (keeping a copy of what is there now),
+    // Revert leaves the file as it is.
+    //
+    public ObservableCollection<ConfigBackupRow> Backups { get; } = [];
+
+    public bool HasBackups => Backups.Count > 0;
+
+    [ObservableProperty]
+    private ConfigBackupRow? _selectedBackup;
+
+    partial void OnSelectedBackupChanged(ConfigBackupRow? value)
+    {
+        if (value is null || _loaded is null) return;
+
+        try
+        {
+            EditorText = ModConfigStore.Load(value.Backup.Path).Text;
+            StatusMessage = Text(Strings.Configs_BackupLoadedFormat, value.Label);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            EditorError = Text(Strings.Configs_FileReadFailedFormat, ex.Message);
+        }
+    }
+
+    private void RefreshBackups(ConfigEntryViewModel? entry)
+    {
+        Backups.Clear();
+        _selectedBackup = null;
+        OnPropertyChanged(nameof(SelectedBackup));
+
+        if (entry is not null && AppServices.SptEnvironment.InstallPath is { Length: > 0 } installPath)
+        {
+            foreach (var backup in ModConfigStore.BackupsOf(installPath, entry.FullPath)) Backups.Add(new ConfigBackupRow(backup));
+        }
+
+        OnPropertyChanged(nameof(HasBackups));
+    }
+
     private void Load(ConfigEntryViewModel? entry)
     {
         EditorError = null;
         _loadedEntry = entry;
+        RefreshBackups(entry);
 
         if (entry is null)
         {
@@ -557,6 +599,7 @@ public sealed partial class ConfigsViewModel : LocalizedViewModel
             case ModConfigSaveOutcome.Saved:
                 _loaded = result.Saved;
                 IsDirty = false;
+                RefreshBackups(entry);
                 StatusMessage = result.BackupPath is null
                     ? Text(Strings.Configs_SavedFormat, entry.FileName)
                     : Text(
@@ -679,4 +722,11 @@ public sealed partial class ConfigsViewModel : LocalizedViewModel
             ? Strings.Configs_RunningBepInEx(blockers.Count, TextLists.Join(blockers))
             : Strings.Configs_RunningServer(blockers.Count, TextLists.Join(blockers));
     }
+}
+
+/// <summary>A kept copy of a config in the earlier-versions picker, with its time as the user's
+/// culture writes it.</summary>
+public sealed record ConfigBackupRow(ModConfigBackup Backup)
+{
+    public string Label { get; } = Backup.SavedAt.ToString("g", System.Globalization.CultureInfo.CurrentCulture);
 }

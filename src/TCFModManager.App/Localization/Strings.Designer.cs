@@ -1797,4 +1797,6 @@ internal static class Strings
     internal static string Play_ServerLog => LocalizationService.Get("Play_ServerLog");
     internal static string Play_ServerLogNone => LocalizationService.Get("Play_ServerLogNone");
     internal static string Play_ServerLogOpenFolder => LocalizationService.Get("Play_ServerLogOpenFolder");
+    internal static string Configs_BackupsToolTip => LocalizationService.Get("Configs_BackupsToolTip");
+    internal static string Configs_BackupLoadedFormat => LocalizationService.Get("Configs_BackupLoadedFormat");
 }

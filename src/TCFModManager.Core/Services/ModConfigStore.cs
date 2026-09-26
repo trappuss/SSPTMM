@@ -216,6 +216,36 @@ public static class ModConfigStore
         return index < 0 ? message : message[..index].Trim();
     }
 
+    /// <summary>The copies of a config kept by earlier saves (Backup), newest first.</summary>
+    public static IReadOnlyList<ModConfigBackup> BackupsOf(string installPath, string path)
+    {
+        if (!Directory.Exists(BackupDirectory)) return [];
+
+        var relative = RelativeForBackup(installPath, path);
+        var found = new List<ModConfigBackup>();
+
+        try
+        {
+            foreach (var dir in Directory.EnumerateDirectories(BackupDirectory))
+            {
+                // "yyyyMMdd-HHmmss", or "yyyyMMdd-HHmmss-2" for a second save in the same second.
+                var name = Path.GetFileName(dir);
+                if (name.Length < 15 || !DateTime.TryParseExact(name[..15], "yyyyMMdd-HHmmss",
+                        System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var savedAt))
+                    continue;
+
+                var copy = Path.Combine(dir, relative);
+                if (File.Exists(copy)) found.Add(new ModConfigBackup(copy, savedAt, name));
+            }
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            AppLog.Warn("Configs", $"couldn't list the backups of {Path.GetFileName(path)}: {ex.Message}");
+        }
+
+        return [.. found.OrderByDescending(b => b.SavedAt).ThenByDescending(b => b.Folder, StringComparer.Ordinal)];
+    }
+
     // The config file's path relative to the install, or just its name when it sits outside one.
     private static string RelativeForBackup(string installPath, string path)
     {
@@ -227,3 +257,7 @@ public static class ModConfigStore
     }
 
 }
+
+/// <summary>One kept copy of a config: where it is, and when the save that kept it was made
+/// (local time).</summary>
+public sealed record ModConfigBackup(string Path, DateTime SavedAt, string Folder);

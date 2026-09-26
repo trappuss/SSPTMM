@@ -6760,4 +6760,12 @@ Install it? It can be removed like any other.</value>
     <value>Open logs folder</value>
     <comment>Button: open the server's logs folder.</comment>
   </data>
+  <data name="Configs_BackupsToolTip" xml:space="preserve">
+    <value>Earlier versions of this file, kept each time it was saved here. Picking one puts it in the editor - Save to put it back (what is there now is kept too), Revert to leave the file as it is.</value>
+    <comment>Tooltip on the earlier-versions picker.</comment>
+  </data>
+  <data name="Configs_BackupLoadedFormat" xml:space="preserve">
+    <value>The copy kept on {0} is in the editor. Save to put it back, or Revert to leave the file as it is.</value>
+    <comment>{0} when the copy was kept.</comment>
+  </data>
 </root>

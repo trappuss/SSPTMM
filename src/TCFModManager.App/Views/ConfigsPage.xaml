@@ -274,6 +274,22 @@
                             ToolTip="{loc:Str Configs_CopyPathToolTip}"
                             Icon="{ui:SymbolIcon Copy24}"
                             Command="{Binding CopyPathCommand}" />
+                        <!-- The copies earlier saves kept: one picked goes into the editor, not the file. -->
+                        <ComboBox
+                            DockPanel.Dock="Right"
+                            Margin="0,0,8,0"
+                            MinWidth="190"
+                            VerticalAlignment="Center"
+                            ToolTip="{loc:Str Configs_BackupsToolTip}"
+                            ItemsSource="{Binding Backups}"
+                            SelectedItem="{Binding SelectedBackup}"
+                            Visibility="{Binding HasBackups, Converter={StaticResource BoolToVis}}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Label}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
 
                         <StackPanel>
                             <TextBlock

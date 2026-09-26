@@ -251,4 +251,18 @@ public class ModConfigStoreTests : IDisposable
         Assert.True(result.Succeeded);
         Assert.Equal("{ enabled: false, 'name': 'x', }", File.ReadAllText(path));
     }
+
+    [Fact]
+    public void BackupsOf_ListsTheCopiesKeptOfThatFile_NewestFirst()
+    {
+        var path = WriteFile("BepInEx/config/listed.cfg", "v0");
+        var first = Save(path, "v1", ModConfigStore.Load(path));
+        Save(path, "v2", first.Saved!);
+        var other = WriteFile("BepInEx/config/other.cfg", "x");
+        Save(other, "y", ModConfigStore.Load(other));
+
+        var backups = ModConfigStore.BackupsOf(_installRoot, path);
+
+        Assert.Equal(["v1", "v0"], backups.Select(b => File.ReadAllText(b.Path)));
+    }
 }
