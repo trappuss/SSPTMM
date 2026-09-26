@@ -3109,9 +3109,6 @@ Sauvegardez votre profil avant de continuer si vous y tenez.</value>
   <data name="ModUpdate_DowngradeCancelled" xml:space="preserve">
     <value>Rétrogradation annulée.</value>
   </data>
-  <data name="ModUpdate_DowngradeCancelledUnreadFormat" xml:space="preserve">
-    <value>Rétrogradation annulée - la page de {0} n'a pas été confirmée comme lue.</value>
-  </data>
   <data name="ModUpdate_DowngradeTitleFormat" xml:space="preserve">
     <value>Rétrograder {0} vers {1} ?</value>
   </data>
@@ -3190,9 +3187,6 @@ Sauvegardez votre profil avant de continuer si vous y tenez.</value>
   <data name="ModUpdate_Redownload" xml:space="preserve">
     <value>Retélécharger</value>
   </data>
-  <data name="ModUpdate_RedownloadCancelledFormat" xml:space="preserve">
-    <value>Retéléchargement annulé - la page de {0} n'a pas été confirmée comme lue.</value>
-  </data>
   <data name="ModUpdate_Set" xml:space="preserve">
     <value>Définir</value>
   </data>
@@ -3210,9 +3204,6 @@ Sauvegardez votre profil avant de continuer si vous y tenez.</value>
   </data>
   <data name="ModUpdate_Update" xml:space="preserve">
     <value>Mettre à jour</value>
-  </data>
-  <data name="ModUpdate_UpdateCancelledFormat" xml:space="preserve">
-    <value>Mise à jour annulée - la page de {0} n'a pas été confirmée comme lue.</value>
   </data>
   <data name="ModUpdate_VersionCompatible" xml:space="preserve">
     <value>Compatible avec votre version de SPT installée</value>

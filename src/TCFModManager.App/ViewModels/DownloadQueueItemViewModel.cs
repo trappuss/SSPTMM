@@ -331,6 +331,12 @@ public sealed partial class DownloadQueueItemViewModel : LocalizedViewModel
 
     internal Task<ModVersion?> ResolveVersionAsync() => _resolveVersion();
 
+    // Set once the item is prepared: the version being installed, and its archive - downloading,
+    // or there - for the install to wait for.
+    internal ModVersion? Version { get; set; }
+
+    internal Task<string>? Archive { get; set; }
+
     internal void AddDependency(DownloadQueueItemViewModel item) => _dependencies.Add(item);
 
     // Cancels this item and every dependency queued on its behalf. A still-pending item is

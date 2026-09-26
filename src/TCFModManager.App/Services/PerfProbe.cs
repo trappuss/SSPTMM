@@ -30,6 +30,16 @@ public static class PerfProbe
         if (IsOn) AppLog.Info("Perf", opened ? "item page opened" : "item page closed");
     }
 
+    /// <summary>When measuring, hands <paramref name="log"/> how long something took, in ms: to here
+    /// (made), and to the end of the layout and drawing that followed (on screen).</summary>
+    public static void Timed(Stopwatch timer, System.Windows.Threading.Dispatcher dispatcher, Action<double, double> log)
+    {
+        if (!IsOn) return;
+
+        var made = timer.Elapsed.TotalMilliseconds;
+        dispatcher.BeginInvoke(() => log(made, timer.Elapsed.TotalMilliseconds), System.Windows.Threading.DispatcherPriority.Loaded);
+    }
+
     // Whether anything scrolled since the last line.
     private static bool _scrolled;
 
@@ -49,6 +59,26 @@ public static class PerfProbe
             }));
 
         AppNavigation.Navigated += (_, page) => AppLog.Info("Perf", $"page {page.Name}");
+
+        // Anything that held the UI thread for 50ms or more, by what it was - so a stall in the
+        // numbers above can be put down to its cause rather than guessed at. (A stall with no line
+        // here was spent drawing, not in the app's own work.)
+        var started = new Dictionary<System.Windows.Threading.DispatcherOperation, long>();
+        var hooks = System.Windows.Threading.Dispatcher.CurrentDispatcher.Hooks;
+        var methodField = typeof(System.Windows.Threading.DispatcherOperation).GetField(
+            "_method", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        hooks.OperationStarted += (_, e) => started[e.Operation] = Stopwatch.GetTimestamp();
+        hooks.OperationAborted += (_, e) => started.Remove(e.Operation);
+        hooks.OperationCompleted += (_, e) =>
+        {
+            if (!started.Remove(e.Operation, out var began)) return;
+
+            var ms = (Stopwatch.GetTimestamp() - began) * 1000.0 / Stopwatch.Frequency;
+            if (ms < 50) return;
+
+            var method = (methodField?.GetValue(e.Operation) as Delegate)?.Method;
+            AppLog.Info("Perf", FormattableString.Invariant($"busy {ms:F0}ms: {method?.DeclaringType?.FullName}.{method?.Name} ({e.Operation.Priority})"));
+        };
 
         var frames = 0;
         var worst = 0.0;

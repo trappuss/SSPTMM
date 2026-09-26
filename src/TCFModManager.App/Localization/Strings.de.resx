@@ -3109,9 +3109,6 @@ Sicher dein Profil, bevor du fortfährst, wenn es dir wichtig ist.</value>
   <data name="ModUpdate_DowngradeCancelled" xml:space="preserve">
     <value>Herabstufung abgebrochen.</value>
   </data>
-  <data name="ModUpdate_DowngradeCancelledUnreadFormat" xml:space="preserve">
-    <value>Herabstufung abgebrochen - die Seite von {0} wurde nicht als gelesen bestätigt.</value>
-  </data>
   <data name="ModUpdate_DowngradeTitleFormat" xml:space="preserve">
     <value>{0} auf {1} herabstufen?</value>
   </data>
@@ -3190,9 +3187,6 @@ Sicher dein Profil, bevor du fortfährst, wenn es dir wichtig ist.</value>
   <data name="ModUpdate_Redownload" xml:space="preserve">
     <value>Erneut herunterladen</value>
   </data>
-  <data name="ModUpdate_RedownloadCancelledFormat" xml:space="preserve">
-    <value>Erneutes Herunterladen abgebrochen - die Seite von {0} wurde nicht als gelesen bestätigt.</value>
-  </data>
   <data name="ModUpdate_Set" xml:space="preserve">
     <value>Setzen</value>
   </data>
@@ -3210,9 +3204,6 @@ Sicher dein Profil, bevor du fortfährst, wenn es dir wichtig ist.</value>
   </data>
   <data name="ModUpdate_Update" xml:space="preserve">
     <value>Aktualisieren</value>
-  </data>
-  <data name="ModUpdate_UpdateCancelledFormat" xml:space="preserve">
-    <value>Update abgebrochen - die Seite von {0} wurde nicht als gelesen bestätigt.</value>
   </data>
   <data name="ModUpdate_VersionCompatible" xml:space="preserve">
     <value>Kompatibel mit deiner installierten SPT-Version</value>

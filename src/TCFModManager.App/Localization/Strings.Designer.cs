@@ -972,9 +972,6 @@ internal static class Strings
     internal static string ModUpdate_HandInstalledUpdateBody => LocalizationService.Get("ModUpdate_HandInstalledUpdateBody");
     internal static string ModUpdate_HandInstalledRedownloadBody => LocalizationService.Get("ModUpdate_HandInstalledRedownloadBody");
     internal static string ModUpdate_HandInstalledDowngradeBody => LocalizationService.Get("ModUpdate_HandInstalledDowngradeBody");
-    internal static string ModUpdate_UpdateCancelledFormat => LocalizationService.Get("ModUpdate_UpdateCancelledFormat");
-    internal static string ModUpdate_RedownloadCancelledFormat => LocalizationService.Get("ModUpdate_RedownloadCancelledFormat");
-    internal static string ModUpdate_DowngradeCancelledUnreadFormat => LocalizationService.Get("ModUpdate_DowngradeCancelledUnreadFormat");
     internal static string ModUpdate_QueuedFormat => LocalizationService.Get("ModUpdate_QueuedFormat");
     internal static string ModUpdate_RecordedFormat => LocalizationService.Get("ModUpdate_RecordedFormat");
     internal static string ModUpdate_MarkedUpToDateFormat => LocalizationService.Get("ModUpdate_MarkedUpToDateFormat");
@@ -1590,4 +1587,21 @@ internal static class Strings
         LocalizationService.Plural("RemoveCheck_NeededIntro", count, values);
     internal static string RemoveCheck_FoldersIntro(int count, params object?[] values) =>
         LocalizationService.Plural("RemoveCheck_FoldersIntro", count, values);
+    internal static string ReadModPage_ReaderIntro => LocalizationService.Get("ReadModPage_ReaderIntro");
+    internal static string ReadModPage_Read => LocalizationService.Get("ReadModPage_Read");
+    internal static string ReadModPage_Hide => LocalizationService.Get("ReadModPage_Hide");
+    internal static string ReadModPage_Loading => LocalizationService.Get("ReadModPage_Loading");
+    internal static string ReadModPage_LoadFailed => LocalizationService.Get("ReadModPage_LoadFailed");
+    internal static string ReadModPage_Empty => LocalizationService.Get("ReadModPage_Empty");
+    internal static string ReadModPage_ChangeNotesFormat => LocalizationService.Get("ReadModPage_ChangeNotesFormat");
+    internal static string Downloads_UsingKept => LocalizationService.Get("Downloads_UsingKept");
+    internal static string Downloads_WaitingToDownload => LocalizationService.Get("Downloads_WaitingToDownload");
+    internal static string Downloads_WaitingToInstall => LocalizationService.Get("Downloads_WaitingToInstall");
+    internal static string Downloads_RetryingFormat => LocalizationService.Get("Downloads_RetryingFormat");
+    internal static string Options_DownloadsHeader => LocalizationService.Get("Options_DownloadsHeader");
+    internal static string Options_DownloadsDescription => LocalizationService.Get("Options_DownloadsDescription");
+    internal static string Options_DownloadsSwitchOn => LocalizationService.Get("Options_DownloadsSwitchOn");
+    internal static string Options_DownloadsSwitchOff => LocalizationService.Get("Options_DownloadsSwitchOff");
+    internal static string Options_DownloadsClear => LocalizationService.Get("Options_DownloadsClear");
+    internal static string Options_DownloadsSizeFormat => LocalizationService.Get("Options_DownloadsSizeFormat");
 }

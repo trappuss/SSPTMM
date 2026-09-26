@@ -119,7 +119,14 @@ public partial class BrowsePage : Page
         if (!ViewModel.HasMore) return;
 
         var remaining = PageScroll.ExtentHeight - PageScroll.ViewportHeight - PageScroll.VerticalOffset;
-        if (remaining <= LoadMoreDistance) ViewModel.LoadMore();
+        if (remaining > LoadMoreDistance) return;
+
+        var timer = System.Diagnostics.Stopwatch.StartNew();
+        if (ViewModel.LoadMore())
+        {
+            Services.PerfProbe.Timed(timer, Dispatcher, (made, shown) =>
+                AppLog.Info("Perf", FormattableString.Invariant($"browse: more cards made in {made:F0}ms, on screen in {shown:F0}ms")));
+        }
     }
 
     //

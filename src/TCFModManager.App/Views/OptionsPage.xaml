@@ -305,6 +305,34 @@
             </StackPanel>
         </ui:Card>
 
+        <!-- Several downloads at once, and whether downloaded files are kept for next time. -->
+        <ui:Card Padding="16" VerticalAlignment="Top" Margin="0,16,0,0">
+            <StackPanel>
+                <TextBlock
+                    Text="{loc:Str Options_DownloadsHeader}"
+                    FontWeight="SemiBold"
+                    Margin="0,0,0,4" />
+                <TextBlock
+                    TextWrapping="Wrap"
+                    Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                    Margin="0,0,0,8"
+                    Text="{loc:Str Options_DownloadsDescription}" />
+                <ui:ToggleSwitch
+                    HorizontalAlignment="Left"
+                    IsChecked="{Binding KeepDownloads}"
+                    OnContent="{loc:Str Options_DownloadsSwitchOn}"
+                    OffContent="{loc:Str Options_DownloadsSwitchOff}" />
+                <StackPanel Margin="0,10,0,0" Orientation="Horizontal">
+                    <ui:Button Content="{loc:Str Options_DownloadsClear}" Command="{Binding ClearKeptDownloadsCommand}" />
+                    <TextBlock
+                        Margin="12,0,0,0"
+                        VerticalAlignment="Center"
+                        Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                        Text="{Binding KeptDownloadsLabel}" />
+                </StackPanel>
+            </StackPanel>
+        </ui:Card>
+
         <!-- Whether removing an item asks first; the question's "Don't ask again" turns this off. -->
         <ui:Card Padding="16" VerticalAlignment="Top" Margin="0,16,0,0">
             <StackPanel>

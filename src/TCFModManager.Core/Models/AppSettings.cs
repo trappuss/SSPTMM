@@ -65,6 +65,13 @@ public sealed class AppSettings
     public bool ConfirmUnsubscribe { get; set; } = true;
 
     //
+    // Whether downloaded archives are kept (Data\Downloads, within ModArchiveCache's budget) so a
+    // version installed again - subscribed to again, put back, a mod list re-applied - is not
+    // downloaded again. On by default.
+    //
+    public bool KeepDownloads { get; set; } = true;
+
+    //
     // The sp-mod.com authors followed from the Workshop pages, by their sp-mod.com user id (names
     // can change); the name is kept for showing. Their newest items head the Workshop's front page
     // and Browse can show only theirs, as Steam does for the authors you follow.

@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
+using System.IO;
 using System.Net.Http;
 using System.Threading.Channels;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -13,13 +14,41 @@ using TCFModManager.Core.SpModApi;
 
 namespace TCFModManager.App.ViewModels;
 
-// App-lifetime download queue that processes one download/install at a time and resolves each item's dependencies before installing it.
+//
+// App-lifetime download queue. Each item goes through three stages:
+//
+//   1. Prepare, one item at a time in the order queued: its version is looked up and its
+//      dependencies asked about - so questions come one after another, in order.
+//   2. Download, up to MaxDownloads at once, started as soon as an item is prepared - or read
+//      from the archives kept from before (ModArchiveCache), with nothing downloaded.
+//   3. Install, one item at a time in the order queued, each as soon as its download is there -
+//      installs write into the same folders, so they never overlap.
+//
+// So a mod list of forty downloads three at a time while the first ones install, where it used to
+// download and install one after another.
+//
 public sealed partial class DownloadQueueViewModel : LocalizedViewModel
 {
     private static string Text(string format, params object?[] values) =>
         LocalizationService.Text(format, values);
 
+    // Stage 1's queue, and stage 3's.
     private readonly Channel<DownloadQueueItemViewModel> _channel = Channel.CreateUnbounded<DownloadQueueItemViewModel>();
+    private readonly Channel<DownloadQueueItemViewModel> _installs = Channel.CreateUnbounded<DownloadQueueItemViewModel>();
+
+    // How many downloads run at once. Three keeps a slow host from holding up the rest without
+    // opening more connections at once than a browser would to one site.
+    private const int MaxDownloads = 3;
+    private readonly SemaphoreSlim _downloadSlots = new(MaxDownloads);
+
+    // Archives downloaded before, and the ones in use now (being written, or waiting to install),
+    // which tidying never deletes. Touched on the UI thread only.
+    private readonly ModArchiveCache _archives = new(ModArchiveCache.DefaultDirectory, ModArchiveCache.DefaultBudget);
+    private readonly HashSet<string> _archivesInUse = new(StringComparer.OrdinalIgnoreCase);
+
+    // A download that fails in a way that can pass (the connection dropped, the host busy) is
+    // tried again after these waits, as pictures are.
+    private static readonly TimeSpan[] RetryDelays = [TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(6)];
 
     public ObservableCollection<DownloadQueueItemViewModel> Items { get; } = [];
 
@@ -62,7 +91,21 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
 
     public DownloadQueueViewModel()
     {
-        _ = ProcessQueueAsync();
+        _ = PrepareLoopAsync();
+        _ = InstallLoopAsync();
+
+        // Leftovers from downloads the app was closed during, and anything over the budget.
+        Task.Run(() => _archives.Trim(new HashSet<string>()));
+    }
+
+    /// <summary>What the kept archives take up, in bytes.</summary>
+    public long KeptDownloadsSize() => _archives.Size();
+
+    /// <summary>Deletes the kept archives, except those the queue is using now.</summary>
+    public void ClearKeptDownloads()
+    {
+        _archives.Clear(_archivesInUse);
+        AppLog.Info("Downloads", "kept downloads cleared");
     }
 
     // Adds a request to the end of the queue and returns immediately; the download/install
@@ -177,16 +220,28 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
         UpdateSummary();
     }
 
-    // FIFO single-reader loop that processes one item at a time for the entire app session. A failed item doesn't stop the loop.
-    private async Task ProcessQueueAsync()
+    // Stage 1, one item at a time in the order queued, for the whole session. A failed item
+    // doesn't stop the loop.
+    private async Task PrepareLoopAsync()
     {
         await foreach (var item in _channel.Reader.ReadAllAsync())
         {
-            await ProcessItemAsync(item);
+            await PrepareAsync(item);
         }
     }
 
-    private async Task ProcessItemAsync(DownloadQueueItemViewModel item)
+    // Stage 3, likewise.
+    private async Task InstallLoopAsync()
+    {
+        await foreach (var item in _installs.Reader.ReadAllAsync())
+        {
+            await InstallAsync(item);
+        }
+    }
+
+    // Looks the version up, asks about its dependencies, and starts its download (stage 2), then
+    // hands it to the installs.
+    private async Task PrepareAsync(DownloadQueueItemViewModel item)
     {
         // Cancelled while it sat in the queue behind something else.
         if (item.Status == DownloadQueueItemStatus.Cancelled || item.Token.IsCancellationRequested)
@@ -214,7 +269,7 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
 
             item.Token.ThrowIfCancellationRequested();
 
-            // Checked before this item's own download starts, so an accepted missing dependency
+            // Asked before this item's own download starts, so an accepted missing dependency
             // lands right behind it in the queue.
             if (item.CheckDependencies)
             {
@@ -224,7 +279,101 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
 
             item.Token.ThrowIfCancellationRequested();
 
-            // Core reports which stage it is in; every phase but the download itself (removing the
+            item.Version = version;
+            item.Archive = FetchArchiveAsync(item, version);
+            _installs.Writer.TryWrite(item);
+        }
+        catch (Exception ex)
+        {
+            Settle(item, ex);
+        }
+    }
+
+    // Stage 2: the archive for this item, from the ones kept or downloaded now, as a file path.
+    private async Task<string> FetchArchiveAsync(DownloadQueueItemViewModel item, ModVersion version)
+    {
+        var keep = new SettingsService().Load().KeepDownloads;
+
+        if (keep && _archives.TryGet(item.Target, version, out var kept))
+        {
+            _archivesInUse.Add(kept);
+            item.Progress = 1.0;
+            item.StatusMessage = Strings.Downloads_UsingKept;
+            AppLog.Info("Downloads", $"{item.ModName} {item.VersionLabel}: using the archive kept from before");
+            return kept;
+        }
+
+        // A one-off file when not keeping - or when the same version is being fetched for another
+        // card already, which must not share its file.
+        var keptPath = keep ? _archives.PathFor(item.Target, version) : null;
+        var path = keptPath is not null && !_archivesInUse.Contains(keptPath) ? keptPath : _archives.TemporaryPath();
+        var part = ModArchiveCache.PartPathFor(path);
+        _archivesInUse.Add(path);
+
+        item.StatusMessage = Strings.Downloads_WaitingToDownload;
+        await _downloadSlots.WaitAsync(item.Token);
+        try
+        {
+            var progress = new Progress<double>(p => item.Progress = p);
+
+            for (var attempt = 0; ; attempt++)
+            {
+                item.StatusMessage = ModInstallWording.Describe(
+                    new ModInstallProgress(ModInstallStage.Downloading, item.ModName, version.Version));
+                try
+                {
+                    await AppServices.Downloads.DownloadAsync(version.Link!, part, progress, item.Token);
+                    File.Move(part, path, overwrite: true);
+                    break;
+                }
+                catch (Exception ex) when (attempt < RetryDelays.Length && IsPassing(ex) && !item.Token.IsCancellationRequested)
+                {
+                    var wait = RetryDelays[attempt];
+                    AppLog.Info("Downloads", $"{item.ModName} {item.VersionLabel}: {ex.Message} - trying again in {wait.TotalSeconds:F0}s");
+                    item.Progress = 0;
+                    item.StatusMessage = Text(Strings.Downloads_RetryingFormat, wait.TotalSeconds);
+                    await Task.Delay(wait, item.Token);
+                }
+            }
+        }
+        catch
+        {
+            _archivesInUse.Remove(path);
+            TryDelete(part);
+            throw;
+        }
+        finally
+        {
+            _downloadSlots.Release();
+        }
+
+        item.StatusMessage = Strings.Downloads_WaitingToInstall;
+        return path;
+    }
+
+    // A failure that may not happen again: the connection dropped or timed out, the host was busy
+    // or failing (5xx, 408, 429), or the file arrived short. A refusal (403, 404) will not change.
+    private static bool IsPassing(Exception ex) => ex switch
+    {
+        HttpRequestException { StatusCode: null } => true,
+        HttpRequestException { StatusCode: var code } => (int)code! >= 500 || (int)code == 408 || (int)code == 429,
+        ModInstallException { Reason: ModInstallFailure.DownloadIncomplete } => true,
+        TaskCanceledException => true,
+        IOException => true,
+        _ => false,
+    };
+
+    // Stage 3.
+    private async Task InstallAsync(DownloadQueueItemViewModel item)
+    {
+        string? archive = null;
+        try
+        {
+            archive = await item.Archive!;
+
+            item.Token.ThrowIfCancellationRequested();
+
+            // Core reports which stage it is in; every phase past the download (removing the
             // previous version, extracting, copying files) is bucketed under Installing.
             var status = new Progress<ModInstallProgress>(p =>
             {
@@ -233,10 +382,11 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
                     ? DownloadQueueItemStatus.Downloading
                     : DownloadQueueItemStatus.Installing;
             });
-            var downloadProgress = new Progress<double>(p => item.Progress = p);
+
+            item.Status = DownloadQueueItemStatus.Installing;
 
             var result = await AppServices.ModInstall.InstallAsync(
-                item.Target, version, item.InstallPath, status, downloadProgress, item.Token);
+                item.Target, item.Version!, item.InstallPath, status, null, item.Token, downloadedArchive: archive);
 
             item.Status = DownloadQueueItemStatus.Completed;
             item.Progress = 1.0;
@@ -252,45 +402,79 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
                 : string.Join(Strings.Common_SentenceSeparator, installed, configs);
             ItemInstalled?.Invoke(this, EventArgs.Empty);
         }
-        catch (OperationCanceledException) when (item.Token.IsCancellationRequested)
-        {
-            item.Status = DownloadQueueItemStatus.Cancelled;
-            item.Progress = 0;
-            item.StatusMessage = Text(
-                Strings.Downloads_CancelledItemFormat, item.ModName, item.VersionLabel);
-        }
-        catch (SpModApiRateLimitedException ex)
-        {
-            item.Status = DownloadQueueItemStatus.Failed;
-            item.StatusMessage = ApiProblems.Describe(ex);
-        }
-        catch (SpModApiException ex)
-        {
-            item.Status = DownloadQueueItemStatus.Failed;
-            item.StatusMessage = ApiProblems.Describe(ex);
-        }
-        catch (HttpRequestException ex)
-        {
-            item.Status = DownloadQueueItemStatus.Failed;
-            item.StatusMessage = ApiProblems.Describe(ex);
-        }
-        catch (ModInstallException ex)
-        {
-            // ModInstallService refused or gave up part way; ModInstallProblems words it.
-            item.Status = DownloadQueueItemStatus.Failed;
-            item.StatusMessage = ModInstallProblems.Describe(ex);
-        }
-        catch (InvalidOperationException ex)
-        {
-            // Anything else that reached here already carries a readable message of its own.
-            item.Status = DownloadQueueItemStatus.Failed;
-            item.StatusMessage = ex.Message;
-        }
         catch (Exception ex)
         {
-            item.Status = DownloadQueueItemStatus.Failed;
-            item.StatusMessage = Text(Strings.Downloads_UnexpectedFormat, ex.Message);
+            Settle(item, ex);
         }
+        finally
+        {
+            if (archive is not null) Release(archive);
+        }
+    }
+
+    // Done with an archive: kept (within the budget) when downloads are kept, deleted otherwise.
+    private void Release(string archive)
+    {
+        _archivesInUse.Remove(archive);
+
+        if (new SettingsService().Load().KeepDownloads && !Path.GetFileName(archive).StartsWith("once-", StringComparison.Ordinal))
+            _archives.Trim(_archivesInUse);
+        else
+            TryDelete(archive);
+    }
+
+    private static void TryDelete(string path)
+    {
+        try
+        {
+            File.Delete(path);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            AppLog.Debug("Downloads", $"couldn't delete {path}: {ex.Message}");
+        }
+    }
+
+    // Says how an item stopped, whichever stage it stopped in.
+    private static void Settle(DownloadQueueItemViewModel item, Exception exception)
+    {
+        switch (exception)
+        {
+            case OperationCanceledException when item.Token.IsCancellationRequested:
+                item.Status = DownloadQueueItemStatus.Cancelled;
+                item.Progress = 0;
+                item.StatusMessage = Text(
+                    Strings.Downloads_CancelledItemFormat, item.ModName, item.VersionLabel);
+                return;
+
+            case SpModApiRateLimitedException ex:
+                item.StatusMessage = ApiProblems.Describe(ex);
+                break;
+
+            case SpModApiException ex:
+                item.StatusMessage = ApiProblems.Describe(ex);
+                break;
+
+            case HttpRequestException ex:
+                item.StatusMessage = ApiProblems.Describe(ex);
+                break;
+
+            case ModInstallException ex:
+                // ModInstallService refused or gave up part way; ModInstallProblems words it.
+                item.StatusMessage = ModInstallProblems.Describe(ex);
+                break;
+
+            case InvalidOperationException ex:
+                // Anything else that reached here already carries a readable message of its own.
+                item.StatusMessage = ex.Message;
+                break;
+
+            default:
+                item.StatusMessage = Text(Strings.Downloads_UnexpectedFormat, exception.Message);
+                break;
+        }
+
+        item.Status = DownloadQueueItemStatus.Failed;
     }
 
     // Resolves item's full dependency tree for the version being installed, cross-references it against
@@ -411,7 +595,10 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
         missing
             .Select(d => new ModPageLink(
                 d.Mod.Name ?? d.Node.Name ?? Text(Strings.Downloads_UnnamedModFormat, d.Node.Id),
-                d.Mod.DetailUrl))
+                d.Mod.DetailUrl)
+            {
+                ModId = d.Node.Id,
+            })
             .ToList();
 
     /// <summary>Queues each missing dependency behind <paramref name="item"/>, as one of its own:

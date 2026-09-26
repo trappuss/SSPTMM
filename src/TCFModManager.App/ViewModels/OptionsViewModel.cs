@@ -132,8 +132,52 @@ public partial class OptionsViewModel : LocalizedViewModel
         }
     }
 
-    /// <summary>Settings another part of the app can change while this page is open, read again.</summary>
-    public void Reload() => SetProperty(ref _confirmUnsubscribe, _settings.Load().ConfirmUnsubscribe, nameof(ConfirmUnsubscribe));
+    /// <summary>Settings another part of the app can change while this page is open, read again,
+    /// and what the kept downloads take up now.</summary>
+    public void Reload()
+    {
+        SetProperty(ref _confirmUnsubscribe, _settings.Load().ConfirmUnsubscribe, nameof(ConfirmUnsubscribe));
+        RefreshKeptDownloads();
+    }
+
+    // Whether downloaded archives are kept - see AppSettings.KeepDownloads.
+    [ObservableProperty]
+    private bool _keepDownloads;
+
+    partial void OnKeepDownloadsChanged(bool value)
+    {
+        if (!_loaded) return;
+
+        var settings = _settings.Load();
+        settings.KeepDownloads = value;
+        _settings.Save(settings);
+
+        AppLog.Info("Options", value ? "downloads kept" : "downloads not kept");
+    }
+
+    // "Kept now: 85.3 MB".
+    [ObservableProperty]
+    private string _keptDownloadsLabel = string.Empty;
+
+    private async void RefreshKeptDownloads()
+    {
+        try
+        {
+            var bytes = await Task.Run(AppServices.DownloadQueue.KeptDownloadsSize);
+            KeptDownloadsLabel = Text(Strings.Options_DownloadsSizeFormat, DownloadQueueItemViewModel.SizeLabel(bytes));
+        }
+        catch (Exception ex)
+        {
+            AppLog.Warn("Options", $"couldn't size the kept downloads: {ex.Message}");
+        }
+    }
+
+    [RelayCommand]
+    private void ClearKeptDownloads()
+    {
+        AppServices.DownloadQueue.ClearKeptDownloads();
+        RefreshKeptDownloads();
+    }
 
     // Same arrangement as ModPageGate: one description of the setting, shared with the nav item.
     public FootprintGateViewModel FootprintGate => AppServices.FootprintGate;
@@ -242,6 +286,7 @@ public partial class OptionsViewModel : LocalizedViewModel
         _startLauncherAfterServer = settings.StartLauncherAfterServer;
         _smoothScrolling = settings.SmoothScrolling;
         _confirmUnsubscribe = settings.ConfirmUnsubscribe;
+        _keepDownloads = settings.KeepDownloads;
 
         _selectedWindowStartup = WindowStartupOptions.FirstOrDefault(o => o.Value == settings.Window.StartupMode)
             ?? WindowStartupOptions[0];

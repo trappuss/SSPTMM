@@ -42,5 +42,12 @@ public sealed record ModListPrompts(
     public static ModListPrompts Default { get; } = new(
         ModListVersionChangeWindow.Approve,
         downloads => ReadModPageConfirmationWindow.ConfirmAll(
-            [.. downloads.Select(d => new ModPageLink(d.Target.Name, d.Target.DetailUrl))]));
+            [.. downloads.Select(d => new ModPageLink(d.Target.Name, d.Target.DetailUrl)
+            {
+                ModId = d.Target.Id,
+                IsAddon = d.Target.IsAddon,
+
+                // An update's change notes; a mod new to the install, its page.
+                ChangeNotesVersion = d.Action.Kind == ModListActionKind.Update ? d.Version.Version : null,
+            })]));
 }

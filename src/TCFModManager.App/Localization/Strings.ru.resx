@@ -3283,9 +3283,6 @@
   <data name="ModUpdate_DowngradeCancelled" xml:space="preserve">
     <value>Откат отменён.</value>
   </data>
-  <data name="ModUpdate_DowngradeCancelledUnreadFormat" xml:space="preserve">
-    <value>Откат отменён - страница мода {0} не отмечена как прочитанная.</value>
-  </data>
   <data name="ModUpdate_DowngradeTitleFormat" xml:space="preserve">
     <value>Откатить {0} до {1}?</value>
   </data>
@@ -3367,9 +3364,6 @@
   <data name="ModUpdate_Redownload" xml:space="preserve">
     <value>Скачать заново</value>
   </data>
-  <data name="ModUpdate_RedownloadCancelledFormat" xml:space="preserve">
-    <value>Повторная загрузка отменена - страница мода {0} не отмечена как прочитанная.</value>
-  </data>
   <data name="ModUpdate_Set" xml:space="preserve">
     <value>Задать</value>
   </data>
@@ -3387,9 +3381,6 @@
   </data>
   <data name="ModUpdate_Update" xml:space="preserve">
     <value>Обновить</value>
-  </data>
-  <data name="ModUpdate_UpdateCancelledFormat" xml:space="preserve">
-    <value>Обновление отменено - страница мода {0} не отмечена как прочитанная.</value>
   </data>
   <data name="ModUpdate_VersionCompatible" xml:space="preserve">
     <value>Совместима с вашей установленной версией SPT</value>

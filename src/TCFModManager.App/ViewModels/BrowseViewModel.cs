@@ -71,8 +71,14 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
             ShowInstalledChange();
         };
 
-        // Refreshes the status dots when a mod is removed from the Installed page.
+        // Refreshes the status dots when a mod is removed from the Installed page, or set aside
+        // or brought back there.
         InstalledViewModel.ModRemoved += async (_, _) =>
+        {
+            await RefreshInstalledIndexAsync();
+            ShowInstalledChange();
+        };
+        InstalledViewModel.ModsMoved += async (_, _) =>
         {
             await RefreshInstalledIndexAsync();
             ShowInstalledChange();
@@ -1233,6 +1239,11 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
     [RelayCommand]
     private Task InstallAsync(ModCardViewModel? card) => QueueForDownloadAsync(card, DownloadAction.Install, pinned: null);
 
+    /// <summary>Subscribe on the item page: the same as Browse's, without the mod-page dialog for
+    /// the mod itself - its page is the one on screen. Its required items still get theirs.</summary>
+    public Task SubscribeFromItemPageAsync(ModCardViewModel card) =>
+        QueueForDownloadAsync(card, DownloadAction.Install, pinned: null, pageSeen: true);
+
     /// <summary>Re-queues an already-installed mod's currently displayed version - the same pick
     /// Install would make - for a fresh download and reinstall. Shown on the card in Install's place
     /// once a mod is installed, e.g. to recover from corrupted or hand-edited files.</summary>
@@ -1242,7 +1253,7 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
     /// <summary>Installs one particular version of a mod that is not installed - the item page's
     /// Versions tab. Same gate and queue as Subscribe.</summary>
     public Task InstallVersionAsync(Mod mod, ModVersion version) =>
-        QueueForDownloadAsync(BuildCard(mod), DownloadAction.Install, version);
+        QueueForDownloadAsync(BuildCard(mod), DownloadAction.Install, version, pageSeen: true);
 
     /// <summary>True while Subscribe is working out what a mod needs, before its gate opens.</summary>
     [ObservableProperty]
@@ -1256,7 +1267,7 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
         Redownload,
     }
 
-    private async Task QueueForDownloadAsync(ModCardViewModel? card, DownloadAction action, ModVersion? pinned)
+    private async Task QueueForDownloadAsync(ModCardViewModel? card, DownloadAction action, ModVersion? pinned, bool pageSeen = false)
     {
         if (card is null) return;
 
@@ -1365,7 +1376,11 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
             return;
         }
 
-        var links = new List<ModPageLink> { new(mod.Name ?? Strings.Browse_ThisMod, mod.DetailUrl) };
+        // The mod's own page is left out when Subscribe was clicked on it (the item page).
+        var links = new List<ModPageLink>
+        {
+            new(mod.Name ?? Strings.Browse_ThisMod, mod.DetailUrl) { ModId = mod.Id, Seen = pageSeen },
+        };
         if (withRequired) links.AddRange(requiredLinks);
 
         if (!ReadModPageConfirmationWindow.ConfirmAll(links))

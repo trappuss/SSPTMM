@@ -3478,18 +3478,6 @@ Back up your profile before continuing if it matters to you.</value>
   <data name="ModUpdate_HandInstalledDowngradeBody" xml:space="preserve">
     <value>This mod wasn't installed through this app, so there's no record of exactly which files its current version placed - downgrading installs the selected version's files on top of what's already there rather than cleanly removing the old version first. You may end up with leftover files from the old version.</value>
   </data>
-  <data name="ModUpdate_UpdateCancelledFormat" xml:space="preserve">
-    <value>Update cancelled - {0}'s page wasn't confirmed as read.</value>
-    <comment>{0} is a mod name.</comment>
-  </data>
-  <data name="ModUpdate_RedownloadCancelledFormat" xml:space="preserve">
-    <value>Redownload cancelled - {0}'s page wasn't confirmed as read.</value>
-    <comment>{0} is a mod name.</comment>
-  </data>
-  <data name="ModUpdate_DowngradeCancelledUnreadFormat" xml:space="preserve">
-    <value>Downgrade cancelled - {0}'s page wasn't confirmed as read.</value>
-    <comment>{0} is a mod name.</comment>
-  </data>
   <data name="ModUpdate_QueuedFormat" xml:space="preserve">
     <value>Queued {0} {1} - see the Downloads page for progress.</value>
     <comment>{0} is a mod name, {1} its version. Downloads is the page name - translate it as in Nav_Downloads.</comment>
@@ -5917,5 +5905,73 @@ This was written to:
   <data name="RemoveCheck_FoldersIntro_other" xml:space="preserve">
     <value>These items were installed by hand, so removing them deletes these folders:</value>
     <comment>Same, several hand-installed mods.</comment>
+  </data>
+  <data name="ReadModPage_ReaderIntro" xml:space="preserve">
+    <value>Each item's page as its author wrote it - install steps, requirements, known conflicts and warnings. Read it here, or open it on sp-mod.com.</value>
+    <comment>Top of the dialog shown before a download is queued. "Read here" is ReadModPage_Read.</comment>
+  </data>
+  <data name="ReadModPage_Read" xml:space="preserve">
+    <value>Read here</value>
+    <comment>Button on each row of that dialog: shows the item's page in the dialog.</comment>
+  </data>
+  <data name="ReadModPage_Hide" xml:space="preserve">
+    <value>Hide</value>
+    <comment>The same button while the page is showing.</comment>
+  </data>
+  <data name="ReadModPage_Loading" xml:space="preserve">
+    <value>Loading the page...</value>
+    <comment>While the page is fetched from sp-mod.com.</comment>
+  </data>
+  <data name="ReadModPage_LoadFailed" xml:space="preserve">
+    <value>The page could not be loaded here - Open page shows it on sp-mod.com.</value>
+    <comment>When the page could not be fetched.</comment>
+  </data>
+  <data name="ReadModPage_Empty" xml:space="preserve">
+    <value>Its author has written nothing here.</value>
+    <comment>When the page (or change notes) is empty.</comment>
+  </data>
+  <data name="ReadModPage_ChangeNotesFormat" xml:space="preserve">
+    <value>Change notes for {0}</value>
+    <comment>Over an update's change notes in that dialog. {0} is the version. "Change Notes" is Steam's term.</comment>
+  </data>
+  <data name="Downloads_UsingKept" xml:space="preserve">
+    <value>Using the copy downloaded before - nothing to download.</value>
+    <comment>Download card, when the version was downloaded before and kept.</comment>
+  </data>
+  <data name="Downloads_WaitingToDownload" xml:space="preserve">
+    <value>Waiting for a free download slot...</value>
+    <comment>Download card, while the maximum number of downloads is already running.</comment>
+  </data>
+  <data name="Downloads_WaitingToInstall" xml:space="preserve">
+    <value>Downloaded - waiting its turn to install.</value>
+    <comment>Download card, downloaded while an earlier item is still installing.</comment>
+  </data>
+  <data name="Downloads_RetryingFormat" xml:space="preserve">
+    <value>The download failed - trying again in {0:N0}s.</value>
+    <comment>Download card, before a download is tried again by itself. {0} is seconds.</comment>
+  </data>
+  <data name="Options_DownloadsHeader" xml:space="preserve">
+    <value>Downloads</value>
+    <comment>Options card heading.</comment>
+  </data>
+  <data name="Options_DownloadsDescription" xml:space="preserve">
+    <value>Up to three items download at once while the ones before them install. Downloaded files are kept (up to 4 GB, the ones used longest ago go first) so subscribing to the same version again - after unsubscribing, putting a version back, or re-applying a mod list - does not download it again.</value>
+    <comment>Options card text.</comment>
+  </data>
+  <data name="Options_DownloadsSwitchOn" xml:space="preserve">
+    <value>Keep downloaded files</value>
+    <comment>Options switch, on.</comment>
+  </data>
+  <data name="Options_DownloadsSwitchOff" xml:space="preserve">
+    <value>Delete each download once it is installed</value>
+    <comment>Options switch, off.</comment>
+  </data>
+  <data name="Options_DownloadsClear" xml:space="preserve">
+    <value>Delete kept files</value>
+    <comment>Options button.</comment>
+  </data>
+  <data name="Options_DownloadsSizeFormat" xml:space="preserve">
+    <value>Kept now: {0}</value>
+    <comment>Beside that button. {0} is a size like "85.3 MB".</comment>
   </data>
 </root>

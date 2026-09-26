@@ -3109,9 +3109,6 @@ Fai un backup del profilo prima di continuare, se ci tieni.</value>
   <data name="ModUpdate_DowngradeCancelled" xml:space="preserve">
     <value>Ritorno alla versione precedente annullato.</value>
   </data>
-  <data name="ModUpdate_DowngradeCancelledUnreadFormat" xml:space="preserve">
-    <value>Ritorno alla versione precedente annullato - la pagina di {0} non è stata confermata come letta.</value>
-  </data>
   <data name="ModUpdate_DowngradeTitleFormat" xml:space="preserve">
     <value>Vuoi riportare {0} alla versione {1}?</value>
   </data>
@@ -3190,9 +3187,6 @@ Fai un backup del profilo prima di continuare, se ci tieni.</value>
   <data name="ModUpdate_Redownload" xml:space="preserve">
     <value>Riscarica</value>
   </data>
-  <data name="ModUpdate_RedownloadCancelledFormat" xml:space="preserve">
-    <value>Nuovo download annullato - la pagina di {0} non è stata confermata come letta.</value>
-  </data>
   <data name="ModUpdate_Set" xml:space="preserve">
     <value>Imposta</value>
   </data>
@@ -3210,9 +3204,6 @@ Fai un backup del profilo prima di continuare, se ci tieni.</value>
   </data>
   <data name="ModUpdate_Update" xml:space="preserve">
     <value>Aggiorna</value>
-  </data>
-  <data name="ModUpdate_UpdateCancelledFormat" xml:space="preserve">
-    <value>Aggiornamento annullato - la pagina di {0} non è stata confermata come letta.</value>
   </data>
   <data name="ModUpdate_VersionCompatible" xml:space="preserve">
     <value>Compatibile con la tua versione di SPT installata</value>

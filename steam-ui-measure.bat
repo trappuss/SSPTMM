@@ -130,6 +130,18 @@ foreach ($k in $segments.Keys) {
     $out.Add(('  {0,-34} {1,3} s   median {2,5:F1} fps, lowest {3,5:F1} fps   longest stall {4,4} ms (median {5} ms)' -f $k, $s.Count, (Median $fps), ($fps | Measure-Object -Minimum).Minimum, ($worst | Measure-Object -Maximum).Maximum, (Median $worst)))
 }
 $out.Add('')
+
+# What held the app's own thread for 50ms or more, most often first. A stall above with nothing
+# here was spent drawing rather than in the app's own work.
+$busy = @($perf | Select-String 'busy (\d+)ms: (.+)$' | ForEach-Object {
+    [pscustomobject]@{ Ms = [int]$_.Matches[0].Groups[1].Value; What = $_.Matches[0].Groups[2].Value }
+})
+$out.Add('The app itself busy for 50 ms or more, by what (count, longest):')
+if ($busy.Count -eq 0) { $out.Add('  nothing') }
+foreach ($g in ($busy | Group-Object What | Sort-Object Count -Descending)) {
+    $out.Add(('  {0,4}x  longest {1,5} ms  {2}' -f $g.Count, ($g.Group | Measure-Object Ms -Maximum).Maximum, $g.Name))
+}
+$out.Add('')
 $rate = if ($refresh) { " ($refresh Hz here)" } else { '' }
 $out.Add("How to read it: smooth is close to the screen's own rate$rate, with stalls under about 50 ms.")
 $out.Add('The first and last second of each scroll include still frames, so the median is the number to go by.')

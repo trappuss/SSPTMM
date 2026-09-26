@@ -212,7 +212,7 @@ public sealed partial class AddonRowViewModel : LocalizedViewModel
             return;
         }
 
-        if (!ReadModPageConfirmationWindow.Confirm(Name, DetailUrl))
+        if (!ReadModPageConfirmationWindow.Confirm(new ModPageLink(Name, DetailUrl) { ModId = _addon.Id, IsAddon = true }))
         {
             StatusMessage = Text(Strings.Addon_CancelledFormat, Name);
             return;

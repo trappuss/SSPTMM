@@ -39,6 +39,10 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     /// cards' install/update status dots. Static since InstalledViewModel is a fresh instance per navigation.</summary>
     public static event EventHandler? ModRemoved;
 
+    /// <summary>Raised after mods are set aside (disabled) or brought back, or that is undone, so
+    /// Browse's installed ticks follow - a set-aside mod is not installed as far as the game goes.</summary>
+    public static event EventHandler? ModsMoved;
+
     private List<InstalledModCardViewModel> _all = [];
 
     private readonly System.Windows.Threading.DispatcherTimer _rescanAfterInstall;
@@ -1555,9 +1559,12 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
             return;
         }
 
-        // The same gate a single install goes through, asked once for the batch. ConfirmAll honours
-        // the Options switch that turns the gate off.
-        var links = resolved.Select(r => new ModPageLink(r.Card.DisplayTitle, r.Mod.DetailUrl)).ToList();
+        // The same dialog a single install goes through, asked once for the batch - each with the
+        // change notes of the version it updates to. ConfirmAll honours the Options switch that
+        // turns the dialog off.
+        var links = resolved
+            .Select(r => new ModPageLink(r.Card.DisplayTitle, r.Mod.DetailUrl) { ModId = r.Mod.Id, ChangeNotesVersion = r.Version })
+            .ToList();
         if (!ReadModPageConfirmationWindow.ConfirmAll(links))
         {
             StatusMessage = Strings.Installed_UpdateCancelledUnread;
@@ -1676,6 +1683,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         SetLastMoves([], null);
         await ScanAsync();
         StatusMessage = message;
+        ModsMoved?.Invoke(this, EventArgs.Empty);
     }
 
     private List<InstalledModCardViewModel> SelectedCards() => _all.Where(m => m.IsSelected).ToList();
@@ -1769,6 +1777,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
         await ScanAsync();
         StatusMessage = message;
+        ModsMoved?.Invoke(this, EventArgs.Empty);
 
         return moves;
     }

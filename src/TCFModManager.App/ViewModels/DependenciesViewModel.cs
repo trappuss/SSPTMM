@@ -198,7 +198,7 @@ public partial class DependenciesViewModel : LocalizedViewModel
         }
 
         var mod = row.CatalogMod;
-        if (!ReadModPageConfirmationWindow.Confirm(mod.Name ?? row.Name, mod.DetailUrl))
+        if (!ReadModPageConfirmationWindow.Confirm(ModPageLink.For(mod, mod.Name ?? row.Name)))
         {
             StatusMessage = Text(Strings.Dependencies_CancelledFormat, row.Name);
             return;

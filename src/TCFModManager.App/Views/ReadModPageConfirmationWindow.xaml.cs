@@ -6,12 +6,28 @@ using TCFModManager.Core.Services;
 
 namespace TCFModManager.App.Views;
 
-// One row in ReadModPageConfirmationWindow - a mod name plus the button that opens its sp-mod.com page.
+// One row in ReadModPageConfirmationWindow - a mod name, the button that opens its sp-mod.com page,
+// and, for a mod or addon the app can look up, its page to read right there (Read here).
 public sealed class ModPageLink(string name, string? url) : INotifyPropertyChanged
 {
     public string Name { get; } = name;
     public string? Url { get; } = url;
     public bool HasUrl => !string.IsNullOrWhiteSpace(Url);
+
+    /// <summary>The sp-mod.com id of the mod (or addon) whose page Read here shows.</summary>
+    public int? ModId { get; init; }
+
+    public bool IsAddon { get; init; }
+
+    /// <summary>For an update: the version whose change notes Read here shows, rather than the
+    /// whole page - what changed is what an update asks the reader to know.</summary>
+    public string? ChangeNotesVersion { get; init; }
+
+    public bool CanRead => ModId is > 0;
+
+    /// <summary>Already seen in the app - the item page Subscribe was clicked on - so the dialog
+    /// leaves it out.</summary>
+    public bool Seen { get; init; }
 
     private bool _isOpened = string.IsNullOrWhiteSpace(url);
     public bool IsOpened
@@ -21,8 +37,8 @@ public sealed class ModPageLink(string name, string? url) : INotifyPropertyChang
         {
             if (_isOpened == value) return;
             _isOpened = value;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsOpened)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ButtonLabel)));
+            Changed(nameof(IsOpened));
+            Changed(nameof(ButtonLabel));
         }
     }
 
@@ -30,14 +46,64 @@ public sealed class ModPageLink(string name, string? url) : INotifyPropertyChang
         ? Strings.ReadModPage_ButtonNoPage
         : IsOpened ? Strings.ReadModPage_ButtonOpened : Strings.ReadModPage_ButtonOpen;
 
+    // ------------------------------------------------------------------ Read here
+
+    private bool _isReading;
+    public bool IsReading
+    {
+        get => _isReading;
+        set
+        {
+            if (_isReading == value) return;
+            _isReading = value;
+            Changed(nameof(IsReading));
+            Changed(nameof(ReadLabel));
+        }
+    }
+
+    public string ReadLabel => IsReading ? Strings.ReadModPage_Hide : Strings.ReadModPage_Read;
+
+    /// <summary>"Change notes for 1.5.0" over an update's notes; nothing over a whole page.</summary>
+    public string? ReadHeading => ChangeNotesVersion is { } version
+        ? LocalizationService.Text(Strings.ReadModPage_ChangeNotesFormat, version)
+        : null;
+
+    private string? _html;
+    public string? Html
+    {
+        get => _html;
+        set { _html = value; Changed(nameof(Html)); }
+    }
+
+    // Loading, or why there is nothing to show; null once the page is there.
+    private string? _readNote;
+    public string? ReadNote
+    {
+        get => _readNote;
+        set { _readNote = value; Changed(nameof(ReadNote)); }
+    }
+
     public event PropertyChangedEventHandler? PropertyChanged;
+
+    private void Changed(string property) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
+
+    /// <summary>A row for a mod: its name, page, and page to read here.</summary>
+    public static ModPageLink For(Core.Models.Mod mod, string? name = null) =>
+        new(name ?? mod.Name ?? string.Empty, mod.DetailUrl) { ModId = mod.Id };
 }
 
-// 
-// Modal gate shown before mods are queued for install/update, requiring every listed mod's page
-// to be opened before the Continue button unlocks. A plain Window drawn as Steam's modal dialog,
-// so it can be shown via ShowDialog() from any call site - see Ask.
-// 
+//
+// Shown before mods are queued for install or update: each one's page - where its author puts
+// install steps, requirements, known conflicts and warnings - to read right here (Read here, the
+// first one already open), or to open on sp-mod.com. Continue is there from the start: the page is
+// in front of the reader, which is what opening it in a browser was for, without the trip.
+//
+// The app's own update is the exception (RequireOpening): its page carries the release notes, so
+// that one keeps asking for it to be opened before Continue unlocks, as every page used to.
+//
+// A plain Window drawn as Steam's modal dialog, so it can be shown via ShowDialog() from any call
+// site - see Ask.
+//
 public partial class ReadModPageConfirmationWindow : Window
 {
     private static string Text(string format, params object?[] values) =>
@@ -58,16 +124,13 @@ public partial class ReadModPageConfirmationWindow : Window
     // having been opened.
     private bool _openingSkipped;
 
-    // Single-mod gate - used by a direct Install/Update click.
-    public ReadModPageConfirmationWindow(string modName, string? modPageUrl)
-        : this([new ModPageLink(modName, modPageUrl)])
-    {
-    }
+    // Continue waits for every page to be opened - the app's own update only.
+    private readonly bool _requireOpening;
 
-    // Multi-mod gate - used for a batch of missing dependencies.
-    public ReadModPageConfirmationWindow(IReadOnlyList<ModPageLink> links)
+    public ReadModPageConfirmationWindow(IReadOnlyList<ModPageLink> links, bool requireOpening = false)
     {
         _links = links.ToList();
+        _requireOpening = requireOpening;
         InitializeComponent();
 
         TitleText.Text = Title = _links.Count == 1
@@ -80,7 +143,22 @@ public partial class ReadModPageConfirmationWindow : Window
         Owner = Application.Current?.MainWindow;
         WindowStartupLocation = Owner is not null ? WindowStartupLocation.CenterOwner : WindowStartupLocation.CenterScreen;
 
-        if (_links.Count(l => l.HasUrl) > BatchThreshold)
+        if (!_requireOpening)
+        {
+            // Wider, and taller in its list, for pages read here - as tall as fits inside the
+            // window it opens over, leaving room for the title, the text and the buttons.
+            Width = 760;
+            var room = (Owner is { ActualHeight: > 0 } owner ? owner.ActualHeight : SystemParameters.WorkArea.Height) - 360;
+            LinksScroller.MaxHeight = Math.Clamp(room, 320, 640);
+            IntroText.Text = Strings.ReadModPage_ReaderIntro;
+
+            // The first page open already: what the dialog is for is on screen when it appears.
+            Loaded += (_, _) =>
+            {
+                if (_links.FirstOrDefault(l => l.CanRead) is { } first) _ = ReadAsync(first);
+            };
+        }
+        else if (_links.Count(l => l.HasUrl) > BatchThreshold)
         {
             BatchBar.Visibility = Visibility.Visible;
             IntroText.Text =
@@ -117,11 +195,23 @@ public partial class ReadModPageConfirmationWindow : Window
     // are, so it is the one page where skipping costs the reader the thing they most need.</param>
     //
     public static bool Confirm(string modName, string? modPageUrl, bool allowSkip = true) =>
-        (allowSkip && Skipped) || Ask(new ReadModPageConfirmationWindow(modName, modPageUrl));
+        (allowSkip && Skipped) || Ask(new ReadModPageConfirmationWindow([new ModPageLink(modName, modPageUrl)], requireOpening: !allowSkip));
 
-    // Shows the gate for a batch of mods and returns true only if Continue was clicked.
-    public static bool ConfirmAll(IReadOnlyList<ModPageLink> links) =>
-        Skipped || Ask(new ReadModPageConfirmationWindow(links));
+    // One mod, with its page to read here.
+    public static bool Confirm(ModPageLink link) => ConfirmAll([link]);
+
+    //
+    // Shows the gate for a batch of mods and returns true only if Continue was clicked. Pages
+    // already seen in the app (Seen - the item page the Subscribe was clicked on) are left out; with
+    // none left, nothing is asked.
+    //
+    public static bool ConfirmAll(IReadOnlyList<ModPageLink> links)
+    {
+        var unseen = links.Where(l => !l.Seen).ToList();
+        if (unseen.Count == 0) return true;
+
+        return Skipped || Ask(new ReadModPageConfirmationWindow(unseen));
+    }
 
     // Over the main window, dimmed behind it as Steam dims the page behind its dialogs.
     private static bool Ask(ReadModPageConfirmationWindow gate)
@@ -140,7 +230,7 @@ public partial class ReadModPageConfirmationWindow : Window
 
     private void UpdateContinueEnabled()
     {
-        ContinueButton.IsEnabled = _openingSkipped || _links.All(l => l.IsOpened);
+        ContinueButton.IsEnabled = !_requireOpening || _openingSkipped || _links.All(l => l.IsOpened);
 
         if (BatchBar.Visibility != Visibility.Visible) return;
 
@@ -197,6 +287,91 @@ public partial class ReadModPageConfirmationWindow : Window
             Process.Start(new ProcessStartInfo(link.Url!) { UseShellExecute = true });
             link.IsOpened = true;
         }
+    }
+
+    // ------------------------------------------------------------------ Read here
+
+    // Each page read this session, so a second dialog for the same mod shows it at once. Keyed by
+    // mod or addon, id and - for change notes - version.
+    private static readonly Dictionary<string, string> Pages = [];
+
+    private void ReadButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not FrameworkElement { DataContext: ModPageLink link }) return;
+
+        if (link.IsReading) link.IsReading = false;
+        else _ = ReadAsync(link);
+    }
+
+    // Shows the link's page (or its change notes) in its row, fetching it the first time.
+    private static async Task ReadAsync(ModPageLink link)
+    {
+        link.IsReading = true;
+        if (link.Html is not null || link.ModId is not { } id) return;
+
+        var key = string.Join('|', link.IsAddon, id, link.ChangeNotesVersion);
+        if (Pages.TryGetValue(key, out var known))
+        {
+            Show(link, known);
+            return;
+        }
+
+        link.ReadNote = Strings.ReadModPage_Loading;
+        try
+        {
+            var html = await FetchAsync(link, id);
+            Pages[key] = html;
+            Show(link, html);
+        }
+        catch (Exception ex)
+        {
+            // Offline, rate limited, gone: the page can still be opened on sp-mod.com.
+            AppLog.Warn("ModPages", $"couldn't load the page of {link.Name} to read here: {ex.Message}");
+            link.ReadNote = Strings.ReadModPage_LoadFailed;
+        }
+    }
+
+    private static void Show(ModPageLink link, string html)
+    {
+        link.ReadNote = string.IsNullOrWhiteSpace(html) ? Strings.ReadModPage_Empty : null;
+        link.Html = html;
+    }
+
+    // The description exactly as sp-mod.com has it - what its page shows - or one version's
+    // change notes. A mod with no description of its own shows its teaser, as the item page does.
+    private static async Task<string> FetchAsync(ModPageLink link, int id)
+    {
+        var api = AppServices.SpModApi;
+
+        if (link.ChangeNotesVersion is { } version)
+        {
+            string? notes;
+            if (link.IsAddon)
+            {
+                var found = await api.GetAddonVersionsAsync(id.ToString(), new Core.SpModApi.AddonVersionsQuery { FilterVersion = version, PerPage = 5 });
+                notes = found.Data.FirstOrDefault(v => v.Version == version)?.Description;
+            }
+            else
+            {
+                var found = await api.GetModVersionsAsync(id.ToString(), new Core.SpModApi.ModVersionsQuery { FilterVersion = version, PerPage = 5 });
+                notes = found.Data.FirstOrDefault(v => v.Version == version)?.Description;
+            }
+
+            return notes ?? string.Empty;
+        }
+
+        if (link.IsAddon)
+        {
+            var addon = await api.GetAddonAsync(id.ToString());
+            return !string.IsNullOrWhiteSpace(addon.Description)
+                ? addon.Description
+                : System.Net.WebUtility.HtmlEncode(addon.Teaser ?? string.Empty);
+        }
+
+        var mod = await api.GetModAsync(id.ToString());
+        return !string.IsNullOrWhiteSpace(mod.Description)
+            ? mod.Description
+            : System.Net.WebUtility.HtmlEncode(mod.Teaser ?? string.Empty);
     }
 
     private void OpenLinkButton_Click(object sender, RoutedEventArgs e)

@@ -1025,7 +1025,7 @@
                         <TextBlock VerticalAlignment="Center" FontSize="12" Foreground="#99A1A8" Text="{Binding ChangeNotesShowing}" />
                     </Border>
 
-                    <ItemsControl Focusable="False" ItemsSource="{Binding ChangeNotes}">
+                    <ItemsControl Focusable="False" ItemsSource="{Binding ShownChangeNotes}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Margin="0,26,0,0">

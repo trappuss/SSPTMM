@@ -586,6 +586,7 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel, IModActi
         OnPropertyChanged(nameof(Tab));
         OnPropertyChanged(nameof(IsDescriptionShown));
         OnPropertyChanged(nameof(IsChangeNotesShown));
+        OnPropertyChanged(nameof(ShownChangeNotes));
         OnPropertyChanged(nameof(IsVersionsShown));
         OnPropertyChanged(nameof(IsCommentsShown));
 
@@ -613,6 +614,14 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel, IModActi
     }
 
     public ObservableCollection<WorkshopChangeNote> ChangeNotes { get; } = [];
+
+    //
+    // The change notes the tab lists: none until the tab is opened. Each note is a document of its
+    // own, and a hidden tab still had all of them built as the page opened - measured on SAIN's
+    // page, twenty notes built with its description took the description's first paint from 241ms
+    // to 495ms and stopped the window for 301ms.
+    //
+    public ObservableCollection<WorkshopChangeNote>? ShownChangeNotes => IsChangeNotesShown ? ChangeNotes : null;
 
     public ObservableCollection<WorkshopRequiredItem> RequiredItems { get; } = [];
 
@@ -842,7 +851,7 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel, IModActi
         _subscribing = true;
         try
         {
-            await AppServices.Browse.InstallCommand.ExecuteAsync(Card);
+            await AppServices.Browse.SubscribeFromItemPageAsync(Card);
         }
         finally
         {

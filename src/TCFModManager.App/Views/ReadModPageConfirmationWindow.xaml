@@ -4,6 +4,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:loc="clr-namespace:TCFModManager.App.Localization"
+    xmlns:behaviors="clr-namespace:TCFModManager.App.Behaviors"
+    xmlns:converters="clr-namespace:TCFModManager.App.Converters"
     Width="560"
     Background="#25282E"
     FontFamily="{StaticResource SteamFont}"
@@ -12,9 +14,15 @@
     SizeToContent="Height"
     WindowStyle="None"
     KeyDown="Window_KeyDown">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+        <converters:NullToVisibilityConverter x:Key="NullToCollapsed" />
+    </Window.Resources>
     <!--
-        The read-the-mod-page gate, shown via ShowDialog() from any call site: one row per mod page
-        that must be opened before Continue unlocks.
+        The mod-page dialog, shown via ShowDialog() from any call site: one row per mod, whose page
+        (the author's install steps, requirements and warnings) can be read right here - Read here -
+        or opened on sp-mod.com. Continue is there from the start. The app's own update is the one
+        caller that still has its page opened before Continue unlocks (see RequireOpening).
 
         Drawn as Steam's modal dialog (see SteamDialog.xaml for the measurements): the glow, the
         blue line along the top, a 22px bold title, 16px #ACB2B8 text, and the modal's own buttons -
@@ -100,31 +108,76 @@
             </StackPanel>
 
             <!-- One row per page: the name, and its Open button (Opened once it has been). -->
-            <ScrollViewer FocusVisualStyle="{x:Null}" MaxHeight="320" Margin="0,0,0,4" VerticalScrollBarVisibility="Auto">
+            <ScrollViewer x:Name="LinksScroller" FocusVisualStyle="{x:Null}" MaxHeight="320" Margin="0,0,0,4" VerticalScrollBarVisibility="Auto">
                 <ItemsControl Focusable="False" x:Name="LinksList">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Border Margin="0,0,0,2" Padding="10,6" Background="{StaticResource SteamRequiredItem}">
-                                <DockPanel>
-                                    <Button
-                                        Margin="12,0,0,0"
-                                        DockPanel.Dock="Right"
-                                        VerticalAlignment="Center"
-                                        Style="{StaticResource SteamModalBlueButton}"
-                                        IsEnabled="{Binding HasUrl}"
-                                        Click="OpenLinkButton_Click">
-                                        <StackPanel Orientation="Horizontal">
-                                            <ui:SymbolIcon Margin="0,0,6,0" FontSize="14" Symbol="Open16" />
-                                            <TextBlock FontSize="14" Text="{Binding ButtonLabel}" />
-                                        </StackPanel>
-                                    </Button>
-                                    <TextBlock
-                                        VerticalAlignment="Center"
-                                        FontSize="14"
-                                        Foreground="White"
-                                        TextWrapping="Wrap"
-                                        Text="{Binding Name}" />
-                                </DockPanel>
+                                <StackPanel>
+                                    <DockPanel>
+                                        <Button
+                                            Margin="12,0,0,0"
+                                            DockPanel.Dock="Right"
+                                            VerticalAlignment="Center"
+                                            Style="{StaticResource SteamModalBlueButton}"
+                                            IsEnabled="{Binding HasUrl}"
+                                            Click="OpenLinkButton_Click">
+                                            <StackPanel Orientation="Horizontal">
+                                                <ui:SymbolIcon Margin="0,0,6,0" FontSize="14" Symbol="Open16" />
+                                                <TextBlock FontSize="14" Text="{Binding ButtonLabel}" />
+                                            </StackPanel>
+                                        </Button>
+                                        <!-- The page, here: the same rendering as the item page's. -->
+                                        <Button
+                                            Margin="12,0,0,0"
+                                            DockPanel.Dock="Right"
+                                            VerticalAlignment="Center"
+                                            Style="{StaticResource SteamModalGreyButton}"
+                                            Visibility="{Binding CanRead, Converter={StaticResource BoolToVis}}"
+                                            Click="ReadButton_Click">
+                                            <TextBlock FontSize="14" Text="{Binding ReadLabel}" />
+                                        </Button>
+                                        <TextBlock
+                                            VerticalAlignment="Center"
+                                            FontSize="14"
+                                            Foreground="White"
+                                            TextWrapping="Wrap"
+                                            Text="{Binding Name}" />
+                                    </DockPanel>
+
+                                    <StackPanel Margin="0,10,0,4" Visibility="{Binding IsReading, Converter={StaticResource BoolToVis}}">
+                                        <TextBlock
+                                            Margin="0,0,0,8"
+                                            FontSize="13"
+                                            FontWeight="SemiBold"
+                                            Foreground="White"
+                                            Text="{Binding ReadHeading}"
+                                            Visibility="{Binding ReadHeading, Converter={StaticResource NullToCollapsed}}" />
+                                        <TextBlock
+                                            FontSize="14"
+                                            TextWrapping="Wrap"
+                                            Text="{Binding ReadNote}"
+                                            Visibility="{Binding ReadNote, Converter={StaticResource NullToCollapsed}}" />
+                                        <RichTextBox
+                                            Padding="0"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            FontSize="14"
+                                            Focusable="False"
+                                            HorizontalScrollBarVisibility="Disabled"
+                                            IsDocumentEnabled="True"
+                                            IsReadOnly="True"
+                                            VerticalScrollBarVisibility="Disabled"
+                                            behaviors:HtmlText.Html="{Binding Html}">
+                                            <RichTextBox.Resources>
+                                                <SolidColorBrush x:Key="TextFillColorPrimaryBrush" Color="#ACB2B8" />
+                                                <Style TargetType="Paragraph">
+                                                    <Setter Property="LineHeight" Value="20" />
+                                                </Style>
+                                            </RichTextBox.Resources>
+                                        </RichTextBox>
+                                    </StackPanel>
+                                </StackPanel>
                             </Border>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>

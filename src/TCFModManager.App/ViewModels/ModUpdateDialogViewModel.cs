@@ -429,19 +429,12 @@ public partial class ModUpdateDialogViewModel : LocalizedViewModel
             return;
         }
 
-        // Require the mod's page to be confirmed as read before installing.
-        if (!ReadModPageConfirmationWindow.Confirm(_mod.DisplayTitle, ModPageUrl))
-        {
-            StatusMessage = Text(
-                action switch
-                {
-                    ModUpdateAction.Redownload => Strings.ModUpdate_RedownloadCancelledFormat,
-                    ModUpdateAction.Downgrade => Strings.ModUpdate_DowngradeCancelledUnreadFormat,
-                    _ => Strings.ModUpdate_UpdateCancelledFormat,
-                },
-                _mod.DisplayTitle);
-            return;
-        }
+        //
+        // No mod-page dialog here: this dialog is already showing every version's change notes,
+        // which is what the page would be opened for before an update, and a link to the page. (It
+        // asked for the page to be opened before - the step the item page's Subscribe no longer
+        // asks for either.)
+        //
 
         var selectedVersion = SelectedVersion;
         AppServices.DownloadQueue.Enqueue(

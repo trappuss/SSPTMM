@@ -162,13 +162,18 @@ public sealed class ModInstallService(
     //
     // The result carries the record plus what the update did to the mod's own config files - see
     // ConfigCarryOver. Null configs means there were none to have an opinion about.
+    //
+    // <paramref name="downloadedArchive"/>: the version's archive, already downloaded (the queue
+    // downloads ahead of installing, and keeps archives - see ModArchiveCache). Read where it is,
+    // not moved or deleted; nothing is downloaded then.
     public async Task<ModInstallResult> InstallAsync(
         InstallTarget target,
         ModVersion version,
         string installPath,
         IProgress<ModInstallProgress>? status = null,
         IProgress<double>? downloadProgress = null,
-        CancellationToken ct = default)
+        CancellationToken ct = default,
+        string? downloadedArchive = null)
     {
         if (string.IsNullOrWhiteSpace(installPath) || !Directory.Exists(installPath))
             throw new ModInstallException(ModInstallFailure.NoInstallFolder);
@@ -187,16 +192,19 @@ public sealed class ModInstallService(
 
         var workDir = CreateWorkDirectory(installPath, out var canMoveIntoInstall);
         AppLog.Debug("Install", $"work dir {workDir} (move into install: {canMoveIntoInstall})");
-        var archivePath = Path.Combine(workDir, "download.bin");
+        var archivePath = downloadedArchive ?? Path.Combine(workDir, "download.bin");
         var extractDir = Path.Combine(workDir, "extracted");
 
         try
         {
             ct.ThrowIfCancellationRequested();
 
-            status?.Report(new ModInstallProgress(
-                ModInstallStage.Downloading, target.Name, version.Version));
-            await downloadService.DownloadAsync(version.Link, archivePath, downloadProgress, ct).ConfigureAwait(false);
+            if (downloadedArchive is null)
+            {
+                status?.Report(new ModInstallProgress(
+                    ModInstallStage.Downloading, target.Name, version.Version));
+                await downloadService.DownloadAsync(version.Link, archivePath, downloadProgress, ct).ConfigureAwait(false);
+            }
 
             ct.ThrowIfCancellationRequested();
 
