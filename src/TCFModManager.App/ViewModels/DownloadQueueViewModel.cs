@@ -358,6 +358,29 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
     // Stage 2: the archive for this item, from the ones kept or downloaded now, as a file path.
     private async Task<string> FetchArchiveAsync(DownloadQueueItemViewModel item, ModVersion version, CancellationToken token)
     {
+        // An archive the user already has: a copy of it is what the install uses (and deletes after),
+        // never the user's own file.
+        if (LocalArchive.TryGetPath(version.Link, out var local))
+        {
+            var copy = _archives.TemporaryPath();
+            Use(copy);
+            try
+            {
+                item.StatusMessage = Strings.Downloads_CopyingLocal;
+                await Task.Run(() => File.Copy(local, copy, overwrite: true), token);
+                item.Progress = 1.0;
+            }
+            catch (Exception ex)
+            {
+                if (Unuse(copy)) TryDelete(copy);
+                if (token == item.Token) Settle(item, ex);
+                throw;
+            }
+
+            item.StatusMessage = Strings.Downloads_WaitingToInstall;
+            return copy;
+        }
+
         var keep = new SettingsService().Load().KeepDownloads;
 
         if (keep && _archives.TryGet(item.Target, version, out var kept, ArchivesInUse))

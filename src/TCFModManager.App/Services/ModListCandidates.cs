@@ -100,7 +100,10 @@ public static class ModListCandidates
         // untouched, so a list captured before this still finds its mods on the folder tier.
         //
         Name = card.DisplayTitle,
-        ModId = card.ModId,
+
+        // An archive installed from a file under a local id (LocalArchive) is no sp-mod.com listing:
+        // listed like a hand install, by its folders and name.
+        ModId = card.ModId is > 0 ? card.ModId : null,
         IsAddon = card.IsAddon,
         Version = card.InstalledVersion,
         Guid = card.Guid,

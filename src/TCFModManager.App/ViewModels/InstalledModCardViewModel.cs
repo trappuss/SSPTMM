@@ -796,6 +796,11 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
             var fromRecord = index.ById.GetValueOrDefault(record.ModId)
                 ?? (string.IsNullOrWhiteSpace(record.Guid) ? null : index.ByGuid.GetValueOrDefault(record.Guid));
             if (fromRecord is not null) return fromRecord;
+
+            // Installed from a file that matched no listing (LocalArchive): its record is all there
+            // is to know it by - so it is the app's to remove, not a hand install's folder to delete.
+            if (LocalArchive.IsLocalId(record.ModId))
+                return new Mod { Id = record.ModId, Name = record.Name, Guid = record.Guid };
         }
 
         // The real GUID, read from a client DLL's [BepInPlugin] attribute, is tried first as an

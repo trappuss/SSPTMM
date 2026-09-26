@@ -319,6 +319,10 @@ public static class InstalledModScanner
         }
     }
 
+    /// <summary>A plugin DLL's [BepInPlugin] GUID (null when it declares none) and file version.</summary>
+    public static (string? Guid, string? Version) ReadPlugin(string dllPath) =>
+        (ReadPluginMetadata(dllPath).Guid, TryGetFileVersion(dllPath));
+
     // What a compiled BepInEx plugin DLL declares about itself.
     private readonly record struct PluginMetadata(string? Guid, IReadOnlyList<ModDependencyRef> Dependencies);
 

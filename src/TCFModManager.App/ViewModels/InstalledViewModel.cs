@@ -914,6 +914,89 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         }
     }
 
+    //
+    // Installs an archive the user already has (see LocalArchive), through the download queue like
+    // any other install - matched to its sp-mod.com listing by what is inside it when it can be.
+    //
+    [RelayCommand]
+    private async Task InstallFromFileAsync()
+    {
+        if (AppServices.SptEnvironment.InstallPath is not { Length: > 0 } installPath)
+        {
+            StatusMessage = AppMessages.NoSptInstallFolder;
+            return;
+        }
+
+        var dialog = new Microsoft.Win32.OpenFileDialog
+        {
+            Title = Strings.Installed_InstallFromFileTitle,
+            Filter = Strings.Installed_InstallFromFileFilter,
+            CheckFileExists = true,
+        };
+        if (dialog.ShowDialog() != true) return;
+
+        var file = dialog.FileName;
+        var stem = Path.GetFileNameWithoutExtension(file);
+        StatusMessage = Text(Strings.Installed_LocalReadingFormat, Path.GetFileName(file));
+
+        LocalArchiveContents contents;
+        try
+        {
+            contents = await LocalArchive.InspectAsync(file);
+        }
+        catch (Exception ex)
+        {
+            AppLog.Warn("Install", $"couldn't read {file}: {ex.Message}");
+            StatusMessage = Text(Strings.Installed_LocalUnreadableFormat, Path.GetFileName(file), ex.Message);
+            return;
+        }
+
+        if (!contents.Recognised)
+        {
+            StatusMessage = Text(Strings.Installed_LocalNotRecognisedFormat, Path.GetFileName(file));
+            return;
+        }
+
+        try
+        {
+            await AppServices.ModCache.EnsureLoadedAsync();
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException || ex is TaskCanceledException)
+        {
+            // Offline: installed under its own name, without its listing.
+        }
+
+        var match = LocalArchive.MatchIn(contents, AppServices.ModCache.AllMods);
+        var version = LocalArchive.VersionOf(contents, match) ?? stem;
+        var name = match?.Name ?? stem;
+
+        var question = match is null
+            ? Text(Strings.Installed_LocalConfirmUnmatchedFormat, Path.GetFileName(file), name, version)
+            : Text(Strings.Installed_LocalConfirmMatchedFormat, Path.GetFileName(file), name, version);
+        if (MessageBox.Show(question, Strings.Installed_InstallFromFileTitle, MessageBoxButton.YesNo, MessageBoxImage.Question)
+            != MessageBoxResult.Yes)
+        {
+            StatusMessage = null;
+            return;
+        }
+
+        var target = match is null
+            ? new InstallTarget(LocalArchive.IdFor(name), false, name, null, null, null)
+            : InstallTarget.For(match);
+        var published = match?.Versions?.FirstOrDefault(v => string.Equals(v.Version, version, StringComparison.OrdinalIgnoreCase));
+        var modVersion = new ModVersion { Id = published?.Id ?? 0, Version = version, Link = LocalArchive.LinkFor(file) };
+
+        AppServices.DownloadQueue.Enqueue(
+            target,
+            version,
+            installPath,
+            () => Task.FromResult<ModVersion?>(modVersion),
+            checkDependencies: match is not null,
+            totalBytes: new FileInfo(file).Length);
+
+        StatusMessage = Text(Strings.Installed_LocalQueuedFormat, name);
+    }
+
     /// <summary>Removes a mod from the install: the manifest-precise ModInstallService.UninstallAsync path
     /// for anything IsAppManaged, or RemoveLegacyPath (delete the mod's whole folder) otherwise. Both paths
     /// confirm first.</summary>
@@ -1473,7 +1556,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     private async Task CheckHeldBackAsync(IReadOnlyList<InstalledModCardViewModel> cards)
     {
         var installed = cards
-            .Where(c => c is { IsAddon: false, ModId: not null } && !string.IsNullOrWhiteSpace(c.InstalledVersion))
+            .Where(c => c is { IsAddon: false, ModId: > 0 } && !string.IsNullOrWhiteSpace(c.InstalledVersion))
             .Select(c => (c.ModId!.Value, c.InstalledVersion!))
             .DistinctBy(c => c.Item1)
             .ToList();

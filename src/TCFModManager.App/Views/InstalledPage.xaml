@@ -322,6 +322,14 @@
                 Content="{loc:Str Common_Rescan}"
                 Command="{Binding ScanCommand}" />
 
+            <!-- An archive already on this PC, installed the same way as a download. -->
+            <ui:Button
+                DockPanel.Dock="Right"
+                Margin="0,0,8,0"
+                Content="{loc:Str Installed_InstallFromFile}"
+                ToolTip="{loc:Str Installed_InstallFromFileToolTip}"
+                Command="{Binding InstallFromFileCommand}" />
+
             <!-- Puts the last disable/enable back. A disable only moves folders, so undoing one is
                  just moving them back - shown only while there's something to put back. -->
             <ui:Button

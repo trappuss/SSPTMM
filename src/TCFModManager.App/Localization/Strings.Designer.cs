@@ -1771,4 +1771,15 @@ internal static class Strings
     internal static string Downloads_DepWrongVersionFormat => LocalizationService.Get("Downloads_DepWrongVersionFormat");
     internal static string Downloads_DepConflictFormat => LocalizationService.Get("Downloads_DepConflictFormat");
     internal static string Item_RequiredDisabled => LocalizationService.Get("Item_RequiredDisabled");
+    internal static string Installed_InstallFromFile => LocalizationService.Get("Installed_InstallFromFile");
+    internal static string Installed_InstallFromFileToolTip => LocalizationService.Get("Installed_InstallFromFileToolTip");
+    internal static string Installed_InstallFromFileTitle => LocalizationService.Get("Installed_InstallFromFileTitle");
+    internal static string Installed_InstallFromFileFilter => LocalizationService.Get("Installed_InstallFromFileFilter");
+    internal static string Installed_LocalReadingFormat => LocalizationService.Get("Installed_LocalReadingFormat");
+    internal static string Installed_LocalUnreadableFormat => LocalizationService.Get("Installed_LocalUnreadableFormat");
+    internal static string Installed_LocalNotRecognisedFormat => LocalizationService.Get("Installed_LocalNotRecognisedFormat");
+    internal static string Installed_LocalConfirmMatchedFormat => LocalizationService.Get("Installed_LocalConfirmMatchedFormat");
+    internal static string Installed_LocalConfirmUnmatchedFormat => LocalizationService.Get("Installed_LocalConfirmUnmatchedFormat");
+    internal static string Installed_LocalQueuedFormat => LocalizationService.Get("Installed_LocalQueuedFormat");
+    internal static string Downloads_CopyingLocal => LocalizationService.Get("Downloads_CopyingLocal");
 }

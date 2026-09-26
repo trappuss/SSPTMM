@@ -6652,4 +6652,52 @@ Install it anyway?</value>
     <value>Installed, but disabled - SPT does not load it</value>
     <comment>Tooltip on a required item that is installed only in a disabled folder.</comment>
   </data>
+  <data name="Installed_InstallFromFile" xml:space="preserve">
+    <value>Install from file...</value>
+    <comment>Subscribed items button: install a mod archive already on this PC.</comment>
+  </data>
+  <data name="Installed_InstallFromFileToolTip" xml:space="preserve">
+    <value>Install a mod archive you already have (.zip, .7z, .rar) the same way as a download: matched to its sp-mod.com page when it can be, and removable like any other</value>
+    <comment>Tooltip on Install from file.</comment>
+  </data>
+  <data name="Installed_InstallFromFileTitle" xml:space="preserve">
+    <value>Install from file</value>
+    <comment>Title of the file picker and the question.</comment>
+  </data>
+  <data name="Installed_InstallFromFileFilter" xml:space="preserve">
+    <value>Mod archives|*.zip;*.7z;*.rar;*.tar;*.gz;*.tgz|All files|*.*</value>
+    <comment>File picker filter. Keep the | separators and the *.ext patterns exactly; translate only the two labels.</comment>
+  </data>
+  <data name="Installed_LocalReadingFormat" xml:space="preserve">
+    <value>Reading {0}...</value>
+    <comment>While an archive is looked into. {0} the file name.</comment>
+  </data>
+  <data name="Installed_LocalUnreadableFormat" xml:space="preserve">
+    <value>{0} could not be read as an archive: {1}</value>
+    <comment>{0} file name, {1} the reason.</comment>
+  </data>
+  <data name="Installed_LocalNotRecognisedFormat" xml:space="preserve">
+    <value>Nothing in {0} says where its files go in SPT (no BepInEx or user folder, no plugins folder), so it was not installed.</value>
+    <comment>{0} file name.</comment>
+  </data>
+  <data name="Installed_LocalConfirmMatchedFormat" xml:space="preserve">
+    <value>{0} holds {1} {2} (matched to its sp-mod.com page by its plugin ID).
+
+Install it? It is installed the same way as a download: the version you have now is put aside first, and it can be removed like any other.</value>
+    <comment>{0} file, {1} mod, {2} version.</comment>
+  </data>
+  <data name="Installed_LocalConfirmUnmatchedFormat" xml:space="preserve">
+    <value>{0} does not match a single mod on sp-mod.com, so it will be installed as {1} ({2}), without a Workshop page or updates.
+
+Install it? It can be removed like any other.</value>
+    <comment>{0} file, {1} the name it gets, {2} its version.</comment>
+  </data>
+  <data name="Installed_LocalQueuedFormat" xml:space="preserve">
+    <value>{0} is being installed - see Downloads.</value>
+    <comment>{0} the mod.</comment>
+  </data>
+  <data name="Downloads_CopyingLocal" xml:space="preserve">
+    <value>Copying the archive...</value>
+    <comment>Queue status while a local archive is copied before installing.</comment>
+  </data>
 </root>

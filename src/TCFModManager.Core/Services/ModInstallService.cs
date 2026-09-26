@@ -1265,6 +1265,11 @@ public sealed class ModInstallService(
         catch (UnauthorizedAccessException) { }
     }
 
+    /// <summary>Extracts an archive (zip, 7z, rar, tar...) into a folder, as an install would - for
+    /// looking at what is in it first.</summary>
+    public static Task ExtractAsync(string archivePath, string extractDir, CancellationToken ct = default) =>
+        ExtractArchiveAsync(archivePath, extractDir, null, ct);
+
     // Extracts every file entry in the archive at <paramref name="archivePath"/> into
     // <paramref name="extractDir"/>. Zip archives go through System.IO.Compression; every other
     // format goes through SharpCompress's forward-only reader. Zip-slip protection: any entry whose
