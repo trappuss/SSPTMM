@@ -32,6 +32,18 @@ public sealed class ReplacedFileStore(string root)
         return true;
     }
 
+    /// <summary>Keeps <paramref name="copy"/> (a file already copied out of the install) as the
+    /// copy of <paramref name="relative"/>. False when one is already kept (the first one stays).</summary>
+    public bool KeepCopy(string copy, int modId, bool isAddon, string relative)
+    {
+        var kept = PathFor(modId, isAddon, relative);
+        if (File.Exists(kept)) return false;
+
+        Directory.CreateDirectory(Path.GetDirectoryName(kept)!);
+        File.Copy(copy, kept);
+        return true;
+    }
+
     /// <summary>Puts the kept copy back in the install (over whatever is there) and lets it go.
     /// False when there was no copy.</summary>
     public bool Restore(string installPath, int modId, bool isAddon, string relative)

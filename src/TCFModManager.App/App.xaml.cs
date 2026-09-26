@@ -105,7 +105,18 @@ public partial class App : Application
         var key = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(
             System.Text.Encoding.UTF8.GetBytes(AppPaths.DataDirectory.ToUpperInvariant())))[..16];
 
-        _singleInstance = new Mutex(initiallyOwned: true, $"Local\\TCFModManager-{key}", out var created);
+        bool created;
+        try
+        {
+            _singleInstance = new Mutex(initiallyOwned: true, $"Local\\TCFModManager-{key}", out created);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            // The copy already open runs as administrator and this one doesn't: it exists, and it is
+            // the one to use.
+            return false;
+        }
+
         if (created) return true;
 
         // Left over from a copy that ended without letting go: Windows hands it over as abandoned.

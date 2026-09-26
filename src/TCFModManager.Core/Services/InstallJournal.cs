@@ -8,15 +8,21 @@ namespace TCFModManager.Core.Services;
 // How to undo one install, written into its work folder before it changes anything in the SPT
 // folder - so a failure halfway, or the app being closed or killed halfway, can always be put back.
 //
-// What an install does to the SPT folder, in order: the previous version's files are moved into the
-// work folder ("previous"), files already there that the new version replaces are copied into the
-// ReplacedFileStore, then the new files are placed. Undoing is the same in reverse: every planned
-// file that was the previous version's goes back from "previous", every one that was someone else's
-// comes back from the store, and every other one - placed by this install - is removed.
+// Written ahead of each step, so it never claims more than has happened:
+//   1. Planned - every file the install will write - is saved before anything is touched.
+//   2. The previous version's files are moved into the work folder ("previous"), each one found
+//      there by looking, not by a list.
+//   3. Every file still in the way of a planned one is copied into the work folder ("before"), and
+//      each planned path with nothing there is written down as Absent. Saved.
+//   4. The new files are placed, the configs merged, and the record to write saved as Record.
+//   5. The manifest is written with Record: from then on the install is done.
 //
-// Once every file is placed the journal is marked Placed and carries the record to write: from then
-// on the install is finished, and a journal found in that state (the app stopped between placing the
-// files and writing the record) is completed rather than undone.
+// Undoing puts each planned path back to what it was: the previous version's file, else the copy
+// from "before", else - only for a path written down as Absent - nothing. A planned path with none
+// of those (the app stopped before step 3 got to it) is left exactly as it is. Nothing is ever
+// deleted that was there before the install.
+//
+// A journal whose Record is already in the manifest was finished; only the tidying was left.
 //
 public sealed class InstallJournal
 {
@@ -32,20 +38,13 @@ public sealed class InstallJournal
 
     public bool IsAddon { get; set; }
 
-    // Where copies of replaced files are kept - see ReplacedFileStore.
-    public string ReplacedRoot { get; set; } = string.Empty;
-
     // Every install-relative file (forward slashes) the install will write.
     public List<string> Planned { get; set; } = [];
 
-    // The files among Planned that were already there, someone else's, copied into the store by
-    // THIS install - the ones to put back when undoing it.
-    public List<string> BackedUp { get; set; } = [];
+    // The planned paths that held nothing before the install - the only ones undoing may delete.
+    public List<string> Absent { get; set; } = [];
 
-    // True once every planned file is in place.
-    public bool Placed { get; set; }
-
-    // The record to write once placed.
+    // The record the install writes last; in the manifest means the install finished.
     public InstalledModRecord? Record { get; set; }
 
     [JsonIgnore]
@@ -54,7 +53,14 @@ public sealed class InstallJournal
     [JsonIgnore]
     public string PreviousDirectory => Path.Combine(WorkDirectory, "previous");
 
-    public static InstallJournal Begin(string workDirectory, string installPath, InstallTarget target, string replacedRoot) =>
+    // Copies of what was in the way of planned files, someone else's or the mod's own leftovers.
+    [JsonIgnore]
+    public string BeforeDirectory => Path.Combine(WorkDirectory, "before");
+
+    public string BeforeCopyOf(string relative) =>
+        Path.Combine(BeforeDirectory, relative.Replace('/', Path.DirectorySeparatorChar));
+
+    public static InstallJournal Begin(string workDirectory, string installPath, InstallTarget target) =>
         new()
         {
             WorkDirectory = workDirectory,
@@ -62,7 +68,6 @@ public sealed class InstallJournal
             ModName = target.Name,
             ModId = target.Id,
             IsAddon = target.IsAddon,
-            ReplacedRoot = replacedRoot,
         };
 
     public void Save() =>
@@ -106,14 +111,15 @@ public sealed class InstallJournal
     public List<string> Undo()
     {
         var failed = new List<string>();
-        var store = new ReplacedFileStore(ReplacedRoot);
         var previous = PreviousDirectory;
+        var absent = Absent.ToHashSet(StringComparer.OrdinalIgnoreCase);
         var touched = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         foreach (var relative in Planned)
         {
             var destination = Resolve(relative);
             var stashed = Path.Combine(previous, relative.Replace('/', Path.DirectorySeparatorChar));
+            var before = BeforeCopyOf(relative);
 
             try
             {
@@ -122,16 +128,18 @@ public sealed class InstallJournal
                     Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
                     File.Move(stashed, destination, overwrite: true);
                 }
-                else if (BackedUp.Contains(relative, StringComparer.OrdinalIgnoreCase)
-                         && store.Restore(InstallPath, ModId, IsAddon, relative))
+                else if (File.Exists(before))
                 {
-                    // Someone else's file, back where it was.
+                    Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
+                    File.Copy(before, destination, overwrite: true);
                 }
-                else if (File.Exists(destination))
+                else if (absent.Contains(relative) && File.Exists(destination))
                 {
                     File.Delete(destination);
                     touched.Add(Path.GetDirectoryName(destination)!);
                 }
+
+                // Otherwise: never looked at before the app stopped, so as it was. Left alone.
             }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
             {

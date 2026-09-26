@@ -163,31 +163,118 @@ public class InstallPipelineTests : IDisposable
         Assert.Equal(ModInstallFailure.UnrecognisedArchive, failure.Reason);
     }
 
-    [Fact]
-    public async Task AnInterruptedUpdate_IsPutBackByRecovery()
+    // What the app leaves behind if it stops half-way through an update of ModI to 2.0.
+    private InstallJournal HalfDoneUpdate(bool absentWrittenDown)
     {
-        await Install(9, "ModI", "1.0", ("BepInEx/plugins/I.dll", "I1"), ("BepInEx/plugins/I.Extra.dll", "E1"));
-
-        // What the app would leave behind if it stopped half-way through an update to 2.0: the
-        // previous version moved into the work folder, one new file placed, the journal saying so.
         var work = Path.Combine(_spt, ".tcfmm-work", "interrupted");
-        var journal = InstallJournal.Begin(work, _spt, Mod(9, "ModI"), Path.Combine(_root, "replaced"));
-        journal.Planned = ["BepInEx/plugins/I.dll", "BepInEx/plugins/I.New.dll"];
         Directory.CreateDirectory(work);
+        var journal = InstallJournal.Begin(work, _spt, Mod(9, "ModI"));
+        journal.Planned = ["BepInEx/plugins/I.dll", "BepInEx/plugins/I.New.dll", "BepInEx/plugins/Hand.dll"];
         journal.Save();
+
+        // The previous version moved aside.
         Directory.CreateDirectory(Path.Combine(journal.PreviousDirectory, "BepInEx", "plugins"));
         File.Move(InSpt("BepInEx/plugins/I.dll"), Path.Combine(journal.PreviousDirectory, "BepInEx", "plugins", "I.dll"));
         File.Move(InSpt("BepInEx/plugins/I.Extra.dll"), Path.Combine(journal.PreviousDirectory, "BepInEx", "plugins", "I.Extra.dll"));
-        File.WriteAllText(InSpt("BepInEx/plugins/I.New.dll"), "N2");
+
+        if (absentWrittenDown)
+        {
+            // Hand.dll copied aside, I.New.dll noted as absent, and then the new files placed.
+            Directory.CreateDirectory(Path.GetDirectoryName(journal.BeforeCopyOf("BepInEx/plugins/Hand.dll"))!);
+            File.Copy(InSpt("BepInEx/plugins/Hand.dll"), journal.BeforeCopyOf("BepInEx/plugins/Hand.dll"));
+            journal.Absent = ["BepInEx/plugins/I.dll", "BepInEx/plugins/I.New.dll"];
+            journal.Save();
+            File.WriteAllText(InSpt("BepInEx/plugins/I.New.dll"), "N2");
+            File.WriteAllText(InSpt("BepInEx/plugins/Hand.dll"), "H2");
+        }
+
+        return journal;
+    }
+
+    [Fact]
+    public async Task AnInterruptedUpdate_IsPutBackByRecovery()
+    {
+        File.WriteAllText(InSpt("BepInEx/plugins/Hand.dll"), "HAND");
+        await Install(9, "ModI", "1.0", ("BepInEx/plugins/I.dll", "I1"), ("BepInEx/plugins/I.Extra.dll", "E1"));
+        var journal = HalfDoneUpdate(absentWrittenDown: true);
 
         var recovered = _service.RecoverInterruptedInstalls(_spt);
 
         Assert.Equal(["ModI"], recovered);
         Assert.Equal("I1", File.ReadAllText(InSpt("BepInEx/plugins/I.dll")));
         Assert.Equal("E1", File.ReadAllText(InSpt("BepInEx/plugins/I.Extra.dll")));
+        Assert.Equal("HAND", File.ReadAllText(InSpt("BepInEx/plugins/Hand.dll")));
         Assert.False(File.Exists(InSpt("BepInEx/plugins/I.New.dll")));
-        Assert.False(Directory.Exists(work));
+        Assert.False(Directory.Exists(journal.WorkDirectory));
         Assert.Equal("1.0", _manifest.Load().Mods.Single(m => m.ModId == 9).Version);
+    }
+
+    [Fact]
+    public async Task AnUpdateStoppedBeforeItLookedAtAFile_LeavesThatFileAlone()
+    {
+        // The app stopped after moving the previous version aside, before it had looked at Hand.dll:
+        // recovery must not delete what it never recorded as its own.
+        File.WriteAllText(InSpt("BepInEx/plugins/Hand.dll"), "HAND");
+        await Install(9, "ModI", "1.0", ("BepInEx/plugins/I.dll", "I1"), ("BepInEx/plugins/I.Extra.dll", "E1"));
+        HalfDoneUpdate(absentWrittenDown: false);
+
+        _service.RecoverInterruptedInstalls(_spt);
+
+        Assert.Equal("HAND", File.ReadAllText(InSpt("BepInEx/plugins/Hand.dll")));
+        Assert.Equal("I1", File.ReadAllText(InSpt("BepInEx/plugins/I.dll")));
+        Assert.Equal("E1", File.ReadAllText(InSpt("BepInEx/plugins/I.Extra.dll")));
+    }
+
+    [Fact]
+    public async Task ANewInstall_PutsBackAHalfDoneOneFirst()
+    {
+        await Install(9, "ModI", "1.0", ("BepInEx/plugins/I.dll", "I1"), ("BepInEx/plugins/I.Extra.dll", "E1"));
+        File.WriteAllText(InSpt("BepInEx/plugins/Hand.dll"), "HAND");
+        HalfDoneUpdate(absentWrittenDown: true);
+
+        // Installing anything puts the half-done one back before it starts.
+        await Install(1, "ModA", "1.0", ("BepInEx/plugins/A.dll", "a"));
+
+        Assert.Equal("I1", File.ReadAllText(InSpt("BepInEx/plugins/I.dll")));
+        Assert.False(File.Exists(InSpt("BepInEx/plugins/I.New.dll")));
+    }
+
+    [Fact]
+    public async Task AFailedUpdate_KeepsAFileAnotherModAlsoInstalled()
+    {
+        await Install(1, "ModA", "1.0", ("BepInEx/plugins/Shared.dll", "shared-a"));
+        await Install(2, "ModB", "1.0", ("BepInEx/plugins/Shared.dll", "shared-b"));
+        Directory.CreateDirectory(InSpt("BepInEx/plugins/Blocked.dll"));
+
+        var failure = await Assert.ThrowsAsync<ModInstallException>(() =>
+            Install(2, "ModB", "2.0", ("BepInEx/plugins/Shared.dll", "shared-b2"), ("BepInEx/plugins/Blocked.dll", "x")));
+
+        Assert.Equal(ModInstallFailure.RolledBack, failure.Reason);
+        Assert.Equal("shared-b", File.ReadAllText(InSpt("BepInEx/plugins/Shared.dll")));
+    }
+
+    [Fact]
+    public async Task AModsOwnLeftoverFromAHandInstall_IsNotPutBackWhenItIsRemoved()
+    {
+        Directory.CreateDirectory(InSpt("BepInEx/plugins/M"));
+        File.WriteAllText(InSpt("BepInEx/plugins/M/M.dll"), "M-v1-hand");
+
+        await Install(11, "ModM", "2.0", ("BepInEx/plugins/M/M.dll", "M-v2"));
+        await Remove(11);
+
+        Assert.False(File.Exists(InSpt("BepInEx/plugins/M/M.dll")));
+    }
+
+    [Fact]
+    public async Task RemovingAModAfterTheOwnerOfAFileItReplacedUpdatedIt_LeavesTheOwnersNewCopy()
+    {
+        await Install(2, "ModB", "1.0", ("BepInEx/plugins/Lib.dll", "lib-b1"));
+        await Install(1, "ModA", "1.0", ("BepInEx/plugins/Lib.dll", "lib-a"));
+        await Install(2, "ModB", "2.0", ("BepInEx/plugins/Lib.dll", "lib-b2"));
+
+        await Remove(1);
+
+        Assert.Equal("lib-b2", File.ReadAllText(InSpt("BepInEx/plugins/Lib.dll")));
     }
 
     [Fact]

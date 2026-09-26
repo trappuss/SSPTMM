@@ -15,13 +15,19 @@ public sealed class ModInstallManifestService(string? filePath = null)
     {
         // A damaged file is kept aside and its backup put back - see SafeFile. Losing this one would
         // make every mod the app installed look hand-installed.
-        return SafeFile.ReadJson(_filePath, json => JsonSerializer.Deserialize<ModInstallManifest>(json)) ?? new ModInstallManifest();
+        //
+        // One that cannot be read at all (held open elsewhere) throws, as it always did: read as
+        // empty, an update would take its mod for a new one and a removal would find no record.
+        //
+        return SafeFile.ReadJson(_filePath, json => JsonSerializer.Deserialize<ModInstallManifest>(json), throwIfUnreadable: true)
+            ?? new ModInstallManifest();
     }
 
     public void Save(ModInstallManifest manifest)
     {
         var json = JsonSerializer.Serialize(manifest, new JsonSerializerOptions { WriteIndented = true });
-        SafeFile.WriteAllText(_filePath, json, keepBackup: true);
+        if (!SafeFile.WriteAllText(_filePath, json, keepBackup: true))
+            throw new IOException($"{Path.GetFileName(_filePath)} could not be read this session, so it is not saved over");
     }
 
     //

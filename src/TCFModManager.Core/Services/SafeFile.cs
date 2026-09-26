@@ -104,7 +104,7 @@ public static class SafeFile
 
     /// <summary>Reads a JSON data file. Null when there is none - or when it is damaged and has no
     /// good backup, in which case the damaged copy is kept aside and the problem reported.</summary>
-    public static T? ReadJson<T>(string path, Func<string, T?> parse) where T : class
+    public static T? ReadJson<T>(string path, Func<string, T?> parse, bool throwIfUnreadable = false) where T : class
     {
         var full = Path.GetFullPath(path);
         if (!File.Exists(full)) return null;
@@ -120,6 +120,7 @@ public static class SafeFile
             Unreadable[full] = 0;
             AppLog.Error("Data", $"{Path.GetFileName(full)} could not be read; it will not be saved over this session", ex);
             Report(new SafeFileProblem(full, null, false, CouldNotRead: true));
+            if (throwIfUnreadable) throw;
             return null;
         }
 

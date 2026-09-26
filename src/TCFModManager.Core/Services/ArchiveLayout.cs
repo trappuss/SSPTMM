@@ -31,21 +31,28 @@ public static class ArchiveLayout
         ["patchers"] = "BepInEx/patchers",
     };
 
+    // Text for people. Pictures and web pages are not on the list: nothing says one at the top of an
+    // archive is not meant for the game, so those are placed as they always were.
     private static readonly HashSet<string> DocumentExtensions = new(StringComparer.OrdinalIgnoreCase)
     {
-        ".txt", ".md", ".url", ".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".pdf", ".html", ".htm", ".rtf", ".nfo",
+        ".txt", ".md", ".url", ".pdf", ".rtf", ".nfo",
     };
 
-    private static readonly string[] DocumentStems = ["readme", "license", "licence", "changelog", "changes", "credits"];
+    // The same, with no extension at all - matched on the whole name.
+    private static readonly HashSet<string> DocumentNames = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "readme", "license", "licence", "changelog", "changes", "credits", "copying", "notice",
+    };
 
     /// <summary>True for a file at the top of an archive that is for reading, not for the game.</summary>
     public static bool IsDocument(string path)
     {
         var name = Path.GetFileName(path);
-        if (DocumentExtensions.Contains(Path.GetExtension(name))) return true;
+        var extension = Path.GetExtension(name);
 
-        var stem = Path.GetFileNameWithoutExtension(name);
-        return DocumentStems.Any(d => stem.StartsWith(d, StringComparison.OrdinalIgnoreCase));
+        return extension.Length == 0
+            ? DocumentNames.Contains(name)
+            : DocumentExtensions.Contains(extension);
     }
 
     /// <summary>Every file to place, with its install-relative path; null when nothing in the
