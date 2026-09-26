@@ -17,7 +17,12 @@ public sealed class SpModApiClient : IDisposable
     {
         options ??= new SpModApiOptions();
         _ownsHttpClient = httpClient is null;
-        _http = httpClient ?? new HttpClient();
+        // Compressed: the catalog is some forty pages of JSON, about a quarter the size gzipped.
+        _http = httpClient ?? new HttpClient(new SocketsHttpHandler
+        {
+            AutomaticDecompression = DecompressionMethods.All,
+            PooledConnectionLifetime = TimeSpan.FromMinutes(10),
+        });
         _http.BaseAddress = new Uri(options.BaseUrl);
         _http.Timeout = options.Timeout;
         _http.DefaultRequestHeaders.Accept.Clear();

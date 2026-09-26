@@ -32,9 +32,9 @@ public sealed class AddonCacheStore
             if (data is null || data.SchemaVersion != SchemaVersion || data.Addons.Count == 0) return null;
             return data;
         }
-        catch (JsonException)
+        catch (Exception ex) when (ex is JsonException or IOException or UnauthorizedAccessException)
         {
-            // Corrupt or incompatible cache file - fall back to a live fetch.
+            // Corrupt, incompatible or unreadable right now - fall back to a live fetch.
             return null;
         }
     }

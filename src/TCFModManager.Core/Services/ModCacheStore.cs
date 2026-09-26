@@ -44,9 +44,9 @@ public sealed class ModCacheStore
             if (data is null || data.SchemaVersion != SchemaVersion || data.Mods.Count == 0) return null;
             return data;
         }
-        catch (JsonException)
+        catch (Exception ex) when (ex is JsonException or IOException or UnauthorizedAccessException)
         {
-            // Corrupt or incompatible cache file - fall back to a live fetch.
+            // Corrupt, incompatible or unreadable right now - fall back to a live fetch.
             return null;
         }
     }
@@ -63,7 +63,7 @@ public sealed class ModCacheStore
             };
             SafeFile.WriteAllText(_filePath, JsonSerializer.Serialize(data));
         }
-        catch (IOException)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
             // A failed cache write just means the next launch does a full live fetch again.
         }

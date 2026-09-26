@@ -392,7 +392,8 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
                     new ModInstallProgress(ModInstallStage.Downloading, item.ModName, version.Version));
                 try
                 {
-                    await AppServices.Downloads.DownloadAsync(version.Link!, part, progress, token);
+                    // A second attempt carries on from where the first broke off, when it can.
+                    await AppServices.Downloads.DownloadAsync(version.Link!, part, progress, token, resume: true);
                     File.Move(part, path, overwrite: true);
                     break;
                 }
@@ -400,7 +401,6 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
                 {
                     var wait = RetryDelays[attempt];
                     AppLog.Info("Downloads", $"{item.ModName} {item.VersionLabel}: {ex.Message} - trying again in {wait.TotalSeconds:F0}s");
-                    item.Progress = 0;
                     item.StatusMessage = Text(Strings.Downloads_RetryingFormat, wait.TotalSeconds);
                     await Task.Delay(wait, token);
                 }
@@ -410,6 +410,7 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
         {
             if (Unuse(path)) TryDelete(path);
             TryDelete(part);
+            TryDelete(ModDownloadService.ValidatorPathFor(part));
 
             // Said now, not when the installs reach this item - unless a retry has replaced this attempt.
             if (token == item.Token) Settle(item, ex);

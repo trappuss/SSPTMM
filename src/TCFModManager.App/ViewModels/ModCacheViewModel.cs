@@ -25,6 +25,9 @@ public partial class ModCacheViewModel : LocalizedViewModel
 
     public IReadOnlyList<Mod> AllMods { get; private set; } = [];
 
+    // How old a saved catalog can be and still be used without fetching it again at start.
+    public static readonly TimeSpan FreshFor = TimeSpan.FromMinutes(20);
+
     public bool IsLoaded => _loadTask?.IsCompletedSuccessfully == true;
 
     // Loads the catalog (from disk if cached, otherwise a live fetch) on first call; later calls await the same task.
@@ -97,7 +100,10 @@ public partial class ModCacheViewModel : LocalizedViewModel
             // Use the disk cache immediately, then refresh in the background.
             AppLog.Debug("Catalog", $"LoadAsync: disk cache hit, {cached.Mods.Count} mods");
             AllMods = cached.Mods;
-            _ = RefreshInBackgroundAsync(ct);
+
+            // A copy from a few minutes ago - the app restarted - is not fetched again (Refresh does).
+            if (DateTimeOffset.UtcNow - cached.FetchedAt > FreshFor) _ = RefreshInBackgroundAsync(ct);
+            else AppLog.Debug("Catalog", $"LoadAsync: saved copy is from {cached.FetchedAt:t}; not fetching again yet");
             return cached.Mods;
         }
 

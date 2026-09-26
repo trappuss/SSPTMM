@@ -38,17 +38,26 @@ public sealed class ServerMapClient : IDisposable
         _endpoint = endpoint;
         _pin = pin;
         _http = new HttpClient(handler) { BaseAddress = baseUri, Timeout = timeout };
+        _pin.Trusted ??= endpoint.PinnedThumbprint;
+    }
 
-        //
-        // Set once, as a default header, rather than per request: every route except the handshake
-        // needs it, and a route added later that forgot to attach it would fail in a way that looks
-        // like a server problem. Harmless on /hello, which ignores it.
-        //
-        if (endpoint.HasKey)
-        {
-            _http.DefaultRequestHeaders.TryAddWithoutValidation(
-                ServerMapEndpoint.KeyHeaderName, endpoint.SharedKey!.Trim());
-        }
+    //
+    // The shared key goes only to a server already known to be this one: one whose certificate is
+    // pinned (a request only goes out once TLS has checked it against the pin), or that answered this
+    // client's handshake as a server map. Never on the handshake itself, which does not need it -
+    // a mistyped address, or something in between on a first connection, would otherwise be handed
+    // the key before anything had been checked.
+    //
+    private bool _answeredWithoutTls;
+
+    private bool KeyMaySend => _endpoint.HasKey && (_pin.Trusted is not null || _answeredWithoutTls);
+
+    private HttpRequestMessage Get(string path, bool withKey)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Get, path);
+        if (withKey && KeyMaySend)
+            request.Headers.TryAddWithoutValidation(ServerMapEndpoint.KeyHeaderName, _endpoint.SharedKey!.Trim());
+        return request;
     }
 
     //
@@ -75,7 +84,9 @@ public sealed class ServerMapClient : IDisposable
             ServerCertificateCustomValidationCallback = (_, certificate, _, _) =>
             {
                 pin.Presented = certificate is null ? null : ServerCertificatePin.Thumbprint(certificate);
-                pin.Verdict = ServerCertificatePin.Decide(endpoint.PinnedThumbprint, pin.Presented);
+
+                // Against the pin, or the certificate this client's handshake already accepted.
+                pin.Verdict = ServerCertificatePin.Decide(pin.Trusted ?? endpoint.PinnedThumbprint, pin.Presented);
 
                 return ServerCertificatePin.Accepts(pin.Verdict);
             },
@@ -105,8 +116,9 @@ public sealed class ServerMapClient : IDisposable
 
         try
         {
+            using var request = Get(HelloPath, withKey: false);
             using var response = await _http
-                .GetAsync(HelloPath, HttpCompletionOption.ResponseContentRead, cancellationToken)
+                .SendAsync(request, HttpCompletionOption.ResponseContentRead, cancellationToken)
                 .ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -137,6 +149,11 @@ public sealed class ServerMapClient : IDisposable
             if (hello.Protocol != SupportedProtocol)
                 return Fail(ServerMapProblem.ProtocolMismatch, serverProtocol: hello.Protocol,
                     statusCode: (int)response.StatusCode);
+
+            // Known now: its certificate from here on (first use), or - with no TLS in play - that
+            // it answered as a server map.
+            if (_pin.Verdict == PinVerdict.FirstUse && _pin.Presented is not null) _pin.Trusted = _pin.Presented;
+            if (_pin.Presented is null) _answeredWithoutTls = true;
 
             return new ServerHelloProbe
             {
@@ -180,8 +197,14 @@ public sealed class ServerMapClient : IDisposable
 
         try
         {
+            // Nothing known about this server yet (never pinned, no handshake here): the handshake
+            // first, so the key goes to it only once it has answered as one.
+            if (_endpoint.HasKey && !KeyMaySend) await HelloAsync(cancellationToken).ConfigureAwait(false);
+            _pin.Reset();
+
+            using var request = Get(ListPath, withKey: true);
             using var response = await _http
-                .GetAsync(ListPath, HttpCompletionOption.ResponseContentRead, cancellationToken)
+                .SendAsync(request, HttpCompletionOption.ResponseContentRead, cancellationToken)
                 .ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -276,6 +299,9 @@ public sealed class ServerMapClient : IDisposable
 internal sealed class PinRecorder
 {
     public string? Presented { get; set; }
+
+    // The certificate this client trusts: the pinned one, or the one its handshake accepted.
+    public string? Trusted { get; set; }
 
     public PinVerdict Verdict { get; set; } = PinVerdict.NoCertificate;
 

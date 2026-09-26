@@ -84,7 +84,10 @@ public partial class AddonCacheViewModel : LocalizedViewModel
         {
             AppLog.Debug("Addons", $"disk cache hit, {cached.Addons.Count} addons");
             Publish(cached.Addons);
-            _ = RefreshInBackgroundAsync(ct);
+
+            // A copy from a few minutes ago - the app restarted - is not fetched again (Refresh does).
+            if (DateTimeOffset.UtcNow - cached.FetchedAt > ModCacheViewModel.FreshFor) _ = RefreshInBackgroundAsync(ct);
+            else AppLog.Debug("Addons", $"saved copy is from {cached.FetchedAt:t}; not fetching again yet");
             return cached.Addons;
         }
 

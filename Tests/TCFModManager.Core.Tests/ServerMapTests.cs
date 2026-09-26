@@ -607,10 +607,9 @@ public class ServerMapKeyTests
         Assert.True(Endpoint(Key).HasKey);
     }
 
-    // Every route except the handshake is gated on it, so it is set once as a default header rather
-    // than attached per call - a route added later cannot forget it.
+    // Never on the handshake, which does not need it; on the list once the server has answered it.
     [Fact]
-    public async Task TheKeyIsSentOnEveryRequest()
+    public async Task TheKeyIsSentOnceTheServerHasAnsweredTheHandshake()
     {
         var handler = new CapturingHandler(HttpStatusCode.OK, """{ "protocol": 1 }""");
         using var client = ServerMapClient.TryCreate(Endpoint(Key), handler)!;
@@ -618,8 +617,46 @@ public class ServerMapKeyTests
         await client.HelloAsync();
         await client.ListAsync();
 
-        Assert.Equal(2, handler.SeenKeys.Count);
-        Assert.All(handler.SeenKeys, k => Assert.Equal(Key, k));
+        Assert.Equal([null, Key], handler.SeenKeys);
+    }
+
+    // A list asked for straight away is preceded by the handshake, so the key still goes only to a
+    // server that answered as one.
+    [Fact]
+    public async Task AListAskedForFirst_ShakesHandsBeforeSendingTheKey()
+    {
+        var handler = new CapturingHandler(HttpStatusCode.OK, """{ "protocol": 1 }""");
+        using var client = ServerMapClient.TryCreate(Endpoint(Key), handler)!;
+
+        await client.ListAsync();
+
+        Assert.Equal([null, Key], handler.SeenKeys);
+    }
+
+    // Something at that address that is not a server map is never handed the key.
+    [Fact]
+    public async Task TheKeyIsNeverSentToSomethingThatIsNotAServerMap()
+    {
+        var handler = new CapturingHandler(HttpStatusCode.NotFound, "<html>not us</html>");
+        using var client = ServerMapClient.TryCreate(Endpoint(Key), handler)!;
+
+        await client.HelloAsync();
+        await client.ListAsync();
+
+        Assert.All(handler.SeenKeys, k => Assert.Null(k));
+    }
+
+    // A pinned server is known before any handshake: TLS checks the pin before a request goes out.
+    [Fact]
+    public async Task APinnedServerGetsTheKeyWithoutAHandshake()
+    {
+        var handler = new CapturingHandler(HttpStatusCode.OK, """{ "protocol": 1 }""");
+        using var client = ServerMapClient.TryCreate(
+            new ServerMapEndpoint("192.168.1.111", 6969, PinnedThumbprint: "AB12", SharedKey: Key), handler)!;
+
+        await client.ListAsync();
+
+        Assert.Equal([Key], handler.SeenKeys);
     }
 
     [Fact]
@@ -643,8 +680,9 @@ public class ServerMapKeyTests
         using var client = ServerMapClient.TryCreate(Endpoint($"  {Key}\t"), handler)!;
 
         await client.HelloAsync();
+        await client.ListAsync();
 
-        Assert.Equal(Key, handler.SeenKeys[0]);
+        Assert.Equal(Key, handler.SeenKeys[1]);
     }
 
     //
