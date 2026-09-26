@@ -121,6 +121,25 @@ public partial class InstalledPage : Page
     private static string[] KeepDroppedTempFiles(string[] files)
     {
         var temp = System.IO.Path.GetFullPath(System.IO.Path.GetTempPath());
+        var kept = System.IO.Path.Combine(temp, "TCFModManager-dropped");
+
+        // Copies from earlier drops, installed (or not) long since.
+        try
+        {
+            if (System.IO.Directory.Exists(kept))
+            {
+                foreach (var old in System.IO.Directory.EnumerateDirectories(kept)
+                             .Where(d => System.IO.Directory.GetCreationTimeUtc(d) < DateTime.UtcNow.AddDays(-1)))
+                {
+                    System.IO.Directory.Delete(old, recursive: true);
+                }
+            }
+        }
+        catch (Exception ex) when (ex is System.IO.IOException or UnauthorizedAccessException)
+        {
+            TCFModManager.Core.Services.AppLog.Debug("Install", $"couldn't clear old dropped copies: {ex.Message}");
+        }
+
         return [.. files.Select(file =>
         {
             try
@@ -131,7 +150,7 @@ public partial class InstalledPage : Page
                     return file;
                 }
 
-                var folder = System.IO.Path.Combine(temp, "TCFModManager-dropped", Guid.NewGuid().ToString("N"));
+                var folder = System.IO.Path.Combine(kept, Guid.NewGuid().ToString("N"));
                 System.IO.Directory.CreateDirectory(folder);
                 var copy = System.IO.Path.Combine(folder, System.IO.Path.GetFileName(file));
                 System.IO.File.Copy(file, copy);

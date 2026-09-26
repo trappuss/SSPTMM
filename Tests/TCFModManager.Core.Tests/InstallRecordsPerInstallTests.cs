@@ -202,23 +202,23 @@ public class InstallRecordsPerInstallTests : IDisposable
     }
 
     [Fact]
-    public void AnInstallThatMoved_HandsItsRecordsToWhereItsFilesAreNow()
+    public void AnInstallsRecords_AreNeverTakenByAnother_EvenWithItsFolderGone()
     {
+        // A folder renamed for a while looks just like one that moved: another install with the
+        // same mods takes nothing from it, and it finds its records as they were when it is back.
         Put(_a, "BepInEx/plugins/ModOne/One.dll");
         var service = new ModInstallManifestService(_data);
         service.Save(_a, new ModInstallManifest { Mods = [Record(1, "BepInEx/plugins/ModOne/One.dll")] });
-        var copy = Path.Combine(service.ReplacedFilesRootFor(_a), "mod-1", "kept.dll");
-        Directory.CreateDirectory(Path.GetDirectoryName(copy)!);
-        File.WriteAllText(copy, "kept");
 
-        // Renamed: A's folder is gone, the same files are at the new name.
-        var moved = Path.Combine(_root, "SPT A moved");
-        Directory.Move(_a, moved);
+        var aside = Path.Combine(_root, "SPT A (off)");
+        Directory.Move(_a, aside);
+        Put(_b, "BepInEx/plugins/ModOne/One.dll");
 
-        Assert.Equal([1], service.Load(moved).Mods.Select(m => m.ModId));
-        Assert.Equal("kept", File.ReadAllText(Path.Combine(service.ReplacedFilesRootFor(moved), "mod-1", "kept.dll")));
-        Assert.Empty(JsonSerializer.Deserialize<ModInstallManifest>(
-            File.ReadAllText(Path.Combine(service.FolderFor(_a), "installed-mods.json")))!.Mods);
+        Assert.Empty(service.Load(_b).Mods);
+        Assert.Empty(service.Load(aside).Mods);
+
+        Directory.Move(aside, _a);
+        Assert.Equal([1], service.Load(_a).Mods.Select(m => m.ModId));
     }
 
     [Fact]

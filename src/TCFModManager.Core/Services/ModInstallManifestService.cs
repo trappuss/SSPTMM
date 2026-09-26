@@ -18,8 +18,9 @@ namespace TCFModManager.Core.Services;
 // The single list kept before (Data\installed-mods.json, Data\ReplacedFiles) is moved over the first
 // time each install is opened: the records whose files are in that install go to it, with their
 // kept copies; the rest wait in the old list for the install they belong to. A record none of whose
-// files is anywhere stays there - it describes nothing on disk. An install that has moved (its
-// folder gone, its drive still there) hands its records to the one they are found in the same way.
+// files is anywhere stays there - it describes nothing on disk.
+//
+// Records belong to an install's folder: one moved to a new folder starts with none (see SourcesFor).
 //
 // A corrupt or hand-edited list falls back to its backup, else an empty one (see SafeFile).
 //
@@ -50,8 +51,12 @@ public sealed class ModInstallManifestService
 
     /// <summary>The file this install's records are in (moved over from the old list first, when
     /// they have not been yet) - for the Data files editor.</summary>
-    public string RecordsFileFor(string installPath)
+    public string? RecordsFileFor(string installPath)
     {
+        // Not for a folder that is not there: saving the editor's text there would mark the install
+        // as having had its records moved over, with none moved.
+        if (!Directory.Exists(installPath)) return null;
+
         Load(installPath);
         return FileFor(installPath);
     }
@@ -110,49 +115,22 @@ public sealed class ModInstallManifestService
         if (!File.Exists(name)) File.WriteAllText(name, installPath);
     }
 
-    // Where records waiting for their install are: the old single list, and the records of an
-    // install whose folder has gone (moved or renamed - its drive is there, the folder is not).
-    private sealed record Source(string File, string ReplacedRoot, bool Legacy);
+    // Where records waiting for their install are: the old single list, and the copies it kept.
+    //
+    // Not the records of an install whose folder has gone. Taking those over for the install their
+    // files are found in was tried and dropped: a folder renamed for a while, or being reinstalled,
+    // looks the same as one that moved, and an unrelated install that merely has the same mods
+    // would take them too. An install moved to a new folder starts with no records - its mods show
+    // as installed by hand (their versions read from their files) until they are next installed or
+    // updated from here.
+    private sealed record Source(string File, string ReplacedRoot);
 
-    private IEnumerable<Source> SourcesFor(string installPath)
-    {
-        yield return new Source(Path.Combine(_dataDirectory, RecordsFileName), Path.Combine(_dataDirectory, "ReplacedFiles"), Legacy: true);
-
-        if (!Directory.Exists(RecordsRoot)) yield break;
-
-        var mine = FolderFor(installPath);
-        foreach (var folder in Directory.EnumerateDirectories(RecordsRoot))
-        {
-            if (string.Equals(Path.GetFullPath(folder), Path.GetFullPath(mine), StringComparison.OrdinalIgnoreCase)) continue;
-
-            var nameFile = Path.Combine(folder, InstallNameFile);
-            var records = Path.Combine(folder, RecordsFileName);
-            if (!File.Exists(nameFile) || !File.Exists(records)) continue;
-
-            string was;
-            try
-            {
-                was = File.ReadAllText(nameFile).Trim();
-            }
-            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-            {
-                continue;
-            }
-
-            if (was.Length == 0 || Directory.Exists(was)) continue;
-
-            // A drive that is not there (unplugged, a network share offline) is not a move: its
-            // install is simply out of reach for now, and keeps its records.
-            var root = Path.GetPathRoot(Path.GetFullPath(was));
-            if (string.IsNullOrEmpty(root) || !Directory.Exists(root)) continue;
-
-            yield return new Source(records, Path.Combine(folder, "ReplacedFiles"), Legacy: false);
-        }
-    }
+    private IEnumerable<Source> SourcesFor() =>
+        [new Source(Path.Combine(_dataDirectory, RecordsFileName), Path.Combine(_dataDirectory, "ReplacedFiles"))];
 
     //
-    // The first time an install is opened: the records waiting in the old single list (or left by
-    // an install that has since moved) whose files are in it become its own, with their kept copies.
+    // The first time an install is opened: the records waiting in the old single list whose files
+    // are in it become its own, with their kept copies.
     // Always leaves the install a records file (empty when nothing was its), so this runs once per
     // install.
     //
@@ -170,7 +148,7 @@ public sealed class ModInstallManifestService
             var evidence = new Evidence(installPath);
             var changes = new List<(Source Source, ModInstallManifest List, List<InstalledModRecord> Mine, List<InstalledModRecord> Done)>();
 
-            foreach (var source in SourcesFor(installPath).Where(s => File.Exists(s.File)).ToList())
+            foreach (var source in SourcesFor().Where(s => File.Exists(s.File)).ToList())
             {
                 var list = ReadList(source.File) ?? new ModInstallManifest();
 
@@ -208,7 +186,7 @@ public sealed class ModInstallManifestService
                 WriteList(source.File, list);
 
                 if (mine.Count > 0)
-                    AppLog.Info("Install", $"records of {mine.Count} mod(s) moved to {installPath} from {(source.Legacy ? "the shared list" : "an install that has moved")}; {list.Mods.Count} left there");
+                    AppLog.Info("Install", $"records of {mine.Count} mod(s) moved to {installPath} from the shared list; {list.Mods.Count} left for other installs");
             }
         }
     }

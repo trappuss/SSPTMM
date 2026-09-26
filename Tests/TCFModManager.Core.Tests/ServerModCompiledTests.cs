@@ -246,4 +246,57 @@ public class ServerModCompiledTests : IDisposable
 
         Assert.Null(metadata);
     }
+
+    [Theory]
+    [MemberData(nameof(Levels))]
+    public void AKeyBuiltFromALiteral_IsNotTakenAsItBegan(OptimizationLevel level)
+    {
+        foreach (var key in new[] { "\"COM.UP\".ToLowerInvariant()", "\"com.b\" + Other.P", "$\"com.{Other.P}\"" })
+        {
+            var metadata = Build($$"""
+                public static class Other { public static string P = "x"; }
+                public record ModMetadata : IModMetadata
+                {
+                    public string ModGuid { get; init; } = "com.mod";
+                    public string Name { get; init; } = "Mod";
+                    public string Author { get; init; } = "Me";
+                    public Version Version { get; init; } = new("1.0.0");
+                    public Range SptVersion { get; init; } = new("~4.1.0");
+                    public Dictionary<string, Range> ModDependencies { get; init; } = new() { { {{key}}, new Range("~1.0.0") } };
+                }
+                """, level);
+
+            Assert.Equal("com.mod", metadata?.Guid);
+            Assert.Empty(metadata!.Dependencies);
+        }
+    }
+
+    [Theory]
+    [MemberData(nameof(Levels))]
+    public void ASetterOfAnotherType_OrAStoreMadeOnlySometimes_IsNotTheModsValue(OptimizationLevel level)
+    {
+        var metadata = Build("""
+            public static class Log { public static string Author { get; set; } }
+            public record ModMetadata : IModMetadata
+            {
+                public ModMetadata()
+                {
+                    Log.Author = "logger-tag";
+                    if (System.Environment.TickCount > 0) { Festive = true; Name = "Sometimes"; }
+                }
+                public bool Festive { get; set; }
+                public string ModGuid { get; init; } = "com.mod";
+                public string Name { get; init; }
+                public string Author { get; init; }
+                public Version Version { get; init; } = new("1.0.0");
+                public Range SptVersion { get; init; } = new("~4.1.0");
+                public Dictionary<string, Range> ModDependencies { get; init; }
+            }
+            """, level);
+
+        Assert.Equal("com.mod", metadata?.Guid);
+        Assert.Equal("1.0.0", metadata?.Version);
+        Assert.Null(metadata?.Author);
+        Assert.Null(metadata?.Name);
+    }
 }

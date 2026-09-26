@@ -80,6 +80,7 @@ public partial class DataFilesViewModel : LocalizedViewModel
         {
             try
             {
+                // Null (nothing to edit) when the install's folder is not there right now.
                 return AppServices.InstallManifest.RecordsFileFor(installPath);
             }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)

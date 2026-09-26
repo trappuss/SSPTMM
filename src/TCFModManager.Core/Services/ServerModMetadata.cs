@@ -125,6 +125,16 @@ public static class ServerModMetadataReader
             list.Add(value);
         }
 
+        // The class and its base classes in this DLL: only their own setters are stores to it.
+        var chain = new HashSet<TypeDefinitionHandle>();
+        for (var (step, depth) = (handle, 0); depth <= 8; depth++)
+        {
+            chain.Add(step);
+            var baseType = reader.GetTypeDefinition(step).BaseType;
+            if (baseType.IsNil || baseType.Kind != HandleKind.TypeDefinition) break;
+            step = (TypeDefinitionHandle)baseType;
+        }
+
         var current = handle;
         for (var depth = 0; depth <= 8; depth++)
         {
@@ -143,13 +153,24 @@ public static class ServerModMetadataReader
                 if (name == ".ctor" && ParameterCount(reader, method) == 0)
                 {
                     var start = 0;
+                    var branched = false;
                     for (var i = 0; i < il.Count; i++)
                     {
+                        if (IsBranch(il[i].Op)) branched = true;
+
                         var property = il[i].Op == Stfld ? BackingFieldOf(reader, il[i].Token)
-                            : il[i].Op is Call or Callvirt ? SetterOf(reader, il[i].Token)
+                            : il[i].Op is Call or Callvirt ? SetterOf(reader, il[i].Token, chain)
                             : null;
 
-                        if (property is not null) Add(property, il.GetRange(start, i - start));
+                        if (property is not null)
+                        {
+                            var region = il.GetRange(start, i - start);
+
+                            // A store to this object ("ldarg.0; <value>; stfld/call"), made every time:
+                            // after a branch it may not be, and to another object it is not this one's.
+                            // Either still counts as a place the property is set, with no value.
+                            Add(property, !branched && region is [{ Op: Ldarg0 }, ..] ? region : []);
+                        }
 
                         // Each store, and the call of the base constructor, ends the one before.
                         if (property is not null || il[i].Op == Stfld
@@ -248,18 +269,22 @@ public static class ServerModMetadataReader
         var i = 1;
         while (i < body.Count)
         {
+            // dup; ldstr "guid"
             if (body[i].Op != Dup || i + 1 >= body.Count || body[i + 1] is not { Op: Ldstr, Text: { } key } || string.IsNullOrWhiteSpace(key))
                 return [];
 
-            // To the entry's own Add: nothing in the value may start another entry.
+            // Then the value, straight away: ldstr "~1.0"; [ldc.i4 loose]; newobj Range | call Range::Parse -
+            // so a key that goes on to be changed ("com." + x, "X".ToLower()) is not taken as it began.
             var j = i + 2;
-            while (j < body.Count && !(body[j].Op is Call or Callvirt && MethodName(reader, body[j].Token).Member is "Add" or "set_Item"))
-            {
-                if (body[j].Op == Dup) return [];
-                j++;
-            }
+            if (j >= body.Count || body[j].Op != Ldstr) return [];
+            j++;
+            if (j < body.Count && body[j].IsInt) j++;
+            if (j >= body.Count || !IsRange(reader, body[j])) return [];
+            j++;
 
-            if (j >= body.Count || j == i + 2) return [];
+            // And the entry's own Add.
+            if (j >= body.Count || !(body[j].Op is Call or Callvirt && MethodName(reader, body[j].Token).Member is "Add" or "set_Item"))
+                return [];
 
             found.Add(new ModDependencyRef(key.Trim(), IsSoft: false));
             i = j + 1;
@@ -267,6 +292,11 @@ public static class ServerModMetadataReader
 
         return found;
     }
+
+    private static bool IsRange(MetadataReader reader, Instruction instruction) =>
+        instruction.Op is Newobj or Call
+        && MethodName(reader, instruction.Token) is ("Range", var member)
+        && member == (instruction.Op == Newobj ? ".ctor" : "Parse");
 
     private static List<Instruction> WithoutThis(List<Instruction> il) =>
         il is [{ Op: Ldarg0 }, ..] ? il.GetRange(1, il.Count - 1) : il;
@@ -289,21 +319,28 @@ public static class ServerModMetadataReader
     }
 
     // The property a setter call stands for ("set_ModGuid" -> "ModGuid") - a setter of the class
-    // itself (defined in this DLL) or of SPT's metadata base, never another object's: filling the
-    // dependencies dictionary calls its set_Item.
-    private static string? SetterOf(MetadataReader reader, int token)
+    // itself or a base class of it in this DLL, or of SPT's metadata base - never another type's:
+    // filling the dependencies dictionary calls its set_Item, and a static "Log.Author = ..." is
+    // not the mod's author.
+    private static string? SetterOf(MetadataReader reader, int token, HashSet<TypeDefinitionHandle> chain)
     {
         var handle = MetadataTokens.EntityHandle(token);
-        var own = handle.Kind == HandleKind.MethodDefinition
-            || (handle.Kind == HandleKind.MemberReference
-                && reader.GetMemberReference((MemberReferenceHandle)handle).Parent is var parent
-                && parent.Kind is HandleKind.TypeReference or HandleKind.TypeDefinition
-                && NameOf(reader, (EntityHandle)parent) is ("AbstractModMetadata" or "IModMetadata", SptModNamespace));
+        var own = handle.Kind switch
+        {
+            HandleKind.MethodDefinition => chain.Contains(reader.GetMethodDefinition((MethodDefinitionHandle)handle).GetDeclaringType()),
+            HandleKind.MemberReference => reader.GetMemberReference((MemberReferenceHandle)handle).Parent is var parent
+                && parent.Kind is HandleKind.TypeReference
+                && NameOf(reader, (EntityHandle)parent) is ("AbstractModMetadata" or "IModMetadata", SptModNamespace),
+            _ => false,
+        };
 
         return own && MethodName(reader, token).Member is { } member && member.StartsWith("set_", StringComparison.Ordinal)
             ? member[4..]
             : null;
     }
+
+    // br, br.s, the conditional branches, switch, leave: past one of these, a store may not happen.
+    private static bool IsBranch(int op) => op is (>= 0x2B and <= 0x45) or 0xDD or 0xDE;
 
     private static (string? Declaring, string? Member) MethodName(MetadataReader reader, int token)
     {
