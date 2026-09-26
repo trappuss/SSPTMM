@@ -166,6 +166,24 @@ public sealed class AppSettings
     public bool ShowModListBadges { get; set; } = true;
 
     //
+    // The hub's own tabs for Subscribed items and for Your collections, beside Workshop. Both on by
+    // default; either can go for someone who reaches the page through Workshop > Your Items
+    // instead. Hiding a tab hides nothing else: the page stays in that menu.
+    //
+    public bool ShowSubscribedItemsTab { get; set; } = true;
+
+    public bool ShowCollectionsTab { get; set; } = true;
+
+    //
+    // A picture of the user's own behind the window, in place of the Steam grid: the copy of it
+    // kept in Data\Background (so moving or deleting the original does not lose it), and how far
+    // it is darkened, 0 to 0.9, so text stays readable over it. Null: the grid.
+    //
+    public string? BackgroundImage { get; set; }
+
+    public double BackgroundDarkness { get; set; } = 0.55;
+
+    //
     // Where the main window opens and how big. Always present, the same as ServerMap below, and
     // never null for the same reason: this file is offered for hand-editing, so a "Window": null
     // written into it is a thing that happens rather than a thing to assume away.

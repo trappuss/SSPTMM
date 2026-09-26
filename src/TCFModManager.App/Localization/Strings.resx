@@ -6214,4 +6214,60 @@ This was written to:
     <value>+{0:N0}</value>
     <comment>Last square in a collection card's hover popup: how many more items there are. Steam's "+225".</comment>
   </data>
+  <data name="Options_TabsBackgroundHeader" xml:space="preserve">
+    <value>Tabs and background</value>
+    <comment>Options card heading.</comment>
+  </data>
+  <data name="Options_TabsBackgroundDescription" xml:space="preserve">
+    <value>The Subscribed items and Collections tabs beside Workshop can each be hidden - both pages stay under Workshop &gt; Your Items. A picture of your own can take the place of the Steam grid behind the window.</value>
+    <comment>Options card text.</comment>
+  </data>
+  <data name="Options_SubscribedTabOn" xml:space="preserve">
+    <value>Subscribed items tab shown</value>
+    <comment>Options switch, on.</comment>
+  </data>
+  <data name="Options_SubscribedTabOff" xml:space="preserve">
+    <value>Subscribed items tab hidden (Your Items &gt; Subscribed items)</value>
+    <comment>Options switch, off.</comment>
+  </data>
+  <data name="Options_CollectionsTabOn" xml:space="preserve">
+    <value>Collections tab shown</value>
+    <comment>Options switch, on: a hub tab opening your collections.</comment>
+  </data>
+  <data name="Options_CollectionsTabOff" xml:space="preserve">
+    <value>Collections tab hidden (Your Items &gt; Your collections)</value>
+    <comment>Options switch, off.</comment>
+  </data>
+  <data name="Options_BackgroundChoose" xml:space="preserve">
+    <value>Choose picture...</value>
+    <comment>Options button: pick a picture for the window background.</comment>
+  </data>
+  <data name="Options_BackgroundUseGrid" xml:space="preserve">
+    <value>Use the Steam grid</value>
+    <comment>Options button: back to the default background.</comment>
+  </data>
+  <data name="Options_BackgroundCurrentFormat" xml:space="preserve">
+    <value>Background: {0}</value>
+    <comment>Under those buttons: the picture in use. {0} is its file name.</comment>
+  </data>
+  <data name="Options_BackgroundDarkness" xml:space="preserve">
+    <value>Darken</value>
+    <comment>Label before the slider that darkens the background picture.</comment>
+  </data>
+  <data name="Options_BackgroundChooseTitle" xml:space="preserve">
+    <value>Choose a background picture</value>
+    <comment>Title of the file dialog.</comment>
+  </data>
+  <data name="Options_BackgroundPictures" xml:space="preserve">
+    <value>Pictures</value>
+    <comment>File type name in that dialog.</comment>
+  </data>
+  <data name="Options_BackgroundUnreadable" xml:space="preserve">
+    <value>That picture could not be read here - the Steam grid is kept.</value>
+    <comment>When the chosen file is not a picture this machine can show.</comment>
+  </data>
+  <data name="Options_BackgroundCopyFailedFormat" xml:space="preserve">
+    <value>The picture could not be copied: {0}</value>
+    <comment>When copying the picture into the app's Data folder fails. {0} is why.</comment>
+  </data>
 </root>

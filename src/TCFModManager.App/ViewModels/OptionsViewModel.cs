@@ -287,6 +287,10 @@ public partial class OptionsViewModel : LocalizedViewModel
         _smoothScrolling = settings.SmoothScrolling;
         _confirmUnsubscribe = settings.ConfirmUnsubscribe;
         _keepDownloads = settings.KeepDownloads;
+        _showSubscribedItemsTab = settings.ShowSubscribedItemsTab;
+        _showCollectionsTab = settings.ShowCollectionsTab;
+        _backgroundDarkness = Math.Clamp(settings.BackgroundDarkness, 0, 0.9);
+        _backgroundFileName = settings.BackgroundImage is { } picture ? System.IO.Path.GetFileName(picture) : null;
 
         _selectedWindowStartup = WindowStartupOptions.FirstOrDefault(o => o.Value == settings.Window.StartupMode)
             ?? WindowStartupOptions[0];
@@ -348,6 +352,133 @@ public partial class OptionsViewModel : LocalizedViewModel
     // No confirmation either way. Nothing is at stake in showing or hiding a read-only page, and
     // the switch's own tooltip carries the caveat that matters.
     //
+    // ------------------------------------------------------------------ tabs and background
+
+    [ObservableProperty]
+    private bool _showSubscribedItemsTab;
+
+    [ObservableProperty]
+    private bool _showCollectionsTab;
+
+    // How far the picture is darkened, 0 to 0.9.
+    [ObservableProperty]
+    private double _backgroundDarkness;
+
+    // The picture in use, by its file name; null for the Steam grid.
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasBackgroundImage))]
+    [NotifyCanExecuteChangedFor(nameof(UseGridBackgroundCommand))]
+    private string? _backgroundFileName;
+
+    public bool HasBackgroundImage => BackgroundFileName is not null;
+
+    partial void OnShowSubscribedItemsTabChanged(bool value) => SaveAppearance(s => s.ShowSubscribedItemsTab = value);
+
+    partial void OnShowCollectionsTabChanged(bool value) => SaveAppearance(s => s.ShowCollectionsTab = value);
+
+    partial void OnBackgroundDarknessChanged(double value) => SaveAppearance(s => s.BackgroundDarkness = Math.Clamp(value, 0, 0.9));
+
+    private void SaveAppearance(Action<AppSettings> change)
+    {
+        if (!_loaded) return;
+
+        var settings = _settings.Load();
+        change(settings);
+        _settings.Save(settings);
+        AppServices.Appearance.Refresh();
+    }
+
+    //
+    // A picture of the user's own behind the window. Copied into Data\Background under a new name
+    // each time (the window may still hold the previous one open), the older copies deleted, so
+    // the setting never points at a file that can be moved or deleted from under it.
+    //
+    [RelayCommand]
+    private void ChooseBackground()
+    {
+        var dialog = new Microsoft.Win32.OpenFileDialog
+        {
+            Title = Strings.Options_BackgroundChooseTitle,
+            Filter = $"{Strings.Options_BackgroundPictures}|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.webp|{Strings.ModListFile_AllFiles}|*.*",
+            CheckFileExists = true,
+        };
+
+        if (dialog.ShowDialog() != true) return;
+
+        try
+        {
+            var folder = AppearanceViewModel.BackgroundDirectory;
+            System.IO.Directory.CreateDirectory(folder);
+
+            var copy = System.IO.Path.Combine(folder, $"background-{DateTime.UtcNow:yyyyMMddHHmmss}{System.IO.Path.GetExtension(dialog.FileName).ToLowerInvariant()}");
+            System.IO.File.Copy(dialog.FileName, copy, overwrite: true);
+
+            SaveAppearance(s => s.BackgroundImage = copy);
+            if (!AppServices.Appearance.HasBackgroundImage)
+            {
+                // Not a picture this machine can read: back to the grid, and said.
+                SaveAppearance(s => s.BackgroundImage = null);
+                TryDelete(copy);
+                BackgroundStatus = Strings.Options_BackgroundUnreadable;
+                return;
+            }
+
+            BackgroundFileName = System.IO.Path.GetFileName(dialog.FileName);
+            BackgroundStatus = null;
+            DeleteOldBackgrounds(keep: copy);
+        }
+        catch (Exception ex) when (ex is System.IO.IOException or UnauthorizedAccessException)
+        {
+            AppLog.Warn("Appearance", $"background picture could not be copied: {ex.Message}");
+            BackgroundStatus = LocalizationService.Text(Strings.Options_BackgroundCopyFailedFormat, ex.Message);
+        }
+    }
+
+    private bool CanUseGrid() => HasBackgroundImage;
+
+    [RelayCommand(CanExecute = nameof(CanUseGrid))]
+    private void UseGridBackground()
+    {
+        SaveAppearance(s => s.BackgroundImage = null);
+        BackgroundFileName = null;
+        BackgroundStatus = null;
+        DeleteOldBackgrounds(keep: null);
+    }
+
+    [ObservableProperty]
+    private string? _backgroundStatus;
+
+    private static void DeleteOldBackgrounds(string? keep)
+    {
+        try
+        {
+            var folder = AppearanceViewModel.BackgroundDirectory;
+            if (!System.IO.Directory.Exists(folder)) return;
+
+            foreach (var file in System.IO.Directory.EnumerateFiles(folder, "background-*"))
+            {
+                if (!string.Equals(file, keep, StringComparison.OrdinalIgnoreCase)) TryDelete(file);
+            }
+        }
+        catch (Exception ex) when (ex is System.IO.IOException or UnauthorizedAccessException)
+        {
+            AppLog.Debug("Appearance", $"old background pictures not tidied: {ex.Message}");
+        }
+    }
+
+    private static void TryDelete(string path)
+    {
+        try
+        {
+            System.IO.File.Delete(path);
+        }
+        catch (Exception ex) when (ex is System.IO.IOException or UnauthorizedAccessException)
+        {
+            // In use by the window still; the next change tidies it.
+            AppLog.Debug("Appearance", $"{path} not deleted yet: {ex.Message}");
+        }
+    }
+
     partial void OnShowModFootprintPageChanged(bool value)
     {
         if (!_loaded) return;

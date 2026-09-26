@@ -24,6 +24,12 @@ public partial class MainWindow : FluentWindow
         AppNavigation.Attach(pageType => RootNavigationView.Navigate(pageType));
         RootNavigationView.Navigated += (_, args) => AppNavigation.ReportNavigated(args.Page.GetType());
         AppNavigation.Navigated += (_, pageType) => SyncHeader(pageType);
+
+        // A tab switched on or off in Options: the lit tab may have moved with it.
+        AppServices.Appearance.PropertyChanged += (_, _) =>
+        {
+            if (AppNavigation.Current is { } current) SyncHeader(current);
+        };
         AppNavigation.CloseItemPageRequested += (_, _) =>
         {
             QuickView.Close();
@@ -129,11 +135,17 @@ public partial class MainWindow : FluentWindow
     // shows the Workshop strip over the two Workshop pages that have no banner of their own.
     private void SyncHeader(Type pageType)
     {
+        // A page with a tab of its own lights that tab; every other Workshop page lights Workshop -
+        // Subscribed items and Your collections too, when their own tab is switched off.
+        var appearance = AppServices.Appearance;
+        var ownTab = (pageType == typeof(InstalledPage) && appearance.ShowSubscribedItemsTab)
+            || (pageType == typeof(ModListsPage) && appearance.ShowCollectionsTab);
+
         foreach (var tab in HubTabs.Children.OfType<ToggleButton>())
         {
             var target = tab.Tag as Type;
             tab.IsChecked = target == pageType
-                || (target == typeof(WorkshopHomePage) && AppNavigation.IsWorkshopPage(pageType) && pageType != typeof(InstalledPage));
+                || (target == typeof(WorkshopHomePage) && AppNavigation.IsWorkshopPage(pageType) && !ownTab);
         }
 
         WorkshopStrip.Visibility = pageType == typeof(InstalledPage) || pageType == typeof(ModListsPage)

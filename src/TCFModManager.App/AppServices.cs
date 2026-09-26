@@ -75,6 +75,9 @@ internal static class AppServices
     // Public collections' pages read lately, for the hover popup and the collection page.
     public static CollectionDetailsCache CollectionDetails { get; } = new();
 
+    // The hub's optional tabs and the window background, from the settings.
+    public static AppearanceViewModel Appearance { get; } = new();
+
     // Browsing: Collections, kept for the session like Browse.
     public static CollectionsBrowseViewModel CollectionsBrowse { get; } = new();
 

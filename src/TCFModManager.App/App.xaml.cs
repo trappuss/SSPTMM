@@ -58,6 +58,7 @@ public partial class App : Application
         // Before the window is built, so the sidebar is drawn with the right items rather than
         // gaining one a moment after it opens.
         AppServices.FootprintGate.Refresh();
+        AppServices.Appearance.Refresh();
 
         // Reports how a self-update went (the script doing the swap runs after the previous process
         // is gone, so its own log is the only record of it) and clears out the staged files.

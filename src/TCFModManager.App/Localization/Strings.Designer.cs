@@ -1664,4 +1664,18 @@ internal static class Strings
     internal static string Collections_SortFewestItems => LocalizationService.Get("Collections_SortFewestItems");
     internal static string Collections_ReadingFormat => LocalizationService.Get("Collections_ReadingFormat");
     internal static string Collections_MoreItemsFormat => LocalizationService.Get("Collections_MoreItemsFormat");
+    internal static string Options_TabsBackgroundHeader => LocalizationService.Get("Options_TabsBackgroundHeader");
+    internal static string Options_TabsBackgroundDescription => LocalizationService.Get("Options_TabsBackgroundDescription");
+    internal static string Options_SubscribedTabOn => LocalizationService.Get("Options_SubscribedTabOn");
+    internal static string Options_SubscribedTabOff => LocalizationService.Get("Options_SubscribedTabOff");
+    internal static string Options_CollectionsTabOn => LocalizationService.Get("Options_CollectionsTabOn");
+    internal static string Options_CollectionsTabOff => LocalizationService.Get("Options_CollectionsTabOff");
+    internal static string Options_BackgroundChoose => LocalizationService.Get("Options_BackgroundChoose");
+    internal static string Options_BackgroundUseGrid => LocalizationService.Get("Options_BackgroundUseGrid");
+    internal static string Options_BackgroundCurrentFormat => LocalizationService.Get("Options_BackgroundCurrentFormat");
+    internal static string Options_BackgroundDarkness => LocalizationService.Get("Options_BackgroundDarkness");
+    internal static string Options_BackgroundChooseTitle => LocalizationService.Get("Options_BackgroundChooseTitle");
+    internal static string Options_BackgroundPictures => LocalizationService.Get("Options_BackgroundPictures");
+    internal static string Options_BackgroundUnreadable => LocalizationService.Get("Options_BackgroundUnreadable");
+    internal static string Options_BackgroundCopyFailedFormat => LocalizationService.Get("Options_BackgroundCopyFailedFormat");
 }

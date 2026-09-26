@@ -172,6 +172,61 @@
             </StackPanel>
         </ui:Card>
 
+        <!-- The hub's own Subscribed items and Collections tabs, and a picture of your own behind
+             the window in place of the Steam grid. -->
+        <ui:Card Padding="16" VerticalAlignment="Top" Margin="0,16,0,0">
+            <StackPanel>
+                <TextBlock
+                    Text="{loc:Str Options_TabsBackgroundHeader}"
+                    FontWeight="SemiBold"
+                    Margin="0,0,0,4" />
+                <TextBlock
+                    TextWrapping="Wrap"
+                    Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                    Margin="0,0,0,8"
+                    Text="{loc:Str Options_TabsBackgroundDescription}" />
+                <ui:ToggleSwitch
+                    HorizontalAlignment="Left"
+                    IsChecked="{Binding ShowSubscribedItemsTab}"
+                    OnContent="{loc:Str Options_SubscribedTabOn}"
+                    OffContent="{loc:Str Options_SubscribedTabOff}" />
+                <ui:ToggleSwitch
+                    Margin="0,8,0,0"
+                    HorizontalAlignment="Left"
+                    IsChecked="{Binding ShowCollectionsTab}"
+                    OnContent="{loc:Str Options_CollectionsTabOn}"
+                    OffContent="{loc:Str Options_CollectionsTabOff}" />
+
+                <StackPanel Margin="0,16,0,0" Orientation="Horizontal">
+                    <Button Command="{Binding ChooseBackgroundCommand}" Content="{loc:Str Options_BackgroundChoose}" />
+                    <Button Margin="8,0,0,0" Command="{Binding UseGridBackgroundCommand}" Content="{loc:Str Options_BackgroundUseGrid}" />
+                </StackPanel>
+                <TextBlock
+                    Margin="0,8,0,0"
+                    Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                    Text="{Binding BackgroundFileName, StringFormat={loc:Str Options_BackgroundCurrentFormat}}"
+                    Visibility="{Binding BackgroundFileName, Converter={StaticResource NullToCollapsed}}" />
+                <StackPanel Margin="0,8,0,0" Orientation="Horizontal" Visibility="{Binding HasBackgroundImage, Converter={StaticResource BoolToVisibility}}">
+                    <TextBlock VerticalAlignment="Center" Text="{loc:Str Options_BackgroundDarkness}" />
+                    <Slider
+                        Width="220"
+                        Margin="10,0,0,0"
+                        VerticalAlignment="Center"
+                        Maximum="0.9"
+                        Minimum="0"
+                        SmallChange="0.05"
+                        LargeChange="0.1"
+                        Value="{Binding BackgroundDarkness, Delay=250}" />
+                </StackPanel>
+                <TextBlock
+                    Margin="0,8,0,0"
+                    TextWrapping="Wrap"
+                    Foreground="{DynamicResource SystemFillColorCautionBrush}"
+                    Text="{Binding BackgroundStatus}"
+                    Visibility="{Binding BackgroundStatus, Converter={StaticResource NullToCollapsed}}" />
+            </StackPanel>
+        </ui:Card>
+
         <!-- Hidden in the Steam Workshop fork: Steam has one look, so there is no light theme to
              choose (see AppTheme.ApplyOnly). Left in place rather than deleted, so the setting it
              edits is untouched and the upstream app finds it where it was left. -->
