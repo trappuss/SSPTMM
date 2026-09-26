@@ -545,6 +545,48 @@ toggle, which used to open it instead).
 - *Scrolling*: still to be measured - run `steam-ui-measure.bat`; it writes
   `Claude outputs\perf-report.txt`.
 
+## Tenth round: downloading without the browser trip (2026-09-26)
+
+Downloads themselves were already quick (about a second each in the log from your PC); the slow
+part was having to open every mod's page in a browser first. That page is where authors put
+install steps, requirements and warnings, and the app already shows it on its own item page.
+
+**The mod's page, in the app.**
+- *Subscribe on the item page asks nothing more* - its page is the one on screen. Its required
+  items are still asked about (Additional Required Items) and shown as below.
+- *Everywhere else* (Browse's quick +, right-click, collections, mod lists, addons, the
+  Dependencies page, Update selected) the dialog shows each item's page right there - Read here,
+  the first one already open, rendered as the item page renders it - with Continue from the start
+  and Open page still there. For an update it shows that version's change notes instead.
+- *The update dialog asks nothing more*: it already shows every version's change notes.
+- The app's own update keeps asking for its page to be opened (its release notes are there).
+- Not done on purpose: loading the page quietly to tick a box (nobody would see the warnings, and
+  the visits would count as views on the author's page).
+
+**The queue.**
+- Items are prepared in the order queued (version, dependency question), *downloaded up to three
+  at once*, and installed one at a time, in order, as each download is there.
+- *Downloads are kept* in Data\Downloads, up to 4 GB (those used longest ago go first; one file
+  larger than that is not kept), so installing the same version again - subscribing again, putting
+  a version back, re-applying a mod list - does not download it again (a second download would
+  also count again on the author's page). An archive that fails to install is not kept. Options >
+  Downloads stops keeping them, and its button deletes the ones kept.
+- *A download that fails in a way that can pass* (connection dropped, host busy, file arrived
+  short) is tried twice more, after 2 and 6 seconds.
+- Not done on purpose: downloading ahead when pointing at a mod - every download goes through an
+  sp-mod.com link that counts it.
+
+**Fixed.**
+- *The item page built every change note while its tab was hidden*: opening SAIN a second time
+  built twenty of them with the description, doubling the time before it showed (241 to 495 ms on
+  your PC; reproduced here). They are built when the tab is opened now.
+- *Browse's installed mark stayed on a mod that had been set aside*; it follows now.
+
+**Measuring.** Browse's stalls on your PC (up to 362 ms) did not show here: the app's own thread
+was never busy for long under Wine, whose drawing is the slow part. `steam-ui-measure.bat` now
+also lists what kept the app busy for 50 ms or more, by name, so the next report shows what they
+are before anything is changed for them.
+
 ## Values that could not be measured (marked HUNCH in the source)
 
 - The smooth-scroll distance and time (100px, 250ms) - chosen to feel like a browser, not measured.
