@@ -201,6 +201,15 @@ public sealed class ModList
     public string? SptVersion { get; init; }
 
     //
+    // The page this list was taken from, for one subscribed to from sp-mod.com's public lists
+    // (sp-mod.com/list/{id}/{slug}). Its collection page is read from there again each time it is
+    // opened, so what the author has changed since shows. Null for every other list - and absent
+    // from the file then, so a list without one is written exactly as before.
+    //
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? Link { get; init; }
+
+    //
     // True for a list written automatically to record the install as it stood before a list was
     // applied - the "put me back" undo.
     //

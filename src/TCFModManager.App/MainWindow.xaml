@@ -244,6 +244,7 @@
                 <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:PlayPage}" />
                 <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:WorkshopHomePage}" />
                 <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:BrowsePage}" />
+                <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:CollectionsBrowsePage}" />
                 <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:InstalledPage}" />
                 <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:ModListsPage}" />
                 <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:FollowedAuthorsPage}" />

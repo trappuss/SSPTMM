@@ -6,7 +6,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using TCFModManager.Core.Markup;
 using TCFModManager.Core.Services;
-using XamlAnimatedGif;
 
 namespace TCFModManager.App.Behaviors.Markup;
 
@@ -84,8 +83,8 @@ public sealed class RemotePicture : Image
     private static void OnUrlChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         var picture = (RemotePicture)d;
+        GifPlayback.Stop(picture);
         picture.Source = null;
-        AnimationBehavior.SetSourceStream(picture, null);
 
         if (e.NewValue is string url && !string.IsNullOrWhiteSpace(url)) _ = picture.LoadAsync(url);
     }
@@ -174,109 +173,13 @@ public sealed class RemotePicture : Image
 
         if (picture.Gif is { } gif)
         {
-            AnimationBehavior.SetSourceStream(this, new MemoryStream(gif, writable: false));
-            WatchVisibility();
+            // Played while any of it is on screen - see GifPlayback.
+            GifPlayback.Play(this, gif);
         }
         else
         {
             Source = picture.Bitmap;
         }
-    }
-
-    // ---------------------------------------------------------------- animated GIFs off screen
-
-    //
-    // An animated GIF keeps drawing its frames whether or not any of it is on screen: one GIF
-    // scrolled out of view still kept the build machine's processor about an eighth busy with the
-    // page otherwise still. So it is paused while none of it can be seen - scrolled out of every
-    // scroll area it sits in, or on a page or tab that is hidden - and carries on from the same
-    // frame the moment any of it comes back. Nothing that can be seen changes: every GIF plays
-    // whenever it is in view, as sp-mod.com shows it.
-    //
-    private readonly List<ScrollViewer> _viewers = [];
-
-    private bool _watching;
-
-    private void WatchVisibility()
-    {
-        if (_watching) return;
-        _watching = true;
-
-        Loaded += (_, _) => Rewatch();
-        Unloaded += (_, _) =>
-        {
-            Unwatch();
-            UpdatePlaying();
-        };
-        IsVisibleChanged += (_, _) => UpdatePlaying();
-        // Once more after the library has finished loading: it starts a GIF playing itself.
-        AnimationBehavior.AddLoadedHandler(this, (_, _) =>
-        {
-            UpdatePlaying();
-            Dispatcher.BeginInvoke(UpdatePlaying, System.Windows.Threading.DispatcherPriority.Loaded);
-        });
-
-        if (IsLoaded) Rewatch();
-    }
-
-    // Every scroll area this picture sits in, however deep.
-    private void Rewatch()
-    {
-        Unwatch();
-
-        for (var parent = VisualTreeHelper.GetParent(this); parent is not null; parent = VisualTreeHelper.GetParent(parent))
-        {
-            if (parent is not ScrollViewer viewer) continue;
-            viewer.ScrollChanged += Viewer_ScrollChanged;
-            _viewers.Add(viewer);
-        }
-
-        UpdatePlaying();
-    }
-
-    private void Unwatch()
-    {
-        foreach (var viewer in _viewers) viewer.ScrollChanged -= Viewer_ScrollChanged;
-        _viewers.Clear();
-    }
-
-    // Scrolled, resized, or the content above it changed height (a picture arriving, a part of the
-    // description going in): all of them raise this.
-    private void Viewer_ScrollChanged(object sender, ScrollChangedEventArgs e) => UpdatePlaying();
-
-    private void UpdatePlaying()
-    {
-        if (AnimationBehavior.GetAnimator(this) is not { } animator) return;
-
-        if (IsVisible && InView())
-        {
-            if (animator.IsPaused && !animator.IsComplete) animator.Play();
-        }
-        else if (!animator.IsPaused)
-        {
-            animator.Pause();
-        }
-    }
-
-    private bool InView()
-    {
-        if (!IsLoaded) return false;
-
-        var bounds = new Rect(RenderSize);
-        foreach (var viewer in _viewers)
-        {
-            try
-            {
-                var where = TransformToAncestor(viewer).TransformBounds(bounds);
-                if (!where.IntersectsWith(new Rect(0, 0, viewer.ActualWidth, viewer.ActualHeight))) return false;
-            }
-            catch (InvalidOperationException)
-            {
-                // No longer inside that scroll area; when in doubt it plays.
-            }
-        }
-
-        return true;
     }
 
     private static bool IsGif(byte[] bytes) =>

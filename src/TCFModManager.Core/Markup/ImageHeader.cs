@@ -90,4 +90,60 @@ public static class ImageHeader
         (bytes[at] << 24) | (bytes[at + 1] << 16) | (bytes[at + 2] << 8) | bytes[at + 3];
 
     private static int? Positive(int value) => value > 0 ? value : null;
+
+    //
+    // Whether a GIF has more than one frame - an animation to play rather than a still to decode.
+    //
+    // Walks the file's blocks as the format lays them out (GIF89a: header, screen descriptor, the
+    // colour table, then extensions and images until the trailer), stopping at the second image. A
+    // file cut short or not a GIF is not an animation. Only a first look is needed, so a file of
+    // many frames costs no more than reading up to its second.
+    //
+    public static bool IsAnimatedGif(ReadOnlySpan<byte> bytes)
+    {
+        if (bytes.Length < 13 || bytes[0] != 'G' || bytes[1] != 'I' || bytes[2] != 'F') return false;
+
+        var at = 13;
+        if ((bytes[10] & 0x80) != 0) at += 3 << ((bytes[10] & 0x07) + 1);
+
+        var images = 0;
+        while (at < bytes.Length)
+        {
+            switch (bytes[at])
+            {
+                case 0x21: // an extension: its label, then its sub-blocks
+                    at += 2;
+                    if (!SkipSubBlocks(bytes, ref at)) return false;
+                    break;
+
+                case 0x2C: // an image: its descriptor, a local colour table, the LZW size, the data
+                    if (++images > 1) return true;
+                    if (at + 10 > bytes.Length) return false;
+                    var flags = bytes[at + 9];
+                    at += 10;
+                    if ((flags & 0x80) != 0) at += 3 << ((flags & 0x07) + 1);
+                    at += 1;
+                    if (!SkipSubBlocks(bytes, ref at)) return false;
+                    break;
+
+                default: // 0x3B, the trailer - or something that is not a GIF block
+                    return false;
+            }
+        }
+
+        return false;
+    }
+
+    // Sub-blocks are a length byte and that many bytes, ended by a zero length.
+    private static bool SkipSubBlocks(ReadOnlySpan<byte> bytes, ref int at)
+    {
+        while (at < bytes.Length)
+        {
+            var length = bytes[at];
+            at += 1 + length;
+            if (length == 0) return true;
+        }
+
+        return false;
+    }
 }

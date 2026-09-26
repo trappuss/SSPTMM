@@ -82,14 +82,15 @@ public partial class MainWindow : FluentWindow
 
         // A collection opened from anywhere opens as its Workshop page, over the page it came from -
         // and over an item page it was opened from, which then closes.
-        AppServices.CollectionOverlay.Requested += (_, listId) =>
+        AppServices.CollectionOverlay.Requested += (_, request) =>
         {
             // A list deleted since the link was drawn opens nothing, and leaves the page as it was.
-            if (AppServices.ModLists.Find(listId) is null) return;
+            if (!request.IsPublic && (request.ListId is not { } listId || AppServices.ModLists.Find(listId) is null)) return;
 
+            QuickView.Close();
             _collectionUnderItem = false;
             ItemPage.Close();
-            CollectionPage.Show(listId);
+            CollectionPage.Show(request);
         };
 
         // Constructs and shows the mod update dialog, awaitable so callers know when it closes.

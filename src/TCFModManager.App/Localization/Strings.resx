@@ -5974,4 +5974,220 @@ This was written to:
     <value>Kept now: {0}</value>
     <comment>Beside that button. {0} is a size like "85.3 MB".</comment>
   </data>
+  <data name="Workshop_BrowseModsHeader" xml:space="preserve">
+    <value>MODS</value>
+    <comment>Heading of the first column of the Browse menu (the items' sort orders). Upper case in Steam's design, where it reads "ADDONS".</comment>
+  </data>
+  <data name="Workshop_BrowseCollectionsHeader" xml:space="preserve">
+    <value>COLLECTIONS</value>
+    <comment>Heading of the second column of the Browse menu. Upper case in Steam's design; Steam's word.</comment>
+  </data>
+  <data name="Collections_Title" xml:space="preserve">
+    <value>Browse Collections</value>
+    <comment>Page title of Browsing: Collections.</comment>
+  </data>
+  <data name="Collections_BrowsingTitle" xml:space="preserve">
+    <value>Browsing: Collections</value>
+    <comment>Title over the collections browse page. Steam's words; follows Workshop_BrowsingTitle.</comment>
+  </data>
+  <data name="Collections_Breadcrumb" xml:space="preserve">
+    <value>Collections</value>
+    <comment>Last breadcrumb on a public collection's page: goes back to browsing collections.</comment>
+  </data>
+  <data name="Collections_ByFormat" xml:space="preserve">
+    <value>By {0}</value>
+    <comment>On a collection card, under its title. {0} is who made the collection. Steam's words.</comment>
+  </data>
+  <data name="Collections_Contains_one" xml:space="preserve">
+    <value>Contains {0:N0} item</value>
+    <comment>At the foot of a collection card. Steam's words.</comment>
+  </data>
+  <data name="Collections_Contains_other" xml:space="preserve">
+    <value>Contains {0:N0} items</value>
+    <comment>Same, several. {0} is how many.</comment>
+  </data>
+  <data name="Collections_AllSptVersions" xml:space="preserve">
+    <value>All SPT versions</value>
+    <comment>First choice of the SPT version filter on the collections browse page.</comment>
+  </data>
+  <data name="Collections_SortMostRecent" xml:space="preserve">
+    <value>Most Recent</value>
+    <comment>The collections' sort order (sp-mod.com has only this one), and its entry in the Browse menu. Steam's words.</comment>
+  </data>
+  <data name="Collections_SearchPlaceholder" xml:space="preserve">
+    <value>Search collections, or paste a link to one</value>
+    <comment>Placeholder in the collections browse page's search box. A link to an sp-mod.com list pasted there opens it.</comment>
+  </data>
+  <data name="Collections_RefreshToolTip" xml:space="preserve">
+    <value>Read the collections again from sp-mod.com</value>
+    <comment>Tooltip on the refresh button beside the search box.</comment>
+  </data>
+  <data name="Collections_SptFilterToolTip" xml:space="preserve">
+    <value>Only collections made for this SPT version</value>
+    <comment>Tooltip on the SPT version filter.</comment>
+  </data>
+  <data name="Collections_SidebarNote" xml:space="preserve">
+    <value>Collections are the public mod lists on sp-mod.com. Subscribing to one installs each item at its version for your SPT version; items with none are left out and named first.</value>
+    <comment>Under the SPT filter on the collections browse page.</comment>
+  </data>
+  <data name="Collections_Loading" xml:space="preserve">
+    <value>Loading collections from sp-mod.com...</value>
+    <comment>While the collections browse page is read.</comment>
+  </data>
+  <data name="Collections_NoMatches" xml:space="preserve">
+    <value>No collections match your filters.</value>
+    <comment>When a search or filter finds no collections.</comment>
+  </data>
+  <data name="Collections_LoadFailedFormat" xml:space="preserve">
+    <value>The collections could not be read from sp-mod.com: {0}</value>
+    <comment>When the collections browse page could not be read. {0} is why.</comment>
+  </data>
+  <data name="Collection_ViewOnSite" xml:space="preserve">
+    <value>View on sp-mod.com</value>
+    <comment>Button on a public collection's page.</comment>
+  </data>
+  <data name="Collection_ViewOnSiteToolTip" xml:space="preserve">
+    <value>Open this collection's page on sp-mod.com</value>
+    <comment>Tooltip on View on sp-mod.com.</comment>
+  </data>
+  <data name="Collection_Loading" xml:space="preserve">
+    <value>Loading the collection from sp-mod.com...</value>
+    <comment>While a public collection's page is read.</comment>
+  </data>
+  <data name="Collection_TryAgain" xml:space="preserve">
+    <value>Try again</value>
+    <comment>Button after a public collection could not be read.</comment>
+  </data>
+  <data name="Collection_PublicGone" xml:space="preserve">
+    <value>This collection is no longer on sp-mod.com, or is not public.</value>
+    <comment>When a public collection's page is not there.</comment>
+  </data>
+  <data name="Collection_PublicLoadFailedFormat" xml:space="preserve">
+    <value>The collection could not be read from sp-mod.com: {0}</value>
+    <comment>When a public collection's page could not be read. {0} is why.</comment>
+  </data>
+  <data name="Collection_CollectionBy" xml:space="preserve">
+    <value>COLLECTION BY</value>
+    <comment>Right-hand panel heading over who made a public collection. Upper case in Steam's design.</comment>
+  </data>
+  <data name="Collection_ListAuthorToolTip" xml:space="preserve">
+    <value>Open their page on sp-mod.com</value>
+    <comment>Tooltip on the name of who made a public collection.</comment>
+  </data>
+  <data name="Collection_ForSptFormat" xml:space="preserve">
+    <value>For SPT {0}</value>
+    <comment>The SPT version a public collection was made for. {0} is a version like 4.0.13.</comment>
+  </data>
+  <data name="Collection_NotInCatalogNote" xml:space="preserve">
+    <value>Not in this app's copy of the sp-mod.com catalog yet - click to open it on sp-mod.com, or refresh the catalog from Browse's search options.</value>
+    <comment>On a public collection's item the cached catalog does not have.</comment>
+  </data>
+  <data name="Collection_AddonForFormat" xml:space="preserve">
+    <value>An addon for {0} - Subscribe to all installs it with its mod.</value>
+    <comment>On a public collection's addon. {0} is the mod it is for.</comment>
+  </data>
+  <data name="Collection_NoVersionForSptFormat" xml:space="preserve">
+    <value>No version for SPT {0}</value>
+    <comment>On a public collection's item that has no release for the installed SPT version. {0} is a version.</comment>
+  </data>
+  <data name="Collection_UpdateToFormat" xml:space="preserve">
+    <value>{0} installed - {1} is the version for SPT {2}</value>
+    <comment>On a public collection's item installed at an older version. {0} and {1} are mod versions, {2} the SPT version.</comment>
+  </data>
+  <data name="Collection_InstalledVersionFormat" xml:space="preserve">
+    <value>{0} installed</value>
+    <comment>On a public collection's item that is installed and up to date. {0} is its version.</comment>
+  </data>
+  <data name="Collection_VersionForSptFormat" xml:space="preserve">
+    <value>{0} for SPT {1}</value>
+    <comment>On a public collection's item: the version it gets. {0} is a mod version, {1} the SPT version.</comment>
+  </data>
+  <data name="Collection_SummarySubscribedFormat" xml:space="preserve">
+    <value>{0:N0} of {1:N0} items subscribed</value>
+    <comment>Over a public collection's items. {0} is how many are installed, {1} how many there are.</comment>
+  </data>
+  <data name="Collection_SummaryChecking" xml:space="preserve">
+    <value>finding each item's version for your SPT version...</value>
+    <comment>Follows that while versions are being looked up.</comment>
+  </data>
+  <data name="Collection_SummaryUpdates_one" xml:space="preserve">
+    <value>{0:N0} can be updated</value>
+    <comment>Follows the summary: installed items older than their version for this SPT version.</comment>
+  </data>
+  <data name="Collection_SummaryUpdates_other" xml:space="preserve">
+    <value>{0:N0} can be updated</value>
+    <comment>Same, several.</comment>
+  </data>
+  <data name="Collection_SummaryNoVersion_one" xml:space="preserve">
+    <value>{0:N0} has no version for SPT {1}</value>
+    <comment>Follows the summary. {1} is the SPT version.</comment>
+  </data>
+  <data name="Collection_SummaryNoVersion_other" xml:space="preserve">
+    <value>{0:N0} have no version for SPT {1}</value>
+    <comment>Same, several.</comment>
+  </data>
+  <data name="Collection_SummaryGone_one" xml:space="preserve">
+    <value>{0:N0} is no longer on sp-mod.com</value>
+    <comment>Follows the summary: an item the list names that has been taken down.</comment>
+  </data>
+  <data name="Collection_SummaryGone_other" xml:space="preserve">
+    <value>{0:N0} are no longer on sp-mod.com</value>
+    <comment>Same, several.</comment>
+  </data>
+  <data name="Collection_WhichVersionsTitle" xml:space="preserve">
+    <value>Which Versions?</value>
+    <comment>Title of the question Subscribe to all asks when a collection was made for another SPT version.</comment>
+  </data>
+  <data name="Collection_WhichVersionsBodyFormat" xml:space="preserve">
+    <value>This collection was made for SPT {0}, and this install runs SPT {1}. Subscribe to each item's version for SPT {1} - items with none are left out - or to its version for SPT {0}, as the collection's author had it?</value>
+    <comment>That question. {0} is the collection's SPT version, {1} the installed one.</comment>
+  </data>
+  <data name="Collection_VersionsForYoursFormat" xml:space="preserve">
+    <value>For My SPT ({0})</value>
+    <comment>Answer: the versions for the installed SPT version, {0}.</comment>
+  </data>
+  <data name="Collection_VersionsForListFormat" xml:space="preserve">
+    <value>For the Collection's SPT ({0})</value>
+    <comment>Answer: the versions for the SPT version the collection was made for, {0}.</comment>
+  </data>
+  <data name="Collection_FindingVersionsFormat" xml:space="preserve">
+    <value>Finding each item's version for SPT {0}...</value>
+    <comment>While Subscribe to all or Save to Collection works out the versions.</comment>
+  </data>
+  <data name="Collection_LeftOut_one" xml:space="preserve">
+    <value>{0:N0} item is left out:</value>
+    <comment>Under the Subscribe to all question, over the items that will not be installed.</comment>
+  </data>
+  <data name="Collection_LeftOut_other" xml:space="preserve">
+    <value>{0:N0} items are left out:</value>
+    <comment>Same, several.</comment>
+  </data>
+  <data name="Collection_LeftOutItemFormat" xml:space="preserve">
+    <value>{0} - {1}</value>
+    <comment>One left-out item. {0} is its name, {1} why (Collection_SkipNoVersionFormat or Collection_SkipNotChecked).</comment>
+  </data>
+  <data name="Collection_AndMore_one" xml:space="preserve">
+    <value>and {0:N0} more</value>
+    <comment>After the first dozen left-out items.</comment>
+  </data>
+  <data name="Collection_AndMore_other" xml:space="preserve">
+    <value>and {0:N0} more</value>
+    <comment>Same, several.</comment>
+  </data>
+  <data name="Collection_SkipNoVersionFormat" xml:space="preserve">
+    <value>no version for SPT {0}</value>
+    <comment>Why an item is left out. {0} is the SPT version.</comment>
+  </data>
+  <data name="Collection_SkipNotChecked" xml:space="preserve">
+    <value>sp-mod.com could not be asked which version</value>
+    <comment>Why an item is left out, when the lookup failed.</comment>
+  </data>
+  <data name="Collection_ShowMore" xml:space="preserve">
+    <value>Show more</value>
+    <comment>Under a long public collection description, folded to its first lines: shows all of it.</comment>
+  </data>
+  <data name="Collection_ShowLess" xml:space="preserve">
+    <value>Show less</value>
+    <comment>The same link once the description is open: folds it again.</comment>
+  </data>
 </root>

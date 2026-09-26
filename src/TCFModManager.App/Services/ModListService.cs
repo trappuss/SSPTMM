@@ -531,7 +531,11 @@ public sealed class ModListService
     {
         if (!isAddon)
         {
-            var mods = await AppServices.SpModApi.GetModVersionsAsync(id, new ModVersionsQuery { PerPage = 5 }, ct);
+            // Sorted, as every other caller asks: left to itself the API answers oldest first
+            // (measured 2026-09-25 on APBS - 2.0.3 of Nov 2025 came back ahead of 2.2.1), which
+            // quietly made "newest" the oldest release it had.
+            var mods = await AppServices.SpModApi.GetModVersionsAsync(
+                id, new ModVersionsQuery { Sort = "-published_at", PerPage = 5 }, ct);
             return mods.Data.FirstOrDefault();
         }
 

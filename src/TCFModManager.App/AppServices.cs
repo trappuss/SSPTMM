@@ -12,6 +12,9 @@ internal static class AppServices
 {
     public static SpModApiClient SpModApi { get; } = new();
 
+    // sp-mod.com's public mod lists, read from its pages - the API has none (see SpModListsClient).
+    public static TCFModManager.Core.SpModLists.SpModListsClient SpModLists { get; } = new();
+
     // The authors followed from the Workshop pages. Before Browse and the Workshop's front page,
     // which listen to it as they are built.
     public static FollowedAuthors Followed { get; } = new();
@@ -68,6 +71,9 @@ internal static class AppServices
 
     // A collection's Workshop page - see WorkshopCollectionView.
     public static CollectionOverlayViewModel CollectionOverlay { get; } = new();
+
+    // Browsing: Collections, kept for the session like Browse.
+    public static CollectionsBrowseViewModel CollectionsBrowse { get; } = new();
 
     // Steam's Quick View - see QuickViewOverlay.
     public static QuickViewOverlayViewModel QuickView { get; } = new();

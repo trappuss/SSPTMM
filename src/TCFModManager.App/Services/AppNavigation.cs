@@ -58,6 +58,7 @@ public static class AppNavigation
     public static bool IsWorkshopPage(Type? pageType) =>
         pageType == typeof(WorkshopHomePage)
         || pageType == typeof(BrowsePage)
+        || pageType == typeof(CollectionsBrowsePage)
         || pageType == typeof(InstalledPage)
         || pageType == typeof(ModListsPage)
         || pageType == typeof(FollowedAuthorsPage);

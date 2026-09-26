@@ -1604,4 +1604,58 @@ internal static class Strings
     internal static string Options_DownloadsSwitchOff => LocalizationService.Get("Options_DownloadsSwitchOff");
     internal static string Options_DownloadsClear => LocalizationService.Get("Options_DownloadsClear");
     internal static string Options_DownloadsSizeFormat => LocalizationService.Get("Options_DownloadsSizeFormat");
+    internal static string Workshop_BrowseModsHeader => LocalizationService.Get("Workshop_BrowseModsHeader");
+    internal static string Workshop_BrowseCollectionsHeader => LocalizationService.Get("Workshop_BrowseCollectionsHeader");
+    internal static string Collections_Title => LocalizationService.Get("Collections_Title");
+    internal static string Collections_BrowsingTitle => LocalizationService.Get("Collections_BrowsingTitle");
+    internal static string Collections_Breadcrumb => LocalizationService.Get("Collections_Breadcrumb");
+    internal static string Collections_ByFormat => LocalizationService.Get("Collections_ByFormat");
+    internal static string Collections_Contains(int count, params object?[] values) =>
+        LocalizationService.Plural("Collections_Contains", count, values);
+    internal static string Collections_AllSptVersions => LocalizationService.Get("Collections_AllSptVersions");
+    internal static string Collections_SortMostRecent => LocalizationService.Get("Collections_SortMostRecent");
+    internal static string Collections_SearchPlaceholder => LocalizationService.Get("Collections_SearchPlaceholder");
+    internal static string Collections_RefreshToolTip => LocalizationService.Get("Collections_RefreshToolTip");
+    internal static string Collections_SptFilterToolTip => LocalizationService.Get("Collections_SptFilterToolTip");
+    internal static string Collections_SidebarNote => LocalizationService.Get("Collections_SidebarNote");
+    internal static string Collections_Loading => LocalizationService.Get("Collections_Loading");
+    internal static string Collections_NoMatches => LocalizationService.Get("Collections_NoMatches");
+    internal static string Collections_LoadFailedFormat => LocalizationService.Get("Collections_LoadFailedFormat");
+    internal static string Collection_ViewOnSite => LocalizationService.Get("Collection_ViewOnSite");
+    internal static string Collection_ViewOnSiteToolTip => LocalizationService.Get("Collection_ViewOnSiteToolTip");
+    internal static string Collection_Loading => LocalizationService.Get("Collection_Loading");
+    internal static string Collection_TryAgain => LocalizationService.Get("Collection_TryAgain");
+    internal static string Collection_PublicGone => LocalizationService.Get("Collection_PublicGone");
+    internal static string Collection_PublicLoadFailedFormat => LocalizationService.Get("Collection_PublicLoadFailedFormat");
+    internal static string Collection_CollectionBy => LocalizationService.Get("Collection_CollectionBy");
+    internal static string Collection_ListAuthorToolTip => LocalizationService.Get("Collection_ListAuthorToolTip");
+    internal static string Collection_ForSptFormat => LocalizationService.Get("Collection_ForSptFormat");
+    internal static string Collection_NotInCatalogNote => LocalizationService.Get("Collection_NotInCatalogNote");
+    internal static string Collection_AddonForFormat => LocalizationService.Get("Collection_AddonForFormat");
+    internal static string Collection_NoVersionForSptFormat => LocalizationService.Get("Collection_NoVersionForSptFormat");
+    internal static string Collection_UpdateToFormat => LocalizationService.Get("Collection_UpdateToFormat");
+    internal static string Collection_InstalledVersionFormat => LocalizationService.Get("Collection_InstalledVersionFormat");
+    internal static string Collection_VersionForSptFormat => LocalizationService.Get("Collection_VersionForSptFormat");
+    internal static string Collection_SummarySubscribedFormat => LocalizationService.Get("Collection_SummarySubscribedFormat");
+    internal static string Collection_SummaryChecking => LocalizationService.Get("Collection_SummaryChecking");
+    internal static string Collection_SummaryUpdates(int count, params object?[] values) =>
+        LocalizationService.Plural("Collection_SummaryUpdates", count, values);
+    internal static string Collection_SummaryNoVersion(int count, params object?[] values) =>
+        LocalizationService.Plural("Collection_SummaryNoVersion", count, values);
+    internal static string Collection_SummaryGone(int count, params object?[] values) =>
+        LocalizationService.Plural("Collection_SummaryGone", count, values);
+    internal static string Collection_WhichVersionsTitle => LocalizationService.Get("Collection_WhichVersionsTitle");
+    internal static string Collection_WhichVersionsBodyFormat => LocalizationService.Get("Collection_WhichVersionsBodyFormat");
+    internal static string Collection_VersionsForYoursFormat => LocalizationService.Get("Collection_VersionsForYoursFormat");
+    internal static string Collection_VersionsForListFormat => LocalizationService.Get("Collection_VersionsForListFormat");
+    internal static string Collection_FindingVersionsFormat => LocalizationService.Get("Collection_FindingVersionsFormat");
+    internal static string Collection_LeftOut(int count, params object?[] values) =>
+        LocalizationService.Plural("Collection_LeftOut", count, values);
+    internal static string Collection_LeftOutItemFormat => LocalizationService.Get("Collection_LeftOutItemFormat");
+    internal static string Collection_AndMore(int count, params object?[] values) =>
+        LocalizationService.Plural("Collection_AndMore", count, values);
+    internal static string Collection_SkipNoVersionFormat => LocalizationService.Get("Collection_SkipNoVersionFormat");
+    internal static string Collection_SkipNotChecked => LocalizationService.Get("Collection_SkipNotChecked");
+    internal static string Collection_ShowMore => LocalizationService.Get("Collection_ShowMore");
+    internal static string Collection_ShowLess => LocalizationService.Get("Collection_ShowLess");
 }

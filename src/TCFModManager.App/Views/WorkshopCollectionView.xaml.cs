@@ -30,18 +30,51 @@ public partial class WorkshopCollectionView : UserControl
     /// <summary>True while a collection is open here, shown or hidden under an item page.</summary>
     public bool IsOpen => _viewModel is not null;
 
-    /// <summary>Opens the mod list with this id as its collection page; false when it is gone.</summary>
-    public bool Show(Guid listId)
+    /// <summary>Opens a collection: one of this install's mod lists, or - read from sp-mod.com -
+    /// a public one. A stored copy of a public list opens as the public list, so what its author
+    /// has changed since shows. False when there is nothing to open.</summary>
+    public bool Show(CollectionRequest request)
     {
-        if (AppServices.ModLists.Find(listId) is not { } list) return false;
+        WorkshopCollectionViewModel viewModel;
+
+        if (request.IsPublic)
+        {
+            viewModel = new WorkshopCollectionViewModel(request.PublicId, request.PublicSlug!);
+        }
+        else if (request.ListId is { } listId && AppServices.ModLists.Find(listId) is { } list)
+        {
+            viewModel = Services.PublicCollections.TryGetSource(list, out var id, out var slug)
+                ? new WorkshopCollectionViewModel(id, slug)
+                : new WorkshopCollectionViewModel(list);
+        }
+        else
+        {
+            return false;
+        }
 
         _viewModel?.Detach();
-        _viewModel = new WorkshopCollectionViewModel(list);
+        _viewModel = viewModel;
         DataContext = _viewModel;
 
         Reveal();
         Scroll.ScrollToTop();
+
+        if (viewModel.IsPublic) _ = LoadAsync(viewModel);
         return true;
+    }
+
+    // Read from sp-mod.com. A stored copy that cannot be read (offline, the list taken down) is
+    // shown as stored instead, with why.
+    private async Task LoadAsync(WorkshopCollectionViewModel viewModel)
+    {
+        if (await viewModel.LoadAsync() || !ReferenceEquals(_viewModel, viewModel)) return;
+
+        if (viewModel.List is { } stored && viewModel.LoadFailed is { } why)
+        {
+            viewModel.Detach();
+            _viewModel = new WorkshopCollectionViewModel(stored) { Message = why };
+            DataContext = _viewModel;
+        }
     }
 
     /// <summary>Shows the open collection again, as it was.</summary>

@@ -283,6 +283,7 @@ public partial class ModListsViewModel : LocalizedViewModel
             DerivedFrom = list.DerivedFrom,
             Source = list.Source,
             SptVersion = list.SptVersion,
+            Link = list.Link,
             IsSnapshot = list.IsSnapshot,
             CreatedAt = list.CreatedAt,
             UpdatedAt = list.UpdatedAt,

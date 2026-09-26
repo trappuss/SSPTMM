@@ -48,6 +48,16 @@ public static class ThumbnailLoader
     private static readonly PictureCache Cache = new(CacheBudget);
 
     //
+    // Animated GIFs, kept as their files: XamlAnimatedGif decodes a frame at a time as it plays, so
+    // there is no one decoded picture to keep. No mod cover on sp-mod.com was one when this was
+    // written (every thumbnail in the catalog checked, 2026-09-25), so this stays empty until one
+    // is; a cover that is one plays wherever it is shown, while it is on screen - see GifPlayback.
+    //
+    private const long GifBudget = 32L * 1024 * 1024;
+
+    private static readonly GifCache Gifs = new(GifBudget);
+
+    //
     // The width the image is shown at, in device-independent pixels. Decoding at the shown size
     // (times the screen's scale) keeps a large preview sharp without holding every small one at
     // full resolution: a 245px Workshop card decoded at 128 was being stretched to twice its size.
@@ -102,6 +112,7 @@ public static class ThumbnailLoader
         if (d is not Image image) return;
 
         var url = e.NewValue as string;
+        GifPlayback.Stop(image);
         image.Source = null;
         if (string.IsNullOrWhiteSpace(url)) return;
 
@@ -112,6 +123,12 @@ public static class ThumbnailLoader
     // From the cache, or queued.
     private static void Show(Image image, string url)
     {
+        if (Gifs.TryGetValue(url, out var gif))
+        {
+            GifPlayback.Play(image, gif);
+            return;
+        }
+
         var width = PixelWidth(image);
         if (Cache.TryGetValue(KeyFor(url, width), out var cached))
         {
@@ -135,7 +152,8 @@ public static class ThumbnailLoader
 
         image.Loaded += (_, _) =>
         {
-            if (image.Source is null && GetSource(image) is { Length: > 0 } url && !IsQueued(KeyFor(url, PixelWidth(image))))
+            if (image.Source is null && !GifPlayback.IsPlaying(image)
+                && GetSource(image) is { Length: > 0 } url && !IsQueued(KeyFor(url, PixelWidth(image))))
                 Show(image, url);
         };
     }
@@ -159,7 +177,9 @@ public static class ThumbnailLoader
         }
 
         var pixels = (int)Math.Ceiling(width * Math.Max(1.0, scale));
-        return Cache.TryGetValue(KeyFor(url, pixels), out _) ? Task.FromResult(true) : Enqueue(null, url, pixels);
+        return Cache.TryGetValue(KeyFor(url, pixels), out _) || Gifs.TryGetValue(url, out _)
+            ? Task.FromResult(true)
+            : Enqueue(null, url, pixels);
     }
 
     // ------------------------------------------------------------------ the queue
@@ -420,6 +440,8 @@ public static class ThumbnailLoader
 
     private static string? SizedCopy(string url, int pixels)
     {
+        // A GIF's smaller copies are single WebP stills: taking one would stop it playing.
+        if (url.EndsWith(".gif", StringComparison.OrdinalIgnoreCase)) return null;
         if (pixels <= 0 || pixels > 384 || !WebpReadable.Value) return null;
         if (SizedCopyName.Match(url) is not { Success: true } match) return null;
 
@@ -505,6 +527,13 @@ public static class ThumbnailLoader
             return Outcome.Failed;
         }
 
+        // An animation plays rather than showing its first frame.
+        if (TCFModManager.Core.Markup.ImageHeader.IsAnimatedGif(bytes))
+        {
+            AppLog.Debug("Thumbnails", $"ThumbnailLoader: {url} is an animated GIF ({bytes.Length} bytes)");
+            return ShownGif(request, bytes);
+        }
+
         // Decoded off the UI thread: thirty cards arriving at once used to decode one after
         // another on it, which is the stutter a fast scroll through the grid ran into.
         var bitmap = await DecodeThread.Run(() => Decode(bytes, request.Width));
@@ -525,6 +554,19 @@ public static class ThumbnailLoader
         foreach (var weak in request.Images)
         {
             if (weak.TryGetTarget(out var image) && GetSource(image) as string == request.Url) image.Source = bitmap;
+        }
+
+        return Outcome.Loaded;
+    }
+
+    // Kept by its address, whatever width it was asked at - it plays at the size it is shown - and
+    // played in every Image still asking for it.
+    private static Outcome ShownGif(Request request, byte[] gif)
+    {
+        Gifs.Add(request.Url, gif);
+        foreach (var weak in request.Images)
+        {
+            if (weak.TryGetTarget(out var image) && GetSource(image) as string == request.Url) GifPlayback.Play(image, gif);
         }
 
         return Outcome.Loaded;
@@ -602,6 +644,48 @@ public static class ThumbnailLoader
                 _order.RemoveLast();
                 _index.Remove(last.Value.Key);
                 _bytes -= last.Value.Bytes;
+            }
+        }
+    }
+
+    // The animated GIFs' files, by address, least recently used first out past the budget. UI thread only.
+    private sealed class GifCache(long budget)
+    {
+        private readonly Dictionary<string, LinkedListNode<(string Url, byte[] Gif)>> _index = new(StringComparer.Ordinal);
+        private readonly LinkedList<(string Url, byte[] Gif)> _order = new();
+        private long _bytes;
+
+        public bool TryGetValue(string url, out byte[] gif)
+        {
+            if (_index.TryGetValue(url, out var node))
+            {
+                _order.Remove(node);
+                _order.AddFirst(node);
+                gif = node.Value.Gif;
+                return true;
+            }
+
+            gif = null!;
+            return false;
+        }
+
+        public void Add(string url, byte[] gif)
+        {
+            if (_index.Remove(url, out var old))
+            {
+                _order.Remove(old);
+                _bytes -= old.Value.Gif.Length;
+            }
+
+            _index[url] = _order.AddFirst((url, gif));
+            _bytes += gif.Length;
+
+            while (_bytes > budget && _order.Count > 1)
+            {
+                var last = _order.Last!;
+                _order.RemoveLast();
+                _index.Remove(last.Value.Url);
+                _bytes -= last.Value.Gif.Length;
             }
         }
     }

@@ -1,6 +1,8 @@
 <!--
-    The Workshop's own navigation strip, under the banner on Steam: Home, Browse, and Your Items,
-    which opens a small menu rather than going anywhere itself.
+    The Workshop's own navigation strip, under the banner on Steam: Home, Browse, and Your Items.
+    Browse and Your Items each open a menu under the pointer, as Steam's do: Browse's has the items'
+    sort orders and the collections', and a click on Browse itself goes to the items. Your Items
+    goes nowhere itself; a click opens its menu too.
 
     47px high on rgba(0,0,0,.37), 15px white labels with 10px padding, the first one 20px in, and a
     2px white bar under the current page - all measured off steamcommunity.com. Steam's strip also
@@ -27,14 +29,52 @@
             <ToggleButton
                 x:Name="BrowseTab"
                 Style="{StaticResource SteamSubNavItem}"
-                Click="BrowseTab_Click">
-                <TextBlock Text="{loc:Str Nav_Browse}" />
+                Click="BrowseTab_Click"
+                MouseEnter="Menu_MouseEnter"
+                MouseLeave="Menu_MouseLeave">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{loc:Str Nav_Browse}" />
+                    <Path Style="{StaticResource SteamDropTriangle}" />
+                </StackPanel>
             </ToggleButton>
+
+            <!-- Steam's Browse menu: two columns, the items' sort orders and the collections'. -->
+            <Popup
+                x:Name="BrowsePopup"
+                AllowsTransparency="True"
+                HorizontalOffset="-10"
+                Placement="Bottom"
+                PlacementTarget="{Binding ElementName=BrowseTab}"
+                StaysOpen="True"
+                Closed="Popup_Closed">
+                <Border
+                    x:Name="BrowsePanel"
+                    Margin="10,0,10,10"
+                    Background="Transparent"
+                    MouseLeave="Menu_MouseLeave">
+                    <Border Style="{StaticResource SteamYourItemsPanel}">
+                        <StackPanel Orientation="Horizontal">
+                            <StackPanel MinWidth="155" Margin="0,0,20,0">
+                                <TextBlock Style="{StaticResource SteamYourItemsHeader}" Text="{loc:Str Workshop_BrowseModsHeader}" />
+                                <Button Style="{StaticResource SteamYourItemsEntry}" Content="{loc:Str Sort_BrowseMostEndorsed}" Tag="MostEndorsed" Click="BrowseMods_Click" />
+                                <Button Style="{StaticResource SteamYourItemsEntry}" Content="{loc:Str Sort_BrowseNewest}" Tag="Newest" Click="BrowseMods_Click" />
+                                <Button Margin="0" Style="{StaticResource SteamYourItemsEntry}" Content="{loc:Str Sort_BrowseLastUpdated}" Tag="LastUpdated" Click="BrowseMods_Click" />
+                            </StackPanel>
+                            <StackPanel MinWidth="130">
+                                <TextBlock Style="{StaticResource SteamYourItemsHeader}" Text="{loc:Str Workshop_BrowseCollectionsHeader}" />
+                                <Button Margin="0" Style="{StaticResource SteamYourItemsEntry}" Content="{loc:Str Collections_SortMostRecent}" Click="BrowseCollections_Click" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </Border>
+            </Popup>
 
             <ToggleButton
                 x:Name="YourItemsTab"
                 Style="{StaticResource SteamSubNavItem}"
-                Click="YourItemsTab_Click">
+                Click="YourItemsTab_Click"
+                MouseEnter="Menu_MouseEnter"
+                MouseLeave="Menu_MouseLeave">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="{loc:Str Workshop_YourItems}" />
                     <Path Style="{StaticResource SteamDropTriangle}" />
@@ -47,10 +87,12 @@
                 HorizontalOffset="-10"
                 Placement="Bottom"
                 PlacementTarget="{Binding ElementName=YourItemsTab}"
-                StaysOpen="False"
-                Closed="YourItemsPopup_Closed">
+                StaysOpen="True"
+                Closed="Popup_Closed">
                 <!-- The margin leaves room for the shadow, which falls on every side, inside the
-                     popup's own surface; the offset keeps the panel's edge under the tab's. -->
+                     popup's own surface; the offset keeps the panel's edge under the tab's. The
+                     transparent border around it keeps the pointer "in the menu" across that room. -->
+                <Border x:Name="YourItemsPanel" Background="Transparent" MouseLeave="Menu_MouseLeave">
                 <Border Margin="10,0,10,10" MinWidth="220" Style="{StaticResource SteamYourItemsPanel}">
                     <StackPanel>
                         <TextBlock Style="{StaticResource SteamYourItemsHeader}" Text="{loc:Str Workshop_YourItemsHeader}" />
@@ -58,6 +100,7 @@
                         <Button Style="{StaticResource SteamYourItemsEntry}" Content="{loc:Str Workshop_YourCollections}" Click="YourCollections_Click" />
                         <Button Margin="0" Style="{StaticResource SteamYourItemsEntry}" Content="{loc:Str FollowedAuthors_Title}" Click="FollowedAuthors_Click" />
                     </StackPanel>
+                </Border>
                 </Border>
             </Popup>
         </StackPanel>

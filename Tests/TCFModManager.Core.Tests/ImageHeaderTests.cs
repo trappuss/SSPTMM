@@ -28,4 +28,30 @@ public class ImageHeaderTests
         Assert.Null(ImageHeader.Width(new byte[64]));
         Assert.Null(ImageHeader.Width("<html><body>not a picture</body></html>"u8));
     }
+
+    // Two frames, the second with a colour table of its own; and the same picture as one frame.
+    private const string TwoFrames = "R0lGODlhBAADAPAAAP8AAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQAAAAAACH/C0ltYWdlTWFnaWNrDmdhbW1hPTAuNDU0NTQ1ACwAAAAABAADAAACA4SPVgAh+QQAAAAAACH/C0ltYWdlTWFnaWNrDmdhbW1hPTAuNDU0NTQ1ACwAAAAABAADAIAAAP8AAAACA4SPVgA7";
+    private const string OneFrame = "R0lGODlhBAADAPAAAP8AAAAAACH5BAAAAAAAIf8LSW1hZ2VNYWdpY2sOZ2FtbWE9MC40NTQ1NDUALAAAAAAEAAMAAAIDhI9WADs=";
+
+    [Fact]
+    public void A_gif_of_several_frames_is_an_animation()
+    {
+        Assert.True(ImageHeader.IsAnimatedGif(Convert.FromBase64String(TwoFrames)));
+    }
+
+    [Fact]
+    public void A_gif_of_one_frame_is_a_still()
+    {
+        Assert.False(ImageHeader.IsAnimatedGif(Convert.FromBase64String(OneFrame)));
+    }
+
+    [Fact]
+    public void A_cut_short_gif_or_another_format_is_not_an_animation()
+    {
+        var bytes = Convert.FromBase64String(TwoFrames);
+
+        Assert.False(ImageHeader.IsAnimatedGif(bytes.AsSpan(0, 60)));
+        Assert.False(ImageHeader.IsAnimatedGif(new byte[] { 0x89, (byte)'P', (byte)'N', (byte)'G', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }));
+        Assert.False(ImageHeader.IsAnimatedGif([]));
+    }
 }
