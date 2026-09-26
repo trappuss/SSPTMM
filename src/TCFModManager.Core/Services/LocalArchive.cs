@@ -7,21 +7,26 @@ namespace TCFModManager.Core.Services;
 /// <param name="Recognised">False when nothing in it says where its files go (see ArchiveLayout).</param>
 /// <param name="Plugins">Each BepInEx plugin DLL: its [BepInPlugin] GUID and file version.</param>
 /// <param name="ServerMods">Each server mod folder with a package.json: its name and version.</param>
-/// <param name="ServerFolders">The folder names under user/mods - all an SPT 4 server mod (a DLL, no
-/// package.json) has to be known by.</param>
+/// <param name="ServerFolders">The folder names under user/mods - what an SPT 4 server mod (a DLL, no
+/// package.json) is known by for its local id.</param>
+/// <param name="ServerGuids">Each SPT 4 server mod's ModGuid and version, from its DLL's metadata
+/// (see ServerModMetadataReader) - for matching to a listing only; never part of the local id, so an
+/// archive installed before these were read keeps the id it was recorded under.</param>
 public sealed record LocalArchiveContents(
     bool Recognised,
     IReadOnlyList<(string Guid, string? Version)> Plugins,
     IReadOnlyList<(string Name, string? Version)> ServerMods,
-    IReadOnlyList<string>? ServerFolders = null);
+    IReadOnlyList<string>? ServerFolders = null,
+    IReadOnlyList<(string Guid, string? Version)>? ServerGuids = null);
 
 //
 // Installing an archive the user already has - from GitHub, a Discord post, an older version kept
 // on disk - through the same install as a download: its layout read the same way, the previous
 // version put aside, nothing half-installed, other mods' files kept, a record to remove it by.
 //
-// The archive is matched to its sp-mod.com listing by what is inside it (a plugin's GUID), so it is
-// then the same mod as one installed from the Workshop - updates, pages and all. One that matches
+// The archive is matched to its sp-mod.com listing by what is inside it (a plugin's GUID, or an
+// SPT 4 server mod's ModGuid), so it is then the same mod as one installed from the Workshop -
+// updates, pages and all. One that matches
 // nothing, or more than one mod (a pack), is recorded under a local identity of its own instead: a
 // negative id, which no sp-mod.com listing has, derived from the file's name so installing the same
 // file again replaces that record rather than adding another.
@@ -84,6 +89,7 @@ public static class LocalArchive
 
             var plugins = new List<(string, string?)>();
             var server = new List<(string, string?)>();
+            var serverGuids = new List<(string, string?)>();
             var folders = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var entry in layout)
@@ -105,9 +111,15 @@ public static class LocalArchive
                 {
                     server.Add(package);
                 }
+                else if (mods >= 0
+                         && relative.EndsWith(".dll", StringComparison.OrdinalIgnoreCase)
+                         && ServerModMetadataReader.Read(entry.Source) is { Guid: { } serverGuid } metadata)
+                {
+                    serverGuids.Add((serverGuid, metadata.Version));
+                }
             }
 
-            return new LocalArchiveContents(true, plugins, server, [.. folders]);
+            return new LocalArchiveContents(true, plugins, server, [.. folders], serverGuids);
         }
         finally
         {
@@ -127,7 +139,7 @@ public static class LocalArchive
     /// (none, or a pack of several).</summary>
     public static Mod? MatchIn(LocalArchiveContents contents, IEnumerable<Mod> catalog)
     {
-        var guids = contents.Plugins.Select(p => p.Guid).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var guids = GuidsOf(contents);
         if (guids.Count == 0) return null;
 
         var matches = catalog
@@ -141,18 +153,28 @@ public static class LocalArchive
     /// <summary>Every listing the archive's plugins belong to - more than one for a pack.</summary>
     public static List<Mod> ListingsIn(LocalArchiveContents contents, IEnumerable<Mod> catalog)
     {
-        var guids = contents.Plugins.Select(p => p.Guid).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var guids = GuidsOf(contents);
         return [.. catalog.Where(m => !string.IsNullOrWhiteSpace(m.Guid) && guids.Contains(m.Guid!)).DistinctBy(m => m.Id)];
     }
+
+    // What a listing can be matched by: its plugins' GUIDs and its server mods' ModGuids - an SPT 4
+    // mod that is only a server mod has no plugin at all.
+    private static HashSet<string> GuidsOf(LocalArchiveContents contents) =>
+        contents.Plugins.Select(p => p.Guid)
+            .Concat((contents.ServerGuids ?? []).Select(g => g.Guid))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>The version to record: the published version the matched plugin's DLL version is,
     /// when there is one, else the DLL's own.</summary>
     public static string? VersionOf(LocalArchiveContents contents, Mod? match)
     {
+        var serverGuids = contents.ServerGuids ?? [];
         var dllVersion = match is null
             ? contents.Plugins.Select(p => p.Version).FirstOrDefault(v => v is not null)
                 ?? contents.ServerMods.Select(p => p.Version).FirstOrDefault(v => v is not null)
-            : contents.Plugins.FirstOrDefault(p => string.Equals(p.Guid, match.Guid, StringComparison.OrdinalIgnoreCase)).Version;
+                ?? serverGuids.Select(p => p.Version).FirstOrDefault(v => v is not null)
+            : contents.Plugins.FirstOrDefault(p => string.Equals(p.Guid, match.Guid, StringComparison.OrdinalIgnoreCase)).Version
+                ?? serverGuids.FirstOrDefault(p => string.Equals(p.Guid, match.Guid, StringComparison.OrdinalIgnoreCase)).Version;
 
         var published = match?.Versions is { } versions
             ? ModVersionComparer.BestSameRelease(dllVersion, versions.Select(v => v.Version))

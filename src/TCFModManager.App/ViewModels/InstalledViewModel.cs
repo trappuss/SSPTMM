@@ -2004,10 +2004,14 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     {
         if (card.IsDisabled) return null;
 
+        // The plugins BepInEx loads meet a plugin's needs only: a server mod needing a GUID its
+        // plugin half also carries is still missing it.
         var missing = card.Entries
             .Where(e => !e.IsDisabled)
-            .SelectMany(graph.MissingOf)
-            .Where(m => !loadedGuids.Contains(m.Identifier) && !IsSptItself(m.Identifier))
+            .SelectMany(e => graph.MissingOf(e).Select(m => (e.Target, Missing: m)))
+            .Where(x => !(x.Target == InstalledModTarget.Client && loadedGuids.Contains(x.Missing.Identifier))
+                && !IsSptItself(x.Missing.Identifier))
+            .Select(x => x.Missing)
             .GroupBy(m => m.Identifier, StringComparer.OrdinalIgnoreCase)
             .Select(g => g.First())
             .ToList();

@@ -87,7 +87,10 @@ public static class ModConfigDiscovery
         {
             // Every GUID the mod's folder registers, not just its primary one - a folder holding an
             // API or config-UI assembly alongside the plugin itself has a config file for each.
-            foreach (var guid in mod.AllGuids) byGuid.TryAdd(guid, mod);
+            // BepInEx\config belongs to plugins: a server mod sharing its plugin's GUID (SAIN's both
+            // are "me.sol.sain") never owns a file there.
+            if (mod.Target == InstalledModTarget.Client)
+                foreach (var guid in mod.AllGuids) byGuid.TryAdd(guid, mod);
 
             var normalized = Normalize(mod.Name);
             if (normalized.Length == 0) continue;

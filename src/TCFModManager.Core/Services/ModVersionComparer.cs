@@ -46,6 +46,18 @@ public static class ModVersionComparer
         return left.Value.Pre.Length == 0 || ComparePreRelease(left.Value.Pre, right.Value.Pre) == 0;
     }
 
+    /// <summary>True when both are the same major.minor.patch, whatever else either carries (a
+    /// fourth, build number part; a label): "2.0.0.42986" and "2.0.0".</summary>
+    public static bool SameNumbers(string? a, string? b)
+    {
+        var left = Parse(a);
+        var right = Parse(b);
+        if (left is null || right is null) return false;
+
+        var (l, r) = (left.Value.Core, right.Value.Core);
+        return l.Major == r.Major && l.Minor == r.Minor && l.Build == r.Build;
+    }
+
     /// <summary>True when <paramref name="a"/> is a later breaking line than <paramref name="b"/>:
     /// a higher major version, or for 0.x a higher minor one (npm's reading of ^0.x). Null when
     /// either cannot be read.</summary>

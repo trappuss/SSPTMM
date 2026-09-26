@@ -29,17 +29,22 @@ public sealed class ModDependencyGraph
         var all = mods.ToList();
         var graph = new ModDependencyGraph();
 
-        // A client mod is identified by its [BepInPlugin] GUID, a server mod by its package name.
-        // Both can resolve more than one installed mod - the same mod present in a container and in
-        // that container's ".disabled" sibling, or a mod shipping both halves.
-        var byIdentifier = new Dictionary<string, List<InstalledMod>>(StringComparer.OrdinalIgnoreCase);
+        // A client mod is identified by its [BepInPlugin] GUIDs, a server mod by its package name
+        // (SPT 3) or ModGuid (SPT 4). Each can resolve more than one installed mod - the same mod
+        // present in a container and in that container's ".disabled" sibling.
+        //
+        // Kept per side: BepInEx meets a [BepInDependency] only with a loaded plugin, and the SPT
+        // server meets ModDependencies only with a loaded server mod. A mod's two halves often share
+        // a GUID (SAIN's are both "me.sol.sain"), and its server half being there does nothing for
+        // a plugin that needs the client half.
+        var byIdentifier = new Dictionary<(InstalledModTarget, string), List<InstalledMod>>(SideComparer.Instance);
 
         foreach (var mod in all)
         {
             foreach (var identifier in Identifiers(mod))
             {
-                if (!byIdentifier.TryGetValue(identifier, out var matches))
-                    byIdentifier[identifier] = matches = [];
+                if (!byIdentifier.TryGetValue((mod.Target, identifier), out var matches))
+                    byIdentifier[(mod.Target, identifier)] = matches = [];
 
                 matches.Add(mod);
             }
@@ -53,7 +58,7 @@ public sealed class ModDependencyGraph
 
             foreach (var declared in mod.Dependencies)
             {
-                if (!byIdentifier.TryGetValue(declared.Identifier, out var matches))
+                if (!byIdentifier.TryGetValue((mod.Target, declared.Identifier), out var matches))
                 {
                     graph.AddUnresolved(mod, declared.Identifier);
                     if (!declared.IsSoft) graph.AddMissing(mod, new ModMissingDependency(declared.Identifier, null));
@@ -158,6 +163,17 @@ public sealed class ModDependencyGraph
     {
         foreach (var guid in mod.AllGuids) yield return guid;
         if (mod.Target == InstalledModTarget.Server && !string.IsNullOrWhiteSpace(mod.Name)) yield return mod.Name;
+    }
+
+    private sealed class SideComparer : IEqualityComparer<(InstalledModTarget Side, string Identifier)>
+    {
+        public static readonly SideComparer Instance = new();
+
+        public bool Equals((InstalledModTarget Side, string Identifier) x, (InstalledModTarget Side, string Identifier) y) =>
+            x.Side == y.Side && StringComparer.OrdinalIgnoreCase.Equals(x.Identifier, y.Identifier);
+
+        public int GetHashCode((InstalledModTarget Side, string Identifier) key) =>
+            HashCode.Combine(key.Side, StringComparer.OrdinalIgnoreCase.GetHashCode(key.Identifier));
     }
 
     private static List<ModDependencyLink> List(Dictionary<InstalledMod, List<ModDependencyLink>> map, InstalledMod key)

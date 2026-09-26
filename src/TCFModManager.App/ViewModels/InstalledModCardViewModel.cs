@@ -817,6 +817,17 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
         if (!string.IsNullOrWhiteSpace(installedGuid) && index.ByGuid.TryGetValue(installedGuid, out var byGuid))
             return byGuid;
 
+        // Then an SPT 4 server mod's own ModGuid - often the same GUID its listing carries (Dynamic
+        // Maps' server mod is "com.mpstark.dynamicmaps", as is its plugin). Only when no plugin GUID
+        // matched: where the halves differ, the listing is keyed on the plugin's.
+        var serverGuid = entries
+            .Where(m => m.Target == InstalledModTarget.Server)
+            .Select(m => m.Guid)
+            .FirstOrDefault(g => !string.IsNullOrWhiteSpace(g));
+
+        if (!string.IsNullOrWhiteSpace(serverGuid) && index.ByGuid.TryGetValue(serverGuid, out var byServerGuid))
+            return byServerGuid;
+
         var fromName = InferFromFolderName(index, folderName);
         if (fromName is not null) return fromName;
 
@@ -1245,8 +1256,12 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
         var installedVersion = record?.Version ?? fileVersion;
 
         (string Key, object?[] Values)? detail = null;
+        // Only when the halves are different releases: a plugin's 1.2.1.0 and its server mod's
+        // 1.2.1 are one version written two ways.
         if (client is not null && server is not null
-            && !string.Equals(client.Version, server.Version, StringComparison.OrdinalIgnoreCase))
+            && !string.Equals(client.Version, server.Version, StringComparison.OrdinalIgnoreCase)
+            && !ModVersionComparer.IsSameRelease(client.Version, server.Version)
+            && !ModVersionComparer.IsSameRelease(server.Version, client.Version))
         {
             detail = (
                 nameof(Strings.Installed_DetailFilesReportPairFormat),

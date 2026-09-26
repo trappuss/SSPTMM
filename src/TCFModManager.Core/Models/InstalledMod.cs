@@ -9,8 +9,9 @@ public enum InstalledModTarget
 
 //
 // One dependency an installed mod declares about itself. Identifier is a BepInEx plugin GUID for a
-// client mod (from [BepInDependency]) or a package.json package name for a server mod (from
-// "modDependencies"). A soft dependency is one the dependent still loads without.
+// client mod (from [BepInDependency]), a package.json package name for an SPT 3 server mod (from
+// "modDependencies"), or another server mod's ModGuid for an SPT 4 one (from its metadata's
+// ModDependencies). A soft dependency is one the dependent still loads without.
 //
 public sealed record ModDependencyRef(string Identifier, bool IsSoft);
 
@@ -24,18 +25,24 @@ public sealed class InstalledMod
 
     //
     // The GUID that stands for this mod's identity - the first [BepInPlugin] GUID found in its
-    // folder. Null for server mods, and for a client mod whose GUID couldn't be read. Catalog
-    // matching and the dependency graph key on this, so it stays one value per mod.
+    // folder, or an SPT 4 server mod's ModGuid (from the metadata class in its DLL). Null for an
+    // SPT 3 server mod (package.json), and wherever none could be read. Catalog matching and the
+    // dependency graph key on this, so it stays one value per mod.
+    //
+    // A mod's two halves often share one GUID (SAIN's plugin and server mod are both "me.sol.sain")
+    // and often do not ("com.chazut.orbit" and "com.chazut.orbit.server"). A client dependency is
+    // only ever met by a client GUID, a server one by a server GUID - see ModDependencyGraph.
     //
     public string? Guid { get; init; }
 
     //
-    // Every [BepInPlugin] GUID found in this mod's folder, not just the one above.
+    // Every [BepInPlugin] GUID found in this mod's folder, not just the one above (for a server
+    // mod, its one ModGuid).
     //
     // A single mod folder routinely holds several plugin DLLs - an API, a config UI, a utilities
     // assembly - each registering its own GUID, and each keeping its own file in BepInEx\config
     // named after it. Keeping only the first would leave all the others' configs looking like they
-    // belonged to no installed mod at all. Empty for a server mod.
+    // belonged to no installed mod at all.
     //
     public IReadOnlyList<string> Guids { get; init; } = [];
 
@@ -44,7 +51,7 @@ public sealed class InstalledMod
     public IReadOnlyList<string> AllGuids =>
         Guids.Count > 0 ? Guids : Guid is null ? [] : [Guid];
 
-    // Populated only for server mods, from package.json's "author" field.
+    // Populated only for server mods, from package.json's "author" field or the DLL's metadata.
     public string? Author { get; init; }
 
     public required InstalledModTarget Target { get; init; }
