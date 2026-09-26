@@ -801,10 +801,64 @@ answered as one.
 **Not done, and why.**
 - sp-mod.com's recommended update version (`/mods/updates`) is not used for the update pick: the
   version comparison fix covers the wrong answer it would have fixed, and changing the pick means
-  changing every update path at once.
-- Dropping an archive on the window: the Subscribed items page's own drag and drop (groups) would
-  have to be reworked to tell the two apart; the button does the same.
-- Install records per SPT install (asked about before doing it, as said at the start).
+  changing every update path at once. (Round 15 checked: for your installed mods, and older
+  versions of them, its pick is the newest version for the SPT release - the app's own.)
+- Dropping an archive on the window, and install records per SPT install: both done in round 15.
+
+## Fifteenth round: checked against a real SPT 4.1.6 install (2026-09-26)
+
+With your install folder (`G:\G Games\SPT4.1\SPT4.1 Game`) read, never written: its layout, server
+log, profiles, SPT's own configs, and the plugins and server mods in it, run through the app's own
+scanner. What that showed, and what changed:
+
+**Confirmed.** The server lives in `SPT_Runtime` (already supported); profiles are in
+`SPT_Runtime/user/profiles`; the server log is `SPT_Runtime/user/logs/spt/spt<date>.log` (the Play
+page finds it; the launcher's log beside it is left out); SPT's own plugins are `com.SPT.*`; Fika's
+plugins are `com.fika.core` and `com.fika.headless` (named as optional dependencies by two of your
+mods). Those three round-14 HUNCHes are settled; only Fika's server mod name is still unseen.
+
+**SPT 4 server mods are read properly.** They have no package.json; the app took their DLL's file
+version, which for Dynamic Maps' server half is 1.0.4.0 while the mod (and SPT's own log) say
+1.2.1. The app now reads each server mod's own metadata class from its DLL - GUID, name, author,
+version, SPT range, dependencies - without loading it, the same values SPT logs when it starts
+(all nine of yours matched). So: the right version; a server-only mod matched to its sp-mod.com
+page by its GUID (All The Clothes); a mod's two halves on one card when only the server half's GUID
+matches; server mods' own dependencies checked (RCTA Peely needs WTT CommonLib); no "files report
+1.2.1.0 / 1.0.4.0" note for halves of one release. Anything a mod works out at run time rather than
+writing as a literal is left unread (the old fallback stands) - never guessed.
+
+**Dependencies are checked per side.** A plugin's dependency is met only by a plugin, a server
+mod's only by a server mod: SAIN's two halves share the GUID `me.sol.sain`, and its server half
+being there does nothing for a plugin that needs the client half.
+
+**A plugin's two versions.** A DLL can carry a file version and its own [BepInPlugin] version, the
+one BepInEx loads it as (ORBIT: 2.0.0.42986 and 2.0.0). Both are kept; whichever one sp-mod.com
+publishes is used, and with nothing published to compare, the plugin's own when the file version
+only adds a build number.
+
+**Profile copies leave out SPT's own backups.** SPT keeps up to 15 copies of its own inside
+`user/profiles/backups` (one per server start). Every app copy zipped them too (your log: "13
+profile files" for one profile), every server start counted as a change, and putting a copy back
+could bring back backups SPT had since removed. Left out now, including from older copies.
+
+**Drop archives on Subscribed items** to install them, exactly like Install from file. Moving a mod
+between groups still works; an archive dragged out of 7-Zip or WinRAR is copied before they delete
+their temporary file.
+
+**Install records per SPT install.** What the app installed (and the copies of files those installs
+replaced) used to be one list for every install: a mod installed on one showed on another as that
+version, and removing it there went by the first install's file list. Each install now keeps its
+own (`Data/InstallRecords/<key>/`, with `install.txt` naming the install). The old list is shared
+out the first time each install is opened, by which install each record's own files are in. Two
+things to know:
+- A record whose files are in two installs goes to the first one opened (before, both used it).
+- An install moved to a new folder starts with no records: its mods show as installed by hand
+  (versions read from their files) until next installed or updated from here. Taking over the
+  records of a folder that has gone was tried and dropped: a folder renamed for a while looks the
+  same, and an unrelated install with the same mods would have taken them too.
+
+**Not done.** More tests for older code (Browse filters, collections, list import) - the time went
+to the records change and two review rounds instead.
 
 ## Values that could not be measured (marked HUNCH in the source)
 
@@ -819,11 +873,11 @@ answered as one.
   "Favorites" entry: both only show for someone signed in.
 - The page behind Quick View is darkened to about 40% (measured from a screenshot, not the CSS).
 - The thumbnail cache's budget (160 MB) and how far from the view pictures are kept (two screens).
-- Round 14, not checkable here (no real SPT 4 install on this machine): that Fika's plugins all
-  use GUIDs starting "com.fika." and its server mod's folder name contains "fika"; that the SPT 4
-  server writes its log under `<server folder>/user/logs` (the newest file there is shown, whatever
-  it is called); that profiles live in `<server folder>/user/profiles`. Each is read from disk, so a
-  different layout shows nothing rather than something wrong.
+- Fika's server mod: that its folder name contains "fika" and "server", or its ModGuid starts
+  "com.fika." (not installed on the SPT 4.1.6 install checked in round 15; its plugins' GUIDs,
+  the log and the profiles locations were confirmed there).
+- A folder named by 7-Zip or WinRAR for a dragged-out archive is in the temp folder and deleted
+  when the drop ends (known from how they work, not seen here).
 
 - Critical/error red (`#E05A5A`): no error state on the pages measured.
 - Outlined "View All" hover fill.
