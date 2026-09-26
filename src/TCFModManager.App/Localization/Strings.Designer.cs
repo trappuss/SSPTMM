@@ -1794,4 +1794,7 @@ internal static class Strings
     internal static string Upgrade_UnknownConstraint => LocalizationService.Get("Upgrade_UnknownConstraint");
     internal static string Upgrade_UnknownNotListed => LocalizationService.Get("Upgrade_UnknownNotListed");
     internal static string Upgrade_Offline => LocalizationService.Get("Upgrade_Offline");
+    internal static string Play_ServerLog => LocalizationService.Get("Play_ServerLog");
+    internal static string Play_ServerLogNone => LocalizationService.Get("Play_ServerLogNone");
+    internal static string Play_ServerLogOpenFolder => LocalizationService.Get("Play_ServerLogOpenFolder");
 }

@@ -6748,4 +6748,16 @@ Install it? It can be removed like any other.</value>
     <value>sp-mod.com could not be reached, so the upgrade check cannot say anything yet. Try again once you are online.</value>
     <comment>Status when the catalog or release list is unavailable.</comment>
   </data>
+  <data name="Play_ServerLog" xml:space="preserve">
+    <value>Server log</value>
+    <comment>Expander under the server card: the server's log file.</comment>
+  </data>
+  <data name="Play_ServerLogNone" xml:space="preserve">
+    <value>The server has not written a log here yet - it does once it has been started.</value>
+    <comment>Server log with nothing to show.</comment>
+  </data>
+  <data name="Play_ServerLogOpenFolder" xml:space="preserve">
+    <value>Open logs folder</value>
+    <comment>Button: open the server's logs folder.</comment>
+  </data>
 </root>

@@ -29,4 +29,7 @@ public partial class PlayPage : Page
 
         Unloaded += (_, _) => ViewModel.StopPolling();
     }
+
+    // The newest lines at the bottom, as a console has them.
+    private void ServerLogBox_TextChanged(object sender, TextChangedEventArgs e) => ServerLogBox.ScrollToEnd();
 }

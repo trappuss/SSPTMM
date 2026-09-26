@@ -167,6 +167,34 @@
                     TextWrapping="Wrap"
                     Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                     Text="{Binding ServerPath}" />
+
+                <!-- What the server logs, read from its log file - its own window is untouched. -->
+                <Expander Margin="0,8,0,0" Header="{loc:Str Play_ServerLog}" IsExpanded="{Binding ShowServerLog}">
+                    <StackPanel Margin="0,8,0,0">
+                        <TextBox
+                            x:Name="ServerLogBox"
+                            Height="280"
+                            IsReadOnly="True"
+                            FontFamily="Consolas, Courier New"
+                            FontSize="11"
+                            TextWrapping="NoWrap"
+                            HorizontalScrollBarVisibility="Auto"
+                            VerticalScrollBarVisibility="Auto"
+                            Text="{Binding ServerLogText, Mode=OneWay}"
+                            TextChanged="ServerLogBox_TextChanged" />
+                        <DockPanel Margin="0,6,0,0">
+                            <ui:Button
+                                DockPanel.Dock="Right"
+                                Content="{loc:Str Play_ServerLogOpenFolder}"
+                                Command="{Binding OpenServerLogFolderCommand}" />
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                TextTrimming="CharacterEllipsis"
+                                Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                Text="{Binding ServerLogPath}" />
+                        </DockPanel>
+                    </StackPanel>
+                </Expander>
             </StackPanel>
         </ui:Card>
 

@@ -64,6 +64,47 @@ public partial class PlayViewModel : LocalizedViewModel
     [ObservableProperty]
     private bool _hasError;
 
+    //
+    // The server's own log, shown under its card while opened there - see ServerLogs. Read on the
+    // poll only while it is open.
+    //
+    [ObservableProperty]
+    private bool _showServerLog;
+
+    [ObservableProperty]
+    private string _serverLogText = "";
+
+    [ObservableProperty]
+    private string? _serverLogPath;
+
+    partial void OnShowServerLogChanged(bool value)
+    {
+        if (value) UpdateServerLog(AppServices.SptEnvironment.InstallPath);
+    }
+
+    private void UpdateServerLog(string? installPath)
+    {
+        var file = ServerLogs.Newest(installPath);
+        ServerLogPath = file;
+        ServerLogText = file is null ? Strings.Play_ServerLogNone : string.Join(Environment.NewLine, ServerLogs.Tail(file));
+    }
+
+    [RelayCommand]
+    private void OpenServerLogFolder()
+    {
+        if (ServerLogs.Folder(AppServices.SptEnvironment.InstallPath) is not { } folder) return;
+
+        try
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("explorer.exe", $"\"{folder}\"") { UseShellExecute = true });
+        }
+        catch (Exception ex)
+        {
+            AppLog.Warn("Launch", $"couldn't open {folder}: {ex.Message}");
+            Message = Strings.Common_FolderOpenFailed;
+        }
+    }
+
     public PlayViewModel()
     {
         _poll.Tick += (_, _) => Refresh();
@@ -216,6 +257,8 @@ public partial class PlayViewModel : LocalizedViewModel
         var roles = settings.Roles;
         PlaysHere = roles.HasFlag(InstallRoles.Player);
         RunsHeadlessClient = roles.HasFlag(InstallRoles.Headless);
+
+        if (ShowServerLog) UpdateServerLog(installPath);
     }
 
     [RelayCommand]
