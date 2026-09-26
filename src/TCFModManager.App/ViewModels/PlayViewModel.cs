@@ -356,8 +356,9 @@ public partial class PlayViewModel : LocalizedViewModel
             {
                 Start(SptLaunchTarget.Client);
             }
-            else if (up && !openLauncher)
+            else if (up)
             {
+                // Up, and no launcher to open (not asked for, or already open).
                 Message = Strings.Play_ServerIsUp;
             }
             else if (!up && openLauncher && Server?.IsRunning == true && Client?.IsRunning != true)
@@ -381,7 +382,7 @@ public partial class PlayViewModel : LocalizedViewModel
             else if (!up)
             {
                 // The launcher was opened some other way meanwhile: nothing left to wait for or say.
-                Message = null;
+                Message = "";
             }
         }
         finally
@@ -482,6 +483,7 @@ public partial class PlayViewModel : LocalizedViewModel
         _launcherWait?.Cancel();
         var hidden = false;
         var watchRestart = false;
+        IReadOnlySet<int>? portsAfterRestart = null;
 
         // The poll would otherwise redraw the card mid-stop and offer a Start for the gap between
         // the process going and the new one appearing.
@@ -501,6 +503,12 @@ public partial class PlayViewModel : LocalizedViewModel
                 : SptLaunchProblems.Describe(result);
 
             watchRestart = result.Started && hidden && target == SptLaunchTarget.Server;
+            if (watchRestart)
+            {
+                portsAfterRestart = SptServerReadiness.PortsFor(Server?.ExePath)
+                    .Where(p => !SptServerReadiness.IsListening(new HashSet<int> { p }))
+                    .ToHashSet();
+            }
         }
         finally
         {
@@ -510,11 +518,12 @@ public partial class PlayViewModel : LocalizedViewModel
         }
 
         // With no window, the log is where it says how the restart went, and a start that fails is
-        // reported rather than just gone. Every port it uses was freed by the stop.
+        // reported rather than just gone. Its ports were freed by the stop; one answering already,
+        // a moment after the start (SPT takes seconds to open them), is held by something else.
         if (watchRestart)
         {
             ShowServerLog = true;
-            _portsBeforeStart = SptServerReadiness.PortsFor(Server?.ExePath);
+            _portsBeforeStart = portsAfterRestart;
             await StartLauncherWhenServerIsUpAsync(openLauncher: false);
         }
     }
