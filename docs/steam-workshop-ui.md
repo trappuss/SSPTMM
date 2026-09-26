@@ -509,6 +509,42 @@ Measured and not changed:
   choice; items cannot be dragged into a category, and the group controls step aside meanwhile.
 - A card's buttons wrap onto a second line instead of cutting Unsubscribe off.
 
+## Ninth round: copies of a mod, removing, Multi select everywhere (2026-09-26)
+
+**Fixed.**
+- *Unsubscribing a copy of a mod deleted the real one.* With a mod on disk twice - the install
+  and a renamed copy, which matches the same listing by its GUID - both cards were given the
+  install's record, so removing the copy deleted the files the record placed and left the copy.
+  Reproduced with three renamed copies of Open Sesame's DLL. Now only the card holding a folder
+  the record placed (judged on its client half, since a copy can be paired with the install's
+  server half) is the install; a copy is shown as installed by hand and removing it deletes the
+  copy. Browse's installed index, and so the item page's Unsubscribe, prefers the install.
+- *"Removed X." was replaced at once* by the page's count from the rescan after it. It stays now,
+  and the item page and right-click menu show the removal's own words.
+- *A removal from the item page or right-click menu* works on a fresh scan, matched even when the
+  mod was set aside or brought back since Browse last looked - a set-aside mod used to be
+  "removed" by deleting only its record, its files staying where they were set aside.
+
+**Removing.**
+- *The question before one item goes names installed items that use it* (for example SAIN, which
+  needs BigBrain), as the check before removing several already did.
+- *The check before removing is worded for one item or several* and names whose folder each is.
+- *Unsubscribe selected* shows the folder or file beside items that share a title (two copies of
+  one mod).
+- *Don't ask again* lines up with the dialog's text: WPF UI's check box keeps 11px of padding
+  before its box (CheckBoxPadding 11,5,11,6), now taken off.
+
+**Multi select in every view.** List and Groups have it too: a tick box on each row, a click on a
+row ticks it, the same ticks in all three views; the group bar steps aside while selecting. A
+click on a card's or row's header ticks it (WPF UI draws the header inside the expander's own
+toggle, which used to open it instead).
+
+**On your PC.**
+- *Smaller picture copies*: your log says WebP can be read, so they are asked for. From this build
+  the log also says, once a session, whether one was shown or had to give way to the full picture.
+- *Scrolling*: still to be measured - run `steam-ui-measure.bat`; it writes
+  `Claude outputs\perf-report.txt`.
+
 ## Values that could not be measured (marked HUNCH in the source)
 
 - The smooth-scroll distance and time (100px, 250ms) - chosen to feel like a browser, not measured.
