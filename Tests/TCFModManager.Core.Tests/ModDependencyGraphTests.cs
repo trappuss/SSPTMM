@@ -204,4 +204,24 @@ public class ModDependencyGraphTests
 
         Assert.Empty(ModDependencyGraph.Build([enabled, disabled, consumer]).MissingOf(consumer));
     }
+
+    [Fact]
+    public void MissingOf_NeverNamesWhatTheModProvidesItself()
+    {
+        InstalledMod Copy(bool disabled) => new()
+        {
+            Name = "Kit",
+            Guid = "com.author.kit",
+            Guids = ["com.author.kit", "com.author.kit.api"],
+            Target = InstalledModTarget.Client,
+            FolderPath = Path.Combine("C:", "SPT", "BepInEx", disabled ? "plugins.disabled" : "plugins", "Kit"),
+            IsDisabled = disabled,
+            Dependencies = [new ModDependencyRef("com.author.kit.api", IsSoft: false)],
+        };
+
+        var enabled = Copy(false);
+        var graph = ModDependencyGraph.Build([enabled, Copy(true)]);
+
+        Assert.Empty(graph.MissingOf(enabled));
+    }
 }

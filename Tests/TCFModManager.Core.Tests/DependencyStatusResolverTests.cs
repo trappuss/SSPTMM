@@ -16,18 +16,23 @@ public class DependencyStatusResolverTests
     public void Resolve_InstalledWhenTheDiskVersionMatches() =>
         Assert.Equal(ModStatus.Installed, DependencyStatusResolver.Resolve(Node(), "1.3.0", "1.3.0"));
 
-    // Newer than the newest version that fits means outside what the mod needing it accepts: CommonLib
-    // 3.0.6 installed for a mod made for 2.x is not "installed and fine".
+    // Newer than the newest version that fits, across a major version, means outside what the mod
+    // needing it accepts: CommonLib 3.0.6 installed for a mod made for 2.x is not "installed and fine".
     [Fact]
-    public void Resolve_TooNewWhenTheDiskVersionIsNewerThanTheNewestThatFits() =>
-        Assert.Equal(ModStatus.TooNew, DependencyStatusResolver.Resolve(Node(), "1.4.0", "1.3.0"));
+    public void Resolve_TooNew_AcrossAMajorVersion() =>
+        Assert.Equal(ModStatus.TooNew, DependencyStatusResolver.Resolve(Node(), "3.0.6", "2.5.0"));
+
+    // A later minor may be a maintenance release published after the newest line.
+    [Fact]
+    public void Resolve_Installed_ForALaterMinor() =>
+        Assert.Equal(ModStatus.Installed, DependencyStatusResolver.Resolve(Node(), "1.4.0", "1.3.0"));
 
     [Fact]
-    public void Resolve_TooNew_ForAVersionReadFromADll_OnlyAcrossAMajorVersion()
+    public void Resolve_NeverTooNew_ForAVersionReadFromADll()
     {
-        Assert.Equal(ModStatus.Installed, DependencyStatusResolver.Resolve(Node(), "1.4.0.0", "1.3.0", exactVersion: false));
-        Assert.Equal(ModStatus.TooNew, DependencyStatusResolver.Resolve(Node(), "3.0.6.0", "2.5.0", exactVersion: false));
-        Assert.Equal(ModStatus.TooNew, DependencyStatusResolver.Resolve(Node(), "0.9.0", "0.5.0", exactVersion: false));
+        Assert.Equal(ModStatus.Installed, DependencyStatusResolver.Resolve(Node(), "1.0.0.0", "0.3.1", exactVersion: false));
+        Assert.Equal(ModStatus.Installed, DependencyStatusResolver.Resolve(Node(), "4.0.0.0", "1.2.0", exactVersion: false));
+        Assert.Equal(ModStatus.TooNew, DependencyStatusResolver.Resolve(Node(), "0.9.0", "0.5.0"));
     }
 
     [Fact]

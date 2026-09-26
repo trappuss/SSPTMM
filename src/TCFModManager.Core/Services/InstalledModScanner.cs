@@ -69,7 +69,9 @@ public static class InstalledModScanner
 
         try
         {
-            foreach (var dll in Directory.EnumerateFiles(plugins, "*.dll", SearchOption.AllDirectories))
+            // Past a folder that cannot be read, rather than stopping at it.
+            var everywhere = new EnumerationOptions { RecurseSubdirectories = true, IgnoreInaccessible = true };
+            foreach (var dll in Directory.EnumerateFiles(plugins, "*.dll", everywhere))
             {
                 if (ReadPluginMetadata(dll).Guid is { Length: > 0 } guid) guids.Add(guid);
             }

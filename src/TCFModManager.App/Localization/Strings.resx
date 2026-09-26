@@ -6597,7 +6597,7 @@ What is in them now is copied first, so this can be undone the same way. Profile
     <comment>Status tooltip: a dependency installed at a version past the newest that fits.</comment>
   </data>
   <data name="Dependencies_RowTooNewFormat" xml:space="preserve">
-    <value>installed {0} is newer than the newest version that fits ({1}) - the mod needing it may not load</value>
+    <value>installed {0} is a newer major version than any that fits (newest that fits: {1}) - the mod needing it may not load</value>
     <comment>{0} version installed, {1} newest version that fits the requirement and this SPT.</comment>
   </data>
   <data name="Dependencies_SummaryDisabledFormat" xml:space="preserve">
@@ -6609,11 +6609,11 @@ What is in them now is copied first, so this can be undone the same way. Profile
     <comment>One count in a mod's dependency summary.</comment>
   </data>
   <data name="Installed_NeedsMissingFormat" xml:space="preserve">
-    <value>Needs {0}, which is not installed - it will not load without it.</value>
+    <value>Its files say it needs {0}, which is not installed - whatever part of it needs that will not load.</value>
     <comment>On an installed mod whose own files declare a hard dependency nothing installed provides. {0} lists the mods.</comment>
   </data>
   <data name="Installed_NeedsDisabledFormat" xml:space="preserve">
-    <value>Needs {0}, which is disabled - enable it, or this will not load.</value>
+    <value>Its files say it needs {0}, which is disabled - whatever part of it needs that will not load until it is enabled.</value>
     <comment>As above, for a dependency that is installed but disabled. {0} lists the mods.</comment>
   </data>
   <data name="Downloads_DepProblemsTitle" xml:space="preserve">
@@ -6637,7 +6637,7 @@ Install it anyway?</value>
     <comment>A required mod that is installed but disabled. {0} mod, {1} version.</comment>
   </data>
   <data name="Downloads_DepTooNewFormat" xml:space="preserve">
-    <value>{0} {1} - newer than the newest version that fits ({2})</value>
+    <value>{0} {1} - a newer major version than any that fits (newest that fits: {2})</value>
     <comment>{0} mod, {1} installed version, {2} newest that fits.</comment>
   </data>
   <data name="Downloads_DepWrongVersionFormat" xml:space="preserve">

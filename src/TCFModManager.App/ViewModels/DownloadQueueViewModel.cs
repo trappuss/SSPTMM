@@ -659,13 +659,41 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
         _ => Text(Strings.Downloads_DepConflictFormat, problem.Name),
     };
 
-    /// <summary>Says what will not do and asks whether to install anyway.</summary>
-    public static bool ConfirmDespite(string modName, IReadOnlyList<DependencyProblem> problems) =>
-        System.Windows.MessageBox.Show(
-            Text(Strings.Downloads_DepProblemsFormat, modName, string.Join("\n", problems.Select(p => "\u2022 " + Describe(p)))),
+    //
+    // The answers given about each problem, for a few minutes: Update all or a collection queues many
+    // mods that share a dependency, and each one would otherwise ask the same question again.
+    //
+    private readonly Dictionary<string, (bool Install, DateTime At)> _problemAnswers = [];
+
+    private static readonly TimeSpan ProblemAnswerLifetime = TimeSpan.FromMinutes(10);
+
+    /// <summary>Says what will not do and asks whether to install anyway. Problems already answered
+    /// in the last few minutes are not asked about again (unless <paramref name="askAgain"/>): a
+    /// "no" to any of them is a no, and only new ones are asked.</summary>
+    public bool ConfirmDespite(string modName, IReadOnlyList<DependencyProblem> problems, bool askAgain = false)
+    {
+        var now = DateTime.UtcNow;
+        foreach (var stale in _problemAnswers.Where(a => now - a.Value.At > ProblemAnswerLifetime).Select(a => a.Key).ToList())
+            _problemAnswers.Remove(stale);
+
+        var unanswered = new List<DependencyProblem>();
+        foreach (var problem in problems)
+        {
+            if (askAgain || !_problemAnswers.TryGetValue(Describe(problem), out var answer)) unanswered.Add(problem);
+            else if (!answer.Install) return false;
+        }
+
+        if (unanswered.Count == 0) return true;
+
+        var install = System.Windows.MessageBox.Show(
+            Text(Strings.Downloads_DepProblemsFormat, modName, string.Join("\n", unanswered.Select(p => "\u2022 " + Describe(p)))),
             Strings.Downloads_DepProblemsTitle,
             System.Windows.MessageBoxButton.YesNo,
             System.Windows.MessageBoxImage.Warning) == System.Windows.MessageBoxResult.Yes;
+
+        foreach (var problem in unanswered) _problemAnswers[Describe(problem)] = (install, now);
+        return install;
+    }
 
     //
     // The mods <paramref name="target"/> at <paramref name="version"/> needs that are neither

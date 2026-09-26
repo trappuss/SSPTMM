@@ -47,6 +47,10 @@ public sealed class ModDependencyGraph
 
         foreach (var mod in all)
         {
+            // What the mod provides itself (a second plugin in its own folder) is never missing,
+            // whatever other copies of it are doing.
+            var own = Identifiers(mod).ToHashSet(StringComparer.OrdinalIgnoreCase);
+
             foreach (var declared in mod.Dependencies)
             {
                 if (!byIdentifier.TryGetValue(declared.Identifier, out var matches))
@@ -58,7 +62,7 @@ public sealed class ModDependencyGraph
 
                 // Provided only by disabled copies: on disk, but SPT loads none of them.
                 var providers = matches.Where(m => !ReferenceEquals(m, mod)).ToList();
-                if (!declared.IsSoft && providers.Count > 0 && providers.All(m => m.IsDisabled))
+                if (!declared.IsSoft && !own.Contains(declared.Identifier) && providers.Count > 0 && providers.All(m => m.IsDisabled))
                     graph.AddMissing(mod, new ModMissingDependency(declared.Identifier, providers[0]));
 
                 foreach (var dependency in matches)

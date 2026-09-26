@@ -101,8 +101,10 @@ public partial class DependenciesViewModel : LocalizedViewModel
 
             StatusMessage = Strings.Dependencies_Resolving(queryable.Count);
 
+            // Mods only: an addon's id is from a separate sequence, and would take a dependency's
+            // place whenever the two numbers happened to match.
             var installedByModId = installed
-                .Where(m => m.ModId is not null)
+                .Where(m => m.ModId is not null && !m.IsAddon)
                 .GroupBy(m => m.ModId!.Value)
                 .ToDictionary(g => g.Key, g => g.First());
 
@@ -235,9 +237,7 @@ public partial class DependenciesViewModel : LocalizedViewModel
             string.Equals(v.Version, card.InstalledVersion, StringComparison.OrdinalIgnoreCase));
         if (exact?.Version is not null) return exact.Version;
 
-        var equivalent = published.FirstOrDefault(v =>
-            ModVersionComparer.IsUpdateAvailable(card.InstalledVersion, v.Version) == false
-            && ModVersionComparer.IsUpdateAvailable(v.Version, card.InstalledVersion) == false);
+        var equivalent = published.FirstOrDefault(v => ModVersionComparer.IsSameRelease(card.InstalledVersion, v.Version));
         if (equivalent?.Version is not null) return equivalent.Version;
 
         return ModCardViewModel.LatestVersion(mod)?.Version;

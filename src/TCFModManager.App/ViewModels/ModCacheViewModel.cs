@@ -35,10 +35,25 @@ public partial class ModCacheViewModel : LocalizedViewModel
     //
     public Task EnsureLoadedAsync(CancellationToken ct = default)
     {
-        if (_loadTask is { IsFaulted: true } or { IsCanceled: true }) _loadTask = null;
-        _loadTask ??= LoadAsync(CancellationToken.None);
+        // Not straight away, though: every page and queued install asks, and a site that hangs
+        // rather than refusing would make each of them wait out the timeout in turn.
+        if (_loadTask is { IsFaulted: true } or { IsCanceled: true } && DateTime.UtcNow - _failedAt > RetryAfter)
+            _loadTask = null;
+
+        if (_loadTask is null)
+        {
+            _loadTask = LoadAsync(CancellationToken.None);
+            _loadTask.ContinueWith(_ => _failedAt = DateTime.UtcNow, CancellationToken.None,
+                TaskContinuationOptions.NotOnRanToCompletion, TaskScheduler.Default);
+        }
+
         return ct.CanBeCanceled ? _loadTask.WaitAsync(ct) : _loadTask;
     }
+
+    // When the last load failed, and how long until another is tried by itself (Refresh tries at once).
+    private DateTime _failedAt;
+
+    private static readonly TimeSpan RetryAfter = TimeSpan.FromSeconds(60);
 
     // Forces a fresh live fetch of the catalog, driving IsLoading/LoadedCount/TotalCount for the loading overlay.
     public async Task RefreshAsync(CancellationToken ct = default)

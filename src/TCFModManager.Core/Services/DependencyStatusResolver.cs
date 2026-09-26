@@ -13,7 +13,7 @@ public static class DependencyStatusResolver
     //
     // <paramref name="exactVersion"/>: the installed version is the published one (the app installed
     // it, or it was confirmed by hand). Otherwise it was read from a DLL, whose version authors do
-    // not always keep in step - then only a later major line counts as too new, not a later minor.
+    // not always keep in step - then it is never called too new.
     //
     public static ModStatus Resolve(DependencyNode node, string? installedVersion, string? requiredVersion, bool installedButDisabled = false, bool exactVersion = true)
     {
@@ -40,10 +40,15 @@ public static class DependencyStatusResolver
         // the constraint (and this SPT), so anything above it does not - CommonLib 3.0.6 installed
         // for a mod made for 2.x. Not "installed and fine".
         //
-        var newer = exactVersion
-            ? ModVersionComparer.IsUpdateAvailable(requiredVersion, installedVersion)
-            : ModVersionComparer.IsLaterMajor(installedVersion, requiredVersion);
-        return newer == true ? ModStatus.TooNew : ModStatus.Installed;
+        //
+        // Only across a major version (0.x: a minor one), and only for a version known exactly. A
+        // later minor can be a maintenance release published after the newest line - which "newest
+        // that fits" may not be ordered by - and a DLL's own version is too often never bumped
+        // (1.0.0.0) or set to the SPT version to say anything at all.
+        //
+        return exactVersion && ModVersionComparer.IsLaterMajor(installedVersion, requiredVersion) == true
+            ? ModStatus.TooNew
+            : ModStatus.Installed;
     }
 
     // Sort key for "worst" - lower is more severe. Drives the per-mod header icon.

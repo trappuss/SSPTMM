@@ -7,6 +7,10 @@ namespace TCFModManager.Core.Services;
 // ignored. A pre-release sorts below its release, as SemVer has it - 1.2.0-beta then 1.2.0 is an
 // update - and two pre-releases of one version compare by their dot-separated parts (numbers as
 // numbers: beta.2 before beta.10).
+//
+// Except the labels mod authors use for a fix AFTER a release - 1.2.0-hotfix, 1.2.0-fix2,
+// 1.2.0-patch1: SemVer would put those below 1.2.0, but every author using them means the opposite,
+// so they sort above it (and above each other by the same part-by-part rule).
 // 
 public static class ModVersionComparer
 {
@@ -29,6 +33,19 @@ public static class ModVersionComparer
         return ComparePreRelease(left.Value.Pre, right.Value.Pre);
     }
 
+    /// <summary>True when an installed version and a published one are the same release. Also when
+    /// the installed one was read from a DLL - no pre-release label (a DLL cannot carry one) - and
+    /// the release numbers match: 1.2.0.0 on disk is 1.2.0-beta published.</summary>
+    public static bool IsSameRelease(string? installed, string? published)
+    {
+        var left = Parse(installed);
+        var right = Parse(published);
+        if (left is null || right is null) return false;
+
+        if (left.Value.Core != right.Value.Core) return false;
+        return left.Value.Pre.Length == 0 || ComparePreRelease(left.Value.Pre, right.Value.Pre) == 0;
+    }
+
     /// <summary>True when <paramref name="a"/> is a later breaking line than <paramref name="b"/>:
     /// a higher major version, or for 0.x a higher minor one (npm's reading of ^0.x). Null when
     /// either cannot be read.</summary>
@@ -43,10 +60,25 @@ public static class ModVersionComparer
         return l.Major == 0 && l.Minor > r.Minor;
     }
 
-    // No pre-release outranks any pre-release; otherwise part by part, numbers below words.
+    // A fix after the release, by the words authors use for one - see the class comment.
+    private static readonly string[] PostReleaseWords = ["hotfix", "fix", "patch", "hf", "post"];
+
+    private static bool IsPostRelease(string[] pre) =>
+        pre.Length > 0 && PostReleaseWords.Any(w =>
+            pre[0].StartsWith(w, StringComparison.OrdinalIgnoreCase)
+            && pre[0].Length >= w.Length
+            && pre[0][w.Length..].All(c => char.IsDigit(c) || c == '-' || c == '_'));
+
+    // Rank against the plain release: below it (-1), the release itself (0), a fix after it (1).
+    private static int Rank(string[] pre) => pre.Length == 0 ? 0 : IsPostRelease(pre) ? 1 : -1;
+
+    // No pre-release outranks any pre-release (a post-release fix outranks both); otherwise part by
+    // part, numbers below words.
     private static int ComparePreRelease(string[] a, string[] b)
     {
-        if (a.Length == 0 || b.Length == 0) return a.Length == 0 ? (b.Length == 0 ? 0 : 1) : -1;
+        var rank = Rank(a).CompareTo(Rank(b));
+        if (rank != 0) return rank;
+        if (a.Length == 0) return 0;
 
         for (var i = 0; i < Math.Min(a.Length, b.Length); i++)
         {

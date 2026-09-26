@@ -21,6 +21,11 @@ public class ModVersionComparerTests
     [InlineData("1.2.0-beta.1", "1.2.0-beta", false)] // more parts outrank fewer
     [InlineData("1.2.0.0", "1.2.0", false)] // a DLL's four-part version is the same release
     [InlineData("1.2.0+build5", "1.2.0", false)] // build metadata ignored
+    [InlineData("1.2.0", "1.2.0-hotfix", true)] // a fix after the release, whatever SemVer says
+    [InlineData("1.2.0-hotfix", "1.2.0-hotfix2", true)]
+    [InlineData("1.2.0-fix1", "1.2.0", false)]
+    [InlineData("1.2.0-beta", "1.2.0-hotfix", true)]
+    [InlineData("1.2.0-hotfix", "1.3.0-beta", true)]
     public void IsUpdateAvailable_ComparesNumerically(string installed, string latest, bool expected)
     {
         Assert.Equal(expected, ModVersionComparer.IsUpdateAvailable(installed, latest));
@@ -36,4 +41,13 @@ public class ModVersionComparerTests
     {
         Assert.Null(ModVersionComparer.IsUpdateAvailable(installed, latest));
     }
+
+    [Theory]
+    [InlineData("1.2.0.0", "1.2.0-beta", true)] // a DLL cannot carry the label
+    [InlineData("1.2.0", "1.2.0", true)]
+    [InlineData("1.2.0-beta", "1.2.0", false)]
+    [InlineData("1.2.0-beta", "1.2.0-beta", true)]
+    [InlineData("1.2.1.0", "1.2.0", false)]
+    public void IsSameRelease(string installed, string published, bool expected) =>
+        Assert.Equal(expected, ModVersionComparer.IsSameRelease(installed, published));
 }

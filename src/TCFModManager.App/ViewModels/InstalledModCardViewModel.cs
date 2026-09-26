@@ -1362,10 +1362,10 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
         yield return Path.GetFileNameWithoutExtension(path);
     }
 
-    // True when two loosely-formatted version strings mean the same release, so a trailing
-    // ".0" difference isn't reported as a discrepancy.
-    private static bool VersionsAreEquivalent(string? a, string? b) =>
-        ModVersionComparer.IsUpdateAvailable(a, b) == false && ModVersionComparer.IsUpdateAvailable(b, a) == false;
+    // True when a recorded version and the version the files report mean the same release, so a
+    // trailing ".0" difference - or a "-beta" the DLL cannot carry - isn't reported as a discrepancy.
+    private static bool VersionsAreEquivalent(string? recorded, string? files) =>
+        ModVersionComparer.IsSameRelease(files, recorded);
 
     // The folder names a catalog mod's GUID would plausibly have been installed under, normalized
     // ready to compare. Two folder-naming conventions:

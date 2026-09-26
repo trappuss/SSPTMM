@@ -1375,13 +1375,14 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
         StatusMessage = Text(Strings.Browse_CheckingRequirementsFormat, mod.Name);
         try
         {
+            // The item page's version carries the versions of each dependency it accepts.
             var check = await AppServices.DownloadQueue.FindMissingDependenciesAsync(
-                target, chosenVersion, installPath);
+                target, chosenVersion, installPath, versionDetails: pinned);
 
             // What is there but will not do - disabled, too new, not an accepted version, or nothing
             // for this SPT - said first, and the install can stop here.
             if (check is { Problems.Count: > 0 }
-                && !DownloadQueueViewModel.ConfirmDespite(mod.Name ?? Strings.Browse_ThisMod, check.Problems))
+                && !AppServices.DownloadQueue.ConfirmDespite(mod.Name ?? Strings.Browse_ThisMod, check.Problems, askAgain: true))
             {
                 StatusMessage = Cancelled();
                 return;
