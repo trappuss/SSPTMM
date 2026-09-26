@@ -1042,6 +1042,9 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     private static async Task<(bool Removed, string Message, bool Notable)> RemoveConfirmedAsync(
         InstalledModCardViewModel mod, string installPath, ConfigAction configAction)
     {
+        // Checked here, after every question: a download may have reached its install while one was open.
+        if (InstallingNow() is { } busy) return (false, Text(Strings.Installed_WaitForInstallFormat, busy), true);
+
         if (mod.IsAppManaged && mod.ModId is { } modId)
         {
             var record = AppServices.InstallManifest.Load().Mods.FirstOrDefault(m => m.ModId == modId && m.IsAddon == mod.IsAddon);
@@ -1310,6 +1313,12 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         if (ModInstallService.RunningBlockers(installPath) is { Count: > 0 } blockers)
         {
             StatusMessage = ModInstallProblems.InstallInUse(blockers, ModInstallAction.SortOutDuplicate);
+            return;
+        }
+
+        if (InstallingNow() is { } busy)
+        {
+            StatusMessage = Text(Strings.Installed_WaitForInstallFormat, busy);
             return;
         }
 
@@ -1689,6 +1698,14 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
             return carryOver ?? [];
         }
 
+        // Moving a mod's folders while the download queue is placing files in the same install
+        // could split a mod between its enabled and disabled places.
+        if (InstallingNow() is { } busy)
+        {
+            StatusMessage = Text(Strings.Installed_WaitForInstallFormat, busy);
+            return null;
+        }
+
         // Checked before anything is asked or moved, so a locked install is reported up front
         // rather than after the user has answered a dialog. ModDisableService guards again itself.
         if (ModInstallService.RunningBlockers(AppServices.SptEnvironment.InstallPath) is { Count: > 0 } blockers)
@@ -1860,6 +1877,14 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         UnsubscribeSelectedCommand.NotifyCanExecuteChanged();
         UpdateSelectedCommand.NotifyCanExecuteChanged();
     }
+
+    //
+    // The mod the download queue is placing files for right now, if any. Removing, disabling or
+    // sorting out mods changes the same folders, and doing both at once could leave either half done
+    // or lose a record - so those wait for it.
+    //
+    private static string? InstallingNow() =>
+        AppServices.DownloadQueue.Items.FirstOrDefault(i => i.Status == DownloadQueueItemStatus.Installing)?.ModName;
 
     private static bool Confirm(string title, string message) =>
         MessageBox.Show(message, title, MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes;

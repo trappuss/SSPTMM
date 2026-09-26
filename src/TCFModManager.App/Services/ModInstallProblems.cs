@@ -48,6 +48,21 @@ public static class ModInstallProblems
             Size(problem.ReceivedBytes),
             Size(problem.ExpectedBytes)),
 
+        // Nothing changed: said as plainly as that, with why.
+        ModInstallFailure.RolledBack => string.Format(
+            CultureInfo.CurrentCulture,
+            Strings.ModInstall_RolledBackFormat,
+            problem.ModName,
+            problem.Version,
+            problem.InnerException?.Message),
+
+        ModInstallFailure.NotEnoughSpace => string.Format(
+            CultureInfo.CurrentCulture,
+            Strings.ModInstall_NotEnoughSpaceFormat,
+            problem.ModName,
+            Size(problem.ExpectedBytes),
+            Size(problem.ReceivedBytes)),
+
         ModInstallFailure.UnsafeArchiveEntry => string.Format(
             CultureInfo.CurrentCulture,
             Strings.ModInstall_UnsafeArchiveEntryFormat,

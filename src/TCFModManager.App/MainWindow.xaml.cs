@@ -182,6 +182,28 @@ public partial class MainWindow : FluentWindow
         else CollectionPage.Reveal();
     }
 
+    //
+    // Closing while a mod's files are being placed would stop it part-way. It would be put back next
+    // time (see InstallJournal), but the install the user asked for would not have happened - so they
+    // are asked first.
+    //
+    protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+    {
+        var installing = AppServices.DownloadQueue.Items.FirstOrDefault(i => i.Status == ViewModels.DownloadQueueItemStatus.Installing);
+        if (installing is not null && System.Windows.MessageBox.Show(
+                this,
+                Localization.LocalizationService.Text(Localization.Strings.App_CloseWhileInstallingFormat, installing.ModName),
+                Localization.Strings.App_CloseWhileInstallingTitle,
+                System.Windows.MessageBoxButton.YesNo,
+                MessageBoxImage.Warning) != System.Windows.MessageBoxResult.Yes)
+        {
+            e.Cancel = true;
+            return;
+        }
+
+        base.OnClosing(e);
+    }
+
     // How many SteamDialogs are open over this window; the backdrop shows while any is.
     private int _modalDims;
 

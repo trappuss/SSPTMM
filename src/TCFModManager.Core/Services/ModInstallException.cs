@@ -51,6 +51,15 @@ public enum ModInstallFailure
     // The download ended before all of the bytes the server promised had arrived. Carries
     // ExpectedBytes and ReceivedBytes.
     DownloadIncomplete,
+
+    // Placing the files failed part-way, and the install was put back exactly as it was before - the
+    // previous version, if there was one, is still installed. Carries ModName, Version and the
+    // underlying exception as InnerException.
+    RolledBack,
+
+    // Not enough free space on the install's drive to copy the files in. Carries ModName, Version,
+    // ExpectedBytes (needed) and ReceivedBytes (free).
+    NotEnoughSpace,
 }
 
 //

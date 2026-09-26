@@ -7,9 +7,9 @@ namespace TCFModManager.Core.Services;
 // Loads/saves the ModInstallManifest as JSON under &lt;app folder&gt;\Data\installed-mods.json.
 // A corrupt or hand-edited manifest falls back to an empty one rather than blocking the app.
 // 
-public sealed class ModInstallManifestService
+public sealed class ModInstallManifestService(string? filePath = null)
 {
-    private readonly string _filePath = Path.Combine(AppPaths.DataDirectory, "installed-mods.json");
+    private readonly string _filePath = filePath ?? Path.Combine(AppPaths.DataDirectory, "installed-mods.json");
 
     public ModInstallManifest Load()
     {
@@ -52,6 +52,7 @@ public sealed class ModInstallManifestService
             Folders = existing is { Folders.Count: > 0 } ? existing.Folders : folders.ToList(),
             Incomplete = existing?.Incomplete ?? false,
             IsAppManaged = existing?.IsAppManaged ?? false,
+            Replaced = existing?.Replaced ?? [],
         };
 
         manifest.Mods.RemoveAll(m => m.ModId == modId && m.IsAddon == isAddon);

@@ -14,14 +14,15 @@ public sealed class ModInstallService(
     ModInstallManifestService manifestService,
     ConfigCarryOver? configCarryOver = null,
     ConfigUpdateLog? configUpdateLog = null,
-    ModConfigOptionsStore? configOptions = null)
+    ModConfigOptionsStore? configOptions = null,
+    string? replacedFilesRoot = null)
 {
+    // Copies of files installs have put their own over - see ReplacedFileStore.
+    private readonly ReplacedFileStore _replaced = new(replacedFilesRoot ?? Path.Combine(AppPaths.DataDirectory, "ReplacedFiles"));
+
     private readonly ConfigCarryOver _configs = configCarryOver ?? new ConfigCarryOver();
     private readonly ModConfigOptionsStore _options = configOptions ?? new ModConfigOptionsStore();
     private readonly ConfigUpdateLog _configLog = configUpdateLog ?? new ConfigUpdateLog();
-
-    private static readonly HashSet<string> KnownRootFolders =
-        new(StringComparer.OrdinalIgnoreCase) { "BepInEx", "user", "SPT", "SPT_Runtime" };
 
     // Scratch folder created inside the SPT install so extracted files can be moved into
     // place rather than copied across volumes. Falls back to %TEMP% when it can't be created.
@@ -230,13 +231,14 @@ public sealed class ModInstallService(
 
             ct.ThrowIfCancellationRequested();
 
-            var contentRoot = FindContentRoot(extractDir);
-            var topLevelNames = Directory.GetFileSystemEntries(contentRoot).Select(Path.GetFileName);
-            if (!topLevelNames.Any(n => n is not null && KnownRootFolders.Contains(n)))
+            // What the archive holds, and where each file goes - its wrapper folders looked through,
+            // read-me files left out, and loose plugin DLLs given their BepInEx folder.
+            var layout = ArchiveLayout.Read(extractDir);
+            if (layout is null)
             {
                 AppLog.Warn("Install",
                     $"{target.Name} {version.Version} archive has no known root folder; top level: " +
-                    string.Join(", ", Directory.GetFileSystemEntries(contentRoot).Select(Path.GetFileName)));
+                    string.Join(", ", Directory.GetFileSystemEntries(FindContentRoot(extractDir)).Select(Path.GetFileName)));
 
                 throw new ModInstallException(ModInstallFailure.UnrecognisedArchive)
                 {
@@ -249,8 +251,6 @@ public sealed class ModInstallService(
             // actually keeps user/mods (e.g. nested under "SPT" or "SPT_Runtime"). BepInEx stays at
             // the install root. Falls back to no remapping if the server exe can't be found.
             SptInstallationService.TryGetServerRoot(installPath, out var serverRoot);
-
-            var sourceFiles = Directory.GetFiles(contentRoot, "*", SearchOption.AllDirectories);
 
             ct.ThrowIfCancellationRequested();
 
@@ -265,19 +265,48 @@ public sealed class ModInstallService(
             // Where each source file is going, worked out before anything is removed: the config
             // files the archive is about to place over have to be known while they are still there.
             //
-            var placements = sourceFiles
-                .Select(file =>
+            var placements = layout
+                .Select(entry =>
                 {
-                    var installRelative = RemapForServerRoot(Path.GetRelativePath(contentRoot, file), serverRoot);
+                    var installRelative = RemapForServerRoot(entry.Relative, serverRoot);
                     // Forward-slash regardless of OS, matching InstalledModRecord.Files's documented format.
-                    return (File: file, Relative: installRelative, Forward: installRelative.Replace('\\', '/'));
+                    return (File: entry.Source, Relative: installRelative, Forward: installRelative.Replace('\\', '/'));
                 })
                 .ToList();
+            var sourceFiles = placements.Select(p => p.File).ToArray();
+
+            // Copying (not moving) into the install needs the room for it.
+            if (!canMoveIntoInstall) EnsureFreeSpace(installPath, sourceFiles, target, version);
 
             var timestamp = DateTimeOffset.UtcNow;
 
             var pending = _configs.Prepare(
                 installPath, existing, placements.Select(p => p.Forward), target.Name, timestamp);
+
+            //
+            // The files the archive does not get to place, whatever else happens: a config that could
+            // not be copied aside, one of the user's own documents that is already there, and a
+            // BepInEx config already in the install. That last one holds the user's settings for the
+            // plugin (BepInEx writes it on first run and keeps it); a copy shipped in the archive is
+            // only its defaults, which BepInEx adds back by itself for any setting that is missing.
+            //
+            var kept = new HashSet<string>(pending.Untouchable, StringComparer.OrdinalIgnoreCase);
+            kept.UnionWith(pending.Preserved);
+            foreach (var placement in placements)
+            {
+                if (ModConfigFiles.IsBepInExConfig(placement.Forward) && File.Exists(Path.Combine(installPath, placement.Relative)))
+                    kept.Add(placement.Forward);
+            }
+
+            //
+            // The undo record, before anything in the install changes - see InstallJournal. From here
+            // on, a failure (or the app stopping) puts the install back as it was rather than leaving
+            // the previous version deleted and the new one half there.
+            //
+            var journal = InstallJournal.Begin(workDir, installPath, target, _replaced.Root);
+            journal.Planned = [.. placements.Where(p => !kept.Contains(p.Forward)).Select(p => p.Forward)];
+            journal.Save();
+            _openJournal = journal;
 
             if (existing is not null)
             {
@@ -292,13 +321,34 @@ public sealed class ModInstallService(
                 //
                 // The files Prepare could not copy are named separately and left exactly as they are.
                 //
+                // Moved into the work folder rather than deleted, so they can come back.
+                //
                 RemoveRecordedFiles(
                     installPath,
                     existing,
                     ConfigAction.Preserve,
                     pending.Protected.ToHashSet(StringComparer.OrdinalIgnoreCase),
-                    CancellationToken.None);
+                    CancellationToken.None,
+                    stashDirectory: journal.PreviousDirectory);
             }
+
+            //
+            // Files still there that the archive places over - put there by hand, or by another mod -
+            // are copied aside first, so removing this mod puts them back. The mod's own copies from
+            // an earlier version are already in the work folder, so they are not among these.
+            //
+            var replaced = new List<string>();
+            foreach (var placement in placements)
+            {
+                if (kept.Contains(placement.Forward)) continue;
+                if (!File.Exists(Path.Combine(installPath, placement.Relative))) continue;
+
+                if (_replaced.Keep(installPath, target.Id, target.IsAddon, placement.Forward))
+                    journal.BackedUp.Add(placement.Forward);
+                replaced.Add(placement.Forward);
+            }
+
+            if (journal.BackedUp.Count > 0) journal.Save();
 
             status?.Report(new ModInstallProgress(
                 ModInstallStage.Installing, Total: sourceFiles.Length));
@@ -307,18 +357,13 @@ public sealed class ModInstallService(
 
             try
             {
-                for (var i = 0; i < sourceFiles.Length; i++)
+                for (var i = 0; i < placements.Count; i++)
                 {
                     var (file, installRelative, installRelativeForward) = placements[i];
 
-                    //
-                    // Two kinds of file the archive does not get to place: a config that could not be
-                    // copied aside, and one of the user's own documents that is already there. Both
-                    // keep the version on disk, and both are still recorded as this install's files so
-                    // a later removal knows about them.
-                    //
-                    if (pending.Untouchable.Contains(installRelativeForward)
-                        || pending.Preserved.Contains(installRelativeForward))
+                    // Not placed, but still recorded as this install's files so a later removal knows
+                    // about them - see "kept" above.
+                    if (kept.Contains(installRelativeForward))
                     {
                         placedFiles.Add(installRelativeForward);
                         continue;
@@ -343,13 +388,28 @@ public sealed class ModInstallService(
             }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
             {
-                // What was placed before the failure is recorded anyway, so those files stay
-                // app-managed: a retry overwrites them and a removal cleans them up. Without this an
-                // interrupted update leaves the old version deleted and the new one untracked.
-                SaveRecord(target, version, placedFiles, incomplete: true);
-
                 AppLog.Error("Install",
-                    $"{target.Name} {version.Version} incomplete after {placedFiles.Count}/{sourceFiles.Length} file(s)", ex);
+                    $"{target.Name} {version.Version} failed after {placedFiles.Count}/{sourceFiles.Length} file(s); putting the install back", ex);
+
+                // Everything back as it was: the previous version, and anything it replaced.
+                var notUndone = journal.Undo();
+                if (notUndone.Count == 0)
+                {
+                    journal.Delete();
+                    _openJournal = null;
+                    throw new ModInstallException(ModInstallFailure.RolledBack, ex)
+                    {
+                        ModName = target.Name,
+                        Version = version.Version,
+                    };
+                }
+
+                // Some of it would not go back. What is there is recorded, as before, so a retry
+                // overwrites it and a removal cleans it up.
+                AppLog.Error("Install", $"{target.Name}: {notUndone.Count} file(s) could not be put back: {string.Join(", ", notUndone.Take(10))}");
+                journal.Delete();
+                _openJournal = null;
+                SaveRecord(target, version, placedFiles, incomplete: true, replaced);
 
                 throw new ModInstallException(ModInstallFailure.PartlyInstalled, ex)
                 {
@@ -360,10 +420,45 @@ public sealed class ModInstallService(
                 };
             }
 
-            var record = SaveRecord(target, version, placedFiles, incomplete: false);
+            //
+            // Placed. The files the previous version replaced that this one does not place any more:
+            // put back now, since nothing of this mod sits over them.
+            //
+            if (existing is not null)
+            {
+                foreach (var old in existing.Replaced)
+                {
+                    if (replaced.Contains(old, StringComparer.OrdinalIgnoreCase)) continue;
+                    if (placements.Any(p => string.Equals(p.Forward, old, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        // Placed again by this version over a file already kept: still kept.
+                        replaced.Add(old);
+                        continue;
+                    }
+
+                    try
+                    {
+                        _replaced.Restore(installPath, target.Id, target.IsAddon, old);
+                    }
+                    catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+                    {
+                        AppLog.Warn("Install", $"couldn't put back {old}: {ex.Message}");
+                    }
+                }
+            }
+
+            var record = BuildRecord(target, version, placedFiles, incomplete: false, replaced);
+            journal.Placed = true;
+            journal.Record = record;
+            journal.Save();
+
+            SaveRecord(record);
+            journal.Delete();
+            _openJournal = null;
 
             AppLog.Info("Install",
-                $"{target.Name} {version.Version} placed {placedFiles.Count} file(s) in folders [{string.Join(", ", record.Folders)}]");
+                $"{target.Name} {version.Version} placed {placedFiles.Count} file(s) in folders [{string.Join(", ", record.Folders)}]" +
+                (replaced.Count > 0 ? $"; kept copies of {replaced.Count} file(s) it replaced" : ""));
 
             var report = _configs.Settle(pending, installPath, target, existing, record, timestamp);
 
@@ -390,16 +485,46 @@ public sealed class ModInstallService(
         }
         finally
         {
-            TryDeleteDirectory(workDir);
+            //
+            // A journal still open here means something unexpected stopped the install between
+            // changing the install and finishing - the work folder holds the previous version's files
+            // and the way back, so it stays for RecoverInterruptedInstalls rather than being deleted.
+            //
+            if (_openJournal is { } open && string.Equals(open.WorkDirectory, workDir, StringComparison.OrdinalIgnoreCase))
+            {
+                AppLog.Error("Install", $"{target.Name}: install stopped part-way; kept {workDir} to put it back");
+                _openJournal = null;
+            }
+            else
+            {
+                TryDeleteDirectory(workDir);
+            }
         }
     }
+
+    // The journal of the install in progress, if one has started changing the install. Installs run
+    // one at a time (the queue installs serially), so one field is enough.
+    private InstallJournal? _openJournal;
+
+    private InstalledModRecord SaveRecord(InstallTarget target, ModVersion version, List<string> placedFiles, bool incomplete, List<string> replaced) =>
+        SaveRecord(BuildRecord(target, version, placedFiles, incomplete, replaced));
 
     // Writes the record for what an install placed, replacing any previous record for the same mod.
     // The manifest is reloaded rather than reusing an earlier copy, since UninstallAsync may have
     // saved a removal of the old record in between.
-    private InstalledModRecord SaveRecord(InstallTarget target, ModVersion version, List<string> placedFiles, bool incomplete)
+    private InstalledModRecord SaveRecord(InstalledModRecord record)
     {
-        var record = new InstalledModRecord
+        var current = manifestService.Load();
+        current.Mods.RemoveAll(m => m.ModId == record.ModId && m.IsAddon == record.IsAddon);
+        current.Mods.Add(record);
+        manifestService.Save(current);
+
+        return record;
+    }
+
+    private static InstalledModRecord BuildRecord(InstallTarget target, ModVersion version, List<string> placedFiles, bool incomplete, List<string> replaced)
+    {
+        return new InstalledModRecord
         {
             ModId = target.Id,
             IsAddon = target.IsAddon,
@@ -411,14 +536,8 @@ public sealed class ModInstallService(
             Files = placedFiles,
             Folders = InstalledModFolders.FromPlacedFiles(placedFiles),
             Incomplete = incomplete,
+            Replaced = replaced,
         };
-
-        var current = manifestService.Load();
-        current.Mods.RemoveAll(target.Matches);
-        current.Mods.Add(record);
-        manifestService.Save(current);
-
-        return record;
     }
 
     // Removes every file InstalledModRecord.Files lists, then deletes any directory left
@@ -448,16 +567,39 @@ public sealed class ModInstallService(
     // <paramref name="keep"/> names files this must not touch whatever else it is told - the configs
     // ConfigCarryOver could not copy aside. Null on the removal path, which has nothing to protect.
     //
+    // <paramref name="stashDirectory"/>: the update path. Files are moved there instead of deleted, so
+    // a failed update can put them back (see InstallJournal), and the record is left for the install
+    // to replace - nothing here is final until the new version is in place.
+    //
+    // Never removed, whoever asks:
+    // - a file another installed mod's record also lists - it is that mod's too, and it stays;
+    // - a BepInEx config, unless the configs are being deleted - it holds the user's settings for the
+    //   plugin, which BepInEx itself keeps when a plugin goes, and a reinstall picks up again.
+    // A file this mod replaced when it was installed is put back rather than deleted.
+    //
     private UninstallResult RemoveRecordedFiles(
         string installPath,
         InstalledModRecord record,
         ConfigAction configs,
         IReadOnlySet<string>? keep,
-        CancellationToken ct)
+        CancellationToken ct,
+        string? stashDirectory = null)
     {
         var failed = new List<string>();
         var deleted = 0;
+        var restored = 0;
+        var shared = 0;
         var touchedDirectories = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var removal = stashDirectory is null;
+
+        var manifest = manifestService.Load();
+        bool IsThis(InstalledModRecord m) => m.ModId == record.ModId && m.IsAddon == record.IsAddon;
+
+        // Every file some other installed mod's record lists.
+        var ownedElsewhere = manifest.Mods
+            .Where(m => !IsThis(m))
+            .SelectMany(m => m.Files)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         // Moved out before the delete loop runs, so the loop simply finds them gone.
         var options = _options.Effective();
@@ -486,19 +628,46 @@ public sealed class ModInstallService(
             ? ModConfigFiles.UserDataInRecord(record, options).ToHashSet(StringComparer.OrdinalIgnoreCase)
             : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
+        var replaced = record.Replaced.ToHashSet(StringComparer.OrdinalIgnoreCase);
+
         foreach (var relative in record.Files)
         {
             ct.ThrowIfCancellationRequested();
 
             if (keep is not null && keep.Contains(relative)) continue;
             if (preserve.Contains(relative)) continue;
+            if (configs != ConfigAction.Delete && ModConfigFiles.IsBepInExConfig(relative)) continue;
 
             var fullPath = Path.Combine(installPath, relative.Replace('/', Path.DirectorySeparatorChar));
             try
             {
+                // What was there before this mod: back in its place.
+                if (removal && replaced.Contains(relative) && _replaced.Restore(installPath, record.ModId, record.IsAddon, relative))
+                {
+                    restored++;
+                    continue;
+                }
+
+                // Another mod's file too: it stays.
+                if (ownedElsewhere.Contains(relative))
+                {
+                    shared++;
+                    continue;
+                }
+
                 if (File.Exists(fullPath))
                 {
-                    File.Delete(fullPath);
+                    if (stashDirectory is not null)
+                    {
+                        var stashed = Path.Combine(stashDirectory, relative.Replace('/', Path.DirectorySeparatorChar));
+                        Directory.CreateDirectory(Path.GetDirectoryName(stashed)!);
+                        File.Move(fullPath, stashed, overwrite: true);
+                    }
+                    else
+                    {
+                        File.Delete(fullPath);
+                    }
+
                     deleted++;
                 }
 
@@ -524,11 +693,126 @@ public sealed class ModInstallService(
             }
         }
 
-        var manifest = manifestService.Load();
-        manifest.Mods.RemoveAll(m => m.ModId == record.ModId && m.IsAddon == record.IsAddon);
-        manifestService.Save(manifest);
+        if (shared > 0 || restored > 0)
+            AppLog.Info("Install", $"{record.Name}: left {shared} file(s) other mods also use; put back {restored} file(s) it had replaced");
+
+        if (removal)
+        {
+            //
+            // Another mod that replaced one of this mod's files kept a copy of it, to put back when
+            // that mod goes. This mod is going first, so its copy is not wanted back any more.
+            //
+            var mine = record.Files.ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var updated = new List<InstalledModRecord>();
+            foreach (var other in manifest.Mods.Where(m => !IsThis(m)))
+            {
+                var theirs = other.Replaced.Where(mine.Contains).ToList();
+                if (theirs.Count == 0)
+                {
+                    updated.Add(other);
+                    continue;
+                }
+
+                foreach (var relative in theirs) _replaced.Drop(other.ModId, other.IsAddon, relative);
+                updated.Add(new InstalledModRecord
+                {
+                    ModId = other.ModId,
+                    IsAddon = other.IsAddon,
+                    Guid = other.Guid,
+                    Name = other.Name,
+                    VersionId = other.VersionId,
+                    Version = other.Version,
+                    InstalledAt = other.InstalledAt,
+                    Files = other.Files,
+                    Folders = other.Folders,
+                    Incomplete = other.Incomplete,
+                    IsAppManaged = other.IsAppManaged,
+                    Replaced = [.. other.Replaced.Where(r => !mine.Contains(r))],
+                });
+            }
+
+            // The copies of this mod's own that were never put back (their files already gone).
+            _replaced.DropAll(record.ModId, record.IsAddon);
+
+            manifest.Mods.Clear();
+            manifest.Mods.AddRange(updated);
+            manifestService.Save(manifest);
+        }
 
         return new UninstallResult(deleted, failed, kept.Count, kept.Folder);
+    }
+
+    //
+    // Installs the app was stopped in the middle of - closed, killed, or the PC losing power - put back
+    // as they were before: each leaves its journal in its work folder (see InstallJournal). One that
+    // had placed every file is finished instead, by writing its record. Returns the names of the mods
+    // put back or finished.
+    //
+    public IReadOnlyList<string> RecoverInterruptedInstalls(string installPath)
+    {
+        var recovered = new List<string>();
+        if (string.IsNullOrWhiteSpace(installPath)) return recovered;
+
+        var roots = new[] { Path.Combine(installPath, WorkFolderName), Path.Combine(Path.GetTempPath(), "TCFModManager") };
+        foreach (var root in roots.Where(Directory.Exists))
+        {
+            foreach (var workDir in Directory.EnumerateDirectories(root))
+            {
+                if (InstallJournal.Load(workDir) is not { } journal) continue;
+                if (!string.Equals(Path.GetFullPath(journal.InstallPath).TrimEnd(Path.DirectorySeparatorChar),
+                        Path.GetFullPath(installPath).TrimEnd(Path.DirectorySeparatorChar), StringComparison.OrdinalIgnoreCase)) continue;
+
+                if (journal is { Placed: true, Record: { } record })
+                {
+                    SaveRecord(record);
+                    AppLog.Warn("Install", $"{journal.ModName}: finished an install the app was stopped at the end of");
+                }
+                else
+                {
+                    var failed = journal.Undo();
+                    if (failed.Count > 0)
+                    {
+                        AppLog.Error("Install", $"{journal.ModName}: {failed.Count} file(s) of an interrupted install could not be put back; kept {workDir}");
+                        continue;
+                    }
+
+                    AppLog.Warn("Install", $"{journal.ModName}: put back an install the app was stopped in the middle of");
+                }
+
+                journal.Delete();
+                TryDeleteDirectory(workDir);
+                recovered.Add(journal.ModName);
+            }
+        }
+
+        return recovered;
+    }
+
+    // Copying into the install needs room for every file; checked before anything is changed.
+    private static void EnsureFreeSpace(string installPath, IEnumerable<string> sourceFiles, InstallTarget target, ModVersion version)
+    {
+        try
+        {
+            var needed = sourceFiles.Sum(f => new FileInfo(f).Length);
+            var drive = new DriveInfo(Path.GetPathRoot(Path.GetFullPath(installPath))!);
+
+            // A margin, so the install does not leave the disk with nothing at all.
+            const long margin = 64L * 1024 * 1024;
+            if (drive.AvailableFreeSpace >= needed + margin) return;
+
+            throw new ModInstallException(ModInstallFailure.NotEnoughSpace)
+            {
+                ModName = target.Name,
+                Version = version.Version,
+                ExpectedBytes = needed + margin,
+                ReceivedBytes = drive.AvailableFreeSpace,
+            };
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException)
+        {
+            // Unknown free space is not a reason to refuse; the copy says so itself if it fails.
+            AppLog.Debug("Install", $"free space not checked: {ex.Message}");
+        }
     }
 
     // Deletes a mod's whole folder (or, for a loose top-level DLL, just that file) - the
@@ -553,26 +837,8 @@ public sealed class ModInstallService(
     public static KeptConfigs KeepLegacyConfigs(string installPath, IEnumerable<string> relativeFiles, string modName) =>
         ModConfigFiles.MoveOut(installPath, relativeFiles, modName, DateTimeOffset.UtcNow);
 
-    // Some mod archives wrap their real content ("BepInEx/...", "user/...") inside an
-    // extra top-level folder (e.g. "HollywoodFX-1.8.4/"). Descends through single-directory wrapper
-    // levels (capped at 4) until it finds the real content root.
-    private static string FindContentRoot(string extractDir)
-    {
-        var current = extractDir;
-
-        for (var depth = 0; depth < 4; depth++)
-        {
-            var entries = Directory.GetFileSystemEntries(current);
-            if (entries.Length != 1 || !Directory.Exists(entries[0])) break;
-
-            var name = Path.GetFileName(entries[0]);
-            if (name is not null && KnownRootFolders.Contains(name)) break;
-
-            current = entries[0];
-        }
-
-        return current;
-    }
+    // Where the archive's content starts, past any wrapper folders - see ArchiveLayout.
+    private static string FindContentRoot(string extractDir) => ArchiveLayout.ContentRoot(extractDir);
 
     // Creates a per-install scratch folder for the download and extraction. Prefers a
     // hidden folder inside <paramref name="installPath"/> so extracted files can be moved into
@@ -614,6 +880,11 @@ public sealed class ModInstallService(
             {
                 if (string.Equals(directory, current, StringComparison.OrdinalIgnoreCase)) continue;
                 if (Directory.GetCreationTimeUtc(directory) > cutoff) continue;
+
+                // An install that was stopped part-way: the previous version's files are in there.
+                // RecoverInterruptedInstalls puts it back; until then it stays.
+                if (File.Exists(Path.Combine(directory, InstallJournal.FileName))) continue;
+
                 TryDeleteDirectory(directory);
             }
         }

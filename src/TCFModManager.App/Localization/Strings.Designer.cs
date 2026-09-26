@@ -1722,4 +1722,11 @@ internal static class Strings
     internal static string App_DataDamagedFormat => LocalizationService.Get("App_DataDamagedFormat");
     internal static string App_DataUnreadableFormat => LocalizationService.Get("App_DataUnreadableFormat");
     internal static string App_DataNotKept => LocalizationService.Get("App_DataNotKept");
+    internal static string ModInstall_RolledBackFormat => LocalizationService.Get("ModInstall_RolledBackFormat");
+    internal static string ModInstall_NotEnoughSpaceFormat => LocalizationService.Get("ModInstall_NotEnoughSpaceFormat");
+    internal static string App_InstallsRecoveredTitle => LocalizationService.Get("App_InstallsRecoveredTitle");
+    internal static string App_InstallsRecoveredFormat => LocalizationService.Get("App_InstallsRecoveredFormat");
+    internal static string App_CloseWhileInstallingTitle => LocalizationService.Get("App_CloseWhileInstallingTitle");
+    internal static string App_CloseWhileInstallingFormat => LocalizationService.Get("App_CloseWhileInstallingFormat");
+    internal static string Installed_WaitForInstallFormat => LocalizationService.Get("Installed_WaitForInstallFormat");
 }

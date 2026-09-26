@@ -6446,4 +6446,32 @@ This was written to:
     <value>(no copy could be made - see the log)</value>
     <comment>In place of where a damaged file was kept, when copying it failed.</comment>
   </data>
+  <data name="ModInstall_RolledBackFormat" xml:space="preserve">
+    <value>Installing {0} {1} stopped part-way, and the install has been put back exactly as it was - nothing of it is left behind, and the version you had before is still installed. Why: {2}</value>
+    <comment>When placing a mod's files failed and everything was undone. {0} mod, {1} version, {2} the error.</comment>
+  </data>
+  <data name="ModInstall_NotEnoughSpaceFormat" xml:space="preserve">
+    <value>There is not enough free space to install {0}: it needs {1} and the drive has {2}. Nothing was changed.</value>
+    <comment>{0} mod, {1} space needed, {2} space free.</comment>
+  </data>
+  <data name="App_InstallsRecoveredTitle" xml:space="preserve">
+    <value>An install was interrupted</value>
+    <comment>Title of the message about installs put back after the app was closed mid-install.</comment>
+  </data>
+  <data name="App_InstallsRecoveredFormat" xml:space="preserve">
+    <value>The app was closed while installing {0}. The install has been put back as it was before, so nothing is half-installed - install it again from Downloads or the item page.</value>
+    <comment>{0} lists the mods.</comment>
+  </data>
+  <data name="App_CloseWhileInstallingTitle" xml:space="preserve">
+    <value>An install is in progress</value>
+    <comment>Title of the question when closing during an install.</comment>
+  </data>
+  <data name="App_CloseWhileInstallingFormat" xml:space="preserve">
+    <value>{0} is being installed right now. Closing stops it part-way; it will be put back as it was the next time the app starts. Close anyway?</value>
+    <comment>{0} is the mod.</comment>
+  </data>
+  <data name="Installed_WaitForInstallFormat" xml:space="preserve">
+    <value>{0} is being installed right now. Wait for it to finish (see Downloads), then try again.</value>
+    <comment>Removing, disabling or sorting out mods while the queue installs one. {0} is the mod being installed.</comment>
+  </data>
 </root>

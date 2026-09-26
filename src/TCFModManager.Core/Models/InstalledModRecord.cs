@@ -55,6 +55,14 @@ public sealed class InstalledModRecord
     // app-managed install - keep meaning what they always meant.
     //
     public bool IsAppManaged { get; init; } = true;
+
+    //
+    // Files that were already in the install - placed by hand, or by another mod - where this install
+    // put one of its own (install-relative, forward-slash). A copy of each was kept first (see
+    // ReplacedFileStore), and removing this mod puts it back rather than leaving a hole. Empty on
+    // records written before this existed.
+    //
+    public List<string> Replaced { get; init; } = [];
 }
 
 // The full set of installed-mod records for one SPT install.

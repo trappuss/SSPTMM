@@ -10,8 +10,8 @@ namespace TCFModManager.Core.Services;
 // keep, and ModConfigDiscovery gates every file it finds through it, so the Configs page and the
 // removal path can never end up disagreeing about what a config is.
 //
-// Client mods keep their config in BepInEx\config, outside the mod folder, so removal never touches
-// it and there's nothing to preserve there.
+// Client mods keep their config in BepInEx\config, outside the mod folder. An archive that ships one
+// does not get to overwrite the user's, and a removal leaves it where it is - see IsBepInExConfig.
 //
 public static class ModConfigFiles
 {
@@ -42,6 +42,14 @@ public static class ModConfigFiles
     // Never a config when it sits in a mod's root: package.json is the mod's own manifest, and the
     // lock file beside it is generated.
     private static readonly string[] NeverConfigFileNames = ["package.json", "package-lock.json"];
+
+    //
+    // True for a file in BepInEx\config - a client plugin's settings. BepInEx writes it the first time
+    // the plugin runs and keeps it from then on, so the copy on disk is the user's, and an install
+    // leaves it be (see ModInstallService).
+    //
+    public static bool IsBepInExConfig(string relativePath) =>
+        relativePath.Replace('\\', '/').StartsWith("BepInEx/config/", StringComparison.OrdinalIgnoreCase);
 
     // True for a folder name a server mod would keep its config in.
     public static bool IsConfigFolderName(string name) =>

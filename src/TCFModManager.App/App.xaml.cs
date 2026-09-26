@@ -93,6 +93,9 @@ public partial class App : Application
         // is gone, so its own log is the only record of it) and clears out the staged files.
         AppUpdateInstaller.SweepAfterStartup();
 
+        // Installs the app was stopped in the middle of last time, put back - see InstallJournal.
+        RecoverInterruptedInstalls();
+
         // A data file found damaged or unreadable - now or later - is said, once the window is up.
         SafeFile.ProblemFound += (_, _) => Dispatcher.BeginInvoke(ReportDataProblems, DispatcherPriority.ApplicationIdle);
     }
@@ -118,6 +121,26 @@ public partial class App : Application
         return false;
     }
 
+    // Said once the window is up - see ReportDataProblems.
+    private static readonly List<string> PendingNotices = [];
+
+    private static void RecoverInterruptedInstalls()
+    {
+        if (AppServices.SptEnvironment.InstallPath is not { Length: > 0 } installPath) return;
+
+        try
+        {
+            var recovered = AppServices.ModInstall.RecoverInterruptedInstalls(installPath);
+            if (recovered.Count > 0)
+                PendingNotices.Add(LocalizationService.Text(Strings.App_InstallsRecoveredFormat, Services.TextLists.Join(recovered)));
+        }
+        catch (Exception ex)
+        {
+            // Never a reason not to start; the work folders stay for next time.
+            AppLog.Error("Install", "recovering interrupted installs failed", ex);
+        }
+    }
+
     private static readonly HashSet<string> ReportedData = new(StringComparer.OrdinalIgnoreCase);
 
     //
@@ -128,6 +151,12 @@ public partial class App : Application
     public static void ReportDataProblems()
     {
         if (Current?.MainWindow is not { IsLoaded: true }) return;
+
+        foreach (var notice in PendingNotices.ToList())
+        {
+            PendingNotices.Remove(notice);
+            MessageBox.Show(Current.MainWindow, notice, Strings.App_InstallsRecoveredTitle, MessageBoxButton.OK, MessageBoxImage.Information);
+        }
 
         foreach (var problem in SafeFile.Problems)
         {
