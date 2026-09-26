@@ -6015,7 +6015,7 @@ This was written to:
     <comment>The collections' sort order (sp-mod.com has only this one), and its entry in the Browse menu. Steam's words.</comment>
   </data>
   <data name="Collections_SearchPlaceholder" xml:space="preserve">
-    <value>Search collections, or paste a link to one</value>
+    <value>Search collections or who made them, or paste a link</value>
     <comment>Placeholder in the collections browse page's search box. A link to an sp-mod.com list pasted there opens it.</comment>
   </data>
   <data name="Collections_RefreshToolTip" xml:space="preserve">
@@ -6193,5 +6193,25 @@ This was written to:
   <data name="Collection_NothingToSubscribeFormat" xml:space="preserve">
     <value>None of the items in this collection can be subscribed to for SPT {0} - why is listed below.</value>
     <comment>Subscribe to all, when every item is left out. {0} is the SPT version.</comment>
+  </data>
+  <data name="Collections_SortOldest" xml:space="preserve">
+    <value>Oldest</value>
+    <comment>Collections sort order: the oldest lists first.</comment>
+  </data>
+  <data name="Collections_SortMostItems" xml:space="preserve">
+    <value>Most Items</value>
+    <comment>Collections sort order: the lists with the most items first.</comment>
+  </data>
+  <data name="Collections_SortFewestItems" xml:space="preserve">
+    <value>Fewest Items</value>
+    <comment>Collections sort order: the lists with the fewest items first.</comment>
+  </data>
+  <data name="Collections_ReadingFormat" xml:space="preserve">
+    <value>Reading collections from sp-mod.com... {0:N0} of {1:N0}</value>
+    <comment>While every public list is read (page {0} of {1}), the first time in an hour.</comment>
+  </data>
+  <data name="Collections_MoreItemsFormat" xml:space="preserve">
+    <value>+{0:N0}</value>
+    <comment>Last square in a collection card's hover popup: how many more items there are. Steam's "+225".</comment>
   </data>
 </root>

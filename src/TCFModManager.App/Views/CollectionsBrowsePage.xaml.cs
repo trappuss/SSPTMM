@@ -35,6 +35,17 @@ public partial class CollectionsBrowsePage : Page
         ViewModel.OpenCommand.Execute(card);
     }
 
-    // The one sort order: choosing it closes the panel.
+    // Choosing a sort order closes the panel.
     private void SortChoice_Click(object sender, RoutedEventArgs e) => SortToggle.IsChecked = false;
+
+    // The infinite list adds its next cards about two rows before the end, as Browse's does.
+    private const double LoadMoreDistance = 600;
+
+    private void PageScroll_ScrollChanged(object sender, ScrollChangedEventArgs e)
+    {
+        if (!ViewModel.HasMore) return;
+
+        var remaining = PageScroll.ExtentHeight - PageScroll.ViewportHeight - PageScroll.VerticalOffset;
+        if (remaining <= LoadMoreDistance) ViewModel.LoadMore();
+    }
 }

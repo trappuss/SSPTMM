@@ -255,7 +255,7 @@ public sealed partial class WorkshopCollectionViewModel : LocalizedViewModel, IM
             await AppServices.ModCache.EnsureLoadedAsync();
             await AppServices.Addons.EnsureLoadedAsync();
 
-            var details = await AppServices.SpModLists.GetListAsync(_publicId, _publicSlug, _closing.Token);
+            var details = await AppServices.CollectionDetails.GetAsync(_publicId, _publicSlug, _closing.Token);
             if (details is null)
             {
                 LoadFailed = Strings.Collection_PublicGone;

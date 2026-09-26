@@ -32,6 +32,7 @@ public sealed record SpModListSummary
     // The list's own picture, when its author gave it one.
     public string? Cover { get; init; }
 
+    [System.Text.Json.Serialization.JsonIgnore]
     public string Url => SpModListAddress.For(Id, Slug);
 }
 
@@ -149,6 +150,32 @@ public sealed record SpModListDetails
     public int AddonCount => Items.Sum(i => i.Addons.Count);
 }
 
+/// <summary>An sp-mod.com member's profile page, sp-mod.com/user/{id}/{slug}, as it shows them.</summary>
+public sealed record SpModUserProfile
+{
+    public required int Id { get; init; }
+
+    public required string Name { get; init; }
+
+    public string? Avatar { get; init; }
+
+    // The picture across the top of their page - a GIF for some. Null when they have none (the
+    // site then draws a colour gradient).
+    public string? Cover { get; init; }
+
+    public DateTimeOffset? MemberSince { get; init; }
+
+    // How many follow them on sp-mod.com; null when the page did not say.
+    public int? Followers { get; init; }
+
+    public bool IsStaff { get; init; }
+
+    public string Url => SpModListAddress.ForUser(Id);
+}
+
+/// <summary>A member's page: who they are, and the public lists they have made.</summary>
+public sealed record SpModUserPage(SpModUserProfile Profile, IReadOnlyList<SpModListSummary> Lists);
+
 /// <summary>Reading and writing a list's address on sp-mod.com.</summary>
 public static class SpModListAddress
 {
@@ -160,6 +187,20 @@ public static class SpModListAddress
     public static string ForMod(int id, string slug) => $"{Site}/mod/{id}/{slug}";
 
     public static string ForAddon(int id, string slug) => $"{Site}/addon/{id}/{slug}";
+
+    // A member's page. Any slug is sent on to theirs; without one, a 404.
+    public static string ForUser(int id) => $"{Site}/user/{id}/u";
+
+    private static readonly System.Text.RegularExpressions.Regex UserPattern = new(
+        @"sp-mod\.com/user/(\d+)(?:/|$)",
+        System.Text.RegularExpressions.RegexOptions.Compiled);
+
+    /// <summary>A member's id out of the address of their page.</summary>
+    public static int? UserId(string? url) =>
+        url is not null && UserPattern.Match(url) is { Success: true } match
+        && int.TryParse(match.Groups[1].Value, out var id) && id > 0
+            ? id
+            : null;
 
     private static readonly System.Text.RegularExpressions.Regex Pattern = new(
         @"(?:^|/)list/(\d+)/([A-Za-z0-9\-_]+)",

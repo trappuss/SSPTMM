@@ -1,0 +1,55 @@
+<!--
+    Steam's hover popup for a collection card (Browsing: Collections), measured on the live page
+    (2026-09-26): #344352, 340px with 5 8 inside; the title 17px white 10px above the rest; up to
+    five lines of description 13px #ACB2B8; "Contains N items" 12px; then 50px squares 4px apart,
+    six to a row, #262B34 around a #070707 picture - the first items, and "+N" in 12px white on
+    #3D4450 for the rest. Built by CollectionHover when it first opens; DataContext is the card.
+-->
+<UserControl
+    x:Class="TCFModManager.App.Views.CollectionHoverPopup"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:TCFModManager.App.Converters"
+    xmlns:behaviors="clr-namespace:TCFModManager.App.Behaviors">
+    <UserControl.Resources>
+        <converters:NullToVisibilityConverter x:Key="NullToCollapsed" />
+        <converters:UpdateAvailableToVisibilityConverter x:Key="TrueToVisible" />
+        <converters:FalseToVisibilityConverter x:Key="FalseToVisible" />
+    </UserControl.Resources>
+
+    <StackPanel Width="324">
+        <TextBlock Margin="0,0,0,10" FontSize="17" Foreground="White" TextWrapping="Wrap" Text="{Binding Title}" />
+        <TextBlock
+            MaxHeight="95"
+            FontSize="13"
+            Foreground="{StaticResource SteamText}"
+            LineHeight="19"
+            LineStackingStrategy="BlockLineHeight"
+            TextTrimming="CharacterEllipsis"
+            TextWrapping="Wrap"
+            Text="{Binding PopupDescription}"
+            Visibility="{Binding PopupDescription, Converter={StaticResource NullToCollapsed}}" />
+        <TextBlock Margin="0,5,0,5" FontSize="12" Foreground="{StaticResource SteamText}" Text="{Binding ContainsText}" />
+        <ItemsControl Focusable="False" ItemsSource="{Binding PreviewTiles}" Visibility="{Binding HasPreview, Converter={StaticResource TrueToVisible}}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel Width="328" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Grid Width="50" Height="50" Margin="0,0,4,4">
+                        <Border Background="#262B34" Visibility="{Binding IsMore, Converter={StaticResource FalseToVisible}}">
+                            <Border Background="#070707" Visibility="{Binding Picture, Converter={StaticResource NullToCollapsed}}">
+                                <Image Stretch="Uniform" behaviors:ThumbnailLoader.DecodeWidth="50" behaviors:ThumbnailLoader.Source="{Binding Picture}" />
+                            </Border>
+                        </Border>
+                        <Border Background="#3D4450" Visibility="{Binding IsMore, Converter={StaticResource TrueToVisible}}">
+                            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="12" Foreground="White" Text="{Binding MoreText}" />
+                        </Border>
+                    </Grid>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </StackPanel>
+</UserControl>

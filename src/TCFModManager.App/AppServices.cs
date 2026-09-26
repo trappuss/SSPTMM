@@ -72,6 +72,9 @@ internal static class AppServices
     // A collection's Workshop page - see WorkshopCollectionView.
     public static CollectionOverlayViewModel CollectionOverlay { get; } = new();
 
+    // Public collections' pages read lately, for the hover popup and the collection page.
+    public static CollectionDetailsCache CollectionDetails { get; } = new();
+
     // Browsing: Collections, kept for the session like Browse.
     public static CollectionsBrowseViewModel CollectionsBrowse { get; } = new();
 

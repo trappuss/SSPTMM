@@ -296,4 +296,97 @@ public class SpModListParserTests
         Assert.Equal(2, site.Requests.Count(r => r.Method == HttpMethod.Get));
         Assert.Equal(2, site.Requests.Count(r => r.Method == HttpMethod.Post));
     }
+
+    // ------------------------------------------------------------------ members
+
+    [Fact]
+    public void A_members_page_gives_who_they_are()
+    {
+        var user = SpModListParser.ParseUser(Fixture("user-27605.html"), 27605)!;
+
+        Assert.Equal("DrakiaXYZ", user.Name);
+        Assert.True(user.IsStaff);
+        Assert.Equal(204, user.Followers);
+        Assert.Equal(new DateTimeOffset(2023, 2, 26, 18, 51, 50, TimeSpan.Zero), user.MemberSince);
+        Assert.Contains("/profile-photos/", user.Avatar);
+        Assert.Null(user.Cover);
+    }
+
+    [Fact]
+    public void A_member_with_a_cover_picture_and_few_followers()
+    {
+        var user = SpModListParser.ParseUser(Fixture("user-73748.html"), 73748)!;
+
+        Assert.Equal("KarterIsNotOnAcid", user.Name);
+        Assert.False(user.IsStaff);
+        Assert.EndsWith(".gif", user.Cover);
+        Assert.Equal(1, user.Followers);
+    }
+
+    [Fact]
+    public void A_members_lists_tab_gives_their_lists_as_theirs()
+    {
+        var lists = SpModListParser.ParseUserLists(Fixture("user-62485-lists.html"), "WUVGAWORE");
+
+        var only = Assert.Single(lists);
+        Assert.Equal(126737, only.Id);
+        Assert.Equal("WUVGAWORE", only.Author);
+        Assert.Equal("4.0.13", only.SptVersion);
+        Assert.Equal(97, only.ItemCount);
+    }
+
+    [Fact]
+    public async Task A_members_lists_are_asked_for_through_the_tabs_own_lazy_load()
+    {
+        var lists = new JsonObject
+        {
+            ["components"] = new JsonArray(new JsonObject { ["effects"] = new JsonObject { ["html"] = Fixture("user-62485-lists.html") } }),
+        }.ToJsonString();
+        var site = new FakeSite(Fixture("user-27605.html"), lists);
+        using var client = new SpModListsClient(site);
+
+        var page = await client.GetUserAsync(27605);
+
+        Assert.Equal("DrakiaXYZ", page!.Profile.Name);
+        Assert.Single(page.Lists);
+        Assert.Equal("https://sp-mod.com/user/27605/u", site.Requests[0].RequestUri!.ToString());
+
+        var call = JsonNode.Parse(site.Bodies.Single())!["components"]![0]!;
+        Assert.Contains("user.show.lists-tab", call["snapshot"]!.GetValue<string>());
+        Assert.Equal("__lazyLoad", call["calls"]![0]!["method"]!.GetValue<string>());
+        Assert.StartsWith("eyJ", call["calls"]![0]!["params"]![0]!.GetValue<string>());
+    }
+
+    [Theory]
+    [InlineData("https://sp-mod.com/user/62485/wuvgawore", 62485)]
+    [InlineData("https://sp-mod.com/user/7", 7)]
+    [InlineData("https://sp-mod.com/mod/7/x", null)]
+    public void A_members_id_is_read_from_their_address(string url, int? id)
+    {
+        Assert.Equal(id, SpModListAddress.UserId(url));
+    }
+
+    [Fact]
+    public void The_kept_index_reads_back_as_written()
+    {
+        var path = Path.Combine(Path.GetTempPath(), "index-" + Guid.NewGuid().ToString("N") + ".json");
+        try
+        {
+            var index = new SpModListIndex(path);
+            var page = SpModListParser.ParseBrowse(Fixture("lists.html"));
+            var written = new SpModListIndexData(DateTimeOffset.UtcNow, page.Lists, page.SptOptions);
+
+            index.Save(written);
+            var read = index.Load()!;
+
+            Assert.Equal(written.Lists, read.Lists);
+            Assert.Equal(written.SptOptions, read.SptOptions);
+            Assert.True(SpModListIndex.IsFresh(read, DateTimeOffset.UtcNow));
+            Assert.False(SpModListIndex.IsFresh(read, DateTimeOffset.UtcNow.AddHours(2)));
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+    }
 }

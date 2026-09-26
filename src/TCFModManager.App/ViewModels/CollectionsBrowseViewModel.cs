@@ -37,23 +37,93 @@ public sealed partial class CollectionCardViewModel(SpModListSummary summary, st
     // Subscribed to from here before: this install holds a copy of it.
     [ObservableProperty]
     private bool _isSubscribed = subscribed;
+
+    // ------------------------------------------------------------------ the hover popup
+
+    // The description in the popup: the card's start of it, then the list's own once read.
+    [ObservableProperty]
+    private string? _popupDescription = summary.Teaser;
+
+    // The first items' pictures, and "+N" for the rest - empty until the list's page is read.
+    public ObservableCollection<CollectionPreviewTile> PreviewTiles { get; } = [];
+
+    public bool HasPreview => PreviewTiles.Count > 0;
+
+    // Steam's: ten items and "+N" once there are more than eleven; eleven or fewer, all of them.
+    private const int Tiles = 11;
+
+    public void ShowPreview(SpModListDetails details)
+    {
+        if (details.DescriptionHtml is { } html
+            && TCFModManager.Core.Markup.SpModMarkup.PlainText(TCFModManager.Core.Markup.SpModMarkup.Parse(html)) is { Length: > 0 } text)
+        {
+            PopupDescription = text;
+        }
+
+        var catalog = AppServices.ModCache.AllMods;
+        var pictures = details.Items
+            .Select(i => catalog.FirstOrDefault(m => m.Id == i.ModId)?.Thumbnail is { Length: > 0 } t ? t : i.Thumbnail)
+            .ToList();
+
+        PreviewTiles.Clear();
+        var shown = pictures.Count > Tiles ? Tiles - 1 : pictures.Count;
+        foreach (var picture in pictures.Take(shown)) PreviewTiles.Add(new CollectionPreviewTile(picture, null));
+        if (pictures.Count > shown)
+            PreviewTiles.Add(new CollectionPreviewTile(null, LocalizationService.Text(Strings.Collections_MoreItemsFormat, pictures.Count - shown)));
+
+        OnPropertyChanged(nameof(HasPreview));
+    }
 }
 
-// One choice in the SPT version filter: every version, or one, by the id sp-mod.com filters on.
+/// <summary>One square in a collection's hover popup: an item's picture, or "+N" for the rest.</summary>
+public sealed record CollectionPreviewTile(string? Picture, string? MoreText)
+{
+    public bool IsMore => MoreText is not null;
+}
+
+// One choice in the SPT version filter: every version, or one.
 public sealed class CollectionSptChoice(int? id, string? version) : LocalizedViewModel
 {
     public int? Id { get; } = id;
+
+    public string? Version { get; } = version;
 
     public string Label => version ?? Strings.Collections_AllSptVersions;
 
     public override string ToString() => Label;
 }
 
+public enum CollectionSort
+{
+    MostRecent,
+    Oldest,
+    TitleAscending,
+    TitleDescending,
+    MostItems,
+    FewestItems,
+}
+
+// One entry of the collections' sort order: holds a key, so a language change relabels it in place.
+public sealed class CollectionSortOption(string key, CollectionSort value) : LocalizedViewModel
+{
+    public CollectionSort Value { get; } = value;
+
+    public string Label => LocalizationService.Get(key);
+
+    public override string ToString() => Label;
+}
+
 //
 // Browsing: Collections - Steam's collections browse page, over sp-mod.com's public lists
-// (sp-mod.com/lists). Twelve to a page, newest first, which is the one order sp-mod.com has; a
-// search and an SPT version narrow them the way the site's own page does, through the site. A list's
-// address pasted into the search box opens that list.
+// (sp-mod.com/lists).
+//
+// sp-mod.com orders its lists newest first and nothing else, and its search does not look at who
+// made a list. So the page works from every list at once (SpModListIndex: read page by page, kept
+// for an hour) and does the rest here: other orders, a search that also finds a maker's name, the
+// SPT version filter, Steam's page sizes and its infinite list. The site's own search is asked too
+// and its answers added in - it reads whole descriptions, where the cards carry only their start.
+// Until the lists are all read (a few seconds, the first time in an hour), the newest page shows as
+// sp-mod.com gives it. A list's address pasted into the search box opens that list.
 //
 public sealed partial class CollectionsBrowseViewModel : LocalizedViewModel
 {
@@ -62,6 +132,29 @@ public sealed partial class CollectionsBrowseViewModel : LocalizedViewModel
     public ObservableCollection<CollectionSptChoice> SptChoices { get; } = [new(null, null)];
 
     public ObservableCollection<PageLink> PageLinks { get; } = [];
+
+    public List<CollectionSortOption> SortOptions { get; } =
+    [
+        new(nameof(Strings.Collections_SortMostRecent), CollectionSort.MostRecent),
+        new(nameof(Strings.Collections_SortOldest), CollectionSort.Oldest),
+        new(nameof(Strings.Sort_NameAscending), CollectionSort.TitleAscending),
+        new(nameof(Strings.Sort_NameDescending), CollectionSort.TitleDescending),
+        new(nameof(Strings.Collections_SortMostItems), CollectionSort.MostItems),
+        new(nameof(Strings.Collections_SortFewestItems), CollectionSort.FewestItems),
+    ];
+
+    // Browse's page sizes, Infinite first, and the size the infinite list grows by.
+    public List<int> PageSizeOptions { get; } = [BrowseViewModel.InfinitePageSize, 10, 15, 30, 50];
+
+    private const int InfiniteStep = 30;
+
+    [ObservableProperty]
+    private CollectionSortOption _selectedSortOption;
+
+    [ObservableProperty]
+    private int _pageSize = BrowseViewModel.InfinitePageSize;
+
+    public bool IsInfinite => PageSize == BrowseViewModel.InfinitePageSize;
 
     [ObservableProperty]
     private CollectionSptChoice? _selectedSpt;
@@ -84,51 +177,160 @@ public sealed partial class CollectionsBrowseViewModel : LocalizedViewModel
     [NotifyPropertyChangedFor(nameof(ShowNoMatches))]
     private bool _isLoading;
 
+    // "Reading collections from sp-mod.com... 5 of 27", while the lists are read.
+    [ObservableProperty]
+    private string? _progressText;
+
     [ObservableProperty]
     private string? _statusMessage;
 
-    public bool ShowNoMatches => !IsLoading && _loaded && Lists.Count == 0 && StatusMessage is null;
+    // The infinite list has more cards to add.
+    [ObservableProperty]
+    private bool _hasMore;
 
-    public bool HasPages => LastPage > 1;
+    public bool ShowNoMatches => !IsLoading && _index is not null && Lists.Count == 0 && StatusMessage is null;
 
-    // Most Recent: the one sort order there is.
-    public string SortLabel => Strings.Collections_SortMostRecent;
-
-    private bool _loaded;
-
-    // What the page is showing results for, so an address pasted over it can be put back.
-    private string _lastSearch = string.Empty;
-    private bool _suppress;
-    private CancellationTokenSource? _loading;
-    private CancellationTokenSource? _typing;
+    public bool HasPages => !IsInfinite && LastPage > 1;
 
     public CollectionsBrowseViewModel()
     {
         _selectedSpt = SptChoices[0];
+        _selectedSortOption = SortOptions[0];
     }
 
-    /// <summary>The first page, once per session - the page calls this each time it is shown, and
-    /// the cards' Subscribed marks are brought up to date then (a collection subscribed to since).</summary>
+    /// <summary>Raised when a new page of cards is showing, so the page can scroll to them.</summary>
+    public event EventHandler? NavigatedToPage;
+
+    // ------------------------------------------------------------------ the lists
+
+    private SpModListIndexData? _index;
+    private Task? _reading;
+    private readonly SpModListIndex _store = new(SpModListIndex.DefaultPath);
+
+    // Every list matching the page's filters, in its order; the cards shown are a page of these.
+    private List<SpModListSummary> _matching = [];
+
+    // What sp-mod.com's own search found, by search text: added to what the cards' text matches.
+    private readonly Dictionary<string, HashSet<int>> _siteMatches = new(StringComparer.OrdinalIgnoreCase);
+
+    private bool _started;
+
+    /// <summary>The lists, once per session - the page calls this each time it is shown, and the
+    /// cards' Subscribed marks are brought up to date then (a collection subscribed to since).</summary>
     public Task EnsureLoadedAsync()
     {
-        if (!_loaded) return LoadAsync(1);
+        if (_started)
+        {
+            var stored = StoredIds();
+            foreach (var card in Lists) card.IsSubscribed = stored.Contains(PublicCollections.IdFor(card.Summary.Id));
 
-        var stored = StoredIds();
-        foreach (var card in Lists) card.IsSubscribed = stored.Contains(PublicCollections.IdFor(card.Summary.Id));
-        return Task.CompletedTask;
+            // An hour on, read again in the background; the cards stay as they are meanwhile.
+            if (_index is not null && !SpModListIndex.IsFresh(_index, DateTimeOffset.UtcNow) && _reading is null)
+                _reading = ReadAllAsync(quiet: true);
+            return Task.CompletedTask;
+        }
+
+        _started = true;
+        return StartAsync();
     }
 
-    // One read of the store for a page of cards, rather than one per card.
-    private static HashSet<Guid> StoredIds() => AppServices.ModLists.Load().Lists.Select(l => l.Id).ToHashSet();
+    private async Task StartAsync()
+    {
+        // Kept from before: shown at once, and read again behind it when it is over an hour old.
+        var kept = await Task.Run(_store.Load);
+        if (kept is { Lists.Count: > 0 })
+        {
+            UseIndex(kept);
+            if (!SpModListIndex.IsFresh(kept, DateTimeOffset.UtcNow)) _reading = ReadAllAsync(quiet: true);
+            return;
+        }
+
+        // The first time: sp-mod.com's newest page while the rest are read.
+        _reading = ReadAllAsync(quiet: false);
+        await ShowSiteFirstPageAsync();
+    }
+
+    private async Task ShowSiteFirstPageAsync()
+    {
+        IsLoading = true;
+        try
+        {
+            var first = await AppServices.SpModLists.BrowseAsync(1);
+            if (_index is not null) return;
+
+            SyncSptChoices(first.SptOptions);
+            ShowCards(first.Lists);
+            EntriesText = first.Total == 0 ? null : Strings.Browse_CountFound(first.Total);
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or SpModListsException)
+        {
+            AppLog.Info("Collections", $"sp-mod.com/lists could not be read: {ex.Message}");
+            if (_index is null) StatusMessage = LocalizationService.Text(Strings.Collections_LoadFailedFormat, ex.Message);
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    // Every list, page by page. quiet: cards are already showing - nothing says so unless it fails.
+    private async Task ReadAllAsync(bool quiet)
+    {
+        try
+        {
+            var progress = new Progress<(int Done, int Total)>(p =>
+            {
+                if (!quiet) ProgressText = LocalizationService.Text(Strings.Collections_ReadingFormat, p.Done, p.Total);
+            });
+
+            var read = await Task.Run(() => SpModListIndex.FetchAsync(AppServices.SpModLists, progress));
+            _ = Task.Run(() => _store.Save(read));
+            UseIndex(read);
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or SpModListsException)
+        {
+            AppLog.Info("Collections", $"sp-mod.com's lists could not all be read: {ex.Message}");
+            if (_index is null) StatusMessage = LocalizationService.Text(Strings.Collections_LoadFailedFormat, ex.Message);
+        }
+        finally
+        {
+            ProgressText = null;
+            _reading = null;
+        }
+    }
+
+    private void UseIndex(SpModListIndexData index)
+    {
+        _index = index;
+        StatusMessage = null;
+        SyncSptChoices(index.SptOptions);
+        Apply(keepPage: true);
+    }
+
+    // ------------------------------------------------------------------ filtering, order, pages
 
     partial void OnSelectedSptChanged(CollectionSptChoice? value)
     {
-        if (!_suppress) _ = LoadAsync(1);
+        if (!_suppress) Apply();
     }
 
+    partial void OnSelectedSortOptionChanged(CollectionSortOption value)
+    {
+        if (!_suppress) Apply();
+    }
+
+    partial void OnPageSizeChanged(int value)
+    {
+        OnPropertyChanged(nameof(IsInfinite));
+        if (!_suppress) Apply();
+    }
+
+    private bool _suppress;
+    private CancellationTokenSource? _typing;
+
     //
-    // A search waits for the typing to stop - each one is a request to sp-mod.com, and a request
-    // per key would be a dozen for one word. An address pasted in opens that collection instead.
+    // A search waits for the typing to stop - it also asks sp-mod.com, and a request per key would be
+    // a dozen for one word. An address pasted in opens that collection instead.
     //
     partial void OnSearchTextChanged(string value)
     {
@@ -141,100 +343,152 @@ public sealed partial class CollectionsBrowseViewModel : LocalizedViewModel
             // The address has done its job; the box goes back to what it was searching for.
             System.Windows.Application.Current?.Dispatcher.BeginInvoke(() =>
             {
-                if (SearchText == value) SearchText = _lastSearch;
+                if (SearchText == value) SearchText = _shownSearch;
             });
             return;
         }
 
         var typing = _typing = new CancellationTokenSource();
-        _ = SearchSoonAsync(typing.Token);
+        _ = SearchSoonAsync(value, typing.Token);
     }
 
-    private async Task SearchSoonAsync(CancellationToken ct)
+    // The search the cards show.
+    private string _shownSearch = string.Empty;
+
+    private async Task SearchSoonAsync(string text, CancellationToken ct)
     {
         try
         {
-            await Task.Delay(450, ct);
+            await Task.Delay(350, ct);
         }
         catch (TaskCanceledException)
         {
             return;
         }
 
-        // Back to what is already showing (an address pasted and put back): nothing to ask.
-        if (_loaded && SearchText.Trim() == _lastSearch.Trim()) return;
+        if (text.Trim() == _shownSearch.Trim() && _index is not null) return;
 
-        await LoadAsync(1);
+        Apply();
+        _ = AskSiteAsync(text.Trim(), ct);
     }
 
-    private async Task LoadAsync(int page)
+    //
+    // sp-mod.com's own search, up to three pages of it: whatever it finds beyond what the cards'
+    // text matched (a word deep in a description) is added in when it answers.
+    //
+    private async Task AskSiteAsync(string text, CancellationToken ct)
     {
-        _loading?.Cancel();
-        var loading = _loading = new CancellationTokenSource();
+        if (text.Length == 0 || _siteMatches.ContainsKey(text)) return;
 
-        IsLoading = true;
-        StatusMessage = null;
         try
         {
-            var search = SpModListAddress.TryParse(SearchText, out _, out _) ? _lastSearch : SearchText;
-            _lastSearch = search;
-            var result = await AppServices.SpModLists.BrowseAsync(page, search, SelectedSpt?.Id, loading.Token);
-            if (loading.IsCancellationRequested) return;
-
-            Show(result);
-        }
-        catch (OperationCanceledException) when (loading.IsCancellationRequested)
-        {
-            // Another page or search asked for since.
-        }
-        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or SpModListsException)
-        {
-            AppLog.Info("Collections", $"sp-mod.com/lists could not be read: {ex.Message}");
-
-            // Only the newest load says so: an older one failing would cover the newer results.
-            if (ReferenceEquals(_loading, loading))
-                StatusMessage = LocalizationService.Text(Strings.Collections_LoadFailedFormat, ex.Message);
-        }
-        finally
-        {
-            if (ReferenceEquals(_loading, loading))
+            var found = new HashSet<int>();
+            for (var page = 1; page <= 3; page++)
             {
-                IsLoading = false;
-                OnPropertyChanged(nameof(ShowNoMatches));
+                var answer = await AppServices.SpModLists.BrowseAsync(page, text, ct: ct);
+                foreach (var list in answer.Lists) found.Add(list.Id);
+                if (page >= answer.LastPage) break;
             }
+
+            _siteMatches[text] = found;
+            if (!ct.IsCancellationRequested && SearchText.Trim() == text) Apply(keepPage: true);
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or OperationCanceledException or SpModListsException)
+        {
+            // The cards' own text has answered already; this only ever adds.
+            AppLog.Debug("Collections", $"sp-mod.com's search for \"{text}\" did not answer: {ex.Message}");
         }
     }
 
-    private void Show(SpModListPage result)
+    //
+    // Works out the matching lists and shows the page asked for. keepPage: the lists changed
+    // underneath (read again, a search answered) - stay where the user was, as far as it still goes.
+    //
+    private void Apply(bool keepPage = false)
     {
-        _loaded = true;
+        if (_index is null) return;
+
+        _shownSearch = SearchText;
+        var words = SearchText.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var fromSite = _siteMatches.GetValueOrDefault(SearchText.Trim());
+        var spt = SelectedSpt?.Version;
+
+        var matching = _index.Lists.Where(l =>
+            (spt is null || string.Equals(l.SptVersion, spt, StringComparison.OrdinalIgnoreCase))
+            && (words.Length == 0 || words.All(w => Mentions(l, w)) || fromSite?.Contains(l.Id) == true));
+
+        _matching = (SelectedSortOption.Value switch
+        {
+            CollectionSort.Oldest => matching.Reverse(),
+            CollectionSort.TitleAscending => matching.OrderBy(l => l.Title, StringComparer.CurrentCultureIgnoreCase),
+            CollectionSort.TitleDescending => matching.OrderByDescending(l => l.Title, StringComparer.CurrentCultureIgnoreCase),
+            CollectionSort.MostItems => matching.OrderByDescending(l => l.ItemCount),
+            CollectionSort.FewestItems => matching.OrderBy(l => l.ItemCount),
+            _ => matching,
+        }).ToList();
+
+        EntriesText = _matching.Count == 0 ? null : Strings.Browse_CountFound(_matching.Count);
+
+        var pages = IsInfinite ? 1 : Math.Max(1, (int)Math.Ceiling(_matching.Count / (double)PageSize));
+        ShowPage(keepPage ? Math.Min(CurrentPage, pages) : 1, pages, scroll: !keepPage);
+        OnPropertyChanged(nameof(ShowNoMatches));
+    }
+
+    private static bool Mentions(SpModListSummary list, string word) =>
+        list.Title.Contains(word, StringComparison.CurrentCultureIgnoreCase)
+        || list.Author?.Contains(word, StringComparison.CurrentCultureIgnoreCase) == true
+        || list.Teaser?.Contains(word, StringComparison.CurrentCultureIgnoreCase) == true;
+
+    private void ShowPage(int page, int pages, bool scroll)
+    {
+        CurrentPage = page;
+        LastPage = pages;
+        OnPropertyChanged(nameof(HasPages));
+
+        var shown = IsInfinite
+            ? _matching.Take(Math.Max(InfiniteStep, Lists.Count > 0 && !scroll ? Lists.Count : 0))
+            : _matching.Skip((page - 1) * PageSize).Take(PageSize);
+
+        ShowCards(shown);
+        HasMore = IsInfinite && Lists.Count < _matching.Count;
+
+        PageLinks.Clear();
+        if (!IsInfinite && pages > 1)
+        {
+            foreach (var link in PageLink.For(page, pages)) PageLinks.Add(link);
+        }
+
+        if (scroll) NavigatedToPage?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void ShowCards(IEnumerable<SpModListSummary> lists)
+    {
+        var installed = AppServices.SptEnvironment.InstalledVersion;
+        var stored = StoredIds();
+
+        Lists.Clear();
+        foreach (var summary in lists)
+            Lists.Add(new CollectionCardViewModel(summary, installed, stored.Contains(PublicCollections.IdFor(summary.Id))));
+    }
+
+    /// <summary>The infinite list's next cards. False when there were none to add.</summary>
+    public bool LoadMore()
+    {
+        if (!HasMore) return false;
 
         var installed = AppServices.SptEnvironment.InstalledVersion;
         var stored = StoredIds();
-        Lists.Clear();
-        foreach (var summary in result.Lists)
+        foreach (var summary in _matching.Skip(Lists.Count).Take(InfiniteStep))
             Lists.Add(new CollectionCardViewModel(summary, installed, stored.Contains(PublicCollections.IdFor(summary.Id))));
 
-        CurrentPage = result.Page;
-        LastPage = result.LastPage;
-        OnPropertyChanged(nameof(HasPages));
-
-        PageLinks.Clear();
-        if (LastPage > 1)
-        {
-            foreach (var link in PageLink.For(CurrentPage, LastPage)) PageLinks.Add(link);
-        }
-
-        EntriesText = result.Total == 0 ? null : Strings.Browse_CountFound(result.Total);
-        SyncSptChoices(result.SptOptions);
-
-        NavigatedToPage?.Invoke(this, EventArgs.Empty);
+        HasMore = Lists.Count < _matching.Count;
+        return true;
     }
 
-    /// <summary>Raised when a new page of cards is showing, so the page can scroll to them.</summary>
-    public event EventHandler? NavigatedToPage;
+    // One read of the store for a page of cards, rather than one per card.
+    private static HashSet<Guid> StoredIds() => AppServices.ModLists.Load().Lists.Select(l => l.Id).ToHashSet();
 
-    // The site's own list of SPT versions, kept once read: every answer carries it again.
+    // The site's own list of SPT versions, newest first, kept once read.
     private void SyncSptChoices(IReadOnlyList<SpModListSptOption> options)
     {
         if (options.Count == 0 || SptChoices.Count > 1) return;
@@ -250,19 +504,29 @@ public sealed partial class CollectionsBrowseViewModel : LocalizedViewModel
         }
     }
 
+    // ------------------------------------------------------------------ commands
+
     [RelayCommand]
-    private Task GoToPageNumber(int? number) =>
-        number is { } n && n != CurrentPage ? LoadAsync(n) : Task.CompletedTask;
+    private void SelectSort(CollectionSortOption? option)
+    {
+        if (option is not null) SelectedSortOption = option;
+    }
+
+    [RelayCommand]
+    private void GoToPageNumber(int? number)
+    {
+        if (number is { } n && n != CurrentPage && _index is not null) ShowPage(n, LastPage, scroll: true);
+    }
 
     private bool CanGoBack() => CurrentPage > 1;
 
     private bool CanGoForward() => CurrentPage < LastPage;
 
     [RelayCommand(CanExecute = nameof(CanGoBack))]
-    private Task PreviousPage() => LoadAsync(CurrentPage - 1);
+    private void PreviousPage() => GoToPageNumber(CurrentPage - 1);
 
     [RelayCommand(CanExecute = nameof(CanGoForward))]
-    private Task NextPage() => LoadAsync(CurrentPage + 1);
+    private void NextPage() => GoToPageNumber(CurrentPage + 1);
 
     [RelayCommand]
     private static void Open(CollectionCardViewModel? card)
@@ -270,8 +534,15 @@ public sealed partial class CollectionsBrowseViewModel : LocalizedViewModel
         if (card is not null) AppServices.CollectionOverlay.ShowPublic(card.Summary.Id, card.Summary.Slug);
     }
 
+    // Everything read again from sp-mod.com now, rather than when the hour is up.
     [RelayCommand]
-    private Task Refresh() => LoadAsync(CurrentPage);
+    private void Refresh()
+    {
+        if (_reading is not null) return;
+
+        _siteMatches.Clear();
+        _reading = ReadAllAsync(quiet: _index is not null);
+    }
 
     // Steam's Clear filters: every SPT version, no search.
     [RelayCommand]
@@ -290,6 +561,6 @@ public sealed partial class CollectionsBrowseViewModel : LocalizedViewModel
             _suppress = false;
         }
 
-        _ = LoadAsync(1);
+        Apply();
     }
 }

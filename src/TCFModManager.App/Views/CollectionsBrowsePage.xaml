@@ -31,6 +31,8 @@
         <converters:NullToVisibilityConverter x:Key="NullToCollapsed" />
         <converters:UpdateAvailableToVisibilityConverter x:Key="TrueToVisible" />
         <converters:FalseToVisibilityConverter x:Key="FalseToVisible" />
+        <converters:EqualityConverter x:Key="IsSame" />
+        <converters:PageSizeLabelConverter x:Key="PageSizeLabel" />
 
         <!-- The sort order's face: rgba(0,0,0,.37), 283x42, 15px #C4C4C4. -->
         <Style x:Key="SortFace" TargetType="ToggleButton">
@@ -124,6 +126,7 @@
     <ScrollViewer
         x:Name="PageScroll"
         FocusVisualStyle="{x:Null}"
+        ScrollChanged="PageScroll_ScrollChanged"
         HorizontalScrollBarVisibility="Disabled"
         VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="24,16,24,24">
@@ -145,6 +148,13 @@
                 TextWrapping="Wrap"
                 Text="{Binding StatusMessage}"
                 Visibility="{Binding StatusMessage, Converter={StaticResource NullToCollapsed}}" />
+
+            <TextBlock
+                Margin="0,4,0,0"
+                FontSize="13"
+                Foreground="{StaticResource SteamTextDim}"
+                Text="{Binding ProgressText}"
+                Visibility="{Binding ProgressText, Converter={StaticResource NullToCollapsed}}" />
 
             <!-- Search on the left, sort order on the right. -->
             <DockPanel Margin="0,10,0,12">
@@ -169,7 +179,7 @@
                             Data="M0,1 L14,1 M0,7 L11,7 M0,13 L8,13 M19,0 L19,14 M15,10 L19,14 L23,10"
                             Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"
                             StrokeThickness="2" />
-                        <TextBlock Grid.Column="1" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Text="{Binding SortLabel}" />
+                        <TextBlock Grid.Column="1" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Text="{Binding SelectedSortOption.Label}" />
                         <Path
                             Grid.Column="2"
                             Width="14"
@@ -189,15 +199,31 @@
                     <Border Margin="0,0,12,12" MinWidth="283" Style="{StaticResource SteamMenuPanel}">
                         <StackPanel>
                             <TextBlock Style="{StaticResource SteamMenuHeader}" Text="{loc:Str Workshop_SortOrderHeader}" />
-                            <RadioButton Style="{StaticResource SteamRadio}" IsChecked="True" Click="SortChoice_Click">
-                                <TextBlock Text="{Binding SortLabel}" />
-                            </RadioButton>
+                            <ItemsControl Focusable="False" ItemsSource="{Binding SortOptions}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <RadioButton
+                                            Style="{StaticResource SteamRadio}"
+                                            Command="{Binding DataContext.SelectSortCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                            CommandParameter="{Binding}"
+                                            Click="SortChoice_Click">
+                                            <RadioButton.IsChecked>
+                                                <MultiBinding Converter="{StaticResource IsSame}" Mode="OneWay">
+                                                    <Binding />
+                                                    <Binding Path="DataContext.SelectedSortOption" RelativeSource="{RelativeSource AncestorType=Page}" />
+                                                </MultiBinding>
+                                            </RadioButton.IsChecked>
+                                            <TextBlock Text="{Binding Label}" />
+                                        </RadioButton>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
                         </StackPanel>
                     </Border>
                 </Popup>
 
                 <StackPanel Orientation="Horizontal">
-                    <Border Width="340" Height="42" Padding="8" Background="{StaticResource SteamGray}">
+                    <Border Width="420" Height="42" Padding="8" Background="{StaticResource SteamGray}">
                         <TextBox
                             Style="{StaticResource SteamSearchField}"
                             Tag="{loc:Str Collections_SearchPlaceholder}"
@@ -280,6 +306,7 @@
                                     VerticalAlignment="Top"
                                     Background="Transparent"
                                     Cursor="Hand"
+                                    behaviors:CollectionHover.Enabled="True"
                                     MouseLeftButtonUp="Card_MouseLeftButtonUp">
                                     <Grid.RenderTransform>
                                         <TranslateTransform Y="0" />
@@ -405,31 +432,57 @@
                 </Grid>
             </Grid>
 
-            <!-- "< 1 2 3 ... 27 >", right-aligned under the grid. -->
-            <StackPanel Margin="0,12,0,0" HorizontalAlignment="Right" Orientation="Horizontal" Visibility="{Binding HasPages, Converter={StaticResource TrueToVisible}}">
-                <Button Style="{StaticResource PagerArrow}" Command="{Binding PreviousPageCommand}" ToolTip="{loc:Str Common_Previous}">
-                    <Path Width="14" Height="10" Data="M5,0 L0,5 L5,10 M0,5 L14,5" Stretch="Fill" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2" />
-                </Button>
-                <ItemsControl Focusable="False" Margin="6,0" VerticalAlignment="Center" ItemsSource="{Binding PageLinks}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
+            <!-- The infinite list's foot, while it has cards to add. -->
+            <TextBlock
+                Margin="0,16,0,0"
+                HorizontalAlignment="Center"
+                FontSize="14"
+                Foreground="{StaticResource SteamTextDim}"
+                Text="{loc:Str Workshop_LoadingMore}"
+                Visibility="{Binding HasMore, Converter={StaticResource TrueToVisible}}" />
+
+            <!-- "Per page: [Infinite]  < 1 2 3 ... 27 >", right-aligned under the grid, as Browse. -->
+            <StackPanel Margin="0,12,0,0" HorizontalAlignment="Right" Orientation="Horizontal">
+                <TextBlock VerticalAlignment="Center" FontSize="16" Foreground="{StaticResource SteamText}" Text="{loc:Str Workshop_PerPage}" />
+                <ComboBox
+                    MinWidth="60"
+                    Margin="6,0,10,0"
+                    VerticalAlignment="Center"
+                    FontSize="12"
+                    ToolTip="{loc:Str Common_PageSizeToolTip}"
+                    ItemsSource="{Binding PageSizeOptions}"
+                    SelectedItem="{Binding PageSize}">
+                    <ComboBox.ItemTemplate>
                         <DataTemplate>
-                            <Button
-                                Style="{StaticResource PageNumber}"
-                                Command="{Binding DataContext.GoToPageNumberCommand, RelativeSource={RelativeSource AncestorType=Page}}"
-                                CommandParameter="{Binding Number}">
-                                <TextBlock Text="{Binding Text}" />
-                            </Button>
+                            <TextBlock Text="{Binding Converter={StaticResource PageSizeLabel}}" />
                         </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-                <Button Style="{StaticResource PagerArrow}" Command="{Binding NextPageCommand}" ToolTip="{loc:Str Common_Next}">
-                    <Path Width="14" Height="10" Data="M9,0 L14,5 L9,10 M0,5 L14,5" Stretch="Fill" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2" />
-                </Button>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <StackPanel Orientation="Horizontal" Visibility="{Binding HasPages, Converter={StaticResource TrueToVisible}}">
+                    <Button Style="{StaticResource PagerArrow}" Command="{Binding PreviousPageCommand}" ToolTip="{loc:Str Common_Previous}">
+                        <Path Width="14" Height="10" Data="M5,0 L0,5 L5,10 M0,5 L14,5" Stretch="Fill" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2" />
+                    </Button>
+                    <ItemsControl Focusable="False" Margin="6,0" VerticalAlignment="Center" ItemsSource="{Binding PageLinks}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button
+                                    Style="{StaticResource PageNumber}"
+                                    Command="{Binding DataContext.GoToPageNumberCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                    CommandParameter="{Binding Number}">
+                                    <TextBlock Text="{Binding Text}" />
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <Button Style="{StaticResource PagerArrow}" Command="{Binding NextPageCommand}" ToolTip="{loc:Str Common_Next}">
+                        <Path Width="14" Height="10" Data="M9,0 L14,5 L9,10 M0,5 L14,5" Stretch="Fill" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2" />
+                    </Button>
+                </StackPanel>
             </StackPanel>
         </StackPanel>
     </ScrollViewer>

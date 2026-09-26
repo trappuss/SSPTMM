@@ -45,6 +45,79 @@ public static partial class SpModListParser
         };
     }
 
+    //
+    // A member's lists, as the Lists tab of their page shows them: the same cards, keyed
+    // "user-lists-card-", without a "by" line - they are all the member's own.
+    //
+    public static IReadOnlyList<SpModListSummary> ParseUserLists(string html, string author)
+    {
+        var root = Load(html).DocumentNode;
+        var lists = new List<SpModListSummary>();
+        foreach (var card in WithKey(root, "user-lists-card-"))
+        {
+            if (ReadCard(card) is { } summary) lists.Add(summary with { Author = summary.Author ?? author });
+        }
+
+        return lists;
+    }
+
+    // ------------------------------------------------------------------ sp-mod.com/user/{id}/{slug}
+
+    /// <summary>A member's page, or null when it is not one.</summary>
+    public static SpModUserProfile? ParseUser(string html, int id)
+    {
+        var root = Load(html).DocumentNode.Descendants()
+            .FirstOrDefault(n => Attribute(n, "wire:name") == "pages::user.show");
+        if (root is null) return null;
+
+        // The name is the heading's innermost text; a "Staff" tooltip may sit beside it.
+        var heading = root.Descendants("h1").FirstOrDefault();
+        var name = heading?.Descendants("span").FirstOrDefault(s => !s.Elements("span").Any() && Text(s).Length > 0) is { } span
+            ? Text(span)
+            : heading is null ? null : Text(heading);
+        if (string.IsNullOrWhiteSpace(name)) return null;
+
+        var since = root.Descendants("div")
+            .FirstOrDefault(d => d.ChildNodes.OfType<HtmlTextNode>().Any(t => Clean(t.Text) == "Member since"));
+
+        return new SpModUserProfile
+        {
+            Id = id,
+            Name = name,
+            IsStaff = heading!.Descendants().Any(n => n.Attributes.Contains("data-flux-tooltip-content") && Text(n) == "Staff"),
+            Avatar = root.Descendants("img").Select(i => Attribute(i, "src")).FirstOrDefault(src => src?.Contains("/profile-photos/", StringComparison.Ordinal) == true),
+            Cover = root.Descendants("img").Select(i => Attribute(i, "src")).FirstOrDefault(src => src?.Contains("/cover-photos/", StringComparison.Ordinal) == true),
+            MemberSince = Time(since?.Descendants("time").FirstOrDefault()),
+            Followers = ReadFollowers(Load(html).DocumentNode),
+        };
+    }
+
+    //
+    // The Followers card: "204 total" once there are more than it shows, "No followers yet." for
+    // none, and otherwise one link per follower.
+    //
+    private static int? ReadFollowers(HtmlNode document)
+    {
+        var card = document.Descendants()
+            .FirstOrDefault(n => Attribute(n, "wire:name") == "user.follow-card"
+                                 && (Attribute(n, "wire:snapshot") ?? string.Empty).Contains("\"relationship\":\"followers\"", StringComparison.Ordinal));
+        if (card is null) return null;
+
+        // Only what the card shows, not the full list in its dialog.
+        foreach (var dialog in card.Descendants("dialog").ToList()) dialog.Remove();
+
+        var text = Text(card);
+        var total = FollowersTotal().Match(text);
+        if (total.Success) return Number(total.Groups[1].Value);
+        if (text.Contains("No followers yet", StringComparison.Ordinal)) return 0;
+
+        return card.Descendants("a")
+            .Select(Href)
+            .Where(h => h.Contains("/user/", StringComparison.Ordinal))
+            .Distinct(StringComparer.Ordinal)
+            .Count();
+    }
+
     private static SpModListSummary? ReadCard(HtmlNode card)
     {
         var link = card.Descendants("a").FirstOrDefault(a => ListLink().IsMatch(Href(a)));
@@ -373,4 +446,7 @@ public static partial class SpModListParser
 
     [GeneratedRegex(@"\s+")]
     private static partial Regex Spaces();
+
+    [GeneratedRegex(@"([\d,]+) total")]
+    private static partial Regex FollowersTotal();
 }

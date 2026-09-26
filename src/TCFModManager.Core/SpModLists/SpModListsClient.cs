@@ -107,29 +107,45 @@ public sealed partial class SpModListsClient : IDisposable
 
     // The component's HTML after the change, or null when the site refused the update (an expired
     // token: 419, or a checksum it no longer accepts).
-    private async Task<string?> UpdateAsync(LivewirePage page, int pageNumber, string? search, int? sptVersionId, CancellationToken ct)
+    private Task<string?> UpdateAsync(LivewirePage page, int pageNumber, string? search, int? sptVersionId, CancellationToken ct)
     {
         // Always the page asked for, page 1 included: the state sent may be from a later page (a plain
         // ?page=N read last), and changing the search does not by itself go back to the first.
-        var calls = new JsonArray(new JsonObject
+        var calls = new JsonArray(Call("gotoPage", pageNumber, "page"));
+
+        var updates = new JsonObject
+        {
+            ["search"] = search ?? string.Empty,
+            ["sptVersionId"] = sptVersionId is { } id ? JsonValue.Create(id) : null,
+        };
+
+        return PostAsync(page, updates, calls, $"{_site}/lists", ct);
+    }
+
+    private static JsonObject Call(string method, params object[] parameters)
+    {
+        var args = new JsonArray();
+        foreach (var parameter in parameters) args.Add(JsonValue.Create(parameter));
+
+        return new JsonObject
         {
             ["path"] = string.Empty,
-            ["method"] = "gotoPage",
-            ["params"] = new JsonArray(pageNumber, "page"),
+            ["method"] = method,
+            ["params"] = args,
             ["metadata"] = new JsonObject(),
-        });
+        };
+    }
 
+    // The request the page's own script sends: the component's state, what changed, what to call.
+    private async Task<string?> PostAsync(LivewirePage page, JsonObject updates, JsonArray calls, string referrer, CancellationToken ct)
+    {
         var body = new JsonObject
         {
             ["_token"] = page.Token,
             ["components"] = new JsonArray(new JsonObject
             {
                 ["snapshot"] = page.Snapshot,
-                ["updates"] = new JsonObject
-                {
-                    ["search"] = search ?? string.Empty,
-                    ["sptVersionId"] = sptVersionId is { } id ? JsonValue.Create(id) : null,
-                },
+                ["updates"] = updates,
                 ["calls"] = calls,
             }),
         };
@@ -140,13 +156,13 @@ public sealed partial class SpModListsClient : IDisposable
         };
         request.Headers.Add("X-Livewire", "1");
         request.Headers.Accept.ParseAdd("application/json");
-        request.Headers.Referrer = new Uri($"{_site}/lists");
+        request.Headers.Referrer = new Uri(referrer);
 
         using var response = await _http.SendAsync(request, ct).ConfigureAwait(false);
 
         if ((int)response.StatusCode is 419 or 403 or 400 or 422 or 500)
         {
-            AppLog.Info("Lists", $"sp-mod.com turned the list search away ({(int)response.StatusCode}); reading the page again");
+            AppLog.Info("Lists", $"sp-mod.com turned a page update away ({(int)response.StatusCode})");
             return null;
         }
 
@@ -156,14 +172,45 @@ public sealed partial class SpModListsClient : IDisposable
         try
         {
             var html = JsonNode.Parse(json)?["components"]?[0]?["effects"]?["html"]?.GetValue<string>();
-            if (html is null) AppLog.Info("Lists", "sp-mod.com answered the list search without the page");
+            if (html is null) AppLog.Info("Lists", "sp-mod.com answered a page update without the page");
             return html;
         }
         catch (JsonException ex)
         {
-            AppLog.Info("Lists", $"sp-mod.com's answer to the list search was not readable: {ex.Message}");
+            AppLog.Info("Lists", $"sp-mod.com's answer to a page update was not readable: {ex.Message}");
             return null;
         }
+    }
+
+    //
+    // A member's page: who they are, and their lists - which the page loads only when its Lists tab
+    // comes into view, so they are asked for the same way (its lazy load, one request). Null when
+    // sp-mod.com has no such member. A member whose lists could not be read comes back with none,
+    // rather than not at all: the profile is still worth showing.
+    //
+    public async Task<SpModUserPage?> GetUserAsync(int id, CancellationToken ct = default)
+    {
+        var url = SpModListAddress.ForUser(id);
+        using var response = await _http.GetAsync(url, ct).ConfigureAwait(false);
+        if (response.StatusCode is HttpStatusCode.NotFound or HttpStatusCode.Forbidden) return null;
+        response.EnsureSuccessStatusCode();
+
+        var html = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+        if (SpModListParser.ParseUser(html, id) is not { } profile) return null;
+
+        IReadOnlyList<SpModListSummary> lists = [];
+        if (LivewirePage.Read(html, "user.show.lists-tab") is { LazyArgument: { } argument } tab)
+        {
+            var referrer = response.RequestMessage?.RequestUri?.ToString() ?? url;
+            var tabHtml = await PostAsync(tab, new JsonObject(), new JsonArray(Call("__lazyLoad", argument)), referrer, ct).ConfigureAwait(false);
+            if (tabHtml is not null) lists = SpModListParser.ParseUserLists(tabHtml, profile.Name);
+        }
+        else
+        {
+            AppLog.Info("Lists", $"member {id}'s page did not carry its lists tab");
+        }
+
+        return new SpModUserPage(profile, lists);
     }
 
     public void Dispose()
@@ -172,10 +219,14 @@ public sealed partial class SpModListsClient : IDisposable
         _livewireGate.Dispose();
     }
 
-    // What a Livewire update needs from the page it came from.
-    internal sealed record LivewirePage(string Token, string UpdateUri, string Snapshot)
+    // What a Livewire update needs from the page it came from: the token, where updates go, one
+    // component's state, and - for a component the page loads only once it scrolls into view -
+    // the argument its lazy load is called with.
+    internal sealed record LivewirePage(string Token, string UpdateUri, string Snapshot, string? LazyArgument = null)
     {
-        public static LivewirePage? Read(string html)
+        public const string ListIndex = "pages::list.index";
+
+        public static LivewirePage? Read(string html, string component = ListIndex)
         {
             var config = ScriptConfig().Match(html);
             if (!config.Success) return null;
@@ -199,18 +250,27 @@ public sealed partial class SpModListsClient : IDisposable
                 var value = WebUtility.HtmlDecode(snapshot.Groups[1].Value);
                 try
                 {
-                    if (JsonNode.Parse(value)?["memo"]?["name"]?.GetValue<string>() == "pages::list.index")
-                        return new LivewirePage(token, uri, value);
+                    if (JsonNode.Parse(value)?["memo"]?["name"]?.GetValue<string>() != component) continue;
                 }
                 catch (JsonException)
                 {
-                    // Not this one.
+                    continue;
                 }
+
+                // The lazy load's argument sits in the same tag, a little after the snapshot.
+                var tagEnd = html.IndexOf('>', snapshot.Index + snapshot.Length);
+                var tag = tagEnd < 0 ? string.Empty : html[(snapshot.Index + snapshot.Length)..tagEnd];
+                var lazy = LazyLoad().Match(WebUtility.HtmlDecode(tag));
+
+                return new LivewirePage(token, uri, value, lazy.Success ? lazy.Groups[1].Value : null);
             }
 
             return null;
         }
     }
+
+    [GeneratedRegex(@"__lazyLoad\('([^']+)'\)")]
+    private static partial Regex LazyLoad();
 
     [GeneratedRegex(@"livewireScriptConfig\s*=\s*(\{.*?\})\s*;?\s*</script>", RegexOptions.Singleline)]
     private static partial Regex ScriptConfig();

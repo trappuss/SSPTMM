@@ -1659,4 +1659,9 @@ internal static class Strings
     internal static string Collection_ShowMore => LocalizationService.Get("Collection_ShowMore");
     internal static string Collection_ShowLess => LocalizationService.Get("Collection_ShowLess");
     internal static string Collection_NothingToSubscribeFormat => LocalizationService.Get("Collection_NothingToSubscribeFormat");
+    internal static string Collections_SortOldest => LocalizationService.Get("Collections_SortOldest");
+    internal static string Collections_SortMostItems => LocalizationService.Get("Collections_SortMostItems");
+    internal static string Collections_SortFewestItems => LocalizationService.Get("Collections_SortFewestItems");
+    internal static string Collections_ReadingFormat => LocalizationService.Get("Collections_ReadingFormat");
+    internal static string Collections_MoreItemsFormat => LocalizationService.Get("Collections_MoreItemsFormat");
 }
