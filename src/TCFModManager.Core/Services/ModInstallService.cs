@@ -346,7 +346,7 @@ public sealed class ModInstallService(
             journal.Planned = [.. planned.Select(p => p.Forward)];
             journal.PreviousReplaced = existing is null ? [] : [.. existing.Replaced];
             journal.PreviousInstalledAt = existing?.InstalledAt;
-            journal.StaleCopies = StaleCopiesOf(manifest, existing, journal.Planned);
+            journal.StaleCopies = StaleCopiesOf(manifest, existing);
             journal.Save();
 
             try
@@ -552,8 +552,10 @@ public sealed class ModInstallService(
     {
         try
         {
+            // By when it was installed, not by version: confirming or choosing a version by hand
+            // changes those on the same record (SetManualVersion keeps InstalledAt).
             return manifestService.Load().Mods.Any(m => m.ModId == record.ModId && m.IsAddon == record.IsAddon
-                && m.VersionId == record.VersionId && m.Version == record.Version && m.InstalledAt == record.InstalledAt);
+                && m.InstalledAt == record.InstalledAt);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
@@ -619,9 +621,10 @@ public sealed class ModInstallService(
         try
         {
             //
-            // A mod installed over the previous version kept a copy of its file; this version places
-            // the file again, so it is on top now, and what is under that mod is what was under the
-            // previous version: this mod's own kept copy goes to it (or, with none, its copy goes).
+            // A mod installed over the previous version kept a copy of its file. That version is gone
+            // (this one places the file on top again, or no longer ships it), so what is under that
+            // mod now is what was under the previous version: this mod's own kept copy goes to it
+            // (or, with none, its copy goes).
             // Before the copies below, since the first copy of a path is the one kept. Each one is
             // crossed off the journal as it is done, so a second attempt does not hand anything twice.
             //
@@ -693,22 +696,34 @@ public sealed class ModInstallService(
 
     //
     // A mod installed over this one's previous version kept a copy of that version's file, to put
-    // back when it goes. This install places the file again - it is on top now - and the version that
-    // copy holds is gone: the copy is let go (see KeepReplacedCopies).
+    // back when it goes. That version is gone - replaced by this one, placed on top again, or no
+    // longer shipped - so the copy is replaced by what was under the previous version, or let go
+    // when nothing was (see KeepReplacedCopies).
     //
-    private static List<StaleCopy> StaleCopiesOf(ModInstallManifest manifest, InstalledModRecord? existing, IEnumerable<string> planned)
+    private static List<StaleCopy> StaleCopiesOf(ModInstallManifest manifest, InstalledModRecord? existing)
     {
         if (existing is null) return [];
 
-        var mine = existing.Files.ToHashSet(StringComparer.OrdinalIgnoreCase);
-        mine.IntersectWith(planned);
+        //
+        // Every file of the previous version - placed again or not. For each, only the mod directly
+        // above it (the next one installed over it) holds a copy of the previous version's file; the
+        // ones higher up hold copies of the mods under them, which are still there.
+        //
+        var copies = new List<StaleCopy>();
+        foreach (var path in existing.Files)
+        {
+            var above = manifest.Mods
+                .Where(m => !(m.ModId == existing.ModId && m.IsAddon == existing.IsAddon)
+                    && m.InstalledAt > existing.InstalledAt
+                    && m.Files.Contains(path, StringComparer.OrdinalIgnoreCase))
+                .OrderBy(m => m.InstalledAt)
+                .FirstOrDefault();
 
-        return
-        [
-            .. manifest.Mods
-                .Where(m => !(m.ModId == existing.ModId && m.IsAddon == existing.IsAddon) && m.InstalledAt > existing.InstalledAt)
-                .SelectMany(m => m.Replaced.Where(mine.Contains).Select(p => new StaleCopy(m.ModId, m.IsAddon, p))),
-        ];
+            if (above is not null && above.Replaced.Contains(path, StringComparer.OrdinalIgnoreCase))
+                copies.Add(new StaleCopy(above.ModId, above.IsAddon, path));
+        }
+
+        return copies;
     }
 
     private static InstalledModRecord WithReplaced(InstalledModRecord record, List<string> replaced) => new()

@@ -534,4 +534,61 @@ public class InstallPipelineTests : IDisposable
         Assert.DoesNotContain(mods, m => m.ModId == 1);
         Assert.Equal(5, mods.Count(m => m.ModId >= 100));
     }
+
+    [Fact]
+    public async Task UpdatingTheBottomOfThreeStackedMods_LeavesTheOthersCopiesAlone()
+    {
+        File.WriteAllText(InSpt("BepInEx/plugins/H.dll"), "HAND");
+        await Install(1, "ModA", "1.0", ("BepInEx/plugins/H.dll", "a1"));
+        await Task.Delay(20);
+        await Install(2, "ModB", "1.0", ("BepInEx/plugins/H.dll", "b"));
+        await Task.Delay(20);
+        await Install(3, "ModC", "1.0", ("BepInEx/plugins/H.dll", "c"));
+        await Task.Delay(20);
+        await Install(1, "ModA", "2.0", ("BepInEx/plugins/H.dll", "a2"));
+
+        await Remove(1);
+        Assert.Equal("c", File.ReadAllText(InSpt("BepInEx/plugins/H.dll")));
+        await Remove(3);
+        Assert.Equal("b", File.ReadAllText(InSpt("BepInEx/plugins/H.dll")));
+        await Remove(2);
+        Assert.Equal("HAND", File.ReadAllText(InSpt("BepInEx/plugins/H.dll")));
+    }
+
+    [Fact]
+    public async Task AFileTheLowerModStopsShipping_DoesNotComeBackUnderTheUpperOne()
+    {
+        await Install(1, "ModA", "1.0", ("BepInEx/plugins/H.dll", "a1"));
+        await Task.Delay(20);
+        await Install(2, "ModB", "1.0", ("BepInEx/plugins/H.dll", "b"));
+        await Task.Delay(20);
+        await Install(1, "ModA", "2.0", ("BepInEx/plugins/A.dll", "a2"));
+
+        await Remove(2);
+
+        // Nothing was under A 1.0, and A 2.0 has no H.dll: nothing to put back.
+        Assert.False(File.Exists(InSpt("BepInEx/plugins/H.dll")));
+    }
+
+    [Fact]
+    public async Task ChoosingAVersionByHand_DoesNotMakeAFinishedInstallLookUnfinished()
+    {
+        await Install(9, "ModI", "1.0", ("BepInEx/plugins/I.dll", "I1"));
+        var record = _manifest.Load().Mods.Single(m => m.ModId == 9);
+
+        _manifest.SetManualVersion(record.ModId, null, record.Name, "9.9", 999, record.Folders, record.IsAddon);
+
+        var work = Path.Combine(_spt, ".tcfmm-work", "finished");
+        var journal = InstallJournal.Begin(work, _spt, Mod(9, "ModI"));
+        journal.Planned = ["BepInEx/plugins/I.dll"];
+        journal.Absent = ["BepInEx/plugins/I.dll"];
+        journal.Record = record;
+        journal.Save();
+
+        _service.RecoverInterruptedInstalls(_spt);
+
+        // Recognised as finished (same install, a version chosen since): tidied, not undone.
+        Assert.Equal("I1", File.ReadAllText(InSpt("BepInEx/plugins/I.dll")));
+        Assert.False(Directory.Exists(work));
+    }
 }
