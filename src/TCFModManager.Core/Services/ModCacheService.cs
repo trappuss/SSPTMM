@@ -89,7 +89,10 @@ public sealed class ModCacheService(SpModApiClient spModApi)
         _ when ct.IsCancellationRequested => false,
         SpModApiException api => (int)api.StatusCode >= 500 || (int)api.StatusCode == 408,
         HttpRequestException { StatusCode: { } code } => (int)code >= 500 || (int)code == 408,
-        HttpRequestException => true,
+
+        // A dropped or refused connection may come back; a name that does not resolve, a
+        // certificate or a proxy refusing will not, and asking again only makes the wait longer.
+        HttpRequestException { HttpRequestError: HttpRequestError.ConnectionError or HttpRequestError.ResponseEnded or HttpRequestError.Unknown } => true,
         HttpIOException => true,
         TaskCanceledException => true,
         _ => false,

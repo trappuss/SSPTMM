@@ -71,6 +71,9 @@ public sealed class ModArchiveCache(string directory, long budgetBytes)
     /// <summary>Where to download to before the file is complete: <paramref name="path"/> plus .part.</summary>
     public static string PartPathFor(string path) => path + PartExtension;
 
+    // What ModDownloadService keeps beside a .part to resume it.
+    private const string ValidatorExtension = ".validator";
+
     private const string OncePrefix = "once-";
 
     /// <summary>A one-off place for a download that will not be kept.</summary>
@@ -121,16 +124,21 @@ public sealed class ModArchiveCache(string directory, long budgetBytes)
 
         try
         {
-            // In use: the archive itself, or the .part it is being downloaded into.
+            // In use: the archive itself, the .part it is being downloaded into, or that .part's
+            // resume sidecar (ModDownloadService.ValidatorPathFor).
+            static string? OwnerOf(FileInfo f) =>
+                f.Name.EndsWith(PartExtension + ValidatorExtension, StringComparison.OrdinalIgnoreCase)
+                    ? f.FullName[..^(PartExtension.Length + ValidatorExtension.Length)]
+                    : IsPart(f) ? f.FullName[..^PartExtension.Length] : null;
+
             bool InUse(FileInfo f) =>
-                inUse.Contains(f.FullName)
-                || (IsPart(f) && inUse.Contains(f.FullName[..^PartExtension.Length]));
+                inUse.Contains(f.FullName) || (OwnerOf(f) is { } owner && inUse.Contains(owner));
 
             var files = new DirectoryInfo(Directory).EnumerateFiles().Where(f => !InUse(f)).ToList();
 
-            // A .part not being written is what a download cut short by the app closing leaves, and
-            // a one-off not in use is one the app was closed before it could delete.
-            foreach (var leftover in files.Where(f => IsPart(f) || f.Name.StartsWith(OncePrefix, StringComparison.OrdinalIgnoreCase)))
+            // A .part not being written is what a download cut short by the app closing leaves (with
+            // its sidecar), and a one-off not in use is one the app was closed before it could delete.
+            foreach (var leftover in files.Where(f => OwnerOf(f) is not null || f.Name.StartsWith(OncePrefix, StringComparison.OrdinalIgnoreCase)))
                 TryDelete(leftover);
 
             // Larger than the whole budget first, so one of those does not push out all the rest;

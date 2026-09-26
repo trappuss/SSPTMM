@@ -392,8 +392,10 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
                     new ModInstallProgress(ModInstallStage.Downloading, item.ModName, version.Version));
                 try
                 {
-                    // A second attempt carries on from where the first broke off, when it can.
-                    await AppServices.Downloads.DownloadAsync(version.Link!, part, progress, token, resume: true);
+                    // A second attempt carries on from where the first broke off, when it can - never
+                    // the first, which could only join onto a .part left by an earlier session.
+                    await AppServices.Downloads.DownloadAsync(version.Link!, part, progress, token,
+                        resume: attempt > 0, resumable: true);
                     File.Move(part, path, overwrite: true);
                     break;
                 }

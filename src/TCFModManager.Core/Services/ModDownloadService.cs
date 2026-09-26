@@ -35,52 +35,72 @@ public sealed class ModDownloadService(HttpClient? httpClient = null) : IDisposa
     // Downloads <paramref name="downloadUrl"/> to <paramref name="destinationPath"/>,
     // reporting fractional progress (0.0-1.0) when a Content-Length header is available.
     //
+    // <paramref name="resumable"/>: what identifies the file (the server's ETag or Last-Modified,
+    // and its full length) is kept beside it while it downloads, so a later attempt can resume it.
     // <paramref name="resume"/>: when part of the file is already there from an attempt that broke
-    // off, only the rest is asked for - if the server can send a range, and says the file is still
-    // the same one (If-Range). Anything else starts again from the beginning.
+    // off, only the rest is asked for - and joined on only when the server sends exactly the rest
+    // of exactly the same file. Anything else is thrown away and started again.
     public async Task DownloadAsync(
         string downloadUrl,
         string destinationPath,
         IProgress<double>? progress = null,
         CancellationToken ct = default,
-        bool resume = false)
+        bool resume = false,
+        bool resumable = false)
     {
         var directory = Path.GetDirectoryName(destinationPath);
         if (!string.IsNullOrEmpty(directory)) Directory.CreateDirectory(directory);
 
         var validatorPath = ValidatorPathFor(destinationPath);
         var have = resume && File.Exists(destinationPath) ? new FileInfo(destinationPath).Length : 0;
-        var validator = have > 0 && File.Exists(validatorPath) ? File.ReadAllText(validatorPath).Trim() : null;
-        if (validator is null) have = 0;
+        var saved = have > 0 ? ReadValidator(validatorPath) : null;
+        if (saved is null) have = 0;
 
         using var request = new HttpRequestMessage(HttpMethod.Get, downloadUrl);
         if (have > 0)
         {
             request.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(have, null);
-            request.Headers.TryAddWithoutValidation("If-Range", validator);
+            request.Headers.TryAddWithoutValidation("If-Range", saved!.Value.Identity);
         }
 
         using var response = await _http
             .SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct)
             .ConfigureAwait(false);
+
+        // Nothing left to send (416), or a range that is not exactly the rest of the same file: what
+        // is on disk cannot be trusted to join, so it goes, and the retry starts from the beginning.
+        var range = response.Content.Headers.ContentRange;
+        if (response.StatusCode == System.Net.HttpStatusCode.RequestedRangeNotSatisfiable
+            || (response.StatusCode == System.Net.HttpStatusCode.PartialContent
+                && !(have > 0 && range is { From: { } from, To: { } to, Length: { } length }
+                     && from == have && to == length - 1 && length == saved!.Value.Length)))
+        {
+            TryDelete(destinationPath);
+            TryDelete(validatorPath);
+            throw new HttpIOException(HttpRequestError.ResponseEnded,
+                $"the server did not send the rest of the file as asked ({(int)response.StatusCode} {range}); starting again");
+        }
+
         response.EnsureSuccessStatusCode();
 
-        // Joined on only when the server sent exactly the rest; a whole file (200) starts again.
-        var resuming = have > 0
-            && response.StatusCode == System.Net.HttpStatusCode.PartialContent
-            && response.Content.Headers.ContentRange?.From == have;
+        var resuming = response.StatusCode == System.Net.HttpStatusCode.PartialContent;
         if (!resuming) have = 0;
 
-        var remaining = response.Content.Headers.ContentLength;
-        var totalBytes = remaining is { } rest ? rest + have : (long?)null;
+        var totalBytes = resuming
+            ? range!.Length
+            : response.Content.Headers.ContentLength;
 
         // What identifies this file, for a later attempt to resume against.
-        var identity = response.Headers.ETag?.ToString()
-            ?? response.Content.Headers.LastModified?.ToString("R");
-        if (resume && !resuming)
+        if (!resuming && (resumable || resume))
         {
-            if (identity is not null && response.Headers.AcceptRanges.Contains("bytes")) File.WriteAllText(validatorPath, identity);
-            else TryDelete(validatorPath);
+            var identity = response.Headers.ETag is { IsWeak: false } etag
+                ? etag.ToString()
+                : response.Content.Headers.LastModified?.ToString("R");
+
+            if (identity is not null && totalBytes is > 0 && response.Headers.AcceptRanges.Contains("bytes"))
+                WriteValidator(validatorPath, identity, totalBytes.Value);
+            else
+                TryDelete(validatorPath);
         }
 
         await using var contentStream = await response.Content.ReadAsStreamAsync(ct).ConfigureAwait(false);
@@ -144,6 +164,35 @@ public sealed class ModDownloadService(HttpClient? httpClient = null) : IDisposa
         // Unconditional, so the throttle above can never swallow the last fraction and leave a bar
         // stopped short of the end.
         progress?.Report(1.0);
+    }
+
+    private static (string Identity, long Length)? ReadValidator(string path)
+    {
+        try
+        {
+            if (!File.Exists(path)) return null;
+            var lines = File.ReadAllLines(path);
+            return lines.Length >= 2 && lines[0].Length > 0 && long.TryParse(lines[1], out var length) && length > 0
+                ? (lines[0], length)
+                : null;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            // Not resumable this time, then - never a reason for the download itself to fail.
+            return null;
+        }
+    }
+
+    private static void WriteValidator(string path, string identity, long length)
+    {
+        try
+        {
+            File.WriteAllLines(path, [identity, length.ToString(System.Globalization.CultureInfo.InvariantCulture)]);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            AppLog.Debug("Downloads", $"couldn't keep what identifies {Path.GetFileName(path)}; it will not resume: {ex.Message}");
+        }
     }
 
     private static void TryDelete(string path)

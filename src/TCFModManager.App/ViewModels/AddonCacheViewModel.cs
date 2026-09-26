@@ -86,7 +86,9 @@ public partial class AddonCacheViewModel : LocalizedViewModel
             Publish(cached.Addons);
 
             // A copy from a few minutes ago - the app restarted - is not fetched again (Refresh does).
-            if (DateTimeOffset.UtcNow - cached.FetchedAt > ModCacheViewModel.FreshFor) _ = RefreshInBackgroundAsync(ct);
+            // (A copy dated in the future - the clock was ahead, then put right - counts as old.)
+            var age = DateTimeOffset.UtcNow - cached.FetchedAt;
+            if (age > ModCacheViewModel.FreshFor || age < TimeSpan.Zero) _ = RefreshInBackgroundAsync(ct);
             else AppLog.Debug("Addons", $"saved copy is from {cached.FetchedAt:t}; not fetching again yet");
             return cached.Addons;
         }

@@ -38,15 +38,20 @@ public sealed class ServerMapClient : IDisposable
         _endpoint = endpoint;
         _pin = pin;
         _http = new HttpClient(handler) { BaseAddress = baseUri, Timeout = timeout };
-        _pin.Trusted ??= endpoint.PinnedThumbprint;
+        _pin.Trusted ??= endpoint.HasPin ? endpoint.PinnedThumbprint : null;
     }
 
     //
     // The shared key goes only to a server already known to be this one: one whose certificate is
     // pinned (a request only goes out once TLS has checked it against the pin), or that answered this
-    // client's handshake as a server map. Never on the handshake itself, which does not need it -
-    // a mistyped address, or something in between on a first connection, would otherwise be handed
-    // the key before anything had been checked.
+    // client's handshake as a server map. Never on the handshake itself, which does not need it - a
+    // mistyped address, or something there that is not a server map, would otherwise be handed the
+    // key before anything had been checked.
+    //
+    // What this does NOT cover: on the very first connection to a server, the certificate it shows
+    // is trusted as it is pinned (trust on first use), so something intercepting that first
+    // connection and passing the handshake through would still be sent the key. The pin catches it
+    // from the second connection on.
     //
     private bool _answeredWithoutTls;
 
@@ -199,10 +204,26 @@ public sealed class ServerMapClient : IDisposable
         {
             // Nothing known about this server yet (never pinned, no handshake here): the handshake
             // first, so the key goes to it only once it has answered as one.
-            if (_endpoint.HasKey && !KeyMaySend) await HelloAsync(cancellationToken).ConfigureAwait(false);
+            // One that does not answer is reported as such, not asked for its list without the key.
+            if (_endpoint.HasKey && !KeyMaySend)
+            {
+                var probe = await HelloAsync(cancellationToken).ConfigureAwait(false);
+                if (!probe.Found)
+                {
+                    return new ServerMapListResult
+                    {
+                        Endpoint = _endpoint,
+                        Problem = probe.Problem,
+                        StatusCode = probe.StatusCode,
+                        Error = probe.Error,
+                    };
+                }
+            }
+
             _pin.Reset();
 
             using var request = Get(ListPath, withKey: true);
+            var sentKey = request.Headers.Contains(ServerMapEndpoint.KeyHeaderName);
             using var response = await _http
                 .SendAsync(request, HttpCompletionOption.ResponseContentRead, cancellationToken)
                 .ConfigureAwait(false);
@@ -224,7 +245,7 @@ public sealed class ServerMapClient : IDisposable
                     {
                         System.Net.HttpStatusCode.NotFound => ServerMapProblem.NoList,
                         System.Net.HttpStatusCode.Unauthorized or System.Net.HttpStatusCode.Forbidden =>
-                            _endpoint.HasKey ? ServerMapProblem.KeyRejected : ServerMapProblem.KeyRequired,
+                            sentKey ? ServerMapProblem.KeyRejected : ServerMapProblem.KeyRequired,
                         _ => ServerMapProblem.Failed,
                     },
                     StatusCode = (int)response.StatusCode,

@@ -33,6 +33,15 @@ public class ModDownloadServiceTests : IDisposable
         // The next response sends nothing at all after its headers.
         public bool Stall { get; set; }
 
+        // Honours Range but not If-Range (joins whatever the file is now).
+        public bool IgnoreIfRange { get; set; }
+
+        // Sends at most this many bytes of a range (servers that cap open-ended ranges).
+        public int? CapRange { get; set; }
+
+        // Answers a range with 416.
+        public bool Refuse416 { get; set; }
+
         public List<HttpRequestMessage> Requests { get; } = [];
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
@@ -42,13 +51,17 @@ public class ModDownloadServiceTests : IDisposable
             var from = 0L;
             var partial = false;
             if (request.Headers.Range?.Ranges.FirstOrDefault() is { From: { } start }
-                && request.Headers.TryGetValues("If-Range", out var ifRange) && ifRange.Single() == ETag)
+                && (IgnoreIfRange || (request.Headers.TryGetValues("If-Range", out var ifRange) && ifRange.Single() == ETag)))
             {
+                if (Refuse416)
+                    return Task.FromResult(new HttpResponseMessage(HttpStatusCode.RequestedRangeNotSatisfiable) { Content = new ByteArrayContent([]) });
+
                 from = start;
                 partial = true;
             }
 
             var body = File.AsSpan((int)from).ToArray();
+            if (partial && CapRange is { } cap) body = body[..Math.Min(cap, body.Length)];
             Stream stream = Stall ? new StallingStream() : new BreakingStream(body, BreakAfter);
             BreakAfter = null;
             Stall = false;
@@ -58,7 +71,7 @@ public class ModDownloadServiceTests : IDisposable
                 Content = new StreamContent(stream),
             };
             response.Content.Headers.ContentLength = body.Length;
-            if (partial) response.Content.Headers.ContentRange = new ContentRangeHeaderValue(from, File.Length - 1, File.Length);
+            if (partial) response.Content.Headers.ContentRange = new ContentRangeHeaderValue(from, from + body.Length - 1, File.Length);
             response.Headers.ETag = EntityTagHeaderValue.Parse(ETag);
             response.Headers.AcceptRanges.Add("bytes");
             return Task.FromResult(response);
@@ -177,5 +190,54 @@ public class ModDownloadServiceTests : IDisposable
         using var cancel = new CancellationTokenSource(200);
 
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => service.DownloadAsync("http://x/mod.zip", Part, ct: cancel.Token, resume: true));
+    }
+
+    private async Task<(Server Server, ModDownloadService Service)> BrokenOffAt70k()
+    {
+        var server = new Server(_file) { BreakAfter = 70_000 };
+        var service = new ModDownloadService(new HttpClient(server));
+        await Assert.ThrowsAnyAsync<Exception>(() => service.DownloadAsync("http://x/mod.zip", Part, resumable: true));
+        return (server, service);
+    }
+
+    [Fact]
+    public async Task OnlyPartOfTheRest_IsNotTakenForTheWholeFile()
+    {
+        var (server, service) = await BrokenOffAt70k();
+        server.CapRange = 10_000;
+
+        await Assert.ThrowsAsync<HttpIOException>(() => service.DownloadAsync("http://x/mod.zip", Part, resume: true, resumable: true));
+        Assert.False(File.Exists(Part));
+
+        // The next attempt starts again, and finishes.
+        server.CapRange = null;
+        await service.DownloadAsync("http://x/mod.zip", Part, resume: true, resumable: true);
+        Assert.Equal(_file, File.ReadAllBytes(Part));
+    }
+
+    [Fact]
+    public async Task ARangeOfAFileThatChangedSize_IsNotJoined_EvenWhenIfRangeIsIgnored()
+    {
+        var (server, service) = await BrokenOffAt70k();
+        server.IgnoreIfRange = true;
+        server.ETag = "\"v2\"";
+        server.File = [.. _file, .. _file[..50_000]];
+
+        await Assert.ThrowsAsync<HttpIOException>(() => service.DownloadAsync("http://x/mod.zip", Part, resume: true, resumable: true));
+        Assert.False(File.Exists(Part));
+    }
+
+    [Fact]
+    public async Task A416_StartsAgainInsteadOfFailingForGood()
+    {
+        var (server, service) = await BrokenOffAt70k();
+        server.Refuse416 = true;
+
+        await Assert.ThrowsAsync<HttpIOException>(() => service.DownloadAsync("http://x/mod.zip", Part, resume: true, resumable: true));
+        Assert.False(File.Exists(ModDownloadService.ValidatorPathFor(Part)));
+
+        server.Refuse416 = false;
+        await service.DownloadAsync("http://x/mod.zip", Part, resume: true, resumable: true);
+        Assert.Equal(_file, File.ReadAllBytes(Part));
     }
 }

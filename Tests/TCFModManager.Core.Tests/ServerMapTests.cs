@@ -707,12 +707,33 @@ public class ServerMapKeyTests
     [InlineData(HttpStatusCode.Forbidden)]
     public async Task ARefusalWithAKeySetMeansTheKeyIsWrong(HttpStatusCode status)
     {
-        using var client = ServerMapClient.TryCreate(Endpoint(Key), new CapturingHandler(status, ""))!;
+        using var client = ServerMapClient.TryCreate(Endpoint(Key), new RoutedHandler(status))!;
 
         var result = await client.ListAsync();
 
         Assert.False(result.Found);
         Assert.Equal(ServerMapProblem.KeyRejected, result.Problem);
+    }
+
+    // Not asked for its list at all when the handshake says it is not a server map - and so never
+    // told the key "was rejected" when it was never sent.
+    [Fact]
+    public async Task AServerThatFailsTheHandshake_IsReportedAsThat_NotAsRejectingTheKey()
+    {
+        using var client = ServerMapClient.TryCreate(Endpoint(Key), new CapturingHandler(HttpStatusCode.Unauthorized, ""))!;
+
+        var result = await client.ListAsync();
+
+        Assert.Equal(ServerMapProblem.NotServerMap, result.Problem);
+    }
+
+    // The handshake answers; the list refuses with the given status.
+    private sealed class RoutedHandler(HttpStatusCode listStatus) : HttpMessageHandler
+    {
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct) =>
+            Task.FromResult(request.RequestUri!.AbsolutePath.EndsWith("/hello")
+                ? new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("""{ "protocol": 1 }""", Encoding.UTF8, "application/json") }
+                : new HttpResponseMessage(listStatus) { Content = new StringContent("") });
     }
 
     // The handshake stays open, so it must never come back as a key problem - that is what lets a
