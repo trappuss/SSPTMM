@@ -1627,7 +1627,6 @@ internal static class Strings
     internal static string Collection_TryAgain => LocalizationService.Get("Collection_TryAgain");
     internal static string Collection_PublicGone => LocalizationService.Get("Collection_PublicGone");
     internal static string Collection_PublicLoadFailedFormat => LocalizationService.Get("Collection_PublicLoadFailedFormat");
-    internal static string Collection_CollectionBy => LocalizationService.Get("Collection_CollectionBy");
     internal static string Collection_ListAuthorToolTip => LocalizationService.Get("Collection_ListAuthorToolTip");
     internal static string Collection_ForSptFormat => LocalizationService.Get("Collection_ForSptFormat");
     internal static string Collection_NotInCatalogNote => LocalizationService.Get("Collection_NotInCatalogNote");
@@ -1678,4 +1677,26 @@ internal static class Strings
     internal static string Options_BackgroundPictures => LocalizationService.Get("Options_BackgroundPictures");
     internal static string Options_BackgroundUnreadable => LocalizationService.Get("Options_BackgroundUnreadable");
     internal static string Options_BackgroundCopyFailedFormat => LocalizationService.Get("Options_BackgroundCopyFailedFormat");
+    internal static string Collection_Share => LocalizationService.Get("Collection_Share");
+    internal static string Collection_ShareToolTip => LocalizationService.Get("Collection_ShareToolTip");
+    internal static string Collection_DescriptionHeader => LocalizationService.Get("Collection_DescriptionHeader");
+    internal static string Collection_AssembledBy => LocalizationService.Get("Collection_AssembledBy");
+    internal static string Collection_ItemsLabel => LocalizationService.Get("Collection_ItemsLabel");
+    internal static string Author_WorkshopItems => LocalizationService.Get("Author_WorkshopItems");
+    internal static string Author_TabCollections => LocalizationService.Get("Author_TabCollections");
+    internal static string Author_Followers => LocalizationService.Get("Author_Followers");
+    internal static string Author_MemberSinceFormat => LocalizationService.Get("Author_MemberSinceFormat");
+    internal static string Author_Staff => LocalizationService.Get("Author_Staff");
+    internal static string Author_ShowingFormat => LocalizationService.Get("Author_ShowingFormat");
+    internal static string Author_NoItemsFormat => LocalizationService.Get("Author_NoItemsFormat");
+    internal static string Author_NoCollections => LocalizationService.Get("Author_NoCollections");
+    internal static string Author_Reading => LocalizationService.Get("Author_Reading");
+    internal static string Author_PageNotFound => LocalizationService.Get("Author_PageNotFound");
+    internal static string Author_PageFailedFormat => LocalizationService.Get("Author_PageFailedFormat");
+    internal static string Author_NoPage => LocalizationService.Get("Author_NoPage");
+    internal static string Author_SubscribedToolTip => LocalizationService.Get("Author_SubscribedToolTip");
+    internal static string Author_CollectionByFormat => LocalizationService.Get("Author_CollectionByFormat");
+    internal static string Author_SearchInBrowse => LocalizationService.Get("Author_SearchInBrowse");
+    internal static string Author_SearchInBrowseToolTip => LocalizationService.Get("Author_SearchInBrowseToolTip");
+    internal static string Author_ViewOnSiteToolTip => LocalizationService.Get("Author_ViewOnSiteToolTip");
 }

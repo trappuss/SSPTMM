@@ -106,7 +106,7 @@ public static class ModContextMenu
         if (mod.Owner?.Name is { Length: > 0 } author)
         {
             menu.Items.Add(Rule());
-            menu.Items.Add(Item(LocalizationService.Text(Strings.Item_AuthorsWorkshopFormat, author), () => ModActions.ShowAuthor(author)));
+            menu.Items.Add(Item(LocalizationService.Text(Strings.Item_AuthorsWorkshopFormat, author), () => ModActions.ShowAuthor(author, mod.Owner?.Id)));
 
             if (mod.Owner is { Id: not 0 } owner)
             {

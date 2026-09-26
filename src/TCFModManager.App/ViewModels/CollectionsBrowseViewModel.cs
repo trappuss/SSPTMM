@@ -88,7 +88,7 @@ public sealed class CollectionSptChoice(int? id, string? version) : LocalizedVie
 
     public string? Version { get; } = version;
 
-    public string Label => version ?? Strings.Collections_AllSptVersions;
+    public string Label => Version ?? Strings.Collections_AllSptVersions;
 
     public override string ToString() => Label;
 }

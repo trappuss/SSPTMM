@@ -643,6 +643,50 @@ Description GIFs already played.
   forty-mod collection was forty full scans).
 - The app's own listing is never installed from any list.
 
+## Twelfth round: authors' pages, the collection page again, tabs and background (2026-09-26)
+
+**Browsing: Collections.** Every public list is read once an hour (27 pages, about seven
+seconds; the first time, page 1 shows while the rest is read and a line counts the pages) and kept
+in Data\collections_index.json. So search now also matches who made a list (sp-mod.com's own
+search does not), and there are six orders: Most Recent, Oldest, Title A-Z, Title Z-A, Most Items,
+Fewest Items. Per page: Infinite (more as you scroll - the default), 10, 15, 30, 50. Under the
+pointer a card opens Steam's popup, measured: title, description, "Contains N items", the first
+ten items' pictures and "+N" for the rest (read from the list's page once the pointer rests).
+
+**An author's page** (Steam's myworkshopfiles), opened from every author's name: CREATED BY and the
+last breadcrumb on an item page, "Created by" on a collection's rows and its author chips,
+COLLECTION ASSEMBLED BY, Quick View, the right-click menu and Followed Authors. Header with their
+picture and name (their sp-mod.com cover behind it), tabs Workshop Items and Collections, the
+paging bar ("Showing 1-9 of 37 entries", Steam's page buttons, Per page: 9 18 30), items as
+Steam's 200px squares with sp-mod.com's counts where Steam's stars are, their public lists as
+Steam's collection rows (with the hover popup). Right column: followers on sp-mod.com, Follow,
+Member since, Search their items in Browse (the old behaviour of a name, with Browse's filters),
+View on sp-mod.com. Items come from the catalog (owned or credited); who they are and their lists
+from their sp-mod.com page, read once a session. Someone with lists but no items opens on
+Collections.
+
+**The collection page, again,** to Steam's current collection page: Description / Comments tabs;
+the header 950x470 with the title bar over the list's picture - or, without one, eighteen of its
+items' pictures six by three (the first item's picture when there are fewer different ones);
+the control row (Manage, Share = copy its address, View on sp-mod.com); then two columns - on
+the left DESCRIPTION and ITEMS, each under Steam's rule and heading; on the right Steam's
+gradient panel with the author chips, COLLECTION ASSEMBLED BY with their picture, and the
+numbers (Items, Posted, Updated). Comments is sp-mod.com's own, as on an item page (the web view
+code is now shared: Services\SpModComments); on that tab the comments come straight under the
+tabs. A breadcrumb leads to the maker's page.
+
+**Going back.** A collection, an author and an item page each open over the page area, and the
+one they were opened from waits underneath: Esc (or back) walks back through them in order -
+an item opened from an author opened from a collection returns to the author, then the
+collection. Before, opening a collection from an item page closed the item.
+
+**Options > Tabs and background.** The Subscribed items tab and a new Collections tab (beside it,
+opening Your collections) can each be switched off; both pages stay under Workshop > Your Items. A
+picture of your own can take the place of the Steam grid behind the whole window, with a slider
+to darken it and Use the Steam grid to go back. The picture is copied into Data\Background, so
+moving or deleting the original changes nothing. The Workshop pages over the page area (item,
+collection, author) keep Steam's solid #1B2838, as Steam's own pages do.
+
 ## Values that could not be measured (marked HUNCH in the source)
 
 - The smooth-scroll distance and time (100px, 250ms) - chosen to feel like a browser, not measured.

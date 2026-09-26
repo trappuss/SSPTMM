@@ -5087,7 +5087,7 @@ This was written to:
     <comment>Button on the Comments tab when they cannot be shown inside the app.</comment>
   </data>
   <data name="Item_AuthorToolTip" xml:space="preserve">
-    <value>Browse everything by this author</value>
+    <value>Open their Workshop page</value>
     <comment>Tooltip on a name under CREATED BY.</comment>
   </data>
   <data name="Item_PlayVideo" xml:space="preserve">
@@ -6066,12 +6066,8 @@ This was written to:
     <value>The collection could not be read from sp-mod.com: {0}</value>
     <comment>When a public collection's page could not be read. {0} is why.</comment>
   </data>
-  <data name="Collection_CollectionBy" xml:space="preserve">
-    <value>COLLECTION BY</value>
-    <comment>Right-hand panel heading over who made a public collection. Upper case in Steam's design.</comment>
-  </data>
   <data name="Collection_ListAuthorToolTip" xml:space="preserve">
-    <value>Open their page on sp-mod.com</value>
+    <value>Open their Workshop page</value>
     <comment>Tooltip on the name of who made a public collection.</comment>
   </data>
   <data name="Collection_ForSptFormat" xml:space="preserve">
@@ -6269,5 +6265,93 @@ This was written to:
   <data name="Options_BackgroundCopyFailedFormat" xml:space="preserve">
     <value>The picture could not be copied: {0}</value>
     <comment>When copying the picture into the app's Data folder fails. {0} is why.</comment>
+  </data>
+  <data name="Collection_Share" xml:space="preserve">
+    <value>Share</value>
+    <comment>Button on a public collection's page: copies its address. Steam's word.</comment>
+  </data>
+  <data name="Collection_ShareToolTip" xml:space="preserve">
+    <value>Copy the address of this collection on sp-mod.com</value>
+    <comment>Tooltip on Share.</comment>
+  </data>
+  <data name="Collection_DescriptionHeader" xml:space="preserve">
+    <value>DESCRIPTION</value>
+    <comment>Heading over a collection's description. Upper case in Steam's design.</comment>
+  </data>
+  <data name="Collection_AssembledBy" xml:space="preserve">
+    <value>COLLECTION ASSEMBLED BY</value>
+    <comment>Right-hand panel heading over who made a collection. Steam's words, upper case in its design.</comment>
+  </data>
+  <data name="Collection_ItemsLabel" xml:space="preserve">
+    <value>Items</value>
+    <comment>Beside how many items a collection has, in the right-hand panel. Steam's word.</comment>
+  </data>
+  <data name="Author_WorkshopItems" xml:space="preserve">
+    <value>Workshop Items</value>
+    <comment>An author's page: the tab of their items, and in the header after their name. Steam's words.</comment>
+  </data>
+  <data name="Author_TabCollections" xml:space="preserve">
+    <value>Collections</value>
+    <comment>An author's page: the tab of their public collections. Steam's word.</comment>
+  </data>
+  <data name="Author_Followers" xml:space="preserve">
+    <value>Followers</value>
+    <comment>An author's page: under how many follow them on sp-mod.com. Steam's word.</comment>
+  </data>
+  <data name="Author_MemberSinceFormat" xml:space="preserve">
+    <value>Member since {0:MMM d, yyyy}</value>
+    <comment>An author's page: when they joined sp-mod.com. sp-mod.com's words. {0} is the date.</comment>
+  </data>
+  <data name="Author_Staff" xml:space="preserve">
+    <value>Staff</value>
+    <comment>An author's page: sp-mod.com's badge for its staff.</comment>
+  </data>
+  <data name="Author_ShowingFormat" xml:space="preserve">
+    <value>Showing {0}-{1} of {2} entries</value>
+    <comment>The bar over an author's items, in Steam's words. {0} and {1} are the first and last shown, {2} how many there are.</comment>
+  </data>
+  <data name="Author_NoItemsFormat" xml:space="preserve">
+    <value>The catalog has no items by {0}.</value>
+    <comment>An author's page with no items. {0} is the author.</comment>
+  </data>
+  <data name="Author_NoCollections" xml:space="preserve">
+    <value>No public collections.</value>
+    <comment>An author's Collections tab when they have none.</comment>
+  </data>
+  <data name="Author_Reading" xml:space="preserve">
+    <value>Reading their page on sp-mod.com...</value>
+    <comment>An author's page while their followers and collections are read.</comment>
+  </data>
+  <data name="Author_PageNotFound" xml:space="preserve">
+    <value>Their page on sp-mod.com could not be found.</value>
+    <comment>An author's page when sp-mod.com has no page for their id.</comment>
+  </data>
+  <data name="Author_PageFailedFormat" xml:space="preserve">
+    <value>Their page on sp-mod.com could not be read: {0}</value>
+    <comment>An author's page when reading it failed. {0} is why.</comment>
+  </data>
+  <data name="Author_NoPage" xml:space="preserve">
+    <value>Their sp-mod.com page is not known here, so only their items are shown.</value>
+    <comment>An author's page opened by a name the catalog has no id for.</comment>
+  </data>
+  <data name="Author_SubscribedToolTip" xml:space="preserve">
+    <value>Subscribed</value>
+    <comment>Tooltip on the tick over an item on an author's page that is installed. Steam's word.</comment>
+  </data>
+  <data name="Author_CollectionByFormat" xml:space="preserve">
+    <value>Collection by {0}</value>
+    <comment>Under a collection's title on an author's page. Steam's words. {0} is who made it.</comment>
+  </data>
+  <data name="Author_SearchInBrowse" xml:space="preserve">
+    <value>Search their items in Browse</value>
+    <comment>Link on an author's page: Browse, searching by this author, with its filters and sorts.</comment>
+  </data>
+  <data name="Author_SearchInBrowseToolTip" xml:space="preserve">
+    <value>Browse with @name: every filter and sort order over their items</value>
+    <comment>Tooltip on that link.</comment>
+  </data>
+  <data name="Author_ViewOnSiteToolTip" xml:space="preserve">
+    <value>Open their page on sp-mod.com</value>
+    <comment>Tooltip on View on sp-mod.com on an author's page.</comment>
   </data>
 </root>

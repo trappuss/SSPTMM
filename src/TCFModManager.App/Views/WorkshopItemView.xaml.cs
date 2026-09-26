@@ -4,8 +4,6 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
-using Microsoft.Web.WebView2.Core;
-using Microsoft.Web.WebView2.Wpf;
 using TCFModManager.App.Services;
 using TCFModManager.App.ViewModels;
 using TCFModManager.Core.Services;
@@ -26,14 +24,15 @@ public partial class WorkshopItemView : UserControl
 
     private WorkshopItemViewModel? _viewModel;
 
-    // sp-mod.com's comments, created the first time the Comments tab is opened and reused after.
-    private WebView2? _comments;
+    // The Comments tab's web view.
+    private readonly SpModComments _commentsView;
 
     public WorkshopItemView()
     {
         InitializeComponent();
 
-        Scroll.SizeChanged += (_, _) => SizeComments();
+        _commentsView = new SpModComments(Scroll, CommentsHost, CommentsOff, CommentsFallback,
+            () => _viewModel is { IsCommentsShown: true } shown ? shown.CommentsUrl : null);
 
         // The mouse's back button, anywhere on the page.
         MouseUp += (_, e) =>
@@ -46,9 +45,24 @@ public partial class WorkshopItemView : UserControl
 
     public void Show(ModDetailsRequest request)
     {
+        // Over the item on screen, Esc comes back to it; opened afresh (or again after being hidden
+        // under another page), there is nothing to come back to.
         if (IsVisible && _current is not null) _history.Push(_current);
+        else _history.Clear();
 
         Open(request);
+    }
+
+    /// <summary>Hides the open item while something opened from it is over it.</summary>
+    public void Hide() => Visibility = Visibility.Collapsed;
+
+    /// <summary>Shows the open item again, as it was.</summary>
+    public void Reveal()
+    {
+        if (_current is null) return;
+
+        Visibility = Visibility.Visible;
+        Focus();
     }
 
     public void Close()
@@ -176,193 +190,13 @@ public partial class WorkshopItemView : UserControl
 
     // ---------------------------------------------------------------- comments
 
-    //
-    // The comments are sp-mod.com's own, in a web view: the site loads them with its own scripts
-    // and there is no API for them, so this shows the real thing rather than a copy that could not
-    // post and would break whenever the site changed. Everything on the page but the comments is
-    // hidden once it has loaded.
-    //
-    // A web view is a window of its own laid over the app, which a scrolling page cannot clip, so
-    // on this tab the page stops scrolling and the comments fill the space under the tabs.
-    //
-    private async Task ShowCommentsAsync()
-    {
-        if (_viewModel?.CommentsUrl is not { } url) return;
+    // sp-mod.com's comments for this item, in a web view - see SpModComments.
+    private Task ShowCommentsAsync() => _commentsView.ShowAsync();
 
-        Scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Disabled;
-
-        if (!WebViews.IsAvailable)
-        {
-            ShowCommentsFallback();
-            return;
-        }
-
-        if (_comments is null)
-        {
-            _comments = new WebView2 { DefaultBackgroundColor = System.Drawing.Color.FromArgb(0x1B, 0x28, 0x38) };
-            CommentsHost.Child = _comments;
-
-            var started = await WebViews.InitializeAsync(_comments);
-            if (!started)
-            {
-                CommentsHost.Child = null;
-                _comments = null;
-                if (StillWants(url)) ShowCommentsFallback();
-                return;
-            }
-
-            var core = _comments.CoreWebView2;
-            core.NewWindowRequested += (_, e) =>
-            {
-                e.Handled = true;
-                MarkupActions.OpenInBrowser(e.Uri);
-            };
-            core.NavigationStarting += (_, e) =>
-            {
-                if (Uri.TryCreate(e.Uri, UriKind.Absolute, out var uri) && !WebViews.IsSpModPage(uri) && uri.Scheme != "about")
-                {
-                    e.Cancel = true;
-                    MarkupActions.OpenInBrowser(e.Uri);
-                }
-            };
-            core.DOMContentLoaded += async (_, _) =>
-            {
-                try
-                {
-                    var result = await core.ExecuteScriptAsync(CommentsOnlyScript);
-
-                    // The mod's own page with no comments section: say so, rather than showing the
-                    // whole page under a Comments tab - now and on every later visit to the tab,
-                    // when the page is not loaded again. Only the page asked for counts (matched
-                    // by mod id, so a redirect to a new slug still does); any other page - the
-                    // sign-in page, another mod followed from a link - is left as it is.
-                    if (result == "\"none\"" && _requestedComments is { } requested
-                        && SpModModId(core.Source) is { } shown && shown == SpModModId(requested))
-                    {
-                        _noComments.Add(requested);
-                        if (StillWants(requested)) ShowCommentsOff();
-                    }
-                }
-                catch (Exception ex) when (ex is InvalidOperationException or System.Runtime.InteropServices.COMException)
-                {
-                    AppLog.Debug("Comments", $"could not trim the page: {ex.Message}");
-                }
-            };
-        }
-
-        // The first start of the web view takes a moment, in which another item may have been
-        // opened or another tab chosen: these comments are then no longer wanted.
-        if (!StillWants(url)) return;
-
-        if (_noComments.Contains(url))
-        {
-            ShowCommentsOff();
-            return;
-        }
-
-        CommentsFallback.Visibility = Visibility.Collapsed;
-        CommentsOff.Visibility = Visibility.Collapsed;
-        CommentsHost.Visibility = Visibility.Visible;
-        SizeComments();
-
-        if (_comments.CoreWebView2 is { } web && !string.Equals(web.Source, url, StringComparison.OrdinalIgnoreCase))
-        {
-            _requestedComments = url;
-            web.Navigate(url);
-        }
-    }
-
-    // The comments page last asked for, and those found to have no comments section this session.
-    private string? _requestedComments;
-    private readonly HashSet<string> _noComments = new(StringComparer.OrdinalIgnoreCase);
-
-    // "791" from https://sp-mod.com/mod/791/sain...#comments; null for any other page.
-    private static string? SpModModId(string? url)
-    {
-        if (!Uri.TryCreate(url, UriKind.Absolute, out var uri)) return null;
-
-        var match = System.Text.RegularExpressions.Regex.Match(uri.AbsolutePath, @"^/mod/(\d+)(/|$)");
-        return match.Success ? match.Groups[1].Value : null;
-    }
-
-    private bool StillWants(string url) =>
-        _viewModel is { IsCommentsShown: true } current
-        && string.Equals(current.CommentsUrl, url, StringComparison.OrdinalIgnoreCase);
-
-    private void ShowCommentsFallback()
-    {
-        CommentsHost.Visibility = Visibility.Collapsed;
-        CommentsOff.Visibility = Visibility.Collapsed;
-        CommentsFallback.Visibility = Visibility.Visible;
-    }
-
-    private void ShowCommentsOff()
-    {
-        CommentsHost.Visibility = Visibility.Collapsed;
-        CommentsFallback.Visibility = Visibility.Collapsed;
-        CommentsOff.Visibility = Visibility.Visible;
-        Scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
-    }
-
-    private void HideComments()
-    {
-        CommentsHost.Visibility = Visibility.Collapsed;
-        CommentsFallback.Visibility = Visibility.Collapsed;
-        CommentsOff.Visibility = Visibility.Collapsed;
-        Scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
-    }
-
-    // Down to the bottom of the page area, from wherever the comments start.
-    private void SizeComments()
-    {
-        if (CommentsHost.Visibility != Visibility.Visible || !IsLoaded) return;
-
-        Dispatcher.BeginInvoke(() =>
-        {
-            if (CommentsHost.Visibility != Visibility.Visible) return;
-            var top = CommentsHost.TranslatePoint(new Point(0, 0), Scroll).Y;
-            CommentsHost.Height = Math.Max(200, Scroll.ActualHeight - top - 24);
-        }, System.Windows.Threading.DispatcherPriority.Loaded);
-    }
+    private void HideComments() => _commentsView.Hide();
 
     private void OpenComments_Click(object sender, RoutedEventArgs e)
     {
         if (_viewModel?.CommentsUrl is { } url) MarkupActions.OpenInBrowser(url);
     }
-
-    //
-    // Keeps the comments and nothing else. From the comments section up to the page body, every
-    // other element beside the path is hidden (hidden, not removed: the site's own scripts keep
-    // working on them) and each container on the path is told to use the full width. Colours
-    // are moved to the Workshop page's own. A page with no comments section answers "none", and
-    // the tab then says so instead of showing it (SAIN's has none; sp-mod.com then shows no
-    // Comments tab at all).
-    //
-    private const string CommentsOnlyScript = """
-        (() => {
-          const comments = document.getElementById('comments');
-          if (!comments) return 'none';
-          let node = comments;
-          while (node && node !== document.body) {
-            const parent = node.parentElement;
-            if (!parent) break;
-            for (const sibling of parent.children) {
-              if (sibling !== node && !['SCRIPT', 'STYLE', 'LINK', 'TEMPLATE'].includes(sibling.tagName)) sibling.style.display = 'none';
-            }
-            parent.style.maxWidth = 'none';
-            parent.style.width = '100%';
-            parent.style.margin = '0';
-            parent.style.padding = '0';
-            parent.style.gridColumn = '1 / -1';
-            parent.style.background = 'transparent';
-            node = parent;
-          }
-          comments.style.display = '';
-          const style = document.createElement('style');
-          style.textContent = 'html, body { background: #1B2838 !important; } body { padding: 0 4px 16px !important; }';
-          document.head.appendChild(style);
-          window.scrollTo(0, 0);
-          return 'shown';
-        })();
-        """;
 }

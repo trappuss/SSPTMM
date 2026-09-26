@@ -470,14 +470,11 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel, IModActi
         if (item is not null) await OpenAsync(item.Mod);
     }
 
-    // A name under CREATED BY: everything by them, in Browse.
+    // A name under CREATED BY: their Workshop page.
     [RelayCommand]
     private void OpenAuthor(WorkshopAuthor? author)
     {
-        if (author is null) return;
-
-        AppServices.Browse.ShowSearch("@" + author.Name);
-        AppNavigation.Navigate(typeof(BrowsePage));
+        if (author is not null) ModActions.ShowAuthor(author.Name, author.Id);
     }
 
     public int Downloads => Mod.Downloads ?? 0;
@@ -957,13 +954,10 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel, IModActi
         if (await AppServices.Browse.LoadDetailsAsync(mod) is { } failed) Message = failed;
     }
 
-    // The last breadcrumb: everything by this author, in Browse.
+    // The last breadcrumb: this author's Workshop page.
     [RelayCommand]
     private void OpenAuthorsWorkshop()
     {
-        if (Author is not { } author) return;
-
-        AppServices.Browse.ShowSearch("@" + author);
-        AppNavigation.Navigate(typeof(BrowsePage));
+        if (Author is { } author) ModActions.ShowAuthor(author, Mod.Owner?.Id);
     }
 }

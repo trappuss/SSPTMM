@@ -193,6 +193,6 @@ public sealed partial class QuickViewViewModel : LocalizedViewModel, IModActionH
         if (Listing.Owner?.Name is not { } author) return;
 
         Leaving?.Invoke(this, EventArgs.Empty);
-        ModActions.ShowAuthor(author);
+        ModActions.ShowAuthor(author, Listing.Owner.Id);
     }
 }

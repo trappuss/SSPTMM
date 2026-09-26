@@ -91,12 +91,12 @@ public static class ModActions
         if (HasPage(mod)) MarkupActions.OpenInBrowser(mod.DetailUrl!);
     }
 
-    // Everything by this author, in Browse - the item page's last breadcrumb.
-    public static void ShowAuthor(string author)
+    // An author's Workshop page: their items, their collections, Follow. With their sp-mod.com id
+    // when the caller has it; by name - looked up in the catalog - otherwise.
+    public static void ShowAuthor(string author, int? id = null)
     {
         if (string.IsNullOrWhiteSpace(author)) return;
 
-        AppServices.Browse.ShowSearch("@" + author);
-        AppNavigation.Navigate(typeof(BrowsePage));
+        AppServices.AuthorOverlay.Show(new AuthorRequest(id is > 0 ? id : null, author.Trim()));
     }
 }

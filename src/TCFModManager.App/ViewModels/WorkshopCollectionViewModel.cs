@@ -83,6 +83,9 @@ public sealed partial class WorkshopCollectionItem : ObservableObject
 
     public string? Author => Mod?.Owner?.Name ?? _author;
 
+    // Their sp-mod.com id, when the catalog has the item.
+    public int? AuthorId => Mod?.Owner?.Id is > 0 ? Mod.Owner.Id : null;
+
     public string? Teaser => Mod?.Teaser;
 
     public string? Thumbnail => Mod?.Thumbnail ?? _thumbnail;
@@ -203,6 +206,7 @@ public sealed partial class WorkshopCollectionViewModel : LocalizedViewModel, IM
 
         PostedText = SteamDates.Short(list.CreatedAt);
         UpdatedText = SteamDates.Short(list.UpdatedAt);
+        LocalDescription = string.IsNullOrWhiteSpace(list.Description) ? null : list.Description.Trim();
 
         Finish();
     }
@@ -230,8 +234,10 @@ public sealed partial class WorkshopCollectionViewModel : LocalizedViewModel, IM
         OnPropertyChanged(nameof(Authors));
         OnPropertyChanged(nameof(HasAuthors));
         OnPropertyChanged(nameof(ItemsCount));
+        OnPropertyChanged(nameof(ItemsNumber));
         OnPropertyChanged(nameof(CreatedByTitle));
         OnPropertyChanged(nameof(IsEmpty));
+        BuildHeaderArt();
 
         RefreshInstallState();
         if (!IsPublic) AppServices.Browse.InstalledIndexChanged += OnInstalledIndexChanged;
@@ -296,16 +302,29 @@ public sealed partial class WorkshopCollectionViewModel : LocalizedViewModel, IM
     // Everything under the header: always for a stored collection, once read for a public one.
     public bool HasContent => !IsPublic || Details is not null;
 
+    // A public collection read from sp-mod.com: it has a Comments tab and a Share button.
+    public bool HasContentPublic => IsPublic && Details is not null;
+
     private void Show(SpModListDetails details)
     {
         Details = details;
         OnPropertyChanged(nameof(HasContent));
+        OnPropertyChanged(nameof(HasContentPublic));
+        OnPropertyChanged(nameof(ShowsDescriptionTab));
+        OnPropertyChanged(nameof(CommentsUrl));
         Name = details.Title;
         ListAuthor = details.Author;
         ListSpt = details.SptVersion;
         DescriptionHtml = details.DescriptionHtml;
         Cover = details.Cover;
         UpdatedText = details.UpdatedAt is { } updated ? SteamDates.Short(updated) : null;
+        AppServices.CollectionDetails.Remember(details);
+
+        // Who made it, with their picture: from the catalog when they have mods there, otherwise
+        // from their own page.
+        ListAuthorId = SpModListAddress.UserId(details.AuthorUrl);
+        ListAuthorAvatar = (ListAuthorId is { } authorId ? AppServices.Authors.FindById(authorId) : AppServices.Authors.FindByName(details.Author))?.Avatar;
+        if (ListAuthorAvatar is null && ListAuthorId is { } lookUp) _ = LoadAuthorAvatarAsync(lookUp);
 
         var catalog = PublicCollections.CatalogById();
 
@@ -396,6 +415,125 @@ public sealed partial class WorkshopCollectionViewModel : LocalizedViewModel, IM
 
     public bool IsPublic { get; }
 
+    private async Task LoadAuthorAvatarAsync(int id)
+    {
+        try
+        {
+            var page = await AppServices.Authors.GetPageAsync(id);
+            if (page is null) AppServices.Authors.Forget(id);
+            else if (page.Profile.Avatar is { } avatar) ListAuthorAvatar = avatar;
+        }
+        catch (Exception ex)
+        {
+            // Only a picture: whatever went wrong, the page goes on without it.
+            AppServices.Authors.Forget(id);
+            AppLog.Debug("Collections", $"member {id}'s picture: {ex.Message}");
+        }
+    }
+
+    [ObservableProperty]
+    private int? _listAuthorId;
+
+    [ObservableProperty]
+    private string? _listAuthorAvatar;
+
+    // ------------------------------------------------------------------ header art
+
+    //
+    // Steam's collection page stands on a picture 948px wide and 470px high, under the title bar. A
+    // list's own picture where its author gave it one; otherwise the collection shown by what is in
+    // it rather than a picture made up: eighteen of its items' pictures, six across and three down,
+    // when it has that many different ones - or, with fewer, its first item's picture across the
+    // whole header (repeating three pictures six times over looked like wallpaper).
+    //
+    private const int HeaderTiles = 18;
+
+    public ObservableCollection<string> HeaderPictures { get; } = [];
+
+    // The first item's picture, when there are too few for the tiles and no picture of its own.
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HeaderImage))]
+    [NotifyPropertyChangedFor(nameof(HasHeaderArt))]
+    private string? _firstPicture;
+
+    // The one picture across the header: the list's own, or its first item's.
+    public string? HeaderImage => Cover ?? (HeaderPictures.Count > 0 ? null : FirstPicture);
+
+    public bool HasHeaderArt => HeaderImage is not null || HeaderPictures.Count > 0;
+
+    public bool HasHeaderTiles => Cover is null && HeaderPictures.Count > 0;
+
+    private void BuildHeaderArt()
+    {
+        HeaderPictures.Clear();
+
+        var pictures = Items.Select(i => i.Thumbnail).Where(t => !string.IsNullOrWhiteSpace(t)).Distinct().ToList();
+        if (pictures.Count >= HeaderTiles)
+        {
+            foreach (var picture in pictures.Take(HeaderTiles)) HeaderPictures.Add(picture!);
+        }
+
+        FirstPicture = pictures.FirstOrDefault();
+        OnPropertyChanged(nameof(HeaderImage));
+        OnPropertyChanged(nameof(HasHeaderArt));
+        OnPropertyChanged(nameof(HasHeaderTiles));
+    }
+
+    partial void OnCoverChanged(string? value)
+    {
+        OnPropertyChanged(nameof(HeaderImage));
+        OnPropertyChanged(nameof(HasHeaderArt));
+        OnPropertyChanged(nameof(HasHeaderTiles));
+    }
+
+    // ------------------------------------------------------------------ tabs
+
+    // Description, or - for a public collection - its comments on sp-mod.com.
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsDescriptionShown))]
+    [NotifyPropertyChangedFor(nameof(ShowsDescriptionTab))]
+    private bool _isCommentsShown;
+
+    public bool IsDescriptionShown => !IsCommentsShown;
+
+    // The Description tab's columns: on that tab, once there is something to put in them.
+    public bool ShowsDescriptionTab => IsDescriptionShown && HasContent;
+
+    public string? CommentsUrl => Details is null ? null : Details.Url + "#comments";
+
+    [RelayCommand]
+    private void ShowDescription() => IsCommentsShown = false;
+
+    [RelayCommand]
+    private void ShowComments()
+    {
+        if (IsPublic) IsCommentsShown = true;
+    }
+
+    // A collection of this install's own: its description as written on the Collections page.
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasDescription))]
+    private string? _localDescription;
+
+    public bool HasDescription => DescriptionHtml is not null || LocalDescription is not null;
+
+    // Steam's Share: the collection's address, to paste anywhere.
+    [RelayCommand]
+    private void CopyLink()
+    {
+        if (Details is null) return;
+
+        try
+        {
+            System.Windows.Clipboard.SetText(Details.Url);
+            Message = Strings.Item_LinkCopied;
+        }
+        catch (System.Runtime.InteropServices.COMException ex)
+        {
+            AppLog.Debug("Collections", $"link not copied: {ex.Message}");
+        }
+    }
+
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsEmpty))]
     private bool _isLoading;
@@ -429,6 +567,7 @@ public sealed partial class WorkshopCollectionViewModel : LocalizedViewModel, IM
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(DescriptionIsLong))]
+    [NotifyPropertyChangedFor(nameof(HasDescription))]
     private string? _descriptionHtml;
 
     // Long enough to push the items off the first screen - a rough measure, of the page's HTML.
@@ -467,6 +606,9 @@ public sealed partial class WorkshopCollectionViewModel : LocalizedViewModel, IM
     public string ItemsTitle => Strings.Collection_ItemsHeader;
 
     public string ItemsCount => LocalizationService.Text(Strings.Collection_ItemsCountFormat, Items.Count);
+
+    // The figure beside "Items" in the panel's stats, as Steam writes it: 1,234.
+    public string ItemsNumber => Items.Count.ToString("N0", System.Globalization.CultureInfo.CurrentCulture);
 
     public string CreatedByTitle => Strings.Collection_CreatedBy(Items.Count, Items.Count);
 
@@ -530,10 +672,18 @@ public sealed partial class WorkshopCollectionViewModel : LocalizedViewModel, IM
         if (said is not null) Message = said;
     }
 
+    // An author chip in the right-hand panel: their Workshop page.
     [RelayCommand]
     private static void OpenAuthor(string? author)
     {
         if (author is not null) ModActions.ShowAuthor(author);
+    }
+
+    // The name after an item's "Created by": their Workshop page.
+    [RelayCommand]
+    private static void OpenItemAuthor(WorkshopCollectionItem? item)
+    {
+        if (item?.Author is { } author) ModActions.ShowAuthor(author, item.AuthorId);
     }
 
     // The public collection's own page, and its author's.
@@ -543,10 +693,11 @@ public sealed partial class WorkshopCollectionViewModel : LocalizedViewModel, IM
         if (Details is not null) MarkupActions.OpenInBrowser(Details.Url);
     }
 
+    // Who made a public collection: their Workshop page, here.
     [RelayCommand]
     private void OpenListAuthor()
     {
-        if (Details?.AuthorUrl is { } url) MarkupActions.OpenInBrowser(url);
+        if (ListAuthor is { } name) ModActions.ShowAuthor(name, ListAuthorId);
     }
 
     // The last breadcrumb of a public collection: back to browsing them.

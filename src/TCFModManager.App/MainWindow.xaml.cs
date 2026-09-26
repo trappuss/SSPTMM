@@ -33,9 +33,10 @@ public partial class MainWindow : FluentWindow
         AppNavigation.CloseItemPageRequested += (_, _) =>
         {
             QuickView.Close();
-            // The collection first, so the item page closing does not bring it back.
-            _collectionUnderItem = false;
+            // Forgotten first, so no page closing brings another back.
+            _under.Clear();
             CollectionPage.Close();
+            AuthorPage.Close();
             ItemPage.Close();
         };
 
@@ -61,15 +62,7 @@ public partial class MainWindow : FluentWindow
         // A mod opened from anywhere opens as its Workshop item page, over the page it came from.
         AppServices.ModDetailsOverlay.Requested += (_, request) =>
         {
-            QuickView.Close();
-
-            // An item opened from a collection's page goes over it; closing the item brings it back.
-            if (CollectionPage.Visibility == Visibility.Visible)
-            {
-                _collectionUnderItem = true;
-                CollectionPage.Hide();
-            }
-
+            Cover(ItemPage);
             ItemPage.Show(request);
             PerfProbe.ItemPage(opened: true);
         };
@@ -77,27 +70,31 @@ public partial class MainWindow : FluentWindow
         ItemPage.Closed += (_, _) =>
         {
             PerfProbe.ItemPage(opened: false);
-
-            if (!_collectionUnderItem) return;
-
-            _collectionUnderItem = false;
-            CollectionPage.Reveal();
+            Uncover(ItemPage);
         };
 
         AppServices.QuickView.Requested += (_, request) => QuickView.Show(request);
 
-        // A collection opened from anywhere opens as its Workshop page, over the page it came from -
-        // and over an item page it was opened from, which then closes.
+        // A collection opened from anywhere opens as its Workshop page, over the page it came from.
         AppServices.CollectionOverlay.Requested += (_, request) =>
         {
             // A list deleted since the link was drawn opens nothing, and leaves the page as it was.
             if (!request.IsPublic && (request.ListId is not { } listId || AppServices.ModLists.Find(listId) is null)) return;
 
-            QuickView.Close();
-            _collectionUnderItem = false;
-            ItemPage.Close();
+            Cover(CollectionPage);
             CollectionPage.Show(request);
         };
+
+        CollectionPage.Closed += (_, _) => Uncover(CollectionPage);
+
+        // An author opened from anywhere opens as their Workshop page, the same way.
+        AppServices.AuthorOverlay.Requested += (_, request) =>
+        {
+            Cover(AuthorPage);
+            AuthorPage.Show(request);
+        };
+
+        AuthorPage.Closed += (_, _) => Uncover(AuthorPage);
 
         // Constructs and shows the mod update dialog, awaitable so callers know when it closes.
         AppServices.ModUpdateOverlay.ShowAsync = async mod =>
@@ -117,8 +114,58 @@ public partial class MainWindow : FluentWindow
         };
     }
 
-    // True while an item page opened from a collection's page is over it.
-    private bool _collectionUnderItem;
+    // ------------------------------------------------------------------ the Workshop pages over the page area
+
+    //
+    // A collection, an author and an item each have a page over the page area. One is on screen at a
+    // time; the ones it was opened from wait hidden underneath, most recent last, and closing the
+    // one on top brings back the one under it - an item opened from an author opened from a
+    // collection walks back through all three. Opening one that is waiting underneath takes it out
+    // from there: it now shows something new.
+    //
+    private readonly List<FrameworkElement> _under = [];
+
+    private FrameworkElement? TopPage =>
+        new FrameworkElement[] { ItemPage, AuthorPage, CollectionPage }.FirstOrDefault(p => p.Visibility == Visibility.Visible);
+
+    private void Cover(FrameworkElement next)
+    {
+        QuickView.Close();
+        _under.Remove(next);
+
+        if (TopPage is not { } top || ReferenceEquals(top, next)) return;
+
+        HidePage(top);
+        _under.Add(top);
+    }
+
+    // After `closed` has closed: the page under it, if nothing else is on screen. One that has
+    // nothing left to show is passed over for the one under it.
+    private void Uncover(FrameworkElement closed)
+    {
+        _under.Remove(closed);
+
+        while (TopPage is null && _under.Count > 0)
+        {
+            var previous = _under[^1];
+            _under.RemoveAt(_under.Count - 1);
+            RevealPage(previous);
+        }
+    }
+
+    private void HidePage(FrameworkElement page)
+    {
+        if (ReferenceEquals(page, ItemPage)) ItemPage.Hide();
+        else if (ReferenceEquals(page, AuthorPage)) AuthorPage.Hide();
+        else CollectionPage.Hide();
+    }
+
+    private void RevealPage(FrameworkElement page)
+    {
+        if (ReferenceEquals(page, ItemPage)) ItemPage.Reveal();
+        else if (ReferenceEquals(page, AuthorPage)) AuthorPage.Reveal();
+        else CollectionPage.Reveal();
+    }
 
     // How many SteamDialogs are open over this window; the backdrop shows while any is.
     private int _modalDims;

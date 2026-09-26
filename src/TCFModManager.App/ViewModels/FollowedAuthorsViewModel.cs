@@ -44,7 +44,7 @@ public sealed partial class FollowedAuthorRow : ObservableObject
     private void ToggleFollow() => IsFollowing = AppServices.Followed.Set(Id, Name, !IsFollowing);
 
     [RelayCommand]
-    private void OpenItems() => ModActions.ShowAuthor(Name);
+    private void OpenItems() => ModActions.ShowAuthor(Name, Id);
 }
 
 //

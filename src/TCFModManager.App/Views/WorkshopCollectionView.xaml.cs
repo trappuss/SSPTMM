@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using TCFModManager.App.Services;
 using TCFModManager.App.ViewModels;
 
 namespace TCFModManager.App.Views;
@@ -14,9 +15,15 @@ public partial class WorkshopCollectionView : UserControl
 {
     private WorkshopCollectionViewModel? _viewModel;
 
+    // The Comments tab's web view - see SpModComments.
+    private readonly SpModComments _comments;
+
     public WorkshopCollectionView()
     {
         InitializeComponent();
+
+        _comments = new SpModComments(Scroll, CommentsHost, CommentsOff, CommentsFallback,
+            () => _viewModel is { IsCommentsShown: true } shown ? shown.CommentsUrl : null);
 
         // The mouse's back button, anywhere on the page.
         MouseUp += (_, e) =>
@@ -52,9 +59,7 @@ public partial class WorkshopCollectionView : UserControl
             return false;
         }
 
-        _viewModel?.Detach();
-        _viewModel = viewModel;
-        DataContext = _viewModel;
+        Attach(viewModel);
 
         Reveal();
         Scroll.ScrollToTop();
@@ -71,10 +76,32 @@ public partial class WorkshopCollectionView : UserControl
 
         if (viewModel.List is { } stored && viewModel.LoadFailed is { } why)
         {
-            viewModel.Detach();
-            _viewModel = new WorkshopCollectionViewModel(stored) { Message = why };
-            DataContext = _viewModel;
+            Attach(new WorkshopCollectionViewModel(stored) { Message = why });
         }
+    }
+
+    private void Attach(WorkshopCollectionViewModel? viewModel)
+    {
+        if (_viewModel is not null)
+        {
+            _viewModel.PropertyChanged -= OnViewModelChanged;
+            _viewModel.Detach();
+        }
+
+        _viewModel = viewModel;
+        if (viewModel is not null) viewModel.PropertyChanged += OnViewModelChanged;
+        DataContext = viewModel;
+        _comments.Hide();
+    }
+
+    // A tab switch is a new page on Steam; start it at the top.
+    private void OnViewModelChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName != nameof(WorkshopCollectionViewModel.IsCommentsShown)) return;
+
+        Scroll.ScrollToTop();
+        if (_viewModel?.IsCommentsShown == true) _ = _comments.ShowAsync();
+        else _comments.Hide();
     }
 
     /// <summary>Shows the open collection again, as it was.</summary>
@@ -93,11 +120,16 @@ public partial class WorkshopCollectionView : UserControl
 
     public void Close()
     {
-        _viewModel?.Detach();
-        _viewModel = null;
-        DataContext = null;
+        var wasOpen = _viewModel is not null;
+
+        Attach(null);
         Visibility = Visibility.Collapsed;
+
+        if (wasOpen) Closed?.Invoke(this, EventArgs.Empty);
     }
+
+    /// <summary>Raised when the page closes - whatever it was opened over comes back.</summary>
+    public event EventHandler? Closed;
 
     private void View_KeyDown(object sender, KeyEventArgs e)
     {
@@ -112,9 +144,18 @@ public partial class WorkshopCollectionView : UserControl
     // The first two breadcrumbs lead back to the page this was opened over.
     private void Close_Click(object sender, RoutedEventArgs e) => Close();
 
+    private void OpenComments_Click(object sender, RoutedEventArgs e)
+    {
+        if (_viewModel?.CommentsUrl is { } url) MarkupActions.OpenInBrowser(url);
+    }
+
     private void Item_Click(object sender, MouseButtonEventArgs e)
     {
         if ((sender as FrameworkElement)?.DataContext is not WorkshopCollectionItem item) return;
+
+        // The author's name in the row is a link of its own.
+        if (e.OriginalSource is System.Windows.Documents.TextElement text
+            && (text is System.Windows.Documents.Hyperlink || text.Parent is System.Windows.Documents.Hyperlink)) return;
 
         e.Handled = true;
         _viewModel?.OpenItemCommand.Execute(item);

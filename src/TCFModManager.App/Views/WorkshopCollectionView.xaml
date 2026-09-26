@@ -13,8 +13,19 @@
     pointer. The right-hand panel: "A COLLECTION OF N ITEMS CREATED BY" and a chip per author (14px
     #66C0F4 on rgba(102,192,244,.4); white on #66C0F4 under the pointer), then Posted and Updated.
 
-    Steam's collections have a background picture, ratings and visitor counts; a mod list has none,
-    so the title bar stands on its own.
+    The rest measured again 2026-09-26 on a 235-item collection: Description / Comments tabs (14px,
+    3px #1A9FFF under the chosen one, 20px above and 12 below); the header 950x470 - the collection's
+    picture 948px wide with the title bar over its top; 25px down, two columns 645 and 295 apart by
+    10. Each left section starts with a 1px #35465E rule 7px down, then its heading 11px upper case
+    #61696D, the description 14px #ACB2B8 on 20px lines. The right panel: a gradient from
+    rgba(0,0,0,.2) to rgba(0,0,0,.5) left to right, 10 10 10 11 inside; "COLLECTION ASSEMBLED BY"
+    over a 44px rgba(84,133,183,.2) block with a 36px picture and the name 11px; then the numbers
+    13px, figure and label side by side.
+
+    Steam's header picture is one the collection's author uploads. A list here has one when its
+    author gave sp-mod.com one; otherwise its own items' pictures stand in, six by three - or, with
+    fewer than eighteen different ones, its first item's picture. Ratings,
+    visitors and favourites are Steam's and have nothing behind them on sp-mod.com: left out.
 -->
 <UserControl
     x:Class="TCFModManager.App.Views.WorkshopCollectionView"
@@ -136,13 +147,59 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <!-- An author's name in a row: #8F98A0, Steam's link blue under the pointer. -->
+        <Style x:Key="AuthorLink" TargetType="Hyperlink">
+            <Setter Property="Foreground" Value="#8F98A0" />
+            <Setter Property="TextDecorations" Value="{x:Null}" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="#66C0F4" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- A section's heading on the left: 11px upper case #61696D. -->
+        <Style x:Key="SectionHeading" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="Foreground" Value="#61696D" />
+        </Style>
+
+        <!-- A heading in the right-hand panel: 11px upper case #8F98A0. -->
+        <Style x:Key="PanelHeading" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="Foreground" Value="#8F98A0" />
+        </Style>
+
+        <!-- Steam's friendBlock: 44px on rgba(84,133,183,.2), 4 0 4 4 inside, the name #898989. -->
+        <Style x:Key="FriendBlock" TargetType="Button">
+            <Setter Property="Foreground" Value="#898989" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Block" Height="44" Padding="4,4,0,4" Background="#335485B7">
+                            <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Block" Property="Background" Value="#665485B7" />
+                                <Setter Property="Foreground" Value="White" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
 
     <Border Background="{StaticResource SteamLegacyBackground}">
         <ScrollViewer x:Name="Scroll" FocusVisualStyle="{x:Null}" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
             <StackPanel MaxWidth="950" Margin="24,20,24,40">
 
-                <!-- Breadcrumbs: SPT > Workshop > Your collections. -->
+                <!-- Breadcrumbs: SPT > Workshop > Your collections (or Collections > their Workshop). -->
                 <StackPanel Orientation="Horizontal" TextElement.FontSize="12" TextElement.Foreground="{StaticResource SteamTextDim}">
                     <Button Style="{StaticResource Crumb}" ToolTip="{loc:Str Item_CloseToolTip}" Click="Close_Click">
                         <TextBlock Text="{loc:Str Hub_Title}" />
@@ -158,57 +215,99 @@
                     <Button Style="{StaticResource Crumb}" Command="{Binding BrowseCollectionsCommand}" Visibility="{Binding IsPublic, Converter={StaticResource TrueToVisible}}">
                         <TextBlock Text="{loc:Str Collections_Breadcrumb}" />
                     </Button>
+                    <StackPanel Orientation="Horizontal" Visibility="{Binding HasListAuthor, Converter={StaticResource TrueToVisible}}">
+                        <Path Width="4" Height="7" Margin="6,1,6,0" VerticalAlignment="Center" Data="M0,0 L4,3.5 L0,7" Stretch="Fill" Stroke="{StaticResource SteamTextDim}" StrokeThickness="1" />
+                        <Button Style="{StaticResource Crumb}" Command="{Binding OpenListAuthorCommand}">
+                            <TextBlock Text="{Binding ListAuthor, StringFormat={loc:Str Item_AuthorsWorkshopFormat}}" />
+                        </Button>
+                    </StackPanel>
                 </StackPanel>
 
-                <!-- The title bar, then the control row. -->
-                <Border Height="75" Margin="0,10,0,0" Padding="16,16,16,0" Background="#CC1B1B1B">
-                    <DockPanel>
-                        <!-- A public collection's own picture, where its author gave it one. -->
-                        <Border
-                            Width="59"
-                            Height="59"
-                            Margin="-8,-8,14,0"
+                <!-- Description | Comments (a public collection's, on sp-mod.com). -->
+                <StackPanel Margin="0,20,0,12" Orientation="Horizontal">
+                    <ToggleButton Style="{StaticResource SteamSectionTab}" Command="{Binding ShowDescriptionCommand}" IsChecked="{Binding IsDescriptionShown, Mode=OneWay}">
+                        <TextBlock Text="{loc:Str Item_TabDescription}" />
+                    </ToggleButton>
+                    <ToggleButton
+                        Style="{StaticResource SteamSectionTab}"
+                        Command="{Binding ShowCommentsCommand}"
+                        IsChecked="{Binding IsCommentsShown, Mode=OneWay}"
+                        Visibility="{Binding HasContentPublic, Converter={StaticResource TrueToVisible}}">
+                        <TextBlock Text="{loc:Str Item_TabComments}" />
+                    </ToggleButton>
+                </StackPanel>
+
+                <!-- The header: the collection's picture, 948x470, with the title bar over its top. On the
+                     Comments tab the comments come straight under the tabs instead: a web view cannot
+                     scroll with the page, so it gets the height under them. -->
+                <Grid Visibility="{Binding IsDescriptionShown, Converter={StaticResource TrueToVisible}}">
+                    <Grid Height="470" Margin="0,0,2,0" ClipToBounds="True" Visibility="{Binding HasHeaderArt, Converter={StaticResource TrueToVisible}}">
+                        <Grid.CacheMode>
+                            <BitmapCache />
+                        </Grid.CacheMode>
+                        <Image
                             VerticalAlignment="Top"
-                            Background="Black"
-                            DockPanel.Dock="Left"
-                            Visibility="{Binding Cover, Converter={StaticResource NullToCollapsed}}">
-                            <Image Stretch="UniformToFill" behaviors:ThumbnailLoader.DecodeWidth="59" behaviors:ThumbnailLoader.Source="{Binding Cover}" />
-                        </Border>
-                        <TextBlock
-                            FontFamily="{StaticResource SteamFontLight}"
-                            FontWeight="Light"
-                            FontSize="30"
-                            Foreground="White"
-                            TextTrimming="CharacterEllipsis"
-                            Text="{Binding Name}" />
-                    </DockPanel>
-                </Border>
-                <Border Padding="6,6,1,6" Background="#CC2A3C53" BorderBrush="#233245" BorderThickness="0,1,0,0">
-                    <DockPanel>
-                        <!-- "For SPT 4.0.13": the version a public collection was made for. -->
-                        <TextBlock
-                            Margin="0,0,10,0"
-                            VerticalAlignment="Center"
-                            DockPanel.Dock="Right"
-                            FontSize="13"
-                            Foreground="#8F98A0"
-                            Text="{Binding ListSptText}"
-                            Visibility="{Binding ListSptText, Converter={StaticResource NullToCollapsed}}" />
-                        <WrapPanel>
-                            <Button Margin="0,0,5,0" Style="{StaticResource SteamGeneralButton}" Command="{Binding ManageCommand}" Visibility="{Binding CanManage, Converter={StaticResource TrueToVisible}}">
-                                <StackPanel Orientation="Horizontal">
-                                    <ui:SymbolIcon Margin="0,0,6,0" FontSize="14" Symbol="Edit16" />
-                                    <TextBlock Text="{loc:Str Collection_Manage}" />
-                                </StackPanel>
-                            </Button>
-                            <Button Margin="0" Style="{StaticResource SteamGeneralButton}" Command="{Binding OpenOnSiteCommand}" Visibility="{Binding IsPublic, Converter={StaticResource TrueToVisible}}" ToolTip="{loc:Str Collection_ViewOnSiteToolTip}">
-                                <StackPanel Orientation="Horizontal">
-                                    <ui:SymbolIcon Margin="0,0,6,0" FontSize="14" Symbol="Open16" />
-                                    <TextBlock Text="{loc:Str Collection_ViewOnSite}" />
-                                </StackPanel>
-                            </Button>
-                        </WrapPanel>
-                    </DockPanel>
+                            Stretch="UniformToFill"
+                            Visibility="{Binding HeaderImage, Converter={StaticResource NullToCollapsed}}"
+                            behaviors:ThumbnailLoader.DecodeWidth="948"
+                            behaviors:ThumbnailLoader.Source="{Binding HeaderImage}" />
+                        <ItemsControl Focusable="False" VerticalAlignment="Top" ItemsSource="{Binding HeaderPictures}" Visibility="{Binding HasHeaderTiles, Converter={StaticResource TrueToVisible}}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Columns="6" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Height="158" Background="Black">
+                                        <Image Stretch="UniformToFill" behaviors:ThumbnailLoader.DecodeWidth="158" behaviors:ThumbnailLoader.Source="{Binding}" />
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Grid>
+
+                    <Border Height="75" VerticalAlignment="Top" Padding="16,18,16,0" Background="#CC1B1B1B">
+                        <DockPanel>
+                            <!-- Where Steam's stars are: the SPT version a public collection was made for. -->
+                            <TextBlock
+                                Margin="12,6,4,0"
+                                VerticalAlignment="Top"
+                                DockPanel.Dock="Right"
+                                FontSize="13"
+                                Foreground="#8F98A0"
+                                Text="{Binding ListSptText}"
+                                Visibility="{Binding ListSptText, Converter={StaticResource NullToCollapsed}}" />
+                            <TextBlock
+                                FontFamily="{StaticResource SteamFontLight}"
+                                FontWeight="Light"
+                                FontSize="30"
+                                Foreground="White"
+                                TextTrimming="CharacterEllipsis"
+                                Text="{Binding Name}" />
+                        </DockPanel>
+                    </Border>
+                </Grid>
+
+                <!-- The control row: rgba(42,60,83,.8), a 1px #233245 top edge, 6 6 6 1 inside. -->
+                <Border Padding="6,6,1,6" Background="#CC2A3C53" BorderBrush="#233245" BorderThickness="0,1,0,0" Visibility="{Binding IsDescriptionShown, Converter={StaticResource TrueToVisible}}">
+                    <WrapPanel>
+                        <Button Margin="0,0,5,0" Style="{StaticResource SteamGeneralButton}" Command="{Binding ManageCommand}" Visibility="{Binding CanManage, Converter={StaticResource TrueToVisible}}">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Margin="0,0,6,0" FontSize="14" Symbol="Edit16" />
+                                <TextBlock Text="{loc:Str Collection_Manage}" />
+                            </StackPanel>
+                        </Button>
+                        <Button Margin="0,0,5,0" Style="{StaticResource SteamGeneralButton}" Command="{Binding CopyLinkCommand}" Visibility="{Binding IsPublic, Converter={StaticResource TrueToVisible}}" ToolTip="{loc:Str Collection_ShareToolTip}">
+                            <TextBlock Text="{loc:Str Collection_Share}" />
+                        </Button>
+                        <Button Margin="0" Style="{StaticResource SteamGeneralButton}" Command="{Binding OpenOnSiteCommand}" Visibility="{Binding IsPublic, Converter={StaticResource TrueToVisible}}" ToolTip="{loc:Str Collection_ViewOnSiteToolTip}">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Margin="0,0,6,0" FontSize="14" Symbol="Open16" />
+                                <TextBlock Text="{loc:Str Collection_ViewOnSite}" />
+                            </StackPanel>
+                        </Button>
+                    </WrapPanel>
                 </Border>
 
                 <TextBlock
@@ -233,75 +332,100 @@
                     </Button>
                 </StackPanel>
 
-                <!-- How much of it this install has: "12 of 96 subscribed · 3 can be updated". -->
-                <TextBlock
-                    Margin="0,14,0,0"
-                    FontSize="14"
-                    Foreground="#C6D4DF"
-                    TextWrapping="Wrap"
-                    Text="{Binding Summary}"
-                    Visibility="{Binding Summary, Converter={StaticResource NullToCollapsed}}" />
+                <!-- ============================================================ Comments tab -->
+                <StackPanel Margin="0,20,0,0" Visibility="{Binding IsCommentsShown, Converter={StaticResource TrueToVisible}}">
+                    <TextBlock Margin="0,0,0,8" FontSize="12" Foreground="{StaticResource SteamTextDim}" Text="{loc:Str Item_CommentsSignIn}" Visibility="{Binding Visibility, ElementName=CommentsHost}" />
+                    <Border x:Name="CommentsHost" Background="#1B2838" />
+                    <TextBlock x:Name="CommentsOff" Margin="0,20,0,0" HorizontalAlignment="Center" Foreground="{StaticResource SteamText}" Text="{loc:Str Item_CommentsNone}" Visibility="Collapsed" />
+                    <StackPanel x:Name="CommentsFallback" Margin="0,20,0,0" HorizontalAlignment="Center" Visibility="Collapsed">
+                        <TextBlock MaxWidth="520" Foreground="{StaticResource SteamText}" TextAlignment="Center" TextWrapping="Wrap" Text="{loc:Str Item_CommentsUnavailable}" />
+                        <Button Margin="0,12,0,0" HorizontalAlignment="Center" Style="{StaticResource SteamBlueButton}" Content="{loc:Str Item_CommentsOpen}" Click="OpenComments_Click" />
+                    </StackPanel>
+                </StackPanel>
 
-                <!-- The collection's description, exactly as its author wrote it - a long one folded
-                     to its first few lines until asked for, so the items are not pages down. -->
-                <RichTextBox
-                    Margin="0,14,0,0"
-                    Padding="0"
-                    ClipToBounds="True"
-                    Background="Transparent"
-                    BorderThickness="0"
-                    FontSize="14"
-                    Focusable="False"
-                    HorizontalScrollBarVisibility="Disabled"
-                    IsDocumentEnabled="True"
-                    IsReadOnly="True"
-                    VerticalScrollBarVisibility="Disabled"
-                    Visibility="{Binding DescriptionHtml, Converter={StaticResource NullToCollapsed}}"
-                    behaviors:HtmlText.Html="{Binding DescriptionHtml}">
-                    <RichTextBox.Resources>
-                        <SolidColorBrush x:Key="TextFillColorPrimaryBrush" Color="#ACB2B8" />
-                        <Style TargetType="Paragraph">
-                            <Setter Property="LineHeight" Value="20" />
-                        </Style>
-                    </RichTextBox.Resources>
-                    <RichTextBox.Style>
-                        <Style TargetType="RichTextBox" BasedOn="{StaticResource {x:Type RichTextBox}}">
-                            <Style.Triggers>
-                                <MultiDataTrigger>
-                                    <MultiDataTrigger.Conditions>
-                                        <Condition Binding="{Binding DescriptionIsLong}" Value="True" />
-                                        <Condition Binding="{Binding IsDescriptionOpen}" Value="False" />
-                                    </MultiDataTrigger.Conditions>
-                                    <Setter Property="MaxHeight" Value="220" />
-                                </MultiDataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </RichTextBox.Style>
-                </RichTextBox>
-                <Button
-                    Margin="0,6,0,0"
-                    HorizontalAlignment="Left"
-                    Style="{StaticResource SteamLinkButton}"
-                    Command="{Binding ToggleDescriptionCommand}"
-                    Visibility="{Binding DescriptionIsLong, Converter={StaticResource TrueToVisible}}">
-                    <TextBlock FontSize="13" Text="{Binding DescriptionToggleText}" />
-                </Button>
-
-                <Grid Margin="0,20,0,0" Visibility="{Binding HasContent, Converter={StaticResource TrueToVisible}}">
+                <!-- ============================================================ Description tab -->
+                <Grid Margin="0,25,0,0" Visibility="{Binding ShowsDescriptionTab, Converter={StaticResource TrueToVisible}}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="645*" />
                         <ColumnDefinition Width="10" />
                         <ColumnDefinition Width="295*" />
                     </Grid.ColumnDefinitions>
 
-                    <!-- The items. -->
                     <StackPanel Grid.Column="0">
-                        <TextBlock FontSize="11">
+                        <!-- DESCRIPTION: the collection's own words, exactly as its author wrote them - a
+                             long one folded to its first lines until asked for. -->
+                        <StackPanel Margin="0,0,0,20" Visibility="{Binding HasDescription, Converter={StaticResource TrueToVisible}}">
+                            <Rectangle Height="1" Margin="0,7,0,0" Fill="#35465E" />
+                            <TextBlock Margin="0,5,0,0" Style="{StaticResource SectionHeading}" Text="{loc:Str Collection_DescriptionHeader}" />
+                            <RichTextBox
+                                Margin="0,26,0,0"
+                                Padding="0"
+                                ClipToBounds="True"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                FontSize="14"
+                                Focusable="False"
+                                HorizontalScrollBarVisibility="Disabled"
+                                IsDocumentEnabled="True"
+                                IsReadOnly="True"
+                                VerticalScrollBarVisibility="Disabled"
+                                Visibility="{Binding DescriptionHtml, Converter={StaticResource NullToCollapsed}}"
+                                behaviors:HtmlText.Html="{Binding DescriptionHtml}">
+                                <RichTextBox.Resources>
+                                    <SolidColorBrush x:Key="TextFillColorPrimaryBrush" Color="#ACB2B8" />
+                                    <Style TargetType="Paragraph">
+                                        <Setter Property="LineHeight" Value="20" />
+                                    </Style>
+                                </RichTextBox.Resources>
+                                <RichTextBox.Style>
+                                    <Style TargetType="RichTextBox" BasedOn="{StaticResource {x:Type RichTextBox}}">
+                                        <Style.Triggers>
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding DescriptionIsLong}" Value="True" />
+                                                    <Condition Binding="{Binding IsDescriptionOpen}" Value="False" />
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter Property="MaxHeight" Value="220" />
+                                            </MultiDataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </RichTextBox.Style>
+                            </RichTextBox>
+                            <TextBlock
+                                Margin="0,26,0,0"
+                                FontSize="14"
+                                Foreground="#ACB2B8"
+                                LineHeight="20"
+                                TextWrapping="Wrap"
+                                Text="{Binding LocalDescription}"
+                                Visibility="{Binding LocalDescription, Converter={StaticResource NullToCollapsed}}" />
+                            <Button
+                                Margin="0,6,0,0"
+                                HorizontalAlignment="Left"
+                                Style="{StaticResource SteamLinkButton}"
+                                Command="{Binding ToggleDescriptionCommand}"
+                                Visibility="{Binding DescriptionIsLong, Converter={StaticResource TrueToVisible}}">
+                                <TextBlock FontSize="13" Text="{Binding DescriptionToggleText}" />
+                            </Button>
+                        </StackPanel>
+
+                        <!-- ITEMS (N), how much of it is here, the bar and the rows. -->
+                        <Rectangle Height="1" Margin="0,7,0,0" Fill="#35465E" />
+                        <TextBlock Margin="0,5,0,0" FontSize="11">
                             <Run Foreground="#61696D" Text="{Binding ItemsTitle, Mode=OneWay}" />
                             <Run Foreground="#939393" Text="{Binding ItemsCount, Mode=OneWay}" />
                         </TextBlock>
 
-                        <Border Margin="0,6,0,2" Padding="10" Background="#33000000">
+                        <!-- "12 of 96 mods subscribed · 3 can be updated". -->
+                        <TextBlock
+                            Margin="0,12,0,0"
+                            FontSize="14"
+                            Foreground="#C6D4DF"
+                            TextWrapping="Wrap"
+                            Text="{Binding Summary}"
+                            Visibility="{Binding Summary, Converter={StaticResource NullToCollapsed}}" />
+
+                        <Border Margin="0,16,0,2" Padding="10" Background="#33000000">
                             <WrapPanel>
                                 <Button Style="{StaticResource CollectionBarButton}" Command="{Binding SubscribeToAllCommand}">
                                     <StackPanel Orientation="Horizontal">
@@ -376,7 +500,13 @@
                                                     Text="{Binding Name}" />
                                                 <TextBlock FontSize="12" Foreground="#969696" Visibility="{Binding Author, Converter={StaticResource NullToCollapsed}}">
                                                     <Run Text="{loc:Str Collection_ItemCreatedBy}" />
-                                                    <Run Foreground="#8F98A0" Text="{Binding Author, Mode=OneWay}" />
+                                                    <Hyperlink
+                                                        Style="{StaticResource AuthorLink}"
+                                                        ToolTip="{loc:Str Item_AuthorToolTip}"
+                                                        Command="{Binding DataContext.OpenItemAuthorCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        CommandParameter="{Binding}">
+                                                        <Run Text="{Binding Author, Mode=OneWay}" />
+                                                    </Hyperlink>
                                                 </TextBlock>
                                                 <TextBlock
                                                     Margin="0,10,0,0"
@@ -432,20 +562,17 @@
                         </ItemsControl>
                     </StackPanel>
 
-                    <!-- Who made the items, and when the collection was made. -->
-                    <StackPanel Grid.Column="2">
-                        <!-- Who made a public collection. -->
-                        <Border Margin="0,0,0,10" Padding="10" Background="{StaticResource SteamSubscribeBox}" Visibility="{Binding HasListAuthor, Converter={StaticResource TrueToVisible}}">
-                            <StackPanel>
-                                <TextBlock Margin="0,0,0,6" FontSize="11" Foreground="#61696D" Text="{loc:Str Collection_CollectionBy}" />
-                                <Button HorizontalAlignment="Left" Style="{StaticResource AuthorChip}" Command="{Binding OpenListAuthorCommand}" ToolTip="{loc:Str Collection_ListAuthorToolTip}">
-                                    <TextBlock Text="{Binding ListAuthor}" />
-                                </Button>
-                            </StackPanel>
-                        </Border>
-                        <Border Padding="10" Background="{StaticResource SteamSubscribeBox}" Visibility="{Binding HasAuthors, Converter={StaticResource TrueToVisible}}">
-                            <StackPanel>
-                                <TextBlock Margin="0,0,0,8" FontSize="11" Foreground="#61696D" TextWrapping="Wrap" Text="{Binding CreatedByTitle}" />
+                    <!-- The right-hand panel. -->
+                    <Border Grid.Column="2" VerticalAlignment="Top" Padding="10,10,10,11">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Offset="0" Color="#33000000" />
+                                <GradientStop Offset="1" Color="#80000000" />
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <StackPanel>
+                            <StackPanel Visibility="{Binding HasAuthors, Converter={StaticResource TrueToVisible}}">
+                                <TextBlock Margin="0,5,0,10" Style="{StaticResource PanelHeading}" TextWrapping="Wrap" Text="{Binding CreatedByTitle}" />
                                 <ItemsControl Focusable="False" ItemsSource="{Binding Authors}">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
@@ -465,10 +592,31 @@
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
                             </StackPanel>
-                        </Border>
 
-                        <Border Margin="0,10,0,0" Padding="10" Background="{StaticResource SteamSubscribeBox}">
-                            <Grid TextElement.FontSize="13" TextElement.Foreground="#8F98A0">
+                            <!-- COLLECTION ASSEMBLED BY: who made a public collection. -->
+                            <StackPanel Margin="0,10,0,0" Visibility="{Binding HasListAuthor, Converter={StaticResource TrueToVisible}}">
+                                <TextBlock Margin="0,5,0,10" Style="{StaticResource PanelHeading}" Text="{loc:Str Collection_AssembledBy}" />
+                                <Button Style="{StaticResource FriendBlock}" Command="{Binding OpenListAuthorCommand}" ToolTip="{loc:Str Collection_ListAuthorToolTip}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Border Width="36" Height="36" Margin="0,0,7,0" Padding="1">
+                                            <Border.Background>
+                                                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                                    <GradientStop Offset="0.05" Color="#6A6A6A" />
+                                                    <GradientStop Offset="0.95" Color="#555555" />
+                                                </LinearGradientBrush>
+                                            </Border.Background>
+                                            <Grid Background="#2A2E33">
+                                                <ui:SymbolIcon FontSize="20" Foreground="#6B7580" Symbol="Person24" />
+                                                <Image Stretch="UniformToFill" behaviors:ThumbnailLoader.DecodeWidth="34" behaviors:ThumbnailLoader.Source="{Binding ListAuthorAvatar}" />
+                                            </Grid>
+                                        </Border>
+                                        <TextBlock VerticalAlignment="Center" FontSize="11" LineHeight="13" Text="{Binding ListAuthor}" />
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+
+                            <!-- The numbers, figure and label side by side, as Steam's are. -->
+                            <Grid Margin="0,18,0,0" TextElement.FontSize="13" TextElement.Foreground="#8F98A0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
@@ -476,14 +624,17 @@
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
-                                <TextBlock Grid.Row="0" Margin="0,0,24,4" Text="{loc:Str Collection_Posted}" Visibility="{Binding HasPosted, Converter={StaticResource TrueToVisible}}" />
-                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding PostedText}" Visibility="{Binding HasPosted, Converter={StaticResource TrueToVisible}}" />
-                                <TextBlock Grid.Row="1" Margin="0,0,24,0" Text="{loc:Str Collection_Updated}" />
-                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding UpdatedText}" />
+                                <TextBlock Grid.Row="0" Margin="0,0,13,4" Text="{Binding ItemsNumber}" />
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{loc:Str Collection_ItemsLabel}" />
+                                <TextBlock Grid.Row="1" Margin="0,0,13,4" Text="{Binding PostedText}" Visibility="{Binding HasPosted, Converter={StaticResource TrueToVisible}}" />
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{loc:Str Collection_Posted}" Visibility="{Binding HasPosted, Converter={StaticResource TrueToVisible}}" />
+                                <TextBlock Grid.Row="2" Margin="0,0,13,0" Text="{Binding UpdatedText}" Visibility="{Binding UpdatedText, Converter={StaticResource NullToCollapsed}}" />
+                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{loc:Str Collection_Updated}" Visibility="{Binding UpdatedText, Converter={StaticResource NullToCollapsed}}" />
                             </Grid>
-                        </Border>
-                    </StackPanel>
+                        </StackPanel>
+                    </Border>
                 </Grid>
             </StackPanel>
         </ScrollViewer>

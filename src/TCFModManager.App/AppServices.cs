@@ -75,6 +75,12 @@ internal static class AppServices
     // Public collections' pages read lately, for the hover popup and the collection page.
     public static CollectionDetailsCache CollectionDetails { get; } = new();
 
+    // Who authors are: the catalog's owners, and members' pages read from sp-mod.com.
+    public static AuthorDirectory Authors { get; } = new();
+
+    // An author's Workshop page - see AuthorView.
+    public static AuthorOverlayViewModel AuthorOverlay { get; } = new();
+
     // The hub's optional tabs and the window background, from the settings.
     public static AppearanceViewModel Appearance { get; } = new();
 
