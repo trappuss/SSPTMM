@@ -1205,8 +1205,15 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
         // so removing it deletes its own folder or file. Given the record, removing the copy
         // deleted the files the record placed - the real install - and left the copy behind.
         //
+        // Judged on the client half where there is one: a copy can have been paired with the
+        // install's server half (MergeSplitClientServerHalves pairs the first client it finds), and
+        // that folder must not make the copy the install.
+        var identifying = entries.Any(m => m.Target == InstalledModTarget.Client)
+            ? entries.Where(m => m.Target == InstalledModTarget.Client)
+            : entries;
+
         if (shared && record is { IsAppManaged: true }
-            && !InstalledModFolders.Placed(record, entries.SelectMany(FolderNamesOf)))
+            && !InstalledModFolders.Placed(record, identifying.SelectMany(FolderNamesOf)))
         {
             record = null;
         }

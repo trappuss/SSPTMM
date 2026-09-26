@@ -999,18 +999,25 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     }
 
     //
-    // The card as this page's own scan has it. The item page and the right-click menu hand in the
-    // card from Browse's scan, whose files the dependency check here does not know - so what uses
-    // the mod would go unfound. Matched by folder; the card handed in if this scan has no match.
+    // The card as a fresh scan has it. The item page and the right-click menu hand in the card from
+    // Browse's scan, which is not redone when a mod is set aside or brought back - so it can say a
+    // disabled mod is enabled (and removing it would delete nothing but its record), and its files
+    // are not the ones the dependency check here knows. Scanned again, then matched by folder, or -
+    // for one set aside or brought back since, whose folder moved - by what it is.
     //
     private async Task<InstalledModCardViewModel> OwnCardAsync(InstalledModCardViewModel mod)
     {
         if (_all.Contains(mod)) return mod;
-        if (_all.Count == 0) await ScanAsync();
+
+        await ScanAsync();
 
         return _all.FirstOrDefault(c =>
                    c.IsAddon == mod.IsAddon
                    && string.Equals(c.FolderPath, mod.FolderPath, StringComparison.OrdinalIgnoreCase))
+               ?? _all.FirstOrDefault(c =>
+                   c.IsAddon == mod.IsAddon
+                   && c.ModId == mod.ModId
+                   && string.Equals(c.Name, mod.Name, StringComparison.OrdinalIgnoreCase))
                ?? mod;
     }
 
@@ -1096,11 +1103,16 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         {
             var body = new System.Windows.Controls.StackPanel { MaxWidth = 640 };
             body.Children.Add(Paragraph(Strings.Installed_UnsubscribeSelectedBody(removing.Count, removing.Count, AppPaths.LegacyConfigsDirectory)));
-            // Each by its title, and beside it the folder or file it is installed as when that says more
-            // - two copies of one mod share a title.
+            // Each by its title - and, where two share one (a mod and a copy of it), the folder or
+            // file each is installed as beside it.
+            var repeated = removing
+                .GroupBy(c => c.DisplayTitle, StringComparer.OrdinalIgnoreCase)
+                .Where(g => g.Count() > 1)
+                .Select(g => g.Key)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
             body.Children.Add(RemoveCheckDialog.List(
                 removing.Select(c => (c.DisplayTitle,
-                    string.Equals(c.DisplayTitle, c.Name, StringComparison.OrdinalIgnoreCase) ? "" : c.Name)).ToList(),
+                    repeated.Contains(c.DisplayTitle) ? Path.GetFileName(c.FolderPath) : "")).ToList(),
                 monospace: false));
             body.Children.Add(Paragraph(Strings.Installed_UnsubscribeSelectedDisableHint, top: 12));
             dontAsk = AddDontAsk(body);
@@ -1124,7 +1136,9 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     {
         var needed = NeededBy(targets);
         var handInstalled = targets.Where(c => !c.IsAppManaged).ToList();
-        var folders = handInstalled.SelectMany(LegacyPaths).ToList();
+
+        // Each folder beside the item it is, so a removal of several says whose folder goes.
+        var folders = handInstalled.SelectMany(c => LegacyPaths(c).Select(path => (path, c.DisplayTitle))).ToList();
 
         return (needed.Count == 0 && folders.Count == 0)
             || RemoveCheckDialog.Ask(needed, folders, targets.Count, handInstalled.Count);

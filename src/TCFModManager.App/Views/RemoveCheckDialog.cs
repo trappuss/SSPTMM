@@ -19,11 +19,11 @@ public static class RemoveCheckDialog
 
     /// <summary>True to remove anyway.</summary>
     /// <param name="needed">Each installed mod that uses one being removed, and how.</param>
-    /// <param name="folders">The folders removing hand-installed mods deletes.</param>
+    /// <param name="folders">The folders removing hand-installed mods deletes, each with the item it is.</param>
     /// <param name="removing">How many items are being removed, for the wording.</param>
     /// <param name="handInstalled">How many of them were installed by hand, for the wording.</param>
     public static bool Ask(
-        IReadOnlyList<(string Name, string Detail)> needed, IReadOnlyList<string> folders, int removing, int handInstalled)
+        IReadOnlyList<(string Name, string Detail)> needed, IReadOnlyList<(string Path, string Item)> folders, int removing, int handInstalled)
     {
         var body = new StackPanel { MaxWidth = 640 };
 
@@ -36,7 +36,7 @@ public static class RemoveCheckDialog
         if (folders.Count > 0)
         {
             body.Children.Add(Paragraph(Strings.RemoveCheck_FoldersIntro(handInstalled, handInstalled), top: needed.Count > 0 ? 16 : 0));
-            body.Children.Add(List(folders.Select(f => (f, "")).ToList(), monospace: true));
+            body.Children.Add(List(folders.Select(f => (f.Path, f.Item)).ToList(), monospace: true));
         }
 
         var answer = SteamDialog.Show(

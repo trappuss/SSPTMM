@@ -99,9 +99,10 @@ public partial class InstalledPage : Page
         if (!ViewModel.SelectionMode) return;
         if (sender is not FrameworkElement { DataContext: InstalledModCardViewModel mod }) return;
 
-        // A button or the checkbox itself still does its own job; this only claims the empty parts
-        // of the card. IsInsideButton is the same helper the group-view row gesture uses.
-        if (IsInsideButton(e.OriginalSource)) return;
+        // A button or the checkbox itself still does its own job; this claims the rest of the card -
+        // the header included, which WPF UI draws inside the expander's own toggle button: that one
+        // is not counted, so a click on the header ticks rather than opening the card.
+        if (IsInsideButton(e.OriginalSource, sender as DependencyObject)) return;
 
         mod.IsSelected = !mod.IsSelected;
         e.Handled = true;
@@ -148,11 +149,13 @@ public partial class InstalledPage : Page
     // True when the click landed on (or inside) a button within the row - the row's own gesture
     // steps aside for those, since PreviewMouseLeftButtonDown tunnels through the row Border before
     // reaching the button and would otherwise mark the event handled before the button ever saw it.
-    private static bool IsInsideButton(object? originalSource)
+    // stopAt: the element handling the click; the walk ends there, and a button that is part of its
+    // own template (a CardExpander's header toggle) does not count.
+    private static bool IsInsideButton(object? originalSource, DependencyObject? stopAt = null)
     {
-        for (var node = originalSource as DependencyObject; node is not null;)
+        for (var node = originalSource as DependencyObject; node is not null && !ReferenceEquals(node, stopAt);)
         {
-            if (node is ButtonBase) return true;
+            if (node is ButtonBase button && (stopAt is null || !ReferenceEquals(button.TemplatedParent, stopAt))) return true;
 
             // The visual tree is what the templated parts of a button live in, but a click can
             // report a ContentElement such as a Run as its OriginalSource, and VisualTreeHelper
