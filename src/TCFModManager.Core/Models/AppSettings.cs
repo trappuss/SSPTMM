@@ -79,6 +79,13 @@ public sealed class AppSettings
     public List<FollowedAuthor> FollowedAuthors { get; set; } = [];
 
     //
+    // sp-mod.com's public collections favorited from the Workshop pages (Steam's Favorite on a
+    // collection), with what each looked like the last time it was opened here - so one its author
+    // has changed since can say so.
+    //
+    public List<FavoriteCollection> FavoriteCollections { get; set; } = [];
+
+    //
     // The two answers as the roles the rest of the app reasons about.
     //
     // An unanswered PlaysHere reads as yes. An install nobody has been asked about is overwhelmingly
@@ -291,4 +298,29 @@ public sealed class FollowedAuthor
     public int Id { get; set; }
 
     public string? Name { get; set; }
+}
+
+// A public collection favorited from the Workshop pages - see AppSettings.FavoriteCollections.
+public sealed class FavoriteCollection
+{
+    public int Id { get; set; }
+
+    public string Slug { get; set; } = string.Empty;
+
+    // As last read, for showing before its page is read again.
+    public string? Title { get; set; }
+
+    public string? Author { get; set; }
+
+    public string? Cover { get; set; }
+
+    public string? Teaser { get; set; }
+
+    public DateTimeOffset AddedAt { get; set; }
+
+    // What its page said the last time it was opened here: when it was last updated, and how many
+    // items it had. Null until it has been opened once.
+    public DateTimeOffset? SeenUpdatedAt { get; set; }
+
+    public int? SeenItemCount { get; set; }
 }

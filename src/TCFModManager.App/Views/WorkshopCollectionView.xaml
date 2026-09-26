@@ -298,6 +298,20 @@
                                 <TextBlock Text="{loc:Str Collection_Manage}" />
                             </StackPanel>
                         </Button>
+                        <!-- Steam's Favorite, where Steam has it: before Share. Pressed ("Favorited", a filled
+                             blue star): HUNCH - Steam shows that state only when signed in. -->
+                        <Button Margin="0,0,5,0" Style="{StaticResource SteamGeneralButton}" Command="{Binding ToggleFavoriteCommand}" Visibility="{Binding HasContentPublic, Converter={StaticResource TrueToVisible}}" ToolTip="{loc:Str Collection_FavoriteToolTip}">
+                            <Grid>
+                                <StackPanel Orientation="Horizontal" Visibility="{Binding IsFavorite, Converter={StaticResource FalseToVisible}}">
+                                    <ui:SymbolIcon Margin="0,0,6,0" FontSize="14" Symbol="Star16" />
+                                    <TextBlock Text="{loc:Str Collection_Favorite}" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Visibility="{Binding IsFavorite, Converter={StaticResource TrueToVisible}}">
+                                    <ui:SymbolIcon Margin="0,0,6,0" FontSize="14" Filled="True" Foreground="#66C0F4" Symbol="Star16" />
+                                    <TextBlock Text="{loc:Str Collection_Favorited}" />
+                                </StackPanel>
+                            </Grid>
+                        </Button>
                         <Button Margin="0,0,5,0" Style="{StaticResource SteamGeneralButton}" Command="{Binding CopyLinkCommand}" Visibility="{Binding IsPublic, Converter={StaticResource TrueToVisible}}" ToolTip="{loc:Str Collection_ShareToolTip}">
                             <TextBlock Text="{loc:Str Collection_Share}" />
                         </Button>
@@ -437,6 +451,14 @@
                                     <StackPanel Orientation="Horizontal">
                                         <ui:SymbolIcon Margin="0,0,6,0" FontSize="14" Symbol="Dismiss16" />
                                         <TextBlock Text="{loc:Str Collection_UnsubscribeAll}" />
+                                    </StackPanel>
+                                </Button>
+                                <!-- Not Steam's (Steam updates by itself): Subscribed items' Update all, over this
+                                     collection's items. Only while there is something to update. -->
+                                <Button Style="{StaticResource CollectionBarButton}" Command="{Binding UpdateAllCommand}" ToolTip="{loc:Str Collection_UpdateAllToolTip}" Visibility="{Binding HasUpdates, Converter={StaticResource TrueToVisible}}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <ui:SymbolIcon Margin="0,0,6,0" FontSize="14" Symbol="ArrowSync16" />
+                                        <TextBlock Text="{Binding UpdateAllLabel}" />
                                     </StackPanel>
                                 </Button>
                                 <Button Style="{StaticResource CollectionBarButton}" Command="{Binding SaveToCollectionCommand}">

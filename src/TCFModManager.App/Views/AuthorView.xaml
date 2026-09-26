@@ -11,8 +11,10 @@
     bold white cut with an ellipsis, the game 12px #8F98A0. Collections as rows 648x120 on
     rgb(39,59,82), 10 inside, a 3px rgba(20,20,20,.75) shadow: a 100px picture, the title 17px light
     white, "Collection by X" 14px #8F98A0, the description 14px #8F98A0 10px under. The right column
-    295px on rgba(0,0,0,.2), 16 10 inside: the follower count 42px light #67C1F5, "Followers" 18px
-    light #8F98A0, then Follow. "Per page: 9 18 30" under the items.
+    295px on rgba(0,0,0,.2), 16 10 inside: the follower count 42px light #67C1F5 with "Followers"
+    18px light #8F98A0 beside it (20px over, 8px down), a 13px line on what following does, then
+    Follow. "Per page: 9 18 30" under the items. An Addons tab, when they have addons, is this app's:
+    Steam has no addons.
 
     What sp-mod.com has no equivalent for is left out: Steam's stars stand for a rating, and here -
     as on every Browse card - the place shows what sp-mod.com counts (endorsements, favourites,
@@ -173,6 +175,9 @@
                 <StackPanel Margin="0,20,0,12" Orientation="Horizontal">
                     <ToggleButton Style="{StaticResource SteamSectionTab}" Command="{Binding ShowItemsCommand}" IsChecked="{Binding IsItemsTab, Mode=OneWay}">
                         <TextBlock Text="{loc:Str Author_WorkshopItems}" />
+                    </ToggleButton>
+                    <ToggleButton Style="{StaticResource SteamSectionTab}" Command="{Binding ShowAddonsCommand}" IsChecked="{Binding IsAddonsTab, Mode=OneWay}" Visibility="{Binding HasAddons, Converter={StaticResource TrueToVisible}}">
+                        <TextBlock Text="{loc:Str Author_TabAddons}" />
                     </ToggleButton>
                     <ToggleButton Style="{StaticResource SteamSectionTab}" Command="{Binding ShowCollectionsCommand}" IsChecked="{Binding IsCollectionsTab, Mode=OneWay}" Visibility="{Binding HasId, Converter={StaticResource TrueToVisible}}">
                         <TextBlock Text="{loc:Str Author_TabCollections}" />
@@ -358,6 +363,68 @@
                         </StackPanel>
                     </StackPanel>
 
+                    <!-- ================================================================ Addons -->
+                    <!-- Squares like the items', the mod each is for under its name; a click opens that
+                         mod's page, which lists its addons with Install. -->
+                    <ItemsControl Grid.Column="0" Focusable="False" ItemsSource="{Binding Addons}" Visibility="{Binding IsAddonsTab, Converter={StaticResource TrueToVisible}}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel ItemWidth="211" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel
+                                    x:Name="Tile"
+                                    Width="201"
+                                    Margin="0,0,0,18"
+                                    HorizontalAlignment="Left"
+                                    Background="Transparent"
+                                    Cursor="Hand"
+                                    ToolTip="{Binding Addon.Teaser}"
+                                    MouseLeftButtonUp="Addon_Click">
+                                    <Border x:Name="Frame" Width="200" Height="200" HorizontalAlignment="Left" Background="Black" BorderBrush="Transparent" BorderThickness="1">
+                                        <Border.CacheMode>
+                                            <BitmapCache />
+                                        </Border.CacheMode>
+                                        <Border.Effect>
+                                            <DropShadowEffect BlurRadius="10" Direction="315" Opacity="1" ShadowDepth="2.8" Color="Black" />
+                                        </Border.Effect>
+                                        <Image Stretch="UniformToFill" behaviors:ThumbnailLoader.DecodeWidth="200" behaviors:ThumbnailLoader.Source="{Binding Thumbnail}" />
+                                    </Border>
+                                    <StackPanel Height="16" Margin="0,8,0,0" Orientation="Horizontal">
+                                        <ui:SymbolIcon FontSize="14" Foreground="{StaticResource SteamBlue}" Symbol="ArrowDownload16" />
+                                        <TextBlock Margin="3,0,0,0" FontSize="12" Foreground="{StaticResource SteamBlue}" Text="{Binding Downloads, StringFormat=N0}" />
+                                    </StackPanel>
+                                    <TextBlock
+                                        x:Name="Title"
+                                        Width="200"
+                                        Margin="0,4,0,0"
+                                        HorizontalAlignment="Left"
+                                        FontSize="14"
+                                        FontWeight="Bold"
+                                        Foreground="White"
+                                        TextTrimming="CharacterEllipsis"
+                                        Text="{Binding Name}" />
+                                    <TextBlock
+                                        Width="200"
+                                        HorizontalAlignment="Left"
+                                        FontSize="12"
+                                        Foreground="#8F98A0"
+                                        TextTrimming="CharacterEllipsis"
+                                        Text="{Binding ForText}"
+                                        Visibility="{Binding ForText, Converter={StaticResource NullToCollapsed}}" />
+                                </StackPanel>
+                                <DataTemplate.Triggers>
+                                    <Trigger SourceName="Tile" Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Frame" Property="BorderBrush" Value="#66C0F4" />
+                                        <Setter TargetName="Title" Property="Foreground" Value="#66C0F4" />
+                                    </Trigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
                     <!-- ============================================================ Collections -->
                     <StackPanel Grid.Column="0" Visibility="{Binding IsCollectionsTab, Converter={StaticResource TrueToVisible}}">
                         <TextBlock
@@ -435,7 +502,9 @@
                     <!-- ============================================================ right column -->
                     <Border Grid.Column="2" VerticalAlignment="Top" Padding="10,16,10,16" Background="#33000000">
                         <StackPanel>
-                            <StackPanel Visibility="{Binding HasFollowers, Converter={StaticResource TrueToVisible}}">
+                            <!-- Steam's followStatsBlock: 6px in, the count 42px light #67C1F5 and beside it,
+                                 20px over and 8px down, "Followers" 18px light #8F98A0. -->
+                            <StackPanel Margin="6,0,0,0" Orientation="Horizontal" Visibility="{Binding HasFollowers, Converter={StaticResource TrueToVisible}}">
                                 <TextBlock
                                     FontFamily="{StaticResource SteamFontLight}"
                                     FontWeight="Light"
@@ -443,6 +512,8 @@
                                     Foreground="#67C1F5"
                                     Text="{Binding Followers, StringFormat=N0}" />
                                 <TextBlock
+                                    Margin="20,8,0,0"
+                                    VerticalAlignment="Top"
                                     FontFamily="{StaticResource SteamFontLight}"
                                     FontWeight="Light"
                                     FontSize="18"
@@ -450,8 +521,18 @@
                                     Text="{loc:Str Author_Followers}" />
                             </StackPanel>
 
+                            <!-- Under it on Steam, 13px: what following does. Here it is what following
+                                 does in this app - Steam's sentence names Guides and Collections. -->
+                            <TextBlock
+                                Margin="6,10,0,0"
+                                FontSize="13"
+                                Foreground="#8F98A0"
+                                TextWrapping="Wrap"
+                                Text="{loc:Str Author_FollowNote}"
+                                Visibility="{Binding HasId, Converter={StaticResource TrueToVisible}}" />
+
                             <Button
-                                Margin="0,12,0,0"
+                                Margin="6,12,0,0"
                                 HorizontalAlignment="Left"
                                 Style="{StaticResource SteamFollowButton}"
                                 ToolTip="{Binding FollowToolTip}"

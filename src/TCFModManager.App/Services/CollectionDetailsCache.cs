@@ -18,16 +18,26 @@ public sealed class CollectionDetailsCache
 
     /// <summary>The list's page, from what was read in the last ten minutes or from sp-mod.com.
     /// Two asking at once share one read. UI thread only.</summary>
+    //
+    // The shared read runs to its end whoever stops waiting for it: each caller's token only ends
+    // its own wait. Tied to the first caller's token, a Quick View closing as it opened the
+    // collection's page cancelled the very read that page had joined.
+    //
     public Task<SpModListDetails?> GetAsync(int id, string slug, CancellationToken ct = default)
     {
         if (_kept.TryGetValue(id, out var kept) && DateTimeOffset.UtcNow - kept.At < KeepFor)
             return Task.FromResult<SpModListDetails?>(kept.Details);
 
-        if (_reading.TryGetValue(id, out var reading)) return reading;
+        if (!_reading.TryGetValue(id, out var reading))
+        {
+            reading = ReadAsync(id, slug);
 
-        var task = ReadAsync(id, slug, ct);
-        _reading[id] = task;
-        return task;
+            // Already over (it failed before reaching the network): nothing to share, and its
+            // finally has run - kept, it would be handed out from now on.
+            if (!reading.IsCompleted) _reading[id] = reading;
+        }
+
+        return ct.CanBeCanceled ? reading.WaitAsync(ct) : reading;
     }
 
     /// <summary>A page read elsewhere (the collection page itself), kept for the popup.</summary>
@@ -37,11 +47,11 @@ public sealed class CollectionDetailsCache
         Trim();
     }
 
-    private async Task<SpModListDetails?> ReadAsync(int id, string slug, CancellationToken ct)
+    private async Task<SpModListDetails?> ReadAsync(int id, string slug)
     {
         try
         {
-            var details = await AppServices.SpModLists.GetListAsync(id, slug, ct);
+            var details = await AppServices.SpModLists.GetListAsync(id, slug);
             if (details is not null) Remember(details);
             return details;
         }

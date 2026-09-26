@@ -78,6 +78,12 @@ internal static class AppServices
     // Who authors are: the catalog's owners, and members' pages read from sp-mod.com.
     public static AuthorDirectory Authors { get; } = new();
 
+    // A collection's Quick View - see CollectionQuickViewOverlay.
+    public static CollectionQuickViewSignal CollectionQuickView { get; } = new();
+
+    // Public collections favorited from the Workshop pages - see FavoriteCollectionsPage.
+    public static FavoriteCollections Favorites { get; } = new();
+
     // An author's Workshop page - see AuthorView.
     public static AuthorOverlayViewModel AuthorOverlay { get; } = new();
 

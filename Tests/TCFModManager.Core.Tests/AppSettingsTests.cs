@@ -86,4 +86,27 @@ public class AppSettingsTests
         Assert.Equal(original.DismissedAppUpdateVersion, restored.DismissedAppUpdateVersion);
         Assert.Equal(ThemePreference.Light, restored.Theme);
     }
+
+    [Fact]
+    public void FavoriteCollections_AreEmptyInAnOlderFile_AndRoundTripWhatWasSeen()
+    {
+        // A settings file from before favorites has none, rather than failing to load.
+        var older = JsonSerializer.Deserialize<AppSettings>("""{ "SptInstallPath": "C:\\SPT" }""");
+        Assert.NotNull(older!.FavoriteCollections);
+        Assert.Empty(older.FavoriteCollections);
+
+        // What was seen is what says, next time, whether the collection has changed - it has to
+        // survive the file.
+        var seen = new DateTimeOffset(2026, 9, 25, 16, 48, 50, TimeSpan.Zero);
+        var json = JsonSerializer.Serialize(new AppSettings
+        {
+            FavoriteCollections = [new FavoriteCollection { Id = 126918, Slug = "grug-mp", Title = "Grug-MP", SeenUpdatedAt = seen, SeenItemCount = 84 }],
+        });
+        var back = JsonSerializer.Deserialize<AppSettings>(json)!.FavoriteCollections.Single();
+
+        Assert.Equal(126918, back.Id);
+        Assert.Equal("grug-mp", back.Slug);
+        Assert.Equal(seen, back.SeenUpdatedAt);
+        Assert.Equal(84, back.SeenItemCount);
+    }
 }

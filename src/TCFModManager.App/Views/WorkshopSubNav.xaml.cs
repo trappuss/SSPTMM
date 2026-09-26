@@ -63,7 +63,7 @@ public partial class WorkshopSubNav : UserControl
         HomeTab.IsChecked = pageType == typeof(WorkshopHomePage);
         BrowseTab.IsChecked = pageType == typeof(BrowsePage) || pageType == typeof(CollectionsBrowsePage);
         YourItemsTab.IsChecked = pageType == typeof(InstalledPage) || pageType == typeof(ModListsPage)
-            || pageType == typeof(FollowedAuthorsPage);
+            || pageType == typeof(FollowedAuthorsPage) || pageType == typeof(FavoriteCollectionsPage);
     }
 
     // ------------------------------------------------------------------ the menus
@@ -169,6 +169,12 @@ public partial class WorkshopSubNav : UserControl
     {
         CloseMenus();
         Go(typeof(FollowedAuthorsPage));
+    }
+
+    private void Favorites_Click(object sender, RoutedEventArgs e)
+    {
+        CloseMenus();
+        Go(typeof(FavoriteCollectionsPage));
     }
 
     private void Go(Type pageType)

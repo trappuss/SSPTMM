@@ -1699,4 +1699,18 @@ internal static class Strings
     internal static string Author_SearchInBrowse => LocalizationService.Get("Author_SearchInBrowse");
     internal static string Author_SearchInBrowseToolTip => LocalizationService.Get("Author_SearchInBrowseToolTip");
     internal static string Author_ViewOnSiteToolTip => LocalizationService.Get("Author_ViewOnSiteToolTip");
+    internal static string Collection_UpdateAllToolTip => LocalizationService.Get("Collection_UpdateAllToolTip");
+    internal static string Author_TabAddons => LocalizationService.Get("Author_TabAddons");
+    internal static string Author_AddonForFormat => LocalizationService.Get("Author_AddonForFormat");
+    internal static string Author_FollowNote => LocalizationService.Get("Author_FollowNote");
+    internal static string Collection_Favorite => LocalizationService.Get("Collection_Favorite");
+    internal static string Collection_Favorited => LocalizationService.Get("Collection_Favorited");
+    internal static string Collection_FavoriteToolTip => LocalizationService.Get("Collection_FavoriteToolTip");
+    internal static string Favorites_Title => LocalizationService.Get("Favorites_Title");
+    internal static string Favorites_Header => LocalizationService.Get("Favorites_Header");
+    internal static string Favorites_Browse => LocalizationService.Get("Favorites_Browse");
+    internal static string Favorites_Checking => LocalizationService.Get("Favorites_Checking");
+    internal static string Favorites_Empty => LocalizationService.Get("Favorites_Empty");
+    internal static string Favorites_Changed => LocalizationService.Get("Favorites_Changed");
+    internal static string Favorites_CouldNotCheck => LocalizationService.Get("Favorites_CouldNotCheck");
 }

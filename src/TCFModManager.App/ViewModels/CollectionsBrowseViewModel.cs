@@ -65,11 +65,15 @@ public sealed partial class CollectionCardViewModel(SpModListSummary summary, st
             .Select(i => catalog.FirstOrDefault(m => m.Id == i.ModId)?.Thumbnail is { Length: > 0 } t ? t : i.Thumbnail)
             .ToList();
 
+        // Every entry, those no longer available included - the card's "Contains N items" counts
+        // them, and "+N" has to add up to it.
+        var total = Math.Max(Summary.ItemCount, pictures.Count + details.Unavailable);
+
         PreviewTiles.Clear();
-        var shown = pictures.Count > Tiles ? Tiles - 1 : pictures.Count;
+        var shown = total > Tiles ? Math.Min(Tiles - 1, pictures.Count) : pictures.Count;
         foreach (var picture in pictures.Take(shown)) PreviewTiles.Add(new CollectionPreviewTile(picture, null));
-        if (pictures.Count > shown)
-            PreviewTiles.Add(new CollectionPreviewTile(null, LocalizationService.Text(Strings.Collections_MoreItemsFormat, pictures.Count - shown)));
+        if (total > shown)
+            PreviewTiles.Add(new CollectionPreviewTile(null, LocalizationService.Text(Strings.Collections_MoreItemsFormat, total - shown)));
 
         OnPropertyChanged(nameof(HasPreview));
     }

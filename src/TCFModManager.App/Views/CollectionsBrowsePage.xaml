@@ -380,6 +380,14 @@
                                                 Text="{Binding ByText}"
                                                 Visibility="{Binding ByText, Converter={StaticResource NullToCollapsed}}" />
                                             <DockPanel DockPanel.Dock="Bottom">
+                                                <!-- Steam's magnifier: Quick View, at the card's bottom right,
+                                                     under the pointer only. -->
+                                                <Button
+                                                    x:Name="QuickViewButton"
+                                                    Margin="8,-8,-4,-4"
+                                                    DockPanel.Dock="Right"
+                                                    Style="{StaticResource SteamQuickViewButton}"
+                                                    Click="QuickView_Click" />
                                                 <StackPanel
                                                     DockPanel.Dock="Right"
                                                     Orientation="Horizontal"
@@ -420,6 +428,7 @@
                                         </Trigger.ExitActions>
                                         <Setter TargetName="Shadow" Property="Visibility" Value="Hidden" />
                                         <Setter TargetName="Glow" Property="Visibility" Value="Visible" />
+                                        <Setter TargetName="QuickViewButton" Property="Visibility" Value="Visible" />
                                     </Trigger>
                                     <DataTrigger Binding="{Binding IsForInstalledSpt}" Value="True">
                                         <Setter TargetName="Spt" Property="Background" Value="{StaticResource SteamGreenInner}" />

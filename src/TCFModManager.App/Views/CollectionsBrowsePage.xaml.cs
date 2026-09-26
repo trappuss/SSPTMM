@@ -35,6 +35,15 @@ public partial class CollectionsBrowsePage : Page
         ViewModel.OpenCommand.Execute(card);
     }
 
+    // The magnifier: the collection's Quick View, stepping through the cards on the page.
+    private void QuickView_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not FrameworkElement { DataContext: CollectionCardViewModel card }) return;
+
+        e.Handled = true;
+        AppServices.CollectionQuickView.Show(card.Summary, ViewModel.Lists.Select(c => c.Summary).ToList());
+    }
+
     // Choosing a sort order closes the panel.
     private void SortChoice_Click(object sender, RoutedEventArgs e) => SortToggle.IsChecked = false;
 

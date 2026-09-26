@@ -277,6 +277,7 @@
                 <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:InstalledPage}" />
                 <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:ModListsPage}" />
                 <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:FollowedAuthorsPage}" />
+                <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:FavoriteCollectionsPage}" />
                 <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:ConfigsPage}" />
                 <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:DependenciesPage}" />
                 <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:FootprintPage}" />
@@ -358,6 +359,13 @@
              picture viewer it can open go over it. -->
         <views:QuickViewOverlay
             x:Name="QuickView"
+            Grid.Row="1"
+            Grid.RowSpan="4"
+            Visibility="Collapsed" />
+
+        <!-- A collection's Quick View, the same way. -->
+        <views:CollectionQuickViewOverlay
+            x:Name="CollectionQuickView"
             Grid.Row="1"
             Grid.RowSpan="4"
             Visibility="Collapsed" />

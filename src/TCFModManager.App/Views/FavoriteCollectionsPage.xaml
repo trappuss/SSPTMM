@@ -1,0 +1,158 @@
+<!--
+    The collections favorited from the Workshop pages (Steam's Favorite on a collection), from Your
+    Items. Steam lists your favorites on your profile's Workshop page, as rows like an author's
+    collections; they are drawn the same way here: rows 120px high on rgb(39,59,82), 10 inside, a 3px
+    rgba(20,20,20,.75) shadow, a 100px picture, the title 17px light white, "Collection by X" 14px
+    #8F98A0 and the description 14px #8F98A0 under it - with Steam's hover popup.
+
+    Steam does not say when a favorite has changed; this page does, because a mod list that changes
+    under you is something to know about: each one's page is read as the page opens, and one updated
+    (or with another number of items) since it was last opened here is marked.
+-->
+<Page
+    x:Class="TCFModManager.App.Views.FavoriteCollectionsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:converters="clr-namespace:TCFModManager.App.Converters"
+    xmlns:behaviors="clr-namespace:TCFModManager.App.Behaviors"
+    xmlns:loc="clr-namespace:TCFModManager.App.Localization"
+    Title="{loc:Str Favorites_Title}"
+    FontFamily="{StaticResource SteamFont}"
+    Loaded="Page_Loaded"
+    Unloaded="Page_Unloaded">
+    <Page.Resources>
+        <converters:NullToVisibilityConverter x:Key="NullToCollapsed" />
+        <converters:UpdateAvailableToVisibilityConverter x:Key="TrueToVisible" />
+        <converters:FalseToVisibilityConverter x:Key="FalseToVisible" />
+    </Page.Resources>
+
+    <ScrollViewer FocusVisualStyle="{x:Null}" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+        <StackPanel MaxWidth="950" Margin="24,20,24,40">
+            <DockPanel>
+                <Button
+                    DockPanel.Dock="Right"
+                    VerticalAlignment="Center"
+                    Style="{StaticResource SteamOutlineButton}"
+                    Command="{Binding BrowseCollectionsCommand}">
+                    <TextBlock Text="{loc:Str Favorites_Browse}" />
+                </Button>
+                <TextBlock VerticalAlignment="Center" FontSize="11">
+                    <Run Foreground="#61696D" Text="{loc:Str Favorites_Header}" />
+                    <Run Foreground="#939393" Text="{Binding CountText, Mode=OneWay}" />
+                </TextBlock>
+            </DockPanel>
+
+            <TextBlock
+                Margin="0,8,0,0"
+                FontSize="12"
+                Foreground="{StaticResource SteamTextDim}"
+                Text="{loc:Str Favorites_Checking}"
+                Visibility="{Binding IsChecking, Converter={StaticResource TrueToVisible}}" />
+
+            <TextBlock
+                Margin="0,16,0,0"
+                FontSize="14"
+                Foreground="{StaticResource SteamText}"
+                TextWrapping="Wrap"
+                Text="{loc:Str Favorites_Empty}"
+                Visibility="{Binding IsEmpty, Converter={StaticResource TrueToVisible}}" />
+
+            <ItemsControl Margin="0,12,0,0" Focusable="False" ItemsSource="{Binding Rows}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border
+                            x:Name="Row"
+                            Height="120"
+                            Margin="0,0,0,10"
+                            Padding="10"
+                            Background="#273B52"
+                            Cursor="Hand"
+                            DataContext="{Binding Card}"
+                            Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType=ContentPresenter}}"
+                            behaviors:CollectionHover.Enabled="True"
+                            MouseLeftButtonUp="Row_Click">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="3" Direction="0" Opacity="0.75" ShadowDepth="0" Color="#141414" />
+                            </Border.Effect>
+                            <DockPanel>
+                                <Border Width="100" Height="100" Margin="0,0,12,0" DockPanel.Dock="Left" Background="#070707">
+                                    <Grid>
+                                        <ui:SymbolIcon FontSize="32" Foreground="#3D4450" Symbol="TextBulletListLtr24" />
+                                        <Image Stretch="UniformToFill" behaviors:ThumbnailLoader.DecodeWidth="100" behaviors:ThumbnailLoader.Source="{Binding Cover}" />
+                                    </Grid>
+                                </Border>
+
+                                <!-- Changed since last opened, and Favorite. -->
+                                <StackPanel
+                                    Margin="12,0,0,0"
+                                    VerticalAlignment="Center"
+                                    DataContext="{Binding Tag, RelativeSource={RelativeSource AncestorType=Border}}"
+                                    DockPanel.Dock="Right">
+                                    <Button
+                                        HorizontalAlignment="Right"
+                                        Style="{StaticResource SteamGeneralButton}"
+                                        Command="{Binding ToggleFavoriteCommand}"
+                                        ToolTip="{loc:Str Collection_FavoriteToolTip}">
+                                        <Grid>
+                                            <StackPanel Orientation="Horizontal" Visibility="{Binding IsFavorite, Converter={StaticResource FalseToVisible}}">
+                                                <ui:SymbolIcon Margin="0,0,6,0" FontSize="14" Symbol="Star16" />
+                                                <TextBlock Text="{loc:Str Collection_Favorite}" />
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Visibility="{Binding IsFavorite, Converter={StaticResource TrueToVisible}}">
+                                                <ui:SymbolIcon Margin="0,0,6,0" FontSize="14" Filled="True" Foreground="#66C0F4" Symbol="Star16" />
+                                                <TextBlock Text="{loc:Str Collection_Favorited}" />
+                                            </StackPanel>
+                                        </Grid>
+                                    </Button>
+                                    <StackPanel Margin="0,8,0,0" HorizontalAlignment="Right" Orientation="Horizontal" Visibility="{Binding HasChanged, Converter={StaticResource TrueToVisible}}">
+                                        <Ellipse Width="7" Height="7" Margin="0,0,6,0" Fill="#66C0F4" />
+                                        <TextBlock FontSize="12" Foreground="#66C0F4" Text="{loc:Str Favorites_Changed}" />
+                                    </StackPanel>
+                                    <TextBlock
+                                        Margin="0,8,0,0"
+                                        HorizontalAlignment="Right"
+                                        FontSize="12"
+                                        Foreground="{StaticResource SteamTextDim}"
+                                        Text="{loc:Str Favorites_CouldNotCheck}"
+                                        Visibility="{Binding CouldNotCheck, Converter={StaticResource TrueToVisible}}" />
+                                </StackPanel>
+
+                                <StackPanel>
+                                    <TextBlock
+                                        x:Name="Title"
+                                        FontFamily="{StaticResource SteamFontLight}"
+                                        FontWeight="Light"
+                                        FontSize="17"
+                                        Foreground="White"
+                                        TextTrimming="CharacterEllipsis"
+                                        Text="{Binding Title}" />
+                                    <TextBlock
+                                        FontSize="14"
+                                        Foreground="#8F98A0"
+                                        TextTrimming="CharacterEllipsis"
+                                        Text="{Binding Summary.Author, StringFormat={loc:Str Author_CollectionByFormat}}"
+                                        Visibility="{Binding Summary.Author, Converter={StaticResource NullToCollapsed}}" />
+                                    <TextBlock
+                                        Padding="0,10,0,0"
+                                        MaxHeight="50"
+                                        FontSize="14"
+                                        Foreground="#8F98A0"
+                                        TextTrimming="CharacterEllipsis"
+                                        TextWrapping="Wrap"
+                                        Text="{Binding Teaser}"
+                                        Visibility="{Binding Teaser, Converter={StaticResource NullToCollapsed}}" />
+                                </StackPanel>
+                            </DockPanel>
+                        </Border>
+                        <DataTemplate.Triggers>
+                            <Trigger SourceName="Row" Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Title" Property="Foreground" Value="#66C0F4" />
+                            </Trigger>
+                        </DataTemplate.Triggers>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

@@ -49,9 +49,28 @@ public sealed partial class AuthorItem : ObservableObject
     public void Refresh() => IsInstalled = AppServices.Browse.InstalledMatchFor(Mod) is not null;
 }
 
+/// <summary>One of their addons on an author's page: a square like an item's, with the mod it is
+/// for under its name.</summary>
+public sealed class AuthorAddon(Addon addon, Mod? parent)
+{
+    public Addon Addon { get; } = addon;
+
+    // The mod it goes with, when the catalog has it: its item page lists the addon and installs it.
+    public Mod? Parent { get; } = parent;
+
+    public string Name => Addon.Name ?? string.Empty;
+
+    public string? Thumbnail => Addon.Thumbnail;
+
+    public int Downloads => Addon.Downloads ?? 0;
+
+    public string? ForText => Parent?.Name is { } mod ? LocalizationService.Text(Strings.Author_AddonForFormat, mod) : null;
+}
+
 public enum AuthorTab
 {
     Items,
+    Addons,
     Collections,
 }
 
@@ -100,8 +119,21 @@ public sealed partial class AuthorPageViewModel : LocalizedViewModel
             .Select(m => new AuthorItem(m))
             .ToList();
 
+        var catalog = PublicCollections.CatalogById();
+        Addons.Clear();
+        foreach (var addon in AppServices.Addons.AllAddons
+                     .Where(IsTheirs)
+                     .OrderByDescending(a => a.PublishedAt ?? a.CreatedAt ?? DateTimeOffset.MinValue))
+        {
+            Addons.Add(new AuthorAddon(addon, addon.ModId is { } modId ? catalog.GetValueOrDefault(modId) : null));
+        }
+
+        OnPropertyChanged(nameof(HasAddons));
         CatalogRead = true;
         ShowPage(1);
+
+        // Addons and nothing else in the catalog: open on what they have.
+        if (HasNoItems && HasAddons && Tab == AuthorTab.Items) Tab = AuthorTab.Addons;
     }
 
     // Until the catalog is read, the page says nothing about their items.
@@ -115,6 +147,13 @@ public sealed partial class AuthorPageViewModel : LocalizedViewModel
         if (Id is { } id) return mod.Owner?.Id == id || (mod.AdditionalAuthors ?? []).Any(a => a.Id == id);
 
         return SameName(mod.Owner?.Name) || (mod.AdditionalAuthors ?? []).Any(a => SameName(a.Name));
+    }
+
+    private bool IsTheirs(Addon addon)
+    {
+        if (Id is { } id) return addon.Owner?.Id == id || (addon.AdditionalAuthors ?? []).Any(a => a.Id == id);
+
+        return SameName(addon.Owner?.Name) || (addon.AdditionalAuthors ?? []).Any(a => SameName(a.Name));
     }
 
     private bool SameName(string? name) => string.Equals(name?.Trim(), Name.Trim(), StringComparison.OrdinalIgnoreCase);
@@ -208,7 +247,7 @@ public sealed partial class AuthorPageViewModel : LocalizedViewModel
 
             // Someone with collections and nothing in the catalog - most collection authors - opens
             // on what they have.
-            if (HasNoItems && Collections.Count > 0 && Tab == AuthorTab.Items) Tab = AuthorTab.Collections;
+            if (HasNoItems && !HasAddons && Collections.Count > 0 && Tab == AuthorTab.Items) Tab = AuthorTab.Collections;
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or SpModListsException)
         {
@@ -237,12 +276,40 @@ public sealed partial class AuthorPageViewModel : LocalizedViewModel
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsItemsTab))]
     [NotifyPropertyChangedFor(nameof(IsCollectionsTab))]
+    [NotifyPropertyChangedFor(nameof(IsAddonsTab))]
     [NotifyPropertyChangedFor(nameof(ShowsNoCollections))]
     private AuthorTab _tab;
 
     public bool IsItemsTab => Tab == AuthorTab.Items;
 
     public bool IsCollectionsTab => Tab == AuthorTab.Collections;
+
+    public bool IsAddonsTab => Tab == AuthorTab.Addons;
+
+    [RelayCommand]
+    private void ShowAddons() => Tab = AuthorTab.Addons;
+
+    // ------------------------------------------------------------------ Addons
+
+    public ObservableCollection<AuthorAddon> Addons { get; } = [];
+
+    public bool HasAddons => Addons.Count > 0;
+
+    // Opens the mod it is for - its item page lists its addons, with Install - or, when the catalog
+    // does not have that mod, the addon's page on sp-mod.com.
+    [RelayCommand]
+    private async Task OpenAddonAsync(AuthorAddon? addon)
+    {
+        if (addon is null) return;
+
+        if (addon.Parent is { } mod)
+        {
+            if (await AppServices.Browse.LoadDetailsAsync(mod) is { } failed) Message = failed;
+            return;
+        }
+
+        if (addon.Addon.DetailUrl is { } url) MarkupActions.OpenInBrowser(url);
+    }
 
     [RelayCommand]
     private void ShowItems() => Tab = AuthorTab.Items;

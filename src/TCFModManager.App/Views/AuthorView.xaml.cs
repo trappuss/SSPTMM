@@ -114,6 +114,14 @@ public partial class AuthorView : UserControl
         _viewModel?.OpenItemCommand.Execute(item);
     }
 
+    private void Addon_Click(object sender, MouseButtonEventArgs e)
+    {
+        if ((sender as FrameworkElement)?.DataContext is not AuthorAddon addon) return;
+
+        e.Handled = true;
+        _viewModel?.OpenAddonCommand.Execute(addon);
+    }
+
     private void Collection_Click(object sender, MouseButtonEventArgs e)
     {
         if ((sender as FrameworkElement)?.DataContext is not CollectionCardViewModel card) return;

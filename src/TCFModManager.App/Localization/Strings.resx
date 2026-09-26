@@ -6354,4 +6354,60 @@ This was written to:
     <value>Open their page on sp-mod.com</value>
     <comment>Tooltip on View on sp-mod.com on an author's page.</comment>
   </data>
+  <data name="Collection_UpdateAllToolTip" xml:space="preserve">
+    <value>Update every subscribed item of this collection that has a newer version for your SPT version</value>
+    <comment>Tooltip on Update all on a collection's page.</comment>
+  </data>
+  <data name="Author_TabAddons" xml:space="preserve">
+    <value>Addons</value>
+    <comment>An author's page: the tab of their addons (sp-mod.com's word; Steam has no addons).</comment>
+  </data>
+  <data name="Author_AddonForFormat" xml:space="preserve">
+    <value>Addon for {0}</value>
+    <comment>Under an addon's name on an author's page. {0} is the mod it is for.</comment>
+  </data>
+  <data name="Author_FollowNote" xml:space="preserve">
+    <value>Follow to see their new items first on the Workshop front page, and to find them under Your Items &gt; Followed authors.</value>
+    <comment>An author's page, under their followers: what following does in this app.</comment>
+  </data>
+  <data name="Collection_Favorite" xml:space="preserve">
+    <value>Favorite</value>
+    <comment>Button on a collection's page and Quick View: add it to your favorites. Steam's word.</comment>
+  </data>
+  <data name="Collection_Favorited" xml:space="preserve">
+    <value>Favorited</value>
+    <comment>The same button once the collection is a favorite (click again to remove it).</comment>
+  </data>
+  <data name="Collection_FavoriteToolTip" xml:space="preserve">
+    <value>Keep this collection under Your Items &gt; Favorites, which says when its author changes it</value>
+    <comment>Tooltip on Favorite.</comment>
+  </data>
+  <data name="Favorites_Title" xml:space="preserve">
+    <value>Favorites</value>
+    <comment>Your Items menu entry and page title: the collections you favorited.</comment>
+  </data>
+  <data name="Favorites_Header" xml:space="preserve">
+    <value>FAVORITED COLLECTIONS</value>
+    <comment>Heading on the Favorites page, before the count. Upper case in Steam's design.</comment>
+  </data>
+  <data name="Favorites_Browse" xml:space="preserve">
+    <value>Browse collections</value>
+    <comment>Button on the Favorites page: Browsing: Collections.</comment>
+  </data>
+  <data name="Favorites_Checking" xml:space="preserve">
+    <value>Checking each collection on sp-mod.com for changes...</value>
+    <comment>The Favorites page while it reads each favorite's page.</comment>
+  </data>
+  <data name="Favorites_Empty" xml:space="preserve">
+    <value>No favorites yet. Favorite a collection from its page or its Quick View to keep it here.</value>
+    <comment>The Favorites page with nothing on it.</comment>
+  </data>
+  <data name="Favorites_Changed" xml:space="preserve">
+    <value>Changed since you last opened it</value>
+    <comment>On a favorite whose author has updated it (or changed how many items it has) since it was last opened here.</comment>
+  </data>
+  <data name="Favorites_CouldNotCheck" xml:space="preserve">
+    <value>Could not be checked just now</value>
+    <comment>On a favorite whose page could not be read from sp-mod.com.</comment>
+  </data>
 </root>

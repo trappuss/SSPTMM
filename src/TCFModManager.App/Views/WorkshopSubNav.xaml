@@ -98,6 +98,8 @@
                         <TextBlock Style="{StaticResource SteamYourItemsHeader}" Text="{loc:Str Workshop_YourItemsHeader}" />
                         <Button Style="{StaticResource SteamYourItemsEntry}" Content="{loc:Str Workshop_SubscribedItems}" Click="SubscribedItems_Click" />
                         <Button Style="{StaticResource SteamYourItemsEntry}" Content="{loc:Str Workshop_YourCollections}" Click="YourCollections_Click" />
+                        <!-- HUNCH: the entry's name - Steam's menu shows its entries only when signed in. -->
+                        <Button Style="{StaticResource SteamYourItemsEntry}" Content="{loc:Str Favorites_Title}" Click="Favorites_Click" />
                         <Button Margin="0" Style="{StaticResource SteamYourItemsEntry}" Content="{loc:Str FollowedAuthors_Title}" Click="FollowedAuthors_Click" />
                     </StackPanel>
                 </Border>

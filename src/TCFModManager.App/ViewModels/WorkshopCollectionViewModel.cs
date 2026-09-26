@@ -132,9 +132,46 @@ public sealed partial class WorkshopCollectionItem : ObservableObject
     public void Refresh()
     {
         var installed = Mod is null ? null : AppServices.Browse.InstalledMatchFor(Mod);
+        _installed = installed;
         IsInstalled = installed is not null;
         _installedVersion = installed?.InstalledVersion;
         UpdateVersionText();
+    }
+
+    private InstalledModCardViewModel? _installed;
+
+    //
+    // What Update all would update this item to, when it would update it at all.
+    //
+    // A public collection's item: the version this page names for this install's SPT version (read
+    // from sp-mod.com for exactly that SPT), when it is newer than the one installed. One of your own
+    // collections: exactly what Subscribed items' Update all would do - only when its card says an
+    // update for this SPT is available (a newer release for the next SPT line only does not count),
+    // to the version it would pick.
+    //
+    // Never an addon (updated from its mod's page), a disabled mod, or a version sp-mod.com holds
+    // back - Subscribed items leaves those too.
+    //
+    public UpdateTarget? PendingUpdate()
+    {
+        if (IsAddon || Mod is not { } mod || _installed is not { IsDisabled: false } installed) return null;
+
+        string? version;
+        if (IsPublic)
+        {
+            version = Pick is { Found: true } pick ? pick.Version : null;
+            if (version is null || ModVersionComparer.IsUpdateAvailable(_installedVersion, version) != true) return null;
+        }
+        else
+        {
+            if (installed.UpdateAvailable != true) return null;
+            version = ModCardViewModel.PickDisplayVersion(mod, AppServices.SptEnvironment.InstalledVersion)?.Version;
+            if (version is null) return null;
+        }
+
+        if (AppServices.HeldBack.HeldVersion(mod.Id) is { } held && string.Equals(held, version, StringComparison.OrdinalIgnoreCase)) return null;
+
+        return new UpdateTarget(Name, mod, version, installed.IsAppManaged);
     }
 
     public void SetPick(CollectionVersionPick pick, string spt)
@@ -320,6 +357,18 @@ public sealed partial class WorkshopCollectionViewModel : LocalizedViewModel, IM
         UpdatedText = details.UpdatedAt is { } updated ? SteamDates.Short(updated) : null;
         AppServices.CollectionDetails.Remember(details);
 
+        // A favorite, opened: what it says now has been seen.
+        IsFavorite = AppServices.Favorites.IsFavorite(details.Id);
+        try
+        {
+            AppServices.Favorites.MarkSeen(details);
+        }
+        catch (Exception ex) when (ex is System.IO.IOException or UnauthorizedAccessException)
+        {
+            // Only a note of what was seen: the page shows all the same.
+            AppLog.Warn("Collections", $"favorite {details.Id} not marked seen: {ex.Message}");
+        }
+
         // Who made it, with their picture: from the catalog when they have mods there, otherwise
         // from their own page.
         ListAuthorId = SpModListAddress.UserId(details.AuthorUrl);
@@ -383,6 +432,8 @@ public sealed partial class WorkshopCollectionViewModel : LocalizedViewModel, IM
     //
     private void UpdateSummary()
     {
+        AnnounceUpdates();
+
         if (!IsPublic || Details is null)
         {
             Summary = null;
@@ -517,6 +568,17 @@ public sealed partial class WorkshopCollectionViewModel : LocalizedViewModel, IM
 
     public bool HasDescription => DescriptionHtml is not null || LocalDescription is not null;
 
+    // Steam's Favorite: kept here (sp-mod.com has no favorites for lists), listed under Your Items >
+    // Favorites, which says when one has changed since it was last opened.
+    [ObservableProperty]
+    private bool _isFavorite;
+
+    [RelayCommand]
+    private void ToggleFavorite()
+    {
+        if (Details is not null) IsFavorite = AppServices.Favorites.Set(Details, !IsFavorite);
+    }
+
     // Steam's Share: the collection's address, to paste anywhere.
     [RelayCommand]
     private void CopyLink()
@@ -636,6 +698,37 @@ public sealed partial class WorkshopCollectionViewModel : LocalizedViewModel, IM
     {
         foreach (var item in Items) item.Refresh();
         UpdateSummary();
+    }
+
+    // ------------------------------------------------------------------ Update all
+
+    // How many of its subscribed items have a newer version for this SPT - the count on Update all.
+    public int UpdatableCount => Items.Count(i => i.PendingUpdate() is not null);
+
+    public bool HasUpdates => UpdatableCount > 0;
+
+    public string UpdateAllLabel => Strings.Installed_UpdateAll(UpdatableCount);
+
+    private void AnnounceUpdates()
+    {
+        OnPropertyChanged(nameof(UpdatableCount));
+        OnPropertyChanged(nameof(HasUpdates));
+        OnPropertyChanged(nameof(UpdateAllLabel));
+    }
+
+    //
+    // Subscribed items' Update all, over this collection's items: each to the version for this SPT
+    // version, asked and queued exactly as there - see ModUpdates.
+    //
+    [RelayCommand]
+    private void UpdateAll()
+    {
+        var targets = Items.Select(i => i.PendingUpdate()).OfType<UpdateTarget>().ToList();
+        if (targets.Count == 0) return;
+
+        var (said, queued) = ModUpdates.Queue(targets);
+        Message = said;
+        if (queued) AppLog.Info("Collections", $"queued {targets.Count} update(s) from collection {Name}");
     }
 
     /// <summary>Stops listening once the page is closed or replaced.</summary>

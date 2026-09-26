@@ -33,6 +33,7 @@ public partial class MainWindow : FluentWindow
         AppNavigation.CloseItemPageRequested += (_, _) =>
         {
             QuickView.Close();
+            CollectionQuickView.Close();
             // Forgotten first, so no page closing brings another back.
             _under.Clear();
             CollectionPage.Close();
@@ -73,7 +74,17 @@ public partial class MainWindow : FluentWindow
             Uncover(ItemPage);
         };
 
-        AppServices.QuickView.Requested += (_, request) => QuickView.Show(request);
+        AppServices.QuickView.Requested += (_, request) =>
+        {
+            CollectionQuickView.Close();
+            QuickView.Show(request);
+        };
+
+        AppServices.CollectionQuickView.Requested += (_, request) =>
+        {
+            QuickView.Close();
+            CollectionQuickView.Show(request);
+        };
 
         // A collection opened from anywhere opens as its Workshop page, over the page it came from.
         AppServices.CollectionOverlay.Requested += (_, request) =>
@@ -131,6 +142,7 @@ public partial class MainWindow : FluentWindow
     private void Cover(FrameworkElement next)
     {
         QuickView.Close();
+        CollectionQuickView.Close();
         _under.Remove(next);
 
         if (TopPage is not { } top || ReferenceEquals(top, next)) return;
@@ -196,7 +208,7 @@ public partial class MainWindow : FluentWindow
         }
 
         WorkshopStrip.Visibility = pageType == typeof(InstalledPage) || pageType == typeof(ModListsPage)
-                || pageType == typeof(FollowedAuthorsPage)
+                || pageType == typeof(FollowedAuthorsPage) || pageType == typeof(FavoriteCollectionsPage)
             ? Visibility.Visible
             : Visibility.Collapsed;
     }

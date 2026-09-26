@@ -1,0 +1,276 @@
+<!--
+    Steam's Quick View of a collection (the magnifier on a Browsing: Collections card), over the
+    whole window.
+
+    Measured on steamcommunity.com/workshop/browse/?section=collections (2026-09-26): the same shell
+    as an item's Quick View (backdrop, arrows, the X, the modal #23262E 1150 wide with a
+    0 0 10px 5px rgba(0,0,0,.75) shadow, 16px padding) but one column. The title 24px bold white on
+    31px lines, 20px from the top; "CREATED BY:" 13px upper case #ACB2B8 7px under it, the name
+    rgba(255,255,255,.77); the box with a rgba(0,0,0,.28)-to-nothing gradient, 6px 10px padding,
+    labels 13px upper case in a 75px column and values 12px; 16px down, the description 15px #ACB2B8
+    on 20px lines; 27px down, "CONTAINS 235 ITEMS" 13px upper case, then squares 100x100, 104px
+    apart, 2px in: the picture fitted on #070707 inside #262B34 - nine of them and "+226" 20px light
+    white on #3D4450. 10px under them the bottom bar #262B34, 5px padding, its buttons 36px, 13px
+    white on #3D4450, radius 2, 1px 8px padding.
+
+    Left out, with nothing behind them on sp-mod.com: the rating (the SPT version it was made for
+    stands in its place, as on the cards), POSTED, VISITORS, FAVORITES, TAGS, the vote buttons,
+    Add to Collection, Report and the awards. See More opens the collection's page, as the title
+    does.
+-->
+<UserControl
+    x:Class="TCFModManager.App.Views.CollectionQuickViewOverlay"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:converters="clr-namespace:TCFModManager.App.Converters"
+    xmlns:behaviors="clr-namespace:TCFModManager.App.Behaviors"
+    xmlns:loc="clr-namespace:TCFModManager.App.Localization"
+    Focusable="True"
+    FocusVisualStyle="{x:Null}"
+    FontFamily="{StaticResource SteamFont}"
+    PreviewKeyDown="Overlay_KeyDown"
+    PreviewMouseDown="Overlay_PreviewMouseDown">
+    <UserControl.Resources>
+        <converters:NullToVisibilityConverter x:Key="NullToCollapsed" />
+        <converters:UpdateAvailableToVisibilityConverter x:Key="TrueToVisible" />
+        <converters:FalseToVisibilityConverter x:Key="FalseToVisible" />
+
+        <Style x:Key="QvLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Foreground" Value="#ACB2B8" />
+            <Setter Property="Margin" Value="0,0,5,0" />
+        </Style>
+
+        <!-- The bottom bar's buttons. -->
+        <Style x:Key="QvButton" TargetType="Button" BasedOn="{StaticResource SteamButton}">
+            <Setter Property="Padding" Value="8,1" />
+            <Setter Property="Height" Value="36" />
+            <Setter Property="Margin" Value="0,0,12,0" />
+        </Style>
+
+        <!-- The arrows at the window's edges. -->
+        <Style x:Key="QvStep" TargetType="Button">
+            <Setter Property="Width" Value="94" />
+            <Setter Property="Height" Value="48" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid x:Name="Face" Background="Transparent">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Face" Property="Opacity" Value="0.35" />
+                                <Setter Property="Cursor" Value="Arrow" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <!-- The backdrop; a click on it closes, as on Steam. -->
+        <Border Background="#99000000" MouseLeftButtonUp="Backdrop_Click" />
+
+        <Button
+            HorizontalAlignment="Left"
+            Style="{StaticResource QvStep}"
+            Command="{Binding PreviousCommand}"
+            ToolTip="{loc:Str Common_Previous}">
+            <Path Width="19" Height="30" Data="M19,0 L0,15 L19,30" Stretch="Fill" Stroke="White" StrokeThickness="4" />
+        </Button>
+        <Button
+            HorizontalAlignment="Right"
+            Style="{StaticResource QvStep}"
+            Command="{Binding NextCommand}"
+            ToolTip="{loc:Str Common_Next}">
+            <Path Width="19" Height="30" Data="M0,0 L19,15 L0,30" Stretch="Fill" Stroke="White" StrokeThickness="4" />
+        </Button>
+
+        <Grid MaxWidth="1150" Margin="94,0" VerticalAlignment="Center">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- The close X, above the top right. -->
+            <Button
+                Grid.Row="0"
+                Width="23"
+                Height="23"
+                Margin="0,0,0,27"
+                HorizontalAlignment="Right"
+                Cursor="Hand"
+                FocusVisualStyle="{x:Null}"
+                ToolTip="{loc:Str Common_Close}"
+                Click="Close_Click">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Grid Background="Transparent">
+                            <Path Width="12" Height="12" Data="M0,0 L12,12 M12,0 L0,12" Stretch="Fill" Stroke="White" StrokeThickness="2.5" />
+                        </Grid>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+
+            <!-- The shadow as a layer of its own behind the modal - see QuickViewOverlay. -->
+            <Border Grid.Row="1" Background="#23262E" IsHitTestVisible="False">
+                <Border.CacheMode>
+                    <BitmapCache />
+                </Border.CacheMode>
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="20" Opacity="0.75" ShadowDepth="0" Color="Black" />
+                </Border.Effect>
+            </Border>
+            <Border Grid.Row="1" Background="#23262E" MouseLeftButtonUp="Modal_MouseLeftButtonUp">
+                <StackPanel>
+                    <StackPanel Margin="16,20,16,0">
+                        <DockPanel>
+                            <!-- Where Steam's rating sits: the SPT version it was made for. -->
+                            <TextBlock
+                                Margin="12,4,0,0"
+                                VerticalAlignment="Top"
+                                DockPanel.Dock="Right"
+                                FontSize="12"
+                                Foreground="#ACB2B8"
+                                Text="{Binding SptText}"
+                                Visibility="{Binding SptText, Converter={StaticResource NullToCollapsed}}" />
+                            <TextBlock
+                                FontSize="24"
+                                FontWeight="Bold"
+                                LineHeight="31"
+                                LineStackingStrategy="BlockLineHeight"
+                                MaxHeight="62"
+                                TextTrimming="CharacterEllipsis"
+                                TextWrapping="Wrap">
+                                <Hyperlink Foreground="White" TextDecorations="{x:Null}" Command="{Binding OpenCollectionCommand}">
+                                    <Run Text="{Binding Title, Mode=OneWay}" />
+                                </Hyperlink>
+                            </TextBlock>
+                        </DockPanel>
+
+                        <TextBlock Margin="0,7,0,0" FontSize="13" Visibility="{Binding HasAuthor, Converter={StaticResource TrueToVisible}}">
+                            <Run Foreground="#ACB2B8" Text="{loc:Str QuickView_CreatedBy}" />
+                            <Hyperlink Foreground="#C5FFFFFF" TextDecorations="{x:Null}" Command="{Binding OpenAuthorCommand}">
+                                <Run Text="{Binding Author, Mode=OneWay}" />
+                            </Hyperlink>
+                        </TextBlock>
+
+                        <!-- When it was last updated. -->
+                        <Border Margin="0,4,0,0" Padding="10,6" Visibility="{Binding UpdatedText, Converter={StaticResource NullToCollapsed}}">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                    <GradientStop Offset="0" Color="#47000000" />
+                                    <GradientStop Offset="1" Color="#00000000" />
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <StackPanel Height="19" Orientation="Horizontal">
+                                <TextBlock Width="75" Style="{StaticResource QvLabel}" Text="{loc:Str QuickView_Updated}" />
+                                <TextBlock VerticalAlignment="Center" FontSize="12" Foreground="#ACB2B8" Text="{Binding UpdatedText}" />
+                            </StackPanel>
+                        </Border>
+
+                        <TextBlock
+                            Margin="0,16,0,0"
+                            MaxHeight="140"
+                            FontSize="15"
+                            Foreground="#ACB2B8"
+                            LineHeight="20"
+                            LineStackingStrategy="BlockLineHeight"
+                            TextTrimming="WordEllipsis"
+                            TextWrapping="Wrap"
+                            Text="{Binding Description}"
+                            Visibility="{Binding Description, Converter={StaticResource NullToCollapsed}}" />
+
+                        <TextBlock
+                            Margin="0,12,0,0"
+                            FontSize="13"
+                            Foreground="{StaticResource SteamLegacyBlue}"
+                            TextWrapping="Wrap"
+                            Text="{Binding Message}"
+                            Visibility="{Binding Message, Converter={StaticResource NullToCollapsed}}" />
+
+                        <!-- CONTAINS N ITEMS and the squares. -->
+                        <TextBlock Margin="0,27,0,0" FontSize="13" Foreground="#ACB2B8" Text="{Binding ContainsText}" />
+                        <Grid Height="100" Margin="2,0,0,0">
+                            <ui:ProgressRing
+                                Width="28"
+                                Height="28"
+                                HorizontalAlignment="Left"
+                                IsIndeterminate="True"
+                                Visibility="{Binding IsLoading, Converter={StaticResource TrueToVisible}}" />
+                            <ItemsControl Focusable="False" ClipToBounds="True" ItemsSource="{Binding Tiles}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Horizontal" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border
+                                            x:Name="Tile"
+                                            Width="100"
+                                            Height="100"
+                                            Margin="0,0,4,0"
+                                            Background="#262B34"
+                                            Cursor="Hand"
+                                            ToolTip="{Binding Item.Name}"
+                                            MouseLeftButtonUp="Tile_Click">
+                                            <Grid>
+                                                <Grid Background="#070707" Visibility="{Binding IsMore, Converter={StaticResource FalseToVisible}}">
+                                                    <Image Stretch="Uniform" behaviors:ThumbnailLoader.DecodeWidth="100" behaviors:ThumbnailLoader.Source="{Binding Picture}" />
+                                                </Grid>
+                                                <Border Background="#3D4450" Visibility="{Binding IsMore, Converter={StaticResource TrueToVisible}}">
+                                                    <TextBlock
+                                                        HorizontalAlignment="Center"
+                                                        VerticalAlignment="Center"
+                                                        FontFamily="{StaticResource SteamFontLight}"
+                                                        FontWeight="Light"
+                                                        FontSize="20"
+                                                        Foreground="White"
+                                                        Text="{Binding MoreText}" />
+                                                </Border>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- The bottom bar. -->
+                    <Border Margin="0,10,0,0" Padding="5" Background="#262B34">
+                        <DockPanel>
+                            <Button DockPanel.Dock="Right" Margin="0" Style="{StaticResource QvButton}" Command="{Binding OpenCollectionCommand}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{loc:Str QuickView_SeeMore}" />
+                                    <ui:SymbolIcon Margin="6,0,0,0" FontSize="14" Symbol="ArrowRight16" />
+                                </StackPanel>
+                            </Button>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Style="{StaticResource QvButton}" Command="{Binding ToggleFavoriteCommand}" ToolTip="{loc:Str Collection_FavoriteToolTip}">
+                                    <Grid>
+                                        <StackPanel Orientation="Horizontal" Visibility="{Binding IsFavorite, Converter={StaticResource FalseToVisible}}">
+                                            <ui:SymbolIcon Margin="0,0,6,0" FontSize="14" Symbol="Star16" />
+                                            <TextBlock Text="{loc:Str Collection_Favorite}" />
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Visibility="{Binding IsFavorite, Converter={StaticResource TrueToVisible}}">
+                                            <ui:SymbolIcon Margin="0,0,6,0" FontSize="14" Filled="True" Foreground="#66C0F4" Symbol="Star16" />
+                                            <TextBlock Text="{loc:Str Collection_Favorited}" />
+                                        </StackPanel>
+                                    </Grid>
+                                </Button>
+                            </StackPanel>
+                        </DockPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

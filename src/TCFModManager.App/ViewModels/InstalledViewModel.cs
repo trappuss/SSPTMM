@@ -1545,40 +1545,17 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
             return;
         }
 
-        //
-        // One warning covering every hand-installed mod in the batch, for the same reason the
-        // single-mod path warns at all: there is no record of which files the current version
-        // placed, so the new one goes on top of it.
-        //
-        var handInstalled = resolved.Where(r => !r.Card.IsAppManaged).Select(r => r.Card.DisplayTitle).ToList();
-        if (handInstalled.Count > 0 && !Confirm(
-                Strings.Installed_UpdateHandInstalledTitle(handInstalled.Count),
-                Text(Strings.Installed_UpdateHandInstalledBodyFormat, TextLists.Join(handInstalled))))
+        // Asked and queued the way every Update all is - see ModUpdates.
+        var (said, queued) = ModUpdates.Queue(resolved
+            .Select(r => new UpdateTarget(r.Card.DisplayTitle, r.Mod, r.Version, r.Card.IsAppManaged))
+            .ToList());
+        if (!queued)
         {
-            StatusMessage = Strings.Installed_UpdateCancelled;
+            StatusMessage = said;
             return;
         }
 
-        // The same dialog a single install goes through, asked once for the batch - each with the
-        // change notes of the version it updates to. ConfirmAll honours the Options switch that
-        // turns the dialog off.
-        var links = resolved
-            .Select(r => new ModPageLink(r.Card.DisplayTitle, r.Mod.DetailUrl) { ModId = r.Mod.Id, ChangeNotesVersion = r.Version })
-            .ToList();
-        if (!ReadModPageConfirmationWindow.ConfirmAll(links))
-        {
-            StatusMessage = Strings.Installed_UpdateCancelledUnread;
-            return;
-        }
-
-        foreach (var (_, mod, version) in resolved)
-        {
-            AppServices.DownloadQueue.Enqueue(
-                InstallTarget.For(mod), version, installPath, () => ResolveVersionLinkAsync(mod, version));
-        }
-
-        var queued = Strings.Installed_UpdateQueued(resolved.Count);
-        StatusMessage = queued + DescribeSkipped(selected, resolved.Count, unmatched);
+        StatusMessage = said + DescribeSkipped(selected, resolved.Count, unmatched);
         if (heldBackNote is not null) StatusMessage = string.Join(Strings.Common_SentenceSeparator, StatusMessage, heldBackNote);
 
         AppLog.Info("Installed", $"queued {resolved.Count} update(s) from a selection of {selected.Count}");
@@ -1626,15 +1603,6 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         return parts.Count == 0
             ? string.Empty
             : Text(Strings.Installed_SkippedFormat, string.Join(Strings.Common_ListSeparator, parts));
-    }
-
-    // Twin of BrowseViewModel's resolver. Duplicated rather than shared: pulling it out would mean
-    // editing a file this change otherwise doesn't touch, for four lines.
-    private static async Task<ModVersion?> ResolveVersionLinkAsync(Mod mod, string version)
-    {
-        var versions = await AppServices.SpModApi.GetModVersionsAsync(
-            mod.Id.ToString(), new ModVersionsQuery { FilterVersion = version, PerPage = 5 });
-        return versions.Data.FirstOrDefault(v => v.Version == version) ?? versions.Data.FirstOrDefault();
     }
 
     //

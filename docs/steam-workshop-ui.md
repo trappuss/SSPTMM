@@ -687,6 +687,54 @@ to darken it and Use the Steam grid to go back. The picture is copied into Data\
 moving or deleting the original changes nothing. The Workshop pages over the page area (item,
 collection, author) keep Steam's solid #1B2838, as Steam's own pages do.
 
+## Thirteenth round: a collection's Quick View, Favorites, Update all, addons (2026-09-26)
+
+**A collection's Quick View.** Steam's collection cards carry the magnifier too (measured: the
+same shell as an item's Quick View, one column). Under the pointer each card on Browsing:
+Collections shows it; it opens the title, CREATED BY (a link to their page), UPDATED, the
+description, CONTAINS N ITEMS over nine of its items' pictures and "+N" for the rest (a picture
+opens that item), Favorite, and See More (the collection's page). Arrows and the arrow keys step
+through the cards on the page; Esc, the X or a click beside it closes it. Steam's rating,
+visitors, tags, votes and awards have nothing behind them on sp-mod.com and are left out; the SPT
+version sits where the rating does, as on the cards. "Contains N items" and "+N" count the entries
+sp-mod.com says are no longer available too, so they match the card (and the hover popup now adds
+up the same way).
+
+**Favorite.** Steam's word for keeping a collection. The button is on a public collection's page
+(before Share, where Steam has it) and in its Quick View; Your Items > Favorites lists them as
+Steam's collection rows with the hover popup. sp-mod.com has no favorites for lists, so they are
+kept in settings.json. Each favorite remembers what its page said the last time it was opened here
+(when it was updated, how many entries); the Favorites page reads each one and marks those changed
+since - "Changed since you last opened it" - until opened again. Removing one on that page and
+putting it back keeps what had been seen. The label "Favorited" once pressed, and "Favorites" in
+the Your Items menu, are HUNCH: Steam's signed-in menu and pressed button could not be seen
+signed out.
+
+**Update all on a collection.** Beside Subscribe to all, while any of its subscribed items has a
+newer version for your SPT: "Update all (N)". It goes through exactly what Subscribed items' Update
+all does (moved into Services\ModUpdates so the two cannot drift): one warning for hand-installed
+mods, the page gate once for the lot with each version's change notes, then the download queue.
+A public collection's item updates to the version the page names for your SPT; one of your own
+collections' items only when Subscribed items itself says an update for your SPT is available. Never
+an addon, a disabled mod, or a version sp-mod.com holds back.
+
+**Addons on an author's page.** A tab when they have addons (sp-mod.com's; Steam has none): the
+same squares as their items with "Addon for <mod>" under each; a click opens that mod's page, which
+lists its addons with Install (the addon's own sp-mod.com page when the catalog lacks the mod).
+Someone with addons and no items opens on it.
+
+**Followers, measured again.** On Steam the count and "Followers" sit side by side (18px, 20px
+over, 8px down), with a line under them on what following does; now as Steam has it. The line says
+what following does here.
+
+**Fixed.**
+- A collection's page opened while the hover popup or Quick View was still reading it could fail
+  with "A task was canceled": the shared read was tied to whoever asked first.
+
+**import-bundle.bat** (in Claude outputs, next to the bundle): verifies the bundle, stops if there
+are uncommitted changes to tracked files, then moves steam-workshop-ui forward to the bundle -
+fast-forward only; if the branch has commits the bundle does not, it says so and changes nothing.
+
 ## Values that could not be measured (marked HUNCH in the source)
 
 - The smooth-scroll distance and time (100px, 250ms) - chosen to feel like a browser, not measured.
@@ -696,6 +744,8 @@ collection, author) keep Steam's solid #1B2838, as Steam's own pages do.
 - The Follow button's words ("+ Follow", "Following", "Unfollow" under the pointer): Steam only
   draws that button for someone signed in. Its colours are measured.
 - Quick View's button hover colours (Steam shows them disabled until signed in).
+- A collection's Favorite once pressed ("Favorited", a filled blue star) and the Your Items menu's
+  "Favorites" entry: both only show for someone signed in.
 - The page behind Quick View is darkened to about 40% (measured from a screenshot, not the CSS).
 - The thumbnail cache's budget (160 MB) and how far from the view pictures are kept (two screens).
 
