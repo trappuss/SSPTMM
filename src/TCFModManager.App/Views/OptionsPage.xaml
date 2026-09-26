@@ -169,6 +169,18 @@
                     IsChecked="{Binding StartLauncherAfterServer}"
                     OnContent="{loc:Str Options_LaunchSwitchOn}"
                     OffContent="{loc:Str Options_LaunchSwitchOff}" />
+                <ui:ToggleSwitch
+                    HorizontalAlignment="Left"
+                    Margin="0,8,0,0"
+                    IsChecked="{Binding HideServerWindow}"
+                    OnContent="{loc:Str Options_HideServerOn}"
+                    OffContent="{loc:Str Options_HideServerOff}" />
+                <TextBlock
+                    TextWrapping="Wrap"
+                    FontSize="12"
+                    Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                    Margin="0,6,0,0"
+                    Text="{loc:Str Options_HideServerNote}" />
             </StackPanel>
         </ui:Card>
 

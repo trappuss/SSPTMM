@@ -6795,4 +6795,36 @@ Install the file as it is anyway?</value>
     <value>Only mod archives (.zip, .7z, .rar, .tar, .gz) can be dropped here to install.</value>
     <comment>Status line when files that are not archives are dropped on Subscribed items.</comment>
   </data>
+  <data name="Options_HideServerOn" xml:space="preserve">
+    <value>Run the server without its window</value>
+    <comment>Options switch, on: SPT.Server starts with no console window.</comment>
+  </data>
+  <data name="Options_HideServerOff" xml:space="preserve">
+    <value>Show the server window</value>
+    <comment>Options switch, off.</comment>
+  </data>
+  <data name="Options_HideServerNote" xml:space="preserve">
+    <value>Without its window, the server's log is shown on the Play page and Stop server there closes it properly. It keeps running if you close this app - stop it from the Play page.</value>
+    <comment>Options note under the hide-server switch.</comment>
+  </data>
+  <data name="Play_ServerStoppedStarting" xml:space="preserve">
+    <value>The server closed before it was ready, so the launcher was not opened. The server log shows why.</value>
+    <comment>Play page when the server exits while the launcher waits for it.</comment>
+  </data>
+  <data name="Play_WaitingForServerOnly" xml:space="preserve">
+    <value>Server starting...</value>
+    <comment>Play page while it waits for a server started without its window to open its port.</comment>
+  </data>
+  <data name="Play_ServerIsUp" xml:space="preserve">
+    <value>The server is up.</value>
+    <comment>Play page once a server started without its window is listening.</comment>
+  </data>
+  <data name="Play_ServerStoppedStartingOnly" xml:space="preserve">
+    <value>The server closed before it was ready. The server log shows why.</value>
+    <comment>Play page when a server started without its window exits before it is up.</comment>
+  </data>
+  <data name="Play_ServerDescriptionHidden" xml:space="preserve">
+    <value>Starts this install's server with no window (Options) - what it is doing shows in the server log here. It keeps running if you close this app. While it runs, Start server becomes Stop server, which closes it properly. Restart stops it and starts it again - for a config edited or a server mod dropped in.</value>
+    <comment>Play page server card text when the server is set to start without its window.</comment>
+  </data>
 </root>

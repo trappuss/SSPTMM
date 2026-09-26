@@ -175,8 +175,12 @@ public static class SptLaunchService
         };
     }
 
+    //
+    // hidden: start the SERVER with no console window (the other targets are windows people use,
+    // and ignore it). Its log is still written to user/logs, which the Play page shows.
+    //
     public static SptLaunchResult Launch(
-        string? installPath, SptLaunchTarget target, string? headlessExePath = null)
+        string? installPath, SptLaunchTarget target, string? headlessExePath = null, bool hidden = false)
     {
         var info = Describe(installPath, target, headlessExePath);
 
@@ -199,6 +203,12 @@ public static class SptLaunchService
             // WorkingDirectory is the exe's own folder because SPT resolves its data folders
             // relative to it; started from this app's directory it looks for them here.
             //
+            if (hidden && target == SptLaunchTarget.Server)
+            {
+                StartHidden(info.ExePath!);
+                return new SptLaunchResult { Info = info, Started = true };
+            }
+
             using var process = Process.Start(new ProcessStartInfo
             {
                 FileName = info.ExePath!,
@@ -227,7 +237,7 @@ public static class SptLaunchService
     // ends up with a second server they did not know they had.
     //
     public static SptLaunchResult Restart(
-        string? installPath, SptLaunchTarget target, string? headlessExePath = null)
+        string? installPath, SptLaunchTarget target, string? headlessExePath = null, bool hidden = false)
     {
         var info = Describe(installPath, target, headlessExePath);
 
@@ -264,7 +274,7 @@ public static class SptLaunchService
         //
         Thread.Sleep(StopSettleDelay);
 
-        var result = Launch(installPath, target, headlessExePath);
+        var result = Launch(installPath, target, headlessExePath, hidden);
 
         return result with { Stopped = stopped };
     }
@@ -301,6 +311,32 @@ public static class SptLaunchService
         }
     }
 
+    //
+    // The server with no window: a console of its own that is never shown (CREATE_NO_WINDOW), so its
+    // console calls work as they always do and Ctrl+C still reaches it (see Interrupt). Nothing is
+    // read from it - SPT writes its own log file.
+    //
+    // Its input is an empty pipe, closed at once. When SPT cannot start (its port is taken, a mod
+    // fails validation) it says "Press any key to exit" and waits for a key; with no window nobody
+    // could press one, and the server would sit there invisibly for ever. With no input it finds
+    // none and exits, and the Play page says it stopped before it was ready.
+    //
+    // Not tied to this app: closing the app leaves the server running, as a visible one does.
+    //
+    private static void StartHidden(string exePath)
+    {
+        using var process = Process.Start(new ProcessStartInfo
+        {
+            FileName = exePath,
+            WorkingDirectory = Path.GetDirectoryName(exePath),
+            UseShellExecute = false,
+            CreateNoWindow = true,
+            RedirectStandardInput = true,
+        }) ?? throw new InvalidOperationException("the server process did not start");
+
+        process.StandardInput.Close();
+    }
+
     private static readonly TimeSpan StopSettleDelay = TimeSpan.FromMilliseconds(750);
 
     // How long a process gets to close on its own after being asked, before it is killed.
@@ -326,7 +362,11 @@ public static class SptLaunchService
             {
                 if (process.HasExited) continue;
 
-                if (!process.CloseMainWindow() || !process.WaitForExit((int)CloseGrace.TotalMilliseconds))
+                // A window to close when it has one; with none (started hidden, or hosted in Windows
+                // Terminal), Ctrl+C - which SPT answers by shutting down properly. Killed only when
+                // neither worked in time.
+                var asked = process.MainWindowHandle != IntPtr.Zero ? process.CloseMainWindow() : Interrupt(process);
+                if (!asked || !process.WaitForExit((int)CloseGrace.TotalMilliseconds))
                 {
                     process.Kill();
                     process.WaitForExit((int)CloseGrace.TotalMilliseconds);
@@ -350,6 +390,69 @@ public static class SptLaunchService
         }
 
         return stopped;
+    }
+
+    //
+    // Ctrl+C to a console process with no window: this app joins its console for a moment, sends the
+    // event, and leaves - ignoring the event itself meanwhile, since everything on that console gets
+    // it. The ignore is lifted once the process has gone (or the grace is over): it is inherited by
+    // processes started later, and a server started with it set could not be asked to stop.
+    //
+    // False when it could not be sent (not Windows, the process has no console, this app has one of
+    // its own): the caller then kills it, as before.
+    //
+    private static bool Interrupt(Process process)
+    {
+        if (!OperatingSystem.IsWindows()) return false;
+
+        // A process has one console at a time: one stop at a time joins one.
+        lock (Consoles)
+        {
+            return InterruptAttached(process);
+        }
+    }
+
+    private static readonly Lock Consoles = new();
+
+    private static bool InterruptAttached(Process process)
+    {
+        if (!NativeConsole.AttachConsole((uint)process.Id)) return false;
+
+        var ignoring = NativeConsole.SetConsoleCtrlHandler(IntPtr.Zero, true);
+        try
+        {
+            var sent = NativeConsole.GenerateConsoleCtrlEvent(NativeConsole.CtrlCEvent, 0);
+            NativeConsole.FreeConsole();
+            if (!sent) return false;
+
+            process.WaitForExit((int)CloseGrace.TotalMilliseconds);
+            return true;
+        }
+        finally
+        {
+            if (ignoring) NativeConsole.SetConsoleCtrlHandler(IntPtr.Zero, false);
+        }
+    }
+
+    private static class NativeConsole
+    {
+        public const uint CtrlCEvent = 0;
+
+        [System.Runtime.InteropServices.DllImport("kernel32.dll", SetLastError = true)]
+        [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
+        public static extern bool AttachConsole(uint processId);
+
+        [System.Runtime.InteropServices.DllImport("kernel32.dll", SetLastError = true)]
+        [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
+        public static extern bool FreeConsole();
+
+        [System.Runtime.InteropServices.DllImport("kernel32.dll", SetLastError = true)]
+        [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
+        public static extern bool SetConsoleCtrlHandler(IntPtr handler, [System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)] bool add);
+
+        [System.Runtime.InteropServices.DllImport("kernel32.dll", SetLastError = true)]
+        [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
+        public static extern bool GenerateConsoleCtrlEvent(uint ctrlEvent, uint processGroupId);
     }
 
     //

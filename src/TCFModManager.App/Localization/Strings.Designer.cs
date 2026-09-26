@@ -1804,4 +1804,12 @@ internal static class Strings
     internal static string Installed_LocalConfirmPackFormat => LocalizationService.Get("Installed_LocalConfirmPackFormat");
     internal static string Upgrade_NoReleases => LocalizationService.Get("Upgrade_NoReleases");
     internal static string Installed_DropNotArchive => LocalizationService.Get("Installed_DropNotArchive");
+    internal static string Options_HideServerOn => LocalizationService.Get("Options_HideServerOn");
+    internal static string Options_HideServerOff => LocalizationService.Get("Options_HideServerOff");
+    internal static string Options_HideServerNote => LocalizationService.Get("Options_HideServerNote");
+    internal static string Play_ServerStoppedStarting => LocalizationService.Get("Play_ServerStoppedStarting");
+    internal static string Play_WaitingForServerOnly => LocalizationService.Get("Play_WaitingForServerOnly");
+    internal static string Play_ServerIsUp => LocalizationService.Get("Play_ServerIsUp");
+    internal static string Play_ServerStoppedStartingOnly => LocalizationService.Get("Play_ServerStoppedStartingOnly");
+    internal static string Play_ServerDescriptionHidden => LocalizationService.Get("Play_ServerDescriptionHidden");
 }

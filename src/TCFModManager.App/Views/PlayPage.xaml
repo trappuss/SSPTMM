@@ -85,7 +85,7 @@
                     TextWrapping="Wrap"
                     Foreground="{DynamicResource TextFillColorSecondaryBrush}"
                     Margin="0,0,0,8"
-                    Text="{loc:Str Play_ServerDescription}" />
+                    Text="{Binding ServerDescription}" />
 
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                     <ui:Button

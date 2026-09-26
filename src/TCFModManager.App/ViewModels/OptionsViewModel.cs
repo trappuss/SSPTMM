@@ -95,6 +95,21 @@ public partial class OptionsViewModel : LocalizedViewModel
         AppLog.Info("Launch", value ? "launcher follows the server" : "launcher no longer follows the server");
     }
 
+    // Whether Start server runs it with no console window - see AppSettings.
+    [ObservableProperty]
+    private bool _hideServerWindow;
+
+    partial void OnHideServerWindowChanged(bool value)
+    {
+        if (!_loaded) return;
+
+        var settings = _settings.Load();
+        settings.HideServerWindow = value;
+        _settings.Save(settings);
+
+        AppLog.Info("Launch", value ? "the server starts without a window" : "the server starts in its window");
+    }
+
     // Whether the mouse wheel glides or jumps - see AppSettings and Behaviors/SmoothScrolling.
     [ObservableProperty]
     private bool _smoothScrolling;
@@ -287,6 +302,7 @@ public partial class OptionsViewModel : LocalizedViewModel
         _skipModPageConfirmation = settings.SkipModPageConfirmation;
         _showModFootprintPage = settings.ShowModFootprintPage;
         _startLauncherAfterServer = settings.StartLauncherAfterServer;
+        _hideServerWindow = settings.HideServerWindow;
         _smoothScrolling = settings.SmoothScrolling;
         _confirmUnsubscribe = settings.ConfirmUnsubscribe;
         _keepDownloads = settings.KeepDownloads;

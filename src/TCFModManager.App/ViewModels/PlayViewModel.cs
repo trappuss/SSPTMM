@@ -207,6 +207,13 @@ public partial class PlayViewModel : LocalizedViewModel
     //
     public bool HasHeadless => Headless?.Exists == true || RunsHeadlessClient;
 
+    // Whether Start server runs it without its window (Options) - the card says which it does.
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ServerDescription))]
+    private bool _hidesServerWindow;
+
+    public string ServerDescription => HidesServerWindow ? Strings.Play_ServerDescriptionHidden : Strings.Play_ServerDescription;
+
     // What Options has been told this machine is - see AppSettings.PlaysHere / RunsHeadlessClient.
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasHeadless))]
@@ -262,6 +269,8 @@ public partial class PlayViewModel : LocalizedViewModel
         Headless = SptLaunchService.Describe(
             installPath, SptLaunchTarget.Headless, settings.HeadlessLauncherPath);
 
+        HidesServerWindow = settings.HideServerWindow;
+
         var roles = settings.Roles;
         PlaysHere = roles.HasFlag(InstallRoles.Player);
         RunsHeadlessClient = roles.HasFlag(InstallRoles.Headless);
@@ -275,11 +284,19 @@ public partial class PlayViewModel : LocalizedViewModel
         var ports = SptServerReadiness.PortsFor(Server?.ExePath);
         _portsBeforeStart = ports.Where(p => !SptServerReadiness.IsListening(new HashSet<int> { p })).ToHashSet();
 
-        Start(SptLaunchTarget.Server);
+        var settings = new SettingsService().Load();
+        Start(SptLaunchTarget.Server, settings.HideServerWindow);
 
-        if (HasError || !new SettingsService().Load().StartLauncherAfterServer || Client is not { CanLaunch: true }) return;
+        // With no window, the log below is where the server says what it is doing.
+        if (!HasError && settings.HideServerWindow) ShowServerLog = true;
 
-        await StartLauncherWhenServerIsUpAsync();
+        if (HasError) return;
+
+        var openLauncher = settings.StartLauncherAfterServer && Client is { CanLaunch: true };
+
+        // Watched for without the launcher too when it has no window: otherwise a server that gives
+        // up on starting would just be gone, with nothing said.
+        if (openLauncher || settings.HideServerWindow) await StartLauncherWhenServerIsUpAsync(openLauncher);
     }
 
     // Set while the page waits for the server to open its port.
@@ -291,10 +308,10 @@ public partial class PlayViewModel : LocalizedViewModel
     // heavily modded server can take a while to load - and dropped if the server goes down or the
     // launcher is started some other way meanwhile.
     //
-    private async Task StartLauncherWhenServerIsUpAsync()
+    private async Task StartLauncherWhenServerIsUpAsync(bool openLauncher = true)
     {
         IsWaitingForServer = true;
-        Message = Strings.Play_WaitingForServer;
+        Message = openLauncher ? Strings.Play_WaitingForServer : Strings.Play_WaitingForServerOnly;
 
         _launcherWait?.Cancel();
         var cancel = _launcherWait = new CancellationTokenSource();
@@ -319,7 +336,7 @@ public partial class PlayViewModel : LocalizedViewModel
             bool StillWanted() =>
                 DateTime.UtcNow - started < TimeSpan.FromSeconds(15)
                 || (SptLaunchService.Describe(installPath, SptLaunchTarget.Server).IsRunning
-                    && !SptLaunchService.Describe(installPath, SptLaunchTarget.Client).IsRunning);
+                    && (!openLauncher || !SptLaunchService.Describe(installPath, SptLaunchTarget.Client).IsRunning));
 
             bool up;
             try
@@ -332,14 +349,26 @@ public partial class PlayViewModel : LocalizedViewModel
             }
 
             Refresh();
-            if (up && Client is { CanLaunch: true })
+            if (up && openLauncher && Client is { CanLaunch: true })
             {
                 Start(SptLaunchTarget.Client);
             }
-            else if (!up && Server?.IsRunning == true && Client?.IsRunning != true)
+            else if (up && !openLauncher)
+            {
+                Message = Strings.Play_ServerIsUp;
+            }
+            else if (!up && openLauncher && Server?.IsRunning == true && Client?.IsRunning != true)
             {
                 HasError = true;
                 Message = Text(Strings.Play_ServerNotUpFormat, string.Join(", ", ports.Order()));
+            }
+            else if (!up && Server?.IsRunning != true && !cancel.IsCancellationRequested)
+            {
+                // It went before it was up - on startup SPT gives up on a taken port or a mod that
+                // fails its checks, and says why in its log (the only place, when it has no window).
+                HasError = true;
+                Message = openLauncher ? Strings.Play_ServerStoppedStarting : Strings.Play_ServerStoppedStartingOnly;
+                ShowServerLog = true;
             }
         }
         finally
@@ -358,10 +387,10 @@ public partial class PlayViewModel : LocalizedViewModel
     [RelayCommand]
     private void StartHeadless() => Start(SptLaunchTarget.Headless);
 
-    private void Start(SptLaunchTarget target)
+    private void Start(SptLaunchTarget target, bool hidden = false)
     {
         var result = SptLaunchService.Launch(
-            AppServices.SptEnvironment.InstallPath, target, HeadlessOverride());
+            AppServices.SptEnvironment.InstallPath, target, HeadlessOverride(), hidden);
 
         HasError = !result.Started;
         Message = result.Started
@@ -445,7 +474,8 @@ public partial class PlayViewModel : LocalizedViewModel
             var installPath = AppServices.SptEnvironment.InstallPath;
             var headless = HeadlessOverride();
 
-            var result = await Task.Run(() => SptLaunchService.Restart(installPath, target, headless));
+            var hidden = new SettingsService().Load().HideServerWindow;
+            var result = await Task.Run(() => SptLaunchService.Restart(installPath, target, headless, hidden));
 
             HasError = !result.Started;
             Message = result.Started

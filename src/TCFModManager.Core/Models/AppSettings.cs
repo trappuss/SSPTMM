@@ -52,6 +52,14 @@ public sealed class AppSettings
     public bool StartLauncherAfterServer { get; set; }
 
     //
+    // Whether Start server (and its restart) runs the server with no console window. Its log is
+    // still written to user/logs and shown on the Play page; Stop server asks it to stop with
+    // Ctrl+C, as the window's close did. Off by default: the window is where SPT has always shown
+    // what it is doing.
+    //
+    public bool HideServerWindow { get; set; }
+
+    //
     // Whether a turn of the mouse wheel glides the page to where it takes it, as a browser does,
     // or jumps there at once. On by default; the distance per turn is the same either way.
     //
