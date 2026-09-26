@@ -228,4 +228,27 @@ public class ModConfigStoreTests : IDisposable
             File.Delete(outside);
         }
     }
+
+    [Fact]
+    public void TwoSavesInOneSecond_KeepTheBackupOfTheOriginal()
+    {
+        var path = WriteFile("BepInEx/config/twice.cfg", "original");
+        var first = Save(path, "first edit", ModConfigStore.Load(path));
+        var second = Save(path, "second edit", first.Saved!);
+
+        Assert.Equal("original", File.ReadAllText(first.BackupPath!));
+        Assert.Equal("first edit", File.ReadAllText(second.BackupPath!));
+        Assert.NotEqual(first.BackupPath, second.BackupPath);
+    }
+
+    [Fact]
+    public void AJson5File_IsSavedEvenThoughNoJsonReaderAcceptsIt()
+    {
+        var path = WriteFile("user/mods/SomeMod/config/config.json5", "{ enabled: true }");
+
+        var result = Save(path, "{ enabled: false, 'name': 'x', }", ModConfigStore.Load(path));
+
+        Assert.True(result.Succeeded);
+        Assert.Equal("{ enabled: false, 'name': 'x', }", File.ReadAllText(path));
+    }
 }

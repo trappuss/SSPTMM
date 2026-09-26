@@ -594,10 +594,22 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
     {
         if (string.IsNullOrWhiteSpace(version.Version)) return;
 
-        var missing = await FindMissingDependenciesAsync(item.Target, version.Version, item.InstallPath, token);
-        if (missing is null || missing.Count == 0) return;
+        var check = await FindMissingDependenciesAsync(item.Target, version.Version, item.InstallPath, token, version);
+        if (check is null) return;
 
         token.ThrowIfCancellationRequested();
+
+        // What is installed but will not do (disabled, too new, the wrong version, nothing for this
+        // SPT): said before anything is downloaded, and the install can be stopped here.
+        if (check.Problems.Count > 0 && !ConfirmDespite(item.ModName, check.Problems))
+        {
+            item.CancelCommand.Execute(null);
+            token.ThrowIfCancellationRequested();
+            return;
+        }
+
+        var missing = check.Missing;
+        if (missing.Count == 0) return;
 
         // One gate covering every missing dependency at once: each mod's page must be opened
         // before Continue unlocks, replacing what was previously a separate Yes/No prompt plus a
@@ -613,6 +625,48 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
     /// resolver picked for it.</summary>
     public sealed record MissingDependency(DependencyNode Node, Mod Mod);
 
+    public enum DependencyProblemKind
+    {
+        // Needed, not installed, and nothing published fits this SPT.
+        NoCompatibleVersion,
+
+        // Installed, but only in a disabled folder.
+        Disabled,
+
+        // Installed, newer than the newest version that fits.
+        TooNew,
+
+        // Installed, and not one of the versions the mod being installed accepts.
+        WrongVersion,
+
+        // The mods installed need versions of it that cannot all be met.
+        Conflict,
+    }
+
+    /// <summary>A dependency that is there (or cannot be) but will not do.</summary>
+    public sealed record DependencyProblem(string Name, DependencyProblemKind Kind, string? Installed, string? Wanted);
+
+    /// <summary>What a mod needs: the dependencies to queue, and the ones that will not do as they are.</summary>
+    public sealed record DependencyCheck(IReadOnlyList<MissingDependency> Missing, IReadOnlyList<DependencyProblem> Problems);
+
+    /// <summary>One line per problem.</summary>
+    public static string Describe(DependencyProblem problem) => problem.Kind switch
+    {
+        DependencyProblemKind.NoCompatibleVersion => Text(Strings.Downloads_DepNoCompatibleFormat, problem.Name, AppServices.SptEnvironment.InstalledVersion),
+        DependencyProblemKind.Disabled => Text(Strings.Downloads_DepDisabledFormat, problem.Name, problem.Installed),
+        DependencyProblemKind.TooNew => Text(Strings.Downloads_DepTooNewFormat, problem.Name, problem.Installed, problem.Wanted),
+        DependencyProblemKind.WrongVersion => Text(Strings.Downloads_DepWrongVersionFormat, problem.Name, problem.Installed, problem.Wanted),
+        _ => Text(Strings.Downloads_DepConflictFormat, problem.Name),
+    };
+
+    /// <summary>Says what will not do and asks whether to install anyway.</summary>
+    public static bool ConfirmDespite(string modName, IReadOnlyList<DependencyProblem> problems) =>
+        System.Windows.MessageBox.Show(
+            Text(Strings.Downloads_DepProblemsFormat, modName, string.Join("\n", problems.Select(p => "\u2022 " + Describe(p)))),
+            Strings.Downloads_DepProblemsTitle,
+            System.Windows.MessageBoxButton.YesNo,
+            System.Windows.MessageBoxImage.Warning) == System.Windows.MessageBoxResult.Yes;
+
     //
     // The mods <paramref name="target"/> at <paramref name="version"/> needs that are neither
     // installed nor already queued, its whole tree flattened. Null when the lookup could not be
@@ -622,8 +676,9 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
     // Subscribe asks this before its gate, so the mod and everything it needs are confirmed in one
     // window instead of the dependencies' window appearing once the download has started.
     //
-    public async Task<IReadOnlyList<MissingDependency>?> FindMissingDependenciesAsync(
-        InstallTarget target, string version, string installPath, CancellationToken token = default)
+    public async Task<DependencyCheck?> FindMissingDependenciesAsync(
+        InstallTarget target, string version, string installPath, CancellationToken token = default,
+        ModVersion? versionDetails = null)
     {
         var sptVersion = AppServices.SptEnvironment.InstalledVersion;
         if (string.IsNullOrWhiteSpace(sptVersion) || string.IsNullOrWhiteSpace(version)) return null;
@@ -647,7 +702,7 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
             return null;
         }
 
-        if (nodes.Count == 0) return [];
+        if (nodes.Count == 0) return new DependencyCheck([], []);
 
         token.ThrowIfCancellationRequested();
 
@@ -685,7 +740,7 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
 
         // Prefer each cached catalog Mod when available; fall back to a minimal Mod built from
         // the dependency node's own fields.
-        return Flatten(nodes)
+        var missing = Flatten(nodes)
             .Where(n => n.LatestCompatibleVersion is not null)
             .Where(n => !installedIds.Contains(n.Id) && !queuedIds.Contains(n.Id))
             .Where(n => n.Guid is null || !installedGuids.Contains(n.Guid))
@@ -696,6 +751,78 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
                 AppServices.ModCache.AllMods.FirstOrDefault(m => m.Id == dep.Id)
                     ?? new Mod { Id = dep.Id, Guid = dep.Guid, Name = dep.Name, Slug = dep.Slug }))
             .ToList();
+
+        return new DependencyCheck(missing, DependencyProblems(nodes, installedMatches, queuedIds, versionDetails));
+    }
+
+    //
+    // The dependencies that are there - or cannot be - but will not do as they are. Until this,
+    // one with nothing published for this SPT was dropped without a word, and one installed but
+    // disabled, too new or not an accepted version counted as present: the mod then did not load.
+    //
+    // A direct dependency is checked against the versions the mod being installed accepts, when the
+    // listing says which (ModVersionDependency.Versions); anything deeper, against the newest version
+    // that fits, as the Dependencies page does.
+    //
+    private static List<DependencyProblem> DependencyProblems(
+        List<DependencyNode> nodes,
+        IReadOnlyList<InstalledModCardViewModel> installed,
+        IReadOnlySet<int> queuedIds,
+        ModVersion? versionDetails)
+    {
+        var accepted = new Dictionary<int, List<string>>();
+        foreach (var declared in versionDetails?.Dependencies ?? [])
+        {
+            if (declared.IsOptional || declared.Versions is not { Count: > 0 } versions) continue;
+            var id = declared.ModId != 0 ? declared.ModId : declared.Id;
+            accepted[id] = [.. versions.Select(v => v.Version).OfType<string>()];
+        }
+
+        var problems = new List<DependencyProblem>();
+        foreach (var node in Flatten(nodes).GroupBy(n => n.Id).Select(g => g.First()))
+        {
+            if (queuedIds.Contains(node.Id)) continue;
+
+            var name = node.Name ?? AppServices.ModCache.AllMods.FirstOrDefault(m => m.Id == node.Id)?.Name ?? node.Guid ?? $"#{node.Id}";
+            var wanted = node.LatestCompatibleVersion?.Version;
+
+            var cards = installed
+                .Where(c => !c.IsAddon && (c.ModId == node.Id
+                    || (node.Guid is not null && string.Equals(c.Guid, node.Guid, StringComparison.OrdinalIgnoreCase))))
+                .ToList();
+            var enabled = cards.FirstOrDefault(c => !c.IsDisabled);
+
+            if (node.Conflict)
+            {
+                problems.Add(new DependencyProblem(name, DependencyProblemKind.Conflict, enabled?.InstalledVersion, wanted));
+            }
+            else if (cards.Count == 0)
+            {
+                if (wanted is null) problems.Add(new DependencyProblem(name, DependencyProblemKind.NoCompatibleVersion, null, null));
+            }
+            else if (enabled is null)
+            {
+                problems.Add(new DependencyProblem(name, DependencyProblemKind.Disabled, cards[0].InstalledVersion, wanted));
+            }
+            else if (accepted.TryGetValue(node.Id, out var versions) && enabled.InstalledVersion is { } have
+                && (enabled.IsAppManaged || enabled.IsManualOverride))
+            {
+                // The exact list, for a version known exactly (a DLL's own version is not always the
+                // published one, so a hand-installed copy is left to the looser check below).
+                if (!versions.Any(v => ModVersionComparer.Compare(v, have) == 0))
+                {
+                    var newest = versions.OrderByDescending(v => v, Comparer<string>.Create((a, b) => ModVersionComparer.Compare(a, b) ?? 0)).FirstOrDefault();
+                    problems.Add(new DependencyProblem(name, DependencyProblemKind.WrongVersion, have, newest));
+                }
+            }
+            else if (DependencyStatusResolver.Resolve(node, enabled.InstalledVersion, wanted,
+                         exactVersion: enabled.IsAppManaged || enabled.IsManualOverride) == ModStatus.TooNew)
+            {
+                problems.Add(new DependencyProblem(name, DependencyProblemKind.TooNew, enabled.InstalledVersion, wanted));
+            }
+        }
+
+        return problems;
     }
 
     /// <summary>The gate's rows for a set of missing dependencies.</summary>

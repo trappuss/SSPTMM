@@ -5,6 +5,10 @@ namespace TCFModManager.Core.Services;
 // One mod needing another, as declared by the dependent itself.
 public sealed record ModDependencyLink(InstalledMod Dependent, InstalledMod Dependency, bool IsSoft);
 
+/// <summary>A hard dependency a mod declares that nothing enabled provides: not installed at all
+/// (<paramref name="DisabledProvider"/> null), or installed only in a disabled folder.</summary>
+public sealed record ModMissingDependency(string Identifier, InstalledMod? DisabledProvider);
+
 //
 // Who needs whom among the mods actually installed, built from what each mod declares in its own
 // files ([BepInDependency] for client mods, "modDependencies" for server mods) rather than from the
@@ -16,6 +20,7 @@ public sealed class ModDependencyGraph
     private readonly Dictionary<InstalledMod, List<ModDependencyLink>> _dependents = [];
     private readonly Dictionary<InstalledMod, List<ModDependencyLink>> _dependencies = [];
     private readonly Dictionary<InstalledMod, List<string>> _unresolved = [];
+    private readonly Dictionary<InstalledMod, List<ModMissingDependency>> _missing = [];
 
     private ModDependencyGraph() { }
 
@@ -47,8 +52,14 @@ public sealed class ModDependencyGraph
                 if (!byIdentifier.TryGetValue(declared.Identifier, out var matches))
                 {
                     graph.AddUnresolved(mod, declared.Identifier);
+                    if (!declared.IsSoft) graph.AddMissing(mod, new ModMissingDependency(declared.Identifier, null));
                     continue;
                 }
+
+                // Provided only by disabled copies: on disk, but SPT loads none of them.
+                var providers = matches.Where(m => !ReferenceEquals(m, mod)).ToList();
+                if (!declared.IsSoft && providers.Count > 0 && providers.All(m => m.IsDisabled))
+                    graph.AddMissing(mod, new ModMissingDependency(declared.Identifier, providers[0]));
 
                 foreach (var dependency in matches)
                 {
@@ -75,6 +86,10 @@ public sealed class ModDependencyGraph
     // Identifiers a mod declares that nothing installed provides.
     public IReadOnlyList<string> UnresolvedOf(InstalledMod mod) =>
         _unresolved.TryGetValue(mod, out var identifiers) ? identifiers : [];
+
+    // What a mod declares it cannot run without (hard dependencies only) that no enabled mod provides.
+    public IReadOnlyList<ModMissingDependency> MissingOf(InstalledMod mod) =>
+        _missing.TryGetValue(mod, out var missing) ? missing : [];
 
     //
     // Every currently-enabled mod that would lose a dependency if <paramref name="roots"/> were
@@ -145,6 +160,12 @@ public sealed class ModDependencyGraph
     {
         if (!map.TryGetValue(key, out var list)) map[key] = list = [];
         return list;
+    }
+
+    private void AddMissing(InstalledMod mod, ModMissingDependency missing)
+    {
+        if (!_missing.TryGetValue(mod, out var list)) _missing[mod] = list = [];
+        if (!list.Any(m => string.Equals(m.Identifier, missing.Identifier, StringComparison.OrdinalIgnoreCase))) list.Add(missing);
     }
 
     private void AddUnresolved(InstalledMod mod, string identifier)

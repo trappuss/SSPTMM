@@ -144,12 +144,18 @@ public static class ModConfigStore
             // itself lives with the app, so a timestamped folder can still be copied straight back
             // over an install to undo a round of edits.
             var relative = RelativeForBackup(installPath, path);
-            var destination = Path.Combine(BackupDirectory, $"{timestamp.ToLocalTime():yyyyMMdd-HHmmss}", relative);
+            var stamp = $"{timestamp.ToLocalTime():yyyyMMdd-HHmmss}";
+            var destination = Path.Combine(BackupDirectory, stamp, relative);
+
+            // A second save of the same file within the same second must not replace the backup of
+            // what was there before the first: that one is the copy worth having.
+            for (var n = 2; File.Exists(destination); n++)
+                destination = Path.Combine(BackupDirectory, $"{stamp}-{n}", relative);
 
             var directory = Path.GetDirectoryName(destination);
             if (!string.IsNullOrEmpty(directory)) Directory.CreateDirectory(directory);
 
-            File.Copy(path, destination, overwrite: true);
+            File.Copy(path, destination, overwrite: false);
 
             return destination;
         }
@@ -160,9 +166,18 @@ public static class ModConfigStore
         }
     }
 
-    // Null when the text is fine to write, otherwise why it isn't.
+    //
+    // Null when the text is fine to write, otherwise why it isn't. A .json5 file is not checked:
+    // JSON5 allows unquoted keys and single-quoted strings, which no JSON reader here accepts, so a
+    // check would refuse every file the mod itself reads happily.
+    //
     public static string? ValidateFor(string path, string text) =>
-        Path.GetExtension(path).Equals(".cfg", StringComparison.OrdinalIgnoreCase) ? null : ValidateJson(text);
+        Path.GetExtension(path).ToLowerInvariant() switch
+        {
+            ".cfg" => null,
+            ".json5" => string.IsNullOrWhiteSpace(text) ? "The file is empty." : null,
+            _ => ValidateJson(text),
+        };
 
     //
     // Null when the text parses as JSON, otherwise a message naming where it stopped making sense.

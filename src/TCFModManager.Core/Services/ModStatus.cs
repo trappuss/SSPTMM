@@ -27,6 +27,10 @@ public enum ModStatus
 
     // On disk, but moved out of the folder SPT loads from, so nothing loads it.
     Disabled,
+
+    // On disk, but newer than the newest version that fits what needs it (and this SPT) - a major
+    // version past what the mod depending on it was made for, most often.
+    TooNew,
 }
 
 // The icon for a <see cref="ModStatus"/>, kept in one place so the pages can't drift apart.
@@ -42,6 +46,7 @@ public static class ModStatusDisplay
         ModStatus.NoCompatibleVersion => "QuestionCircle24",
         ModStatus.Unknown => "QuestionCircle24",
         ModStatus.Disabled => "PlugDisconnected24",
+        ModStatus.TooNew => "Warning24",
         _ => "ErrorCircle24",
     };
 }

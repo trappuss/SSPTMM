@@ -789,9 +789,20 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         try
         {
             // Reuses whatever's already cached; triggers the one-time catalog fetch if Browse
-            // hasn't been visited yet this session.
-            await AppServices.ModCache.EnsureLoadedAsync();
-            await AppServices.Addons.EnsureLoadedAsync();
+            // hasn't been visited yet this session. Offline with no copy saved yet, the mods in the
+            // SPT folder are still listed - scanning them needs no network - just without what the
+            // site knows about them.
+            var offline = false;
+            try
+            {
+                await AppServices.ModCache.EnsureLoadedAsync();
+                await AppServices.Addons.EnsureLoadedAsync();
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException || ex is TaskCanceledException)
+            {
+                AppLog.Warn("Installed", $"catalog unavailable, listing the SPT folder only: {ex.Message}");
+                offline = true;
+            }
 
             // What this app itself installed, and which folders it placed - identifies those mods
             // exactly instead of inferring them from folder names.
@@ -806,7 +817,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
             // The whole scan-and-match pass runs off the UI thread. Matching a large install
             // against a full catalog is the slower half of the two, and doing it inline is what
             // made navigating to this page hang.
-            var (scanned, cards, dependencies) = await Task.Run(() =>
+            var (scanned, cards, dependencies, loadedGuids) = await Task.Run(() =>
             {
                 var found = InstalledModScanner.Scan(installPath);
 
@@ -816,7 +827,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
                 // Built off the same scan the cards came from, so every link points at an entry
                 // some card owns.
-                return (found, built, ModDependencyGraph.Build(found));
+                return (found, built, ModDependencyGraph.Build(found), InstalledModScanner.LoadedPluginGuids(installPath));
             });
 
             // What was open in each view, keyed the same way group assignments are, so the sets
@@ -851,7 +862,10 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
             // Set before the cards are subscribed to below, so filling it in doesn't read as a
             // card changing under the page.
             foreach (var card in _all)
+            {
                 card.HasDependencies = card.Entries.Any(e => dependencies.DependenciesOf(e).Count > 0);
+                card.MissingDependencyNote = MissingDependencyNote(card, dependencies, loadedGuids, catalog);
+            }
 
             RebuildCategoryOptions();
 
@@ -892,6 +906,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
             StatusMessage = _all.Count == 0
                 ? Text(Strings.Installed_NoModsFoundFormat, installPath)
                 : DescribeCounts();
+            if (offline) StatusMessage = Sentences(StatusMessage, Strings.Installed_CatalogUnavailable);
         }
         finally
         {
@@ -1856,6 +1871,49 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
     // Two complete sentences on one status line, rather than one sentence with the other dropped
     // into it - where the break goes is the translator's to decide.
+    //
+    // "Needs X, which is not installed." / "... which is disabled." for what a card's enabled folders
+    // declare they cannot run without - null when nothing is missing. A GUID BepInEx loads from
+    // anywhere under plugins (SPT's own folder, a mod's subfolder) counts as provided.
+    //
+    private static string? MissingDependencyNote(
+        InstalledModCardViewModel card, ModDependencyGraph graph, IReadOnlySet<string> loadedGuids, IReadOnlyList<Mod> catalog)
+    {
+        if (card.IsDisabled) return null;
+
+        var missing = card.Entries
+            .Where(e => !e.IsDisabled)
+            .SelectMany(graph.MissingOf)
+            .Where(m => !loadedGuids.Contains(m.Identifier) && !IsSptItself(m.Identifier))
+            .GroupBy(m => m.Identifier, StringComparer.OrdinalIgnoreCase)
+            .Select(g => g.First())
+            .ToList();
+        if (missing.Count == 0) return null;
+
+        string NameOf(ModMissingDependency m) =>
+            m.DisabledProvider?.Name
+            ?? catalog.FirstOrDefault(c => string.Equals(c.Guid, m.Identifier, StringComparison.OrdinalIgnoreCase))?.Name
+            ?? m.Identifier;
+
+        var absent = missing.Where(m => m.DisabledProvider is null).Select(NameOf).ToList();
+        var disabled = missing.Where(m => m.DisabledProvider is not null).Select(NameOf).ToList();
+
+        var parts = new List<string>();
+        if (absent.Count > 0) parts.Add(Text(Strings.Installed_NeedsMissingFormat, TextLists.Join(absent)));
+        if (disabled.Count > 0) parts.Add(Text(Strings.Installed_NeedsDisabledFormat, TextLists.Join(disabled)));
+        return string.Join(" ", parts);
+    }
+
+    //
+    // SPT's own plugins (com.SPT.core and the rest) - part of every install. Read from its folder
+    // when it is there (LoadedPluginGuids); by name as well, so an install laid out differently, or
+    // a folder that could not be read, does not make every mod on it look broken.
+    //
+    private static readonly string[] SptOwnPrefixes = ["com.spt.", "com.sp-tarkov.", "com.aki."];
+
+    private static bool IsSptItself(string identifier) =>
+        SptOwnPrefixes.Any(p => identifier.StartsWith(p, StringComparison.OrdinalIgnoreCase));
+
     private static string Sentences(string first, string second) =>
         string.Join(Strings.Common_SentenceSeparator, first, second);
 

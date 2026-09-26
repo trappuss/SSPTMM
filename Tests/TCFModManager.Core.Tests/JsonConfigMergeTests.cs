@@ -190,4 +190,29 @@ public class JsonConfigMergeTests
 
         Assert.Equal("""{ "a": 1, "a": 5 }""", Text(result));
     }
+
+    [Theory]
+    [InlineData("5", "7", "[5, 10]")]
+    [InlineData("5", "7", "\"five\"")]
+    [InlineData("true", "false", "1")]
+    public void AValueWhoseKindTheNewVersionChanged_IsNotCarried(string shipped, string mine, string updated)
+    {
+        var result = Merge($"{{ \"x\": {shipped} }}", $"{{ \"x\": {mine} }}", $"{{ \"x\": {updated} }}");
+
+        Assert.Equal($"{{ \"x\": {updated} }}", Text(result));
+        Assert.Equal(["x"], result.Dropped);
+        Assert.Empty(result.Carried);
+    }
+
+    [Theory]
+    [InlineData("null", "\"mine\"", "null")]
+    [InlineData("\"a\"", "null", "\"b\"")]
+    [InlineData("true", "false", "true")]
+    public void AnUnsetValue_OrTheOtherBoolean_IsStillCarried(string shipped, string mine, string updated)
+    {
+        var result = Merge($"{{ \"x\": {shipped} }}", $"{{ \"x\": {mine} }}", $"{{ \"x\": {updated} }}");
+
+        Assert.Equal($"{{ \"x\": {mine} }}", Text(result));
+        Assert.Equal(["x"], result.Carried);
+    }
 }

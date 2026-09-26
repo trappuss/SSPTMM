@@ -761,6 +761,16 @@
                                                             Symbol="Checkmark16"
                                                             ToolTip="{loc:Str Item_Subscribed}"
                                                             Visibility="{Binding IsInstalled, Converter={StaticResource TrueToVisible}}" />
+                                                        <!-- Installed but disabled: not loaded, so no tick. -->
+                                                        <ui:SymbolIcon
+                                                            Grid.Column="1"
+                                                            Margin="8,0,0,0"
+                                                            VerticalAlignment="Center"
+                                                            FontSize="16"
+                                                            Foreground="#C6D4DF"
+                                                            Symbol="PlugDisconnected24"
+                                                            ToolTip="{loc:Str Item_RequiredDisabled}"
+                                                            Visibility="{Binding IsDisabled, Converter={StaticResource TrueToVisible}}" />
                                                     </Grid>
                                                 </Button>
                                             </DataTemplate>

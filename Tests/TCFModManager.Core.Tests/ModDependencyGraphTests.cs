@@ -177,4 +177,31 @@ public class ModDependencyGraphTests
         Assert.Empty(graph.DependentsOf(mod));
         Assert.Empty(graph.DependenciesOf(mod));
     }
+
+    [Fact]
+    public void MissingOf_NamesHardDependenciesNothingEnabledProvides()
+    {
+        var disabledLibrary = Client("Library", "com.author.library", disabled: true);
+        var consumer = Client("Consumer", "com.author.consumer", false,
+            new ModDependencyRef("com.author.library", IsSoft: false),
+            new ModDependencyRef("com.someone.absent", IsSoft: false),
+            new ModDependencyRef("com.someone.optional", IsSoft: true));
+
+        var graph = ModDependencyGraph.Build([disabledLibrary, consumer]);
+        var missing = graph.MissingOf(consumer);
+
+        Assert.Equal(2, missing.Count);
+        Assert.Same(disabledLibrary, missing.Single(m => m.Identifier == "com.author.library").DisabledProvider);
+        Assert.Null(missing.Single(m => m.Identifier == "com.someone.absent").DisabledProvider);
+    }
+
+    [Fact]
+    public void MissingOf_IsEmpty_WhenAnEnabledCopySitsBesideADisabledOne()
+    {
+        var enabled = Client("Library", "com.author.library");
+        var disabled = Client("Library", "com.author.library", disabled: true);
+        var consumer = Client("Consumer", "com.author.consumer", false, new ModDependencyRef("com.author.library", IsSoft: false));
+
+        Assert.Empty(ModDependencyGraph.Build([enabled, disabled, consumer]).MissingOf(consumer));
+    }
 }

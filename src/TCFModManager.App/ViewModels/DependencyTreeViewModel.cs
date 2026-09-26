@@ -41,12 +41,16 @@ public sealed partial class DependencyTreeViewModel : LocalizedViewModel
             var outdated = Rows.Count(r => r.Status == ModStatus.UpdateAvailable);
             var conflicts = Rows.Count(r => r.Status == ModStatus.Conflict);
             var unresolved = Rows.Count(r => r.Status == ModStatus.NoCompatibleVersion);
+            var disabled = Rows.Count(r => r.Status == ModStatus.Disabled);
+            var tooNew = Rows.Count(r => r.Status == ModStatus.TooNew);
 
             var parts = new List<string>();
             if (missing > 0) parts.Add(Text(Strings.Dependencies_SummaryMissingFormat, missing));
             if (outdated > 0) parts.Add(Text(Strings.Dependencies_SummaryOutdatedFormat, outdated));
             if (conflicts > 0) parts.Add(Text(Strings.Dependencies_SummaryConflictingFormat, conflicts));
             if (unresolved > 0) parts.Add(Text(Strings.Dependencies_SummaryUnresolvedFormat, unresolved));
+            if (disabled > 0) parts.Add(Text(Strings.Dependencies_SummaryDisabledFormat, disabled));
+            if (tooNew > 0) parts.Add(Text(Strings.Dependencies_SummaryTooNewFormat, tooNew));
 
             return parts.Count == 0
                 ? Strings.Dependencies_SummarySatisfied(Rows.Count)

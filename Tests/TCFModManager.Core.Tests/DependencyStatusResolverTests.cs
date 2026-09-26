@@ -16,9 +16,19 @@ public class DependencyStatusResolverTests
     public void Resolve_InstalledWhenTheDiskVersionMatches() =>
         Assert.Equal(ModStatus.Installed, DependencyStatusResolver.Resolve(Node(), "1.3.0", "1.3.0"));
 
+    // Newer than the newest version that fits means outside what the mod needing it accepts: CommonLib
+    // 3.0.6 installed for a mod made for 2.x is not "installed and fine".
     [Fact]
-    public void Resolve_InstalledWhenTheDiskVersionIsNewerThanRequired() =>
-        Assert.Equal(ModStatus.Installed, DependencyStatusResolver.Resolve(Node(), "1.4.0", "1.3.0"));
+    public void Resolve_TooNewWhenTheDiskVersionIsNewerThanTheNewestThatFits() =>
+        Assert.Equal(ModStatus.TooNew, DependencyStatusResolver.Resolve(Node(), "1.4.0", "1.3.0"));
+
+    [Fact]
+    public void Resolve_TooNew_ForAVersionReadFromADll_OnlyAcrossAMajorVersion()
+    {
+        Assert.Equal(ModStatus.Installed, DependencyStatusResolver.Resolve(Node(), "1.4.0.0", "1.3.0", exactVersion: false));
+        Assert.Equal(ModStatus.TooNew, DependencyStatusResolver.Resolve(Node(), "3.0.6.0", "2.5.0", exactVersion: false));
+        Assert.Equal(ModStatus.TooNew, DependencyStatusResolver.Resolve(Node(), "0.9.0", "0.5.0", exactVersion: false));
+    }
 
     [Fact]
     public void Resolve_InstalledWhenTheScannedVersionCarriesAnExtraZero() =>

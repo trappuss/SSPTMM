@@ -23,6 +23,7 @@ public static class ModStatusWording
         ModStatus.NoCompatibleVersion => Strings.ModStatus_NoCompatibleVersion,
         ModStatus.Unknown => Strings.ModStatus_Unknown,
         ModStatus.Disabled => Strings.ModStatus_Disabled,
+        ModStatus.TooNew => Strings.ModStatus_TooNew,
         _ => Strings.ModStatus_Conflict,
     };
 }

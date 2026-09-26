@@ -53,6 +53,35 @@ public static class InstalledModScanner
         !string.IsNullOrWhiteSpace(name)
         && (CoreSptEntries.Contains(name) || NonModPatcherEntries.Contains(name));
 
+    //
+    // Every [BepInPlugin] GUID that BepInEx would load from this install - every DLL under
+    // BepInEx\plugins, however deep, SPT's own included. The scan above reads each mod folder's top
+    // level only and leaves SPT's folder out, so a dependency on SPT's core plugins, or on an API
+    // DLL a mod keeps in a subfolder, would otherwise look missing when it is not.
+    //
+    public static HashSet<string> LoadedPluginGuids(string? installPath)
+    {
+        var guids = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        if (string.IsNullOrWhiteSpace(installPath)) return guids;
+
+        var plugins = Path.Combine(installPath, "BepInEx", "plugins");
+        if (!Directory.Exists(plugins)) return guids;
+
+        try
+        {
+            foreach (var dll in Directory.EnumerateFiles(plugins, "*.dll", SearchOption.AllDirectories))
+            {
+                if (ReadPluginMetadata(dll).Guid is { Length: > 0 } guid) guids.Add(guid);
+            }
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            AppLog.Debug("Scan", $"couldn't read every plugin under {plugins}: {ex.Message}");
+        }
+
+        return guids;
+    }
+
     public static List<InstalledMod> Scan(string? installPath)
     {
         var results = new List<InstalledMod>();

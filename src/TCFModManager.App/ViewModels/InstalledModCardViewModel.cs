@@ -441,7 +441,7 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
     // rather than either side's.
     public string StatusGlyph => IsMixedState || IsIncompleteInstall
         ? "ErrorCircle24"
-        : NotForSptNote is not null && !IsDisabled
+        : (NotForSptNote is not null || MissingDependencyNote is not null) && !IsDisabled
             ? "Warning24"
             : ModStatusDisplay.Glyph(Status);
 
@@ -456,9 +456,17 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
     [NotifyPropertyChangedFor(nameof(StatusTooltip), nameof(StatusGlyph))]
     private string? _notForSptNote;
 
+    // What this mod declares it cannot run without, in its own files, that nothing enabled provides -
+    // found without the network, so it covers mods installed by hand too. Set after each scan by
+    // InstalledViewModel, from ModDependencyGraph.MissingOf.
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(StatusTooltip), nameof(StatusGlyph))]
+    private string? _missingDependencyNote;
+
     // Missing files first: it is the only one of these the card gives no other sign of.
     public string StatusTooltip =>
         IncompleteSummary
+        ?? (IsDisabled ? null : MissingDependencyNote)
         ?? NotForSptNote
         ?? HeldBackNote
         ?? (HasDuplicateFolders

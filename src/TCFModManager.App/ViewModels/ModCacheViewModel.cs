@@ -28,10 +28,16 @@ public partial class ModCacheViewModel : LocalizedViewModel
     public bool IsLoaded => _loadTask?.IsCompletedSuccessfully == true;
 
     // Loads the catalog (from disk if cached, otherwise a live fetch) on first call; later calls await the same task.
+    //
+    // A load that failed (offline, the site down) or was cancelled is not kept: the next call tries
+    // again, rather than every page staying empty until Refresh is pressed. The shared load is not
+    // tied to the first caller's token - one page being left must not cancel it for the others.
+    //
     public Task EnsureLoadedAsync(CancellationToken ct = default)
     {
-        _loadTask ??= LoadAsync(ct);
-        return _loadTask;
+        if (_loadTask is { IsFaulted: true } or { IsCanceled: true }) _loadTask = null;
+        _loadTask ??= LoadAsync(CancellationToken.None);
+        return ct.CanBeCanceled ? _loadTask.WaitAsync(ct) : _loadTask;
     }
 
     // Forces a fresh live fetch of the catalog, driving IsLoading/LoadedCount/TotalCount for the loading overlay.

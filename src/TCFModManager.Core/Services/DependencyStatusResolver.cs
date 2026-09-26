@@ -10,7 +10,12 @@ public static class DependencyStatusResolver
     // isn't on disk. <paramref name="requiredVersion"/> is the node's latest compatible version,
     // which the API leaves null when nothing published fits the installed SPT.
     // 
-    public static ModStatus Resolve(DependencyNode node, string? installedVersion, string? requiredVersion, bool installedButDisabled = false)
+    //
+    // <paramref name="exactVersion"/>: the installed version is the published one (the app installed
+    // it, or it was confirmed by hand). Otherwise it was read from a DLL, whose version authors do
+    // not always keep in step - then only a later major line counts as too new, not a later minor.
+    //
+    public static ModStatus Resolve(DependencyNode node, string? installedVersion, string? requiredVersion, bool installedButDisabled = false, bool exactVersion = true)
     {
         // A conflict is about the graph as a whole, so it outranks whatever is on disk.
         if (node.Conflict) return ModStatus.Conflict;
@@ -27,9 +32,18 @@ public static class DependencyStatusResolver
                 : ModStatus.NotInstalled;
         }
 
-        return ModVersionComparer.IsUpdateAvailable(installedVersion, requiredVersion) == true
-            ? ModStatus.UpdateAvailable
-            : ModStatus.Installed;
+        if (ModVersionComparer.IsUpdateAvailable(installedVersion, requiredVersion) == true)
+            return ModStatus.UpdateAvailable;
+
+        //
+        // Newer than the newest version that fits: requiredVersion is the highest one that satisfies
+        // the constraint (and this SPT), so anything above it does not - CommonLib 3.0.6 installed
+        // for a mod made for 2.x. Not "installed and fine".
+        //
+        var newer = exactVersion
+            ? ModVersionComparer.IsUpdateAvailable(requiredVersion, installedVersion)
+            : ModVersionComparer.IsLaterMajor(installedVersion, requiredVersion);
+        return newer == true ? ModStatus.TooNew : ModStatus.Installed;
     }
 
     // Sort key for "worst" - lower is more severe. Drives the per-mod header icon.
@@ -38,9 +52,10 @@ public static class DependencyStatusResolver
         ModStatus.Conflict => 0,
         ModStatus.NotInstalled => 1,
         ModStatus.Disabled => 2,
-        ModStatus.NoCompatibleVersion => 3,
-        ModStatus.UpdateAvailable => 4,
-        _ => 5,
+        ModStatus.TooNew => 3,
+        ModStatus.NoCompatibleVersion => 4,
+        ModStatus.UpdateAvailable => 5,
+        _ => 6,
     };
 
     // The most severe status in a set, or Installed when empty.

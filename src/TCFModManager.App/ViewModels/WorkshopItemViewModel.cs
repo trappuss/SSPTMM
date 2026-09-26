@@ -23,14 +23,21 @@ public sealed partial class WorkshopRequiredItem(int modId, string? guid, string
 
     public string Label { get; } = label;
 
+    // Installed and enabled: Steam's tick.
     [ObservableProperty]
     private bool _isInstalled;
+
+    // Installed, but only in a disabled folder - SPT does not load it, so it is not ticked.
+    [ObservableProperty]
+    private bool _isDisabled;
 
     /// <summary>Looks again at whether it is installed: by the catalog's record of it, else its guid or name.</summary>
     public void Refresh()
     {
         var mod = AppServices.Browse.FindInCatalog(ModId) ?? new Mod { Id = ModId, Guid = guid, Name = name };
-        IsInstalled = AppServices.Browse.InstalledMatchFor(mod) is not null;
+        var match = AppServices.Browse.InstalledMatchFor(mod);
+        IsDisabled = match is { IsDisabled: true };
+        IsInstalled = match is not null && !IsDisabled;
     }
 }
 

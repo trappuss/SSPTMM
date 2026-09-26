@@ -12,7 +12,15 @@ public class ModVersionComparerTests
     [InlineData("1.2.0", "1.10.0", true)] // numeric, not lexicographic, comparison
     [InlineData("v1.0.0", "v1.1.0", true)] // leading "v" tolerated on both sides
     [InlineData("1.0", "1.0.1", true)] // missing segments default to 0
-    [InlineData("1.2.0-beta", "1.3.0", true)] // pre-release suffix dropped before comparing
+    [InlineData("1.2.0-beta", "1.3.0", true)]
+    [InlineData("1.2.0-beta", "1.2.0", true)] // a pre-release sorts below its release
+    [InlineData("1.2.0", "1.2.0-beta", false)]
+    [InlineData("1.2.0-beta.2", "1.2.0-beta.10", true)] // numeric parts compare as numbers
+    [InlineData("1.2.0-alpha", "1.2.0-beta", true)]
+    [InlineData("1.2.0-beta", "1.2.0-beta", false)]
+    [InlineData("1.2.0-beta.1", "1.2.0-beta", false)] // more parts outrank fewer
+    [InlineData("1.2.0.0", "1.2.0", false)] // a DLL's four-part version is the same release
+    [InlineData("1.2.0+build5", "1.2.0", false)] // build metadata ignored
     public void IsUpdateAvailable_ComparesNumerically(string installed, string latest, bool expected)
     {
         Assert.Equal(expected, ModVersionComparer.IsUpdateAvailable(installed, latest));

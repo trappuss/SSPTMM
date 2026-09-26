@@ -110,7 +110,7 @@
 
                 The unset case is the tertiary text brush, which is what the old converter fell back
                 to for NoCompatibleVersion, Unknown, Disabled and anything unrecognised - so only
-                the four coloured states need a trigger.
+                the coloured states need a trigger.
             -->
             <Style x:Key="StatusIcon" TargetType="ui:SymbolIcon">
                 <Setter Property="Foreground" Value="{DynamicResource TextFillColorTertiaryBrush}" />
@@ -119,6 +119,9 @@
                         <Setter Property="Foreground" Value="{DynamicResource SystemFillColorSuccessBrush}" />
                     </DataTrigger>
                     <DataTrigger Binding="{Binding Status}" Value="UpdateAvailable">
+                        <Setter Property="Foreground" Value="{DynamicResource SystemFillColorCautionBrush}" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding Status}" Value="TooNew">
                         <Setter Property="Foreground" Value="{DynamicResource SystemFillColorCautionBrush}" />
                     </DataTrigger>
                     <DataTrigger Binding="{Binding Status}" Value="NotInstalled">
@@ -141,6 +144,9 @@
                         <Setter Property="Foreground" Value="{DynamicResource SystemFillColorSuccessBrush}" />
                     </DataTrigger>
                     <DataTrigger Binding="{Binding Worst}" Value="UpdateAvailable">
+                        <Setter Property="Foreground" Value="{DynamicResource SystemFillColorCautionBrush}" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding Worst}" Value="TooNew">
                         <Setter Property="Foreground" Value="{DynamicResource SystemFillColorCautionBrush}" />
                     </DataTrigger>
                     <DataTrigger Binding="{Binding Worst}" Value="NotInstalled">

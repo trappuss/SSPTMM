@@ -171,7 +171,7 @@ public static class SptLaunchService
             InstallPath = installPath,
             ExePath = exePath,
             ProcessName = processName,
-            IsRunning = IsRunning(target, processName),
+            IsRunning = IsRunning(target, processName, exePath, installPath),
         };
     }
 
@@ -427,6 +427,29 @@ public static class SptLaunchService
         return info.InstallPath is { } root && ModInstallService.IsInside(executable, root);
     }
 
+    // True for a process started from this install (or from the exact exe), and for one whose path
+    // cannot be read; false only for one known to run from somewhere else.
+    private static bool RunsFrom(Process process, string? exePath, string? installPath)
+    {
+        string? executable;
+        try
+        {
+            executable = process.MainModule?.FileName;
+        }
+        catch (Exception ex) when (ex is Win32Exception or InvalidOperationException or NotSupportedException)
+        {
+            return true;
+        }
+
+        if (executable is null || (exePath is null && installPath is null)) return true;
+
+        if (exePath is not null
+            && string.Equals(Path.GetFullPath(executable), Path.GetFullPath(exePath), StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return installPath is not null && ModInstallService.IsInside(executable, installPath);
+    }
+
     private static string[] KnownProcessNames(SptLaunchTarget target) => target switch
     {
         SptLaunchTarget.Server => ServerProcessNames,
@@ -531,7 +554,13 @@ public static class SptLaunchService
         }
     }
 
-    private static bool IsRunning(SptLaunchTarget target, string processName)
+    //
+    // Running FROM THIS INSTALL. With a second SPT on the machine (another version, a dedicated
+    // server kept apart), its server being up made this install's Play page read as running, refuse
+    // Start, and then fail to Stop it. A process whose path cannot be read (one running elevated)
+    // still counts, as before: this cannot tell it is someone else's.
+    //
+    private static bool IsRunning(SptLaunchTarget target, string processName, string? exePath, string? installPath)
     {
         //
         // The headless launcher is checked by its own name only. A headless client runs
@@ -557,7 +586,7 @@ public static class SptLaunchService
 
             try
             {
-                if (found.Length > 0) return true;
+                if (found.Any(p => RunsFrom(p, exePath, installPath))) return true;
             }
             finally
             {

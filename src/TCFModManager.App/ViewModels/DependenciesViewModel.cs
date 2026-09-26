@@ -263,7 +263,8 @@ public partial class DependenciesViewModel : LocalizedViewModel
             // A disabled dependency is on disk but isn't loaded, so anything needing it is as
             // broken as if it were missing - shown as its own state rather than as "installed".
             var status = DependencyStatusResolver.Resolve(
-                node, installed?.InstalledVersion, required, installed?.IsDisabled == true);
+                node, installed?.InstalledVersion, required, installed?.IsDisabled == true,
+                exactVersion: installed is { IsAppManaged: true } or { IsManualOverride: true });
 
             yield return new DependencyRow
             {

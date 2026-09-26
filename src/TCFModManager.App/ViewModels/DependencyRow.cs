@@ -58,6 +58,7 @@ public sealed partial class DependencyRow : LocalizedViewModel
         ModStatus.Disabled => InstalledVersion is null
             ? Strings.Dependencies_RowDisabled
             : Text(Strings.Dependencies_RowDisabledVersionFormat, InstalledVersion),
+        ModStatus.TooNew => Text(Strings.Dependencies_RowTooNewFormat, InstalledVersion, RequiredVersion),
         _ => Strings.Dependencies_RowConflict,
     };
 

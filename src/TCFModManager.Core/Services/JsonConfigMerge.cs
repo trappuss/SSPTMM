@@ -80,6 +80,18 @@ public static class JsonConfigMerge
                 continue;
             }
 
+            //
+            // The new version changed what kind of value this is - a number that is now a list, a
+            // switch that is now a word. The user's old value is not one the mod reads any more, so
+            // carrying it would break the file; it is reported as not carried instead. A null on
+            // either side is not a change of kind: an unset optional value, or one being unset.
+            //
+            if (value.Kind != replacing.Kind && value.Kind != JsonValueKind.Null && replacing.Kind != JsonValueKind.Null)
+            {
+                dropped.Add(path);
+                continue;
+            }
+
             edits.Add(replacing with { Text = value.Text });
             carried.Add(path);
         }
@@ -138,16 +150,26 @@ public static class JsonConfigMerge
                     {
                         var start = reader.TokenStartIndex;
                         reader.Skip();
-                        Record(values, segments, utf8, start, reader.BytesConsumed);
+                        Record(values, segments, utf8, start, reader.BytesConsumed, JsonValueKind.Array);
                         break;
                     }
 
                     case JsonTokenType.String:
+                        Record(values, segments, utf8, reader.TokenStartIndex, reader.BytesConsumed, JsonValueKind.String);
+                        break;
+
                     case JsonTokenType.Number:
+                        Record(values, segments, utf8, reader.TokenStartIndex, reader.BytesConsumed, JsonValueKind.Number);
+                        break;
+
+                    // true and false are one kind: a switch.
                     case JsonTokenType.True:
                     case JsonTokenType.False:
+                        Record(values, segments, utf8, reader.TokenStartIndex, reader.BytesConsumed, JsonValueKind.True);
+                        break;
+
                     case JsonTokenType.Null:
-                        Record(values, segments, utf8, reader.TokenStartIndex, reader.BytesConsumed);
+                        Record(values, segments, utf8, reader.TokenStartIndex, reader.BytesConsumed, JsonValueKind.Null);
                         break;
                 }
             }
@@ -167,7 +189,8 @@ public static class JsonConfigMerge
         List<string> path,
         ReadOnlySpan<byte> utf8,
         long start,
-        long end)
+        long end,
+        JsonValueKind kind)
     {
         if (path.Count == 0) return;
 
@@ -178,7 +201,7 @@ public static class JsonConfigMerge
         var text = utf8.Slice((int)start, length).ToArray();
 
         // A duplicate key means the last one wins, which is how the file's own reader treats it.
-        values[dotted] = new JsonValueSpan(dotted, (int)start, length, text);
+        values[dotted] = new JsonValueSpan(dotted, (int)start, length, text, kind);
     }
 
     // Back-to-front, so an earlier edit never moves a later span.
@@ -210,7 +233,8 @@ public static class JsonConfigMerge
 }
 
 // One value in a document: where it is, and the exact text of it.
-internal sealed record JsonValueSpan(string Path, int Start, int Length, byte[] Text);
+// Kind is what sort of value it is (true stands for both booleans).
+internal sealed record JsonValueSpan(string Path, int Start, int Length, byte[] Text, JsonValueKind Kind);
 
 //
 // The merged file, plus what the merge did and did not carry. Content is null when it stopped.

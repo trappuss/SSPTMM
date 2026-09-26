@@ -1756,4 +1756,19 @@ internal static class Strings
     internal static string ModInstall_NotPutBackYetFormat => LocalizationService.Get("ModInstall_NotPutBackYetFormat");
     internal static string ModInstall_EarlierInstallPendingFormat => LocalizationService.Get("ModInstall_EarlierInstallPendingFormat");
     internal static string ModInstall_RecordsUnreadableFormat => LocalizationService.Get("ModInstall_RecordsUnreadableFormat");
+    internal static string Installed_CatalogUnavailable => LocalizationService.Get("Installed_CatalogUnavailable");
+    internal static string ModStatus_TooNew => LocalizationService.Get("ModStatus_TooNew");
+    internal static string Dependencies_RowTooNewFormat => LocalizationService.Get("Dependencies_RowTooNewFormat");
+    internal static string Dependencies_SummaryDisabledFormat => LocalizationService.Get("Dependencies_SummaryDisabledFormat");
+    internal static string Dependencies_SummaryTooNewFormat => LocalizationService.Get("Dependencies_SummaryTooNewFormat");
+    internal static string Installed_NeedsMissingFormat => LocalizationService.Get("Installed_NeedsMissingFormat");
+    internal static string Installed_NeedsDisabledFormat => LocalizationService.Get("Installed_NeedsDisabledFormat");
+    internal static string Downloads_DepProblemsTitle => LocalizationService.Get("Downloads_DepProblemsTitle");
+    internal static string Downloads_DepProblemsFormat => LocalizationService.Get("Downloads_DepProblemsFormat");
+    internal static string Downloads_DepNoCompatibleFormat => LocalizationService.Get("Downloads_DepNoCompatibleFormat");
+    internal static string Downloads_DepDisabledFormat => LocalizationService.Get("Downloads_DepDisabledFormat");
+    internal static string Downloads_DepTooNewFormat => LocalizationService.Get("Downloads_DepTooNewFormat");
+    internal static string Downloads_DepWrongVersionFormat => LocalizationService.Get("Downloads_DepWrongVersionFormat");
+    internal static string Downloads_DepConflictFormat => LocalizationService.Get("Downloads_DepConflictFormat");
+    internal static string Item_RequiredDisabled => LocalizationService.Get("Item_RequiredDisabled");
 }
