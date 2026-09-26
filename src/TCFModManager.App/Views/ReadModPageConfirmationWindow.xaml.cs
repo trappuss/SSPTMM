@@ -157,6 +157,17 @@ public partial class ReadModPageConfirmationWindow : Window
             {
                 if (_links.FirstOrDefault(l => l.CanRead) is { } first) _ = ReadAsync(first);
             };
+
+            // A page opening makes the dialog taller after it was centred on its first, shorter
+            // height; centred again each time, it stays over the window and its buttons on screen.
+            SizeChanged += (_, e) =>
+            {
+                if (!e.HeightChanged || Owner is not { } over) return;
+
+                var top = over.WindowState == WindowState.Maximized ? SystemParameters.WorkArea.Top : over.Top;
+                var height = over.WindowState == WindowState.Maximized ? SystemParameters.WorkArea.Height : over.ActualHeight;
+                Top = Math.Max(SystemParameters.VirtualScreenTop, top + (height - ActualHeight) / 2);
+            };
         }
         else if (_links.Count(l => l.HasUrl) > BatchThreshold)
         {

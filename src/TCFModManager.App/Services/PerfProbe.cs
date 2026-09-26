@@ -62,23 +62,53 @@ public static class PerfProbe
 
         // Anything that held the UI thread for 50ms or more, by what it was - so a stall in the
         // numbers above can be put down to its cause rather than guessed at. (A stall with no line
-        // here was spent drawing, not in the app's own work.)
-        var started = new Dictionary<System.Windows.Threading.DispatcherOperation, long>();
+        // here was spent drawing, not in the app's own work.) One that ran a nested message loop -
+        // a dialog shown from it - is left out: its time is the dialog being open, not work.
+        var running = new Stack<(System.Windows.Threading.DispatcherOperation Operation, long Began, bool Nested)>();
         var hooks = System.Windows.Threading.Dispatcher.CurrentDispatcher.Hooks;
-        var methodField = typeof(System.Windows.Threading.DispatcherOperation).GetField(
-            "_method", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        hooks.OperationStarted += (_, e) => started[e.Operation] = Stopwatch.GetTimestamp();
-        hooks.OperationAborted += (_, e) => started.Remove(e.Operation);
+        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+        var methodField = typeof(System.Windows.Threading.DispatcherOperation).GetField("_method", flags);
+        var argsField = typeof(System.Windows.Threading.DispatcherOperation).GetField("_args", flags);
+
+        hooks.OperationStarted += (_, e) =>
+        {
+            if (running.Count > 0 && !running.Peek().Nested)
+            {
+                var outer = running.Pop();
+                running.Push(outer with { Nested = true });
+            }
+
+            running.Push((e.Operation, Stopwatch.GetTimestamp(), false));
+        };
         hooks.OperationCompleted += (_, e) =>
         {
-            if (!started.Remove(e.Operation, out var began)) return;
+            // One that threw never completed: dropped here, above the one completing.
+            if (!running.Any(r => ReferenceEquals(r.Operation, e.Operation))) return;
+            while (!ReferenceEquals(running.Peek().Operation, e.Operation)) running.Pop();
 
+            var (_, began, nested) = running.Pop();
             var ms = (Stopwatch.GetTimestamp() - began) * 1000.0 / Stopwatch.Frequency;
-            if (ms < 50) return;
+            if (ms < 50 || nested) return;
 
-            var method = (methodField?.GetValue(e.Operation) as Delegate)?.Method;
-            AppLog.Info("Perf", FormattableString.Invariant($"busy {ms:F0}ms: {method?.DeclaringType?.FullName}.{method?.Name} ({e.Operation.Priority})"));
+            AppLog.Info("Perf", FormattableString.Invariant($"busy {ms:F0}ms: {Describe(e.Operation)} ({e.Operation.Priority})"));
         };
+
+        // The method an operation ran; for an await's continuation, whose method is the same
+        // framework callback for every one, the async method it continued instead.
+        string Describe(System.Windows.Threading.DispatcherOperation operation)
+        {
+            var method = (methodField?.GetValue(operation) as Delegate)?.Method;
+            if (method?.DeclaringType?.FullName?.StartsWith("System.Threading.Tasks.", StringComparison.Ordinal) == true
+                && argsField?.GetValue(operation) is Delegate continuation)
+            {
+                var target = continuation.Target;
+                var stateMachine = target?.GetType().GetField("StateMachine")?.GetValue(target) ?? target;
+                var type = stateMachine?.GetType();
+                return string.Join('.', type?.DeclaringType?.FullName ?? type?.FullName, type?.Name);
+            }
+
+            return string.Join('.', method?.DeclaringType?.FullName, method?.Name);
+        }
 
         var frames = 0;
         var worst = 0.0;

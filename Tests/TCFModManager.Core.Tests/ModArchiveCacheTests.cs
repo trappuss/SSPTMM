@@ -105,4 +105,33 @@ public sealed class ModArchiveCacheTests : IDisposable
         Assert.True(File.Exists(ModArchiveCache.PartPathFor(writing)));
         Assert.False(File.Exists(leftover));
     }
+
+    [Fact]
+    public void One_archive_larger_than_the_budget_goes_before_the_rest()
+    {
+        var cache = new ModArchiveCache(_dir, 25);
+        var small = cache.PathFor(Mod, Version(1))!;
+        var huge = cache.PathFor(Mod, Version(2))!;
+        Write(small, 10, DateTime.UtcNow.AddDays(-2));
+        Write(huge, 30, DateTime.UtcNow.AddDays(-1));
+
+        Assert.False(cache.IsKeepable(huge));
+        cache.Trim(new HashSet<string>());
+
+        Assert.True(File.Exists(small));
+        Assert.False(File.Exists(huge));
+    }
+
+    [Fact]
+    public void One_off_downloads_are_not_kept_and_leftovers_go()
+    {
+        var cache = new ModArchiveCache(_dir, 1000);
+        var once = cache.TemporaryPath();
+        Write(once, 10);
+
+        Assert.False(cache.IsKeepable(once));
+        cache.Trim(new HashSet<string>());
+
+        Assert.False(File.Exists(once));
+    }
 }

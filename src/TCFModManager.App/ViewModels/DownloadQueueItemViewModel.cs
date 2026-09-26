@@ -111,8 +111,9 @@ public sealed partial class DownloadQueueItemViewModel : LocalizedViewModel
 
     // Only while downloading, and only once the size is known - there is nothing to put in the
     // boxes otherwise.
+    // Not once the download is complete: a card waiting its turn to install has nothing moving.
     public bool HasTransferDetails =>
-        Status == DownloadQueueItemStatus.Downloading && TotalBytes is > 0;
+        Status == DownloadQueueItemStatus.Downloading && TotalBytes is > 0 && Progress < 1;
 
     // "173 of 258.3 MB" - both halves in the same unit, so the pair doesn't switch units partway
     // through and jump.
@@ -146,7 +147,7 @@ public sealed partial class DownloadQueueItemViewModel : LocalizedViewModel
     {
         get
         {
-            if (Status != DownloadQueueItemStatus.Downloading || TotalBytes is not > 0) return null;
+            if (Status != DownloadQueueItemStatus.Downloading || TotalBytes is not > 0 || Progress >= 1) return null;
             if (_samples.Count < 2) return null;
 
             var oldest = _samples.Peek();

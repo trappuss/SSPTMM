@@ -67,8 +67,26 @@ public sealed class ModArchiveCache(string directory, long budgetBytes)
     /// <summary>Where to download to before the file is complete: <paramref name="path"/> plus .part.</summary>
     public static string PartPathFor(string path) => path + PartExtension;
 
+    private const string OncePrefix = "once-";
+
     /// <summary>A one-off place for a download that will not be kept.</summary>
-    public string TemporaryPath() => Path.Combine(Directory, $"once-{Guid.NewGuid():N}{Extension}");
+    public string TemporaryPath() => Path.Combine(Directory, $"{OncePrefix}{Guid.NewGuid():N}{Extension}");
+
+    /// <summary>Whether this downloaded archive can be kept: not a one-off, and not by itself
+    /// larger than the whole budget (which would push every other kept archive out).</summary>
+    public bool IsKeepable(string path)
+    {
+        if (Path.GetFileName(path).StartsWith(OncePrefix, StringComparison.OrdinalIgnoreCase)) return false;
+
+        try
+        {
+            return new FileInfo(path).Length <= BudgetBytes;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            return false;
+        }
+    }
 
     /// <summary>What the kept archives take up, in bytes.</summary>
     public long Size()
@@ -106,11 +124,17 @@ public sealed class ModArchiveCache(string directory, long budgetBytes)
 
             var files = new DirectoryInfo(Directory).EnumerateFiles().Where(f => !InUse(f)).ToList();
 
-            // A .part not being written is what a download cut short by the app closing leaves.
-            foreach (var part in files.Where(IsPart)) TryDelete(part);
+            // A .part not being written is what a download cut short by the app closing leaves, and
+            // a one-off not in use is one the app was closed before it could delete.
+            foreach (var leftover in files.Where(f => IsPart(f) || f.Name.StartsWith(OncePrefix, StringComparison.OrdinalIgnoreCase)))
+                TryDelete(leftover);
 
-            var kept = files.Where(f => f.Name.EndsWith(Extension, StringComparison.OrdinalIgnoreCase))
-                .OrderBy(f => f.LastWriteTimeUtc)
+            // Larger than the whole budget first, so one of those does not push out all the rest;
+            // then those used longest ago.
+            var kept = files.Where(f => f.Name.EndsWith(Extension, StringComparison.OrdinalIgnoreCase)
+                    && !f.Name.StartsWith(OncePrefix, StringComparison.OrdinalIgnoreCase))
+                .OrderByDescending(f => f.Length > BudgetBytes)
+                .ThenBy(f => f.LastWriteTimeUtc)
                 .ToList();
 
             var total = kept.Sum(f => f.Length);

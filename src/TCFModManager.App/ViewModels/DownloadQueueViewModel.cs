@@ -44,7 +44,27 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
     // Archives downloaded before, and the ones in use now (being written, or waiting to install),
     // which tidying never deletes. Touched on the UI thread only.
     private readonly ModArchiveCache _archives = new(ModArchiveCache.DefaultDirectory, ModArchiveCache.DefaultBudget);
-    private readonly HashSet<string> _archivesInUse = new(StringComparer.OrdinalIgnoreCase);
+    // Counted: two cards can use one kept archive (the same version queued twice).
+    private readonly Dictionary<string, int> _archivesInUse = new(StringComparer.OrdinalIgnoreCase);
+
+    private IReadOnlySet<string> ArchivesInUse => _archivesInUse.Keys.ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+    private void Use(string archive) => _archivesInUse[archive] = _archivesInUse.GetValueOrDefault(archive) + 1;
+
+    // True when nothing else is using it now.
+    private bool Unuse(string archive)
+    {
+        if (!_archivesInUse.TryGetValue(archive, out var count)) return true;
+
+        if (count > 1)
+        {
+            _archivesInUse[archive] = count - 1;
+            return false;
+        }
+
+        _archivesInUse.Remove(archive);
+        return true;
+    }
 
     // A download that fails in a way that can pass (the connection dropped, the host busy) is
     // tried again after these waits, as pictures are.
@@ -104,7 +124,7 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
     /// <summary>Deletes the kept archives, except those the queue is using now.</summary>
     public void ClearKeptDownloads()
     {
-        _archives.Clear(_archivesInUse);
+        _archives.Clear(ArchivesInUse);
         AppLog.Info("Downloads", "kept downloads cleared");
     }
 
@@ -181,10 +201,11 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
         // sentence for a plural to agree with.
         SummaryUnsized = unknown.ToString(CultureInfo.CurrentCulture);
 
-        SummaryEta = remaining > 0
-            && unfinished.FirstOrDefault(i => i.BytesPerSecond is > 0)?.BytesPerSecond is { } rate
-                ? DownloadQueueItemViewModel.RemainingLabel(TimeSpan.FromSeconds(remaining / rate))
-                : NoValue;
+        // Every download running now together - up to three at once.
+        var rate = unfinished.Sum(i => i.BytesPerSecond ?? 0);
+        SummaryEta = remaining > 0 && rate > 0
+            ? DownloadQueueItemViewModel.RemainingLabel(TimeSpan.FromSeconds(remaining / rate))
+            : NoValue;
 
         OnPropertyChanged(nameof(HasRetryable));
     }
@@ -226,7 +247,16 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
     {
         await foreach (var item in _channel.Reader.ReadAllAsync())
         {
-            await PrepareAsync(item);
+            // Nothing that goes wrong with one item may stop the queue for the rest of the session.
+            try
+            {
+                await PrepareAsync(item);
+            }
+            catch (Exception ex)
+            {
+                AppLog.Error("Downloads", $"preparing {item.ModName} failed: {ex}");
+                Settle(item, ex);
+            }
         }
     }
 
@@ -235,7 +265,15 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
     {
         await foreach (var item in _installs.Reader.ReadAllAsync())
         {
-            await InstallAsync(item);
+            try
+            {
+                await InstallAsync(item);
+            }
+            catch (Exception ex)
+            {
+                AppLog.Error("Downloads", $"installing {item.ModName} failed: {ex}");
+                Settle(item, ex);
+            }
         }
     }
 
@@ -250,6 +288,20 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
             item.StatusMessage = Strings.Downloads_CancelledBeforeStart;
             return;
         }
+
+        // Already under way: an item cancelled while waiting and then retried is in the queue
+        // twice, and the second time round is not a second attempt.
+        if (item.Status != DownloadQueueItemStatus.Pending) return;
+
+        // Cancel says so at once - while the item waits for a download slot, or its turn to
+        // install - rather than when the installs reach it. (An install under way finishes
+        // placing files first, so that one settles when it is done.)
+        var token = item.Token;
+        token.Register(() =>
+        {
+            if (!item.IsFinished && item.Status != DownloadQueueItemStatus.Installing)
+                Settle(item, new OperationCanceledException(token));
+        });
 
         try
         {
@@ -296,7 +348,7 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
 
         if (keep && _archives.TryGet(item.Target, version, out var kept))
         {
-            _archivesInUse.Add(kept);
+            Use(kept);
             item.Progress = 1.0;
             item.StatusMessage = Strings.Downloads_UsingKept;
             AppLog.Info("Downloads", $"{item.ModName} {item.VersionLabel}: using the archive kept from before");
@@ -306,14 +358,18 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
         // A one-off file when not keeping - or when the same version is being fetched for another
         // card already, which must not share its file.
         var keptPath = keep ? _archives.PathFor(item.Target, version) : null;
-        var path = keptPath is not null && !_archivesInUse.Contains(keptPath) ? keptPath : _archives.TemporaryPath();
+        var path = keptPath is not null && !_archivesInUse.ContainsKey(keptPath) ? keptPath : _archives.TemporaryPath();
         var part = ModArchiveCache.PartPathFor(path);
-        _archivesInUse.Add(path);
 
-        item.StatusMessage = Strings.Downloads_WaitingToDownload;
-        await _downloadSlots.WaitAsync(item.Token);
+        var slot = false;
         try
         {
+            Use(path);
+
+            item.StatusMessage = Strings.Downloads_WaitingToDownload;
+            await _downloadSlots.WaitAsync(item.Token);
+            slot = true;
+
             var progress = new Progress<double>(p => item.Progress = p);
 
             for (var attempt = 0; ; attempt++)
@@ -326,7 +382,7 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
                     File.Move(part, path, overwrite: true);
                     break;
                 }
-                catch (Exception ex) when (attempt < RetryDelays.Length && IsPassing(ex) && !item.Token.IsCancellationRequested)
+                catch (Exception ex) when (attempt < RetryDelays.Length && IsPassing(ex, item.Token))
                 {
                     var wait = RetryDelays[attempt];
                     AppLog.Info("Downloads", $"{item.ModName} {item.VersionLabel}: {ex.Message} - trying again in {wait.TotalSeconds:F0}s");
@@ -336,37 +392,50 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
                 }
             }
         }
-        catch
+        catch (Exception ex)
         {
-            _archivesInUse.Remove(path);
+            if (Unuse(path)) TryDelete(path);
             TryDelete(part);
+
+            // Said now, not when the installs reach this item.
+            Settle(item, ex);
             throw;
         }
         finally
         {
-            _downloadSlots.Release();
+            if (slot) _downloadSlots.Release();
         }
 
         item.StatusMessage = Strings.Downloads_WaitingToInstall;
         return path;
     }
 
-    // A failure that may not happen again: the connection dropped or timed out, the host was busy
-    // or failing (5xx, 408, 429), or the file arrived short. A refusal (403, 404) will not change.
-    private static bool IsPassing(Exception ex) => ex switch
+    // A failure that may not happen again: the connection dropped, reset or timed out, the host was
+    // busy or failing (5xx, 408, 429), or the file arrived short. Not one that will happen again the
+    // same way - a refusal (403, 404), a name that does not resolve, a certificate, a full disk.
+    private static bool IsPassing(Exception ex, CancellationToken token) => ex switch
     {
-        HttpRequestException { StatusCode: null } => true,
-        HttpRequestException { StatusCode: var code } => (int)code! >= 500 || (int)code == 408 || (int)code == 429,
+        _ when token.IsCancellationRequested => false,
+        HttpRequestException { StatusCode: { } code } => (int)code >= 500 || (int)code is 408 or 429,
+        HttpRequestException { HttpRequestError: HttpRequestError.ConnectionError or HttpRequestError.ResponseEnded or HttpRequestError.Unknown } => true,
+        HttpIOException => true,
         ModInstallException { Reason: ModInstallFailure.DownloadIncomplete } => true,
         TaskCanceledException => true,
-        IOException => true,
         _ => false,
     };
 
     // Stage 3.
     private async Task InstallAsync(DownloadQueueItemViewModel item)
     {
+        // Settled already - its download failed, or it was cancelled while waiting its turn.
+        if (item.IsFinished)
+        {
+            _ = item.Archive?.Exception;
+            return;
+        }
+
         string? archive = null;
+        var keepArchive = true;
         try
         {
             archive = await item.Archive!;
@@ -404,21 +473,27 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
         }
         catch (Exception ex)
         {
+            // An archive that would not install (not a mod package, would not extract) is not
+            // kept, or every retry would try the same file again. One the install never got to -
+            // cancelled, SPT running, no install folder - is fine.
+            keepArchive = ex is OperationCanceledException
+                || ex is ModInstallException { Reason: ModInstallFailure.InstallInUse or ModInstallFailure.NoInstallFolder };
             Settle(item, ex);
         }
         finally
         {
-            if (archive is not null) Release(archive);
+            if (archive is not null) Release(archive, keepArchive);
         }
     }
 
-    // Done with an archive: kept (within the budget) when downloads are kept, deleted otherwise.
-    private void Release(string archive)
+    // Done with an archive: kept (within the budget) when downloads are kept and it installed,
+    // deleted otherwise - once nothing else is using it.
+    private void Release(string archive, bool keep)
     {
-        _archivesInUse.Remove(archive);
+        if (!Unuse(archive)) return;
 
-        if (new SettingsService().Load().KeepDownloads && !Path.GetFileName(archive).StartsWith("once-", StringComparison.Ordinal))
-            _archives.Trim(_archivesInUse);
+        if (keep && _archives.IsKeepable(archive) && new SettingsService().Load().KeepDownloads)
+            _archives.Trim(ArchivesInUse);
         else
             TryDelete(archive);
     }
