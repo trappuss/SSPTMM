@@ -339,7 +339,7 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
             if (item.CheckDependencies)
             {
                 item.StatusMessage = Strings.Downloads_CheckingDependencies;
-                await CheckDependenciesAsync(item, version);
+                await CheckDependenciesAsync(item, version, token);
             }
 
             token.ThrowIfCancellationRequested();
@@ -468,6 +468,9 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
         {
             archive = await turn.Archive;
 
+            // Cancelled and retried while the archive arrived: the new attempt installs, not this one.
+            if (turn.Token != item.Token) return;
+
             turn.Token.ThrowIfCancellationRequested();
 
             // Core reports which stage it is in; every phase past the download (removing the
@@ -506,7 +509,9 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
             // cancelled, SPT running, no install folder - is fine.
             keepArchive = ex is OperationCanceledException
                 || ex is ModInstallException { Reason: ModInstallFailure.InstallInUse or ModInstallFailure.NoInstallFolder };
-            Settle(item, ex);
+
+            // The card is a retry's by now, if there was one: this attempt says nothing on it.
+            if (turn.Token == item.Token) Settle(item, ex);
         }
         finally
         {
@@ -585,21 +590,21 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
     // ReadModPageConfirmationWindow listing every missing mod. Anything queued is registered as a
     // dependency of <paramref name="item"/>, so cancelling it cancels them too. Best-effort: a
     // failed lookup silently skips the check rather than failing the queued item.
-    private async Task CheckDependenciesAsync(DownloadQueueItemViewModel item, ModVersion version)
+    private async Task CheckDependenciesAsync(DownloadQueueItemViewModel item, ModVersion version, CancellationToken token)
     {
         if (string.IsNullOrWhiteSpace(version.Version)) return;
 
-        var missing = await FindMissingDependenciesAsync(item.Target, version.Version, item.InstallPath, item.Token);
+        var missing = await FindMissingDependenciesAsync(item.Target, version.Version, item.InstallPath, token);
         if (missing is null || missing.Count == 0) return;
 
-        item.Token.ThrowIfCancellationRequested();
+        token.ThrowIfCancellationRequested();
 
         // One gate covering every missing dependency at once: each mod's page must be opened
         // before Continue unlocks, replacing what was previously a separate Yes/No prompt plus a
         // per-dependency read-page confirmation.
         if (!ReadModPageConfirmationWindow.ConfirmAll(PageLinks(missing))) return;
 
-        item.Token.ThrowIfCancellationRequested();
+        token.ThrowIfCancellationRequested();
 
         EnqueueDependencies(item, missing);
     }

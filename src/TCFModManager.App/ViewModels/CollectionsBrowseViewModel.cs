@@ -187,11 +187,13 @@ public sealed partial class CollectionsBrowseViewModel : LocalizedViewModel
         {
             // Another page or search asked for since.
         }
-        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or SpModListsException
-                                   && ReferenceEquals(_loading, loading))
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or SpModListsException)
         {
             AppLog.Info("Collections", $"sp-mod.com/lists could not be read: {ex.Message}");
-            StatusMessage = LocalizationService.Text(Strings.Collections_LoadFailedFormat, ex.Message);
+
+            // Only the newest load says so: an older one failing would cover the newer results.
+            if (ReferenceEquals(_loading, loading))
+                StatusMessage = LocalizationService.Text(Strings.Collections_LoadFailedFormat, ex.Message);
         }
         finally
         {

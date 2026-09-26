@@ -65,22 +65,36 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
         // neither exists yet - see EnsureCategoryOptionsBuilt/EnsureSptVersionOptionsBuilt.
 
         //
-        // Refreshes each card's install/update status dot once queued installs complete - once for
-        // a run of them, not once each: every refresh scans the whole install and redraws every
-        // card, and a forty-mod collection applied was forty of each back to back. Installs that
-        // land within a moment of each other are one refresh, as the Subscribed items page does it.
+        // Refreshes each card's install/update status dot once queued installs complete - at once
+        // for the first, and then once for the rest of a run rather than once each: every refresh
+        // scans the whole install and redraws every card, and a forty-mod collection applied was
+        // forty of each back to back. The first at once, so the item page's Subscribed shows the
+        // moment its install is done.
         //
-        _refreshAfterInstall = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(600) };
+        _refreshAfterInstall = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(800) };
         _refreshAfterInstall.Tick += async (_, _) =>
         {
             _refreshAfterInstall.Stop();
+            if (!_refreshPending) return;
+
+            _refreshPending = false;
             await RefreshInstalledIndexAsync();
             ShowInstalledChange();
         };
-        AppServices.DownloadQueue.ItemInstalled += (_, _) =>
+        AppServices.DownloadQueue.ItemInstalled += async (_, _) =>
         {
-            _refreshAfterInstall.Stop();
+            if (_refreshAfterInstall.IsEnabled)
+            {
+                // Within a run: one refresh when it goes quiet.
+                _refreshPending = true;
+                _refreshAfterInstall.Stop();
+                _refreshAfterInstall.Start();
+                return;
+            }
+
             _refreshAfterInstall.Start();
+            await RefreshInstalledIndexAsync();
+            ShowInstalledChange();
         };
 
         // Refreshes the status dots when a mod is removed from the Installed page, or set aside
@@ -799,15 +813,18 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
         return card;
     }
 
-    /// <summary>Scans the configured SPT install folder and matches it against the cached catalog to drive the
-    /// install/update status dot on Browse's cards. Best-effort: no install path or nothing found just means
-    /// no dot shows, not an error.</summary>
     private readonly System.Windows.Threading.DispatcherTimer _refreshAfterInstall;
+
+    // An install landed during a run, after the refresh the run began with.
+    private bool _refreshPending;
 
     // Which refresh is the newest: two can overlap (an install, then a removal), and the one that
     // read the folder first must not be the one that finishes last and wins.
     private int _indexGeneration;
 
+    /// <summary>Scans the configured SPT install folder and matches it against the cached catalog to drive the
+    /// install/update status dot on Browse's cards. Best-effort: no install path or nothing found just means
+    /// no dot shows, not an error.</summary>
     private async Task RefreshInstalledIndexAsync()
     {
         var generation = ++_indexGeneration;

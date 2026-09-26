@@ -6191,7 +6191,7 @@ This was written to:
     <comment>The same link once the description is open: folds it again.</comment>
   </data>
   <data name="Collection_NothingToSubscribeFormat" xml:space="preserve">
-    <value>None of the items in this collection has a version for SPT {0}, so there is nothing to subscribe to.</value>
+    <value>None of the items in this collection can be subscribed to for SPT {0} - why is listed below.</value>
     <comment>Subscribe to all, when every item is left out. {0} is the SPT version.</comment>
   </data>
 </root>
