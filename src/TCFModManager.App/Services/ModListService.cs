@@ -213,10 +213,19 @@ public sealed class ModListService
 
     // A copy of the SPT profiles from before the list changes the install, off the UI thread - not
     // while SPT runs (the apply is refused then, and its server may be writing them).
-    private static Task BackUpProfilesAsync(string? installPath) =>
-        string.IsNullOrWhiteSpace(installPath) || ModInstallService.RunningBlockers(installPath).Count > 0
-            ? Task.CompletedTask
-            : Task.Run(() => AppServices.ProfileBackups.BackupIfChanged(installPath, ProfileBackups.BeforeList));
+    //
+    // Also where an install left half-done is finished first (or the apply refused while it cannot
+    // be): the list's enables and disables must not move files that undo is about to put back.
+    //
+    private static async Task BackUpProfilesAsync(string? installPath)
+    {
+        if (string.IsNullOrWhiteSpace(installPath)) return;
+
+        await Task.Run(() => AppServices.ModInstall.EnsureNothingPending(installPath));
+
+        if (ModInstallService.RunningBlockers(installPath).Count == 0)
+            await Task.Run(() => AppServices.ProfileBackups.BackupIfChanged(installPath, ProfileBackups.BeforeList));
+    }
 
     //
     // Puts the install back the way it was before the last list was applied.

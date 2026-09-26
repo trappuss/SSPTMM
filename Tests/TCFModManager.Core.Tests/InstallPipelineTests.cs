@@ -435,4 +435,103 @@ public class InstallPipelineTests : IDisposable
         Assert.False(File.Exists(InSpt("preview.png")));
         Assert.False(File.Exists(InSpt("icon.png")));
     }
+
+    // ---------------------------------------------------------------- review round 3
+
+    [Fact]
+    public async Task UpdatingTheLowerOfTwoStackedMods_StillEndsWithTheOriginal()
+    {
+        File.WriteAllText(InSpt("BepInEx/plugins/H.dll"), "HAND");
+        await Install(1, "ModA", "1.0", ("BepInEx/plugins/H.dll", "a1"));
+        await Task.Delay(20);
+        await Install(2, "ModB", "1.0", ("BepInEx/plugins/H.dll", "b"));
+        await Task.Delay(20);
+        await Install(1, "ModA", "2.0", ("BepInEx/plugins/H.dll", "a2"));
+
+        await Remove(1);
+        Assert.Equal("b", File.ReadAllText(InSpt("BepInEx/plugins/H.dll")));
+        await Remove(2);
+        Assert.Equal("HAND", File.ReadAllText(InSpt("BepInEx/plugins/H.dll")));
+    }
+
+    [Fact]
+    public async Task UpdatingTheLowerModToAVersionWithoutTheFile_LeavesTheUpperModsFile()
+    {
+        File.WriteAllText(InSpt("BepInEx/plugins/H.dll"), "HAND");
+        await Install(1, "ModA", "1.0", ("BepInEx/plugins/H.dll", "a1"));
+        await Task.Delay(20);
+        await Install(2, "ModB", "1.0", ("BepInEx/plugins/H.dll", "b"));
+        await Task.Delay(20);
+        await Install(1, "ModA", "2.0", ("BepInEx/plugins/A.dll", "a2"));
+
+        Assert.Equal("b", File.ReadAllText(InSpt("BepInEx/plugins/H.dll")));
+        await Remove(2);
+        Assert.Equal("HAND", File.ReadAllText(InSpt("BepInEx/plugins/H.dll")));
+    }
+
+    [Fact]
+    public async Task AFinishedInstall_IsNeverUndone_EvenOnceItsRecordIsReplaced()
+    {
+        await Install(9, "ModI", "1.0", ("BepInEx/plugins/I.dll", "I1"));
+        await Install(9, "ModI", "2.0", ("BepInEx/plugins/I.dll", "I2"));
+
+        // A journal left by a finished install whose tidying did not happen (committed), for a record
+        // that a later change has since replaced.
+        var work = Path.Combine(_spt, ".tcfmm-work", "finished");
+        var journal = InstallJournal.Begin(work, _spt, Mod(9, "ModI"));
+        journal.Planned = ["BepInEx/plugins/I.dll"];
+        journal.Absent = ["BepInEx/plugins/I.dll"];
+        journal.Committed = true;
+        Directory.CreateDirectory(Path.Combine(journal.PreviousDirectory, "BepInEx", "plugins"));
+        File.WriteAllText(Path.Combine(journal.PreviousDirectory, "BepInEx", "plugins", "I.dll"), "stale");
+        journal.Save();
+
+        _service.RecoverInterruptedInstalls(_spt);
+
+        Assert.Equal("I2", File.ReadAllText(InSpt("BepInEx/plugins/I.dll")));
+        Assert.False(Directory.Exists(work));
+    }
+
+    [Fact]
+    public async Task DisablingOrApplyingAList_IsHeldWhileAnUndoIsPending()
+    {
+        await Install(9, "ModI", "1.0", ("BepInEx/plugins/I.dll", "I1"));
+        var work = Path.Combine(_spt, ".tcfmm-work", "stuck");
+        var journal = InstallJournal.Begin(work, _spt, Mod(9, "ModI"));
+        journal.Planned = ["BepInEx/plugins/I.dll"];
+        Directory.CreateDirectory(Path.Combine(journal.PreviousDirectory, "BepInEx", "plugins"));
+        File.Move(InSpt("BepInEx/plugins/I.dll"), Path.Combine(journal.PreviousDirectory, "BepInEx", "plugins", "I.dll"));
+        Directory.CreateDirectory(InSpt("BepInEx/plugins/I.dll"));
+        File.WriteAllText(InSpt("BepInEx/plugins/I.dll/in-the-way.txt"), "x");
+        journal.Save();
+
+        var refused = Assert.Throws<ModInstallException>(() => _service.EnsureNothingPending(_spt));
+        Assert.Equal(ModInstallFailure.EarlierInstallPending, refused.Reason);
+
+        Directory.Delete(InSpt("BepInEx/plugins/I.dll"), recursive: true);
+        _service.EnsureNothingPending(_spt);
+        Assert.Equal("I1", File.ReadAllText(InSpt("BepInEx/plugins/I.dll")));
+    }
+
+    [Fact]
+    public async Task ARemovalAndAnInstall_DoNotWriteOverEachOthersRecords()
+    {
+        await Install(1, "ModA", "1.0", ("BepInEx/plugins/A.dll", "a"));
+        var stale = _manifest.Load().Mods.Single(m => m.ModId == 1);
+
+        // Both at once, many times over: each must end with its own result in the records.
+        var tasks = new List<Task>();
+        for (var n = 0; n < 5; n++)
+        {
+            var id = 100 + n;
+            tasks.Add(Task.Run(() => Install(id, $"Mod{id}", "1.0", ($"BepInEx/plugins/M{id}.dll", "m"))));
+        }
+
+        tasks.Add(Task.Run(() => _service.UninstallAsync(_spt, stale, ConfigAction.Keep)));
+        await Task.WhenAll(tasks);
+
+        var mods = _manifest.Load().Mods;
+        Assert.DoesNotContain(mods, m => m.ModId == 1);
+        Assert.Equal(5, mods.Count(m => m.ModId >= 100));
+    }
 }

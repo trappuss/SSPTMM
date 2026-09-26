@@ -1755,4 +1755,5 @@ internal static class Strings
     internal static string Profiles_RestoredFormat => LocalizationService.Get("Profiles_RestoredFormat");
     internal static string ModInstall_NotPutBackYetFormat => LocalizationService.Get("ModInstall_NotPutBackYetFormat");
     internal static string ModInstall_EarlierInstallPendingFormat => LocalizationService.Get("ModInstall_EarlierInstallPendingFormat");
+    internal static string ModInstall_RecordsUnreadableFormat => LocalizationService.Get("ModInstall_RecordsUnreadableFormat");
 }

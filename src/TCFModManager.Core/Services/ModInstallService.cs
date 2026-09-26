@@ -25,6 +25,13 @@ public sealed class ModInstallService(
     private readonly ModConfigOptionsStore _options = configOptions ?? new ModConfigOptionsStore();
     private readonly ConfigUpdateLog _configLog = configUpdateLog ?? new ConfigUpdateLog();
 
+    //
+    // One change to the install at a time: an install's placing-and-recording and a removal each read
+    // the manifest, change files and write the manifest back, and two at once would each write over
+    // the other's record. The download is outside it - only the part that touches the install waits.
+    //
+    private readonly SemaphoreSlim _changing = new(1, 1);
+
     // Scratch folder created inside the SPT install so extracted files can be moved into
     // place rather than copied across volumes. Falls back to %TEMP% when it can't be created.
     private const string WorkFolderName = ".tcfmm-work";
@@ -190,8 +197,17 @@ public sealed class ModInstallService(
         EnsureInstallNotInUse(ModInstallAction.Install, installPath);
 
         // An earlier install left half-done in this folder is put back before anything else changes
-        // it - otherwise putting it back later would undo this one too.
-        RecoverOrRefuse(installPath);
+        // it - otherwise putting it back later would undo this one too. (Again once this install has
+        // its turn, below; this one is so a download is not spent on an install that cannot go ahead.)
+        await _changing.WaitAsync(ct).ConfigureAwait(false);
+        try
+        {
+            RecoverOrRefuse(installPath);
+        }
+        finally
+        {
+            _changing.Release();
+        }
 
         AppLog.Info("Install",
             $"{target.Name} {version.Version} ({(target.IsAddon ? "addon" : "mod")} {target.Id}) -> {installPath}");
@@ -200,6 +216,7 @@ public sealed class ModInstallService(
         AppLog.Debug("Install", $"work dir {workDir} (move into install: {canMoveIntoInstall})");
         var archivePath = downloadedArchive ?? Path.Combine(workDir, "download.bin");
         var extractDir = Path.Combine(workDir, "extracted");
+        var holding = false;
 
         try
         {
@@ -258,6 +275,11 @@ public sealed class ModInstallService(
             SptInstallationService.TryGetServerRoot(installPath, out var serverRoot);
 
             ct.ThrowIfCancellationRequested();
+
+            // This install's turn to change the install - see _changing.
+            await _changing.WaitAsync(ct).ConfigureAwait(false);
+            holding = true;
+            RecoverOrRefuse(installPath);
 
             // Re-checked now the download is finished: SPT may have been started while it ran, and
             // everything past this point deletes or places files inside the install.
@@ -323,6 +345,7 @@ public sealed class ModInstallService(
             var journal = InstallJournal.Begin(workDir, installPath, target);
             journal.Planned = [.. planned.Select(p => p.Forward)];
             journal.PreviousReplaced = existing is null ? [] : [.. existing.Replaced];
+            journal.PreviousInstalledAt = existing?.InstalledAt;
             journal.StaleCopies = StaleCopiesOf(manifest, existing, journal.Planned);
             journal.Save();
 
@@ -436,6 +459,9 @@ public sealed class ModInstallService(
                 journal.Record = record;
                 journal.Save();
                 SaveRecord(record);
+
+                journal.Committed = true;
+                journal.Save();
             }
             catch (Exception ex) when (record is null || !IsRecorded(record))
             {
@@ -513,6 +539,8 @@ public sealed class ModInstallService(
                 AppLog.Error("Install", $"{target.Name}: kept {workDir} to finish at the next start");
             else
                 TryDeleteDirectory(workDir);
+
+            if (holding) _changing.Release();
         }
     }
 
@@ -590,32 +618,51 @@ public sealed class ModInstallService(
     {
         try
         {
+            //
+            // A mod installed over the previous version kept a copy of its file; this version places
+            // the file again, so it is on top now, and what is under that mod is what was under the
+            // previous version: this mod's own kept copy goes to it (or, with none, its copy goes).
+            // Before the copies below, since the first copy of a path is the one kept. Each one is
+            // crossed off the journal as it is done, so a second attempt does not hand anything twice.
+            //
+            while (journal.StaleCopies.Count > 0)
+            {
+                var stale = journal.StaleCopies[0];
+                var handed = _replaced.HandOver(target.Id, target.IsAddon, stale.ModId, stale.IsAddon, stale.Path);
+                if (!handed) _replaced.Drop(stale.ModId, stale.IsAddon, stale.Path);
+                UpdateReplaced(stale.ModId, stale.IsAddon, stale.Path, keep: handed);
+
+                journal.StaleCopies.RemoveAt(0);
+                journal.Save();
+            }
+
             foreach (var relative in replaced)
             {
                 var copy = journal.BeforeCopyOf(relative);
                 if (File.Exists(copy)) _replaced.KeepCopy(copy, target.Id, target.IsAddon, relative);
             }
 
-            foreach (var old in journal.PreviousReplaced.Where(o => !replaced.Contains(o, StringComparer.OrdinalIgnoreCase)))
-                _replaced.Restore(installPath, target.Id, target.IsAddon, old);
-
-            if (journal.StaleCopies.Count > 0)
+            //
+            // What the previous version had replaced and this one no longer places: back where it
+            // was - unless a mod installed over the previous version holds that file now, in which
+            // case what was under the previous version is now under that mod, and the copy is its.
+            //
+            var gone = journal.PreviousReplaced.Where(o => !replaced.Contains(o, StringComparer.OrdinalIgnoreCase)).ToList();
+            if (gone.Count > 0)
             {
-                foreach (var stale in journal.StaleCopies) _replaced.Drop(stale.ModId, stale.IsAddon, stale.Path);
-
-                var manifest = manifestService.Load();
-                for (var i = 0; i < manifest.Mods.Count; i++)
+                var others = manifestService.Load().Mods.Where(m => !target.Matches(m)).ToList();
+                foreach (var old in gone)
                 {
-                    var other = manifest.Mods[i];
-                    var gone = journal.StaleCopies
-                        .Where(c => c.ModId == other.ModId && c.IsAddon == other.IsAddon)
-                        .Select(c => c.Path)
-                        .ToHashSet(StringComparer.OrdinalIgnoreCase);
-                    if (gone.Count > 0 && other.Replaced.Any(gone.Contains))
-                        manifest.Mods[i] = WithReplaced(other, [.. other.Replaced.Where(r => !gone.Contains(r))]);
-                }
+                    var above = others
+                        .Where(m => journal.PreviousInstalledAt is { } then && m.InstalledAt > then
+                            && m.Files.Contains(old, StringComparer.OrdinalIgnoreCase))
+                        .OrderBy(m => m.InstalledAt)
+                        .FirstOrDefault();
 
-                manifestService.Save(manifest);
+                    if (above is null) _replaced.Restore(installPath, target.Id, target.IsAddon, old);
+                    else if (_replaced.HandOver(target.Id, target.IsAddon, above.ModId, above.IsAddon, old))
+                        UpdateReplaced(above.ModId, above.IsAddon, old, keep: true);
+                }
             }
 
             return true;
@@ -625,6 +672,23 @@ public sealed class ModInstallService(
             AppLog.Warn("Install", $"{target.Name}: couldn't keep every copy of the files it replaced yet: {ex.Message}");
             return false;
         }
+    }
+
+    // Adds a path to (keep) or takes it off another record's Replaced list, in the manifest.
+    private void UpdateReplaced(int modId, bool isAddon, string relative, bool keep)
+    {
+        var manifest = manifestService.Load();
+        var i = manifest.Mods.FindIndex(m => m.ModId == modId && m.IsAddon == isAddon);
+        if (i < 0) return;
+
+        var other = manifest.Mods[i];
+        var has = other.Replaced.Contains(relative, StringComparer.OrdinalIgnoreCase);
+        if (has == keep) return;
+
+        manifest.Mods[i] = WithReplaced(other, keep
+            ? [.. other.Replaced, relative]
+            : [.. other.Replaced.Where(r => !string.Equals(r, relative, StringComparison.OrdinalIgnoreCase))]);
+        manifestService.Save(manifest);
     }
 
     //
@@ -726,7 +790,7 @@ public sealed class ModInstallService(
     // empty (working bottom-up), then drops the record from the manifest. Files that can't be
     // deleted are collected into the result instead of aborting the rest of the removal.
     // <paramref name="configs"/> decides what happens to the mod's own config JSON files first.
-    public Task<UninstallResult> UninstallAsync(
+    public async Task<UninstallResult> UninstallAsync(
         string installPath,
         InstalledModRecord record,
         ConfigAction configs = ConfigAction.Keep,
@@ -734,17 +798,46 @@ public sealed class ModInstallService(
     {
         EnsureInstallNotInUse(ModInstallAction.Remove, installPath);
 
-        // As for an install: anything left half-done is put back first.
-        RecoverOrRefuse(installPath);
-        profileBackups?.BackupIfChanged(installPath, ProfileBackups.BeforeRemove);
+        await _changing.WaitAsync(ct).ConfigureAwait(false);
+        try
+        {
+            // As for an install: anything left half-done is put back first.
+            RecoverOrRefuse(installPath);
 
-        var result = RemoveRecordedFiles(installPath, record, configs, null, ct);
+            // The record as it is now - an install may have updated it while this waited.
+            var current = manifestService.Load().Mods.FirstOrDefault(m => m.ModId == record.ModId && m.IsAddon == record.IsAddon);
+            if (current is null) return new UninstallResult(0, [], 0, null);
 
-        // A mod that is gone has no shipped copies worth keeping. An update does not come through
-        // here, which is why this is safe to do unconditionally - see InstallAsync.
-        _configs.Baselines.Remove(record.ModId, record.IsAddon);
+            profileBackups?.BackupIfChanged(installPath, ProfileBackups.BeforeRemove);
 
-        return Task.FromResult(result);
+            var result = RemoveRecordedFiles(installPath, current, configs, null, ct);
+
+            // A mod that is gone has no shipped copies worth keeping. An update does not come through
+            // here, which is why this is safe to do unconditionally - see InstallAsync.
+            _configs.Baselines.Remove(current.ModId, current.IsAddon);
+
+            return result;
+        }
+        finally
+        {
+            _changing.Release();
+        }
+    }
+
+    /// <summary>Finishes putting back any install left half-done in this folder; throws
+    /// <see cref="ModInstallException"/> (EarlierInstallPending) while one cannot be. For changes to
+    /// the install made outside this service - disabling, enabling, applying a list.</summary>
+    public void EnsureNothingPending(string installPath)
+    {
+        _changing.Wait();
+        try
+        {
+            RecoverOrRefuse(installPath);
+        }
+        finally
+        {
+            _changing.Release();
+        }
     }
 
     //
@@ -956,20 +1049,21 @@ public sealed class ModInstallService(
     //
     private void RecoverOrRefuse(string installPath)
     {
-        var (_, pending) = Recover(installPath);
+        var (_, pending, unreadable) = Recover(installPath);
         if (pending.Count == 0) return;
 
-        throw new ModInstallException(ModInstallFailure.EarlierInstallPending)
+        throw new ModInstallException(unreadable ? ModInstallFailure.RecordsUnreadable : ModInstallFailure.EarlierInstallPending)
         {
             ModName = string.Join(", ", pending),
         };
     }
 
-    private (List<string> Recovered, List<string> Pending) Recover(string installPath)
+    private (List<string> Recovered, List<string> Pending, bool RecordsUnreadable) Recover(string installPath)
     {
         var recovered = new List<string>();
         var pending = new List<string>();
-        if (string.IsNullOrWhiteSpace(installPath)) return (recovered, pending);
+        var unreadable = false;
+        if (string.IsNullOrWhiteSpace(installPath)) return (recovered, pending, unreadable);
 
         var roots = new[] { Path.Combine(installPath, WorkFolderName), Path.Combine(Path.GetTempPath(), "TCFModManager") };
         foreach (var root in roots.Where(Directory.Exists))
@@ -980,20 +1074,29 @@ public sealed class ModInstallService(
                 if (!string.Equals(Path.GetFullPath(journal.InstallPath).TrimEnd(Path.DirectorySeparatorChar),
                         Path.GetFullPath(installPath).TrimEnd(Path.DirectorySeparatorChar), StringComparison.OrdinalIgnoreCase)) continue;
 
-                var state = journal.Record is { } record ? RecordedState(record) : false;
+                var state = journal.Committed ? true : journal.Record is { } record ? RecordedState(record) : false;
                 if (state is null)
                 {
                     // The manifest cannot be read, so whether it finished cannot be told: left as it is.
                     AppLog.Warn("Install", $"{journal.ModName}: an interrupted install is left for now - the install records could not be read");
                     pending.Add(journal.ModName);
+                    unreadable = true;
                     continue;
                 }
 
                 if (state == true)
                 {
-                    // Written in full: only the tidying up was left.
-                    var target = new InstallTarget(journal.ModId, journal.IsAddon, journal.ModName, null, null, null);
-                    if (!KeepReplacedCopies(installPath, journal, target, journal.Record!.Replaced)) continue;
+                    // Written in full: only the tidying up was left - and only while its record is
+                    // still the current one; once a later change replaced it, there is nothing to tidy.
+                    if (journal.Record is { } finished && IsRecorded(finished))
+                    {
+                        var target = new InstallTarget(journal.ModId, journal.IsAddon, journal.ModName, null, null, null);
+                        if (!KeepReplacedCopies(installPath, journal, target, finished.Replaced))
+                        {
+                            pending.Add(journal.ModName);
+                            continue;
+                        }
+                    }
 
                     AppLog.Info("Install", $"{journal.ModName}: tidied up after an install that had finished");
                 }
@@ -1016,7 +1119,7 @@ public sealed class ModInstallService(
             }
         }
 
-        return (recovered, pending);
+        return (recovered, pending, unreadable);
     }
 
     // Copying into the install needs room for every file; checked before anything is changed.

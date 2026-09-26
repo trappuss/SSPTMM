@@ -1341,6 +1341,9 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         IsBusy = true;
         try
         {
+            // An install left half-done is finished first (see the disable path).
+            AppServices.ModInstall.EnsureNothingPending(installPath);
+
             var timestamp = DateTimeOffset.UtcNow;
             foreach (var pair in pairs)
             {
@@ -1741,6 +1744,10 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         ModDisableOutcome outcome;
         try
         {
+            // An install left half-done is finished first: moving its folder now would split it.
+            if (AppServices.SptEnvironment.InstallPath is { Length: > 0 } pendingIn)
+                AppServices.ModInstall.EnsureNothingPending(pendingIn);
+
             // Not while SPT runs: the move is refused then, and its server may be writing them.
             if (AppServices.SptEnvironment.InstallPath is { Length: > 0 } profilesOf
                 && ModInstallService.RunningBlockers(profilesOf).Count == 0)

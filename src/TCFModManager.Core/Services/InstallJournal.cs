@@ -55,6 +55,13 @@ public sealed class InstallJournal
     // written - which may happen at the next start, when that record is no longer in the manifest.
     public List<string> PreviousReplaced { get; set; } = [];
 
+    // When the previous version was installed - which mods were installed over it since.
+    public DateTimeOffset? PreviousInstalledAt { get; set; }
+
+    // Set once the record is written: from then on this install is never undone, only tidied - even
+    // if the record has since been replaced by a later install or removal.
+    public bool Committed { get; set; }
+
     // Other mods' kept copies of the previous version's files, which this install places again: they
     // are copies of a version that is gone, let go once the install is written.
     public List<StaleCopy> StaleCopies { get; set; } = [];

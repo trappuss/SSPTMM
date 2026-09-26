@@ -56,6 +56,11 @@ public static class ModInstallProblems
             problem.Version,
             problem.InnerException?.Message),
 
+        ModInstallFailure.RecordsUnreadable => string.Format(
+            CultureInfo.CurrentCulture,
+            Strings.ModInstall_RecordsUnreadableFormat,
+            problem.ModName),
+
         ModInstallFailure.EarlierInstallPending => string.Format(
             CultureInfo.CurrentCulture,
             Strings.ModInstall_EarlierInstallPendingFormat,

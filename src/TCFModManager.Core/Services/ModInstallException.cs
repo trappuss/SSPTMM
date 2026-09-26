@@ -72,6 +72,10 @@ public enum ModInstallFailure
     // An earlier install stopped part-way has not been put back yet (a file still held open), so
     // nothing is changed until it has. Carries ModName (that earlier install's).
     EarlierInstallPending,
+
+    // As EarlierInstallPending, but because the app's install records (installed-mods.json) cannot
+    // be read, so whether that earlier install finished cannot be told. Carries ModName.
+    RecordsUnreadable,
 }
 
 //

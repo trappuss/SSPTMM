@@ -6584,4 +6584,8 @@ What is in them now is copied first, so this can be undone the same way. Profile
     <value>An earlier install of {0} stopped part-way and could not be put back yet - a file in the SPT folder is held open by another program. Nothing else is changed until it has been put back: close the game, its server and anything else using the SPT folder (an antivirus scan, a file browser), then try again.</value>
     <comment>{0} the mod whose install is waiting to be put back.</comment>
   </data>
+  <data name="ModInstall_RecordsUnreadableFormat" xml:space="preserve">
+    <value>An earlier install of {0} stopped part-way, and whether it finished cannot be told: the app's record of installed mods (Data\installed-mods.json) cannot be read right now - another program (a sync client, an antivirus scan) may be holding it open. Nothing is changed until it can be read: close that program, or restart the app, then try again.</value>
+    <comment>{0} the mod. The file name stays as it is.</comment>
+  </data>
 </root>
