@@ -945,7 +945,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     [RelayCommand]
     private async Task InstallFromFileAsync()
     {
-        if (AppServices.SptEnvironment.InstallPath is not { Length: > 0 } installPath)
+        if (AppServices.SptEnvironment.InstallPath is not { Length: > 0 })
         {
             StatusMessage = AppMessages.NoSptInstallFolder;
             return;
@@ -959,7 +959,50 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         };
         if (dialog.ShowDialog() != true) return;
 
-        var file = dialog.FileName;
+        // Whatever it is called: the picker's "All files" is there for an archive named oddly.
+        await InstallArchivesAsync([dialog.FileName], anyName: true);
+    }
+
+    /// <summary>The archive types Install from file takes - the same as its file picker's filter.</summary>
+    public static bool IsModArchive(string path) =>
+        ArchiveExtensions.Any(e => path.EndsWith(e, StringComparison.OrdinalIgnoreCase));
+
+    private static readonly string[] ArchiveExtensions = [".zip", ".7z", ".rar", ".tar", ".gz", ".tgz"];
+
+    // One archive at a time: each asks its own question, and a second drop while the first is
+    // still being looked into waits its turn rather than asking over it.
+    private readonly SemaphoreSlim _fromFile = new(1, 1);
+
+    /// <summary>Installs archives the user already has, one after another, each asked about first
+    /// - what Install from file does, for files dropped on the page.</summary>
+    public async Task InstallArchivesAsync(IReadOnlyList<string> files, bool anyName = false)
+    {
+        if (AppServices.SptEnvironment.InstallPath is not { Length: > 0 } installPath)
+        {
+            StatusMessage = AppMessages.NoSptInstallFolder;
+            return;
+        }
+
+        var archives = files.Where(f => File.Exists(f) && (anyName || IsModArchive(f))).ToList();
+        if (archives.Count == 0)
+        {
+            StatusMessage = Strings.Installed_DropNotArchive;
+            return;
+        }
+
+        await _fromFile.WaitAsync();
+        try
+        {
+            foreach (var file in archives) await InstallArchiveAsync(file, installPath);
+        }
+        finally
+        {
+            _fromFile.Release();
+        }
+    }
+
+    private async Task InstallArchiveAsync(string file, string installPath)
+    {
         var stem = Path.GetFileNameWithoutExtension(file);
         StatusMessage = Text(Strings.Installed_LocalReadingFormat, Path.GetFileName(file));
 

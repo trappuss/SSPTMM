@@ -64,6 +64,59 @@ public partial class InstalledPage : Page
         GroupsScrollViewer.AddHandler(DragOverEvent, new DragEventHandler(GroupsScrollViewer_DragOver), true);
         GroupsScrollViewer.AddHandler(DragLeaveEvent, new DragEventHandler(GroupsScrollViewer_DragLeave), true);
         GroupsScrollViewer.AddHandler(DropEvent, new DragEventHandler(GroupsScrollViewer_Drop), true);
+
+        // Archives dropped from Explorer anywhere on the page install like Install from file. Seen
+        // first (tunnelling) and settled here, so a file dragged over a group never reaches the
+        // group's own handlers, which are for moving a mod between groups.
+        AddHandler(PreviewDragEnterEvent, new DragEventHandler(Page_PreviewDragOver), true);
+        AddHandler(PreviewDragOverEvent, new DragEventHandler(Page_PreviewDragOver), true);
+        AddHandler(PreviewDropEvent, new DragEventHandler(Page_PreviewDrop), true);
+    }
+
+    // AllowDrop is on for the whole page (for files), which would otherwise also let a mod being
+    // moved between groups show a Move cursor over parts of the page that take nothing - so outside
+    // the group list that drag is told no here, as it was before.
+    private void Page_PreviewDragOver(object sender, DragEventArgs e)
+    {
+        if (e.Data.GetDataPresent(DataFormats.FileDrop))
+        {
+            e.Effects = e.Data.GetData(DataFormats.FileDrop) is string[] files && files.Any(InstalledViewModel.IsModArchive)
+                ? DragDropEffects.Copy
+                : DragDropEffects.None;
+            e.Handled = true;
+            return;
+        }
+
+        if (!OverGroupList(e))
+        {
+            e.Effects = DragDropEffects.None;
+            e.Handled = true;
+        }
+    }
+
+    private async void Page_PreviewDrop(object sender, DragEventArgs e)
+    {
+        if (!e.Data.GetDataPresent(DataFormats.FileDrop))
+        {
+            if (!OverGroupList(e)) e.Handled = true;
+            return;
+        }
+
+        e.Handled = true;
+        if (e.Data.GetData(DataFormats.FileDrop) is not string[] files || files.Length == 0) return;
+
+        // Not while OLE is still waiting for the drop to finish: Explorer's window stays stuck
+        // until this returns, and the install asks a question first.
+        await System.Windows.Threading.Dispatcher.Yield(System.Windows.Threading.DispatcherPriority.Background);
+        await ViewModel.InstallArchivesAsync(files);
+    }
+
+    private bool OverGroupList(DragEventArgs e)
+    {
+        if (!GroupsScrollViewer.IsVisible) return false;
+
+        var point = e.GetPosition(GroupsScrollViewer);
+        return point.X >= 0 && point.Y >= 0 && point.X <= GroupsScrollViewer.ActualWidth && point.Y <= GroupsScrollViewer.ActualHeight;
     }
 
     // How close to the bottom, in pixels, the infinite list adds its next cards - as Browse does.

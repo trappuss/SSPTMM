@@ -21,6 +21,7 @@
     xmlns:loc="clr-namespace:TCFModManager.App.Localization"
     xmlns:behaviors="clr-namespace:TCFModManager.App.Behaviors"
     Title="{loc:Str Nav_Installed}"
+    AllowDrop="True"
     Loaded="InstalledPage_Loaded"
     ScrollViewer.CanContentScroll="False">
     <Page.Resources>

@@ -1803,4 +1803,5 @@ internal static class Strings
     internal static string Installed_LocalConfirmOfflineFormat => LocalizationService.Get("Installed_LocalConfirmOfflineFormat");
     internal static string Installed_LocalConfirmPackFormat => LocalizationService.Get("Installed_LocalConfirmPackFormat");
     internal static string Upgrade_NoReleases => LocalizationService.Get("Upgrade_NoReleases");
+    internal static string Installed_DropNotArchive => LocalizationService.Get("Installed_DropNotArchive");
 }

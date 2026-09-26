@@ -6654,7 +6654,7 @@ Install it anyway?</value>
     <comment>Subscribed items button: install a mod archive already on this PC.</comment>
   </data>
   <data name="Installed_InstallFromFileToolTip" xml:space="preserve">
-    <value>Install a mod archive you already have (.zip, .7z, .rar) the same way as a download: matched to its sp-mod.com page when it can be, and removable like any other</value>
+    <value>Install a mod archive you already have (.zip, .7z, .rar) the same way as a download: matched to its sp-mod.com page when it can be, and removable like any other. You can also drop archives on this page.</value>
     <comment>Tooltip on Install from file.</comment>
   </data>
   <data name="Installed_InstallFromFileTitle" xml:space="preserve">
@@ -6678,7 +6678,7 @@ Install it anyway?</value>
     <comment>{0} file name.</comment>
   </data>
   <data name="Installed_LocalConfirmMatchedFormat" xml:space="preserve">
-    <value>{0} holds {1} {2} (matched to its sp-mod.com page by its plugin ID).
+    <value>{0} holds {1} {2} (matched to its sp-mod.com page by the mod ID inside it).
 
 Install it? It is installed the same way as a download: the version you have now is put aside first, and it can be removed like any other.</value>
     <comment>{0} file, {1} mod, {2} version.</comment>
@@ -6790,5 +6790,9 @@ Install the file as it is anyway?</value>
   <data name="Upgrade_NoReleases" xml:space="preserve">
     <value>No SPT release newer than the one installed is known yet, so there is nothing to check against.</value>
     <comment>Upgrade window with no release to pick.</comment>
+  </data>
+  <data name="Installed_DropNotArchive" xml:space="preserve">
+    <value>Only mod archives (.zip, .7z, .rar, .tar, .gz) can be dropped here to install.</value>
+    <comment>Status line when files that are not archives are dropped on Subscribed items.</comment>
   </data>
 </root>
