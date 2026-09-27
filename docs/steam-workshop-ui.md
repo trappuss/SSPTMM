@@ -911,8 +911,7 @@ author's addons get the same popup in place of the plain tooltip they had.
 groups, Grouped by category. Grouped, the mods sit in the same sections as the Groups view, with the
 same header - fold, count, what is disabled, and for a group enable/disable/invert, move, rename and
 delete. Every mod is shown then, without pages (a page boundary would cut a section in two); Per page
-and the pager step aside. Sections the filters leave empty are not shown, and a move swaps with the
-next group shown. Your groups come in the Groups view's order (Sort groups), or their manual order
+and the pager step aside. (Every group shows, empty ones too, since round 19.) Your groups come in the Groups view's order (Sort groups), or their manual order
 while that view is sorted by category. A folded group or category is folded in every view. Save as
 default keeps the choice; Clear filters goes back to it, as it does with the sort.
 
@@ -938,9 +937,29 @@ Wpf.Ui 4.3); every plain tooltip is now left-aligned, as Steam's are.
 (each packaging it reads, and the ones it must not guess at) and the page defaults in settings.json:
 1224 in all.
 
-**Not done.** Dragging a mod between groups stays in the Groups view: Cards and List sections show
-the groups but are not drop targets. Pushing to GitHub and measuring the signed-in Steam values need
-you (a fork's address; a Steam sign-in).
+**Not done.** Dragging a mod between groups in Cards and List (done in round 19). Pushing to GitHub
+and measuring the signed-in Steam values need you (a fork's address; a Steam sign-in).
+
+## Nineteenth round: dragging between groups in every view (2026-09-26)
+
+**Cards and List, grouped by your groups,** take the Groups view's drag: pick up a card or a row and
+drop it on another group's section (or Ungrouped) to move it there. A click still opens or closes the
+card - only a move past the system's drag distance starts a drag, and the card is not toggled when it
+ends. Near the top or bottom edge the list scrolls, and the wheel scrolls it, as in the Groups view.
+Grouped by category, nothing is dragged: a category is not something a mod is put into.
+
+**Every group shows** in those sections now, empty ones too with "Drag mods here", so there is always
+somewhere to drop - round 18 left empty sections out.
+
+**A file dragged in from Explorer** no longer scrolls the list at its edges; it installs wherever it
+is dropped, as before.
+
+**Pushing to your fork.** steam-ui-push-to-github.bat (beside the other .bat files) sends the
+steam-workshop-ui branch to github.com/trappuss/SSSPTMM: the newer of the bundle and your own branch,
+never forced, and it adds the fork as a remote named "fork" the first time.
+
+**Signed-in Steam values** are still unmeasured: the browser used for measuring is not signed in to
+Steam, and signing in is yours to do.
 
 ## Values that could not be measured (marked HUNCH in the source)
 

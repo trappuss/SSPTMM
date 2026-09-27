@@ -416,7 +416,9 @@
                 IsExpanded="{Binding IsCardExpanded, Mode=TwoWay}"
                 behaviors:ModContextMenu.ModId="{Binding CatalogModId}"
                 Opacity="{Binding CardOpacity}"
-                PreviewMouseLeftButtonDown="Card_PreviewMouseLeftButtonDown">
+                PreviewMouseLeftButtonDown="Card_PreviewMouseLeftButtonDown"
+                PreviewMouseMove="Card_PreviewMouseMove"
+                PreviewMouseLeftButtonUp="Card_PreviewMouseLeftButtonUp">
                 <ui:CardExpander.Header>
                     <Grid Margin="0,0,8,0">
                         <Grid.ColumnDefinitions>
@@ -576,7 +578,9 @@
                 behaviors:ModContextMenu.ModId="{Binding CatalogModId}"
                 IsExpanded="{Binding IsRowExpanded, Mode=TwoWay}"
                 Opacity="{Binding CardOpacity}"
-                PreviewMouseLeftButtonDown="Card_PreviewMouseLeftButtonDown">
+                PreviewMouseLeftButtonDown="Card_PreviewMouseLeftButtonDown"
+                PreviewMouseMove="Card_PreviewMouseMove"
+                PreviewMouseLeftButtonUp="Card_PreviewMouseLeftButtonUp">
                 <ui:CardExpander.Header>
                     <Grid Margin="0,0,8,0">
                         <Grid.ColumnDefinitions>
@@ -1183,6 +1187,8 @@
         -->
         <ScrollViewer
             x:Name="CardsScrollViewer"
+            AllowDrop="True"
+            Background="Transparent"
             FocusVisualStyle="{x:Null}"
             ScrollChanged="CardsScrollViewer_ScrollChanged"
             Grid.Row="4"
@@ -1214,9 +1220,24 @@
                     Visibility="{Binding IsViewGrouped, Converter={StaticResource BoolToVis}}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate DataType="{x:Type viewmodels:ModGroupSectionViewModel}">
-                            <ui:Card Margin="0,0,6,8" Padding="10">
+                            <!-- A drop target when the sections are your groups: a card or row
+                                 dragged here moves to this group (Section_Drop), as in the Groups view. -->
+                            <ui:Card
+                                Margin="0,0,6,8"
+                                Padding="10"
+                                AllowDrop="True"
+                                DragOver="Section_DragOver"
+                                Drop="Section_Drop">
                                 <StackPanel>
                                     <ContentPresenter ContentTemplate="{StaticResource SectionHeaderTemplate}" Content="{Binding}" />
+                                    <!-- An empty group, as in the Groups view: where a mod is dragged to. -->
+                                    <TextBlock
+                                        Margin="0,8,0,0"
+                                        Padding="4"
+                                        Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                        FontStyle="Italic"
+                                        Text="{loc:Str Installed_GroupDropHint}"
+                                        Visibility="{Binding HasItems, Converter={StaticResource FalseToVisible}}" />
                                     <ItemsControl
                                         Margin="0,8,0,0"
                                         Focusable="False"
@@ -1448,6 +1469,8 @@
              shouldn't bubble focus up and nudge the scroller. -->
         <ScrollViewer
             x:Name="ListScrollViewer"
+            AllowDrop="True"
+            Background="Transparent"
             FocusVisualStyle="{x:Null}"
             Grid.Row="4"
             Focusable="False"
@@ -1467,9 +1490,24 @@
                     Visibility="{Binding IsViewGrouped, Converter={StaticResource BoolToVis}}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate DataType="{x:Type viewmodels:ModGroupSectionViewModel}">
-                            <ui:Card Margin="0,0,6,8" Padding="10">
+                            <!-- A drop target when the sections are your groups: a card or row
+                                 dragged here moves to this group (Section_Drop), as in the Groups view. -->
+                            <ui:Card
+                                Margin="0,0,6,8"
+                                Padding="10"
+                                AllowDrop="True"
+                                DragOver="Section_DragOver"
+                                Drop="Section_Drop">
                                 <StackPanel>
                                     <ContentPresenter ContentTemplate="{StaticResource SectionHeaderTemplate}" Content="{Binding}" />
+                                    <!-- An empty group, as in the Groups view: where a mod is dragged to. -->
+                                    <TextBlock
+                                        Margin="0,8,0,0"
+                                        Padding="4"
+                                        Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                        FontStyle="Italic"
+                                        Text="{loc:Str Installed_GroupDropHint}"
+                                        Visibility="{Binding HasItems, Converter={StaticResource FalseToVisible}}" />
                                     <ItemsControl
                                         Margin="0,8,0,0"
                                         Focusable="False"

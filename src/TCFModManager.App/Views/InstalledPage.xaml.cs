@@ -61,9 +61,13 @@ public partial class InstalledPage : Page
         // ui:Card, which sits between the dragged pointer and this ScrollViewer, so a normal
         // bubble-phase handler on the ScrollViewer would never run while over a card - i.e. over
         // exactly the part of the list where dragging actually happens.
-        GroupsScrollViewer.AddHandler(DragOverEvent, new DragEventHandler(GroupsScrollViewer_DragOver), true);
-        GroupsScrollViewer.AddHandler(DragLeaveEvent, new DragEventHandler(GroupsScrollViewer_DragLeave), true);
-        GroupsScrollViewer.AddHandler(DropEvent, new DragEventHandler(GroupsScrollViewer_Drop), true);
+        // Cards and List take the same drags when they are in sections of your groups.
+        foreach (var scroller in new[] { GroupsScrollViewer, CardsScrollViewer, ListScrollViewer })
+        {
+            scroller.AddHandler(DragOverEvent, new DragEventHandler(GroupsScrollViewer_DragOver), true);
+            scroller.AddHandler(DragLeaveEvent, new DragEventHandler(GroupsScrollViewer_DragLeave), true);
+            scroller.AddHandler(DropEvent, new DragEventHandler(GroupsScrollViewer_Drop), true);
+        }
 
         // Archives dropped from Explorer anywhere on the page install like Install from file. Seen
         // first (tunnelling) and settled here, so a file dragged over a group never reaches the
@@ -164,13 +168,23 @@ public partial class InstalledPage : Page
         })];
     }
 
+    // Over the view on screen, while its sections are your groups - the only place a mod is dropped.
     private bool OverGroupList(DragEventArgs e)
     {
-        if (!GroupsScrollViewer.IsVisible) return false;
+        if (!ViewModel.SectionsTakeDrops || ActiveScroller is not { IsVisible: true } scroller) return false;
 
-        var point = e.GetPosition(GroupsScrollViewer);
-        return point.X >= 0 && point.Y >= 0 && point.X <= GroupsScrollViewer.ActualWidth && point.Y <= GroupsScrollViewer.ActualHeight;
+        var point = e.GetPosition(scroller);
+        return point.X >= 0 && point.Y >= 0 && point.X <= scroller.ActualWidth && point.Y <= scroller.ActualHeight;
     }
+
+    // The scrolling list of whichever view is on screen.
+    private ScrollViewer? ActiveScroller => ViewModel.ViewMode switch
+    {
+        InstalledViewMode.Groups => GroupsScrollViewer,
+        InstalledViewMode.List => ListScrollViewer,
+        InstalledViewMode.Cards => CardsScrollViewer,
+        _ => null,
+    };
 
     // How close to the bottom, in pixels, the infinite list adds its next cards - as Browse does.
     // ScrollChanged also fires when the list grows, so a window tall enough to show every card
@@ -202,7 +216,24 @@ public partial class InstalledPage : Page
     //
     private void Card_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
-        if (!ViewModel.SelectionMode) return;
+        _dragCandidate = null;
+        _dragStarted = false;
+
+        if (!ViewModel.SelectionMode)
+        {
+            // In sections of your groups a card or row can be dragged to another group, as a Groups
+            // view row can. Only noted here: the click still goes on to open or close it, and only a
+            // move past the drag distance (Card_PreviewMouseMove) makes it a drag.
+            if (ViewModel.SectionsTakeDrops && !IsInsideButton(e.OriginalSource, sender as DependencyObject)
+                && sender is FrameworkElement { DataContext: InstalledModCardViewModel candidate })
+            {
+                _dragStart = e.GetPosition(null);
+                _dragCandidate = candidate;
+            }
+
+            return;
+        }
+
         if (sender is not FrameworkElement { DataContext: InstalledModCardViewModel mod }) return;
 
         // A button or the checkbox itself still does its own job; this claims the rest of the card -
@@ -212,6 +243,30 @@ public partial class InstalledPage : Page
 
         mod.IsSelected = !mod.IsSelected;
         e.Handled = true;
+    }
+
+    private void Card_PreviewMouseMove(object sender, MouseEventArgs e)
+    {
+        if (e.LeftButton != MouseButtonState.Pressed || _dragCandidate is null || _dragStarted) return;
+        if (!ViewModel.SectionsTakeDrops || !PastDragDistance(e)) return;
+
+        // Taken before letting go of the mouse: that raises a mouse move of its own, straight back
+        // into this handler, which must find nothing left to drag.
+        var mod = _dragCandidate;
+        _dragCandidate = null;
+        _dragStarted = true;
+
+        // The expander's header button took the mouse when it was pressed; let it go without a click,
+        // so the card is not opened or closed as well when the drag ends.
+        Mouse.Captured?.ReleaseMouseCapture();
+
+        if (sender is DependencyObject source) DragMod(source, mod);
+    }
+
+    private void Card_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        _dragCandidate = null;
+        _dragStarted = false;
     }
 
     private void ResultsItems_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -314,34 +369,39 @@ public partial class InstalledPage : Page
         // Sorted by category there are no groups on screen to drag a row into.
         if (ViewModel.GroupsByCategory) return;
 
-        var current = e.GetPosition(null);
-        if (Math.Abs(current.X - _dragStart.X) < SystemParameters.MinimumHorizontalDragDistance
-            && Math.Abs(current.Y - _dragStart.Y) < SystemParameters.MinimumVerticalDragDistance)
-        {
-            return;
-        }
+        if (!PastDragDistance(e)) return;
 
         // Marks this gesture as a drag rather than clearing _dragCandidate outright, so the
         // ButtonUp handler below can tell "this mouse-down turned into a drag" (skip opening
         // details) apart from "this mouse-down never moved" (a plain click).
         _dragStarted = true;
-        if (sender is DependencyObject source)
+        if (sender is DependencyObject source) DragMod(source, _dragCandidate);
+    }
+
+    private bool PastDragDistance(MouseEventArgs e)
+    {
+        var current = e.GetPosition(null);
+        return Math.Abs(current.X - _dragStart.X) >= SystemParameters.MinimumHorizontalDragDistance
+            || Math.Abs(current.Y - _dragStart.Y) >= SystemParameters.MinimumVerticalDragDistance;
+    }
+
+    // A mod dragged from a Groups view row, or from a card or List row in sections of your groups.
+    private void DragMod(DependencyObject source, InstalledModCardViewModel mod)
+    {
+        // Blocks for the whole drag (DoDragDrop runs its own modal message loop), so this is also
+        // the one place guaranteed to run once the gesture is over however it ended - dropped on a
+        // group, dropped in the gutter, dropped outside the window, or cancelled with Escape.
+        // Stopping the auto-scroll timer here means every other stop path below is just a courtesy,
+        // not load-bearing.
+        HookDragWheel();
+        try
         {
-            // Blocks for the whole drag (DoDragDrop runs its own modal message loop), so this is
-            // also the one place guaranteed to run once the gesture is over however it ended -
-            // dropped on a group, dropped in the gutter, dropped outside the window, or cancelled
-            // with Escape. Stopping the auto-scroll timer here means every other stop path below
-            // is just a courtesy, not load-bearing.
-            HookDragWheel();
-            try
-            {
-                DragDrop.DoDragDrop(source, _dragCandidate, DragDropEffects.Move);
-            }
-            finally
-            {
-                UnhookDragWheel();
-                StopDragScroll();
-            }
+            DragDrop.DoDragDrop(source, mod, DragDropEffects.Move);
+        }
+        finally
+        {
+            UnhookDragWheel();
+            StopDragScroll();
         }
     }
 
@@ -360,8 +420,12 @@ public partial class InstalledPage : Page
             e.Handled = true;
         }
 
-        var y = e.GetPosition(GroupsScrollViewer).Y;
-        var height = GroupsScrollViewer.ViewportHeight;
+        // Only a mod being moved scrolls the list; a file dragged in from Explorer installs wherever
+        // it is dropped and has no reason to.
+        if (sender is not ScrollViewer scroller || !e.Data.GetDataPresent(typeof(InstalledModCardViewModel))) return;
+
+        var y = e.GetPosition(scroller).Y;
+        var height = scroller.ViewportHeight;
         if (height <= DragScrollZone * 2)
         {
             _dragScrollStep = 0;
@@ -415,8 +479,8 @@ public partial class InstalledPage : Page
 
     private void DragScroll_Tick(object? sender, EventArgs e)
     {
-        if (_dragScrollStep == 0) return;
-        GroupsScrollViewer.ScrollToVerticalOffset(GroupsScrollViewer.VerticalOffset + _dragScrollStep);
+        if (_dragScrollStep == 0 || ActiveScroller is not { } scroller) return;
+        scroller.ScrollToVerticalOffset(scroller.VerticalOffset + _dragScrollStep);
     }
 
     //
@@ -452,7 +516,7 @@ public partial class InstalledPage : Page
         // positive away from the user - the same units and sign as MouseWheelEventArgs.Delta, so
         // this scrolls by exactly what Page_PreviewMouseWheel would have outside a drag.
         var delta = (short)((wParam.ToInt64() >> 16) & 0xFFFF);
-        GroupsScrollViewer.ScrollToVerticalOffset(GroupsScrollViewer.VerticalOffset - delta);
+        if (ActiveScroller is { } scroller) scroller.ScrollToVerticalOffset(scroller.VerticalOffset - delta);
 
         handled = true;
         return IntPtr.Zero;

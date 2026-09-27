@@ -225,6 +225,12 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
     public bool ShowGroupingPicker => !ShowGroups;
 
+    // Whether a mod can be dragged onto a section in the view on screen: the sections are your
+    // groups. A category is not something a mod is put into.
+    public bool SectionsTakeDrops => ShowGroups ? !GroupsByCategory : ShowsViewSectionsAsGroups;
+
+    private bool ShowsViewSectionsAsGroups => (ShowCards || ShowList) && SelectedGrouping.Value == InstalledGrouping.Groups;
+
     // Per page means nothing where every mod is shown.
     public bool ShowPageSize => ShowCards && !IsViewGrouped;
 
@@ -2560,8 +2566,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     // and can't drift out of sync with the store.
     private void RebuildSections()
     {
-        // Empty groups stay: here they are where mods are dragged to.
-        BuildSections(Sections, GroupsByCategory, SelectedGroupSortOption.Value, dropEmpty: false);
+        BuildSections(Sections, GroupsByCategory, SelectedGroupSortOption.Value);
         _sectionsDirty = false;
     }
 
@@ -2570,9 +2575,9 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     private void RebuildViewSections()
     {
         var order = SelectedGroupSortOption.Value == GroupSortOption.Category ? GroupSortOption.Manual : SelectedGroupSortOption.Value;
-        // Sections with nothing the filters show are left out here: in the Groups view an empty
-        // group is where mods are dragged to, but these views only show what there is.
-        BuildSections(ViewSections, SelectedGrouping.Value == InstalledGrouping.Category, order, dropEmpty: true);
+        // Every group shows, empty ones too, as in the Groups view: an empty group is where a mod is
+        // dragged to. (Categories are only ever made from the mods in them.)
+        BuildSections(ViewSections, SelectedGrouping.Value == InstalledGrouping.Category, order);
         _viewSectionsDirty = false;
     }
 
@@ -2583,7 +2588,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     // object, its name and fold are re-read, and its mods are synced into it the same way.
     //
     private void BuildSections(
-        ObservableCollection<ModGroupSectionViewModel> sections, bool byCategory, GroupSortOption order, bool dropEmpty)
+        ObservableCollection<ModGroupSectionViewModel> sections, bool byCategory, GroupSortOption order)
     {
         var existing = new Dictionary<string, ModGroupSectionViewModel>(StringComparer.OrdinalIgnoreCase);
         foreach (var section in sections) existing.TryAdd(SectionKey(section), section);
@@ -2650,8 +2655,6 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
                 items.Add(mod);
             }
         }
-
-        if (dropEmpty) wanted.RemoveAll(w => w.Items.Count == 0);
 
         ItemsSync.Apply(sections, [.. wanted.Select(w => w.Section)]);
         foreach (var (section, items) in wanted)
@@ -2775,9 +2778,9 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     private void MoveGroupDown(ModGroupSectionViewModel? section) => MoveGroup(section, 1);
 
     //
-    // Swaps the group with the next group shown in that direction. The Groups view shows every
-    // group, so that is its neighbour; Cards and List leave out groups the filters empty, and
-    // swapping with one of those would look like nothing happened.
+    // Swaps the group with the next group shown in that direction - in the list of sections the
+    // button was pressed in. Every view shows every group now, so that is its stored neighbour; the
+    // swap by id is what keeps it right should a view ever leave one out.
     //
     private void MoveGroup(ModGroupSectionViewModel? section, int direction)
     {
