@@ -80,8 +80,11 @@ public class ServerModCompiledTests : IDisposable
             [.. Framework, .. references],
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optimizationLevel: level, nullableContextOptions: NullableContextOptions.Disable));
 
+        // With the version resource the compiler gives every DLL it builds on its own: Windows
+        // reads a DLL's file version from there (Linux, from its AssemblyFileVersion attribute).
         using var file = File.Create(path);
-        var result = compilation.Emit(file);
+        var result = compilation.Emit(file, win32Resources: compilation.CreateDefaultWin32Resources(
+            versionResource: true, noManifest: true, manifestContents: null, iconInIcoFormat: null));
         Assert.True(result.Success, string.Join("\n", result.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error)));
     }
 
@@ -323,5 +326,33 @@ public class ServerModCompiledTests : IDisposable
         Assert.Equal([new ModDependencyRef("com.dep", false)], metadata!.Dependencies);
         Assert.Null(metadata.Name);
         Assert.Null(metadata.Author);
+    }
+
+    [Fact]
+    public void APlugin_KeepsBothItsFileVersionAndItsOwn()
+    {
+        var bepinex = Path.Combine(_root, "BepInEx.dll");
+        Compile("BepInEx", """
+            namespace BepInEx
+            {
+                [System.AttributeUsage(System.AttributeTargets.Class)]
+                public class BepInPlugin : System.Attribute { public BepInPlugin(string guid, string name, string version) { } }
+            }
+            """, bepinex, OptimizationLevel.Release, []);
+
+        var install = Path.Combine(_root, "install");
+        var folder = Path.Combine(install, "BepInEx", "plugins", "ORBIT");
+        Directory.CreateDirectory(folder);
+        Compile("ORBIT", """
+            [assembly: System.Reflection.AssemblyFileVersion("2.0.0.42986")]
+            [BepInEx.BepInPlugin("com.chazut.orbit", "ORBIT", "2.0.0")]
+            public class Plugin { }
+            """, Path.Combine(folder, "ORBIT.dll"), OptimizationLevel.Release, [MetadataReference.CreateFromFile(bepinex)]);
+
+        var mod = Assert.Single(InstalledModScanner.Scan(install));
+
+        Assert.Equal("com.chazut.orbit", mod.Guid);
+        Assert.Equal("2.0.0.42986", mod.Version);
+        Assert.Equal("2.0.0", mod.PluginVersion);
     }
 }

@@ -155,18 +155,6 @@ public class ServerModMetadataTests : IDisposable
         Assert.Equal("2.0.0", mod.Version);
     }
 
-    [Fact]
-    public void APlugin_KeepsBothItsFileVersionAndItsOwn()
-    {
-        var install = Install();
-        Plugin(Path.Combine(install, "BepInEx", "plugins", "ORBIT", "ORBIT.dll"), "com.chazut.orbit", "ORBIT", "2.0.0", "2.0.0.42986");
-
-        var mod = Assert.Single(InstalledModScanner.Scan(install));
-
-        Assert.Equal("2.0.0.42986", mod.Version);
-        Assert.Equal("2.0.0", mod.PluginVersion);
-    }
-
     [Theory]
     // What is published decides, either way round.
     [InlineData("2.0.0.42986", "2.0.0", new[] { "2.0.0", "1.9.0" }, "2.0.0")]
