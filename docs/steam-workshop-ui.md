@@ -971,6 +971,13 @@ filter left on Browse earlier does not narrow it. Measured: the link is the valu
 not underlined, unchanged under the pointer - only the hand cursor says it is one; a tooltip names
 where it goes. The item page closes on the way, as with any navigation.
 
+**Test fix (same round).** On your PC 17 tests failed - everything that disables, enables or applies
+a list. The in-use guard looks for SPT's game and server among the machine's real processes, and one
+whose location Windows will not show counts as blocking every install, the tests' temporary ones
+included. Reproduced here with a server process the test run could not read (the same tests fail
+with InstallInUse; with no such process they pass). The tests now see no processes (TestSetup); the
+guard itself is unchanged, and still refuses to touch an install while SPT runs.
+
 ## Values that could not be measured (marked HUNCH in the source)
 
 - The smooth-scroll distance and time (100px, 250ms) - chosen to feel like a browser, not measured.

@@ -50,6 +50,14 @@ public sealed class ModInstallService(
     private static readonly string[] BlockingProcessNames = ["EscapeFromTarkov", "SPT.Server", "Aki.Server"];
 
     //
+    // How the guard finds running processes by name. Replaced by the tests (see TestSetup there):
+    // their installs are temporary folders, and a game or server running on the machine that runs
+    // them - one whose path Windows will not show counts as blocking every install - failed 17 tests
+    // that have nothing to do with it.
+    //
+    internal static Func<string, Process[]> FindProcesses { get; set; } = Process.GetProcessesByName;
+
+    //
     // The blocking processes running OUT OF THIS INSTALL, or an empty list when it is safe to modify.
     //
     // Scoped to the install on purpose. More than one SPT lives on a machine as soon as anyone runs
@@ -72,7 +80,7 @@ public sealed class ModInstallService(
 
             try
             {
-                found = Process.GetProcessesByName(name);
+                found = FindProcesses(name);
             }
             catch (InvalidOperationException)
             {
