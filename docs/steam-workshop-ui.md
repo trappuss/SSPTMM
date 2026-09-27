@@ -961,6 +961,16 @@ never forced, and it adds the fork as a remote named "fork" the first time.
 **Signed-in Steam values** are still unmeasured: the browser used for measuring is not signed in to
 Steam, and signing in is yours to do.
 
+## Twentieth round: the item page's Content Type opens Browse (2026-09-27)
+
+On Steam the Content Type on an item page is a link: Browse, that type only, top rated
+(`browsesort=toprated&requiredtags[]=...`, read off the live page). Here clicking it opens Browse on
+that content type, sorted Most endorsed (the home page's Top Rated), with every other filter at
+Browse's own default (Save as default, or the app's) - the link carries nothing else, so a search or
+filter left on Browse earlier does not narrow it. Measured: the link is the value's own #EBEBEB,
+not underlined, unchanged under the pointer - only the hand cursor says it is one; a tooltip names
+where it goes. The item page closes on the way, as with any navigation.
+
 ## Values that could not be measured (marked HUNCH in the source)
 
 - The smooth-scroll distance and time (100px, 250ms) - chosen to feel like a browser, not measured.

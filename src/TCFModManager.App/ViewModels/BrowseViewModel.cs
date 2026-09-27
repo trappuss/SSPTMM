@@ -675,17 +675,7 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
         _suppressAutoApplyFilter = true;
         try
         {
-            SearchText = string.Empty;
-            PostedAfter = PostedBefore = UpdatedAfter = UpdatedBefore = null;
-            foreach (var option in SptVersionOptions) option.IsSelected = option.IsDefault;
-            UpdateSptVersionFilterSummary();
-            SelectedSortOption = DefaultSortOption();
-            PageSize = DefaultPageSize();
-            SelectedFeaturedFilter = DefaultFeaturedFilter();
-            SelectedCategory = CategoryOptions.FirstOrDefault(c => c.SameAs(DefaultCategory()))
-                ?? CategoryOptions[0];
-            SavedFilterDefaults.ApplyAttributes(AttributeOptions, _defaults?.Attributes ?? []);
-            UpdateAttributeFilterSummary();
+            ResetFilters();
         }
         finally
         {
@@ -694,6 +684,22 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
 
         // Only re-run the filter if there's actually a catalog to filter against yet.
         if (HasLoadedResults) ApplyFilter();
+    }
+
+    // Every filter back to this page's opening default (Save as default, or the app's own).
+    private void ResetFilters()
+    {
+        SearchText = string.Empty;
+        PostedAfter = PostedBefore = UpdatedAfter = UpdatedBefore = null;
+        foreach (var option in SptVersionOptions) option.IsSelected = option.IsDefault;
+        UpdateSptVersionFilterSummary();
+        SelectedSortOption = DefaultSortOption();
+        PageSize = DefaultPageSize();
+        SelectedFeaturedFilter = DefaultFeaturedFilter();
+        SelectedCategory = CategoryOptions.FirstOrDefault(c => c.SameAs(DefaultCategory()))
+            ?? CategoryOptions[0];
+        SavedFilterDefaults.ApplyAttributes(AttributeOptions, _defaults?.Attributes ?? []);
+        UpdateAttributeFilterSummary();
     }
 
     //
@@ -1591,6 +1597,29 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
     public void ShowCategory(string title) =>
         SelectedCategory = CategoryOptions.FirstOrDefault(c => string.Equals(c.Title, title, StringComparison.OrdinalIgnoreCase))
             ?? SelectedCategory;
+
+    //
+    // Opens one content type as a Workshop item page's "Content Type" link does on Steam: a fresh
+    // Browse (this page's own defaults - the link carries nothing else) showing that type, top rated
+    // first (Steam's link is browsesort=toprated; Most endorsed is that here, as on the home page).
+    //
+    public void ShowContentType(string title)
+    {
+        _suppressAutoApplyFilter = true;
+        try
+        {
+            ResetFilters();
+            SelectedCategory = CategoryOptions.FirstOrDefault(c => string.Equals(c.Title, title.Trim(), StringComparison.OrdinalIgnoreCase))
+                ?? SelectedCategory;
+            ShowSortedBy(ModSortOrder.MostEndorsed);
+        }
+        finally
+        {
+            _suppressAutoApplyFilter = false;
+        }
+
+        if (HasLoadedResults) ApplyFilter();
+    }
 
     /// <summary>The sort panel's radio rows.</summary>
     [RelayCommand]

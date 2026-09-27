@@ -6847,4 +6847,8 @@ Install the file as it is anyway?</value>
     <value>Show the mods in one run, or in sections - your own groups (the ones in the Groups view) or sp-mod.com's categories. In sections every mod is shown, without pages.</value>
     <comment>Tooltip on the Group by dropdown.</comment>
   </data>
+  <data name="Item_ContentTypeLinkToolTipFormat" xml:space="preserve">
+    <value>Browse {0}, top rated first</value>
+    <comment>Tooltip on the Content Type value on a Workshop item page, which opens Browse on that content type. {0} is the content type as sp-mod.com names it (Overhauls, Other...).</comment>
+  </data>
 </root>

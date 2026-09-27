@@ -348,6 +348,22 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel, IModActi
 
     public string? Category => Mod.Category?.Title;
 
+    public string? CategoryLinkToolTip => Category is { } category ? LocalizationService.Text(Strings.Item_ContentTypeLinkToolTipFormat, category) : null;
+
+    // The Content Type value is a link, as on Steam: Browse, showing that type, top rated first.
+    // Navigating closes this page.
+    [RelayCommand]
+    private async Task OpenContentTypeAsync()
+    {
+        if (Category is not { } category) return;
+
+        // Browse's content types come from the catalog - there when this page is, but Browse builds
+        // its list the first time it loads, which may not have happened yet.
+        await AppServices.Browse.EnsureLoadedAsync();
+        AppServices.Browse.ShowContentType(category);
+        AppNavigation.Navigate(typeof(BrowsePage));
+    }
+
     public string? License => Mod.License?.Name;
 
     // Web addresses only: the link is handed to the shell.

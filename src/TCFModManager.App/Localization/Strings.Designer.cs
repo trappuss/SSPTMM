@@ -1817,4 +1817,5 @@ internal static class Strings
     internal static string Installed_GroupingGroups => LocalizationService.Get("Installed_GroupingGroups");
     internal static string Installed_GroupingCategory => LocalizationService.Get("Installed_GroupingCategory");
     internal static string Installed_GroupingToolTip => LocalizationService.Get("Installed_GroupingToolTip");
+    internal static string Item_ContentTypeLinkToolTipFormat => LocalizationService.Get("Item_ContentTypeLinkToolTipFormat");
 }

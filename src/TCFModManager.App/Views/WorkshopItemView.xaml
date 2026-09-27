@@ -345,7 +345,16 @@
                                 </Grid>
                                 <TextBlock Margin="0,0,0,6" TextWrapping="Wrap" Visibility="{Binding Category, Converter={StaticResource NullToCollapsed}}">
                                     <Run Style="{StaticResource DetailLabel}" Text="{loc:Str Item_ContentTypeLabel}" />
-                                    <Run Style="{StaticResource DetailValue}" Text="{Binding Category, Mode=OneWay}" />
+                                    <!-- A link to Browse on that type, as Steam's is: same colour, no underline and no
+                                         change under the pointer (measured), just the hand. -->
+                                    <Hyperlink
+                                        Command="{Binding OpenContentTypeCommand}"
+                                        Cursor="Hand"
+                                        Foreground="{StaticResource SteamValueText}"
+                                        TextDecorations="{x:Null}"
+                                        ToolTip="{Binding CategoryLinkToolTip}">
+                                        <Run Style="{StaticResource DetailValue}" Text="{Binding Category, Mode=OneWay}" />
+                                    </Hyperlink>
                                 </TextBlock>
                                 <TextBlock Margin="0,0,0,6" TextWrapping="Wrap" Visibility="{Binding Tags, Converter={StaticResource NullToCollapsed}}">
                                     <Run Style="{StaticResource DetailLabel}" Text="{loc:Str Item_TagsLabel}" />
