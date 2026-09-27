@@ -101,14 +101,18 @@ public partial class MainWindow : FluentWindow
 
         CollectionPage.Closed += (_, _) => Uncover(CollectionPage);
 
-        // A collection's page has no background of its own, so the window's grid (or picture) shows
-        // through it as it does on the other Workshop pages. The page it was opened over is hidden
-        // meanwhile - Hidden, not Collapsed, so it keeps its layout and scroll for when it comes back.
-        CollectionPage.IsVisibleChanged += (_, _) =>
+        // The item, collection and author pages have no background of their own, so the window's grid
+        // (or picture) shows through them as it does on the other Workshop pages. The page they were
+        // opened over is hidden meanwhile - Hidden, not Collapsed, so it keeps its layout and scroll
+        // for when it comes back.
+        foreach (var overlay in new FrameworkElement[] { ItemPage, AuthorPage, CollectionPage })
         {
-            RootNavigationView.Visibility = CollectionPage.IsVisible ? Visibility.Hidden : Visibility.Visible;
-            SyncWorkshopStrip();
-        };
+            overlay.IsVisibleChanged += (_, _) =>
+            {
+                RootNavigationView.Visibility = OverlayShowing ? Visibility.Hidden : Visibility.Visible;
+                SyncWorkshopStrip();
+            };
+        }
 
         // An author opened from anywhere opens as their Workshop page, the same way.
         AppServices.AuthorOverlay.Requested += (_, request) =>
@@ -246,12 +250,18 @@ public partial class MainWindow : FluentWindow
         SyncWorkshopStrip();
     }
 
-    // Whether the page on screen carries the Workshop strip; it is kept down while a collection's
-    // page is over it, which would otherwise show it through.
+    // Whether the page on screen carries the Workshop strip; it is kept down while an item's, a
+    // collection's or an author's page is over it, which would otherwise show it through.
     private bool _stripWanted;
 
+    // Hidden rather than Collapsed under a page: the row keeps its height, so the page underneath
+    // is not resized - and its scroll position not clamped - while it waits.
     private void SyncWorkshopStrip() =>
-        WorkshopStrip.Visibility = _stripWanted && !CollectionPage.IsVisible ? Visibility.Visible : Visibility.Collapsed;
+        WorkshopStrip.Visibility = !_stripWanted ? Visibility.Collapsed
+            : OverlayShowing ? Visibility.Hidden
+            : Visibility.Visible;
+
+    private bool OverlayShowing => ItemPage.IsVisible || AuthorPage.IsVisible || CollectionPage.IsVisible;
 
     private void HubTab_Click(object sender, RoutedEventArgs e)
     {

@@ -134,7 +134,9 @@
         </Style>
     </UserControl.Resources>
 
-    <Border Background="{StaticResource SteamLegacyBackground}">
+    <!-- Transparent: the Workshop's grid (or your own picture, Options) behind the window shows
+         through, as on the other Workshop pages. MainWindow hides the page this was opened over. -->
+    <Border Background="Transparent">
         <!-- No focus frame (nor on any scroll area in the app): when Subscribe goes disabled while it
              works, focus falls back here, and the frame was drawn around the whole page. -->
         <ScrollViewer x:Name="Scroll" FocusVisualStyle="{x:Null}" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">

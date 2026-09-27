@@ -56,3 +56,22 @@ public sealed class GroupSortItem(string key, GroupSortOption value) : Localized
 
     public override string ToString() => Label;
 }
+
+// How the Cards and List views arrange their mods: one run of them, or in sections - your own groups
+// (the Groups view's sections) or sp-mod.com's categories. The Groups view is always in sections and
+// keeps its own choice (its "Sort groups" dropdown).
+public enum InstalledGrouping
+{
+    None,
+    Groups,
+    Category,
+}
+
+public sealed class GroupingItem(string key, InstalledGrouping value) : LocalizedViewModel
+{
+    public InstalledGrouping Value { get; } = value;
+
+    public string Label => LocalizationService.Get(key);
+
+    public override string ToString() => Label;
+}

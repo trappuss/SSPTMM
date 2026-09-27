@@ -64,6 +64,9 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     private bool _listDirty = true;
     private bool _sectionsDirty = true;
 
+    // Cards' and List's sections, when they are grouped (ViewSections) - the same flag again.
+    private bool _viewSectionsDirty = true;
+
     // Who needs whom among the mods currently on disk, rebuilt on every scan. Backs the warning
     // shown before a disable takes something else's dependency away.
     private ModDependencyGraph _dependencies = ModDependencyGraph.Build([]);
@@ -172,6 +175,12 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     [NotifyCanExecuteChangedFor(nameof(ExpandAllCommand))]
     [NotifyCanExecuteChangedFor(nameof(CollapseAllCommand))]
     [NotifyPropertyChangedFor(nameof(ScrollsItself))]
+    [NotifyPropertyChangedFor(nameof(ShowGroupingPicker))]
+    [NotifyPropertyChangedFor(nameof(ShowPageSize))]
+    [NotifyPropertyChangedFor(nameof(ShowCardsFlat))]
+    [NotifyPropertyChangedFor(nameof(ShowCardSections))]
+    [NotifyPropertyChangedFor(nameof(ShowListSections))]
+    [NotifyPropertyChangedFor(nameof(GroupChipsRedundant))]
     private InstalledViewMode _viewMode = InstalledViewMode.Cards;
 
     public bool ShowCards => ViewMode == InstalledViewMode.Cards;
@@ -186,7 +195,57 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
     /// <summary>True for the two views that scroll rather than paginate - what hides the pagination
     /// controls and the per-page picker.</summary>
-    public bool ScrollsItself => !ShowCards;
+    public bool ScrollsItself => !ShowCards || IsViewGrouped;
+
+    //
+    // Cards and List in sections, as the Groups view is: your own groups or sp-mod.com's categories.
+    // The Groups view is always in sections and keeps its own choice (Sort groups), so this picker is
+    // shown over the other two only. In sections Cards shows every mod, as List does - a page
+    // boundary cutting through a section would split it.
+    //
+    public List<GroupingItem> GroupingOptions { get; } =
+    [
+        new(nameof(Strings.Installed_GroupingNone), InstalledGrouping.None),
+        new(nameof(Strings.Installed_GroupingGroups), InstalledGrouping.Groups),
+        new(nameof(Strings.Installed_GroupingCategory), InstalledGrouping.Category),
+    ];
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsViewGrouped))]
+    [NotifyPropertyChangedFor(nameof(ScrollsItself))]
+    [NotifyPropertyChangedFor(nameof(ShowPager))]
+    [NotifyPropertyChangedFor(nameof(ShowPageSize))]
+    [NotifyPropertyChangedFor(nameof(ShowCardsFlat))]
+    [NotifyPropertyChangedFor(nameof(ShowCardSections))]
+    [NotifyPropertyChangedFor(nameof(ShowListSections))]
+    [NotifyPropertyChangedFor(nameof(GroupChipsRedundant))]
+    private GroupingItem _selectedGrouping;
+
+    public bool IsViewGrouped => SelectedGrouping.Value != InstalledGrouping.None;
+
+    public bool ShowGroupingPicker => !ShowGroups;
+
+    // Per page means nothing where every mod is shown.
+    public bool ShowPageSize => ShowCards && !IsViewGrouped;
+
+    public bool ShowCardsFlat => ShowCards && !IsViewGrouped;
+
+    public bool ShowCardSections => ShowCards && IsViewGrouped;
+
+    public bool ShowListSections => ShowList && IsViewGrouped;
+
+    // Cards' and List's sections, when grouped. Separate from Sections: the Groups view can be
+    // sorted by category while these are in your groups, and the other way round.
+    public ObservableCollection<ModGroupSectionViewModel> ViewSections { get; } = [];
+
+    //
+    // A mod's group chip says which group it is in - which the section around it already says when
+    // the sections are your groups. Shown everywhere else, including the Groups view sorted by
+    // category.
+    //
+    public bool GroupChipsRedundant => ShowGroups
+        ? !GroupsByCategory
+        : SelectedGrouping.Value == InstalledGrouping.Groups;
 
     public ObservableCollection<ModGroupSectionViewModel> Sections { get; } = [];
 
@@ -298,7 +357,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     public bool IsInfinite => PageSize == InfinitePageSize;
 
     /// <summary>The pager under the cards: Cards view, unless it is the infinite list.</summary>
-    public bool ShowPager => ShowCards && !IsInfinite;
+    public bool ShowPager => ShowCards && !IsInfinite && !IsViewGrouped;
 
     // Cards per page, or per load of the infinite list.
     private int PageStep => IsInfinite ? InfiniteStep : PageSize;
@@ -347,6 +406,11 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         SavedFilterDefaults.Parse<GroupSortOption>(_defaults?.GroupSort) is { } value
             ? GroupSortOptions.FirstOrDefault(o => o.Value == value) ?? GroupSortOptions[0]
             : GroupSortOptions[0];
+
+    private GroupingItem DefaultGrouping() =>
+        SavedFilterDefaults.Parse<InstalledGrouping>(_defaults?.Grouping) is { } value
+            ? GroupingOptions.FirstOrDefault(o => o.Value == value) ?? GroupingOptions[0]
+            : GroupingOptions[0];
 
     private InstalledViewMode DefaultViewMode() =>
         SavedFilterDefaults.Parse<InstalledViewMode>(_defaults?.ViewMode) ?? InstalledViewMode.Cards;
@@ -437,6 +501,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         _selectedSortOption = DefaultSortOption();
         _selectedGroupSortOption = DefaultGroupSortOption();
         _viewMode = DefaultViewMode();
+        _selectedGrouping = DefaultGrouping();
         _pageSize = DefaultPageSize();
 
         // Category and group are resolved later instead: both dropdowns are rebuilt from what is
@@ -552,7 +617,26 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     {
         OnPropertyChanged(nameof(CanReorderGroups));
         OnPropertyChanged(nameof(GroupsByCategory));
-        RebuildSections();
+        OnPropertyChanged(nameof(GroupChipsRedundant));
+
+        // Cards' and List's groups follow this order too.
+        _sectionsDirty = _viewSectionsDirty = true;
+
+        // Clear filters sets this among the rest, then refreshes once itself.
+        if (_suppressAutoApplyFilter) return;
+        RefreshActiveView(CurrentPage);
+    }
+
+    partial void OnSelectedGroupingChanged(GroupingItem value)
+    {
+        _viewSectionsDirty = true;
+
+        // Grouped, Cards leaves its pages - and ungrouped goes back to the one it was on.
+        _cardsDirty = true;
+
+        // Clear filters sets this among the rest, then refreshes once itself.
+        if (_suppressAutoApplyFilter) return;
+        RefreshActiveView(CurrentPage);
     }
 
     /// <summary>Re-filters/re-sorts and refreshes whichever of the three views is active whenever a
@@ -582,6 +666,10 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         {
             case InstalledViewMode.Groups:
                 if (_sectionsDirty) RebuildSections();
+                break;
+            case InstalledViewMode.List when IsViewGrouped:
+            case InstalledViewMode.Cards when IsViewGrouped:
+                if (_viewSectionsDirty) RebuildViewSections();
                 break;
             case InstalledViewMode.List:
                 if (_listDirty) RebuildList();
@@ -623,6 +711,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
                 ?? GroupFilterOptions[0];
             SelectedSortOption = DefaultSortOption();
             SelectedGroupSortOption = DefaultGroupSortOption();
+            SelectedGrouping = DefaultGrouping();
             SelectedCategory = CategoryOptions.FirstOrDefault(c => c.SameAs(DefaultCategory()))
                 ?? CategoryOptions[0];
             SavedFilterDefaults.ApplyAttributes(AttributeOptions, _defaults?.Attributes ?? []);
@@ -665,6 +754,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
                 : SelectedGroupFilter.GroupId?.ToString() ?? "ungrouped",
             Sort = SelectedSortOption.Value.ToString(),
             GroupSort = SelectedGroupSortOption.Value.ToString(),
+            Grouping = SelectedGrouping.Value.ToString(),
             PageSize = PageSize,
             Attributes = SavedFilterDefaults.CapturedAttributes(AttributeOptions),
         };
@@ -2290,7 +2380,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     /// <summary>Adds the next cards to the infinite list - called as Cards view nears its bottom.</summary>
     public void LoadMore()
     {
-        if (!IsInfinite || !ShowCards || _cardsDirty || Results.Count >= _filtered.Count) return;
+        if (!IsInfinite || !ShowCardsFlat || _cardsDirty || Results.Count >= _filtered.Count) return;
 
         foreach (var card in _filtered.Skip(Results.Count).Take(PageStep).ToList()) Results.Add(card);
     }
@@ -2334,7 +2424,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
         // Every view now disagrees with _filtered, including the two that aren't on screen - they
         // catch up when switched to.
-        _cardsDirty = _listDirty = _sectionsDirty = true;
+        _cardsDirty = _listDirty = _sectionsDirty = _viewSectionsDirty = true;
 
         TotalPages = Math.Max(1, (int)Math.Ceiling(_filtered.Count / (double)PageStep));
 
@@ -2470,9 +2560,40 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     // and can't drift out of sync with the store.
     private void RebuildSections()
     {
-        Sections.Clear();
+        // Empty groups stay: here they are where mods are dragged to.
+        BuildSections(Sections, GroupsByCategory, SelectedGroupSortOption.Value, dropEmpty: false);
+        _sectionsDirty = false;
+    }
 
-        if (GroupsByCategory)
+    // Cards' and List's sections. Your groups come in the Groups view's order, or their own manual
+    // order while that view is sorted by category (the move buttons show then too).
+    private void RebuildViewSections()
+    {
+        var order = SelectedGroupSortOption.Value == GroupSortOption.Category ? GroupSortOption.Manual : SelectedGroupSortOption.Value;
+        // Sections with nothing the filters show are left out here: in the Groups view an empty
+        // group is where mods are dragged to, but these views only show what there is.
+        BuildSections(ViewSections, SelectedGrouping.Value == InstalledGrouping.Category, order, dropEmpty: true);
+        _viewSectionsDirty = false;
+    }
+
+    //
+    // Brings a section list in line with _filtered - synced, never cleared and refilled, for the
+    // same reason the flat views are (see ItemsSync): Cards' and List's sections hold expanders,
+    // and a regenerated one replays its open animation. A section that is still wanted keeps its
+    // object, its name and fold are re-read, and its mods are synced into it the same way.
+    //
+    private void BuildSections(
+        ObservableCollection<ModGroupSectionViewModel> sections, bool byCategory, GroupSortOption order, bool dropEmpty)
+    {
+        var existing = new Dictionary<string, ModGroupSectionViewModel>(StringComparer.OrdinalIgnoreCase);
+        foreach (var section in sections) existing.TryAdd(SectionKey(section), section);
+
+        ModGroupSectionViewModel Reuse(string key, Func<ModGroupSectionViewModel> create) =>
+            existing.TryGetValue(key, out var found) ? found : create();
+
+        var wanted = new List<(ModGroupSectionViewModel Section, List<InstalledModCardViewModel> Items)>();
+
+        if (byCategory)
         {
             // A to Z by category, what has none last; within each the page's own sort order.
             foreach (var category in _filtered
@@ -2480,45 +2601,79 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
                          .OrderBy(g => g.Key is null)
                          .ThenBy(g => g.Key, StringComparer.CurrentCultureIgnoreCase))
             {
-                var section = ModGroupSectionViewModel.ForCategory(
-                    category.Key, _collapsedCategories.Contains(category.Key ?? string.Empty));
-                foreach (var mod in category) section.Items.Add(mod);
-                Sections.Add(section);
+                var collapsed = _collapsedCategories.Contains(category.Key ?? string.Empty);
+                var section = Reuse(CategorySectionKey(category.Key ?? string.Empty),
+                    () => ModGroupSectionViewModel.ForCategory(category.Key, collapsed));
+                section.IsCollapsed = collapsed;
+                wanted.Add((section, category.ToList()));
+            }
+        }
+        else
+        {
+            var data = AppServices.ModGroups.Load();
+
+            IEnumerable<ModGroup> ordered = order switch
+            {
+                GroupSortOption.NameAscending => data.Groups.OrderBy(g => g.Name, StringComparer.OrdinalIgnoreCase),
+                GroupSortOption.NameDescending => data.Groups.OrderByDescending(g => g.Name, StringComparer.OrdinalIgnoreCase),
+                _ => data.Groups.OrderBy(g => g.SortOrder),
+            };
+
+            var byId = new Dictionary<Guid, List<InstalledModCardViewModel>>();
+            foreach (var group in ordered)
+            {
+                var section = Reuse(GroupSectionKey(group.Id), () => ModGroupSectionViewModel.FromGroup(group));
+
+                // From the store every time: a rename that was cancelled or left blank goes back to
+                // the saved name this way, as a fresh section used to.
+                section.Name = group.Name;
+                section.IsEditing = false;
+                section.IsCollapsed = group.IsCollapsed;
+                section.CanReorder = order == GroupSortOption.Manual;
+
+                var items = new List<InstalledModCardViewModel>();
+                byId[group.Id] = items;
+                wanted.Add((section, items));
             }
 
-            _sectionsDirty = false;
-            return;
+            var ungrouped = Reuse(UngroupedSectionKey, ModGroupSectionViewModel.Ungrouped);
+            var ungroupedItems = new List<InstalledModCardViewModel>();
+            wanted.Add((ungrouped, ungroupedItems));
+
+            foreach (var mod in _filtered)
+            {
+                var key = ModGroupStore.KeyFor(mod.Name);
+                var items = data.Assignments.TryGetValue(key, out var groupId) && byId.TryGetValue(groupId, out var found)
+                    ? found
+                    : ungroupedItems;
+
+                items.Add(mod);
+            }
         }
 
-        var data = AppServices.ModGroups.Load();
+        if (dropEmpty) wanted.RemoveAll(w => w.Items.Count == 0);
 
-        IEnumerable<ModGroup> ordered = SelectedGroupSortOption.Value switch
+        ItemsSync.Apply(sections, [.. wanted.Select(w => w.Section)]);
+        foreach (var (section, items) in wanted)
         {
-            GroupSortOption.NameAscending => data.Groups.OrderBy(g => g.Name, StringComparer.OrdinalIgnoreCase),
-            GroupSortOption.NameDescending => data.Groups.OrderByDescending(g => g.Name, StringComparer.OrdinalIgnoreCase),
-            _ => data.Groups.OrderBy(g => g.SortOrder),
-        };
+            ItemsSync.Apply(section.Items, items);
 
-        foreach (var group in ordered)
-            Sections.Add(ModGroupSectionViewModel.FromGroup(group));
-
-        var ungrouped = ModGroupSectionViewModel.Ungrouped();
-        Sections.Add(ungrouped);
-
-        var byId = Sections.Where(s => s.GroupId is not null).ToDictionary(s => s.GroupId!.Value);
-
-        foreach (var mod in _filtered)
-        {
-            var key = ModGroupStore.KeyFor(mod.Name);
-            var section = data.Assignments.TryGetValue(key, out var groupId) && byId.TryGetValue(groupId, out var found)
-                ? found
-                : ungrouped;
-
-            section.Items.Add(mod);
+            // The same mods can have changed underneath - one disabled - with nothing added or taken
+            // away, which is all the counts would otherwise follow.
+            section.RefreshCounts();
         }
-
-        _sectionsDirty = false;
     }
+
+    private const string UngroupedSectionKey = "u";
+
+    private static string GroupSectionKey(Guid id) => "g:" + id;
+
+    private static string CategorySectionKey(string category) => "c:" + category;
+
+    private static string SectionKey(ModGroupSectionViewModel section) =>
+        section.GroupId is { } id ? GroupSectionKey(id)
+        : section.CategoryKey is { } category ? CategorySectionKey(category)
+        : UngroupedSectionKey;
 
     [RelayCommand]
     private void AddGroup()
@@ -2595,6 +2750,14 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
         section.IsCollapsed = !section.IsCollapsed;
 
+        // The same section in the other views' sections folds with it - it is the same group or
+        // category, and coming back to that view should not find it the other way.
+        foreach (var twin in Sections.Concat(ViewSections).Where(s => !ReferenceEquals(s, section)
+                     && s.GroupId == section.GroupId && s.CategoryKey == section.CategoryKey))
+        {
+            twin.IsCollapsed = section.IsCollapsed;
+        }
+
         if (section.CategoryKey is { } category)
         {
             if (section.IsCollapsed) _collapsedCategories.Add(category);
@@ -2611,11 +2774,32 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     [RelayCommand]
     private void MoveGroupDown(ModGroupSectionViewModel? section) => MoveGroup(section, 1);
 
+    //
+    // Swaps the group with the next group shown in that direction. The Groups view shows every
+    // group, so that is its neighbour; Cards and List leave out groups the filters empty, and
+    // swapping with one of those would look like nothing happened.
+    //
     private void MoveGroup(ModGroupSectionViewModel? section, int direction)
     {
         if (section is not { IsRealGroup: true }) return;
 
-        AppServices.ModGroups.Move(section.GroupId!.Value, direction);
+        var shown = ViewSections.Contains(section) ? ViewSections : Sections;
+        var index = shown.IndexOf(section);
+        if (index < 0) return;
+
+        ModGroupSectionViewModel? neighbour = null;
+        for (var i = index + direction; i >= 0 && i < shown.Count; i += direction)
+        {
+            if (shown[i].IsRealGroup)
+            {
+                neighbour = shown[i];
+                break;
+            }
+        }
+
+        if (neighbour is null) return;
+
+        AppServices.ModGroups.SwapOrder(section.GroupId!.Value, neighbour.GroupId!.Value);
         GroupsChanged();
     }
 

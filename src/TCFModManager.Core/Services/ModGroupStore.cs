@@ -11,7 +11,15 @@ namespace TCFModManager.Core.Services;
 //
 public sealed class ModGroupStore
 {
-    private readonly string _filePath = Path.Combine(AppPaths.DataDirectory, "mod_groups.json");
+    private readonly string _filePath;
+
+    public ModGroupStore()
+        : this(Path.Combine(AppPaths.DataDirectory, "mod_groups.json"))
+    {
+    }
+
+    // A file of its own - for the tests.
+    public ModGroupStore(string filePath) => _filePath = filePath;
 
     public ModGroupData Load()
     {
@@ -85,6 +93,18 @@ public sealed class ModGroupStore
         if (index < 0 || swapWith < 0 || swapWith >= ordered.Count) return;
 
         (ordered[index].SortOrder, ordered[swapWith].SortOrder) = (ordered[swapWith].SortOrder, ordered[index].SortOrder);
+        Save(data);
+    }
+
+    // Swaps two groups' places in the manual order, whatever lies between them. No-op unless both exist.
+    public void SwapOrder(Guid first, Guid second)
+    {
+        var data = Load();
+        var a = data.Groups.FirstOrDefault(g => g.Id == first);
+        var b = data.Groups.FirstOrDefault(g => g.Id == second);
+        if (a is null || b is null || ReferenceEquals(a, b)) return;
+
+        (a.SortOrder, b.SortOrder) = (b.SortOrder, a.SortOrder);
         Save(data);
     }
 

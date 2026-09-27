@@ -1813,4 +1813,8 @@ internal static class Strings
     internal static string Play_ServerStoppedStartingOnly => LocalizationService.Get("Play_ServerStoppedStartingOnly");
     internal static string Play_ServerDescriptionHidden => LocalizationService.Get("Play_ServerDescriptionHidden");
     internal static string Play_ServerNotUpOnlyFormat => LocalizationService.Get("Play_ServerNotUpOnlyFormat");
+    internal static string Installed_GroupingNone => LocalizationService.Get("Installed_GroupingNone");
+    internal static string Installed_GroupingGroups => LocalizationService.Get("Installed_GroupingGroups");
+    internal static string Installed_GroupingCategory => LocalizationService.Get("Installed_GroupingCategory");
+    internal static string Installed_GroupingToolTip => LocalizationService.Get("Installed_GroupingToolTip");
 }

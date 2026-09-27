@@ -40,8 +40,11 @@ public sealed class InstalledPageDefaults
     // GroupAscending, GroupDescending, RecentlyInstalled.
     public string? Sort { get; set; }
 
-    // GroupSortOption: Manual, NameAscending, NameDescending.
+    // GroupSortOption: Manual, NameAscending, NameDescending, Category.
     public string? GroupSort { get; set; }
+
+    // InstalledGrouping, for the Cards and List views: None, Groups, Category.
+    public string? Grouping { get; set; }
 
     // One of the page's own PageSizeOptions. A value that isn't in that list is ignored.
     public int? PageSize { get; set; }

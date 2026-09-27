@@ -6831,4 +6831,20 @@ Install the file as it is anyway?</value>
     <value>The server is running but did not start listening on port {0} within three minutes. The server log may say why.</value>
     <comment>Play page when a server started without its window took too long. {0} is the port or ports watched.</comment>
   </data>
+  <data name="Installed_GroupingNone" xml:space="preserve">
+    <value>Not grouped</value>
+    <comment>Subscribed items, Cards and List views, the Group by dropdown: every mod in one run, as before.</comment>
+  </data>
+  <data name="Installed_GroupingGroups" xml:space="preserve">
+    <value>Grouped by your groups</value>
+    <comment>Group by dropdown: a section per group you made (the Groups view's groups), Ungrouped last.</comment>
+  </data>
+  <data name="Installed_GroupingCategory" xml:space="preserve">
+    <value>Grouped by category</value>
+    <comment>Group by dropdown: a section per sp-mod.com category, No category last.</comment>
+  </data>
+  <data name="Installed_GroupingToolTip" xml:space="preserve">
+    <value>Show the mods in one run, or in sections - your own groups (the ones in the Groups view) or sp-mod.com's categories. In sections every mod is shown, without pages.</value>
+    <comment>Tooltip on the Group by dropdown.</comment>
+  </data>
 </root>

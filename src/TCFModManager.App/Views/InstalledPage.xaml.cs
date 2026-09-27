@@ -492,6 +492,20 @@ public partial class InstalledPage : Page
         e.Handled = true;
     }
 
+    // Rename puts the name in a box ready to type over, rather than leaving the box to be clicked
+    // first - typing straight after the pencil otherwise went nowhere, and Escape did nothing.
+    private void RenameTextBox_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+        if (e.NewValue is not true || sender is not TextBox box) return;
+
+        // After layout: a box that has only just become visible cannot take focus yet.
+        Dispatcher.BeginInvoke(() =>
+        {
+            box.Focus();
+            box.SelectAll();
+        }, DispatcherPriority.Input);
+    }
+
     private void RenameTextBox_KeyDown(object sender, KeyEventArgs e)
     {
         if (sender is not FrameworkElement { DataContext: ModGroupSectionViewModel section }) return;

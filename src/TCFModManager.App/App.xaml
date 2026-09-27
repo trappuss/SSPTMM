@@ -22,6 +22,16 @@
             </ResourceDictionary.MergedDictionaries>
 
             <!--
+                Every plain tooltip, left-aligned. WPF UI's tooltip style justifies its text
+                (TextAlignment Justify, read from its compiled style in Wpf.Ui 4.3), which spreads
+                the words of a wrapped line apart; Steam's popups and tooltips are left-aligned.
+                Everything else about WPF UI's tooltip is kept.
+            -->
+            <Style TargetType="ToolTip" BasedOn="{StaticResource DefaultToolTipStyle}">
+                <Setter Property="TextBlock.TextAlignment" Value="Left" />
+            </Style>
+
+            <!--
                 How a clickable row reacts to the pointer, defined once so every list agrees -
                 whether it hand-rolls its rows out of a Border or lets a ListBox do it.
 

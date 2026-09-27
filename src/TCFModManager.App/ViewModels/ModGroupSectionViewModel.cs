@@ -17,6 +17,10 @@ public partial class ModGroupSectionViewModel : LocalizedViewModel
 
     public bool IsRealGroup => GroupId is not null;
 
+    // Whether the header's move up/down buttons show: a real group, while groups are in their own
+    // manual order (an alphabetical order would just undo a move). Set by whoever builds the list.
+    public bool CanReorder { get; set; }
+
     // The category a section holds when the Groups view is sorted by category ("" for no category);
     // null for a group's section and for Ungrouped. Such a section is not a group: nothing is
     // assigned to it and nothing can be dropped on it.
@@ -63,13 +67,16 @@ public partial class ModGroupSectionViewModel : LocalizedViewModel
     public ModGroupSectionViewModel()
     {
         // These have no backing field for Items.CollectionChanged to invalidate on their own.
-        Items.CollectionChanged += (_, _) =>
-        {
-            OnPropertyChanged(nameof(CountLabel));
-            OnPropertyChanged(nameof(DisabledCount));
-            OnPropertyChanged(nameof(StateLabel));
-            OnPropertyChanged(nameof(HasItems));
-        };
+        Items.CollectionChanged += (_, _) => RefreshCounts();
+    }
+
+    // Re-reads the header's counts - also after its mods changed state without any coming or going.
+    public void RefreshCounts()
+    {
+        OnPropertyChanged(nameof(CountLabel));
+        OnPropertyChanged(nameof(DisabledCount));
+        OnPropertyChanged(nameof(StateLabel));
+        OnPropertyChanged(nameof(HasItems));
     }
 
     public static ModGroupSectionViewModel FromGroup(ModGroup group) => new()

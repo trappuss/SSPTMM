@@ -685,8 +685,8 @@ opening Your collections) can each be switched off; both pages stay under Worksh
 picture of your own can take the place of the Steam grid behind the whole window, with a slider
 to darken it and Use the Steam grid to go back. The picture is copied into Data\Background, so
 moving or deleting the original changes nothing. The Workshop pages over the page area (item,
-author) keep Steam's solid #1B2838, as Steam's own pages do; a collection's page shows the grid
-since round 17.
+author) keep Steam's solid #1B2838, as Steam's own pages do; since rounds 17 and 18 all three show
+the grid instead.
 
 ## Thirteenth round: a collection's Quick View, Favorites, Update all, addons (2026-09-26)
 
@@ -896,7 +896,7 @@ marked. The marks follow installs and removals while the page is open.
 
 **A collection's page** now shows the window's grid (or your own picture) instead of the solid
 #1B2838, like Home and Browse. The page it was opened over is hidden while it is up and comes back
-as it was. Item and author pages keep Steam's solid background.
+as it was. (Item and author pages too since round 18.)
 
 **Hover popups on a collection's items and an author's items.** Both Steam pages have one, and
 neither is Browse's: measured on the live pages, a plain box 300px wide, 14 10 inside, no radius,
@@ -904,6 +904,43 @@ border or shadow, with the title over the start of the description, 1px above th
 its right. A collection's is #417A9B (title 15px white, text 12px #C6D4DF); an author's is #363C45
 (title 14px white, text 12px #B0AEAC). The text under the title is the mod's sp-mod.com teaser. An
 author's addons get the same popup in place of the plain tooltip they had.
+
+## Eighteenth round: Subscribed items' three views alike, the grid everywhere (2026-09-26)
+
+**Group by, in Cards and List.** A dropdown beside the sort: Not grouped (as before), Grouped by your
+groups, Grouped by category. Grouped, the mods sit in the same sections as the Groups view, with the
+same header - fold, count, what is disabled, and for a group enable/disable/invert, move, rename and
+delete. Every mod is shown then, without pages (a page boundary would cut a section in two); Per page
+and the pager step aside. Sections the filters leave empty are not shown, and a move swaps with the
+next group shown. Your groups come in the Groups view's order (Sort groups), or their manual order
+while that view is sorted by category. A folded group or category is folded in every view. Save as
+default keeps the choice; Clear filters goes back to it, as it does with the sort.
+
+**The same mod, the same facts, in every view.** List's rows and the Groups view's rows now show the
+mod's picture (56px in List, as on a card; 40px in the compact Groups rows) and what an addon is for.
+The Groups view's rows show the group and DISABLED chips the cards and List had. A group chip is left
+off wherever the section around it already names the group.
+
+**Sections are synced, not rebuilt.** Typing in the search or changing a filter keeps the sections
+and cards that are still there, so an open card stays open instead of replaying its opening, as the
+flat views already did (ItemsSync). The Groups view's sections are synced the same way.
+
+**Rename** puts the group's name in a box ready to type over; before, the box had to be clicked first.
+
+**Item and author pages over the grid.** Like a collection's page (round 17), they are transparent,
+and the page they were opened over is hidden while they are up (the Workshop strip too, keeping its
+space, so nothing underneath moves).
+
+**Tooltips left-aligned.** WPF UI's tooltip style justifies text (read from its compiled style in
+Wpf.Ui 4.3); every plain tooltip is now left-aligned, as Steam's are.
+
+**Tests.** ModGroupStore (groups, order, moves, assignments, folding, a damaged file), ArchiveLayout
+(each packaging it reads, and the ones it must not guess at) and the page defaults in settings.json:
+1224 in all.
+
+**Not done.** Dragging a mod between groups stays in the Groups view: Cards and List sections show
+the groups but are not drop targets. Pushing to GitHub and measuring the signed-in Steam values need
+you (a fork's address; a Steam sign-in).
 
 ## Values that could not be measured (marked HUNCH in the source)
 
