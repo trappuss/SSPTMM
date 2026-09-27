@@ -35,6 +35,9 @@ public sealed partial class AuthorItem : ObservableObject
 
     public string Name => Mod.Name ?? string.Empty;
 
+    // Under the name in the hover popup.
+    public string? Teaser => Mod.Teaser;
+
     public string? Thumbnail => Mod.Thumbnail;
 
     public int? Endorsements => Mod.EndorsementsCount is > 0 ? Mod.EndorsementsCount : null;
@@ -59,6 +62,9 @@ public sealed class AuthorAddon(Addon addon, Mod? parent)
     public Mod? Parent { get; } = parent;
 
     public string Name => Addon.Name ?? string.Empty;
+
+    // Under the name in the hover popup.
+    public string? Teaser => Addon.Teaser;
 
     public string? Thumbnail => Addon.Thumbnail;
 

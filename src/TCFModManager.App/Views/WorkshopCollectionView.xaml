@@ -482,7 +482,41 @@
                         <ItemsControl Focusable="False" ItemsSource="{Binding Items}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border x:Name="Row" Margin="0,0,0,2" Background="#335485B7" behaviors:ModContextMenu.Mod="{Binding Mod}">
+                                    <!-- Steam's hover popup on a collection's item, measured on the live page
+                                         (2026-09-26): a plain box, not Browse's - #417A9B, 300px, no radius,
+                                         border or shadow, 14 10 inside; the title 15px white 10px above the
+                                         description 12px #C6D4DF; its top 1px above the row's, 4px to the
+                                         right of it. The description here is the mod's sp-mod.com teaser. -->
+                                    <Border
+                                        x:Name="Row"
+                                        Margin="0,0,0,2"
+                                        Background="#335485B7"
+                                        behaviors:ModContextMenu.Mod="{Binding Mod}"
+                                        ToolTipService.InitialShowDelay="150"
+                                        ToolTipService.ShowDuration="60000"
+                                        ToolTipService.Placement="Right"
+                                        ToolTipService.HorizontalOffset="4"
+                                        ToolTipService.VerticalOffset="-1">
+                                        <Border.ToolTip>
+                                            <ToolTip HasDropShadow="False" MaxWidth="Infinity">
+                                                <ToolTip.Template>
+                                                    <ControlTemplate TargetType="ToolTip">
+                                                        <Border Width="300" Padding="10,14" Background="#417A9B" TextBlock.TextAlignment="Left">
+                                                            <StackPanel>
+                                                                <TextBlock FontSize="15" Foreground="White" TextWrapping="Wrap" Text="{Binding Name}" />
+                                                                <TextBlock
+                                                                    Margin="0,10,0,0"
+                                                                    FontSize="12"
+                                                                    Foreground="#C6D4DF"
+                                                                    TextWrapping="Wrap"
+                                                                    Text="{Binding Teaser}"
+                                                                    Visibility="{Binding Teaser, Converter={StaticResource NullToCollapsed}}" />
+                                                            </StackPanel>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </ToolTip.Template>
+                                            </ToolTip>
+                                        </Border.ToolTip>
                                         <DockPanel>
                                             <Button
                                                 Margin="12,0,14,0"

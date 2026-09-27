@@ -898,6 +898,13 @@ marked. The marks follow installs and removals while the page is open.
 #1B2838, like Home and Browse. The page it was opened over is hidden while it is up and comes back
 as it was. Item and author pages keep Steam's solid background.
 
+**Hover popups on a collection's items and an author's items.** Both Steam pages have one, and
+neither is Browse's: measured on the live pages, a plain box 300px wide, 14 10 inside, no radius,
+border or shadow, with the title over the start of the description, 1px above the item and 3-4px to
+its right. A collection's is #417A9B (title 15px white, text 12px #C6D4DF); an author's is #363C45
+(title 14px white, text 12px #B0AEAC). The text under the title is the mod's sp-mod.com teaser. An
+author's addons get the same popup in place of the plain tooltip they had.
+
 ## Values that could not be measured (marked HUNCH in the source)
 
 - The smooth-scroll distance and time (100px, 250ms) - chosen to feel like a browser, not measured.
