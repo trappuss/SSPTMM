@@ -101,6 +101,15 @@ public partial class MainWindow : FluentWindow
 
         CollectionPage.Closed += (_, _) => Uncover(CollectionPage);
 
+        // A collection's page has no background of its own, so the window's grid (or picture) shows
+        // through it as it does on the other Workshop pages. The page it was opened over is hidden
+        // meanwhile - Hidden, not Collapsed, so it keeps its layout and scroll for when it comes back.
+        CollectionPage.IsVisibleChanged += (_, _) =>
+        {
+            RootNavigationView.Visibility = CollectionPage.IsVisible ? Visibility.Hidden : Visibility.Visible;
+            SyncWorkshopStrip();
+        };
+
         // An author opened from anywhere opens as their Workshop page, the same way.
         AppServices.AuthorOverlay.Requested += (_, request) =>
         {
@@ -232,11 +241,17 @@ public partial class MainWindow : FluentWindow
                 || (target == typeof(WorkshopHomePage) && AppNavigation.IsWorkshopPage(pageType) && !ownTab);
         }
 
-        WorkshopStrip.Visibility = pageType == typeof(InstalledPage) || pageType == typeof(ModListsPage)
-                || pageType == typeof(FollowedAuthorsPage) || pageType == typeof(FavoriteCollectionsPage)
-            ? Visibility.Visible
-            : Visibility.Collapsed;
+        _stripWanted = pageType == typeof(InstalledPage) || pageType == typeof(ModListsPage)
+            || pageType == typeof(FollowedAuthorsPage) || pageType == typeof(FavoriteCollectionsPage);
+        SyncWorkshopStrip();
     }
+
+    // Whether the page on screen carries the Workshop strip; it is kept down while a collection's
+    // page is over it, which would otherwise show it through.
+    private bool _stripWanted;
+
+    private void SyncWorkshopStrip() =>
+        WorkshopStrip.Visibility = _stripWanted && !CollectionPage.IsVisible ? Visibility.Visible : Visibility.Collapsed;
 
     private void HubTab_Click(object sender, RoutedEventArgs e)
     {

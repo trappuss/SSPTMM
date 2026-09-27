@@ -106,8 +106,20 @@ public sealed record ModListActionRowViewModel(string Kind, string Name, string 
 }
 
 // One mod on the selected list, as the contents panel shows it.
-public sealed record ModListEntryRowViewModel(ModListEntry Entry, string Name, string Detail, bool IsPinnedHere = false)
+public sealed record ModListEntryRowViewModel(
+    ModListEntry Entry, string Name, string Detail, bool IsPinnedHere = false, InstalledModCardViewModel? Installed = null)
 {
+    // Whether this install has the entry's mod, and how it stands - the same mark and words as
+    // Browse's cards, so what a collection would still download is readable at a glance.
+    public bool IsInstalled => Installed is not null;
+
+    // What the icon's colour follows (App.xaml's StatusIcon).
+    public ModStatus Status => Installed?.Status ?? ModStatus.NotInstalled;
+
+    public string StatusGlyph => Installed?.StatusGlyph ?? "";
+
+    public string StatusTooltip => Installed?.StatusTooltip ?? "";
+
     //
     // Shown on every row, including Everyone.
     //
@@ -675,7 +687,35 @@ public partial class ModListsViewModel : LocalizedViewModel
             ? title
             : entry.Name;
 
-        return new ModListEntryRowViewModel(entry, name, EntryDetail(entry, name), IsPinnedHere(entry));
+        return new ModListEntryRowViewModel(entry, name, EntryDetail(entry, name), IsPinnedHere(entry), InstalledFor(entry));
+    }
+
+    //
+    // The installed mod an entry stands for, from the same index Browse marks its cards with: by
+    // the catalog listing its mod id names, else by the plugin GUID it carries. Addons are not in
+    // that index (their ids are a separate sequence), and an entry naming neither says nothing.
+    //
+    private static InstalledModCardViewModel? InstalledFor(ModListEntry entry)
+    {
+        if (entry.IsAddon) return null;
+
+        if (entry.ModId is { } id && id > 0 && AppServices.ModCache.AllMods.FirstOrDefault(m => m.Id == id) is { } listing)
+            return AppServices.Browse.InstalledMatchFor(listing);
+
+        return string.IsNullOrWhiteSpace(entry.Guid)
+            ? null
+            : AppServices.Browse.InstalledMatchFor(new Mod { Id = 0, Guid = entry.Guid });
+    }
+
+    /// <summary>After the installed index changes (an install, a removal, a rescan): each row's
+    /// mark again, leaving the rows - and any unsaved edits to them - as they are.</summary>
+    public void RefreshInstalled()
+    {
+        for (var i = 0; i < Entries.Count; i++)
+        {
+            var installed = InstalledFor(Entries[i].Entry);
+            if (!ReferenceEquals(installed, Entries[i].Installed)) Entries[i] = Entries[i] with { Installed = installed };
+        }
     }
 
     //

@@ -402,6 +402,16 @@
                                                     Background="{StaticResource SteamPreviewBackground}"
                                                     ClipToBounds="True">
                                                     <Image Stretch="UniformToFill" behaviors:ThumbnailLoader.DecodeWidth="205" behaviors:ThumbnailLoader.Source="{Binding Thumbnail}" />
+                                                    <Border
+                                                        Margin="6"
+                                                        Padding="4,3"
+                                                        HorizontalAlignment="Left"
+                                                        VerticalAlignment="Top"
+                                                        Background="#CC000000"
+                                                        CornerRadius="2"
+                                                        Visibility="{Binding IsInstalled, Converter={StaticResource TrueToVisible}}">
+                                                        <ui:SymbolIcon FontSize="16" Symbol="{Binding StatusGlyph}" Style="{StaticResource StatusIcon}" ToolTip="{Binding StatusTooltip}" />
+                                                    </Border>
                                                 </Grid>
                                                 <Grid Height="62">
                                                     <StackPanel Margin="8,6,8,0">
@@ -525,6 +535,17 @@
                                             </Grid.ColumnDefinitions>
                                             <Grid Grid.Column="0" Width="100" Height="100" Margin="7" Background="{StaticResource SteamPreviewBackground}" ClipToBounds="True">
                                                 <Image Stretch="UniformToFill" behaviors:ThumbnailLoader.Source="{Binding Thumbnail}" />
+                                                <!-- Installed / update / disabled, as on Browse's cards. -->
+                                                <Border
+                                                    Margin="4"
+                                                    Padding="3,2"
+                                                    HorizontalAlignment="Left"
+                                                    VerticalAlignment="Top"
+                                                    Background="#CC000000"
+                                                    CornerRadius="2"
+                                                    Visibility="{Binding IsInstalled, Converter={StaticResource TrueToVisible}}">
+                                                    <ui:SymbolIcon FontSize="15" Symbol="{Binding StatusGlyph}" Style="{StaticResource StatusIcon}" ToolTip="{Binding StatusTooltip}" />
+                                                </Border>
                                             </Grid>
                                             <StackPanel Grid.Column="1" Margin="4,8,0,0">
                                                 <TextBlock FontSize="19" Foreground="{StaticResource SteamWhite}" TextTrimming="CharacterEllipsis" Text="{Binding Name}" />

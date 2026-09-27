@@ -685,7 +685,8 @@ opening Your collections) can each be switched off; both pages stay under Worksh
 picture of your own can take the place of the Steam grid behind the whole window, with a slider
 to darken it and Use the Steam grid to go back. The picture is copied into Data\Background, so
 moving or deleting the original changes nothing. The Workshop pages over the page area (item,
-collection, author) keep Steam's solid #1B2838, as Steam's own pages do.
+author) keep Steam's solid #1B2838, as Steam's own pages do; a collection's page shows the grid
+since round 17.
 
 ## Thirteenth round: a collection's Quick View, Favorites, Update all, addons (2026-09-26)
 
@@ -882,6 +883,20 @@ with no window alone (the console it gets is never shown, so there is nothing to
 checkable here. SPT's own code only checks whether its output is redirected and reads a key on
 failure (both handled); a server mod that draws on the console itself (cursor, window size) may
 fail without a window - none of yours do.
+
+## Seventeenth round: what you already have, at a glance (2026-09-26)
+
+**Home.** The From Followed Authors cards and the rows under Top Rated, Most Subscribed, Last
+Updated and New carry the same subscribed badge as Browse and the Mods row (a green check, or the
+warning or update mark), top left of the picture.
+
+**Your collections.** Each mod on a saved list shows the same mark before its name when it is
+subscribed, matched by sp-mod.com id or by GUID, with the status as its tooltip. Addons are not
+marked. The marks follow installs and removals while the page is open.
+
+**A collection's page** now shows the window's grid (or your own picture) instead of the solid
+#1B2838, like Home and Browse. The page it was opened over is hidden while it is up and comes back
+as it was. Item and author pages keep Steam's solid background.
 
 ## Values that could not be measured (marked HUNCH in the source)
 

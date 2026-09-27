@@ -30,10 +30,21 @@ public partial class ModListsPage : Page
         // ModListsViewModel.Request - or may send it while it is showing.
         ModListsViewModel.Requested -= OnRequested;
         ModListsViewModel.Requested += OnRequested;
+
+        // Installs and removals change which entries are marked installed.
+        AppServices.Browse.InstalledIndexChanged -= OnInstalledIndexChanged;
+        AppServices.Browse.InstalledIndexChanged += OnInstalledIndexChanged;
+
         await ViewModel.HandleRequestAsync();
     }
 
-    private void ModListsPage_Unloaded(object sender, RoutedEventArgs e) => ModListsViewModel.Requested -= OnRequested;
+    private void ModListsPage_Unloaded(object sender, RoutedEventArgs e)
+    {
+        ModListsViewModel.Requested -= OnRequested;
+        AppServices.Browse.InstalledIndexChanged -= OnInstalledIndexChanged;
+    }
+
+    private void OnInstalledIndexChanged(object? sender, EventArgs e) => Dispatcher.Invoke(ViewModel.RefreshInstalled);
 
     private async void OnRequested(object? sender, EventArgs e) => await ViewModel.HandleRequestAsync();
 

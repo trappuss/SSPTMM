@@ -195,7 +195,9 @@
         </Style>
     </UserControl.Resources>
 
-    <Border Background="{StaticResource SteamLegacyBackground}">
+    <!-- Transparent: the Workshop's grid (or your own picture, Options) behind the window shows
+         through, as on Browse and Home. MainWindow hides the page this was opened over meanwhile. -->
+    <Border Background="Transparent">
         <ScrollViewer x:Name="Scroll" FocusVisualStyle="{x:Null}" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
             <StackPanel MaxWidth="950" Margin="24,20,24,40">
 

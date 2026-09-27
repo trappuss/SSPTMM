@@ -691,6 +691,16 @@
                                                 VerticalAlignment="Center"
                                                 Margin="0,0,12,0">
                                                 <DockPanel>
+                                                    <!-- Installed here, and how: Browse's mark. -->
+                                                    <ui:SymbolIcon
+                                                        DockPanel.Dock="Left"
+                                                        FontSize="15"
+                                                        Margin="0,1,6,0"
+                                                        VerticalAlignment="Top"
+                                                        Symbol="{Binding StatusGlyph}"
+                                                        Style="{StaticResource StatusIcon}"
+                                                        ToolTip="{Binding StatusTooltip}"
+                                                        Visibility="{Binding IsInstalled, Converter={StaticResource BoolToVis}}" />
                                                     <ui:SymbolIcon
                                                         DockPanel.Dock="Left"
                                                         Symbol="Pin24"
