@@ -43,6 +43,9 @@ public partial class MainWindow : FluentWindow
             ItemPage.Close();
         };
 
+        // A menu that stays open by itself would float over other windows once this one is left.
+        Deactivated += (_, _) => CloseHubMenus();
+
         // F1 is the title bar's "?" (Help R8). Preview, so a focused text box doesn't get it first.
         PreviewKeyDown += (_, e) =>
         {
@@ -275,9 +278,16 @@ public partial class MainWindow : FluentWindow
         ModalDim.Visibility = _modalDims > 0 ? Visibility.Visible : Visibility.Collapsed;
     }
 
+    // The pages under each hub menu tab. The tab is lit while any of them is on screen.
+    private static readonly Type[] ToolsPages =
+        [typeof(ConfigsPage), typeof(DependenciesPage), typeof(FootprintPage), typeof(ServerMapPage)];
+
+    private static readonly Type[] HelpPages = [typeof(HelpPage), typeof(AppUpdatePage)];
+
     // Lights the hub tab for the page on screen - the Workshop tab for every Workshop page but
-    // Subscribed items, which has a tab of its own - and
-    // shows the Workshop strip over the two Workshop pages that have no banner of their own.
+    // Subscribed items and Collections while they have tabs of their own, Tools and Help for the
+    // pages in their menus, the gear for Options - and shows the Workshop strip over the Workshop
+    // pages that have no banner of their own. Downloads lights nothing: it is the bar at the bottom.
     private void SyncHeader(Type pageType)
     {
         // A page with a tab of its own lights that tab; every other Workshop page lights Workshop -
@@ -288,10 +298,14 @@ public partial class MainWindow : FluentWindow
 
         foreach (var tab in HubTabs.Children.OfType<ToggleButton>())
         {
-            var target = tab.Tag as Type;
+            if (tab.Tag is not Type target) continue;
             tab.IsChecked = target == pageType
                 || (target == typeof(WorkshopHomePage) && AppNavigation.IsWorkshopPage(pageType) && !ownTab);
         }
+
+        ToolsTab.IsChecked = ToolsPages.Contains(pageType);
+        HelpTab.IsChecked = HelpPages.Contains(pageType);
+        OptionsGear.IsChecked = pageType == typeof(OptionsPage);
 
         _stripWanted = pageType == typeof(InstalledPage) || pageType == typeof(ModListsPage)
             || pageType == typeof(FollowedAuthorsPage) || pageType == typeof(FavoriteCollectionsPage);
@@ -319,6 +333,73 @@ public partial class MainWindow : FluentWindow
 
         // The click has already flipped this tab; put every tab back to what the page says.
         if (AppNavigation.Current is { } current) SyncHeader(current);
+    }
+
+    // ------------------------------------------------------------------ the Tools and Help menus
+
+    // How long the pointer can be off both a tab and its menu before the menu closes - the
+    // Workshop strip's own delay, so every menu in the window behaves alike.
+    private static readonly TimeSpan HubMenuCloseDelay = TimeSpan.FromMilliseconds(250);
+
+    private System.Windows.Threading.DispatcherTimer? _hubMenuTimer;
+
+    private (Popup Popup, ToggleButton Tab, FrameworkElement Panel)[] HubMenus =>
+    [
+        (ToolsPopup, ToolsTab, ToolsPanel),
+        (HelpPopup, HelpTab, HelpPanel),
+    ];
+
+    // Under the pointer, a tab's menu opens - and the other closes.
+    private void HubMenu_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
+    {
+        _hubMenuTimer?.Stop();
+        foreach (var (popup, tab, _) in HubMenus) popup.IsOpen = ReferenceEquals(tab, sender);
+    }
+
+    private void HubMenu_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
+    {
+        if (_hubMenuTimer is null)
+        {
+            _hubMenuTimer = new System.Windows.Threading.DispatcherTimer(System.Windows.Threading.DispatcherPriority.Input)
+            {
+                Interval = HubMenuCloseDelay,
+            };
+            _hubMenuTimer.Tick += (_, _) =>
+            {
+                _hubMenuTimer.Stop();
+                foreach (var (popup, tab, panel) in HubMenus)
+                {
+                    if (popup.IsOpen && !tab.IsMouseOver && !panel.IsMouseOver) popup.IsOpen = false;
+                }
+            };
+        }
+
+        _hubMenuTimer.Start();
+    }
+
+    // A click on the tab itself opens its menu too (for a touch screen, or a pointer that came in
+    // from the side); it goes nowhere by itself, as Steam's Your Items does not.
+    private void HubMenuTab_Click(object sender, RoutedEventArgs e)
+    {
+        foreach (var (popup, tab, _) in HubMenus) popup.IsOpen = ReferenceEquals(tab, sender);
+        if (AppNavigation.Current is { } current) SyncHeader(current);
+    }
+
+    private void HubMenuEntry_Click(object sender, RoutedEventArgs e)
+    {
+        CloseHubMenus();
+        if (sender is FrameworkElement { Tag: Type pageType }) AppNavigation.Navigate(pageType);
+    }
+
+    private void HubMenu_Closed(object? sender, EventArgs e)
+    {
+        if (AppNavigation.Current is { } current) SyncHeader(current);
+    }
+
+    private void CloseHubMenus()
+    {
+        _hubMenuTimer?.Stop();
+        foreach (var (popup, _, _) in HubMenus) popup.IsOpen = false;
     }
 
     // Steam's "Store Page" button, pointed at the catalog this app browses.

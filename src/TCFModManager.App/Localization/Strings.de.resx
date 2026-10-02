@@ -4984,9 +4984,6 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   <data name="Help_Configs_Edit_Title" xml:space="preserve">
     <value>Die Einstellungen eines Mods ändern</value>
   </data>
-  <data name="Help_Configs_Edit_Step1" xml:space="preserve">
-    <value>Öffne {0} und wähle die Datei des Mods aus der Liste - das Suchfeld findet sie über den Mod- oder Dateinamen.</value>
-  </data>
   <data name="Help_Configs_Edit_Step2" xml:space="preserve">
     <value>Bearbeite den Text rechts.</value>
   </data>
@@ -5035,9 +5032,6 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   <data name="Help_Dependencies_Check_Title" xml:space="preserve">
     <value>Prüfen, ob jeder Mod hat, was er braucht</value>
   </data>
-  <data name="Help_Dependencies_Check_Step1" xml:space="preserve">
-    <value>Öffne {0}. Unter den Konflikten listet {1} jeden installierten Mod, der andere Mods braucht, und ob jeder davon vorhanden ist.</value>
-  </data>
   <data name="Help_Dependencies_Check_Step2" xml:space="preserve">
     <value>Mods, denen etwas fehlt, stehen oben in dieser Liste und sind schon aufgeklappt. Klicke neben dem Fehlenden auf die Installieren-Schaltfläche.</value>
   </data>
@@ -5052,9 +5046,6 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   </data>
   <data name="Help_Footprint_Read_Title" xml:space="preserve">
     <value>Lesen, was die Seite Mod-Fußabdruck zeigt</value>
-  </data>
-  <data name="Help_Footprint_Read_Step1" xml:space="preserve">
-    <value>Öffne {0}. Jeder Mod zeigt, in welche Teile des Spiels seine Dateien reichen - Client, Server, Festplatte.</value>
   </data>
   <data name="Help_Footprint_Read_Step2" xml:space="preserve">
     <value>Nutze {0}, um die Mods, die am weitesten reichen, nach oben zu holen.</value>
@@ -5452,9 +5443,6 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   <data name="Help_Dependencies_Conflicts_Title" xml:space="preserve">
     <value>Mods finden, die sich in die Quere kommen</value>
   </data>
-  <data name="Help_Dependencies_Conflicts_Step1" xml:space="preserve">
-    <value>Öffne {0}. {1} ganz oben listet doppelt installierte Mods und Mods, die unterschiedliche Kopien derselben Datei mitbringen.</value>
-  </data>
   <data name="Help_Dependencies_Conflicts_Step2" xml:space="preserve">
     <value>Jeder Eintrag nennt seine Art. {0}: BepInEx lädt nur einen davon, und du kannst nicht wählen, welchen. {1}: SPT lädt keinen davon. {2}: Jeder Mod bekommt die Kopie, die zuerst geladen wird, also funktioniert einer davon vielleicht nicht wie gedacht.</value>
   </data>
@@ -5499,9 +5487,6 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   </data>
   <data name="Help_Problems_NotLoading_Title" xml:space="preserve">
     <value>Ein Mod lädt nicht</value>
-  </data>
-  <data name="Help_Problems_NotLoading_Step1" xml:space="preserve">
-    <value>Öffne {0}. Unter {1} ist ein doppelt installierter Mod oder zwei Mods mit kollidierenden Dateien der häufigste Grund.</value>
   </data>
   <data name="Help_Problems_NotLoading_Step2" xml:space="preserve">
     <value>Prüfe weiter unten unter {0}, ob er jeden Mod hat, den er braucht.</value>

@@ -254,7 +254,7 @@ internal static class HelpCatalog
         new("configs", () => Strings.Nav_Configs, SymbolRegular.EditSettings24, typeof(ConfigsPage),
         [
             Topic("configs.edit", () => Strings.Help_Configs_Edit_Title,
-                Step(() => Strings.Help_Configs_Edit_Step1, () => Strings.Nav_Configs),
+                Step(() => Strings.Help_Configs_Edit_Step1, () => Strings.Nav_Configs, () => Strings.Nav_Tools),
                 Step(() => Strings.Help_Configs_Edit_Step2),
                 Step(() => Strings.Help_Configs_Edit_Step3, () => Strings.Common_Save))
                 .WithNote(() => Strings.Help_Configs_Edit_Note, () => Strings.Configs_Revert)
@@ -287,7 +287,7 @@ internal static class HelpCatalog
         [
             Topic("dependencies.conflicts", () => Strings.Help_Dependencies_Conflicts_Title,
                 Step(() => Strings.Help_Dependencies_Conflicts_Step1,
-                    () => Strings.Nav_Dependencies, () => Strings.Conflicts_Header),
+                    () => Strings.Nav_Dependencies, () => Strings.Conflicts_Header, () => Strings.Nav_Tools),
                 Step(() => Strings.Help_Dependencies_Conflicts_Step2,
                     () => Strings.Conflicts_KindDuplicatePlugin, () => Strings.Conflicts_KindDuplicateServerMod,
                     () => Strings.Conflicts_KindDifferentCopies),
@@ -313,7 +313,7 @@ internal static class HelpCatalog
 
             Topic("dependencies.check", () => Strings.Help_Dependencies_Check_Title,
                 Step(() => Strings.Help_Dependencies_Check_Step1,
-                    () => Strings.Nav_Dependencies, () => Strings.Dependencies_Header),
+                    () => Strings.Nav_Dependencies, () => Strings.Dependencies_Header, () => Strings.Nav_Tools),
                 Step(() => Strings.Help_Dependencies_Check_Step2),
                 Step(() => Strings.Help_Dependencies_Check_Step3, () => Strings.Dependencies_Refresh))
                 .WithKeywords(() => Strings.Help_Dependencies_Check_Keywords),
@@ -325,12 +325,12 @@ internal static class HelpCatalog
                 Step(() => Strings.Help_Footprint_Enable_Step1,
                     () => Strings.Nav_Options, () => Strings.Options_SectionPages,
                     () => Strings.Options_FootprintHeader),
-                Step(() => Strings.Help_Footprint_Enable_Step2, () => Strings.Nav_Footprint))
+                Step(() => Strings.Help_Footprint_Enable_Step2, () => Strings.Nav_Footprint, () => Strings.Nav_Tools))
                 .WithKeywords(() => Strings.Help_Footprint_Enable_Keywords)
                 .WithPage(typeof(OptionsPage)),
 
             Topic("footprint.read", () => Strings.Help_Footprint_Read_Title,
-                Step(() => Strings.Help_Footprint_Read_Step1, () => Strings.Nav_Footprint),
+                Step(() => Strings.Help_Footprint_Read_Step1, () => Strings.Nav_Footprint, () => Strings.Nav_Tools),
                 Step(() => Strings.Help_Footprint_Read_Step2, () => Strings.Footprint_SortByLabel),
                 Step(() => Strings.Help_Footprint_Read_Step3))
                 .WithNote(() => Strings.Help_Footprint_Read_Note)
@@ -343,7 +343,7 @@ internal static class HelpCatalog
                 Step(() => Strings.Help_ServerMap_Enable_Step1,
                     () => Strings.Nav_Options, () => Strings.Options_SectionPages,
                     () => Strings.Options_ServerMapHeader),
-                Step(() => Strings.Help_ServerMap_Enable_Step2, () => Strings.Nav_ServerMap))
+                Step(() => Strings.Help_ServerMap_Enable_Step2, () => Strings.Nav_ServerMap, () => Strings.Nav_Tools))
                 .WithNote(() => Strings.Help_ServerMap_Enable_Note, () => Strings.Options_GetServerMapMod)
                 .WithKeywords(() => Strings.Help_ServerMap_Enable_Keywords)
                 .WithPage(typeof(OptionsPage)),
@@ -478,7 +478,7 @@ internal static class HelpCatalog
         [
             Topic("problems.notloading", () => Strings.Help_Problems_NotLoading_Title,
                 Step(() => Strings.Help_Problems_NotLoading_Step1,
-                    () => Strings.Nav_Dependencies, () => Strings.Conflicts_Header),
+                    () => Strings.Nav_Dependencies, () => Strings.Conflicts_Header, () => Strings.Nav_Tools),
                 Step(() => Strings.Help_Problems_NotLoading_Step2, () => Strings.Dependencies_Header),
                 Step(() => Strings.Help_Problems_NotLoading_Step3, () => Strings.Nav_Installed))
                 .WithNote(() => Strings.Help_Problems_NotLoading_Note, () => Strings.Nav_Browse)

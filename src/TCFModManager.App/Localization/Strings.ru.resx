@@ -5269,9 +5269,6 @@
   <data name="Help_Configs_Edit_Title" xml:space="preserve">
     <value>Изменить настройки мода</value>
   </data>
-  <data name="Help_Configs_Edit_Step1" xml:space="preserve">
-    <value>Откройте {0} и выберите файл мода в списке - поле поиска находит его по названию мода или файла.</value>
-  </data>
   <data name="Help_Configs_Edit_Step2" xml:space="preserve">
     <value>Отредактируйте текст справа.</value>
   </data>
@@ -5320,9 +5317,6 @@
   <data name="Help_Dependencies_Check_Title" xml:space="preserve">
     <value>Проверить, что у каждого мода есть всё нужное</value>
   </data>
-  <data name="Help_Dependencies_Check_Step1" xml:space="preserve">
-    <value>Откройте {0}. Под конфликтами раздел {1} перечисляет каждый установленный мод, которому нужны другие моды, и есть ли каждый из них.</value>
-  </data>
   <data name="Help_Dependencies_Check_Step2" xml:space="preserve">
     <value>Моды, которым чего-то не хватает, стоят вверху этого списка и уже раскрыты. Нажмите кнопку установки рядом с недостающим.</value>
   </data>
@@ -5337,9 +5331,6 @@
   </data>
   <data name="Help_Footprint_Read_Title" xml:space="preserve">
     <value>Понять, что показывает страница След модов</value>
-  </data>
-  <data name="Help_Footprint_Read_Step1" xml:space="preserve">
-    <value>Откройте {0}. Для каждого мода видно, каких частей игры касаются его файлы, - клиент, сервер, диск.</value>
   </data>
   <data name="Help_Footprint_Read_Step2" xml:space="preserve">
     <value>С помощью {0} поставьте первыми моды, которые затрагивают больше всего.</value>
@@ -5737,9 +5728,6 @@
   <data name="Help_Dependencies_Conflicts_Title" xml:space="preserve">
     <value>Найти моды, которые мешают друг другу</value>
   </data>
-  <data name="Help_Dependencies_Conflicts_Step1" xml:space="preserve">
-    <value>Откройте {0}. Раздел {1} вверху перечисляет моды, установленные дважды, и моды, которые приносят разные копии одного и того же файла.</value>
-  </data>
   <data name="Help_Dependencies_Conflicts_Step2" xml:space="preserve">
     <value>У каждого указан его вид. {0}: BepInEx загружает только один из них, и выбрать, какой, нельзя. {1}: SPT не загружает ни одного. {2}: каждый мод получает ту копию, что загрузилась первой, поэтому один из них может работать не так, как задумано.</value>
   </data>
@@ -5784,9 +5772,6 @@
   </data>
   <data name="Help_Problems_NotLoading_Title" xml:space="preserve">
     <value>Мод не загружается</value>
-  </data>
-  <data name="Help_Problems_NotLoading_Step1" xml:space="preserve">
-    <value>Откройте {0}. В разделе {1} самая частая причина - мод, установленный дважды, или два мода с конфликтующими файлами.</value>
   </data>
   <data name="Help_Problems_NotLoading_Step2" xml:space="preserve">
     <value>Ниже, в разделе {0}, проверьте, что у него есть все нужные моды.</value>

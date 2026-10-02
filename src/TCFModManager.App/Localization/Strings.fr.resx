@@ -4984,9 +4984,6 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
   <data name="Help_Configs_Edit_Title" xml:space="preserve">
     <value>Modifier les réglages d'un mod</value>
   </data>
-  <data name="Help_Configs_Edit_Step1" xml:space="preserve">
-    <value>Ouvrez {0} et choisissez le fichier du mod dans la liste - la zone de recherche le trouve par nom de mod ou de fichier.</value>
-  </data>
   <data name="Help_Configs_Edit_Step2" xml:space="preserve">
     <value>Modifiez le texte à droite.</value>
   </data>
@@ -5035,9 +5032,6 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
   <data name="Help_Dependencies_Check_Title" xml:space="preserve">
     <value>Vérifier que chaque mod a ce dont il a besoin</value>
   </data>
-  <data name="Help_Dependencies_Check_Step1" xml:space="preserve">
-    <value>Ouvrez {0}. Sous les conflits, {1} liste chaque mod installé qui a besoin d'autres mods, et si chacun est présent.</value>
-  </data>
   <data name="Help_Dependencies_Check_Step2" xml:space="preserve">
     <value>Les mods auxquels il manque quelque chose sont en haut de cette liste, déjà ouverts. Cliquez sur le bouton d'installation à côté de ce qui manque.</value>
   </data>
@@ -5052,9 +5046,6 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
   </data>
   <data name="Help_Footprint_Read_Title" xml:space="preserve">
     <value>Lire ce que montre la page Empreinte des mods</value>
-  </data>
-  <data name="Help_Footprint_Read_Step1" xml:space="preserve">
-    <value>Ouvrez {0}. Chaque mod montre les parties du jeu que ses fichiers touchent - le client, le serveur, le disque.</value>
   </data>
   <data name="Help_Footprint_Read_Step2" xml:space="preserve">
     <value>Utilisez {0} pour mettre en premier les mods qui vont le plus loin.</value>
@@ -5452,9 +5443,6 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
   <data name="Help_Dependencies_Conflicts_Title" xml:space="preserve">
     <value>Trouver les mods qui se gênent</value>
   </data>
-  <data name="Help_Dependencies_Conflicts_Step1" xml:space="preserve">
-    <value>Ouvrez {0}. {1}, tout en haut, liste les mods installés deux fois et les mods qui livrent des copies différentes d'un même fichier.</value>
-  </data>
   <data name="Help_Dependencies_Conflicts_Step2" xml:space="preserve">
     <value>Chacun indique son type. {0} : BepInEx n'en charge qu'un seul, et vous ne choisissez pas lequel. {1} : SPT n'en charge aucun. {2} : chaque mod reçoit la copie chargée en premier, donc l'un d'eux risque de ne pas fonctionner comme prévu.</value>
   </data>
@@ -5499,9 +5487,6 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
   </data>
   <data name="Help_Problems_NotLoading_Title" xml:space="preserve">
     <value>Un mod ne se charge pas</value>
-  </data>
-  <data name="Help_Problems_NotLoading_Step1" xml:space="preserve">
-    <value>Ouvrez {0}. Sous {1}, un mod installé deux fois, ou deux mods aux fichiers en conflit, est la raison la plus fréquente.</value>
   </data>
   <data name="Help_Problems_NotLoading_Step2" xml:space="preserve">
     <value>Plus bas, sous {0}, vérifiez qu'il a tous les mods dont il a besoin.</value>

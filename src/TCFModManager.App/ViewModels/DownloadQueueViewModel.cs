@@ -114,6 +114,23 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
 
     private const string NoValue = "\u2014";
 
+    // ---- the downloads bar along the bottom of the window (Views/DownloadsBar) -------------------
+
+    // "DOWNLOADING" / "INSTALLING" while the queue has work, "DOWNLOADS" otherwise.
+    [ObservableProperty]
+    private string _barTitle = Strings.Downloads_BarIdle;
+
+    // What is happening now - "SAIN 4.4.3 - 2 of 5 items complete" - or "Manage" when nothing is.
+    [ObservableProperty]
+    private string _barDetail = Strings.Downloads_BarManage;
+
+    // How far the whole queue is, 0 to 1: finished items count whole, the rest by their own progress.
+    [ObservableProperty]
+    private double _barFraction;
+
+    [ObservableProperty]
+    private bool _barActive;
+
     // Raised after an item finishes installing successfully. BrowseViewModel subscribes to refresh its cards' install/update status dots.
     public event EventHandler? ItemInstalled;
 
@@ -192,9 +209,36 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
     // estimate is deliberately built from what is known rather than extrapolated over what isn't -
     // it says how much is left to fetch, and only adds a time once a real rate has been observed.
     //
+    private void UpdateBar(List<DownloadQueueItemViewModel> unfinished)
+    {
+        if (unfinished.Count == 0)
+        {
+            BarActive = false;
+            BarTitle = Strings.Downloads_BarIdle;
+            BarDetail = Strings.Downloads_BarManage;
+            BarFraction = 0;
+            return;
+        }
+
+        // The one to name: an install in progress first (only one runs at a time), else the first
+        // download, else the next one waiting - in queue order.
+        var current = unfinished.FirstOrDefault(i => i.Status == DownloadQueueItemStatus.Installing)
+            ?? unfinished.FirstOrDefault(i => i.Status == DownloadQueueItemStatus.Downloading)
+            ?? unfinished[0];
+
+        var done = Items.Count - unfinished.Count;
+
+        BarActive = true;
+        BarTitle = current.Status == DownloadQueueItemStatus.Installing ? Strings.Downloads_BarInstalling : Strings.Downloads_BarDownloading;
+        BarDetail = Text(Strings.Downloads_BarDetailFormat, current.ModName, current.VersionLabel, done, Items.Count);
+        BarFraction = Items.Count == 0 ? 0 : (done + unfinished.Sum(i => Math.Clamp(i.Progress, 0, 1))) / Items.Count;
+    }
+
     private void UpdateSummary()
     {
         var unfinished = Items.Where(i => !i.IsFinished).ToList();
+
+        UpdateBar(unfinished);
 
         if (unfinished.Count == 0)
         {

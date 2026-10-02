@@ -2422,4 +2422,11 @@ internal static class Strings
     internal static string About_OriginalLink => LocalizationService.Get("About_OriginalLink");
     internal static string About_SourceLink => LocalizationService.Get("About_SourceLink");
     internal static string About_Updates => LocalizationService.Get("About_Updates");
+    internal static string Nav_Tools => LocalizationService.Get("Nav_Tools");
+    internal static string Downloads_BarIdle => LocalizationService.Get("Downloads_BarIdle");
+    internal static string Downloads_BarManage => LocalizationService.Get("Downloads_BarManage");
+    internal static string Downloads_BarDownloading => LocalizationService.Get("Downloads_BarDownloading");
+    internal static string Downloads_BarInstalling => LocalizationService.Get("Downloads_BarInstalling");
+    internal static string Downloads_BarDetailFormat => LocalizationService.Get("Downloads_BarDetailFormat");
+    internal static string Downloads_BarToolTip => LocalizationService.Get("Downloads_BarToolTip");
 }

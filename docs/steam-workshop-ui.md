@@ -1119,6 +1119,28 @@ had already written. The fork's rule is back, built on 1.19's own "keep the user
 - 1.19's tests that used a `.cfg` as "a file someone else put there" use a hand-placed plugin file
   instead; the new rule has its own tests (ForkBepInExConfigTests).
 
+## Round 25: fewer tabs - Steam's header and downloads bar (2026-10-02)
+
+The first of three tidy-ups (tabs, then the Subscribed items toolbar, then the explanation text).
+The row of eleven tabs is down to six, laid out the way Steam's client lays out its own:
+
+- **Play, Workshop, Subscribed items, Collections** stay tabs.
+- **Tools ▾** holds Configs, Dependencies and Conflicts, and - when switched on in Options - Mod
+  footprint and the Server map. **Help ▾** holds Help and About; the "newer version" badge shows on
+  the Help tab and on About. Both open the way the Workshop's Browse and Your Items menus do: on
+  pointing at them, closing a quarter-second after the pointer leaves, and also on a click. The
+  tab is underlined while any page in its menu is open.
+- **Options** is a gear beside the sp-mod.com button, blue while Options is open.
+- **Downloads** is no longer a tab. A bar runs along the bottom of the window as Steam's does:
+  "DOWNLOADS / Manage" when nothing is going on, and while something is, "DOWNLOADING" or
+  "INSTALLING" with the item, how many of the queue are done, and a progress bar. Clicking it opens
+  Downloads.
+- Help's steps that said "open the X tab" now say which menu, the gear, or the bar.
+
+Checked under Wine: each menu opens and its entries go to their pages; the gear lights on Options;
+a download-only of a mod showed the bar's progress line and then returned it to idle. Seven strings
+(Tools and six for the bar) are new and fall back to English, as do the reworded Help steps.
+
 ## Values that could not be measured (marked HUNCH in the source)
 
 - The smooth-scroll distance and time (100px, 250ms) - chosen to feel like a browser, not measured.
@@ -1138,6 +1160,9 @@ had already written. The fork's rule is back, built on 1.19's own "keep the user
 - A folder named by 7-Zip or WinRAR for a dragged-out archive is in the temp folder and deleted
   when the drop ends (known from how they work, not seen here).
 
+- The downloads bar (40px on `#171A21`, its text sizes and greys) and the Options gear (36px,
+  Steam's grey button colours): Steam draws both in its client, not on a web page, so they are
+  chosen to match the Workshop palette, not measured.
 - Critical/error red (`#E05A5A`): no error state on the pages measured.
 - Outlined "View All" hover fill.
 - Whether Steam's file sizes count in 1000s or 1024s ("22.946 KB" reads as 1000s).

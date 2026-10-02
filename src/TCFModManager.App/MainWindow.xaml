@@ -42,12 +42,14 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <!-- Steam's downloads bar along the bottom of the window. -->
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <!-- The grid background as a layer of its own, drawn once into a bitmap and reused: every
              frame of a scroll repaints what is behind the page, and a tiled drawing redrawn over the
              whole window each frame was a large part of what made scrolling stutter. -->
-        <Border Grid.RowSpan="5" Background="{StaticResource SteamWorkshopGrid}" IsHitTestVisible="False">
+        <Border Grid.RowSpan="6" Background="{StaticResource SteamWorkshopGrid}" IsHitTestVisible="False">
             <Border.CacheMode>
                 <BitmapCache />
             </Border.CacheMode>
@@ -56,7 +58,7 @@
         <!-- A picture of the user's own in place of the grid (Options > Tabs and background),
              darkened by the amount chosen there so the text over it stays readable. -->
         <Grid
-            Grid.RowSpan="5"
+            Grid.RowSpan="6"
             DataContext="{x:Static app:AppServices.Appearance}"
             IsHitTestVisible="False"
             Visibility="{Binding HasBackgroundImage, Converter={StaticResource BoolToVis}}">
@@ -167,6 +169,17 @@
                 </Grid.RowDefinitions>
 
                 <DockPanel Grid.Row="0">
+                    <!-- Options, as Steam's own settings are: a gear at the right, not a tab. Lit
+                         while Options is on screen (SyncHeader). -->
+                    <ToggleButton
+                        x:Name="OptionsGear"
+                        DockPanel.Dock="Right"
+                        Margin="8,0,0,0"
+                        VerticalAlignment="Center"
+                        Style="{StaticResource SteamHubGear}"
+                        Tag="{x:Type views:OptionsPage}"
+                        ToolTip="{loc:Str Nav_Options}"
+                        Click="HubTab_Click" />
                     <Button
                         DockPanel.Dock="Right"
                         VerticalAlignment="Center"
@@ -207,42 +220,66 @@
                         Visibility="{Binding ShowCollectionsTab, Converter={StaticResource BoolToVis}}">
                         <TextBlock Text="{loc:Str Nav_ModLists}" />
                     </ToggleButton>
-                    <ToggleButton Style="{StaticResource SteamHubTab}" Tag="{x:Type views:ConfigsPage}" Click="HubTab_Click">
-                        <TextBlock Text="{loc:Str Nav_Configs}" />
-                    </ToggleButton>
-                    <ToggleButton Style="{StaticResource SteamHubTab}" Tag="{x:Type views:DependenciesPage}" Click="HubTab_Click">
-                        <TextBlock Text="{loc:Str Nav_Dependencies}" />
-                    </ToggleButton>
-                    <!-- Hidden unless switched on in Options, as the sidebar item was - see FootprintGate. -->
+                    <!--
+                        Tools and Help: a tab each with a menu under it, opened by the pointer as
+                        the Workshop strip's Browse and Your Items are (see HubMenu_MouseEnter). A
+                        click on the tab opens it too. The tab is lit while any page in its menu is
+                        on screen.
+                    -->
                     <ToggleButton
+                        x:Name="ToolsTab"
                         Style="{StaticResource SteamHubTab}"
-                        Tag="{x:Type views:FootprintPage}"
-                        Click="HubTab_Click"
-                        DataContext="{x:Static app:AppServices.FootprintGate}"
-                        Visibility="{Binding IsPageEnabled, Converter={StaticResource BoolToVis}}">
-                        <TextBlock Text="{loc:Str Nav_Footprint}" />
-                    </ToggleButton>
-                    <!-- Hidden unless switched on in Options - see ServerMapGateViewModel. -->
-                    <ToggleButton
-                        Style="{StaticResource SteamHubTab}"
-                        Tag="{x:Type views:ServerMapPage}"
-                        Click="HubTab_Click"
-                        DataContext="{x:Static app:AppServices.ServerMap}"
-                        Visibility="{Binding IsPageEnabled, Converter={StaticResource BoolToVis}}">
-                        <TextBlock Text="{loc:Str Nav_ServerMap}" />
-                    </ToggleButton>
-                    <ToggleButton Style="{StaticResource SteamHubTab}" Tag="{x:Type views:DownloadsPage}" Click="HubTab_Click">
-                        <TextBlock Text="{loc:Str Nav_Downloads}" />
-                    </ToggleButton>
-                    <ToggleButton Style="{StaticResource SteamHubTab}" Tag="{x:Type views:OptionsPage}" Click="HubTab_Click">
-                        <TextBlock Text="{loc:Str Nav_Options}" />
-                    </ToggleButton>
-                    <!-- About: this app, its version and the app it is built on (the original's
-                         own-update page, which SSPTMM does not use). The dot only appears when the
-                         Server Map mod is behind (caution). -->
-                    <ToggleButton Style="{StaticResource SteamHubTab}" Tag="{x:Type views:AppUpdatePage}" Click="HubTab_Click">
+                        Click="HubMenuTab_Click"
+                        MouseEnter="HubMenu_MouseEnter"
+                        MouseLeave="HubMenu_MouseLeave">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{loc:Str Nav_About}" />
+                            <TextBlock Text="{loc:Str Nav_Tools}" />
+                            <Path Style="{StaticResource SteamDropTriangle}" />
+                        </StackPanel>
+                    </ToggleButton>
+                    <Popup
+                        x:Name="ToolsPopup"
+                        AllowsTransparency="True"
+                        HorizontalOffset="-10"
+                        Placement="Bottom"
+                        PlacementTarget="{Binding ElementName=ToolsTab}"
+                        StaysOpen="True"
+                        Closed="HubMenu_Closed">
+                        <Border x:Name="ToolsPanel" Background="Transparent" MouseLeave="HubMenu_MouseLeave">
+                            <Border Margin="10,0,10,10" MinWidth="220" Style="{StaticResource SteamYourItemsPanel}">
+                                <StackPanel>
+                                    <Button Style="{StaticResource SteamYourItemsEntry}" Content="{loc:Str Nav_Configs}" Tag="{x:Type views:ConfigsPage}" Click="HubMenuEntry_Click" />
+                                    <Button Style="{StaticResource SteamYourItemsEntry}" Content="{loc:Str Nav_Dependencies}" Tag="{x:Type views:DependenciesPage}" Click="HubMenuEntry_Click" />
+                                    <!-- Each only while switched on in Options - see FootprintGate and ServerMapGateViewModel. -->
+                                    <Button
+                                        Style="{StaticResource SteamYourItemsEntry}"
+                                        Content="{loc:Str Nav_Footprint}"
+                                        Tag="{x:Type views:FootprintPage}"
+                                        Click="HubMenuEntry_Click"
+                                        DataContext="{x:Static app:AppServices.FootprintGate}"
+                                        Visibility="{Binding IsPageEnabled, Converter={StaticResource BoolToVis}}" />
+                                    <Button
+                                        Style="{StaticResource SteamYourItemsEntry}"
+                                        Content="{loc:Str Nav_ServerMap}"
+                                        Tag="{x:Type views:ServerMapPage}"
+                                        Click="HubMenuEntry_Click"
+                                        DataContext="{x:Static app:AppServices.ServerMap}"
+                                        Visibility="{Binding IsPageEnabled, Converter={StaticResource BoolToVis}}" />
+                                </StackPanel>
+                            </Border>
+                        </Border>
+                    </Popup>
+
+                    <!-- The dot only appears when the Server Map mod is behind (caution) - on the tab,
+                         and beside About in its menu, where it is said. -->
+                    <ToggleButton
+                        x:Name="HelpTab"
+                        Style="{StaticResource SteamHubTab}"
+                        Click="HubMenuTab_Click"
+                        MouseEnter="HubMenu_MouseEnter"
+                        MouseLeave="HubMenu_MouseLeave">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{loc:Str Nav_Help}" />
                             <ui:InfoBadge
                                 Width="8"
                                 Height="8"
@@ -251,12 +288,36 @@
                                 DataContext="{x:Static app:AppServices.AppUpdate}"
                                 Severity="{Binding BadgeSeverity}"
                                 Visibility="{Binding ShowUpdateBadge, Converter={StaticResource BoolToVis}}" />
+                            <Path Style="{StaticResource SteamDropTriangle}" />
                         </StackPanel>
                     </ToggleButton>
-                    <!-- 1.19's Help, also behind the "?" in the title bar and F1. -->
-                    <ToggleButton Style="{StaticResource SteamHubTab}" Tag="{x:Type views:HelpPage}" Click="HubTab_Click">
-                        <TextBlock Text="{loc:Str Nav_Help}" />
-                    </ToggleButton>
+                    <Popup
+                        x:Name="HelpPopup"
+                        AllowsTransparency="True"
+                        HorizontalOffset="-10"
+                        Placement="Bottom"
+                        PlacementTarget="{Binding ElementName=HelpTab}"
+                        StaysOpen="True"
+                        Closed="HubMenu_Closed">
+                        <Border x:Name="HelpPanel" Background="Transparent" MouseLeave="HubMenu_MouseLeave">
+                            <Border Margin="10,0,10,10" MinWidth="180" Style="{StaticResource SteamYourItemsPanel}">
+                                <StackPanel>
+                                    <Button Style="{StaticResource SteamYourItemsEntry}" Content="{loc:Str Nav_Help}" Tag="{x:Type views:HelpPage}" Click="HubMenuEntry_Click" />
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button Margin="0" Style="{StaticResource SteamYourItemsEntry}" Content="{loc:Str Nav_About}" Tag="{x:Type views:AppUpdatePage}" Click="HubMenuEntry_Click" />
+                                        <ui:InfoBadge
+                                            Width="8"
+                                            Height="8"
+                                            Margin="8,0,0,0"
+                                            VerticalAlignment="Center"
+                                            DataContext="{x:Static app:AppServices.AppUpdate}"
+                                            Severity="{Binding BadgeSeverity}"
+                                            Visibility="{Binding ShowUpdateBadge, Converter={StaticResource BoolToVis}}" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </Border>
+                    </Popup>
                 </StackPanel>
             </Grid>
         </Grid>
@@ -317,6 +378,9 @@
             </ui:NavigationView.FooterMenuItems>
         </ui:NavigationView>
 
+        <!-- Steam's downloads bar: what is downloading or installing now, and a way to Downloads. -->
+        <views:DownloadsBar Grid.Row="5" />
+
         <!-- The Workshop item page, over the page area and under the hub header - on Steam an item
              page keeps the app hub's tabs above it. Collapsed until a mod is opened. -->
         <!-- A collection's Workshop page, the same way. One of these three is on screen at a time -
@@ -345,7 +409,7 @@
              behind it, which a translucent black does correctly in either theme. -->
         <Border
             Grid.Row="0"
-            Grid.RowSpan="5"
+            Grid.RowSpan="6"
             Background="#AA000000"
             DataContext="{x:Static app:AppServices.ModCache}"
             Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}">
@@ -401,7 +465,7 @@
         <ContentPresenter
             x:Name="RootContentDialogPresenter"
             Grid.Row="0"
-            Grid.RowSpan="5" />
+            Grid.RowSpan="6" />
 
         <!-- Full-size pictures and videos, over everything but the title bar - the update dialog
              too, since a picture in the changelog it shows opens here. -->
@@ -412,7 +476,7 @@
         <Border
             x:Name="ModalDim"
             Grid.Row="0"
-            Grid.RowSpan="5"
+            Grid.RowSpan="6"
             Background="#CC000000"
             Visibility="Collapsed" />
     </Grid>

@@ -7509,7 +7509,7 @@ Install the file as it is anyway?</value>
     <comment>How-to title. Titles are phrased as what the reader wants to do.</comment>
   </data>
   <data name="Help_Start_Setup_Step1" xml:space="preserve">
-    <value>Open {0} in the tabs at the top.</value>
+    <value>Open {0} - the gear at the top right.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_Start_Setup_Step2" xml:space="preserve">
@@ -7901,7 +7901,7 @@ Install the file as it is anyway?</value>
     <comment>How-to title.</comment>
   </data>
   <data name="Help_Configs_Edit_Step1" xml:space="preserve">
-    <value>Open {0} and pick the mod's file from the list - the search box finds it by mod or file name.</value>
+    <value>Open {0} from the {1} menu at the top and pick the mod's file from the list - the search box finds it by mod or file name.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_Configs_Edit_Step2" xml:space="preserve">
@@ -7966,7 +7966,7 @@ Install the file as it is anyway?</value>
     <comment>How-to title.</comment>
   </data>
   <data name="Help_Dependencies_Check_Step1" xml:space="preserve">
-    <value>Open {0}. Below the conflicts, {1} lists every installed mod that needs other mods, and whether each one is there.</value>
+    <value>Open {0} from the {2} menu at the top. Below the conflicts, {1} lists every installed mod that needs other mods, and whether each one is there.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_Dependencies_Check_Step2" xml:space="preserve">
@@ -7985,7 +7985,7 @@ Install the file as it is anyway?</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_Footprint_Enable_Step2" xml:space="preserve">
-    <value>{0} appears in the tabs at the top.</value>
+    <value>{0} appears in the {1} menu at the top.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_Footprint_Read_Title" xml:space="preserve">
@@ -7993,7 +7993,7 @@ Install the file as it is anyway?</value>
     <comment>How-to title. 'Mod footprint' is the page name, Nav_Footprint.</comment>
   </data>
   <data name="Help_Footprint_Read_Step1" xml:space="preserve">
-    <value>Open {0}. Each mod shows which parts of the game its files reach into - the client, the server, the disk.</value>
+    <value>Open {0} from the {1} menu at the top. Each mod shows which parts of the game its files reach into - the client, the server, the disk.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_Footprint_Read_Step2" xml:space="preserve">
@@ -8015,7 +8015,7 @@ Install the file as it is anyway?</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_ServerMap_Enable_Step2" xml:space="preserve">
-    <value>{0} appears in the tabs at the top.</value>
+    <value>{0} appears in the {1} menu at the top.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_ServerMap_Enable_Note" xml:space="preserve">
@@ -8069,7 +8069,7 @@ Install the file as it is anyway?</value>
     <comment>How-to title.</comment>
   </data>
   <data name="Help_Downloads_Watch_Step1" xml:space="preserve">
-    <value>Open {0}. Each mod shows its progress and the time left. Up to three download at once, and they install one at a time, in the order you queued them.</value>
+    <value>Open {0} - the bar along the bottom of the window. Each mod shows its progress and the time left. Up to three download at once, and they install one at a time, in the order you queued them.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_Downloads_Watch_Step2" xml:space="preserve">
@@ -8222,7 +8222,7 @@ Install the file as it is anyway?</value>
     <comment>Shown instead of the key without _Monitor while Monitor mode (download only) is on.</comment>
   </data>
   <data name="Help_Downloads_Watch_Step1_Monitor" xml:space="preserve">
-    <value>Open {0}. Each mod shows its progress and the time left, and up to three download at once.</value>
+    <value>Open {0} - the bar along the bottom of the window. Each mod shows its progress and the time left, and up to three download at once.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it. Shown instead of the key without _Monitor while Monitor mode (download only) is on.</comment>
   </data>
   <data name="Help_Downloads_Watch_Note_Monitor" xml:space="preserve">
@@ -8552,7 +8552,7 @@ Install the file as it is anyway?</value>
     <value>Find mods that clash</value>
   </data>
   <data name="Help_Dependencies_Conflicts_Step1" xml:space="preserve">
-    <value>Open {0}. {1} at the top lists mods installed twice, and mods that ship different copies of the same file.</value>
+    <value>Open {0} from the {2} menu at the top. {1} at the top lists mods installed twice, and mods that ship different copies of the same file.</value>
   </data>
   <data name="Help_Dependencies_Conflicts_Step2" xml:space="preserve">
     <value>Each one says which kind it is. {0}: BepInEx loads only one of them, and you don't get to choose which. {1}: SPT loads none of them. {2}: every mod gets whichever copy loads first, so one of them may not work as intended.</value>
@@ -8603,7 +8603,7 @@ Install the file as it is anyway?</value>
     <value>A mod doesn't load</value>
   </data>
   <data name="Help_Problems_NotLoading_Step1" xml:space="preserve">
-    <value>Open {0}. Under {1}, a mod installed twice, or two mods with clashing files, is the most common reason.</value>
+    <value>Open {0} from the {2} menu at the top. Under {1}, a mod installed twice, or two mods with clashing files, is the most common reason.</value>
   </data>
   <data name="Help_Problems_NotLoading_Step2" xml:space="preserve">
     <value>Further down, under {0}, check it has every mod it needs.</value>
@@ -9059,5 +9059,33 @@ See Dependencies and Conflicts.</value>
   <data name="About_Updates" xml:space="preserve">
     <value>This app doesn't update itself. New versions come from its GitHub repository.</value>
     <comment>About page, under the version.</comment>
+  </data>
+  <data name="Nav_Tools" xml:space="preserve">
+    <value>Tools</value>
+    <comment>Hub tab with a menu: Configs, Dependencies and Conflicts, and the optional pages.</comment>
+  </data>
+  <data name="Downloads_BarIdle" xml:space="preserve">
+    <value>DOWNLOADS</value>
+    <comment>Downloads bar along the bottom of the window, nothing queued. Steam's own word, in capitals as Steam shows it.</comment>
+  </data>
+  <data name="Downloads_BarManage" xml:space="preserve">
+    <value>Manage</value>
+    <comment>Downloads bar, nothing queued: opens the Downloads page.</comment>
+  </data>
+  <data name="Downloads_BarDownloading" xml:space="preserve">
+    <value>DOWNLOADING</value>
+    <comment>Downloads bar title while a mod downloads.</comment>
+  </data>
+  <data name="Downloads_BarInstalling" xml:space="preserve">
+    <value>INSTALLING</value>
+    <comment>Downloads bar title while a mod installs.</comment>
+  </data>
+  <data name="Downloads_BarDetailFormat" xml:space="preserve">
+    <value>{0} {1} - {2} of {3} items complete</value>
+    <comment>Downloads bar. {0} mod name, {1} version, {2} finished items, {3} all items in the queue.</comment>
+  </data>
+  <data name="Downloads_BarToolTip" xml:space="preserve">
+    <value>Open Downloads: every queued mod, its progress, and Retry or Cancel.</value>
+    <comment>Tooltip on the downloads bar.</comment>
   </data>
 </root>

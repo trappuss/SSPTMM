@@ -533,6 +533,39 @@
     </Style>
 
     <!--
+        The Options gear at the right of the hub header, beside "sp-mod.com": the same grey face as
+        Steam's grey buttons (#3D4450, #67707B under the pointer) at the blue button's 36px height,
+        square. Blue (#1A9FFF) while Options is the page on screen. HUNCH: Steam has no gear in this
+        spot - its settings live in the client's own menu - so the size and the lit state are this
+        app's choice, matched to the button beside it.
+    -->
+    <Style x:Key="SteamHubGear" TargetType="ToggleButton">
+        <Setter Property="Width" Value="36" />
+        <Setter Property="Height" Value="36" />
+        <Setter Property="Foreground" Value="{StaticResource SteamWhite}" />
+        <Setter Property="Background" Value="{StaticResource SteamGray}" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Border x:Name="Face" Background="{TemplateBinding Background}" CornerRadius="2">
+                        <ui:SymbolIcon FontSize="18" Foreground="{TemplateBinding Foreground}" Symbol="Settings24" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Face" Property="Background" Value="{StaticResource SteamGrayHover}" />
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Face" Property="Background" Value="{StaticResource SteamBlue}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--
         Workshop sub-navigation ("Home  Browse ▾  Your Items ▾  Discussions  About"): 15px white,
         0 10px padding, 47px strip, a 2px white bar under the current one.
     -->
