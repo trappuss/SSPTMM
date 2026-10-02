@@ -161,14 +161,19 @@ public sealed partial class ServerMapGateViewModel : LocalizedViewModel
     public bool HasKeyNotice => !string.IsNullOrWhiteSpace(KeyNotice);
 
     //
-    // ===================================================================================
-    // SET THIS: the Server Map server mod's page on sp-mod.com, published as an addon of
-    // TCF Mod Manager. Blank hides the button entirely, so a build that ships without it
-    // never shows a dead link - but the guide tells operators to get the mod from there,
-    // so it wants filling in before release.
-    // ===================================================================================
+    // The Server Map mod's page on sp-mod.com, an addon of TCF Mod Manager - the one for this
+    // machine's SPT line, since each line has its own. Blank hides the button; the ids live in Core
+    // so the App update page's check links the same page.
     //
-    public const string AddonPageUrl = "https://sp-mod.com/addon/126/tfc-server-mapper";
+    public string AddonPageUrl
+    {
+        get
+        {
+            var installPath = _settings.Load().SptInstallPath;
+            return ServerMapAddon.PageUrl(
+                ServerMapModVersions.LineFor(ServerMapModVersions.FindInstalled(installPath), installPath));
+        }
+    }
 
     public bool HasAddonPage => !string.IsNullOrWhiteSpace(AddonPageUrl);
 
@@ -180,11 +185,12 @@ public sealed partial class ServerMapGateViewModel : LocalizedViewModel
     // server once, and every player joining it needs nothing but this page switched on.
     //
     [RelayCommand(CanExecute = nameof(HasAddonPage))]
-    private static void OpenAddonPage()
+    private void OpenAddonPage()
     {
-        if (string.IsNullOrWhiteSpace(AddonPageUrl)) return;
+        var url = AddonPageUrl;
+        if (string.IsNullOrWhiteSpace(url)) return;
 
-        Process.Start(new ProcessStartInfo(AddonPageUrl) { UseShellExecute = true });
+        Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
     }
 
     public bool CanUseLocalKey =>
@@ -216,6 +222,7 @@ public sealed partial class ServerMapGateViewModel : LocalizedViewModel
     public void RefreshLocalKey(string? sptInstallPath = null)
     {
         LocalKey = ServerMapKeyFile.TryReadLocal(sptInstallPath ?? _settings.Load().SptInstallPath);
+        RefreshServerSettings(sptInstallPath ?? _settings.Load().SptInstallPath);
 
         if (LocalKey is null) return;
 
@@ -298,6 +305,9 @@ public sealed partial class ServerMapGateViewModel : LocalizedViewModel
         _settings.Save(settings);
 
         AppLog.Info("ServerMap", value ? "page shown" : "page hidden");
+
+        // Switched off means no requests to the server, reports included.
+        AppServices.ServerMapReporter.Start();
     }
 
     public bool IsConfigured => !string.IsNullOrWhiteSpace(HostInput);
@@ -461,6 +471,8 @@ public sealed partial class ServerMapGateViewModel : LocalizedViewModel
                 : $"{endpoint.Host}:{endpoint.Port} - {probe.Problem}");
 
             if (probe.Hello is { } hello) await SyncListAsync(client, endpoint, hello, cancellationToken: default);
+
+            await AfterConnectAsync();
         }
         finally
         {
@@ -671,5 +683,9 @@ public sealed partial class ServerMapGateViewModel : LocalizedViewModel
         _settings.Save(settings);
 
         PinnedThumbprint = thumbprint;
+
+        // Consent is keyed on the certificate, so a new one is a server that has not been asked.
+        AppServices.ServerMapReporter.Start();
+        NotifyReporting();
     }
 }

@@ -13,9 +13,8 @@
     </Page.Resources>
     <StackPanel Margin="24,16,24,16" DataContext="{x:Static app:AppServices.ServerMap}">
 
-        <!-- The server's own card, pinned at the top. Client cards will sit under it once the
-             registry routes exist; until then this page is honest about being one card, which is
-             better than an empty list implying nobody is connected. -->
+        <!-- The server's own card, pinned at the top. The machines that report to it are listed
+             further down. -->
         <ui:Card Padding="16" VerticalAlignment="Top">
             <StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
@@ -122,10 +121,49 @@
         </ui:Card>
 
         <!--
-            What this page cannot do yet, said outright.
+            The question D9 asks once per server: whether this machine may report to it. Put on the
+            page rather than in a dialog, because nothing waits on the answer - a machine that
+            never answers simply never reports.
+        -->
+        <ui:Card
+            Padding="16"
+            VerticalAlignment="Top"
+            Margin="0,16,0,0"
+            Visibility="{Binding AsksForConsent, Converter={StaticResource BoolToVisibility}}">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                    <ui:SymbolIcon
+                        Symbol="People24"
+                        VerticalAlignment="Center"
+                        Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                    <TextBlock
+                        Margin="8,0,0,0"
+                        VerticalAlignment="Center"
+                        FontWeight="SemiBold"
+                        Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                        Text="{loc:Str ServerMap_ConsentTitle}" />
+                </StackPanel>
+                <TextBlock
+                    TextWrapping="Wrap"
+                    Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                    Text="{Binding ConsentMessage}" />
+                <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                    <ui:Button
+                        Appearance="Primary"
+                        Content="{loc:Str ServerMap_ConsentAllow}"
+                        Command="{Binding AllowReportingCommand}" />
+                    <ui:Button
+                        Margin="8,0,0,0"
+                        Content="{loc:Str ServerMap_ConsentDecline}"
+                        Command="{Binding DeclineReportingCommand}" />
+                </StackPanel>
+            </StackPanel>
+        </ui:Card>
 
-            /hello and /list are the only routes the server serves. An empty client list here would
-            read as "nobody else is connected", which is a different and wrong statement.
+        <!--
+            Every machine that reports to this server, the host first. Only machines running TCF Mod
+            Manager can appear here - a player who installs mods by hand is invisible, which is why
+            the empty message says who shows up rather than implying nobody is connected.
         -->
         <ui:Card
             Padding="16"
@@ -133,15 +171,183 @@
             Margin="0,16,0,0"
             Visibility="{Binding IsConnected, Converter={StaticResource BoolToVisibility}}">
             <StackPanel>
-                <TextBlock
-                    Text="{loc:Str ServerMap_WhoElseHeader}"
-                    FontWeight="SemiBold"
-                    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                    Margin="0,0,0,4" />
+                <Grid Margin="0,0,0,4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <ui:SymbolIcon
+                            Symbol="PeopleTeam24"
+                            VerticalAlignment="Center"
+                            Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                        <TextBlock
+                            Margin="8,0,0,0"
+                            VerticalAlignment="Center"
+                            FontWeight="SemiBold"
+                            Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                            Text="{loc:Str ServerMap_MachinesHeader}" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <ProgressBar
+                            Width="60"
+                            Height="4"
+                            Margin="0,0,12,0"
+                            VerticalAlignment="Center"
+                            IsIndeterminate="True"
+                            Visibility="{Binding IsMapBusy, Converter={StaticResource BoolToVisibility}}" />
+                        <ui:Button
+                            Content="{loc:Str ServerMap_RefreshMap}"
+                            Icon="{ui:SymbolIcon ArrowSync24}"
+                            ToolTip="{loc:Str ServerMap_RefreshMapToolTip}"
+                            Command="{Binding RefreshMapNowCommand}" />
+                    </StackPanel>
+                </Grid>
+
                 <TextBlock
                     TextWrapping="Wrap"
+                    Margin="0,0,0,8"
                     Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                    Text="{loc:Str ServerMap_WhoElseEmpty}" />
+                    Text="{Binding ReportingStatus}" />
+
+                <TextBlock
+                    TextWrapping="Wrap"
+                    Margin="0,0,0,8"
+                    Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                    Visibility="{Binding HasMapMessage, Converter={StaticResource BoolToVisibility}}"
+                    Text="{Binding MapMessage}" />
+
+                <ItemsControl ItemsSource="{Binding Machines}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border
+                                Margin="0,8,0,0"
+                                Padding="12"
+                                CornerRadius="6"
+                                Background="{DynamicResource CardBackgroundFillColorSecondaryBrush}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <ui:SymbolIcon
+                                        FontSize="24"
+                                        Margin="0,2,12,0"
+                                        VerticalAlignment="Top"
+                                        Symbol="{Binding RoleGlyph}"
+                                        Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+
+                                    <StackPanel Grid.Column="1">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock
+                                                FontWeight="SemiBold"
+                                                Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                                Text="{Binding DisplayName}" />
+                                            <!-- Neutral, not the red of the list badges: those
+                                                 mark what is not just yours, and this is. -->
+                                            <Border
+                                                Margin="8,0,0,0"
+                                                Padding="8,3"
+                                                CornerRadius="4"
+                                                VerticalAlignment="Center"
+                                                Background="{DynamicResource ControlFillColorSecondaryBrush}"
+                                                Visibility="{Binding IsYou, Converter={StaticResource BoolToVisibility}}">
+                                                <TextBlock
+                                                    FontSize="11"
+                                                    VerticalAlignment="Center"
+                                                    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                                    Text="{loc:Str ServerMap_ThisMachine}" />
+                                            </Border>
+                                        </StackPanel>
+
+                                        <TextBlock
+                                            TextWrapping="Wrap"
+                                            Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                            Text="{Binding RolesText}" />
+
+                                        <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                            <ui:SymbolIcon
+                                                FontSize="16"
+                                                Symbol="{Binding StatusGlyph}"
+                                                Style="{StaticResource StatusIcon}"
+                                                VerticalAlignment="Top" />
+                                            <TextBlock
+                                                Margin="6,0,0,0"
+                                                TextWrapping="Wrap"
+                                                MaxWidth="640"
+                                                Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                                Text="{Binding StandingText}" />
+                                        </StackPanel>
+
+                                        <TextBlock
+                                            Margin="22,4,0,0"
+                                            TextWrapping="Wrap"
+                                            MaxWidth="640"
+                                            HorizontalAlignment="Left"
+                                            Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                            Visibility="{Binding HasExtras, Converter={StaticResource BoolToVisibility}}"
+                                            Text="{Binding ExtrasText}" />
+
+                                        <ui:Button
+                                            Margin="0,8,0,0"
+                                            HorizontalAlignment="Left"
+                                            Appearance="Primary"
+                                            Content="{loc:Str Common_ReviewAndInstall}"
+                                            Icon="{ui:SymbolIcon ArrowDownload24}"
+                                            ToolTip="{loc:Str Common_ReviewAndInstallToolTip}"
+                                            Command="{Binding ReviewCommand}"
+                                            Visibility="{Binding CanReview, Converter={StaticResource BoolToVisibility}}" />
+
+                                        <Expander
+                                            Margin="0,6,0,0"
+                                            Header="{Binding ModsHeader}"
+                                            Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                            Visibility="{Binding HasMods, Converter={StaticResource BoolToVisibility}}">
+                                            <ItemsControl Margin="22,4,0,0" ItemsSource="{Binding Mods}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Grid Margin="0,1">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="Auto" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBlock
+                                                                TextTrimming="CharacterEllipsis"
+                                                                Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                                                Text="{Binding Name}" />
+                                                            <TextBlock
+                                                                Grid.Column="1"
+                                                                Margin="12,0,0,0"
+                                                                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                                                Text="{Binding Detail}" />
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </Expander>
+                                    </StackPanel>
+
+                                    <StackPanel
+                                        Grid.Column="2"
+                                        Margin="12,0,0,0"
+                                        Orientation="Horizontal"
+                                        VerticalAlignment="Top">
+                                        <ui:SymbolIcon
+                                            FontSize="16"
+                                            Symbol="{Binding PresenceGlyph}"
+                                            Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                        <TextBlock
+                                            Margin="6,0,0,0"
+                                            Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                            Text="{Binding PresenceText}" />
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </StackPanel>
         </ui:Card>
 

@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
 using TCFModManager.App.Localization;
+using TCFModManager.App.Services;
 using TCFModManager.App.Views;
 using TCFModManager.Core.Models;
 using TCFModManager.Core.Services;
@@ -75,6 +76,155 @@ public partial class OptionsViewModel : LocalizedViewModel
     // The switch's own tooltip, and the install buttons' - one description of what the setting
     // currently means, shared rather than restated here.
     public ModPageGateViewModel ModPageGate => AppServices.ModPageGate;
+
+    //
+    // How long removed mods stay in the install's holding folder (R11, D27), and the button that
+    // clears it now. The label carries the size held, so the button says what it would free.
+    //
+    public IReadOnlyList<RemovedModsRetentionItem> RemovedModsRetentionOptions { get; } =
+    [
+        new(nameof(Strings.Options_RemovedModsDeleteStraightAway), RemovedModsRetention.DeleteStraightAway),
+        new(nameof(Strings.Options_RemovedModsOneDay), RemovedModsRetention.OneDay),
+        new(nameof(Strings.Options_RemovedModsSevenDays), RemovedModsRetention.SevenDays),
+        new(nameof(Strings.Options_RemovedModsFourteenDays), RemovedModsRetention.FourteenDays),
+        new(nameof(Strings.Options_RemovedModsThirtyDays), RemovedModsRetention.ThirtyDays),
+        new(nameof(Strings.Options_RemovedModsUntilCleared), RemovedModsRetention.UntilCleared),
+    ];
+
+    // The same words the dropdown uses, for the removal confirmation's "kept for 14 days".
+    public static string RetentionLabel(RemovedModsRetention value) => value switch
+    {
+        RemovedModsRetention.DeleteStraightAway => Strings.Options_RemovedModsDeleteStraightAway,
+        RemovedModsRetention.OneDay => Strings.Options_RemovedModsOneDay,
+        RemovedModsRetention.SevenDays => Strings.Options_RemovedModsSevenDays,
+        RemovedModsRetention.ThirtyDays => Strings.Options_RemovedModsThirtyDays,
+        RemovedModsRetention.UntilCleared => Strings.Options_RemovedModsUntilCleared,
+        _ => Strings.Options_RemovedModsFourteenDays,
+    };
+
+    [ObservableProperty]
+    private RemovedModsRetentionItem _selectedRemovedModsRetention;
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(ClearRemovedModsCommand))]
+    private long _removedModsBytes;
+
+    [ObservableProperty]
+    private string _removedModsStatus = string.Empty;
+
+    public string ClearRemovedModsLabel => RemovedModsBytes > 0
+        ? Text(Strings.Options_RemovedModsClearFormat, DownloadQueueItemViewModel.SizeLabel(RemovedModsBytes))
+        : Strings.Options_RemovedModsNothingToClear;
+
+    partial void OnRemovedModsBytesChanged(long value) => OnPropertyChanged(nameof(ClearRemovedModsLabel));
+
+    partial void OnSelectedRemovedModsRetentionChanged(RemovedModsRetentionItem value)
+    {
+        if (!_loaded) return;
+
+        var settings = _settings.Load();
+        settings.RemovedModsRetention = value.Value;
+        _settings.Save(settings);
+
+        AppLog.Info("Remove", $"keep removed mods set to {value.Value}");
+    }
+
+    // Also run each time the Options page opens: removals and Undo on the Installed page change it.
+    public void RefreshRemovedModsSize()
+    {
+        var installPath = AppServices.SptEnvironment.InstallPath;
+        RemovedModsBytes = string.IsNullOrWhiteSpace(installPath) ? 0 : RemovedMods.Size(installPath);
+    }
+
+    private bool CanClearRemovedMods() => RemovedModsBytes > 0;
+
+    // Deletes everything held for this install, after saying how much and that it ends every Undo.
+    [RelayCommand(CanExecute = nameof(CanClearRemovedMods))]
+    private void ClearRemovedMods()
+    {
+        var installPath = AppServices.SptEnvironment.InstallPath;
+        if (string.IsNullOrWhiteSpace(installPath)) return;
+
+        var size = DownloadQueueItemViewModel.SizeLabel(RemovedModsBytes);
+
+        var answer = MessageBox.Show(
+            Text(Strings.Options_RemovedModsClearConfirmFormat, size, installPath),
+            Strings.Options_RemovedModsClearTitle,
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Warning,
+            MessageBoxResult.No);
+
+        if (answer != MessageBoxResult.Yes) return;
+
+        RemovedMods.Clear(installPath);
+        RefreshRemovedModsSize();
+        RemovedModsStatus = Text(Strings.Options_RemovedModsClearedFormat, size);
+    }
+
+    //
+    // Monitor mode: what the install buttons do, and where a download-only save goes. The mode is
+    // applied and saved the moment it changes, and every install button re-reads it through
+    // ModPageGate.
+    //
+    public IReadOnlyList<InstallModeItem> InstallModeOptions { get; } =
+    [
+        new(nameof(Strings.Options_MonitorModeInstall), InstallMode.Install),
+        new(nameof(Strings.Options_MonitorModeDownloadOnly), InstallMode.DownloadOnly),
+    ];
+
+    [ObservableProperty]
+    private InstallModeItem _selectedInstallMode;
+
+    // What a scan does when it finds a downloaded mod installed (R2): ask, or just note it.
+    public IReadOnlyList<DownloadConfirmationItem> DownloadConfirmationOptions { get; } =
+    [
+        new(nameof(Strings.Options_MonitorConfirmAsk), DownloadConfirmation.Ask),
+        new(nameof(Strings.Options_MonitorConfirmQuiet), DownloadConfirmation.MarkQuietly),
+    ];
+
+    [ObservableProperty]
+    private DownloadConfirmationItem _selectedDownloadConfirmation;
+
+    // Whether a mod list's downloads go into a subfolder named after the list (§9).
+    [ObservableProperty]
+    private bool _downloadListSubfolders;
+
+    // Empty means the Windows Downloads folder, which the placeholder names.
+    [ObservableProperty]
+    private string _downloadFolderInput = string.Empty;
+
+    public string DownloadFolderPlaceholder =>
+        Text(Strings.Options_MonitorFolderPlaceholderFormat, DownloadFolders.Default());
+
+    //
+    // Update notifications (§8): a Windows notification when an installed mod has a new release,
+    // checked on a timer while the app runs. Both take effect the moment they change - switching it
+    // on starts the timer and takes the baseline, no restart.
+    //
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(CheckUpdatesNowCommand))]
+    private bool _updateNotificationsEnabled;
+
+    // Closing the window hides it to the tray instead (§8a). Greyed out while notifications are off,
+    // and ignored then too (D8) - see UpdateNotificationSettings.KeepsRunningInTray.
+    [ObservableProperty]
+    private bool _keepRunningInTray;
+
+    // What the last Check now came to, under the button. Empty until it has been pressed.
+    [ObservableProperty]
+    private string _updateCheckStatus = string.Empty;
+
+    public IReadOnlyList<UpdateIntervalItem> UpdateIntervalOptions { get; } =
+    [
+        new(nameof(Strings.Options_UpdateInterval30Minutes), UpdateCheckInterval.ThirtyMinutes),
+        new(nameof(Strings.Options_UpdateInterval1Hour), UpdateCheckInterval.OneHour),
+        new(nameof(Strings.Options_UpdateInterval3Hours), UpdateCheckInterval.ThreeHours),
+        new(nameof(Strings.Options_UpdateInterval6Hours), UpdateCheckInterval.SixHours),
+        new(nameof(Strings.Options_UpdateInterval12Hours), UpdateCheckInterval.TwelveHours),
+    ];
+
+    [ObservableProperty]
+    private UpdateIntervalItem _selectedUpdateInterval;
 
     // Whether the Mod footprint page is in the sidebar. Off by default - see AppSettings.
     [ObservableProperty]
@@ -275,6 +425,10 @@ public partial class OptionsViewModel : LocalizedViewModel
     [ObservableProperty]
     private string _installRoleDescription = string.Empty;
 
+    // The same answer in a few words, for the collapsed row.
+    [ObservableProperty]
+    private string _installRoleSummary = string.Empty;
+
     //
     // The Server Map section binds straight to the shared connection rather than mirroring it into
     // properties here. It is not a stored setting the way the two switches above are: connecting is
@@ -310,6 +464,24 @@ public partial class OptionsViewModel : LocalizedViewModel
         _showCollectionsTab = settings.ShowCollectionsTab;
         _backgroundDarkness = Math.Clamp(settings.BackgroundDarkness, 0, 0.9);
         _backgroundFileName = settings.BackgroundImage is { } picture ? System.IO.Path.GetFileName(picture) : null;
+
+        _selectedInstallMode = InstallModeOptions.FirstOrDefault(o => o.Value == settings.Monitor.InstallMode)
+            ?? InstallModeOptions[0];
+        _selectedRemovedModsRetention =
+            RemovedModsRetentionOptions.FirstOrDefault(o => o.Value == settings.RemovedModsRetention)
+            ?? RemovedModsRetentionOptions[3];
+        RefreshRemovedModsSize();
+        _downloadFolderInput = settings.Monitor.DownloadFolder ?? string.Empty;
+        _downloadListSubfolders = settings.Monitor.DownloadListSubfolders;
+        _selectedDownloadConfirmation =
+            DownloadConfirmationOptions.FirstOrDefault(o => o.Value == settings.Monitor.DownloadConfirmation)
+            ?? DownloadConfirmationOptions[0];
+
+        _updateNotificationsEnabled = settings.UpdateNotifications.Enabled;
+        _keepRunningInTray = settings.UpdateNotifications.KeepRunningInTray;
+        _selectedUpdateInterval =
+            UpdateIntervalOptions.FirstOrDefault(o => o.Value == settings.UpdateNotifications.Interval)
+            ?? UpdateIntervalOptions[1];
 
         _selectedWindowStartup = WindowStartupOptions.FirstOrDefault(o => o.Value == settings.Window.StartupMode)
             ?? WindowStartupOptions[0];
@@ -511,6 +683,129 @@ public partial class OptionsViewModel : LocalizedViewModel
 
         AppLog.Info("Footprint", value ? "page shown" : "page hidden");
     }
+
+    partial void OnSelectedInstallModeChanged(InstallModeItem value)
+    {
+        if (!_loaded) return;
+
+        var settings = _settings.Load();
+        settings.Monitor.InstallMode = value.Value;
+        _settings.Save(settings);
+
+        AppServices.ModPageGate.Refresh();
+
+        AppLog.Info("Monitor", $"install mode set to {value.Value}");
+    }
+
+    partial void OnDownloadListSubfoldersChanged(bool value)
+    {
+        if (!_loaded) return;
+
+        var settings = _settings.Load();
+        settings.Monitor.DownloadListSubfolders = value;
+        _settings.Save(settings);
+
+        AppLog.Info("Monitor", value ? "list downloads go into subfolders" : "list downloads go into the folder itself");
+    }
+
+    partial void OnSelectedDownloadConfirmationChanged(DownloadConfirmationItem value)
+    {
+        if (!_loaded) return;
+
+        var settings = _settings.Load();
+        settings.Monitor.DownloadConfirmation = value.Value;
+        _settings.Save(settings);
+
+        AppLog.Info("Monitor", $"download confirmation set to {value.Value}");
+    }
+
+    partial void OnUpdateNotificationsEnabledChanged(bool value)
+    {
+        if (!_loaded) return;
+
+        var settings = _settings.Load();
+        settings.UpdateNotifications.Enabled = value;
+        _settings.Save(settings);
+
+        AppLog.Info("Updates", value ? "notifications switched on" : "notifications switched off");
+
+        // Off keeps update_notifications.json, so switching back on doesn't announce the same
+        // versions again (§8). On takes a fresh baseline (D6).
+        if (value) AppServices.UpdateWatcher.SwitchedOn();
+        else AppServices.UpdateWatcher.Stop();
+    }
+
+    //
+    // Runs a check now rather than at the next tick. It counts like any other check - the first
+    // after switching on is the baseline - so it doubles as the quick way to try the feature out.
+    //
+    [RelayCommand(CanExecute = nameof(UpdateNotificationsEnabled))]
+    private async Task CheckUpdatesNowAsync()
+    {
+        UpdateCheckStatus = Strings.Options_UpdateCheckChecking;
+
+        var outcome = await AppServices.UpdateWatcher.CheckNowAsync();
+
+        var message = UpdateCheckWording.Describe(outcome);
+
+        UpdateCheckStatus = Text(Strings.Options_UpdateCheckTimeFormat, message, DateTime.Now);
+    }
+
+    partial void OnKeepRunningInTrayChanged(bool value)
+    {
+        if (!_loaded) return;
+
+        var settings = _settings.Load();
+        settings.UpdateNotifications.KeepRunningInTray = value;
+        _settings.Save(settings);
+
+        AppLog.Info("Tray", value ? "closing the window will hide it to the tray" : "closing the window will quit");
+    }
+
+    partial void OnSelectedUpdateIntervalChanged(UpdateIntervalItem value)
+    {
+        if (!_loaded) return;
+
+        var settings = _settings.Load();
+        settings.UpdateNotifications.Interval = value.Value;
+        _settings.Save(settings);
+
+        AppLog.Info("Updates", $"check interval set to {value.Value}");
+
+        // Restarts the timer on the new interval; does nothing while notifications are off.
+        AppServices.UpdateWatcher.Start();
+    }
+
+    //
+    // Saved as typed, on leaving the box. A folder that doesn't exist is not refused here: it may be
+    // a drive that isn't plugged in yet, and the download that needs it says so if it still isn't.
+    //
+    partial void OnDownloadFolderInputChanged(string value)
+    {
+        if (!_loaded) return;
+
+        var settings = _settings.Load();
+        settings.Monitor.DownloadFolder = string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+        _settings.Save(settings);
+
+        AppLog.Info("Monitor", $"download folder set to \"{settings.Monitor.DownloadFolder}\"");
+    }
+
+    [RelayCommand]
+    private void BrowseDownloadFolder()
+    {
+        var dialog = new OpenFolderDialog
+        {
+            Title = Strings.Options_MonitorFolderPickerTitle,
+            InitialDirectory = DownloadFolders.Resolve(DownloadFolderInput),
+        };
+
+        if (dialog.ShowDialog() == true) DownloadFolderInput = dialog.FolderName;
+    }
+
+    // Back to null rather than the resolved path, so a Downloads folder Windows later moves is followed.
+    [RelayCommand]
+    private void ResetDownloadFolder() => DownloadFolderInput = string.Empty;
 
     //
     // Deliberately blunt, and defaulting to No. The gate is the one thing standing between someone
@@ -743,6 +1038,15 @@ public partial class OptionsViewModel : LocalizedViewModel
         RefreshInstallRoleDescription();
     }
 
+    // The two role lines and the page-default lines are stored strings, so a language change has to
+    // compose them again rather than just re-raise them.
+    protected internal override void RefreshText()
+    {
+        RefreshInstallRoleDescription();
+        RefreshPageDefaultDescriptions(_settings.Load());
+        base.RefreshText();
+    }
+
     private void RefreshInstallRoleDescription()
     {
         InstallRoleDescription = (PlaysHere, RunsHeadlessClient) switch
@@ -751,6 +1055,14 @@ public partial class OptionsViewModel : LocalizedViewModel
             (true, true) => Strings.Options_RolePlaysAndHosts,
             (false, false) => Strings.Options_RoleNeither,
             _ => Strings.Options_RolePlayer,
+        };
+
+        InstallRoleSummary = (PlaysHere, RunsHeadlessClient) switch
+        {
+            (false, true) => Strings.Options_RoleSummaryHeadless,
+            (true, true) => Strings.Options_RoleSummaryPlaysAndHosts,
+            (false, false) => Strings.Options_RoleSummaryNeither,
+            _ => Strings.Options_RoleSummaryPlayer,
         };
     }
 

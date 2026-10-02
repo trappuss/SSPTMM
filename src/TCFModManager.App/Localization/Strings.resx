@@ -110,7 +110,7 @@
   </data>
   <data name="Common_PinnedToolTip" xml:space="preserve">
     <value>Pinned - no mod list you apply will set this mod aside</value>
-    <comment>On the pin icon. Four copies of this sentence across Browse and Installed's three views.</comment>
+    <comment>On the pin icon. Five copies: Browse, Installed's three views, and a Mod lists entry.</comment>
   </data>
   <data name="Common_DownloadsFormat" xml:space="preserve">
     <value>{0:N0} downloads</value>
@@ -175,7 +175,7 @@
     <comment>{0} is a version number.</comment>
   </data>
   <data name="Dependencies_Description" xml:space="preserve">
-    <value>Every installed mod that declares dependencies, and whether each one is satisfied. Mods needing attention are listed first and start expanded.</value>
+    <value>Mods installed twice or shipping clashing files, then every installed mod that declares dependencies and whether each one is satisfied. Problems are listed first.</value>
   </data>
   <data name="Dependencies_Empty" xml:space="preserve">
     <value>Nothing installed declares a dependency.</value>
@@ -557,9 +557,6 @@ A mod list records which mods to install and enable. Applying one downloads what
   <data name="ModLists_NoMatches" xml:space="preserve">
     <value>Nothing on this list matches. Everything is still here - widen the search or the scope filter to see it.</value>
   </data>
-  <data name="ModLists_EntryPinnedToolTip" xml:space="preserve">
-    <value>Pinned on this install - no list you apply will set it aside</value>
-  </data>
   <data name="ModLists_ScopeToolTip" xml:space="preserve">
     <value>Which machines this entry is for - the server, playing clients, a Fika headless client, or any combination of them. Capture works this out from where the mod's files live; change it for the exceptions, like a server mod nobody playing needs to install, or a HUD mod a headless client has no use for.</value>
   </data>
@@ -576,12 +573,8 @@ A mod list records which mods to install and enable. Applying one downloads what
     <value>SPT Install Folder</value>
   </data>
   <data name="Options_InstallFolderDescription" xml:space="preserve">
-    <value>Point this at your SPT server install folder (the one containing SPT.Server.exe). Once set, the installed SPT version is used to default the Browse version filter and to flag mods that aren't built for it.</value>
+    <value>Point this at your SPT game folder - the one with EscapeFromTarkov.exe in it, not the SPT server folder inside it. Once set, the installed SPT version is used to default the Browse version filter and to flag mods that aren't built for it.</value>
     <comment>SPT.Server.exe is a file name and stays as it is.</comment>
-  </data>
-  <data name="Options_BrowseEllipsis" xml:space="preserve">
-    <value>Browse...</value>
-    <comment>Button that opens a folder picker.</comment>
   </data>
   <data name="Options_MachineRoleHeader" xml:space="preserve">
     <value>What this machine is</value>
@@ -679,33 +672,14 @@ A mod list records which mods to install and enable. Applying one downloads what
     <value>Clear the Browse default</value>
     <comment>Browse is the page name, as in the sidebar.</comment>
   </data>
-  <data name="Options_ModPagesHeader" xml:space="preserve">
-    <value>Mod pages</value>
-  </data>
   <data name="Options_ModPagesDescription" xml:space="preserve">
     <value>Before anything downloads, this app asks you to open the mod's page - where its author puts install steps, requirements, known conflicts and warnings. Turn that off if you would rather go straight to installing. This app's own updates always ask, since that page is where its release notes are.</value>
-  </data>
-  <data name="Options_ModPagesSwitchOn" xml:space="preserve">
-    <value>Off - install without opening mod pages</value>
-    <comment>Label on the switch when it is ON. The switch turns the asking OFF, which is why the label reads the other way round.</comment>
-  </data>
-  <data name="Options_ModPagesSwitchOff" xml:space="preserve">
-    <value>On - open each mod's page first</value>
-    <comment>Label on the same switch when it is OFF, meaning the app still asks.</comment>
   </data>
   <data name="Options_FootprintHeader" xml:space="preserve">
     <value>Mod footprint page</value>
   </data>
   <data name="Options_FootprintDescription" xml:space="preserve">
     <value>Adds a page that reads the files each installed mod ships and describes how much of the game it is positioned to touch, and where any cost would land - client or server, CPU, GPU, memory or start-up. Nothing on it is timed or measured: what a mod actually costs you depends on your hardware, your settings and the other mods you run, none of which it can see. A heavy footprint means a mod reaches a long way into the game, which is usually why you installed it - it is a place to start looking, not a verdict. Off by default.</value>
-  </data>
-  <data name="Options_SidebarOn" xml:space="preserve">
-    <value>On - shown in the sidebar</value>
-    <comment>Label on a switch that adds a page to the sidebar. Used by both the Mod footprint and Server map switches.</comment>
-  </data>
-  <data name="Options_SidebarOff" xml:space="preserve">
-    <value>Off - hidden</value>
-    <comment>The same switch, off.</comment>
   </data>
   <data name="Options_ServerMapHeader" xml:space="preserve">
     <value>Server map</value>
@@ -1098,7 +1072,7 @@ A mod list records which mods to install and enable. Applying one downloads what
     <comment>Sidebar item. Mod configuration files.</comment>
   </data>
   <data name="Nav_Dependencies" xml:space="preserve">
-    <value>Dependencies</value>
+    <value>Dependencies and Conflicts</value>
     <comment>Sidebar item.</comment>
   </data>
   <data name="Nav_Footprint" xml:space="preserve">
@@ -1178,12 +1152,6 @@ A mod list records which mods to install and enable. Applying one downloads what
   </data>
   <data name="ServerMap_FetchAgainToolTip" xml:space="preserve">
     <value>Asks for the list again even if its revision hasn't moved - for when the copy you hold has been edited or deleted.</value>
-  </data>
-  <data name="ServerMap_WhoElseHeader" xml:space="preserve">
-    <value>Who else is on this map</value>
-  </data>
-  <data name="ServerMap_WhoElseEmpty" xml:space="preserve">
-    <value>Nothing yet. The server does not report the other machines connected to it, so this page can only show the server itself for now. Nobody's install is being sent anywhere, including yours. That arrives with a later version of the server mod, and asks before it reports anything about this machine.</value>
   </data>
   <data name="ReadModPage_Title" xml:space="preserve">
     <value>Read the mod page first</value>
@@ -2329,9 +2297,6 @@ That happens legitimately if the server was rebuilt or you're reaching it throug
   <data name="Sort_GroupDescending" xml:space="preserve">
     <value>By group (Z-A)</value>
   </data>
-  <data name="Sort_RecentlyInstalled" xml:space="preserve">
-    <value>Recently installed</value>
-  </data>
   <data name="Sort_GroupsManual" xml:space="preserve">
     <value>Manual order</value>
     <comment>Group order: whatever the user dragged them into.</comment>
@@ -2488,7 +2453,7 @@ That happens legitimately if the server was rebuilt or you're reaching it throug
     <comment>{0} is a mod name.</comment>
   </data>
   <data name="Installed_RemoveAppManagedBody" xml:space="preserve">
-    <value>This deletes exactly the files this app installed for it.</value>
+    <value>This removes exactly the files this app installed for it and puts back any file it replaced. Files that changed since it was installed, or that another mod also uses, are left where they are.</value>
     <comment>First paragraph of the Remove prompt for a mod this app installed.</comment>
   </data>
   <data name="Installed_RemoveNoFolderFormat" xml:space="preserve">
@@ -2496,7 +2461,7 @@ That happens legitimately if the server was rebuilt or you're reaching it throug
     <comment>{0} is a mod name.</comment>
   </data>
   <data name="Installed_RemoveLegacyBodyFormat" xml:space="preserve">
-    <value>This mod wasn't installed through this app, so this permanently deletes its whole folder rather than just the files it placed:
+    <value>This mod wasn't installed through this app, so its whole folder is removed rather than just the files it placed:
 
 {0}</value>
     <comment>{0} is one or more folder paths, one per line.</comment>
@@ -5639,14 +5604,6 @@ This was written to:
     <value>Start server on the Play page can open the SPT launcher for you as soon as the server is up (listening on its port).</value>
     <comment>Options card text.</comment>
   </data>
-  <data name="Options_LaunchSwitchOn" xml:space="preserve">
-    <value>Open the launcher once the server is up</value>
-    <comment>Options switch, on.</comment>
-  </data>
-  <data name="Options_LaunchSwitchOff" xml:space="preserve">
-    <value>Only start the server</value>
-    <comment>Options switch, off.</comment>
-  </data>
   <data name="Workshop_Follow" xml:space="preserve">
     <value>+ Follow</value>
     <comment>Steam's Follow button on an author, before following them.</comment>
@@ -5795,14 +5752,6 @@ This was written to:
     <value>Smooth scrolling glides the page to where each turn of the mouse wheel takes it, as a web browser does. Turned off, the page jumps there at once. Either way it moves the same distance.</value>
     <comment>Options card text.</comment>
   </data>
-  <data name="Options_ScrollingSwitchOn" xml:space="preserve">
-    <value>Smooth scrolling</value>
-    <comment>Options switch, on.</comment>
-  </data>
-  <data name="Options_ScrollingSwitchOff" xml:space="preserve">
-    <value>Jump straight there</value>
-    <comment>Options switch, off.</comment>
-  </data>
   <data name="Installed_UnsubscribeTitleFormat" xml:space="preserve">
     <value>Unsubscribe from {0}?</value>
     <comment>Title of the question before one item is removed. {0} is the mod.</comment>
@@ -5838,14 +5787,6 @@ This was written to:
   <data name="Options_UnsubscribeDescription" xml:space="preserve">
     <value>Before an item's files are removed, a question says what will be deleted and asks what to do with its config files. Turned off, items are removed at once and their config files are always kept, set aside in the LegacyConfigs folder - with a warning first only when other items use them or folders installed by hand would be deleted.</value>
     <comment>Options card text.</comment>
-  </data>
-  <data name="Options_UnsubscribeSwitchOn" xml:space="preserve">
-    <value>Ask before unsubscribing</value>
-    <comment>Options switch, on.</comment>
-  </data>
-  <data name="Options_UnsubscribeSwitchOff" xml:space="preserve">
-    <value>Unsubscribe at once</value>
-    <comment>Options switch, off.</comment>
   </data>
   <data name="Installed_UnsubscribeSelected" xml:space="preserve">
     <value>Unsubscribe selected</value>
@@ -5954,14 +5895,6 @@ This was written to:
   <data name="Options_DownloadsDescription" xml:space="preserve">
     <value>Up to three items download at once while the ones before them install. Downloaded files are kept (up to 4 GB, the ones used longest ago go first) so subscribing to the same version again - after unsubscribing, putting a version back, or re-applying a mod list - does not download it again.</value>
     <comment>Options card text.</comment>
-  </data>
-  <data name="Options_DownloadsSwitchOn" xml:space="preserve">
-    <value>Keep downloaded files</value>
-    <comment>Options switch, on.</comment>
-  </data>
-  <data name="Options_DownloadsSwitchOff" xml:space="preserve">
-    <value>Delete each download once it is installed</value>
-    <comment>Options switch, off.</comment>
   </data>
   <data name="Options_DownloadsClear" xml:space="preserve">
     <value>Delete kept files</value>
@@ -6411,53 +6344,17 @@ This was written to:
     <value>This is the Steam Workshop fork of TCF Mod Manager. The download on sp-mod.com is the original app, and installing it would replace this build and everything the fork changes - so it is not installed from here. A newer original version is worth merging into the fork instead.</value>
     <comment>App update page, in the fork: why there is no Install button.</comment>
   </data>
-  <data name="DataFiles_UnreadableNotSaved" xml:space="preserve">
-    <value>{0} could not be read when the app started, so it is not saved over now. Close whatever holds it open (a sync client, an antivirus scan) and restart the app.</value>
-    <comment>Data files editor: why a save was refused. {0} is the file name.</comment>
-  </data>
-  <data name="App_AlreadyRunningTitle" xml:space="preserve">
-    <value>TCF Mod Manager is already running</value>
-    <comment>Title of the message when a second copy is started.</comment>
-  </data>
-  <data name="App_AlreadyRunning" xml:space="preserve">
-    <value>TCF Mod Manager is already open. Two copies would each save over the other's settings and collections, so this one will close - switch to the one that is open.</value>
-    <comment>Shown when a second copy of the app is started with the same Data folder.</comment>
-  </data>
   <data name="App_DataProblemTitle" xml:space="preserve">
     <value>A data file needs attention</value>
     <comment>Title of the message about a damaged or unreadable data file.</comment>
-  </data>
-  <data name="App_DataRestoredFormat" xml:space="preserve">
-    <value>{0} was damaged - most likely by a crash or a power cut while it was being saved - and has been put back from its last backup. The damaged copy is kept as {1}.</value>
-    <comment>{0} is the file name, {1} where the damaged copy was kept.</comment>
   </data>
   <data name="App_DataDamagedFormat" xml:space="preserve">
     <value>{0} was damaged - most likely by a crash or a power cut while it was being saved - and there was no usable backup, so the app starts without what was in it. Nothing has been deleted: the damaged copy is kept as {1}.</value>
     <comment>{0} is the file name, {1} where the damaged copy was kept.</comment>
   </data>
-  <data name="App_DataUnreadableFormat" xml:space="preserve">
-    <value>{0} could not be read - another program (a sync client, an antivirus scan) may be holding it open. It has been left as it is, and the app will not save over it until it is restarted.</value>
-    <comment>{0} is the file name.</comment>
-  </data>
   <data name="App_DataNotKept" xml:space="preserve">
     <value>(no copy could be made - see the log)</value>
     <comment>In place of where a damaged file was kept, when copying it failed.</comment>
-  </data>
-  <data name="ModInstall_RolledBackFormat" xml:space="preserve">
-    <value>Installing {0} {1} stopped part-way, and the install has been put back exactly as it was - nothing of it is left behind, and the version you had before is still installed. Why: {2}</value>
-    <comment>When placing a mod's files failed and everything was undone. {0} mod, {1} version, {2} the error.</comment>
-  </data>
-  <data name="ModInstall_NotEnoughSpaceFormat" xml:space="preserve">
-    <value>There is not enough free space to install {0}: it needs {1} and the drive has {2}. Nothing was changed.</value>
-    <comment>{0} mod, {1} space needed, {2} space free.</comment>
-  </data>
-  <data name="App_InstallsRecoveredTitle" xml:space="preserve">
-    <value>An install was interrupted</value>
-    <comment>Title of the message about installs put back after the app was closed mid-install.</comment>
-  </data>
-  <data name="App_InstallsRecoveredFormat" xml:space="preserve">
-    <value>The app was closed while installing {0}. The install has been put back as it was before, so nothing is half-installed - install it again from Downloads or the item page.</value>
-    <comment>{0} lists the mods.</comment>
   </data>
   <data name="App_CloseWhileInstallingTitle" xml:space="preserve">
     <value>An install is in progress</value>
@@ -6572,18 +6469,6 @@ What is in them now is copied first, so this can be undone the same way. Profile
   <data name="Profiles_RestoredFormat" xml:space="preserve">
     <value>The profiles from {0} have been put back. What was there before is at the top of the list.</value>
     <comment>After a restore. {0} when the copy was taken.</comment>
-  </data>
-  <data name="ModInstall_NotPutBackYetFormat" xml:space="preserve">
-    <value>Installing {0} {1} failed, and some of its files could not be put back yet because another program holds them open. Nothing is lost: the way back is kept, and it is finished before anything else is installed or removed, or at the next start. Close the game, its server and anything else using the SPT folder (an antivirus scan, a file browser), then try again. Why it failed: {2}</value>
-    <comment>{0} mod, {1} version, {2} the error.</comment>
-  </data>
-  <data name="ModInstall_EarlierInstallPendingFormat" xml:space="preserve">
-    <value>An earlier install of {0} stopped part-way and could not be put back yet - a file in the SPT folder is held open by another program. Nothing else is changed until it has been put back: close the game, its server and anything else using the SPT folder (an antivirus scan, a file browser), then try again.</value>
-    <comment>{0} the mod whose install is waiting to be put back.</comment>
-  </data>
-  <data name="ModInstall_RecordsUnreadableFormat" xml:space="preserve">
-    <value>An earlier install of {0} stopped part-way, and whether it finished cannot be told: the app's record of installed mods (Data\installed-mods.json) cannot be read right now - another program (a sync client, an antivirus scan) may be holding it open. Nothing is changed until it can be read: close that program, or restart the app, then try again.</value>
-    <comment>{0} the mod. The file name stays as it is.</comment>
   </data>
   <data name="Installed_CatalogUnavailable" xml:space="preserve">
     <value>sp-mod.com could not be reached, so these are the mods found in your SPT folder, without what the site knows about them (updates, pages, requirements). Refresh once you are online.</value>
@@ -6850,5 +6735,2297 @@ Install the file as it is anyway?</value>
   <data name="Item_ContentTypeLinkToolTipFormat" xml:space="preserve">
     <value>Browse {0}, top rated first</value>
     <comment>Tooltip on the Content Type value on a Workshop item page, which opens Browse on that content type. {0} is the content type as sp-mod.com names it (Overhauls, Other...).</comment>
+  </data>
+  <data name="ModInstall_ArchiveContainsLinkFormat" xml:space="preserve">
+    <value>{0} {1} wasn't installed: its archive contains a link ("{2}"). Archives with links are refused, so nothing outside the mod can be touched.</value>
+    <comment>{0} is a mod name, {1} its version, {2} a path inside the archive. "Link" means a junction or symbolic link.</comment>
+  </data>
+  <data name="ModInstall_InstallThroughLinkFormat" xml:space="preserve">
+    <value>{0} {1} wasn't installed: {2} is inside a folder that is a link to somewhere else, and installing would change what it points at. Nothing was changed.</value>
+    <comment>{0} is a mod name, {1} its version, {2} a path inside the SPT folder. "Link" means a junction or symbolic link.</comment>
+  </data>
+  <data name="ModInstall_OriginalNotKeptFormat" xml:space="preserve">
+    <value>{0} {1} wasn't installed: it would replace {2}, and a copy of that file couldn't be kept first ({3}). Nothing was changed.</value>
+    <comment>{0} is a mod name, {1} its version, {2} a path inside the SPT folder, {3} the operating system's reason.</comment>
+  </data>
+  <data name="ModInstall_RecordFromAnotherInstallFormat" xml:space="preserve">
+    <value>Didn't touch {0}: this app's record of it was made in another SPT install ({1}). Switch Options back to that install to remove or update it there.</value>
+    <comment>{0} is a mod name, {1} the folder of another SPT install.</comment>
+  </data>
+  <data name="ModInstall_RemoveRefusedOutsideFormat" xml:space="preserve">
+    <value>Didn't remove {0}: it isn't inside your SPT folder. Nothing was deleted.</value>
+    <comment>{0} is a folder or file path.</comment>
+  </data>
+  <data name="ModInstall_RemoveRefusedProtectedFormat" xml:space="preserve">
+    <value>Didn't remove {0}: it belongs to SPT, BepInEx or the game. Nothing was deleted.</value>
+    <comment>{0} is a folder or file path.</comment>
+  </data>
+  <data name="ModInstall_RemoveRefusedAppFolderFormat" xml:space="preserve">
+    <value>Didn't remove {0}: it is part of TCF Mod Manager. Nothing was deleted.</value>
+    <comment>{0} is a folder or file path. TCF Mod Manager is the app name, not translated.</comment>
+  </data>
+  <data name="ModInstall_RemoveRefusedNotModFolderFormat" xml:space="preserve">
+    <value>Didn't remove {0}: it isn't a mod folder in BepInEx\plugins, BepInEx\patchers or user\mods. Nothing was deleted.</value>
+    <comment>{0} is a folder or file path. The folder names are literal and not translated.</comment>
+  </data>
+  <data name="ModInstall_RemoveRefusedLinkFormat" xml:space="preserve">
+    <value>Didn't remove {0}: it is a link to another folder, or holds one. Nothing was deleted - remove it yourself in File Explorer if you meant to.</value>
+    <comment>{0} is a folder or file path. "Link" means a junction or symbolic link; File Explorer is the Windows app.</comment>
+  </data>
+  <data name="Filter_UpdateRecentlyInstalled" xml:space="preserve">
+    <value>Installed in the last 7 days</value>
+  </data>
+  <data name="Configs_BackupFailedFormat" xml:space="preserve">
+    <value>{0} wasn't saved: a backup of it couldn't be made first ({1}). Nothing was changed - free some space or check the app's Data folder can be written to, then save again.</value>
+    <comment>{0} is a config file name, {1} the operating system's reason.</comment>
+  </data>
+  <data name="Options_MonitorDescription" xml:space="preserve">
+    <value>Choose whether this app installs mods for you, or only downloads them so you can install them yourself. Browsing, update checks and dependencies keep working either way. Whichever you pick, every install button has a small button beside it that does the other one, for that mod alone.</value>
+  </data>
+  <data name="Options_MonitorModeInstall" xml:space="preserve">
+    <value>Install mods for me</value>
+  </data>
+  <data name="Options_MonitorModeDownloadOnly" xml:space="preserve">
+    <value>Download only - I install them myself</value>
+  </data>
+  <data name="Options_MonitorFolderHeader" xml:space="preserve">
+    <value>Download folder</value>
+  </data>
+  <data name="Options_MonitorFolderDescription" xml:space="preserve">
+    <value>Where a mod is saved when it is downloaded rather than installed. Leave it empty to use your Windows Downloads folder. The app never deletes anything it saves here.</value>
+  </data>
+  <data name="Options_MonitorFolderPlaceholderFormat" xml:space="preserve">
+    <value>Windows Downloads ({0})</value>
+    <comment>{0} is the path of the user's Windows Downloads folder.</comment>
+  </data>
+  <data name="Options_MonitorFolderPickerTitle" xml:space="preserve">
+    <value>Choose where downloaded mods are saved</value>
+  </data>
+  <data name="Options_MonitorFolderReset" xml:space="preserve">
+    <value>Use Downloads</value>
+    <comment>Button that clears the download folder back to the Windows Downloads folder.</comment>
+  </data>
+  <data name="Options_MonitorFolderResetToolTip" xml:space="preserve">
+    <value>Go back to your Windows Downloads folder, wherever Windows keeps it.</value>
+  </data>
+  <data name="ModPageGate_InstallDownloadOnly" xml:space="preserve">
+    <value>Download this mod to your download folder, to install yourself.</value>
+    <comment>Tooltip on the Install button while Monitor mode is set to download only.</comment>
+  </data>
+  <data name="ModPageGate_RedownloadDownloadOnly" xml:space="preserve">
+    <value>Download this mod again to your download folder, to install yourself.</value>
+    <comment>Tooltip on the Redownload button while Monitor mode is set to download only.</comment>
+  </data>
+  <data name="ModPageGate_UpdateDownloadOnly" xml:space="preserve">
+    <value>Download this version to your download folder, to install yourself.</value>
+    <comment>Tooltip on the Update button while Monitor mode is set to download only.</comment>
+  </data>
+  <data name="ModPageGate_AlternateDownload" xml:space="preserve">
+    <value>Download only: save it to your download folder and install it yourself, instead of having this app install it.</value>
+    <comment>Tooltip on the small button beside an install button, while the app installs mods. It downloads the mod only.</comment>
+  </data>
+  <data name="ModPageGate_AlternateInstall" xml:space="preserve">
+    <value>Install it: have this app install it for you, instead of only downloading it.</value>
+    <comment>Tooltip on the small button beside an install button, while Monitor mode is set to download only. It installs the mod.</comment>
+  </data>
+  <data name="Downloads_SavingToFormat" xml:space="preserve">
+    <value>Downloading to {0}...</value>
+    <comment>{0} is the folder the file is being saved into.</comment>
+  </data>
+  <data name="Downloads_SavedFormat" xml:space="preserve">
+    <value>Saved {0} {1} to {2}. Install it yourself when you are ready - nothing in SPT has been changed.</value>
+    <comment>{0} is a mod name, {1} its version, {2} the full path of the saved file.</comment>
+  </data>
+  <data name="Downloads_SavedUnrecognisedFormat" xml:space="preserve">
+    <value>Saved {0} {1} to {2}. This app couldn't tell how it installs, so follow the steps on the mod's page.</value>
+    <comment>{0} is a mod name, {1} its version, {2} the full path of the saved file.</comment>
+  </data>
+  <data name="Downloads_ShowInFolder" xml:space="preserve">
+    <value>Show in folder</value>
+  </data>
+  <data name="Downloads_ShowInFolderToolTip" xml:space="preserve">
+    <value>Open the folder with the downloaded file selected.</value>
+  </data>
+  <data name="ModInstall_DownloadFolderMissingFormat" xml:space="preserve">
+    <value>The download folder {0} doesn't exist. Choose another one on the Options page, or reset it to your Downloads folder.</value>
+    <comment>{0} is the folder path.</comment>
+  </data>
+  <data name="ModInstall_DownloadFolderNotWritableFormat" xml:space="preserve">
+    <value>Couldn't save into {0} ({1}). Choose a folder you can write to on the Options page.</value>
+    <comment>{0} is the folder path; {1} is the error from Windows, which may arrive in English.</comment>
+  </data>
+  <data name="DownloadConfirm_Title" xml:space="preserve">
+    <value>Downloaded mods now installed</value>
+  </data>
+  <data name="DownloadConfirm_RowDetailFormat" xml:space="preserve">
+    <value>Version {0}, from {1}</value>
+    <comment>{0} is a version, {1} the name of the downloaded file.</comment>
+  </data>
+  <data name="DownloadConfirm_Note" xml:space="preserve">
+    <value>Untick any that aren't right - they won't be asked about again until you download a newer version. Marking a mod installed changes nothing on disk.</value>
+  </data>
+  <data name="DownloadConfirm_NotNow" xml:space="preserve">
+    <value>Not now</value>
+  </data>
+  <data name="DownloadConfirm_Confirm" xml:space="preserve">
+    <value>Mark installed</value>
+  </data>
+  <data name="Installed_DownloadLooksInstalledFormat" xml:space="preserve">
+    <value>You downloaded {0} and it is on disk, but its install hasn't been confirmed yet. Confirm it so this app knows which version you have.</value>
+    <comment>{0} is the version that was downloaded.</comment>
+  </data>
+  <data name="Installed_DownloadPartialFormat" xml:space="preserve">
+    <value>You downloaded {0}, but the files on disk don't match it yet - part of it may be missing, or the previous version is still there.</value>
+    <comment>{0} is the version that was downloaded.</comment>
+  </data>
+  <data name="Installed_ConfirmDownload" xml:space="preserve">
+    <value>Confirm install</value>
+  </data>
+  <data name="Installed_ConfirmDownloadToolTip" xml:space="preserve">
+    <value>Record the downloaded version as the one installed. Nothing on disk changes.</value>
+  </data>
+  <data name="Installed_DownloadConfirmedFormat" xml:space="preserve">
+    <value>Marked {0} {1} installed.</value>
+    <comment>{0} is a mod name, {1} its version.</comment>
+  </data>
+  <data name="Filter_DownloadedNotConfirmed" xml:space="preserve">
+    <value>Downloaded, not confirmed</value>
+  </data>
+  <data name="Filter_DownloadedNotConfirmedToolTip" xml:space="preserve">
+    <value>Mods you downloaded to install yourself that are on disk but not confirmed yet - including ones whose files don't match the download.</value>
+  </data>
+  <data name="Options_MonitorConfirmHeader" xml:space="preserve">
+    <value>When a downloaded mod shows up installed</value>
+  </data>
+  <data name="Options_MonitorConfirmDescription" xml:space="preserve">
+    <value>Once you install a downloaded mod yourself, the next scan of the Installed page finds it. This app can ask you to confirm it then, or just note it on the mod's card for you to confirm there. Confirming tells the app which version you have, so update checks stay right.</value>
+  </data>
+  <data name="Options_MonitorConfirmAsk" xml:space="preserve">
+    <value>Ask me after the scan</value>
+  </data>
+  <data name="Options_MonitorConfirmQuiet" xml:space="preserve">
+    <value>Just note it on the mod's card</value>
+  </data>
+  <data name="Downloads_SavedConfigsNote" xml:space="preserve">
+    <value>It includes config files you already have - copying it over your install replaces your settings, and this app can't carry them across an install it doesn't do.</value>
+    <comment>Added after the saved message when the archive holds config files the install already has.</comment>
+  </data>
+  <data name="DownloadConfirm_Summary_one" xml:space="preserve">
+    <value>A mod you downloaded now looks installed. Mark it installed, so this app knows which version you have?</value>
+    <comment>{0} is how many downloads the scan found installed.</comment>
+  </data>
+  <data name="DownloadConfirm_Summary_other" xml:space="preserve">
+    <value>{0} mods you downloaded now look installed. Mark them installed, so this app knows which versions you have?</value>
+    <comment>{0} is how many downloads the scan found installed.</comment>
+  </data>
+  <data name="Installed_DownloadsConfirmed_one" xml:space="preserve">
+    <value>Marked 1 download installed.</value>
+    <comment>{0} is how many downloads were marked installed.</comment>
+  </data>
+  <data name="Installed_DownloadsConfirmed_other" xml:space="preserve">
+    <value>Marked {0} downloads installed.</value>
+    <comment>{0} is how many downloads were marked installed.</comment>
+  </data>
+  <data name="Options_MonitorListSubfoldersOn" xml:space="preserve">
+    <value>Each mod list's downloads go in a folder named after the list</value>
+    <comment>Label on the switch when it is ON.</comment>
+  </data>
+  <data name="Options_MonitorListSubfoldersOff" xml:space="preserve">
+    <value>Mod list downloads go straight into the download folder</value>
+    <comment>Label on the same switch when it is OFF.</comment>
+  </data>
+  <data name="ModLists_AppliedDownloadOnlyFormat" xml:space="preserve">
+    <value>They were saved in {0} for you to install - nothing was installed.</value>
+    <comment>Added after the applied summary in download-only mode. {0} is the folder the downloads were saved in.</comment>
+  </data>
+  <data name="ModLists_DownloadOnlyNotice_one" xml:space="preserve">
+    <value>Monitor mode is set to download only, so the mod this list would install or update will be saved for you to install yourself - nothing will be installed. Mods it enables or disables are still moved.</value>
+    <comment>Shown above a mod list's plan in download-only mode. {0} is how many mods would be installed or updated.</comment>
+  </data>
+  <data name="ModLists_DownloadOnlyNotice_other" xml:space="preserve">
+    <value>Monitor mode is set to download only, so the {0} mods this list would install or update will be saved for you to install yourself - nothing will be installed. Mods it enables or disables are still moved.</value>
+    <comment>Shown above a mod list's plan in download-only mode. {0} is how many mods would be installed or updated.</comment>
+  </data>
+  <data name="Options_UpdateNotificationsHeader" xml:space="preserve">
+    <value>Update notifications</value>
+  </data>
+  <data name="Options_UpdateNotificationsDescription" xml:space="preserve">
+    <value>While the app is open, it asks The Forge every so often about the mods you have installed, and shows a Windows notification when one of them has a new release. Only your installed mods are asked about. Each release is announced once, and the updates the Installed page already shows when you switch this on are not announced.</value>
+  </data>
+  <data name="Options_UpdateIntervalHeader" xml:space="preserve">
+    <value>Check every</value>
+    <comment>Heading above the dropdown of how often to check: 30 minutes, 1 hour and so on.</comment>
+  </data>
+  <data name="Options_UpdateInterval30Minutes" xml:space="preserve">
+    <value>30 minutes</value>
+  </data>
+  <data name="Options_UpdateInterval1Hour" xml:space="preserve">
+    <value>1 hour</value>
+  </data>
+  <data name="Options_UpdateInterval3Hours" xml:space="preserve">
+    <value>3 hours</value>
+  </data>
+  <data name="Options_UpdateInterval6Hours" xml:space="preserve">
+    <value>6 hours</value>
+  </data>
+  <data name="Options_UpdateInterval12Hours" xml:space="preserve">
+    <value>12 hours</value>
+  </data>
+  <data name="Options_UpdateNotificationsNote" xml:space="preserve">
+    <value>The first check runs one interval after the app starts, and checks stop when the app quits - closing the window quits it, unless it's kept in the tray. No notifications? Check that TCF Mod Manager is allowed to show them in Windows Settings &gt; System &gt; Notifications.</value>
+    <comment>Windows Settings &gt; System &gt; Notifications is the path in Windows; use the names Windows itself shows in your language.</comment>
+  </data>
+  <data name="UpdateToast_Title_one" xml:space="preserve">
+    <value>Mod update available</value>
+    <comment>Title of the Windows notification. {0} is how many installed mods have a new release.</comment>
+  </data>
+  <data name="UpdateToast_Title_other" xml:space="preserve">
+    <value>{0} mod updates available</value>
+    <comment>Title of the Windows notification. {0} is how many installed mods have a new release.</comment>
+  </data>
+  <data name="UpdateToast_ItemFormat" xml:space="preserve">
+    <value>{0} {1}</value>
+    <comment>One update in the notification text. {0} is the mod name, {1} the new version.</comment>
+  </data>
+  <data name="UpdateToast_More_one" xml:space="preserve">
+    <value>1 more</value>
+    <comment>Ends the notification text when more updates were found than it names. {0} is how many more.</comment>
+  </data>
+  <data name="UpdateToast_More_other" xml:space="preserve">
+    <value>{0} more</value>
+    <comment>Ends the notification text when more updates were found than it names. {0} is how many more.</comment>
+  </data>
+  <data name="UpdateToast_Open" xml:space="preserve">
+    <value>Open</value>
+    <comment>Button on the notification. Opens the app on the Installed page.</comment>
+  </data>
+  <data name="Options_UpdateCheckNow" xml:space="preserve">
+    <value>Check now</value>
+  </data>
+  <data name="Options_UpdateCheckNowToolTip" xml:space="preserve">
+    <value>Checks straight away instead of waiting. It counts as a check: the first one after switching notifications on notes the updates already available without a notification, and an update it announces isn't announced again.</value>
+  </data>
+  <data name="Options_UpdateCheckChecking" xml:space="preserve">
+    <value>Checking...</value>
+  </data>
+  <data name="Options_UpdateCheckBaseline" xml:space="preserve">
+    <value>First check done. The updates already available were noted without a notification - from now on, new ones are announced.</value>
+  </data>
+  <data name="Options_UpdateCheckAnnounced_one" xml:space="preserve">
+    <value>1 new update - shown as a notification.</value>
+    <comment>{0} is how many new updates the notification lists.</comment>
+  </data>
+  <data name="Options_UpdateCheckAnnounced_other" xml:space="preserve">
+    <value>{0} new updates - shown in one notification.</value>
+    <comment>{0} is how many new updates the notification lists.</comment>
+  </data>
+  <data name="Options_UpdateCheckNothingNew_one" xml:space="preserve">
+    <value>Nothing new. 1 installed mod has an update, and it has already been announced.</value>
+    <comment>{0} is how many installed mods have an update.</comment>
+  </data>
+  <data name="Options_UpdateCheckNothingNew_other" xml:space="preserve">
+    <value>Nothing new. {0} installed mods have an update, and they have already been announced.</value>
+    <comment>{0} is how many installed mods have an update.</comment>
+  </data>
+  <data name="Options_UpdateCheckNone" xml:space="preserve">
+    <value>No installed mod has an update.</value>
+  </data>
+  <data name="Options_UpdateCheckAlreadyRunning" xml:space="preserve">
+    <value>A check is already running.</value>
+  </data>
+  <data name="Options_UpdateCheckNoInstall" xml:space="preserve">
+    <value>Not checked - no SPT install folder is set.</value>
+  </data>
+  <data name="Options_UpdateCheckQueueBusy" xml:space="preserve">
+    <value>Not checked - wait for the downloads in progress to finish.</value>
+  </data>
+  <data name="Options_UpdateCheckOffline" xml:space="preserve">
+    <value>Not checked - couldn't reach The Forge.</value>
+  </data>
+  <data name="Options_UpdateCheckRateLimited" xml:space="preserve">
+    <value>Not checked - The Forge asked for a pause. Try again in a minute.</value>
+  </data>
+  <data name="Options_UpdateCheckFailed" xml:space="preserve">
+    <value>The check failed. The log in Data\logs has the details.</value>
+  </data>
+  <data name="Options_UpdateCheckTimeFormat" xml:space="preserve">
+    <value>{0} ({1:t})</value>
+    <comment>{0} is the result of the check, {1} the time it finished.</comment>
+  </data>
+  <data name="Options_TrayOn" xml:space="preserve">
+    <value>Closing the window keeps the app running in the tray</value>
+    <comment>Label on the switch when it is ON. The tray is the Windows notification area by the clock.</comment>
+  </data>
+  <data name="Options_TrayOff" xml:space="preserve">
+    <value>Closing the window quits the app</value>
+    <comment>Label on the same switch when it is OFF.</comment>
+  </data>
+  <data name="Options_TrayToolTip" xml:space="preserve">
+    <value>With this on, closing the window hides it and leaves an icon in the notification area, so the checks carry on. Click the icon to open the window again; right-click it to check now or quit. Only available while update notifications are on.</value>
+  </data>
+  <data name="Tray_ToolTip" xml:space="preserve">
+    <value>TCF Mod Manager - checking for mod updates</value>
+    <comment>Shown when the mouse rests on the tray icon. Keep it short: Windows cuts it off at 127 characters.</comment>
+  </data>
+  <data name="Tray_Open" xml:space="preserve">
+    <value>Open</value>
+    <comment>Tray icon menu: shows the window.</comment>
+  </data>
+  <data name="Tray_CheckNow" xml:space="preserve">
+    <value>Check for updates now</value>
+    <comment>Tray icon menu.</comment>
+  </data>
+  <data name="Tray_Quit" xml:space="preserve">
+    <value>Quit</value>
+    <comment>Tray icon menu: ends the app.</comment>
+  </data>
+  <data name="Tray_CheckResultTitle" xml:space="preserve">
+    <value>Update check</value>
+    <comment>Title of the notification that answers the tray menu's Check for updates now.</comment>
+  </data>
+  <data name="Tray_NoticeTitle" xml:space="preserve">
+    <value>TCF Mod Manager is still running</value>
+    <comment>Notification shown the first time the window is closed to the tray.</comment>
+  </data>
+  <data name="Tray_NoticeBody" xml:space="preserve">
+    <value>It's in the tray, checking for mod updates. Click its icon to open it again, or right-click it to quit. You can turn this off in Options.</value>
+  </data>
+  <data name="Common_On" xml:space="preserve">
+    <value>On</value>
+  </data>
+  <data name="Common_Off" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="Options_SectionGeneral" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="Options_SectionInstalling" xml:space="preserve">
+    <value>Installing mods</value>
+  </data>
+  <data name="Options_SectionUpdates" xml:space="preserve">
+    <value>Updates</value>
+  </data>
+  <data name="Options_SectionPages" xml:space="preserve">
+    <value>Pages</value>
+  </data>
+  <data name="Options_SectionMultiplayer" xml:space="preserve">
+    <value>Fika and servers</value>
+  </data>
+  <data name="Options_SectionAdvanced" xml:space="preserve">
+    <value>Advanced</value>
+  </data>
+  <data name="Options_InstallFolderHint" xml:space="preserve">
+    <value>The game folder, with EscapeFromTarkov.exe in it.</value>
+  </data>
+  <data name="Options_LanguageHint" xml:space="preserve">
+    <value>The app's own text. Mod descriptions stay in their author's language.</value>
+  </data>
+  <data name="Options_AppearanceHint" xml:space="preserve">
+    <value>Light, dark, or follow Windows.</value>
+  </data>
+  <data name="Options_WindowHint" xml:space="preserve">
+    <value>How the window opens. F11 switches full screen on and off at any time.</value>
+  </data>
+  <data name="Options_InstallModeHeader" xml:space="preserve">
+    <value>Install mode</value>
+  </data>
+  <data name="Options_InstallModeHint" xml:space="preserve">
+    <value>Install mods for you, or only download them. Every install button has a small button beside it that does the other.</value>
+  </data>
+  <data name="Options_MonitorFolderHint" xml:space="preserve">
+    <value>Where downloaded mods are saved. Empty means your Windows Downloads folder.</value>
+  </data>
+  <data name="Options_MonitorConfirmHint" xml:space="preserve">
+    <value>Confirming tells the app which version you installed, so update checks stay right.</value>
+  </data>
+  <data name="Options_ModPagesTitle" xml:space="preserve">
+    <value>Open each mod's page first</value>
+  </data>
+  <data name="Options_ModPagesHint" xml:space="preserve">
+    <value>Install steps, requirements and warnings, before anything downloads.</value>
+  </data>
+  <data name="Options_UpdateNotificationsHint" xml:space="preserve">
+    <value>A Windows notification when an installed mod has a new release.</value>
+  </data>
+  <data name="Options_FootprintHint" xml:space="preserve">
+    <value>How far each mod reaches into the game. It reads files - nothing is measured.</value>
+  </data>
+  <data name="Options_ServerMapPageHint" xml:space="preserve">
+    <value>Compare what a server runs with your install. Needs the Server Map mod on the server.</value>
+  </data>
+  <data name="Options_ServerMapConnectionHeader" xml:space="preserve">
+    <value>Server map connection</value>
+  </data>
+  <data name="Options_ServerMapConnectionHint" xml:space="preserve">
+    <value>The address and port from your SPT launcher, and the key if the server has one.</value>
+  </data>
+  <data name="Options_PageDefaultsHint" xml:space="preserve">
+    <value>Set with Save as default on the Installed and Browse pages.</value>
+  </data>
+  <data name="Options_HeadlessLauncherHint" xml:space="preserve">
+    <value>Only needed if it isn't at the top of the install folder.</value>
+  </data>
+  <data name="Options_RoleSummaryPlayer" xml:space="preserve">
+    <value>Player</value>
+  </data>
+  <data name="Options_RoleSummaryPlaysAndHosts" xml:space="preserve">
+    <value>Player and Fika headless host</value>
+  </data>
+  <data name="Options_RoleSummaryHeadless" xml:space="preserve">
+    <value>Dedicated Fika headless</value>
+  </data>
+  <data name="Options_RoleSummaryNeither" xml:space="preserve">
+    <value>Nothing set - treated as a player</value>
+  </data>
+  <data name="Options_DataFilesHint" xml:space="preserve">
+    <value>View or hand-edit the JSON files under Data\.</value>
+  </data>
+  <data name="ServerMap_MachinesHeader" xml:space="preserve">
+    <value>Machines on this server</value>
+  </data>
+  <data name="ServerMap_MachinesEmpty" xml:space="preserve">
+    <value>Nobody reports to this server yet. A machine appears here once someone running TCF Mod Manager connects and agrees to share what it has installed. Machines that do not run TCF Mod Manager never appear.</value>
+  </data>
+  <data name="ServerMap_MapUnsupported" xml:space="preserve">
+    <value>This server's Server Map mod is older than 0.2.0. It can serve its mod list, but it cannot show who is on it. Ask whoever runs the server to update the mod.</value>
+  </data>
+  <data name="ServerMap_MapUnavailable" xml:space="preserve">
+    <value>Couldn't read the map just now. It is tried again in a minute.</value>
+  </data>
+  <data name="ServerMap_RefreshMap" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="ServerMap_RefreshMapToolTip" xml:space="preserve">
+    <value>Ask the server again who reports to it. The page also does this every minute while it is open.</value>
+  </data>
+  <data name="ServerMap_ThisMachine" xml:space="preserve">
+    <value>This machine</value>
+  </data>
+  <data name="ServerMap_RoleServer" xml:space="preserve">
+    <value>Server</value>
+  </data>
+  <data name="ServerMap_RolePlayer" xml:space="preserve">
+    <value>Player</value>
+  </data>
+  <data name="ServerMap_RoleHeadless" xml:space="preserve">
+    <value>Headless</value>
+  </data>
+  <data name="ServerMap_AppVersionFormat" xml:space="preserve">
+    <value>TCF Mod Manager {0}</value>
+  </data>
+  <data name="ServerMap_PresenceInGame" xml:space="preserve">
+    <value>In game</value>
+  </data>
+  <data name="ServerMap_PresenceAppOpen" xml:space="preserve">
+    <value>App open</value>
+  </data>
+  <data name="ServerMap_LastSeenMinutes_one" xml:space="preserve">
+    <value>Last seen 1 minute ago</value>
+  </data>
+  <data name="ServerMap_LastSeenMinutes_other" xml:space="preserve">
+    <value>Last seen {0} minutes ago</value>
+  </data>
+  <data name="ServerMap_LastSeenHours_one" xml:space="preserve">
+    <value>Last seen 1 hour ago</value>
+  </data>
+  <data name="ServerMap_LastSeenHours_other" xml:space="preserve">
+    <value>Last seen {0} hours ago</value>
+  </data>
+  <data name="ServerMap_LastSeenDays_one" xml:space="preserve">
+    <value>Last seen 1 day ago</value>
+  </data>
+  <data name="ServerMap_LastSeenDays_other" xml:space="preserve">
+    <value>Last seen {0} days ago</value>
+  </data>
+  <data name="ServerMap_StandingNoList" xml:space="preserve">
+    <value>This install holds no mod list from this server, so there is nothing to compare against.</value>
+  </data>
+  <data name="ServerMap_StandingUnreadable" xml:space="preserve">
+    <value>Sent a mod list this version of the app can't read. Updating TCF Mod Manager here should fix it.</value>
+  </data>
+  <data name="ServerMap_StandingNotReported" xml:space="preserve">
+    <value>Hasn't sent its mod list yet.</value>
+  </data>
+  <data name="ServerMap_StandingUpToDate_one" xml:space="preserve">
+    <value>Has everything "{1}" asks of it (1 mod)</value>
+  </data>
+  <data name="ServerMap_StandingUpToDate_other" xml:space="preserve">
+    <value>Has everything "{1}" asks of it ({0} mods)</value>
+  </data>
+  <data name="ServerMap_StandingBehind_one" xml:space="preserve">
+    <value>1 mod to install, update or enable: {1}</value>
+  </data>
+  <data name="ServerMap_StandingBehind_other" xml:space="preserve">
+    <value>{0} mods to install, update or enable: {1}</value>
+  </data>
+  <data name="ServerMap_StandingManual_one" xml:space="preserve">
+    <value>1 mod to get by hand: {1}</value>
+  </data>
+  <data name="ServerMap_StandingManual_other" xml:space="preserve">
+    <value>{0} mods to get by hand: {1}</value>
+  </data>
+  <data name="ServerMap_Extras_one" xml:space="preserve">
+    <value>1 mod not on the list: {1}</value>
+  </data>
+  <data name="ServerMap_Extras_other" xml:space="preserve">
+    <value>{0} mods not on the list: {1}</value>
+  </data>
+  <data name="ServerMap_InstalledCount_one" xml:space="preserve">
+    <value>1 mod installed</value>
+  </data>
+  <data name="ServerMap_InstalledCount_other" xml:space="preserve">
+    <value>{0} mods installed</value>
+  </data>
+  <data name="ServerMap_ModDisabledFormat" xml:space="preserve">
+    <value>{0} (disabled)</value>
+  </data>
+  <data name="ServerMap_ConsentTitle" xml:space="preserve">
+    <value>Share this machine with the server?</value>
+  </data>
+  <data name="ServerMap_ConsentMessageFormat" xml:space="preserve">
+    <value>{0} can show everyone who holds its key this machine's name, which mods it has installed and at what versions, and whether the game is running. Nothing is sent until you say yes, and you can stop at any time in Options, which also takes this machine off the map.</value>
+  </data>
+  <data name="ServerMap_ConsentAllow" xml:space="preserve">
+    <value>Share</value>
+  </data>
+  <data name="ServerMap_ConsentDecline" xml:space="preserve">
+    <value>Don't share</value>
+  </data>
+  <data name="ServerMap_ReportingPendingFormat" xml:space="preserve">
+    <value>This machine reports to this server as "{0}".</value>
+  </data>
+  <data name="ServerMap_ReportingFormat" xml:space="preserve">
+    <value>This machine reports to this server as "{0}". Last report at {1}.</value>
+  </data>
+  <data name="ServerMap_ReportFailed" xml:space="preserve">
+    <value>The last report didn't reach the server. It is tried again every minute.</value>
+  </data>
+  <data name="ServerMap_NotReporting" xml:space="preserve">
+    <value>This machine does not report to this server. You can change that in Options, under Server map connection.</value>
+  </data>
+  <data name="Options_ServerMapReport" xml:space="preserve">
+    <value>Report this machine to the server</value>
+  </data>
+  <data name="Options_ServerMapReportHint" xml:space="preserve">
+    <value>Shares this machine's name, installed mods and whether the game is running with everyone who holds the server's key. Asked once per server; switching it off takes this machine off the map.</value>
+  </data>
+  <data name="Options_ServerMapDisplayName" xml:space="preserve">
+    <value>Name on the map</value>
+  </data>
+  <data name="Options_ServerMapDisplayNameHint" xml:space="preserve">
+    <value>Leave empty to use this computer's name.</value>
+  </data>
+  <data name="Common_ReviewAndInstall" xml:space="preserve">
+    <value>Review and install</value>
+  </data>
+  <data name="Common_ReviewAndInstallToolTip" xml:space="preserve">
+    <value>Opens Mod lists with the server's list selected and its Preview already worked out. Nothing is installed until you press Apply there.</value>
+  </data>
+  <data name="ModLists_ApplyInstall_one" xml:space="preserve">
+    <value>Install 1 mod</value>
+  </data>
+  <data name="ModLists_ApplyInstall_other" xml:space="preserve">
+    <value>Install {0} mods</value>
+  </data>
+  <data name="ModLists_ApplyUpdate_one" xml:space="preserve">
+    <value>Update 1 mod</value>
+  </data>
+  <data name="ModLists_ApplyUpdate_other" xml:space="preserve">
+    <value>Update {0} mods</value>
+  </data>
+  <data name="ModLists_ApplyDownload_one" xml:space="preserve">
+    <value>Download 1 mod</value>
+  </data>
+  <data name="ModLists_ApplyDownload_other" xml:space="preserve">
+    <value>Download {0} mods</value>
+  </data>
+  <data name="ModLists_ApplyInstallUpdateFormat" xml:space="preserve">
+    <value>Install {0}, update {1}</value>
+  </data>
+  <data name="ModLists_ChangeVersionPairFormat" xml:space="preserve">
+    <value>{0} ({1} → {2})</value>
+  </data>
+  <data name="ModLists_StatusMissing" xml:space="preserve">
+    <value>Missing</value>
+  </data>
+  <data name="ModLists_StatusHalfInstalled" xml:space="preserve">
+    <value>Half installed</value>
+  </data>
+  <data name="ModLists_StatusDisabled" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="ModLists_StatusDisabledMovingFormat" xml:space="preserve">
+    <value>Disabled · {0}</value>
+  </data>
+  <data name="ModLists_StatusWillDisable" xml:space="preserve">
+    <value>Will be disabled</value>
+  </data>
+  <data name="ModLists_StatusPinned" xml:space="preserve">
+    <value>Pinned</value>
+  </data>
+  <data name="ModLists_StatusGetByHand" xml:space="preserve">
+    <value>Fetch yourself</value>
+  </data>
+  <data name="ModLists_StatusAlreadyRight" xml:space="preserve">
+    <value>Correct</value>
+  </data>
+  <data name="ModLists_StatusVersionFormat" xml:space="preserve">
+    <value>{0} → {1}</value>
+  </data>
+  <data name="ModLists_ChipMissing_one" xml:space="preserve">
+    <value>{0} missing</value>
+  </data>
+  <data name="ModLists_ChipMissing_other" xml:space="preserve">
+    <value>{0} missing</value>
+  </data>
+  <data name="ModLists_ChipDifferentVersion_one" xml:space="preserve">
+    <value>{0} incorrect version</value>
+  </data>
+  <data name="ModLists_ChipDifferentVersion_other" xml:space="preserve">
+    <value>{0} incorrect versions</value>
+  </data>
+  <data name="ModLists_ChipHalfInstalled_one" xml:space="preserve">
+    <value>{0} half installed</value>
+  </data>
+  <data name="ModLists_ChipHalfInstalled_other" xml:space="preserve">
+    <value>{0} half installed</value>
+  </data>
+  <data name="ModLists_ChipDisabled_one" xml:space="preserve">
+    <value>{0} disabled</value>
+  </data>
+  <data name="ModLists_ChipDisabled_other" xml:space="preserve">
+    <value>{0} disabled</value>
+  </data>
+  <data name="ModLists_ChipGetByHand_one" xml:space="preserve">
+    <value>{0} to fetch yourself</value>
+  </data>
+  <data name="ModLists_ChipGetByHand_other" xml:space="preserve">
+    <value>{0} to fetch yourself</value>
+  </data>
+  <data name="ModLists_ChipWillDisable_one" xml:space="preserve">
+    <value>{0} to disable</value>
+  </data>
+  <data name="ModLists_ChipWillDisable_other" xml:space="preserve">
+    <value>{0} to disable</value>
+  </data>
+  <data name="ModLists_ChipPinned_one" xml:space="preserve">
+    <value>{0} pinned</value>
+  </data>
+  <data name="ModLists_ChipPinned_other" xml:space="preserve">
+    <value>{0} pinned</value>
+  </data>
+  <data name="ModLists_ChipAlreadyRight_one" xml:space="preserve">
+    <value>{0} correct</value>
+  </data>
+  <data name="ModLists_ChipAlreadyRight_other" xml:space="preserve">
+    <value>{0} correct</value>
+  </data>
+  <data name="ServerMap_LanOnly" xml:space="preserve">
+    <value>This server only answers machines on its own network, and this one is outside it. Ask whoever runs it, or join their network over a VPN such as Tailscale.</value>
+  </data>
+  <data name="Options_ServerMapLanOnly" xml:space="preserve">
+    <value>Only answer this network</value>
+  </data>
+  <data name="Options_ServerMapLanOnlyHint" xml:space="preserve">
+    <value>Refuses every Server Map request from outside this machine's network - players connecting over the internet no longer see your list or the map. Tailscale peers still count as local. Takes effect straight away; needs the Server Map mod 0.2.0 or later, stub included.</value>
+  </data>
+  <data name="Options_ServerMapLanOnlyFailed" xml:space="preserve">
+    <value>Couldn't save that setting - see the log.</value>
+  </data>
+  <data name="AppUpdate_ServerMapHeader" xml:space="preserve">
+    <value>Server Map mod</value>
+    <comment>Header of the App update page card about the Server Map server mod.</comment>
+  </data>
+  <data name="AppUpdate_ServerMapLocalLabel" xml:space="preserve">
+    <value>On this machine:</value>
+    <comment>Label left of the Server Map mod version installed on this machine's server.</comment>
+  </data>
+  <data name="AppUpdate_ServerMapConnectedLabel" xml:space="preserve">
+    <value>On the server you connect to:</value>
+    <comment>Label left of the Server Map mod version the connected server reports.</comment>
+  </data>
+  <data name="AppUpdate_ServerMapBehindTitle" xml:space="preserve">
+    <value>A newer Server Map mod is out</value>
+    <comment>Title of the warning when the Server Map mod is older than the newest on sp-mod.com.</comment>
+  </data>
+  <data name="AppUpdate_ServerMapLocalBehindFormat" xml:space="preserve">
+    <value>Version {0} is out and this machine's server runs {1}. Stop the server, replace the payload and the stub with the ones in the new zip, then start it again - INSTALL.txt in the zip has the steps.</value>
+    <comment>{0} newest version on sp-mod.com, {1} version installed here. The mod is installed by hand; the app cannot update it.</comment>
+  </data>
+  <data name="AppUpdate_ServerMapStubBehindTitle" xml:space="preserve">
+    <value>The stub is older than the payload</value>
+    <comment>Title of the warning when the Server Map stub in user\mods is older than its payload.</comment>
+  </data>
+  <data name="AppUpdate_ServerMapStubBehindFormat" xml:space="preserve">
+    <value>The stub in user\mods is {0} and the payload is {1}. Replace the stub with the one from the same zip as the payload - until you do, Only answer this network refuses every machine.</value>
+    <comment>{0} stub version, {1} payload version. 'Only answer this network' is the Options switch Options_ServerMapLanOnly; use its translation.</comment>
+  </data>
+  <data name="AppUpdate_ServerMapConnectedBehindFormat" xml:space="preserve">
+    <value>The server you connect to runs {0}, and {1} is out. Only whoever runs that server can update it - let them know.</value>
+    <comment>{0} version the connected server reports, {1} newest version on sp-mod.com.</comment>
+  </data>
+  <data name="AppUpdate_ServerMapUpToDate" xml:space="preserve">
+    <value>The Server Map mod is up to date.</value>
+    <comment>Shown on the Server Map mod card when nothing is behind.</comment>
+  </data>
+  <data name="AppUpdate_ServerMapCheckFailed" xml:space="preserve">
+    <value>Couldn't check sp-mod.com for a newer Server Map mod. Check now tries again.</value>
+    <comment>'Check now' is AppUpdate_CheckNow; use its translation.</comment>
+  </data>
+  <data name="AppUpdate_ServerMapOpenPage" xml:space="preserve">
+    <value>Open the mod page</value>
+    <comment>Button opening the Server Map mod's page on sp-mod.com.</comment>
+  </data>
+  <data name="Nav_Help" xml:space="preserve">
+    <value>Help</value>
+    <comment>Sidebar item for the Help page.</comment>
+  </data>
+  <data name="Help_Intro" xml:space="preserve">
+    <value>Step-by-step answers to the things people most often want to do. Each one names the page and the buttons to use.</value>
+    <comment>Top of the Help page.</comment>
+  </data>
+  <data name="Help_OpenGuide" xml:space="preserve">
+    <value>Open the full guide</value>
+    <comment>Button opening the app's page on sp-mod.com.</comment>
+  </data>
+  <data name="Help_OpenGuideToolTip" xml:space="preserve">
+    <value>The app's page on sp-mod.com - everything here in more depth, plus its limitations and troubleshooting. It is in English.</value>
+    <comment>Tooltip on Help_OpenGuide. Keep saying the guide is in English.</comment>
+  </data>
+  <data name="Help_SearchPlaceholder" xml:space="preserve">
+    <value>How do I...?</value>
+    <comment>Search box on the Help page, read as the start of the question the reader types - "How do I... install a mod". Matches the titles, which are written to finish that sentence.</comment>
+  </data>
+  <data name="Help_NoMatches" xml:space="preserve">
+    <value>Nothing answers that yet. Try fewer words, or open the full guide.</value>
+    <comment>Shown when the search finds nothing.</comment>
+  </data>
+  <data name="Help_StepNumberFormat" xml:space="preserve">
+    <value>{0}.</value>
+    <comment>The number in front of each step. {0} is the step number.</comment>
+  </data>
+  <data name="Help_Start_Title" xml:space="preserve">
+    <value>Getting started</value>
+    <comment>Help section heading.</comment>
+  </data>
+  <data name="Help_Start_Setup_Title" xml:space="preserve">
+    <value>Set the app up for my SPT install</value>
+    <comment>How-to title. Titles are phrased as what the reader wants to do.</comment>
+  </data>
+  <data name="Help_Start_Setup_Step1" xml:space="preserve">
+    <value>Open {0} in the sidebar.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Start_Setup_Step2" xml:space="preserve">
+    <value>Under {0}, press {1} and pick your SPT game folder - the one with EscapeFromTarkov.exe in it, not the server folder inside it.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Start_Setup_Step3" xml:space="preserve">
+    <value>Press {0}. The line underneath should now name your SPT version.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Start_Setup_Note" xml:space="preserve">
+    <value>The app isn't a mod. Keep it in a folder of its own, never in BepInEx\plugins or user\mods.</value>
+    <comment>Folder names are literal - don't translate them.</comment>
+  </data>
+  <data name="Help_Start_Version_Title" xml:space="preserve">
+    <value>Check the app found the right SPT version</value>
+    <comment>How-to title.</comment>
+  </data>
+  <data name="Help_Start_Version_Step1" xml:space="preserve">
+    <value>Look at the end of the window title - it shows your SPT version in square brackets.</value>
+  </data>
+  <data name="Help_Start_Version_Step2" xml:space="preserve">
+    <value>If it's missing or wrong, open {0} and read the line under {1}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Start_Version_Step3" xml:space="preserve">
+    <value>A version that can't be found usually means the folder is one level too deep. Pick the folder with EscapeFromTarkov.exe in it and press {0}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Browse_Compatible_Title" xml:space="preserve">
+    <value>Find mods that work on my SPT version</value>
+    <comment>How-to title.</comment>
+  </data>
+  <data name="Help_Browse_Compatible_Step1" xml:space="preserve">
+    <value>Open {0}. It starts filtered to your SPT version.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Browse_Compatible_Step2" xml:space="preserve">
+    <value>A tick beside SPT on a card means its newest version runs on yours; a cross means it doesn't.</value>
+  </data>
+  <data name="Help_Browse_Compatible_Step3" xml:space="preserve">
+    <value>To see more, open the SPT version dropdown at the top and tick other versions, or press {0}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Browse_Install_Title" xml:space="preserve">
+    <value>Install a mod and the mods it needs</value>
+    <comment>How-to title.</comment>
+  </data>
+  <data name="Help_Browse_Install_Step1" xml:space="preserve">
+    <value>Find the mod on {0} and press the download button at the bottom right of its card.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Browse_Install_Step2" xml:space="preserve">
+    <value>A window asks you to read the mod's page first. Press {0}, read it, then press {1}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Browse_Install_Step3" xml:space="preserve">
+    <value>If it needs mods you don't have, their pages are listed the same way - {0} queues them too.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Browse_Install_Step4" xml:space="preserve">
+    <value>Follow it on {0}. Once it says installed, the mod loads the next time you start SPT.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Browse_Install_Note" xml:space="preserve">
+    <value>Close the game and the server first - mod files can't be replaced while they're running.</value>
+  </data>
+  <data name="Help_Browse_Author_Title" xml:space="preserve">
+    <value>Find every mod by one author</value>
+    <comment>How-to title.</comment>
+  </data>
+  <data name="Help_Browse_Author_Step1" xml:space="preserve">
+    <value>In the search box on {0}, type @ followed by the author's name, with no space.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it. The @ is literal.</comment>
+  </data>
+  <data name="Help_Browse_Author_Step2" xml:space="preserve">
+    <value>Leave the @ out to search mod names instead.</value>
+    <comment>The @ is literal.</comment>
+  </data>
+  <data name="Help_Browse_HideInstalled_Title" xml:space="preserve">
+    <value>Hide mods I already have</value>
+    <comment>How-to title.</comment>
+  </data>
+  <data name="Help_Browse_HideInstalled_Step1" xml:space="preserve">
+    <value>On {0}, open the dropdown that reads {1} and tick {2}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Browse_HideInstalled_Step2" xml:space="preserve">
+    <value>To have Browse open this way every time, press {0}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it. 'Browse' is the page name, Nav_Browse.</comment>
+  </data>
+  <data name="Help_Browse_HideInstalled_Note" xml:space="preserve">
+    <value>A disabled mod counts as installed, so it's hidden too.</value>
+  </data>
+  <data name="Help_Installed_Updates_Title" xml:space="preserve">
+    <value>See which mods need updating</value>
+    <comment>How-to title.</comment>
+  </data>
+  <data name="Help_Installed_Updates_Step1" xml:space="preserve">
+    <value>Open {0}. A mod with an update shows an upward arrow as its status icon.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Installed_Updates_Step2" xml:space="preserve">
+    <value>To list only those, change the dropdown that reads {0} to {1}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Installed_Update_Title" xml:space="preserve">
+    <value>Update or redownload a mod</value>
+    <comment>How-to title.</comment>
+  </data>
+  <data name="Help_Installed_Update_Step1" xml:space="preserve">
+    <value>On {0}, click the mod's card to open it, then press {1}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Installed_Update_Step2" xml:space="preserve">
+    <value>The newest version that runs on your SPT is already selected. Press {0} - or {1} to fetch a fresh copy of the version you have.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Installed_Update_Step3" xml:space="preserve">
+    <value>Read the mod's page when asked, then press {0}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Installed_Update_Note" xml:space="preserve">
+    <value>To update several at once, press {0}, tick them and press {1}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Installed_Views_Title" xml:space="preserve">
+    <value>Change how the Installed page is laid out</value>
+    <comment>How-to title. 'Installed' is the page name, Nav_Installed.</comment>
+  </data>
+  <data name="Help_Installed_Views_Step1" xml:space="preserve">
+    <value>At the top of {0}, press {1}, {2} or {3}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Installed_Views_Step2" xml:space="preserve">
+    <value>All three show the same mods with the same filters and sort - only the layout changes.</value>
+  </data>
+  <data name="Help_Installed_Groups_Title" xml:space="preserve">
+    <value>Sort my mods into my own groups</value>
+    <comment>How-to title.</comment>
+  </data>
+  <data name="Help_Installed_Groups_Step1" xml:space="preserve">
+    <value>On {0}, press {1}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Installed_Groups_Step2" xml:space="preserve">
+    <value>Type a name in the box that reads {0} and press {1}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Installed_Groups_Step3" xml:space="preserve">
+    <value>Drag a mod onto a group to move it there. Click a mod without dragging to open it.</value>
+  </data>
+  <data name="Help_Installed_Groups_Note" xml:space="preserve">
+    <value>Groups are only for you - SPT never sees them. Each group has buttons to turn all of it on or off at once.</value>
+  </data>
+  <data name="Help_Installed_Disable_Title" xml:space="preserve">
+    <value>Turn a mod off without deleting it</value>
+    <comment>How-to title.</comment>
+  </data>
+  <data name="Help_Installed_Disable_Step1" xml:space="preserve">
+    <value>On {0}, press the on/off button on the mod's card or row.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Installed_Disable_Step2" xml:space="preserve">
+    <value>If another mod depends on it, you're shown which, and can turn those off with it.</value>
+  </data>
+  <data name="Help_Installed_Disable_Step3" xml:space="preserve">
+    <value>Press the same button again to turn it back on.</value>
+  </data>
+  <data name="Help_Installed_Disable_Note" xml:space="preserve">
+    <value>Nothing is deleted - the mod moves to a .disabled folder that SPT doesn't load, and its settings are kept.</value>
+    <comment>'.disabled' is a literal folder suffix.</comment>
+  </data>
+  <data name="Help_Installed_DisableMany_Title" xml:space="preserve">
+    <value>Turn several mods off at once</value>
+    <comment>How-to title.</comment>
+  </data>
+  <data name="Help_Installed_DisableMany_Step1" xml:space="preserve">
+    <value>On {0}, press {1} and tick the mods.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Installed_DisableMany_Step2" xml:space="preserve">
+    <value>Press {0}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Installed_DisableMany_Note" xml:space="preserve">
+    <value>In the {0} view, each group's own buttons turn the whole group off or on.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Installed_Undo_Title" xml:space="preserve">
+    <value>Undo turning mods off or on</value>
+    <comment>How-to title.</comment>
+  </data>
+  <data name="Help_Installed_Undo_Step1" xml:space="preserve">
+    <value>At the top of {0}, press {1}. The button names the change it puts back.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Installed_Undo_Step2" xml:space="preserve">
+    <value>Only the most recent change can be undone.</value>
+  </data>
+  <data name="Help_ModLists_Capture_Title" xml:space="preserve">
+    <value>Save the mods I run as a list</value>
+    <comment>How-to title.</comment>
+  </data>
+  <data name="Help_ModLists_Capture_Step1" xml:space="preserve">
+    <value>Open {0}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_ModLists_Capture_Step2" xml:space="preserve">
+    <value>Under {0}, type a name and press {1}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_ModLists_Capture_Note" xml:space="preserve">
+    <value>The list records every enabled mod at the version you have. Nothing on disk changes.</value>
+  </data>
+  <data name="Help_ModLists_Apply_Title" xml:space="preserve">
+    <value>Switch to another list</value>
+    <comment>How-to title.</comment>
+  </data>
+  <data name="Help_ModLists_Apply_Step1" xml:space="preserve">
+    <value>On {0}, pick the list under {1}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_ModLists_Apply_Step2" xml:space="preserve">
+    <value>Press {0} to see what would change. Nothing moves yet.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_ModLists_Apply_Step3" xml:space="preserve">
+    <value>Close the game and the server, then press {0}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_ModLists_Apply_Note" xml:space="preserve">
+    <value>Applying downloads what's missing and moves mods the list leaves out to the disabled folder. Nothing is deleted.</value>
+  </data>
+  <data name="Help_ModLists_Pin_Title" xml:space="preserve">
+    <value>Keep a mod whatever list I switch to</value>
+    <comment>How-to title.</comment>
+  </data>
+  <data name="Help_ModLists_Pin_Step1" xml:space="preserve">
+    <value>On {0}, click the mod's card to open it and press {1}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_ModLists_Pin_Step2" xml:space="preserve">
+    <value>A pinned mod is never set aside by a list. Press {0} in the same place to undo it.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_ModLists_Edit_Title" xml:space="preserve">
+    <value>Change what's on a list</value>
+    <comment>How-to title.</comment>
+  </data>
+  <data name="Help_ModLists_Edit_Step1" xml:space="preserve">
+    <value>Pick the list on {0}. Press {1} to put mods on it, or the X on a row to take one off.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it. The X is the remove button's glyph.</comment>
+  </data>
+  <data name="Help_ModLists_Edit_Step2" xml:space="preserve">
+    <value>Press {0}. Only the list changes - nothing is installed or moved.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_ModLists_Edit_Step3" xml:space="preserve">
+    <value>Press {0} when you want your install to match it.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_ModLists_Edit_Note" xml:space="preserve">
+    <value>A list you imported, or one a server sent you, is read-only - press {0} to get one you can change.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_ModLists_Share_Title" xml:space="preserve">
+    <value>Share a list with a friend</value>
+    <comment>How-to title.</comment>
+  </data>
+  <data name="Help_ModLists_Share_Step1" xml:space="preserve">
+    <value>Pick the list on {0}, press {1} and save the file.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_ModLists_Share_Step2" xml:space="preserve">
+    <value>Send the file however you like. Your friend presses {0} on {1} and picks it.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_ModLists_Share_Step3" xml:space="preserve">
+    <value>They press {0}, then {1}. Their app downloads each mod from sp-mod.com itself.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_ModLists_Share_Note" xml:space="preserve">
+    <value>The file names mods and versions, never the mod files, so it's tiny.</value>
+  </data>
+  <data name="Help_ModLists_Server_Title" xml:space="preserve">
+    <value>Get the mods a server runs</value>
+    <comment>How-to title.</comment>
+  </data>
+  <data name="Help_ModLists_Server_Step1" xml:space="preserve">
+    <value>In {0}, under {1}, switch on {2}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_ModLists_Server_Step2" xml:space="preserve">
+    <value>Open {0} with the arrow on its row, fill in the server's address, port and key, then press {1}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_ModLists_Server_Step3" xml:space="preserve">
+    <value>Open {0}. If you're missing anything, press {1}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_ModLists_Server_Step4" xml:space="preserve">
+    <value>Check the preview and press {0}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_ModLists_Server_Note" xml:space="preserve">
+    <value>The server needs the Server Map mod. A server's list never turns off mods of your own.</value>
+  </data>
+  <data name="Help_ModLists_Undo_Title" xml:space="preserve">
+    <value>Put things back after applying a list</value>
+    <comment>How-to title.</comment>
+  </data>
+  <data name="Help_ModLists_Undo_Step1" xml:space="preserve">
+    <value>On {0}, press {1}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_ModLists_Undo_Step2" xml:space="preserve">
+    <value>Every mod goes back to how it was before the last apply. Applying another list replaces this undo.</value>
+  </data>
+  <data name="Help_TitleBarToolTip" xml:space="preserve">
+    <value>Help for this page (F1)</value>
+    <comment>Tooltip on the ? button in the window's title bar. F1 is the key; keep it.</comment>
+  </data>
+  <data name="MainWindow_HowToSetUp" xml:space="preserve">
+    <value>How to set up</value>
+    <comment>Button beside the 'SPT install folder not set' banner; opens Help at Getting started.</comment>
+  </data>
+  <data name="MainWindow_HowToSetUpToolTip" xml:space="preserve">
+    <value>Step-by-step setup in Help.</value>
+    <comment>Tooltip on MainWindow_HowToSetUp.</comment>
+  </data>
+  <data name="Help_Play_Start_Title" xml:space="preserve">
+    <value>Start the server and the game</value>
+    <comment>How-to title.</comment>
+  </data>
+  <data name="Help_Play_Start_Step1" xml:space="preserve">
+    <value>Open {0}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Play_Start_Step2" xml:space="preserve">
+    <value>Under {0}, press {1} and wait for its console window to finish starting.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Play_Start_Step3" xml:space="preserve">
+    <value>Press {0}, pick your profile and start the game.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Play_Start_Note" xml:space="preserve">
+    <value>The server keeps running if you close this app. Close its own window when you're done.</value>
+  </data>
+  <data name="Help_Play_Check_Title" xml:space="preserve">
+    <value>See what I'm missing before I join a server</value>
+    <comment>How-to title.</comment>
+  </data>
+  <data name="Help_Play_Check_Step1" xml:space="preserve">
+    <value>Open {0}. The check at the top compares your install with the mod list you follow, and names anything missing or at the wrong version.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Play_Check_Step2" xml:space="preserve">
+    <value>Press {0} after you change something.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Play_Check_Step3" xml:space="preserve">
+    <value>If you're behind a server's list, press {0}, check the preview and press {1}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Play_Check_Note" xml:space="preserve">
+    <value>The check never stops you launching - it only tells you.</value>
+  </data>
+  <data name="Help_Browse_Addon_Title" xml:space="preserve">
+    <value>Install an addon for a mod</value>
+    <comment>How-to title. An addon is extra content published for one mod.</comment>
+  </data>
+  <data name="Help_Browse_Addon_Step1" xml:space="preserve">
+    <value>On {0}, click the mod's card to open it. A card that says how many addons it has has some published.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Browse_Addon_Step2" xml:space="preserve">
+    <value>Scroll down to its addons and press the install button on the one you want.</value>
+  </data>
+  <data name="Help_Browse_Addon_Step3" xml:space="preserve">
+    <value>Read the addon's page when asked, then continue as for any other install.</value>
+  </data>
+  <data name="Help_Browse_Addon_Note" xml:space="preserve">
+    <value>An addon must match the version of its mod you have, not your SPT version - so install or update the mod first.</value>
+  </data>
+  <data name="Help_Configs_Edit_Title" xml:space="preserve">
+    <value>Change a mod's settings</value>
+    <comment>How-to title.</comment>
+  </data>
+  <data name="Help_Configs_Edit_Step1" xml:space="preserve">
+    <value>Open {0} and pick the mod's file from the list - the search box finds it by mod or file name.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Configs_Edit_Step2" xml:space="preserve">
+    <value>Edit the text on the right.</value>
+  </data>
+  <data name="Help_Configs_Edit_Step3" xml:space="preserve">
+    <value>Press {0}. Only the lines you changed are rewritten.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Configs_Edit_Note" xml:space="preserve">
+    <value>Every save keeps a copy of the old file in Data\config-backups. {0} throws away changes you haven't saved.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it. Data\config-backups is a literal folder name.</comment>
+  </data>
+  <data name="Help_Configs_Policy_Title" xml:space="preserve">
+    <value>Choose what happens to my settings when a mod updates</value>
+    <comment>How-to title.</comment>
+  </data>
+  <data name="Help_Configs_Policy_Step1" xml:space="preserve">
+    <value>On {0}, open one of the mod's config files.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Configs_Policy_Step2" xml:space="preserve">
+    <value>Beside {0}, pick {1}, {2} or {3}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Configs_Policy_Note" xml:space="preserve">
+    <value>The choice covers every config file of that mod, and is remembered for its next update.</value>
+  </data>
+  <data name="Help_Configs_Original_Title" xml:space="preserve">
+    <value>Get a setting's original value back</value>
+    <comment>How-to title.</comment>
+  </data>
+  <data name="Help_Configs_Original_Step1" xml:space="preserve">
+    <value>On {0}, open the file marked {1} beside the mod's config - it holds the values the mod came with.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Configs_Original_Step2" xml:space="preserve">
+    <value>Copy the value you want into the real config and press {0}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Configs_Original_Note" xml:space="preserve">
+    <value>Not every mod ships one. Every save also keeps the previous file in Data\config-backups, in this app's folder.</value>
+    <comment>Data\config-backups is a literal folder name.</comment>
+  </data>
+  <data name="Help_Configs_Leftover_Title" xml:space="preserve">
+    <value>Find settings left behind by a removed mod</value>
+    <comment>How-to title.</comment>
+  </data>
+  <data name="Help_Configs_Leftover_Step1" xml:space="preserve">
+    <value>On {0}, set the filter beside the search box to {1}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Configs_Leftover_Step2" xml:space="preserve">
+    <value>Files under {0} belong to no installed plugin - usually a mod you removed.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Configs_Leftover_Note" xml:space="preserve">
+    <value>Editing them changes nothing in game. They're only there if you want the old settings back.</value>
+  </data>
+  <data name="Help_Dependencies_Check_Title" xml:space="preserve">
+    <value>Check every mod has what it needs</value>
+    <comment>How-to title.</comment>
+  </data>
+  <data name="Help_Dependencies_Check_Step1" xml:space="preserve">
+    <value>Open {0}. Below the conflicts, {1} lists every installed mod that needs other mods, and whether each one is there.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Dependencies_Check_Step2" xml:space="preserve">
+    <value>Mods missing something are at the top of that list, already open. Press the install button beside what's missing.</value>
+  </data>
+  <data name="Help_Dependencies_Check_Step3" xml:space="preserve">
+    <value>Press {0} to check again after installing.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Footprint_Enable_Title" xml:space="preserve">
+    <value>Turn the Mod footprint page on</value>
+    <comment>How-to title. 'Mod footprint' is the page name, Nav_Footprint.</comment>
+  </data>
+  <data name="Help_Footprint_Enable_Step1" xml:space="preserve">
+    <value>In {0}, under {1}, switch on {2}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Footprint_Enable_Step2" xml:space="preserve">
+    <value>{0} appears in the sidebar.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Footprint_Read_Title" xml:space="preserve">
+    <value>Read what the Mod footprint page shows</value>
+    <comment>How-to title. 'Mod footprint' is the page name, Nav_Footprint.</comment>
+  </data>
+  <data name="Help_Footprint_Read_Step1" xml:space="preserve">
+    <value>Open {0}. Each mod shows which parts of the game its files reach into - the client, the server, the disk.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Footprint_Read_Step2" xml:space="preserve">
+    <value>Use {0} to put the mods that reach furthest first.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Footprint_Read_Step3" xml:space="preserve">
+    <value>Open a mod to see what each part means.</value>
+  </data>
+  <data name="Help_Footprint_Read_Note" xml:space="preserve">
+    <value>Nothing is timed or measured. It shows what a mod ships, not how fast it runs.</value>
+  </data>
+  <data name="Help_ServerMap_Enable_Title" xml:space="preserve">
+    <value>Turn the Server map page on</value>
+    <comment>How-to title. 'Server map' is the page name, Nav_ServerMap.</comment>
+  </data>
+  <data name="Help_ServerMap_Enable_Step1" xml:space="preserve">
+    <value>In {0}, under {1}, switch on {2}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_ServerMap_Enable_Step2" xml:space="preserve">
+    <value>{0} appears in the sidebar.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_ServerMap_Enable_Note" xml:space="preserve">
+    <value>It needs a server running the Server Map mod. {0}, in the same place, opens its page.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_ServerMap_Connect_Title" xml:space="preserve">
+    <value>Connect to a server</value>
+    <comment>How-to title.</comment>
+  </data>
+  <data name="Help_ServerMap_Connect_Step1" xml:space="preserve">
+    <value>In {0}, open {1} with the arrow on its row and fill in the address and port from your SPT launcher, and the key if the server has one.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_ServerMap_Connect_Step2" xml:space="preserve">
+    <value>Press {0}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_ServerMap_Connect_Step3" xml:space="preserve">
+    <value>The first time, you're asked whether to show this machine on the server's map. Press {0} or {1}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_ServerMap_Connect_Step4" xml:space="preserve">
+    <value>Open {0}. The server's mod list is fetched for you and saved on {1}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_ServerMap_Connect_Note" xml:space="preserve">
+    <value>If the server's certificate ever changes, you're asked before anything else happens. Only press {0} if you know why it changed.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_ServerMap_Publish_Title" xml:space="preserve">
+    <value>Publish my mod list from my server</value>
+    <comment>How-to title. For the person running the server.</comment>
+  </data>
+  <data name="Help_ServerMap_Publish_Step1" xml:space="preserve">
+    <value>On the machine the server runs on, open {0}, type a name and press {1}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_ServerMap_Publish_Step2" xml:space="preserve">
+    <value>Take off anything the players don't need. Each row's scope button says which machines it's for.</value>
+  </data>
+  <data name="Help_ServerMap_Publish_Step3" xml:space="preserve">
+    <value>Press {0}, then {1}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_ServerMap_Publish_Note" xml:space="preserve">
+    <value>Don't apply that trimmed list on the server machine - it would turn off the server's own mods. Keep a full list for the server and publish the trimmed one.</value>
+  </data>
+  <data name="Help_Downloads_Watch_Title" xml:space="preserve">
+    <value>Watch or cancel a download</value>
+    <comment>How-to title.</comment>
+  </data>
+  <data name="Help_Downloads_Watch_Step1" xml:space="preserve">
+    <value>Open {0}. Each mod shows its progress and the time left, and they install one at a time.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Downloads_Watch_Step2" xml:space="preserve">
+    <value>Press {0} on a card to stop it. Anything it queued as a dependency is cancelled with it.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Downloads_Watch_Step3" xml:space="preserve">
+    <value>If any failed, press {0} to try them again.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Downloads_Watch_Note" xml:space="preserve">
+    <value>Once the files are being put in place the install finishes, so a mod is never left half installed.</value>
+  </data>
+  <data name="Help_Downloads_Where_Title" xml:space="preserve">
+    <value>Find a mod I downloaded to install myself</value>
+    <comment>How-to title. Download only mode.</comment>
+  </data>
+  <data name="Help_Downloads_Where_Step1" xml:space="preserve">
+    <value>On {0}, the mod's card says where the file was saved.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Downloads_Where_Step2" xml:space="preserve">
+    <value>Press {0} to open that folder with the file selected.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Monitor_Title" xml:space="preserve">
+    <value>Installing mods yourself</value>
+    <comment>Help section heading: the download-only install mode, where the reader installs mods by hand. Options calls the setting Install mode.</comment>
+  </data>
+  <data name="Help_Monitor_Enable_Title" xml:space="preserve">
+    <value>Download mods to install myself</value>
+    <comment>How-to title.</comment>
+  </data>
+  <data name="Help_Monitor_Enable_Step1" xml:space="preserve">
+    <value>Open {0} and find {1}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Monitor_Enable_Step2" xml:space="preserve">
+    <value>Change {0} to {1}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Monitor_Enable_Step3" xml:space="preserve">
+    <value>To choose where files go, open the row with its arrow and pick a folder under {0}. Left empty, they go to your Windows Downloads folder.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Monitor_Enable_Note" xml:space="preserve">
+    <value>Browsing, updates, dependencies and mod lists keep working. Nothing in your SPT folder is touched, so you can download while SPT is running.</value>
+  </data>
+  <data name="Help_Monitor_Other_Title" xml:space="preserve">
+    <value>Do one mod the other way round</value>
+    <comment>How-to title.</comment>
+  </data>
+  <data name="Help_Monitor_Other_Step1" xml:space="preserve">
+    <value>Every install button has a smaller button beside it that does the opposite for that one mod.</value>
+  </data>
+  <data name="Help_Monitor_Other_Step2" xml:space="preserve">
+    <value>Hover it to see which way round it is, then press it.</value>
+  </data>
+  <data name="Help_Monitor_Confirm_Title" xml:space="preserve">
+    <value>Tell the app I've installed a downloaded mod</value>
+    <comment>How-to title.</comment>
+  </data>
+  <data name="Help_Monitor_Confirm_Step1" xml:space="preserve">
+    <value>Install the mod by hand from the file you downloaded.</value>
+  </data>
+  <data name="Help_Monitor_Confirm_Step2" xml:space="preserve">
+    <value>Open {0}. Its scan finds the mod and asks - press {1}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Monitor_Confirm_Step3" xml:space="preserve">
+    <value>Or press {0} on the mod's card.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Monitor_Confirm_Note" xml:space="preserve">
+    <value>To be told on the card instead of asked, change {0} in Options.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Updates_Enable_Title" xml:space="preserve">
+    <value>Get told when a mod I have updates</value>
+    <comment>How-to title.</comment>
+  </data>
+  <data name="Help_Updates_Enable_Step1" xml:space="preserve">
+    <value>In {0}, under {1}, switch on {2}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Updates_Enable_Step2" xml:space="preserve">
+    <value>Open the row with its arrow and pick how often under {0}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Updates_Enable_Step3" xml:space="preserve">
+    <value>Press {0} to check straight away.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Updates_Enable_Note" xml:space="preserve">
+    <value>Clicking a notification opens {0} showing the mods with updates. Each release is announced once.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Updates_Tray_Title" xml:space="preserve">
+    <value>Keep checking with the window closed</value>
+    <comment>How-to title.</comment>
+  </data>
+  <data name="Help_Updates_Tray_Step1" xml:space="preserve">
+    <value>Open {0} with the arrow on its row and switch on the setting that reads {1}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Updates_Tray_Step2" xml:space="preserve">
+    <value>Closing the window now leaves an icon in the tray. Click it to open the app again.</value>
+  </data>
+  <data name="Help_Updates_Tray_Step3" xml:space="preserve">
+    <value>Right-click the icon and press {0} to close the app for good.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_AppUpdate_Update_Title" xml:space="preserve">
+    <value>Update this app</value>
+    <comment>How-to title.</comment>
+  </data>
+  <data name="Help_AppUpdate_Update_Step1" xml:space="preserve">
+    <value>When a new version is out, a banner says so. Press {0}, or open {1}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_AppUpdate_Update_Step2" xml:space="preserve">
+    <value>Read what's changed, then press {0}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_AppUpdate_Update_Step3" xml:space="preserve">
+    <value>Open the mod page when asked. The app then downloads the update, closes, swaps itself over and opens again.</value>
+  </data>
+  <data name="Help_AppUpdate_Update_Note" xml:space="preserve">
+    <value>Your settings and mods are left alone. {0} looks for a new version straight away.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Browse_Install_Title_Monitor" xml:space="preserve">
+    <value>Download a mod and the mods it needs</value>
+    <comment>How-to title. Shown instead of the key without _Monitor while Monitor mode (download only) is on.</comment>
+  </data>
+  <data name="Help_Browse_Install_Step4_Monitor" xml:space="preserve">
+    <value>Follow it on {0}. The card says where the file was saved - install it from there yourself.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it. Shown instead of the key without _Monitor while Monitor mode (download only) is on.</comment>
+  </data>
+  <data name="Help_Browse_Install_Note_Monitor" xml:space="preserve">
+    <value>Nothing in your SPT folder is touched, so SPT can stay running while you download.</value>
+    <comment>Shown instead of the key without _Monitor while Monitor mode (download only) is on.</comment>
+  </data>
+  <data name="Help_Installed_Update_Step2_Monitor" xml:space="preserve">
+    <value>The newest version that runs on your SPT is already selected. Press {0} to download it - or {1} to download the version you have again - then install the file yourself.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it. Shown instead of the key without _Monitor while Monitor mode (download only) is on.</comment>
+  </data>
+  <data name="Help_ModLists_Apply_Note_Monitor" xml:space="preserve">
+    <value>Applying saves what's missing to your download folder for you to install, and moves mods the list leaves out to the disabled folder. Nothing is deleted.</value>
+    <comment>Shown instead of the key without _Monitor while Monitor mode (download only) is on.</comment>
+  </data>
+  <data name="Help_Downloads_Watch_Step1_Monitor" xml:space="preserve">
+    <value>Open {0}. Each mod shows its progress and the time left, and they're downloaded one at a time.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it. Shown instead of the key without _Monitor while Monitor mode (download only) is on.</comment>
+  </data>
+  <data name="Help_Downloads_Watch_Note_Monitor" xml:space="preserve">
+    <value>A download never overwrites a file - a second copy is saved beside the first.</value>
+    <comment>Shown instead of the key without _Monitor while Monitor mode (download only) is on.</comment>
+  </data>
+  <data name="Help_ReportProblem" xml:space="preserve">
+    <value>Report a problem</value>
+    <comment>Button at the top of the Help page; opens the issues tab of the app's page on sp-mod.com.</comment>
+  </data>
+  <data name="Help_ReportProblemToolTip" xml:space="preserve">
+    <value>Opens the issues tab on this app's sp-mod.com page, where you can tell the author what went wrong. It is in English.</value>
+    <comment>Tooltip on Help_ReportProblem.</comment>
+  </data>
+  <data name="Help_OpenPageFormat" xml:space="preserve">
+    <value>Open {0}</value>
+    <comment>Button under a how-to that goes to the page its steps are on. {0} is the page's sidebar name.</comment>
+  </data>
+  <data name="Help_ShowMeHow" xml:space="preserve">
+    <value>Show me how</value>
+    <comment>Button beside a notice elsewhere in the app; opens the Help answer to it.</comment>
+  </data>
+  <data name="Help_Problems_Title" xml:space="preserve">
+    <value>Something's wrong</value>
+    <comment>Help section heading for troubleshooting.</comment>
+  </data>
+  <data name="Help_Installed_Remove_Title" xml:space="preserve">
+    <value>Remove a mod</value>
+    <comment>How-to title.</comment>
+  </data>
+  <data name="Help_Installed_Remove_Step1" xml:space="preserve">
+    <value>On {0}, click the mod's card to open it and press {1}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Installed_Remove_Step2" xml:space="preserve">
+    <value>Confirm. If the mod has config files of its own, you're asked whether to keep them - they're set aside, not deleted - or remove them too.</value>
+  </data>
+  <data name="Help_Installed_Remove_Note" xml:space="preserve">
+    <value>Removed files are kept for a while (Options, Keep removed mods), and Undo on the Installed page puts any of them back. A disabled mod has to be turned back on before it can be removed. To take a mod out of the game without deleting it, turn it off instead.</value>
+  </data>
+  <data name="Help_Installed_Downgrade_Title" xml:space="preserve">
+    <value>Go back to an older version of a mod</value>
+    <comment>How-to title.</comment>
+  </data>
+  <data name="Help_Installed_Downgrade_Step1" xml:space="preserve">
+    <value>On {0}, click the mod's card to open it, then press {1}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Installed_Downgrade_Step2" xml:space="preserve">
+    <value>Pick the older version in the list. Versions for other SPT releases are hidden - press {0} to see them.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Installed_Downgrade_Step3" xml:space="preserve">
+    <value>Press {0} and confirm.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Installed_Downgrade_Note" xml:space="preserve">
+    <value>An older version may not read settings or profile data a newer one saved, so check the mod's page first.</value>
+  </data>
+  <data name="Help_Installed_SortOut_Title" xml:space="preserve">
+    <value>Fix a mod that's in two places at once</value>
+    <comment>How-to title.</comment>
+  </data>
+  <data name="Help_Installed_SortOut_Step1" xml:space="preserve">
+    <value>On {0}, a mod in both an enabled and a disabled folder has a warning on its card. It's the usual reason a mod you turned off still loads.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Installed_SortOut_Step2" xml:space="preserve">
+    <value>Open the card, press {0} and pick the copy to keep.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Installed_SortOut_Note" xml:space="preserve">
+    <value>The other copy is set aside, not deleted. Two copies that are both turned on are listed under Dependencies and Conflicts instead.</value>
+  </data>
+  <data name="Help_Options_Language_Title" xml:space="preserve">
+    <value>Change the app's language</value>
+    <comment>How-to title.</comment>
+  </data>
+  <data name="Help_Options_Language_Step1" xml:space="preserve">
+    <value>In {0}, under {1}, pick a language from {2}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Options_Language_Step2" xml:space="preserve">
+    <value>System default follows the language Windows is set to. The change is immediate - nothing restarts.</value>
+  </data>
+  <data name="Help_Options_Language_Note" xml:space="preserve">
+    <value>Most translations were made by machine. If something reads wrong, press {0} at the top of this page and say what it should say.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Options_Theme_Title" xml:space="preserve">
+    <value>Switch between light and dark</value>
+    <comment>How-to title.</comment>
+  </data>
+  <data name="Help_Options_Theme_Step1" xml:space="preserve">
+    <value>In {0}, change {1} to {2}, {3} or {4}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Options_Role_Title" xml:space="preserve">
+    <value>Tell the app this machine is a Fika headless</value>
+    <comment>How-to title. A Fika headless is a machine that hosts raids with nobody playing on it.</comment>
+  </data>
+  <data name="Help_Options_Role_Step1" xml:space="preserve">
+    <value>In {0}, under {1}, open {2} with the arrow on its row.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Options_Role_Step2" xml:space="preserve">
+    <value>Switch the settings so they read {0} and {1}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Options_Role_Note" xml:space="preserve">
+    <value>A server's mod list then arrives without the mods only a player needs. If the headless launcher isn't found by itself, point {0} at it.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Problems_Greyed_Title" xml:space="preserve">
+    <value>Update or Remove is greyed out</value>
+    <comment>How-to title, phrased as the problem the reader sees.</comment>
+  </data>
+  <data name="Help_Problems_Greyed_Step1" xml:space="preserve">
+    <value>The mod is turned off. On {0}, press the on/off button on its card to turn it back on.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Problems_Greyed_Step2" xml:space="preserve">
+    <value>Update and Remove work again once it's on.</value>
+  </data>
+  <data name="Help_Problems_CloseSpt_Title" xml:space="preserve">
+    <value>It says to close the game or server first</value>
+    <comment>How-to title, phrased as the problem the reader sees.</comment>
+  </data>
+  <data name="Help_Problems_CloseSpt_Step1" xml:space="preserve">
+    <value>Close the game, and the server's console window.</value>
+  </data>
+  <data name="Help_Problems_CloseSpt_Step2" xml:space="preserve">
+    <value>Try again.</value>
+  </data>
+  <data name="Help_Problems_CloseSpt_Note" xml:space="preserve">
+    <value>They hold the mod files open, and files in use can't be replaced.</value>
+  </data>
+  <data name="Help_Problems_Partial_Title" xml:space="preserve">
+    <value>An install stopped partway</value>
+    <comment>How-to title, phrased as the problem the reader sees.</comment>
+  </data>
+  <data name="Help_Problems_Partial_Step1" xml:space="preserve">
+    <value>On {0}, the mod's card says it's only partly installed.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Problems_Partial_Step2" xml:space="preserve">
+    <value>Open the card, press {0} and then {1} to finish it - or press {2} on the card to clear it out.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Problems_Partial_Note" xml:space="preserve">
+    <value>The usual cause is starting SPT while an install is running.</value>
+  </data>
+  <data name="Help_Problems_Notifications_Title" xml:space="preserve">
+    <value>Update notifications don't appear</value>
+    <comment>How-to title, phrased as the problem the reader sees.</comment>
+  </data>
+  <data name="Help_Problems_Notifications_Step1" xml:space="preserve">
+    <value>In {0}, under {1}, press {2} and read the line under it.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Problems_Notifications_Step2" xml:space="preserve">
+    <value>The first check after switching on only notes the updates already there - it never shows a notification.</value>
+  </data>
+  <data name="Help_Problems_Notifications_Step3" xml:space="preserve">
+    <value>If checks find updates but nothing appears, open Windows Settings, then System, then Notifications, allow TCF Mod Manager and turn Do not disturb off.</value>
+    <comment>Windows Settings, System, Notifications and Do not disturb are Windows' own names - use what your Windows calls them.</comment>
+  </data>
+  <data name="Help_Problems_AppUpdate_Title" xml:space="preserve">
+    <value>An app update didn't go through</value>
+    <comment>How-to title, phrased as the problem the reader sees.</comment>
+  </data>
+  <data name="Help_Problems_AppUpdate_Step1" xml:space="preserve">
+    <value>The version you have is untouched and still works.</value>
+  </data>
+  <data name="Help_Problems_AppUpdate_Step2" xml:space="preserve">
+    <value>If the app is in Program Files, move it somewhere you can write to, make sure there's free disk space, and try again on {0}.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Problems_AppUpdate_Note" xml:space="preserve">
+    <value>The log in Data\logs says what stopped it.</value>
+    <comment>Data\logs is a literal folder name.</comment>
+  </data>
+  <data name="Help_Problems_Report_Title" xml:space="preserve">
+    <value>Report a problem</value>
+    <comment>How-to title.</comment>
+  </data>
+  <data name="Help_Problems_Report_Step1" xml:space="preserve">
+    <value>Press {0} at the top of this page. It opens the issues tab on this app's sp-mod.com page.</value>
+    <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
+  </data>
+  <data name="Help_Problems_Report_Step2" xml:space="preserve">
+    <value>Say what you did and what happened, and attach today's log from Data\logs - the file named tcfmm- and the date.</value>
+    <comment>Data\logs and tcfmm- are literal.</comment>
+  </data>
+  <data name="Help_Problems_Report_Step3" xml:space="preserve">
+    <value>For more detail, put an empty file named verbose, with no extension, next to TCFModManager.exe, do it again and send the new log.</value>
+    <comment>verbose and TCFModManager.exe are literal - don't translate them.</comment>
+  </data>
+  <data name="Help_Problems_Report_Note" xml:space="preserve">
+    <value>A wrong translation is worth reporting too: say which language, what it says, and what it should say.</value>
+  </data>
+  <data name="Help_Start_Setup_Keywords" xml:space="preserve">
+    <value>install folder, path, set up, first time, configure, EscapeFromTarkov</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Start_Version_Keywords" xml:space="preserve">
+    <value>version unknown, wrong version, detect, SPT version</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Play_Start_Keywords" xml:space="preserve">
+    <value>launch, run, play, start game, server, launcher</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Play_Check_Keywords" xml:space="preserve">
+    <value>missing mods, join, before raid, compare, server list</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Browse_Compatible_Keywords" xml:space="preserve">
+    <value>compatible, works with, filter, SPT version, supported</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Browse_Install_Keywords" xml:space="preserve">
+    <value>install, add, get, download, dependencies</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Browse_Author_Keywords" xml:space="preserve">
+    <value>author, creator, by, search, modder</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Browse_HideInstalled_Keywords" xml:space="preserve">
+    <value>hide installed, already have, filter, not installed</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Browse_Addon_Keywords" xml:space="preserve">
+    <value>addon, add-on, extra, expansion, plugin for a mod</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Installed_Updates_Keywords" xml:space="preserve">
+    <value>updates, outdated, out of date, new version, needs update</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Installed_Update_Keywords" xml:space="preserve">
+    <value>update, upgrade, redownload, reinstall, latest</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Installed_Views_Keywords" xml:space="preserve">
+    <value>layout, view, cards, list, groups, display</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Installed_Groups_Keywords" xml:space="preserve">
+    <value>groups, categories, separators, organise, organize, folders, sort</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Installed_Disable_Keywords" xml:space="preserve">
+    <value>disable, turn off, switch off, deactivate, enable</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Installed_DisableMany_Keywords" xml:space="preserve">
+    <value>bulk, several, many, select, multiple, disable all</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Installed_Undo_Keywords" xml:space="preserve">
+    <value>undo, revert, put back, mistake</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Installed_Remove_Keywords" xml:space="preserve">
+    <value>remove, uninstall, delete, get rid of</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Installed_Downgrade_Keywords" xml:space="preserve">
+    <value>downgrade, older version, roll back, previous version, revert</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Installed_SortOut_Keywords" xml:space="preserve">
+    <value>duplicate, twice, two copies, still loads, sort out</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_ModLists_Capture_Keywords" xml:space="preserve">
+    <value>save, profile, preset, snapshot, capture, loadout</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_ModLists_Apply_Keywords" xml:space="preserve">
+    <value>switch, load, apply, profile, change list</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_ModLists_Pin_Keywords" xml:space="preserve">
+    <value>pin, keep, always, protect, never disable</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_ModLists_Edit_Keywords" xml:space="preserve">
+    <value>edit, change, add mods, remove from list</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_ModLists_Share_Keywords" xml:space="preserve">
+    <value>share, export, import, send, friend, file</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_ModLists_Server_Keywords" xml:space="preserve">
+    <value>server, sync, match, same mods, friends, multiplayer</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_ModLists_Undo_Keywords" xml:space="preserve">
+    <value>undo, revert, put back, restore</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Configs_Edit_Keywords" xml:space="preserve">
+    <value>config, settings, options, cfg, json, edit, change</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Configs_Policy_Keywords" xml:space="preserve">
+    <value>keep settings, update, merge, overwrite, lose settings</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Configs_Original_Keywords" xml:space="preserve">
+    <value>default, reset, original value, factory</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Configs_Leftover_Keywords" xml:space="preserve">
+    <value>leftover, old settings, orphan, removed mod, unclaimed</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Dependencies_Check_Keywords" xml:space="preserve">
+    <value>dependencies, requirements, needs, missing, required</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Dependencies_Conflicts_Title" xml:space="preserve">
+    <value>Find mods that clash</value>
+  </data>
+  <data name="Help_Dependencies_Conflicts_Step1" xml:space="preserve">
+    <value>Open {0}. {1} at the top lists mods installed twice, and mods that ship different copies of the same file.</value>
+  </data>
+  <data name="Help_Dependencies_Conflicts_Step2" xml:space="preserve">
+    <value>Each one says which kind it is. {0}: BepInEx loads only one of them, and you don't get to choose which. {1}: SPT loads none of them. {2}: every mod gets whichever copy loads first, so one of them may not work as intended.</value>
+  </data>
+  <data name="Help_Dependencies_Conflicts_Step3" xml:space="preserve">
+    <value>Press {0} to check again after changing anything.</value>
+  </data>
+  <data name="Help_Dependencies_Conflicts_Note" xml:space="preserve">
+    <value>The check reads what's on disk, so mods you installed by hand are checked too. Turned-off mods aren't checked, since SPT doesn't load them, and identical copies of a file are never listed - they do no harm.</value>
+  </data>
+  <data name="Help_Dependencies_Conflicts_Keywords" xml:space="preserve">
+    <value>conflict, clash, duplicate, twice, two copies, doesn't load, not loading, same mod, dll</value>
+  </data>
+  <data name="Help_Dependencies_Keep_Title" xml:space="preserve">
+    <value>Keep one copy of a mod installed twice</value>
+  </data>
+  <data name="Help_Dependencies_Keep_Step1" xml:space="preserve">
+    <value>Under {0}, find the copy you want to keep and press {1}.</value>
+  </data>
+  <data name="Help_Dependencies_Keep_Step2" xml:space="preserve">
+    <value>Check what will be removed and confirm. If the mod has client and server parts, the other copy's duplicated halves are removed together.</value>
+  </data>
+  <data name="Help_Dependencies_Keep_Step3" xml:space="preserve">
+    <value>Changed your mind? Press Undo at the top of {0} to put the removed copies back.</value>
+  </data>
+  <data name="Help_Dependencies_Keep_Note" xml:space="preserve">
+    <value>{0} is greyed out when another copy was installed with this app and also has files that aren't duplicated, because removing it would take those too. Hover the button to see why, and remove that mod from the Installed page instead, where Remove shows everything it takes. Different copies of one file have no button: keep the mod you need, or ask the authors.</value>
+  </data>
+  <data name="Help_Dependencies_Keep_Keywords" xml:space="preserve">
+    <value>keep, keep one, remove duplicate, delete copy, undo</value>
+  </data>
+  <data name="Help_Dependencies_Spot_Title" xml:space="preserve">
+    <value>See conflicts from other pages</value>
+  </data>
+  <data name="Help_Dependencies_Spot_Step1" xml:space="preserve">
+    <value>On {0}, a mod in a conflict has a warning on its card - hover it to see which mods it clashes with. The conflict count above the list opens {1}.</value>
+  </data>
+  <data name="Help_Dependencies_Spot_Step2" xml:space="preserve">
+    <value>To show only those mods, choose {0} in the filters.</value>
+  </data>
+  <data name="Help_Dependencies_Spot_Step3" xml:space="preserve">
+    <value>{0} warns about conflicts too, before you launch. It never stops you playing.</value>
+  </data>
+  <data name="Help_Dependencies_Spot_Keywords" xml:space="preserve">
+    <value>conflict warning, has conflicts, filter, play warning, red</value>
+  </data>
+  <data name="Help_Problems_NotLoading_Title" xml:space="preserve">
+    <value>A mod doesn't load</value>
+  </data>
+  <data name="Help_Problems_NotLoading_Step1" xml:space="preserve">
+    <value>Open {0}. Under {1}, a mod installed twice, or two mods with clashing files, is the most common reason.</value>
+  </data>
+  <data name="Help_Problems_NotLoading_Step2" xml:space="preserve">
+    <value>Further down, under {0}, check it has every mod it needs.</value>
+  </data>
+  <data name="Help_Problems_NotLoading_Step3" xml:space="preserve">
+    <value>On {0}, check the mod is turned on. A mod in both an enabled and a disabled folder has a warning on its card.</value>
+  </data>
+  <data name="Help_Problems_NotLoading_Note" xml:space="preserve">
+    <value>Still not loading? Check on {0} that the mod is made for your SPT version.</value>
+  </data>
+  <data name="Help_Problems_NotLoading_Keywords" xml:space="preserve">
+    <value>doesn't load, not loading, not working, missing in game, broken, not showing</value>
+  </data>
+  <data name="Help_Footprint_Enable_Keywords" xml:space="preserve">
+    <value>footprint, performance, turn on, enable page</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Footprint_Read_Keywords" xml:space="preserve">
+    <value>footprint, performance, lag, fps, heavy, impact</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_ServerMap_Enable_Keywords" xml:space="preserve">
+    <value>server map, turn on, enable page, server</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_ServerMap_Connect_Keywords" xml:space="preserve">
+    <value>connect, server, address, key, port, certificate</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_ServerMap_Publish_Keywords" xml:space="preserve">
+    <value>publish, host, server list, operator, serve</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Downloads_Watch_Keywords" xml:space="preserve">
+    <value>downloads, progress, cancel, stop, queue, retry</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Downloads_Where_Keywords" xml:space="preserve">
+    <value>where, find file, download folder, zip, saved</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Monitor_Enable_Keywords" xml:space="preserve">
+    <value>download only, manual install, myself, by hand, monitor</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Monitor_Other_Keywords" xml:space="preserve">
+    <value>one mod, opposite, other way, exception</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Monitor_Confirm_Keywords" xml:space="preserve">
+    <value>confirm, mark installed, installed manually, by hand</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Updates_Enable_Keywords" xml:space="preserve">
+    <value>notifications, alerts, notify, toast, tell me</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Updates_Tray_Keywords" xml:space="preserve">
+    <value>tray, background, minimise, minimize, keep running, system tray</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_AppUpdate_Update_Keywords" xml:space="preserve">
+    <value>update app, new version, upgrade app, self update</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Options_Language_Keywords" xml:space="preserve">
+    <value>language, translation, English, German, French, Italian, Russian</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Options_Theme_Keywords" xml:space="preserve">
+    <value>dark mode, light mode, theme, colours, colors, appearance</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Options_Role_Keywords" xml:space="preserve">
+    <value>headless, Fika, dedicated, host, no player</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Problems_Greyed_Keywords" xml:space="preserve">
+    <value>greyed out, grayed out, disabled button, can't update, can't remove</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Problems_CloseSpt_Keywords" xml:space="preserve">
+    <value>close game, in use, locked, running, can't install</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Problems_Partial_Keywords" xml:space="preserve">
+    <value>half installed, failed, broken install, partly, incomplete</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Problems_Notifications_Keywords" xml:space="preserve">
+    <value>no notifications, not notified, alerts not showing</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Problems_AppUpdate_Keywords" xml:space="preserve">
+    <value>update failed, didn't update, app update error</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Help_Problems_Report_Keywords" xml:space="preserve">
+    <value>bug, issue, crash, error, report, feedback, log</value>
+    <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
+  </data>
+  <data name="Installed_RemovedUndoHint" xml:space="preserve">
+    <value>Use Undo to put it back.</value>
+    <comment>Shown after a removal that can be undone. 'Undo' is the button beside this message.</comment>
+  </data>
+  <data name="Installed_UndoRemovalFormat" xml:space="preserve">
+    <value>Undo removing {0}</value>
+    <comment>Button text. {0} is a mod name.</comment>
+  </data>
+  <data name="Installed_UndoRemovalToolTip" xml:space="preserve">
+    <value>Puts the mod back exactly as it was before it was removed. Nothing that has taken its place since is overwritten.</value>
+    <comment>Tooltip on the Undo button.</comment>
+  </data>
+  <data name="Installed_UndoneFormat" xml:space="preserve">
+    <value>Put {0} back.</value>
+    <comment>{0} is a mod name.</comment>
+  </data>
+  <data name="Installed_UndoNothing" xml:space="preserve">
+    <value>There's nothing to undo - the removed files have been cleared.</value>
+    <comment>Shown when Undo is pressed but the removal can no longer be undone.</comment>
+  </data>
+  <data name="Installed_RemoveHeldFormat" xml:space="preserve">
+    <value>Removed files are kept in the install for {0}, so you can undo it.</value>
+    <comment>Part of the removal confirmation. {0} is one of the Keep removed mods choices, e.g. '14 days'.</comment>
+  </data>
+  <data name="Installed_RemoveHeldUntilCleared" xml:space="preserve">
+    <value>Removed files are kept in the install until you clear them in Options, so you can undo it.</value>
+    <comment>Part of the removal confirmation.</comment>
+  </data>
+  <data name="Installed_RemoveNotHeld" xml:space="preserve">
+    <value>Removed files are deleted straight away (Options, Keep removed mods), so this can't be undone.</value>
+    <comment>Part of the removal confirmation when the Keep removed mods setting is Delete straight away.</comment>
+  </data>
+  <data name="Installed_RemoveUnstampedFormat" xml:space="preserve">
+    <value>This app's record of it doesn't say which SPT install it was made in. It will be removed from {0}.</value>
+    <comment>Part of the removal confirmation for a mod installed before v1.19.0 when the app isn't inside the SPT folder. {0} is the SPT folder.</comment>
+  </data>
+  <data name="Installed_RemoveUnstampedManyFormat" xml:space="preserve">
+    <value>This app's records of these don't say which SPT install they were made in. They will be removed from {0}:
+
+{1}</value>
+    <comment>Asked before removing several items whose install records predate 1.19 (D17). {0} is the SPT install folder, {1} the items, one per line.</comment>
+  </data>
+  <data name="Options_RemovedModsHeader" xml:space="preserve">
+    <value>Keep removed mods</value>
+    <comment>Options setting title.</comment>
+  </data>
+  <data name="Options_RemovedModsHint" xml:space="preserve">
+    <value>Removing a mod moves its files into a hidden folder in the install, so it can be undone. Choose how long they stay there.</value>
+    <comment>Options setting hint, under the title.</comment>
+  </data>
+  <data name="Options_RemovedModsDescription" xml:space="preserve">
+    <value>Removed mods are kept in .tcfmm-removed inside your SPT folder, and deleted when the app starts once their time is up. Updates keep the version they replaced there too.</value>
+    <comment>Tooltip on the Keep removed mods setting. .tcfmm-removed is a folder name, not translated.</comment>
+  </data>
+  <data name="Options_RemovedModsDeleteStraightAway" xml:space="preserve">
+    <value>Delete straight away</value>
+    <comment>Keep removed mods choice.</comment>
+  </data>
+  <data name="Options_RemovedModsOneDay" xml:space="preserve">
+    <value>1 day</value>
+    <comment>Keep removed mods choice; also used in 'kept in the install for {0}'.</comment>
+  </data>
+  <data name="Options_RemovedModsSevenDays" xml:space="preserve">
+    <value>7 days</value>
+    <comment>Keep removed mods choice; also used in 'kept in the install for {0}'.</comment>
+  </data>
+  <data name="Options_RemovedModsFourteenDays" xml:space="preserve">
+    <value>14 days</value>
+    <comment>Keep removed mods choice; also used in 'kept in the install for {0}'.</comment>
+  </data>
+  <data name="Options_RemovedModsThirtyDays" xml:space="preserve">
+    <value>30 days</value>
+    <comment>Keep removed mods choice; also used in 'kept in the install for {0}'.</comment>
+  </data>
+  <data name="Options_RemovedModsUntilCleared" xml:space="preserve">
+    <value>Until I clear them</value>
+    <comment>Keep removed mods choice.</comment>
+  </data>
+  <data name="Options_RemovedModsClearFormat" xml:space="preserve">
+    <value>Clear removed mods ({0})</value>
+    <comment>Button. {0} is a size, e.g. '12.4 MB'.</comment>
+  </data>
+  <data name="Options_RemovedModsClearTitle" xml:space="preserve">
+    <value>Clear removed mods</value>
+    <comment>Title of the confirmation before clearing.</comment>
+  </data>
+  <data name="Options_RemovedModsClearConfirmFormat" xml:space="preserve">
+    <value>Delete every removed mod kept in {1} ({0})? Nothing removed so far can be undone after this.</value>
+    <comment>Confirmation before clearing. {0} is a size, {1} the SPT folder.</comment>
+  </data>
+  <data name="Options_RemovedModsClearedFormat" xml:space="preserve">
+    <value>Removed mods cleared - {0} freed.</value>
+    <comment>Shown after clearing. {0} is a size.</comment>
+  </data>
+  <data name="Options_RemovedModsNothingToClear" xml:space="preserve">
+    <value>Nothing to clear</value>
+    <comment>Clear button text when nothing is held.</comment>
+  </data>
+  <data name="Installed_RemovedKeptChanged_one" xml:space="preserve">
+    <value>1 file that changed since it was installed was left in place.</value>
+    <comment>{0} is a count. Part of the message after a removal.</comment>
+  </data>
+  <data name="Installed_RemovedKeptChanged_other" xml:space="preserve">
+    <value>{0} files that changed since it was installed were left in place.</value>
+    <comment>{0} is a count. Part of the message after a removal.</comment>
+  </data>
+  <data name="Installed_RemovedKeptOwned_one" xml:space="preserve">
+    <value>1 file another mod also uses was left in place.</value>
+    <comment>{0} is a count. Part of the message after a removal.</comment>
+  </data>
+  <data name="Installed_RemovedKeptOwned_other" xml:space="preserve">
+    <value>{0} files other mods also use were left in place.</value>
+    <comment>{0} is a count. Part of the message after a removal.</comment>
+  </data>
+  <data name="Installed_RemovedRefused_one" xml:space="preserve">
+    <value>1 file that belongs to SPT, the game, or lies outside the mod was left alone.</value>
+    <comment>{0} is a count. Part of the message after a removal.</comment>
+  </data>
+  <data name="Installed_RemovedRefused_other" xml:space="preserve">
+    <value>{0} files that belong to SPT, the game, or lie outside the mod were left alone.</value>
+    <comment>{0} is a count. Part of the message after a removal.</comment>
+  </data>
+  <data name="Installed_RemovedRestored_one" xml:space="preserve">
+    <value>1 file it had replaced was put back.</value>
+    <comment>{0} is a count. Part of the message after a removal.</comment>
+  </data>
+  <data name="Installed_RemovedRestored_other" xml:space="preserve">
+    <value>{0} files it had replaced were put back.</value>
+    <comment>{0} is a count. Part of the message after a removal.</comment>
+  </data>
+  <data name="Installed_UndoneBlocked_one" xml:space="preserve">
+    <value>Put {1} back, except 1 item: something else is there now. It's still in {2}.</value>
+    <comment>{0} is a count, {1} a mod name, {2} a folder.</comment>
+  </data>
+  <data name="Installed_UndoneBlocked_other" xml:space="preserve">
+    <value>Put {1} back, except {0} items: something else is there now. They're still in {2}.</value>
+    <comment>{0} is a count, {1} a mod name, {2} a folder.</comment>
+  </data>
+  <data name="Downloads_KeptSptFiles_one" xml:space="preserve">
+    <value>1 file in this archive belongs to SPT, BepInEx or the game and was left as it is.</value>
+    <comment>{0} is a count. Added to a finished install's status line.</comment>
+  </data>
+  <data name="Downloads_KeptSptFiles_other" xml:space="preserve">
+    <value>{0} files in this archive belong to SPT, BepInEx or the game and were left as they are.</value>
+    <comment>{0} is a count. Added to a finished install's status line.</comment>
+  </data>
+  <data name="Downloads_KeptOriginals_one" xml:space="preserve">
+    <value>1 file it replaced was kept, to put back if it's removed.</value>
+    <comment>{0} is a count. Added to a finished install's status line.</comment>
+  </data>
+  <data name="Downloads_KeptOriginals_other" xml:space="preserve">
+    <value>{0} files it replaced were kept, to put back if it's removed.</value>
+    <comment>{0} is a count. Added to a finished install's status line.</comment>
+  </data>
+  <data name="Installed_UndoRemovalPickFormat" xml:space="preserve">
+    <value>Undo a removal ({0})</value>
+    <comment>Undo button text when more than one removal can be undone; opens a menu to pick one. {0} is how many.</comment>
+  </data>
+  <data name="Installed_UndoRemovalItemFormat" xml:space="preserve">
+    <value>{0} - removed {1}</value>
+    <comment>One entry in the Undo menu. {0} is a mod name, {1} the date and time it was removed.</comment>
+  </data>
+  <data name="Installed_LeftoverFormat" xml:space="preserve">
+    <value>Left behind when {0} was removed ({1}) - this folder holds files {0} didn't install.</value>
+    <comment>On the card of a folder a removal had to leave. {0} is the removed mod's name, {1} the date and time.</comment>
+  </data>
+  <data name="Installed_RemovedFolderLeft_one" xml:space="preserve">
+    <value>Its folder {1} was left in place: it holds 1 file the mod didn't install.</value>
+    <comment>{0} is a count, {1} a folder. Part of the message after a removal.</comment>
+  </data>
+  <data name="Installed_RemovedFolderLeft_other" xml:space="preserve">
+    <value>Its folder {1} was left in place: it holds {0} files the mod didn't install.</value>
+    <comment>{0} is a count, {1} a folder. Part of the message after a removal.</comment>
+  </data>
+  <data name="Install_IncompatibleTitle" xml:space="preserve">
+    <value>Not made for your SPT version</value>
+    <comment>Title of the question asked before installing a version that doesn't support the installed SPT.</comment>
+  </data>
+  <data name="Install_IncompatibleOneFormat" xml:space="preserve">
+    <value>No version of this mod on sp-mod.com supports SPT {0}. The newest is:
+
+{1}
+
+Install it anyway? SPT may refuse to load it.</value>
+    <comment>{0} is the installed SPT version, {1} one Install_IncompatibleLineFormat line.</comment>
+  </data>
+  <data name="Install_IncompatibleBatchFormat" xml:space="preserve">
+    <value>These don't support SPT {0}:
+
+{1}
+
+Install them anyway? SPT may refuse to load them. No installs the rest without them.</value>
+    <comment>{0} is the installed SPT version, {1} one Install_IncompatibleLineFormat line per mod.</comment>
+  </data>
+  <data name="Install_IncompatibleLineFormat" xml:space="preserve">
+    <value>{0} {1} - needs SPT {2}</value>
+    <comment>{0} mod name, {1} its version, {2} the SPT versions it supports, e.g. '4.1.6 - 4.1.x'.</comment>
+  </data>
+  <data name="Install_IncompatibleNotInstalledFormat" xml:space="preserve">
+    <value>{0} wasn't installed - no version of it supports SPT {1}.</value>
+    <comment>Status line after answering No. {0} mod name, {1} installed SPT version.</comment>
+  </data>
+  <data name="Install_IncompatibleLeftOutFormat" xml:space="preserve">
+    <value>Left out because they don't support SPT {0}: {1}.</value>
+    <comment>Added to a batch's status line after answering No. {0} installed SPT version, {1} mod names.</comment>
+  </data>
+  <data name="ModList_ReasonIncompatibleFormat" xml:space="preserve">
+    <value>version {0} doesn't support SPT {1}, and installing it anyway wasn't chosen</value>
+    <comment>Why a mod list fetch was left out. {0} a version, {1} the installed SPT version.</comment>
+  </data>
+  <data name="Conflicts_Header" xml:space="preserve">
+    <value>Conflicts</value>
+    <comment>Section heading on the Dependencies and Conflicts page.</comment>
+  </data>
+  <data name="Dependencies_Header" xml:space="preserve">
+    <value>Dependencies</value>
+    <comment>Section heading on the Dependencies and Conflicts page.</comment>
+  </data>
+  <data name="Conflicts_None" xml:space="preserve">
+    <value>No conflicts: nothing is installed twice, and no two mods ship different copies of the same file.</value>
+    <comment>Shown in the Conflicts section when nothing clashes.</comment>
+  </data>
+  <data name="Conflicts_KindDuplicatePlugin" xml:space="preserve">
+    <value>The same plugin installed twice</value>
+    <comment>Title of a conflict: two folders register the same BepInEx plugin.</comment>
+  </data>
+  <data name="Conflicts_KindDuplicateServerMod" xml:space="preserve">
+    <value>The same server mod installed twice</value>
+    <comment>Title of a conflict: two folders declare the same SPT server mod.</comment>
+  </data>
+  <data name="Conflicts_KindDifferentCopies" xml:space="preserve">
+    <value>Different copies of one file</value>
+    <comment>Title of a conflict: two mods ship different copies of one DLL.</comment>
+  </data>
+  <data name="Conflicts_ExplainDuplicatePluginFormat" xml:space="preserve">
+    <value>These all register plugin {0}. BepInEx loads only one of them, and you don't get to choose which. Keep one and disable or remove the rest.</value>
+    <comment>{0} is a plugin ID.</comment>
+  </data>
+  <data name="Conflicts_ExplainDuplicateServerModFormat" xml:space="preserve">
+    <value>These all declare server mod {0}. SPT skips a server mod whose ID it finds twice, so none of them loads. Keep one and disable or remove the rest.</value>
+    <comment>{0} is a server mod ID.</comment>
+  </data>
+  <data name="Conflicts_ExplainDifferentCopiesFormat" xml:space="preserve">
+    <value>Each ships its own copy of {0}, and the copies differ. Only the first one loaded is used, by every mod that needs it, so one of these mods may not work as intended. Ask their authors, or keep the one you need.</value>
+    <comment>{0} is an assembly or DLL name.</comment>
+  </data>
+  <data name="Conflicts_CopyFormat" xml:space="preserve">
+    <value>{0}, version {1}</value>
+    <comment>One copy in a 'different copies' conflict. {0} the file's path inside the mod, {1} its version.</comment>
+  </data>
+  <data name="Conflicts_OpenFolderToolTip" xml:space="preserve">
+    <value>Open this folder</value>
+    <comment>Tooltip on the button that opens a conflicting mod's folder.</comment>
+  </data>
+  <data name="Installed_StatusConflictFormat" xml:space="preserve">
+    <value>{0}
+See Dependencies and Conflicts.</value>
+    <comment>Card tooltip. {0} is one or more Installed_ConflictWithFormat lines.</comment>
+  </data>
+  <data name="Installed_ConflictWithFormat" xml:space="preserve">
+    <value>{0}: with {1}</value>
+    <comment>{0} a conflict title, {1} the other mods' names.</comment>
+  </data>
+  <data name="Installed_ConflictCount_one" xml:space="preserve">
+    <value>1 conflict - see Dependencies and Conflicts</value>
+    <comment>{0} is a count. A link on the Installed page's status line.</comment>
+  </data>
+  <data name="Installed_ConflictCount_other" xml:space="preserve">
+    <value>{0} conflicts - see Dependencies and Conflicts</value>
+    <comment>{0} is a count. A link on the Installed page's status line.</comment>
+  </data>
+  <data name="Conflicts_KeepThis" xml:space="preserve">
+    <value>Keep this one</value>
+    <comment>Button on one copy in a conflict.</comment>
+  </data>
+  <data name="Conflicts_KeepThisToolTip" xml:space="preserve">
+    <value>Keep this copy and remove the others. They go where removed mods go, so Undo on the Installed page can put them back.</value>
+    <comment>Tooltip on Keep this one.</comment>
+  </data>
+  <data name="Conflicts_KeepConfirmTitle" xml:space="preserve">
+    <value>Keep one copy</value>
+    <comment>Title of the question before keeping one copy.</comment>
+  </data>
+  <data name="Conflicts_KeepConfirmFormat" xml:space="preserve">
+    <value>Keep {0} in {1}, and remove:
+
+{2}
+
+{3}</value>
+    <comment>{0} mod name, {1} its folder, {2} one line per mod that will be removed, {3} how long removed files are kept.</comment>
+  </data>
+  <data name="Conflicts_KeepLineFormat" xml:space="preserve">
+    <value>{0} - {1}</value>
+    <comment>One mod in the Keep one copy question. {0} mod name, {1} folder.</comment>
+  </data>
+  <data name="Conflicts_KeptFormat" xml:space="preserve">
+    <value>Kept {0}. Removed {1} - Undo on the Installed page puts it back.</value>
+    <comment>Status after keeping one copy. {0} the kept mod, {1} the removed ones.</comment>
+  </data>
+  <data name="Conflicts_KeepFailedFormat" xml:space="preserve">
+    <value>Couldn't remove {0}: {1}</value>
+    <comment>Status when removing a copy failed. {0} mod name, {1} the reason.</comment>
+  </data>
+  <data name="Filter_HasConflicts" xml:space="preserve">
+    <value>Has conflicts</value>
+    <comment>Installed page Show filter.</comment>
+  </data>
+  <data name="Filter_HasConflictsToolTip" xml:space="preserve">
+    <value>Only mods in a conflict: installed twice, or shipping a different copy of a file another mod ships. See Dependencies and Conflicts.</value>
+    <comment>Tooltip on the Has conflicts filter.</comment>
+  </data>
+  <data name="Play_ConflictsHint" xml:space="preserve">
+    <value>Some mods may not load. You can still launch.</value>
+    <comment>Under the conflict count on the Play page.</comment>
+  </data>
+  <data name="Conflicts_KeepBlockedFormat" xml:space="preserve">
+    <value>{0} also has files that aren't duplicated, and it was installed with this app, so it can only be removed whole - those files would go too. Remove it from the Installed page instead, where Remove shows everything it takes.</value>
+    <comment>Tooltip on a disabled Keep this one. {0} the other mod.</comment>
   </data>
 </root>

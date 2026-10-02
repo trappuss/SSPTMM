@@ -20,37 +20,19 @@ public sealed record FileClash(string Path, string? OwnerName);
 //
 public static class ModFileConflicts
 {
-    // The first folders an SPT archive's content starts with - ModInstallService's own list.
-    private static readonly HashSet<string> KnownRootFolders =
-        new(StringComparer.OrdinalIgnoreCase) { "BepInEx", "user", "SPT", "SPT_Runtime" };
-
     /// <summary>Where each file of an archive would land, relative to the install folder and with
-    /// forward slashes (the install records' own form).</summary>
+    /// forward slashes (the install records' own form) - ArchiveLayout's plan, the same one the
+    /// install follows. Empty for an archive the install would not recognise.</summary>
     public static IReadOnlyList<string> InstallRelativePaths(IEnumerable<string> archiveFiles, string? serverRoot)
     {
-        var paths = archiveFiles
-            .Select(f => f.Replace('\\', '/').TrimStart('/'))
-            .Select(f => f.StartsWith("./", StringComparison.Ordinal) ? f[2..] : f)
-            .Where(f => f.Length > 0 && !f.EndsWith('/'))
+        var entries = archiveFiles
+            .Select(f => f.Replace('\\', '/'))
+            .Where(f => f.Trim('/').Length > 0 && !f.EndsWith('/'))
+            .Select(f => new ArchiveFileEntry(f, 0))
             .ToList();
 
-        // Looks through a single wrapper folder that is not SPT's own, as the install does.
-        for (var depth = 0; depth < 4 && paths.Count > 0; depth++)
-        {
-            var first = paths[0].Split('/', 2)[0];
-            if (KnownRootFolders.Contains(first)) break;
-            if (!paths.All(p => p.Contains('/') && string.Equals(p.Split('/', 2)[0], first, StringComparison.Ordinal))) break;
-
-            paths = paths.Select(p => p.Split('/', 2)[1]).ToList();
-        }
-
-        var root = (serverRoot ?? "").Replace('\\', '/').Trim('/');
-
-        return paths
-            .Select(p => root.Length > 0 && string.Equals(p.Split('/', 2)[0], "user", StringComparison.OrdinalIgnoreCase)
-                ? root + "/" + p
-                : p)
-            .ToList();
+        var plan = ArchiveLayout.Plan(entries, serverRoot ?? "");
+        return plan.Recognised ? [.. plan.Files.Select(f => f.Path)] : [];
     }
 
     /// <summary>The files among <paramref name="installRelative"/> that are already there and are
@@ -67,10 +49,14 @@ public static class ModFileConflicts
         Func<string, bool>? belongsToTarget = null,
         IReadOnlyDictionary<string, ModConfigOptions>? configOptions = null)
     {
-        // Every record that lists a file: after an Install Anyway two do.
+        // Every record that lists a file: after an Install Anyway two do. Only this install's records -
+        // one stamped with another install (1.19's global records) says nothing about these files.
+        var stamp = InstallStamp.Of(installPath);
         var owners = new Dictionary<string, List<InstalledModRecord>>(StringComparer.OrdinalIgnoreCase);
         foreach (var record in records)
         {
+            if (record.InstallPath is { } stamped && !string.Equals(stamped, stamp, StringComparison.OrdinalIgnoreCase)) continue;
+
             foreach (var file in record.Files)
             {
                 var key = file.Replace('\\', '/');
@@ -87,6 +73,9 @@ public static class ModFileConflicts
             if (!File.Exists(full)) continue;
 
             if (ModConfigFiles.IsUserData(relative, ModConfigFiles.OptionsFor(relative, configOptions))) continue;
+
+            // 1.19's new-file-only areas: a file already there is left as it is, never written over.
+            if (ProtectedInstallPaths.IsNewFileOnly(relative)) continue;
 
             if (owners.TryGetValue(relative, out var listed))
             {

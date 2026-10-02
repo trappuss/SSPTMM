@@ -250,7 +250,7 @@ public sealed class ConfigCarryOver(
             if (result.Carried.Count == 0 && result.Dropped.Count == 0 && result.UserAdded.Count == 0)
                 return new ConfigFileOutcome { Path = relative, Kind = ConfigOutcomeKind.DefaultsUpdated };
 
-            if (result.Content is { } merged) SafeFile.WriteAllBytes(placed, merged);
+            if (result.Content is { } merged) SafeFile.WriteBytes(placed, merged);
 
             return new ConfigFileOutcome
             {

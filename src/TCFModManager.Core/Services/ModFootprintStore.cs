@@ -58,7 +58,7 @@ public sealed class ModFootprintStore
                 SchemaVersion = SchemaVersion,
                 Footprints = footprints.ToDictionary(kvp => kvp.Key, kvp => kvp.Value),
             };
-            SafeFile.WriteAllText(_filePath, JsonSerializer.Serialize(data));
+            SafeFile.WriteText(_filePath, JsonSerializer.Serialize(data));
         }
         catch (IOException)
         {

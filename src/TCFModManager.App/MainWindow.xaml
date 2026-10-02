@@ -75,10 +75,15 @@
              or offer an update the user already has. The rest names the SPT install this window is
              pointed at, so two windows open on two installs can be told apart without opening the
              Options page in each. -->
+        <!-- ShowHelp is WPF-UI's own caption "?" beside minimise (Help R2), rather than a button of
+             ours in TrailingContent: it sits in the caption button row the window's hit-testing
+             already knows about, so it clicks like the other three instead of dragging the window. -->
         <ui:TitleBar
             x:Name="RootTitleBar"
             Grid.Row="0"
             Background="{StaticResource SteamGlobalHeader}"
+            ShowHelp="True"
+            HelpClicked="RootTitleBar_HelpClicked"
             Title="{Binding WindowTitle, Source={x:Static app:AppServices.SptEnvironment}}">
             <ui:TitleBar.Icon>
                 <ui:ImageIcon Source="pack://application:,,,/Assets/AppIcon.ico" />
@@ -88,15 +93,32 @@
         <!-- Both banners live in the same row, stacked, so raising one never overlaps the other. -->
         <StackPanel Grid.Row="1">
 
-            <!-- Warning banner shown when no SPT install path is set. -->
-            <ui:InfoBar
-                Margin="12,8,12,0"
-                IsClosable="True"
-                Severity="Warning"
-                Title="{loc:Str MainWindow_NoInstallTitle}"
-                Message="{loc:Str MainWindow_NoInstallMessage}"
-                DataContext="{x:Static app:AppServices.SptEnvironment}"
-                IsOpen="{Binding IsInstallPathMissing}" />
+            <!-- Warning banner shown when no SPT install path is set, with a way to the setup steps
+                 beside it (Help R9) - beside rather than inside, as the update banner below does.
+                 The button follows the bar's own IsOpen, so closing the bar takes it too. -->
+            <Grid Margin="12,8,12,0" DataContext="{x:Static app:AppServices.SptEnvironment}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <ui:InfoBar
+                    x:Name="NoInstallBar"
+                    Grid.Column="0"
+                    IsClosable="True"
+                    Severity="Warning"
+                    Title="{loc:Str MainWindow_NoInstallTitle}"
+                    Message="{loc:Str MainWindow_NoInstallMessage}"
+                    IsOpen="{Binding IsInstallPathMissing}" />
+                <ui:Button
+                    Grid.Column="1"
+                    Margin="8,0,0,0"
+                    VerticalAlignment="Center"
+                    Content="{loc:Str MainWindow_HowToSetUp}"
+                    Icon="{ui:SymbolIcon BookQuestionMark24}"
+                    ToolTip="{loc:Str MainWindow_HowToSetUpToolTip}"
+                    Visibility="{Binding IsOpen, ElementName=NoInstallBar, Converter={StaticResource BoolToVis}}"
+                    Click="HowToSetUp_Click" />
+            </Grid>
 
             <!-- New version of this app published on sp-mod.com. The action button sits beside the
                  InfoBar rather than inside it: InfoBar's own template button is the close button. -->
@@ -217,7 +239,7 @@
                     </ToggleButton>
                     <!-- The dot only appears when there is an update, coloured as the banner is:
                          informational for a fix, success for a feature release, attention for a
-                         major one. -->
+                         major one - or caution when only the Server Map mod is behind. -->
                     <ToggleButton Style="{StaticResource SteamHubTab}" Tag="{x:Type views:AppUpdatePage}" Click="HubTab_Click">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="{loc:Str Nav_AppUpdate}" />
@@ -228,8 +250,12 @@
                                 VerticalAlignment="Center"
                                 DataContext="{x:Static app:AppServices.AppUpdate}"
                                 Severity="{Binding BadgeSeverity}"
-                                Visibility="{Binding UpdateAvailable, Converter={StaticResource BoolToVis}}" />
+                                Visibility="{Binding ShowUpdateBadge, Converter={StaticResource BoolToVis}}" />
                         </StackPanel>
+                    </ToggleButton>
+                    <!-- 1.19's Help, also behind the "?" in the title bar and F1. -->
+                    <ToggleButton Style="{StaticResource SteamHubTab}" Tag="{x:Type views:HelpPage}" Click="HubTab_Click">
+                        <TextBlock Text="{loc:Str Nav_Help}" />
                     </ToggleButton>
                 </StackPanel>
             </Grid>
@@ -286,6 +312,7 @@
             </ui:NavigationView.MenuItems>
             <ui:NavigationView.FooterMenuItems>
                 <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:AppUpdatePage}" />
+                <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:HelpPage}" />
                 <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:OptionsPage}" />
             </ui:NavigationView.FooterMenuItems>
         </ui:NavigationView>

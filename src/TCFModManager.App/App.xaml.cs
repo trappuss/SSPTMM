@@ -4,6 +4,7 @@ using System.Windows.Markup;
 using System.Windows.Threading;
 using TCFModManager.App.Behaviors;
 using TCFModManager.App.Localization;
+using TCFModManager.App.Services;
 using TCFModManager.Core.ServerMap;
 using TCFModManager.Core.Services;
 
@@ -11,9 +12,8 @@ namespace TCFModManager.App;
 
 public partial class App : Application
 {
-    // Held for the app's lifetime: while it exists, a second copy using the same Data folder knows
-    // this one is running.
-    private static Mutex? _singleInstance;
+    // Set when another copy is already running from this folder, so this one leaves no trace.
+    private bool _secondCopy;
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -34,17 +34,33 @@ public partial class App : Application
             args.SetObserved();
         };
 
-        // One copy per Data folder. Two would each load settings, collections and the install
-        // records, and each save would quietly undo the other's changes.
-        if (!ClaimSingleInstance())
+        //
+        // First, before anything reads or writes Data\. A second launch from the same folder asks
+        // the running copy to show its window and goes no further (D11).
+        //
+        // The window is created at the end of this method rather than through StartupUri, which
+        // would open it even for a copy that is on its way out.
+        //
+        if (!SingleInstance.Claim(() => Dispatcher.BeginInvoke(ShowMainWindow)))
         {
-            AppLanguage.ApplyStored();
-            MessageBox.Show(Strings.App_AlreadyRunning, Strings.App_AlreadyRunningTitle, MessageBoxButton.OK, MessageBoxImage.Information);
-            Environment.Exit(0);
+            _secondCopy = true;
+            AppLog.Flush();
+            Shutdown();
             return;
         }
 
         AppLog.Start($"{AppVersion.Current}, SPT install: {AppServices.SptEnvironment.InstallPath ?? "(not set)"}");
+
+        // Fork: the per-install record lists the Steam Workshop fork kept before 1.19, moved into
+        // 1.19's single list before anything reads it - see ForkInstallRecordsMigration.
+        try
+        {
+            ForkInstallRecordsMigration.Run(AppPaths.DataDirectory, new SettingsService().Load().SptInstallPath);
+        }
+        catch (Exception ex) when (ex is System.IO.IOException or UnauthorizedAccessException)
+        {
+            AppLog.Error("Records", "couldn't move the fork's install records over", ex);
+        }
 
         // Before the theme and before any string is read, so the first frame is drawn in the right
         // language rather than re-read a moment later.
@@ -93,81 +109,62 @@ public partial class App : Application
         // is gone, so its own log is the only record of it) and clears out the staged files.
         AppUpdateInstaller.SweepAfterStartup();
 
-        // Installs the app was stopped in the middle of last time, put back - see InstallJournal.
-        RecoverInterruptedInstalls();
+        // Removed mods whose time is up under Keep removed mods are deleted from the install's holding
+        // folder (D27) - off the UI thread, since a large held mod takes a moment to delete.
+        var pruneInstall = SptInstallationService.ToGameRoot(new SettingsService().Load().SptInstallPath);
+        if (!string.IsNullOrWhiteSpace(pruneInstall))
+        {
+            _ = Task.Run(() =>
+            {
+                try
+                {
+                    var pruned = new RemovedMods().Prune(pruneInstall, DateTimeOffset.Now);
+                    if (pruned > 0) AppLog.Info("Remove", $"cleared {pruned} held removal(s) past Keep removed mods");
+                }
+                catch (Exception ex) when (ex is System.IO.IOException or UnauthorizedAccessException)
+                {
+                    AppLog.Warn("Remove", $"couldn't clear old removals: {ex.Message}");
+                }
+            });
+        }
 
         // A data file found damaged or unreadable - now or later - is said, once the window is up.
         SafeFile.ProblemFound += (_, _) => Dispatcher.BeginInvoke(ReportDataProblems, DispatcherPriority.ApplicationIdle);
+
+        // Signing out or shutting Windows down closes the window like anything else, and that close
+        // has to end the app rather than hide it in the tray.
+        SessionEnding += (_, _) => AppTray.MarkQuitting();
+
+        // Before the window, so a launch that came from clicking a notification opens on Installed.
+        UpdateToasts.Initialize(e.Args, new SettingsService().Load().UpdateNotifications.Enabled);
+
+        var window = new MainWindow();
+        MainWindow = window;
+        window.Show();
+
+        // The first check is one interval from now, never at launch (R2). A no-op while it's off.
+        AppServices.UpdateWatcher.Start();
+
+        // A no-op unless the page is on and the user agreed to report to this server (D9).
+        AppServices.ServerMapReporter.Start();
     }
 
-    private static bool ClaimSingleInstance()
+    // Another launch of the exe from this folder asked for the window.
+    private void ShowMainWindow()
     {
-        var key = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(
-            System.Text.Encoding.UTF8.GetBytes(AppPaths.DataDirectory.ToUpperInvariant())))[..16];
-
-        bool created;
-        try
-        {
-            _singleInstance = new Mutex(initiallyOwned: true, $"Local\\TCFModManager-{key}", out created);
-        }
-        catch (UnauthorizedAccessException)
-        {
-            // The copy already open runs as administrator and this one doesn't: it exists, and it is
-            // the one to use.
-            return false;
-        }
-
-        if (created) return true;
-
-        // Left over from a copy that ended without letting go: Windows hands it over as abandoned.
-        try
-        {
-            if (_singleInstance.WaitOne(0)) return true;
-        }
-        catch (AbandonedMutexException)
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-    // Said once the window is up - see ReportDataProblems.
-    private static readonly List<string> PendingNotices = [];
-
-    private static void RecoverInterruptedInstalls()
-    {
-        if (AppServices.SptEnvironment.InstallPath is not { Length: > 0 } installPath) return;
-
-        try
-        {
-            var recovered = AppServices.ModInstall.RecoverInterruptedInstalls(installPath);
-            if (recovered.Count > 0)
-                PendingNotices.Add(LocalizationService.Text(Strings.App_InstallsRecoveredFormat, Services.TextLists.Join(recovered)));
-        }
-        catch (Exception ex)
-        {
-            // Never a reason not to start; the work folders stay for next time.
-            AppLog.Error("Install", "recovering interrupted installs failed", ex);
-        }
+        if (MainWindow is { } window) WindowActivation.BringForward(window);
     }
 
     private static readonly HashSet<string> ReportedData = new(StringComparer.OrdinalIgnoreCase);
 
     //
     // What SafeFile found: a settings file, the collections or the install records damaged by a
-    // crash or a power cut, or held open by another program. Said plainly, with where the damaged
-    // copy was kept - nothing was thrown away - rather than the app quietly starting over.
+    // crash or a power cut. Said plainly, with where the damaged copy was kept - nothing was thrown
+    // away - rather than the app quietly starting over.
     //
     public static void ReportDataProblems()
     {
         if (Current?.MainWindow is not { IsLoaded: true }) return;
-
-        foreach (var notice in PendingNotices.ToList())
-        {
-            PendingNotices.Remove(notice);
-            MessageBox.Show(Current.MainWindow, notice, Strings.App_InstallsRecoveredTitle, MessageBoxButton.OK, MessageBoxImage.Information);
-        }
 
         foreach (var problem in SafeFile.Problems)
         {
@@ -175,12 +172,7 @@ public partial class App : Application
 
             var name = System.IO.Path.GetFileName(problem.Path);
             var kept = problem.KeptAs ?? Strings.App_DataNotKept;
-            var body = problem switch
-            {
-                { CouldNotRead: true } => LocalizationService.Text(Strings.App_DataUnreadableFormat, name),
-                { RestoredFromBackup: true } => LocalizationService.Text(Strings.App_DataRestoredFormat, name, kept),
-                _ => LocalizationService.Text(Strings.App_DataDamagedFormat, name, kept),
-            };
+            var body = LocalizationService.Text(Strings.App_DataDamagedFormat, name, kept);
 
             MessageBox.Show(Current.MainWindow, body, Strings.App_DataProblemTitle, MessageBoxButton.OK, MessageBoxImage.Warning);
         }
@@ -255,6 +247,16 @@ public partial class App : Application
 
     protected override void OnExit(ExitEventArgs e)
     {
+        if (_secondCopy)
+        {
+            base.OnExit(e);
+            return;
+        }
+
+        AppServices.UpdateWatcher.Stop();
+        AppServices.ServerMapReporter.Stop();
+        AppTray.Dispose();
+        UpdateToasts.RemoveMessages();
         DependencyBadgeLoader.Flush();
         AppLog.Info("App", "Shutting down");
         AppLog.Flush();

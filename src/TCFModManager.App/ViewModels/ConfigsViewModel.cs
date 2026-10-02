@@ -637,6 +637,10 @@ public sealed partial class ConfigsViewModel : LocalizedViewModel
                 HandleChangedOnDisk(entry);
                 break;
 
+            case ModConfigSaveOutcome.BackupFailed:
+                EditorError = Text(Strings.Configs_BackupFailedFormat, entry.FileName, result.Error);
+                break;
+
             default:
                 EditorError = result.Error;
                 break;

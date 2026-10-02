@@ -334,8 +334,8 @@ rule in `Core\Services\PluralRules.cs` - no call site moves.
  download, extraction, scanning, version matching, caching, logging). Plain `net9.0`, no UI
  dependencies, so it's reusable from tests, a console tool, or a future TCFModSync integration.
  One package reference: SharpCompress.
-- `src/TCFModManager.App` the WPF shell (`net9.0-windows`, [WPF-UI](https://www.nuget.org/packages/WPF-UI)
- 4.3.0 for Fluent Design, MVVM via CommunityToolkit.Mvvm). Six pages: Browse, Installed,
+- `src/TCFModManager.App` the WPF shell (`net9.0-windows10.0.17763.0`, [WPF-UI](https://www.nuget.org/packages/WPF-UI)
+ 4.3.0 for Fluent Design, MVVM via CommunityToolkit.Mvvm, Microsoft.Toolkit.Uwp.Notifications for update notifications). Six pages: Browse, Installed,
  Dependencies, Downloads, App update, Options.
 - `Tests/TCFModManager.Core.Tests` xunit tests over the API client, version matching,
  dependency status, and the installed-mod scanner, using JSON fixtures captured from live

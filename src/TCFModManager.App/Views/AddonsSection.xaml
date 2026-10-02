@@ -102,6 +102,18 @@
                                         Content="{Binding ActionLabel}"
                                         Command="{Binding InstallCommand}"
                                         ToolTip="{Binding InstallToolTip, Source={x:Static app:AppServices.ModPageGate}}" />
+                                    <!-- Does the opposite of Monitor mode's setting, for this one addon. -->
+                                    <ui:Button
+                                        DockPanel.Dock="Right"
+                                        Margin="8,0,0,0"
+                                        Padding="6"
+                                        Appearance="Transparent"
+                                        Command="{Binding InstallAlternateCommand}"
+                                        ToolTip="{Binding AlternateToolTip, Source={x:Static app:AppServices.ModPageGate}}">
+                                        <ui:Button.Icon>
+                                            <ui:SymbolIcon Symbol="{Binding AlternateSymbol, Source={x:Static app:AppServices.ModPageGate}}" />
+                                        </ui:Button.Icon>
+                                    </ui:Button>
                                     <ui:Button
                                         DockPanel.Dock="Right"
                                         Margin="8,0,0,0"

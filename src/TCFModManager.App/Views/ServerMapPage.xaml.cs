@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
 
 namespace TCFModManager.App.Views;
 
@@ -12,7 +13,22 @@ namespace TCFModManager.App.Views;
 //
 public partial class ServerMapPage : Page
 {
-    public ServerMapPage() => InitializeComponent();
+    //
+    // How often the map is read again while this page is on screen. Only while it is on screen: the
+    // map is for looking at, and asking the server who is on it with nobody looking is traffic
+    // for nothing. This machine's own report runs on its own timer either way.
+    //
+    private static readonly TimeSpan MapRefreshInterval = TimeSpan.FromSeconds(60);
+
+    private readonly DispatcherTimer _mapTimer = new() { Interval = MapRefreshInterval };
+
+    public ServerMapPage()
+    {
+        InitializeComponent();
+
+        _mapTimer.Tick += async (_, _) => await AppServices.ServerMap.RefreshMapAsync();
+        Unloaded += (_, _) => _mapTimer.Stop();
+    }
 
     //
     // Picks up this machine's own server key every time the page is shown.
@@ -21,5 +37,11 @@ public partial class ServerMapPage : Page
     // runs, which is usually after this app was opened, and it changes again whenever the key is
     // rotated. Checking on show means an operator never restarts the app to see their own key.
     //
-    private void Page_Loaded(object sender, RoutedEventArgs e) => AppServices.ServerMap.RefreshLocalKey();
+    private async void Page_Loaded(object sender, RoutedEventArgs e)
+    {
+        AppServices.ServerMap.RefreshLocalKey();
+
+        _mapTimer.Start();
+        await AppServices.ServerMap.RefreshMapAsync();
+    }
 }

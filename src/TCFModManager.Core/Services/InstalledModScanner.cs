@@ -1,6 +1,4 @@
 using System.Diagnostics;
-using System.Reflection.Metadata;
-using System.Reflection.PortableExecutable;
 using System.Text.Json;
 using TCFModManager.Core.Models;
 
@@ -54,7 +52,7 @@ public static class InstalledModScanner
         && (CoreSptEntries.Contains(name) || NonModPatcherEntries.Contains(name));
 
     //
-    // Every [BepInPlugin] GUID that BepInEx would load from this install - every DLL under
+    // Fork: every [BepInPlugin] GUID that BepInEx would load from this install - every DLL under
     // BepInEx\plugins, however deep, SPT's own included. The scan above reads each mod folder's top
     // level only and leaves SPT's folder out, so a dependency on SPT's core plugins, or on an API
     // DLL a mod keeps in a subfolder, would otherwise look missing when it is not.
@@ -73,7 +71,7 @@ public static class InstalledModScanner
             var everywhere = new EnumerationOptions { RecurseSubdirectories = true, IgnoreInaccessible = true };
             foreach (var dll in Directory.EnumerateFiles(plugins, "*.dll", everywhere))
             {
-                if (ReadPluginMetadata(dll).Guid is { Length: > 0 } guid) guids.Add(guid);
+                if (ModAssemblyMetadata.ReadPlugin(dll).Guid is { Length: > 0 } guid) guids.Add(guid);
             }
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
@@ -107,8 +105,9 @@ public static class InstalledModScanner
     }
 
     //
-    // Client (BepInEx) mods are versioned via their DLL's embedded file version resource.
-    // Handles both a subfolder containing DLLs and a single loose DLL directly in the container.
+    // Client (BepInEx) mods are versioned by what their [BepInPlugin] declares, falling back to the
+    // DLL's embedded file version when it declares nothing. Handles both a subfolder containing
+    // DLLs and a single loose DLL directly in the container.
     // <paramref name="isPatcher"/> says which of the two client containers this is - patchers are
     // read exactly the same way, they just get flagged so the card layer can fold one back into
     // the mod it belongs to instead of showing it as a mod in its own right.
@@ -129,28 +128,30 @@ public static class InstalledModScanner
 
             // Check every DLL in the folder for the [BepInPlugin] attribute; it isn't necessarily
             // on the same DLL used for versioning. Dependencies are collected across all of them.
-            var metadata = dlls.Select(ReadPluginMetadata).ToList();
+            var metadata = dlls.Select(d => (Dll: d, Declared: ModAssemblyMetadata.ReadPlugin(d))).ToList();
 
             // Every GUID the folder registers, kept alongside the first. A mod shipping an API or
             // config-UI assembly next to its own plugin registers one per DLL, and each of those
             // has its own config file named after it.
             var guids = metadata
-                .Select(m => m.Guid)
+                .Select(m => m.Declared.Guid)
                 .Where(g => !string.IsNullOrWhiteSpace(g))
                 .Select(g => g!)
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToList();
 
-            // A DLL built without a file version still states one in its [BepInPlugin].
-            var pluginVersion = (dll is null ? null : ReadPluginMetadata(dll).Version)
-                ?? metadata.Select(m => m.Version).FirstOrDefault(v => !string.IsNullOrWhiteSpace(v));
-            var version = (dll is null ? null : TryGetFileVersion(dll)) ?? pluginVersion;
+            // The version comes from the DLL chosen for versioning when it is a plugin itself, then
+            // from the plugin that stands for the mod's identity.
+            var primary = metadata.FirstOrDefault(m => m.Dll == dll && m.Declared.Guid is not null).Declared
+                ?? metadata.FirstOrDefault(m => m.Declared.Guid is not null && m.Declared.Guid == guids.FirstOrDefault()).Declared;
+            var fileVersion = dll is null ? null : TryGetFileVersion(dll);
 
             results.Add(new InstalledMod
             {
                 Name = name,
-                Version = version,
-                PluginVersion = string.Equals(pluginVersion, version, StringComparison.OrdinalIgnoreCase) ? null : pluginVersion,
+                Version = primary?.Version ?? fileVersion,
+                FileVersion = fileVersion,
+                DeclaredName = primary?.Name,
                 Guid = guids.FirstOrDefault(),
                 Guids = guids,
                 Target = InstalledModTarget.Client,
@@ -158,7 +159,8 @@ public static class InstalledModScanner
                 FolderPath = dir,
                 InstalledAt = TryGetCreationTime(dir),
                 IsDisabled = disabled,
-                Dependencies = MergeDependencies(metadata.SelectMany(m => m.Dependencies)),
+                Dependencies = MergeDependencies(metadata.SelectMany(m => m.Declared.Dependencies)),
+                Assemblies = disabled ? [] : ListAssemblies(dir),
             });
         }
 
@@ -167,15 +169,15 @@ public static class InstalledModScanner
             var name = Path.GetFileNameWithoutExtension(dll);
             if (IsCoreEntry(name, isPatcher)) continue;
 
-            var metadata = ReadPluginMetadata(dll);
+            var metadata = ModAssemblyMetadata.ReadPlugin(dll);
+            var fileVersion = TryGetFileVersion(dll);
 
             results.Add(new InstalledMod
             {
                 Name = name,
-                Version = TryGetFileVersion(dll) ?? metadata.Version,
-                PluginVersion = TryGetFileVersion(dll) is { } file && !string.Equals(file, metadata.Version, StringComparison.OrdinalIgnoreCase)
-                    ? metadata.Version
-                    : null,
+                Version = metadata.Version ?? fileVersion,
+                FileVersion = fileVersion,
+                DeclaredName = metadata.Name,
                 Guid = metadata.Guid,
                 Guids = metadata.Guid is null ? [] : [metadata.Guid],
                 Target = InstalledModTarget.Client,
@@ -184,12 +186,20 @@ public static class InstalledModScanner
                 InstalledAt = TryGetCreationTime(dll),
                 IsDisabled = disabled,
                 Dependencies = MergeDependencies(metadata.Dependencies),
+                Assemblies = disabled ? [] : [Describe(dll, Path.GetFileName(dll))],
             });
         }
     }
 
-    // Server mods are versioned via their package.json manifest's "name"/"version"/"author" fields
-    // (SPT 3), else the metadata class in their DLL (SPT 4), else a DLL's FileVersionInfo.
+    //
+    // SPT 3.x server mods describe themselves in package.json ("name"/"version"/"author"/
+    // "modDependencies"). SPT 4.x server mods ship no package.json - the same facts are declared in
+    // a metadata record inside the mod's DLL (see ModAssemblyMetadata.ReadServer), which is read
+    // when package.json is missing or has no version. The DLL's file version is the last resort.
+    //
+    // Name stays the package name or folder name either way: it is the join key for groups, pins,
+    // list entries and SPT 3.x dependencies. The declared name is carried alongside for display.
+    //
     private static void ScanServerFolder(string root, List<InstalledMod> results, bool disabled)
     {
         if (!Directory.Exists(root)) return;
@@ -242,54 +252,93 @@ public static class InstalledModScanner
                 }
             }
 
-            // An SPT 4 server mod has no package.json: it says who it is in its DLL instead (see
-            // ServerModMetadataReader). Its GUID is what other server mods depend on it by, and its
-            // version there is the one SPT reports - the DLL's file version need not be.
-            //
-            // The DLL named after the folder, or the only one with metadata; with several and none
-            // named for the folder, which one is the mod cannot be told, and none is taken.
-            var dlls = Directory.EnumerateFiles(dir, "*.dll", SearchOption.TopDirectoryOnly).ToList();
-            var described = dlls
-                .Select(d => (Dll: d, Metadata: ServerModMetadataReader.Read(d)))
-                .Where(m => m.Metadata is not null)
-                .ToList();
-            var (metadataDll, metadata) = described.FirstOrDefault(m =>
-                string.Equals(Path.GetFileNameWithoutExtension(m.Dll), folderName, StringComparison.OrdinalIgnoreCase));
-            if (metadata is null && described.Count == 1) (metadataDll, metadata) = described[0];
+            DeclaredMetadata? declared = null;
+            string? fileVersion = null;
 
-            if (metadata is not null)
+            if (version is null)
             {
-                version ??= metadata.Version;
-                author ??= metadata.Author;
-                dependencies.AddRange(metadata.Dependencies);
+                // Prefer a DLL whose name matches the folder/mod name, then the rest. The one that
+                // carries the metadata record is the mod's own; the others are bundled libraries.
+                var dlls = Directory.EnumerateFiles(dir, "*.dll", SearchOption.TopDirectoryOnly)
+                    .OrderByDescending(d => string.Equals(Path.GetFileNameWithoutExtension(d), name, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+
+                string? declaringDll = null;
+                foreach (var candidate in dlls)
+                {
+                    declared = ModAssemblyMetadata.ReadServer(candidate);
+                    if (declared is null) continue;
+
+                    declaringDll = candidate;
+                    break;
+                }
+
+                var dll = declaringDll ?? dlls.FirstOrDefault();
+                if (dll is not null) fileVersion = TryGetFileVersion(dll);
+
+                version = declared?.Version ?? fileVersion;
+                author ??= declared?.Author;
+                if (declared is not null) dependencies.AddRange(declared.Dependencies);
             }
-
-            // Last, a DLL's file version: the one with the metadata, else one named after the mod.
-            var named = metadataDll
-                ?? dlls.FirstOrDefault(d => string.Equals(Path.GetFileNameWithoutExtension(d), name, StringComparison.OrdinalIgnoreCase))
-                ?? dlls.FirstOrDefault();
-            if (version is null && named is not null) version = TryGetFileVersion(named);
-
-            var guid = metadata?.Guid;
 
             results.Add(new InstalledMod
             {
                 Name = name,
                 Version = version,
+                FileVersion = fileVersion,
+                DeclaredName = declared?.Name,
+                SptVersion = declared?.SptVersion,
+                Guid = declared?.Guid,
+                Guids = declared?.Guid is { } guid ? [guid] : [],
                 Author = author,
-                Guid = guid,
-                Guids = guid is null ? [] : [guid],
                 Target = InstalledModTarget.Server,
                 FolderPath = dir,
                 InstalledAt = TryGetCreationTime(dir),
                 IsDisabled = disabled,
-
-                // What other mods would name it by could not be read: no package.json, no GUID in
-                // its DLL - so a server dependency nothing is found for might still be this one.
-                IdentityUnknown = guid is null && !File.Exists(packageJsonPath) && dlls.Count > 0,
                 Dependencies = MergeDependencies(dependencies),
             });
         }
+    }
+
+    // A folder holding more DLLs than this is listed up to it - no real mod comes close, and the
+    // conflict check must not be what makes a scan of a strange folder slow.
+    private const int MaxAssembliesPerEntry = 500;
+
+    //
+    // Every DLL under a client mod folder, at any depth - BepInEx loads plugins recursively. Folders
+    // that are links are not followed, the same as every other walk inside an install.
+    //
+    private static List<ModAssembly> ListAssemblies(string folder)
+    {
+        try
+        {
+            return
+            [
+                .. Directory.EnumerateFiles(folder, "*.dll", new EnumerationOptions
+                    {
+                        RecurseSubdirectories = true,
+                        AttributesToSkip = FileAttributes.ReparsePoint,
+                        IgnoreInaccessible = true,
+                    })
+                    .Take(MaxAssembliesPerEntry)
+                    .Select(dll => Describe(dll, Path.GetRelativePath(folder, dll).Replace('\\', '/'))),
+            ];
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            return [];
+        }
+    }
+
+    private static ModAssembly Describe(string dll, string relativePath)
+    {
+        var (name, version) = ModAssemblyMetadata.ReadIdentity(dll);
+
+        long size;
+        try { size = new FileInfo(dll).Length; }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { size = -1; }
+
+        return new ModAssembly(relativePath, name, version, size);
     }
 
     //
@@ -321,11 +370,17 @@ public static class InstalledModScanner
         }
     }
 
-    // Distinct by identifier, keeping the hardest declaration when the same one appears twice.
+    //
+    // Distinct by identifier, keeping the hardest declaration when the same one appears twice, and
+    // the version range of a hard declaration over a soft one's.
+    //
     private static List<ModDependencyRef> MergeDependencies(IEnumerable<ModDependencyRef> dependencies) =>
         dependencies
             .GroupBy(d => d.Identifier, StringComparer.OrdinalIgnoreCase)
-            .Select(g => new ModDependencyRef(g.Key, g.All(d => d.IsSoft)))
+            .Select(g => new ModDependencyRef(
+                g.Key,
+                g.All(d => d.IsSoft),
+                g.OrderBy(d => d.IsSoft).Select(d => d.VersionRange).FirstOrDefault(r => r is not null)))
             .ToList();
 
     private static DateTimeOffset? TryGetCreationTime(string path)
@@ -340,30 +395,6 @@ public static class InstalledModScanner
         }
     }
 
-    //
-    // Which of a plugin's two versions to go by - its file version, or the one its [BepInPlugin]
-    // states (what BepInEx loads it as: "Loading [ORBIT 2.0.0]") - given the versions published for
-    // it, when known. Whichever one is published; failing that, the plugin's when it is the same
-    // release with a build number on top (ORBIT's file version is 2.0.0.42986, no published version
-    // has that); otherwise the file version, as it always was.
-    //
-    public static string? PluginVersionOf(string? fileVersion, string? pluginVersion, IEnumerable<string?>? published = null)
-    {
-        if (fileVersion is null) return pluginVersion;
-        if (pluginVersion is null || string.Equals(fileVersion, pluginVersion, StringComparison.OrdinalIgnoreCase)) return fileVersion;
-
-        var known = (published ?? []).Where(p => !string.IsNullOrWhiteSpace(p)).ToList();
-        if (known.Contains(fileVersion, StringComparer.OrdinalIgnoreCase)) return fileVersion;
-        if (known.Contains(pluginVersion, StringComparer.OrdinalIgnoreCase)) return pluginVersion;
-        if (ModVersionComparer.BestSameRelease(fileVersion, known) is not null) return fileVersion;
-        if (ModVersionComparer.BestSameRelease(pluginVersion, known) is not null) return pluginVersion;
-
-        // A file version with a label ("1.2.0-beta", read from the product version) says more.
-        return ModVersionComparer.SameNumbers(fileVersion, pluginVersion) && !fileVersion.Contains('-')
-            ? pluginVersion
-            : fileVersion;
-    }
-
     private static string? TryGetFileVersion(string dllPath)
     {
         try
@@ -375,171 +406,6 @@ public static class InstalledModScanner
         catch (Exception)
         {
             return null;
-        }
-    }
-
-    /// <summary>A plugin DLL's [BepInPlugin] GUID (null when it declares none) and file version (its
-    /// [BepInPlugin] version when it has none).</summary>
-    public static (string? Guid, string? Version) ReadPlugin(string dllPath)
-    {
-        var (guid, file, plugin) = ReadPluginVersions(dllPath);
-        return (guid, file ?? plugin);
-    }
-
-    /// <summary>A plugin DLL's [BepInPlugin] GUID, file version and [BepInPlugin] version.</summary>
-    public static (string? Guid, string? FileVersion, string? PluginVersion) ReadPluginVersions(string dllPath)
-    {
-        var read = ReadPluginMetadata(dllPath);
-        return (read.Guid, TryGetFileVersion(dllPath), read.Version);
-    }
-
-    // What a compiled BepInEx plugin DLL declares about itself.
-    private readonly record struct PluginMetadata(string? Guid, IReadOnlyList<ModDependencyRef> Dependencies, string? Version = null);
-
-    //
-    // Reads the GUID from a compiled BepInEx plugin DLL's [BepInPlugin("guid", ...)] attribute and
-    // the GUIDs of every [BepInDependency("guid", ...)] on the same types, by walking the raw
-    // PE/ECMA-335 metadata without loading or executing the assembly. Returns an empty result
-    // (never throws) if the DLL isn't readable managed code.
-    //
-    private static PluginMetadata ReadPluginMetadata(string dllPath)
-    {
-        try
-        {
-            using var stream = File.OpenRead(dllPath);
-            using var peReader = new PEReader(stream);
-            if (!peReader.HasMetadata) return new PluginMetadata(null, []);
-
-            var reader = peReader.GetMetadataReader();
-            string? guid = null;
-            string? version = null;
-            var dependencies = new List<ModDependencyRef>();
-
-            foreach (var typeHandle in reader.TypeDefinitions)
-            {
-                var typeDef = reader.GetTypeDefinition(typeHandle);
-
-                foreach (var attributeHandle in typeDef.GetCustomAttributes())
-                {
-                    var attribute = reader.GetCustomAttribute(attributeHandle);
-
-                    if (guid is null && IsBepInExAttribute(reader, attribute, "BepInPlugin"))
-                    {
-                        var (value, pluginVersion) = TryDecodePluginArguments(reader, attribute);
-                        if (!string.IsNullOrWhiteSpace(value))
-                        {
-                            guid = value;
-                            version = string.IsNullOrWhiteSpace(pluginVersion) ? null : pluginVersion.Trim();
-                        }
-
-                        continue;
-                    }
-
-                    if (!IsBepInExAttribute(reader, attribute, "BepInDependency")) continue;
-
-                    var dependency = TryDecodeDependency(reader, attribute);
-                    if (dependency is not null) dependencies.Add(dependency);
-                }
-            }
-
-            return new PluginMetadata(guid, dependencies, version);
-        }
-        catch (Exception)
-        {
-            return new PluginMetadata(null, []);
-        }
-    }
-
-    // True if this custom attribute's constructor resolves to BepInEx.<name>, resolved by
-    // namespace/name from the DLL's own TypeReference table without loading BepInEx.dll.
-    private static bool IsBepInExAttribute(MetadataReader reader, CustomAttribute attribute, string name)
-    {
-        if (attribute.Constructor.Kind != HandleKind.MemberReference) return false;
-
-        var memberRef = reader.GetMemberReference((MemberReferenceHandle)attribute.Constructor);
-        if (memberRef.Parent.Kind != HandleKind.TypeReference) return false;
-
-        var typeRef = reader.GetTypeReference((TypeReferenceHandle)memberRef.Parent);
-        return reader.GetString(typeRef.Namespace) == "BepInEx"
-            && reader.GetString(typeRef.Name) == name;
-    }
-
-    // [BepInPlugin(string guid, string name, string version)]: the GUID, and the version when all
-    // three are there to read.
-    private static (string? Guid, string? Version) TryDecodePluginArguments(MetadataReader reader, CustomAttribute attribute)
-    {
-        var blobReader = reader.GetBlobReader(attribute.Value);
-
-        // Custom attribute value blobs start with a fixed 2-byte prolog (0x0001) per ECMA-335 II.23.3.
-        if (blobReader.ReadUInt16() != 1) return (null, null);
-
-        var guid = blobReader.ReadSerializedString();
-        try
-        {
-            blobReader.ReadSerializedString();
-            return (guid, blobReader.ReadSerializedString());
-        }
-        catch (BadImageFormatException)
-        {
-            return (guid, null);
-        }
-    }
-
-    //
-    // Decodes a [BepInDependency] into its GUID and hardness. BepInEx has two constructors:
-    // (string guid, DependencyFlags flags) and (string guid, string minimumVersion) - the second
-    // is always a hard dependency. Which one was used is read from the constructor's own signature,
-    // since the value blob alone can't tell an enum from a string.
-    //
-    private static ModDependencyRef? TryDecodeDependency(MetadataReader reader, CustomAttribute attribute)
-    {
-        var memberRef = reader.GetMemberReference((MemberReferenceHandle)attribute.Constructor);
-
-        var blobReader = reader.GetBlobReader(attribute.Value);
-        if (blobReader.ReadUInt16() != 1) return null;
-
-        var guid = blobReader.ReadSerializedString();
-        if (string.IsNullOrWhiteSpace(guid)) return null;
-
-        var isSoft = SecondParameterIsEnum(reader, memberRef)
-            && (blobReader.ReadInt32() & SoftDependencyFlag) != 0;
-
-        return new ModDependencyRef(guid, isSoft);
-    }
-
-    // BepInEx.BepInDependency.DependencyFlags.SoftDependency.
-    private const int SoftDependencyFlag = 2;
-
-    //
-    // True when a member reference's second parameter is a value type (the DependencyFlags enum)
-    // rather than a string. Walks the raw method signature blob: calling convention, parameter
-    // count, return type, then each parameter's element type.
-    //
-    private static bool SecondParameterIsEnum(MetadataReader reader, MemberReference memberRef)
-    {
-        try
-        {
-            var signature = reader.GetBlobReader(memberRef.Signature);
-
-            var callingConvention = signature.ReadByte();
-            if ((callingConvention & 0x10) != 0) signature.ReadCompressedInteger();
-
-            var parameterCount = signature.ReadCompressedInteger();
-            if (parameterCount < 2) return false;
-
-            // Return type of a constructor is void.
-            signature.ReadSignatureTypeCode();
-
-            // First parameter is the GUID string.
-            signature.ReadSignatureTypeCode();
-
-            // TypeHandle covers both ELEMENT_TYPE_VALUETYPE and ELEMENT_TYPE_CLASS; the enum
-            // overload is the only one of the two BepInEx declares.
-            return signature.ReadSignatureTypeCode() == SignatureTypeCode.TypeHandle;
-        }
-        catch (Exception)
-        {
-            return false;
         }
     }
 }

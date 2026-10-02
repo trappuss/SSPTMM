@@ -89,6 +89,41 @@ public partial class AddonCacheViewModel : LocalizedViewModel
         _loadTask = Task.FromResult(addons);
     }
 
+    //
+    // Swaps in fresh listings for the installed addons, found by the update watcher (D3). Same
+    // rule as ModCacheViewModel.Patch: an addon the cache doesn't hold is not added.
+    //
+    // Every installed addon is re-read on every check, so a listing is only swapped in when its
+    // releases changed. Otherwise each check would raise AddonsChanged and redraw Browse under
+    // whoever is reading it, hourly, for nothing.
+    //
+    public bool Patch(IReadOnlyList<Addon> fresh)
+    {
+        if (fresh.Count == 0 || AllAddons.Count == 0) return false;
+
+        var byId = fresh.GroupBy(a => a.Id).ToDictionary(g => g.Key, g => g.Last());
+        var replaced = 0;
+
+        var patched = AllAddons
+            .Select(a =>
+            {
+                if (!byId.TryGetValue(a.Id, out var listing) || ReleasesOf(listing) == ReleasesOf(a)) return a;
+                replaced++;
+                return listing;
+            })
+            .ToList();
+
+        if (replaced == 0) return false;
+
+        Publish(patched);
+        _loadTask = Task.FromResult(patched);
+        _ = Task.Run(() => _store.Save(patched), CancellationToken.None);
+        return true;
+    }
+
+    private static string ReleasesOf(Addon addon) =>
+        string.Join(',', (addon.Versions ?? []).Select(v => $"{v.Id}:{v.Version}"));
+
     private async Task<List<Addon>> LoadAsync(CancellationToken ct)
     {
         var cached = await Task.Run(_store.Load, ct);

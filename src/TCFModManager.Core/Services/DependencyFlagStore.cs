@@ -62,7 +62,7 @@ public sealed class DependencyFlagStore
                 SchemaVersion = SchemaVersion,
                 Flags = flags.ToDictionary(kvp => kvp.Key, kvp => kvp.Value),
             };
-            SafeFile.WriteAllText(_filePath, JsonSerializer.Serialize(data));
+            SafeFile.WriteText(_filePath, JsonSerializer.Serialize(data));
         }
         catch (IOException)
         {

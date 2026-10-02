@@ -120,7 +120,7 @@ public sealed class SptReleaseCatalog(SpModApiClient api)
                 FetchedAt = DateTimeOffset.UtcNow,
                 Versions = releases.Select(r => r.Label).ToList(),
             };
-            SafeFile.WriteAllText(_filePath, JsonSerializer.Serialize(data));
+            SafeFile.WriteText(_filePath, JsonSerializer.Serialize(data));
         }
         catch (IOException)
         {

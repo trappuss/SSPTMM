@@ -24,6 +24,16 @@ public sealed class ServerMapClient : IDisposable
 
     public const string ListPath = "/tcfservermap/list";
 
+    public const string ReportPath = "/tcfservermap/report";
+
+    public const string WithdrawPath = "/tcfservermap/withdraw";
+
+    public const string ClientsPath = "/tcfservermap/clients";
+
+    public const string ClientHeaderName = "X-ServerMap-Client";
+
+    public const string MapCapability = "map";
+
     private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(6);
 
     private static readonly JsonSerializerOptions Json = new() { PropertyNameCaseInsensitive = true };
@@ -128,6 +138,9 @@ public sealed class ServerMapClient : IDisposable
 
             if (!response.IsSuccessStatusCode)
             {
+                if (await IsLanOnlyRefusalAsync(response, cancellationToken).ConfigureAwait(false))
+                    return Fail(ServerMapProblem.LanOnly, statusCode: (int)response.StatusCode);
+
                 // A 404 from a plain SPT server and a 503 from a stub with no payload mean the same
                 // thing to us: there is no server map here.
                 return Fail(ServerMapProblem.NotServerMap, statusCode: (int)response.StatusCode);
@@ -230,6 +243,12 @@ public sealed class ServerMapClient : IDisposable
 
             if (!response.IsSuccessStatusCode)
             {
+                if (await IsLanOnlyRefusalAsync(response, cancellationToken).ConfigureAwait(false))
+                    return new ServerMapListResult
+                    {
+                        Endpoint = _endpoint, Problem = ServerMapProblem.LanOnly, StatusCode = (int)response.StatusCode,
+                    };
+
                 //
                 // A 404 here is the server saying it publishes nothing, which is a normal thing for
                 // a server to say. It is only "wrong address" on /hello, where nothing has yet
@@ -294,6 +313,185 @@ public sealed class ServerMapClient : IDisposable
         {
             return new ServerMapListResult { Endpoint = _endpoint, Problem = ServerMapProblem.Failed, Error = ex };
         }
+    }
+
+    //
+    // Tells the server this machine is here. Mods travels only when the report carries it - an
+    // ordinary heartbeat is a few hundred bytes, and the reply says when the server wants the rest.
+    //
+    public async Task<ServerMapReportResult> ReportAsync(MachineReport report,
+        CancellationToken cancellationToken = default)
+    {
+        var (problem, status, body, error) = await SendAsync(HttpMethod.Post, ReportPath,
+            JsonSerializer.Serialize(report, ServerMapMachines.Json), null, cancellationToken).ConfigureAwait(false);
+
+        if (problem != ServerMapProblem.None)
+            return new ServerMapReportResult { Endpoint = _endpoint, Problem = problem, StatusCode = status, Error = error };
+
+        try
+        {
+            var reply = JsonSerializer.Deserialize<ReportReply>(body!, ServerMapMachines.Json);
+
+            return new ServerMapReportResult
+            {
+                Endpoint = _endpoint,
+                Resend = reply?.Resend ?? false,
+                IntervalSeconds = reply?.IntervalSeconds is > 0 ? reply.IntervalSeconds : ServerMapMachines.DefaultIntervalSeconds,
+                StatusCode = status,
+            };
+        }
+        catch (JsonException ex)
+        {
+            return new ServerMapReportResult
+            {
+                Endpoint = _endpoint, Problem = ServerMapProblem.Failed, StatusCode = status, Error = ex,
+            };
+        }
+    }
+
+    // Takes this machine off the map. The server forgetting it is the whole effect.
+    public async Task<ServerMapProblem> WithdrawAsync(string clientId, CancellationToken cancellationToken = default)
+    {
+        var (problem, _, _, _) = await SendAsync(HttpMethod.Post, WithdrawPath,
+            JsonSerializer.Serialize(new { clientId }, ServerMapMachines.Json), null, cancellationToken)
+            .ConfigureAwait(false);
+
+        return problem;
+    }
+
+    //
+    // The map. clientId is sent only so the server can mark this machine's own row; it never comes
+    // back, and passing null simply means no row is marked.
+    //
+    public async Task<ServerMapClientsResult> ClientsAsync(string? clientId, CancellationToken cancellationToken = default)
+    {
+        var (problem, status, body, error) = await SendAsync(HttpMethod.Get, ClientsPath, null, clientId,
+            cancellationToken).ConfigureAwait(false);
+
+        if (problem != ServerMapProblem.None)
+            return new ServerMapClientsResult { Endpoint = _endpoint, Problem = problem, StatusCode = status, Error = error };
+
+        try
+        {
+            var (machines, interval) = ServerMapMachines.ParseClients(body!);
+
+            return new ServerMapClientsResult
+            {
+                Endpoint = _endpoint, Machines = machines, IntervalSeconds = interval, StatusCode = status,
+            };
+        }
+        catch (JsonException ex)
+        {
+            return new ServerMapClientsResult
+            {
+                Endpoint = _endpoint, Problem = ServerMapProblem.Failed, StatusCode = status, Error = ex,
+            };
+        }
+    }
+
+    //
+    // The map routes share one way of failing: a missing route is an older server mod, not a wrong
+    // address - the handshake already established the mod is there.
+    //
+    private async Task<(ServerMapProblem Problem, int? Status, string? Body, Exception? Error)> SendAsync(
+        HttpMethod method, string path, string? json, string? clientId, CancellationToken cancellationToken)
+    {
+        //
+        // Fork: the key goes only to a server known to be this one (see KeyMaySend) - so with nothing
+        // known about it yet, the handshake first, as ListAsync does. One that does not answer as a
+        // server map is reported as such, and is never sent the key.
+        //
+        if (_endpoint.HasKey && !KeyMaySend)
+        {
+            var probe = await HelloAsync(cancellationToken).ConfigureAwait(false);
+            if (!probe.Found) return (probe.Problem, probe.StatusCode, null, probe.Error);
+        }
+
+        _pin.Reset();
+
+        try
+        {
+            using var request = new HttpRequestMessage(method, path);
+
+            if (json is not null) request.Content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            if (!string.IsNullOrWhiteSpace(clientId)) request.Headers.TryAddWithoutValidation(ClientHeaderName, clientId);
+
+            var sentKey = KeyMaySend;
+            if (sentKey) request.Headers.TryAddWithoutValidation(ServerMapEndpoint.KeyHeaderName, _endpoint.SharedKey!.Trim());
+
+            using var response = await _http
+                .SendAsync(request, HttpCompletionOption.ResponseContentRead, cancellationToken)
+                .ConfigureAwait(false);
+
+            var status = (int)response.StatusCode;
+
+            if (!response.IsSuccessStatusCode)
+            {
+                if (await IsLanOnlyRefusalAsync(response, cancellationToken).ConfigureAwait(false))
+                    return (ServerMapProblem.LanOnly, status, null, null);
+
+                var problem = response.StatusCode switch
+                {
+                    System.Net.HttpStatusCode.NotFound => ServerMapProblem.MapUnsupported,
+                    System.Net.HttpStatusCode.Unauthorized or System.Net.HttpStatusCode.Forbidden =>
+                        sentKey ? ServerMapProblem.KeyRejected : ServerMapProblem.KeyRequired,
+                    System.Net.HttpStatusCode.Conflict => ServerMapProblem.ProtocolMismatch,
+                    System.Net.HttpStatusCode.ServiceUnavailable => ServerMapProblem.NotServerMap,
+                    _ => ServerMapProblem.Failed,
+                };
+
+                return (problem, status, null, null);
+            }
+
+            var body = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+            return (ServerMapProblem.None, status, body, null);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            // The caller stopped asking. Not the server's fault, so not reported as unreachable -
+            // only the HttpClient's own timeout, which arrives without the caller's token, is.
+            throw;
+        }
+        catch (Exception ex) when (ex is HttpRequestException or IOException or OperationCanceledException)
+        {
+            return (_pin.Verdict == PinVerdict.Mismatch ? ServerMapProblem.CertificateRejected : ServerMapProblem.Unreachable,
+                null, null, ex);
+        }
+        catch (Exception ex)
+        {
+            return (ServerMapProblem.Failed, null, null, ex);
+        }
+    }
+
+    //
+    // A LAN-only server refuses with a 403 carrying "reason": "lanOnly". Read from the body because
+    // the status alone is the same one a rejected key gets, and the two need different sentences.
+    //
+    private static async Task<bool> IsLanOnlyRefusalAsync(HttpResponseMessage response, CancellationToken cancellationToken)
+    {
+        if (response.StatusCode != System.Net.HttpStatusCode.Forbidden) return false;
+
+        try
+        {
+            var body = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+            using var document = JsonDocument.Parse(body);
+
+            return document.RootElement.ValueKind == JsonValueKind.Object
+                && document.RootElement.TryGetProperty("reason", out var reason)
+                && reason.ValueKind == JsonValueKind.String
+                && string.Equals(reason.GetString(), "lanOnly", StringComparison.OrdinalIgnoreCase);
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
+
+    private sealed class ReportReply
+    {
+        public bool Resend { get; set; }
+
+        public int IntervalSeconds { get; set; }
     }
 
     private ServerHelloProbe Fail(ServerMapProblem problem, Exception? error = null, int? statusCode = null,

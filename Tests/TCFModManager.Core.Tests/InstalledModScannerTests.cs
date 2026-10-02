@@ -1,6 +1,7 @@
 using TCFModManager.Core.Models;
 using TCFModManager.Core.Services;
 using Xunit;
+using static TCFModManager.Core.Tests.ModMetadataFixture;
 
 namespace TCFModManager.Core.Tests;
 
@@ -402,5 +403,164 @@ public class InstalledModScannerTests : IDisposable
         Directory.CreateDirectory(Path.Combine(_installRoot, "BepInEx", "plugins", "Plain"));
 
         Assert.Empty(Assert.Single(InstalledModScanner.Scan(_installRoot)).Dependencies);
+    }
+
+    //
+    // SPT 4.x server mods - no package.json, the metadata is declared in the DLL.
+    //
+
+    private static string BlackDivisionServer(string directory, string fileName) =>
+        new ModMetadataFixture(Kind.Spt40)
+            .Constructor(il => il
+                .SetString("ModGuid", "com.blackdiv.tacticaltoaster")
+                .SetString("Name", "Black Division [REDACTED] Home")
+                .SetString("Author", "TacticalToaster")
+                .This().Int(1).Int(1).Int(0).Null().Null().NewVersionFromInts().Set("Version")
+                .SetRange("SptVersion", "~4.0.0")
+                .This().NewDictionary()
+                    .Dup().Str("com.wtt.commonlib").Str(">=2.0.0").Int(0).NewRange().DictionaryAdd()
+                    .Set("ModDependencies"))
+            .Write(directory, fileName);
+
+    [Fact]
+    public void Scan_Spt4ServerMod_ReadsDeclaredMetadataFromTheDll()
+    {
+        var modDir = Path.Combine(_installRoot, "SPT", "user", "mods", "BlackDivServer");
+        BlackDivisionServer(modDir, "BlackDivServer.dll");
+        new ModMetadataFixture(Kind.Plain).Constructor(_ => { }).Write(modDir, "Bundled.Library.dll");
+        File.WriteAllText(Path.Combine(_installRoot, "SPT", "SPT.Server.exe"), "");
+
+        var mod = Assert.Single(InstalledModScanner.Scan(_installRoot));
+
+        Assert.Equal("BlackDivServer", mod.Name);
+        Assert.Equal("Black Division [REDACTED] Home", mod.DeclaredName);
+        Assert.Equal(InstalledModTarget.Server, mod.Target);
+        Assert.Equal("com.blackdiv.tacticaltoaster", mod.Guid);
+        Assert.Equal(["com.blackdiv.tacticaltoaster"], mod.AllGuids);
+        Assert.Equal("1.1.0", mod.Version);
+        Assert.Equal("TacticalToaster", mod.Author);
+        Assert.Equal("~4.0.0", mod.SptVersion);
+        Assert.Equal([new ModDependencyRef("com.wtt.commonlib", false, ">=2.0.0")], mod.Dependencies);
+    }
+
+    [Fact]
+    public void Scan_Spt4ServerMod_FindsTheMetadataInADllNotNamedAfterTheFolder()
+    {
+        var modDir = Path.Combine(_installRoot, "user", "mods", "SomeFolder");
+        new ModMetadataFixture(Kind.Plain).Constructor(_ => { }).Write(modDir, "AAA.Library.dll");
+        BlackDivisionServer(modDir, "ZZZ.Mod.dll");
+
+        var mod = Assert.Single(InstalledModScanner.Scan(_installRoot));
+
+        Assert.Equal("SomeFolder", mod.Name);
+        Assert.Equal("com.blackdiv.tacticaltoaster", mod.Guid);
+        Assert.Equal("1.1.0", mod.Version);
+    }
+
+    [Fact]
+    public void Scan_Spt4ServerMod_InTheDisabledContainer_IsReadTheSameWay()
+    {
+        BlackDivisionServer(Path.Combine(_installRoot, "user", "mods.disabled", "BlackDivServer"), "BlackDivServer.dll");
+
+        var mod = Assert.Single(InstalledModScanner.Scan(_installRoot));
+
+        Assert.True(mod.IsDisabled);
+        Assert.Equal("com.blackdiv.tacticaltoaster", mod.Guid);
+    }
+
+    [Fact]
+    public void Scan_ServerMod_PackageJsonWithVersion_DoesNotReadTheDll()
+    {
+        var modDir = Path.Combine(_installRoot, "user", "mods", "Legacy");
+        BlackDivisionServer(modDir, "Legacy.dll");
+        File.WriteAllText(Path.Combine(modDir, "package.json"), """{ "name": "Legacy", "version": "3.2.1", "author": "Old" }""");
+
+        var mod = Assert.Single(InstalledModScanner.Scan(_installRoot));
+
+        Assert.Equal("3.2.1", mod.Version);
+        Assert.Equal("Old", mod.Author);
+        Assert.Null(mod.Guid);
+        Assert.Null(mod.DeclaredName);
+        Assert.Empty(mod.Dependencies);
+    }
+
+    [Fact]
+    public void Scan_ServerMod_PackageJsonWithoutVersion_TakesTheDeclaredOne()
+    {
+        var modDir = Path.Combine(_installRoot, "user", "mods", "Hybrid");
+        BlackDivisionServer(modDir, "Hybrid.dll");
+        File.WriteAllText(Path.Combine(modDir, "package.json"), """{ "name": "Hybrid", "modDependencies": { "SharedTools": "^1.0.0" } }""");
+
+        var mod = Assert.Single(InstalledModScanner.Scan(_installRoot));
+
+        Assert.Equal("Hybrid", mod.Name);
+        Assert.Equal("1.1.0", mod.Version);
+        Assert.Equal("com.blackdiv.tacticaltoaster", mod.Guid);
+        Assert.Equal(
+            ["SharedTools", "com.wtt.commonlib"],
+            mod.Dependencies.Select(d => d.Identifier).OrderBy(i => i, StringComparer.Ordinal));
+    }
+
+    //
+    // Client plugins - the version is [BepInPlugin]'s, not the file's.
+    //
+
+    [Fact]
+    public void Scan_ClientMod_TakesTheBepInPluginVersionAndName()
+    {
+        var modDir = Path.Combine(_installRoot, "BepInEx", "plugins", "BlackDiv");
+        new ModMetadataFixture(Kind.Plain)
+            .Constructor(_ => { })
+            .Plugin("com.blackdiv.tacticaltoaster", "BlackDiv", "1.1.0")
+            .Dependency("xyz.drakia.bigbrain", flags: 2)
+            .Dependency("com.wtt.commonlib", "2.0.0")
+            .Write(modDir, "BlackDiv.dll");
+
+        var mod = Assert.Single(InstalledModScanner.Scan(_installRoot));
+
+        Assert.Equal("BlackDiv", mod.Name);
+        Assert.Equal("1.1.0", mod.Version);
+        Assert.Equal("BlackDiv", mod.DeclaredName);
+        Assert.Equal("com.blackdiv.tacticaltoaster", mod.Guid);
+        Assert.Null(mod.SptVersion);
+        Assert.Equal(
+            [
+                new ModDependencyRef("com.wtt.commonlib", false, ">=2.0.0"),
+                new ModDependencyRef("xyz.drakia.bigbrain", true),
+            ],
+            mod.Dependencies.OrderBy(d => d.Identifier, StringComparer.Ordinal));
+    }
+
+    [Fact]
+    public void Scan_ClientMod_LooseDll_TakesTheBepInPluginVersion()
+    {
+        new ModMetadataFixture(Kind.Plain)
+            .Constructor(_ => { })
+            .Plugin("com.example.loose", "Loose", "2.3.4")
+            .Write(Path.Combine(_installRoot, "BepInEx", "plugins"), "Loose.dll");
+
+        var mod = Assert.Single(InstalledModScanner.Scan(_installRoot));
+
+        Assert.Equal("Loose", mod.Name);
+        Assert.Equal("2.3.4", mod.Version);
+        Assert.Equal("com.example.loose", mod.Guid);
+    }
+
+    [Fact]
+    public void Scan_ClientMod_VersionComesFromTheFolderNamedPlugin_NotABundledOne()
+    {
+        var modDir = Path.Combine(_installRoot, "BepInEx", "plugins", "MainMod");
+        new ModMetadataFixture(Kind.Plain).Constructor(_ => { })
+            .Plugin("com.example.api", "Some API", "9.9.9")
+            .Write(modDir, "AAA.Api.dll");
+        new ModMetadataFixture(Kind.Plain).Constructor(_ => { })
+            .Plugin("com.example.main", "Main Mod", "1.2.0")
+            .Write(modDir, "MainMod.dll");
+
+        var mod = Assert.Single(InstalledModScanner.Scan(_installRoot));
+
+        Assert.Equal("1.2.0", mod.Version);
+        Assert.Equal("Main Mod", mod.DeclaredName);
+        Assert.Equal(2, mod.AllGuids.Count);
     }
 }

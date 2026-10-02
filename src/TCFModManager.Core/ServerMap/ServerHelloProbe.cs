@@ -47,6 +47,20 @@ public enum ServerMapProblem
 
     KeyRejected,
 
+    //
+    // The map routes only: a Server Map older than 0.2.0, which serves the list but has no map.
+    // Reached, keyed, and simply without the route - worth saying as "update the server mod", not
+    // as a failure.
+    //
+    MapUnsupported,
+
+    //
+    // The server answers its own network only (LAN-only), and this machine is outside it. Said
+    // outright rather than as "no server map here": the address is right and the mod is there, and
+    // the fix is the operator's or a VPN such as Tailscale.
+    //
+    LanOnly,
+
     // Anything else. Carries Error.
     Failed,
 }

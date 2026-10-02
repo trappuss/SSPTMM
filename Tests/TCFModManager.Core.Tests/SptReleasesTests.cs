@@ -97,10 +97,9 @@ public class SptReleasesTests
     [Fact]
     public void Supported_ListsEveryRealReleaseAModRunsOn()
     {
-        // "~4.0.4" is a soft pin, not a real floor (2026-08-23) - nothing narrows its upper bound
-        // below the end of the 4.0 line, so 4.0.0 counts as supported too, same as 4.0.12/4.0.13.
+        // "~4.0.4" is a real floor (2026-10-02): 4.0.0 is older than it, so isn't supported.
         var supported = SptReleases.Supported(["~4.0.4", "~4.1.0"], Releases).Select(r => r.Label).ToList();
 
-        Assert.Equal(["4.1.2", "4.1.1", "4.1.0", "4.0.13", "4.0.12", "4.0.4", "4.0.0"], supported);
+        Assert.Equal(["4.1.2", "4.1.1", "4.1.0", "4.0.13", "4.0.12", "4.0.4"], supported);
     }
 }

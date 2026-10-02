@@ -132,6 +132,7 @@ public sealed partial class AddonRowViewModel : LocalizedViewModel
     [NotifyPropertyChangedFor(nameof(ActionLabel))]
     [NotifyPropertyChangedFor(nameof(ActionIcon))]
     [NotifyCanExecuteChangedFor(nameof(InstallCommand))]
+    [NotifyCanExecuteChangedFor(nameof(InstallAlternateCommand))]
     private AddonVersionOption? _selectedVersion;
 
     [ObservableProperty]
@@ -201,7 +202,13 @@ public sealed partial class AddonRowViewModel : LocalizedViewModel
     public bool HasCompatibilityNote => CompatibilityNote is not null;
 
     [RelayCommand(CanExecute = nameof(CanInstall))]
-    private void Install()
+    private void Install() => Queue(alternate: false);
+
+    // The small button beside Install: the opposite of Monitor mode's setting, for this one addon.
+    [RelayCommand(CanExecute = nameof(CanInstall))]
+    private void InstallAlternate() => Queue(alternate: true);
+
+    private void Queue(bool alternate)
     {
         if (SelectedVersion is not { Raw.Link: not null } selected) return;
 
@@ -235,7 +242,8 @@ public sealed partial class AddonRowViewModel : LocalizedViewModel
             selected.VersionText,
             installPath,
             () => Task.FromResult<ModVersion?>(version),
-            totalBytes: selected.Raw.ContentLength);
+            totalBytes: selected.Raw.ContentLength,
+            downloadOnly: AppServices.ModPageGate.DownloadOnlyFor(alternate));
 
         StatusMessage = Text(Strings.Addon_QueuedFormat, Name, selected.VersionText);
     }

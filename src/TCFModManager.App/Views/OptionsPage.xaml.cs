@@ -16,12 +16,14 @@ public partial class OptionsPage : Page
 
     // Same reason as ServerMapPage: the key file can appear or change while this app is open, and
     // the section that shows it is right here.
-    // The unsubscribe question's "Don't ask again" can have changed its switch since this page was made.
+    // The held size too, since a removal or Undo elsewhere changes it. And the unsubscribe question's
+    // "Don't ask again" can have changed its switch since this page was made.
     private void Page_Loaded(object sender, RoutedEventArgs e)
     {
         AppServices.ServerMap.RefreshLocalKey();
         ViewModel.Reload();
         ViewModel.Profiles.Refresh();
+        ViewModel.RefreshRemovedModsSize();
     }
 
     private void DataFiles_Click(object sender, RoutedEventArgs e) =>

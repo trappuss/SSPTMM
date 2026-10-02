@@ -20,8 +20,9 @@ public static class SptVersionRangeFormatter
     {
         var (min, minExclusive, maxExclusive, exact) = bounds;
 
+        // A bare exact version means that patch and later ones on its line (SptVersionBounds.Contains).
         if (exact is not null && min == exact && maxExclusive == SptVersionRange.NextPatch(exact))
-            return $"{FormatVersion(exact)} only";
+            return Format(new SptVersionBounds(exact, false, SptVersionRange.NextMinor(exact), null));
 
         if (min is null) return $"up to {DescribeUpperBound(maxExclusive!)}";
 

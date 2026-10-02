@@ -265,7 +265,10 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel, IModActi
             && _watchingForInstall)
         {
             _watchingForInstall = false;
-            JustSubscribed = true;
+
+            // A download-only save (Monitor mode) put nothing in Subscribed items; its card in
+            // Downloads says where the archive went.
+            JustSubscribed = !_queueItem.DownloadOnly;
         }
     }
 
@@ -860,7 +863,13 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel, IModActi
 
     // Through Browse's own install command: same version pick, same mod-page gate, same queue.
     [RelayCommand]
-    private async Task SubscribeAsync()
+    private Task SubscribeAsync() => SubscribeAsync(alternate: false);
+
+    // 1.19's small button beside Subscribe: Monitor mode's other way, for this one mod.
+    [RelayCommand]
+    private Task SubscribeAlternateAsync() => SubscribeAsync(alternate: true);
+
+    private async Task SubscribeAsync(bool alternate)
     {
         // The button shows the download's progress while it runs; a click on it then must not
         // queue the mod a second time. (Refused here rather than by disabling the button, which
@@ -871,7 +880,7 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel, IModActi
         _subscribing = true;
         try
         {
-            await AppServices.Browse.SubscribeFromItemPageAsync(Card);
+            await AppServices.Browse.SubscribeFromItemPageAsync(Card, alternate);
         }
         finally
         {
@@ -891,7 +900,7 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel, IModActi
     {
         if (Installed is null) return;
 
-        var installed = InstalledViewModel.Current ?? new InstalledViewModel();
+        var installed = InstalledViewModel.ForActions;
 
         // What the removal itself said (null when cancelled) - not the page's count after it.
         if (await installed.RemoveOneAsync(Installed) is { } said) Message = said;

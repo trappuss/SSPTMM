@@ -51,7 +51,7 @@ public sealed class AddonCacheStore
             };
 
             Directory.CreateDirectory(AppPaths.DataDirectory);
-            SafeFile.WriteAllText(_filePath, JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true }));
+            SafeFile.WriteText(_filePath, JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true }));
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {

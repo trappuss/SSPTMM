@@ -1,0 +1,81 @@
+<ui:FluentWindow
+    x:Class="TCFModManager.App.Views.DownloadConfirmWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:loc="clr-namespace:TCFModManager.App.Localization"
+    Width="520"
+    MaxHeight="640"
+    SizeToContent="Height"
+    ResizeMode="NoResize"
+    ShowInTaskbar="False"
+    ExtendsContentIntoTitleBar="True"
+    TextOptions.TextFormattingMode="Display"
+    TextOptions.TextRenderingMode="ClearType">
+    <!--
+        Monitor mode's confirm prompt (§7, R2): the downloads a scan found installed, one tick box
+        each. The same plain modal FluentWindow pattern as ModDisableConfirmationWindow.
+    -->
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <ui:TitleBar
+            x:Name="WindowTitleBar"
+            Grid.Row="0"
+            Title="{loc:Str DownloadConfirm_Title}" />
+
+        <StackPanel
+            Grid.Row="1"
+            Margin="24,12,24,24">
+            <TextBlock
+                x:Name="SummaryText"
+                TextWrapping="Wrap"
+                Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                Margin="0,0,0,16" />
+
+            <ScrollViewer MaxHeight="320" VerticalScrollBarVisibility="Auto">
+                <ItemsControl x:Name="DownloadList">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <CheckBox Margin="0,0,0,8" IsChecked="{Binding IsChecked}">
+                                <StackPanel>
+                                    <TextBlock
+                                        FontWeight="SemiBold"
+                                        TextTrimming="CharacterEllipsis"
+                                        Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                        Text="{Binding Name}" />
+                                    <TextBlock
+                                        FontSize="11"
+                                        TextWrapping="Wrap"
+                                        Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                        Text="{Binding Detail}" />
+                                </StackPanel>
+                            </CheckBox>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+
+            <TextBlock
+                TextWrapping="Wrap"
+                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                Margin="0,12,0,0"
+                Text="{loc:Str DownloadConfirm_Note}" />
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+                <ui:Button
+                    Margin="0,0,8,0"
+                    Content="{loc:Str DownloadConfirm_NotNow}"
+                    Click="NotNowButton_Click" />
+
+                <ui:Button
+                    Appearance="Primary"
+                    Content="{loc:Str DownloadConfirm_Confirm}"
+                    Click="ConfirmButton_Click" />
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</ui:FluentWindow>

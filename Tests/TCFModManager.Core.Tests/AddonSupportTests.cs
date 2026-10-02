@@ -53,6 +53,32 @@ public class AddonSupportTests
     }
 
     [Fact]
+    public void Manifest_Find_NeverHandsBackTheOtherKindWithTheSameId()
+    {
+        // Mod 106 and addon 106 both exist on sp-mod.com. Removing one used to look its record up by
+        // id alone and could delete the other's files.
+        var addon = new InstalledModRecord
+        {
+            ModId = 106, IsAddon = true, Name = "Addon 106", Version = "1.0.0",
+            InstalledAt = DateTimeOffset.UtcNow, Files = ["BepInEx/plugins/AddonFolder/a.dll"],
+        };
+        var mod = new InstalledModRecord
+        {
+            ModId = 106, IsAddon = false, Name = "Mod 106", Version = "2.0.0",
+            InstalledAt = DateTimeOffset.UtcNow, Files = ["BepInEx/plugins/ModFolder/m.dll"],
+        };
+
+        var addonFirst = new ModInstallManifest { Mods = [addon, mod] };
+        var modFirst = new ModInstallManifest { Mods = [mod, addon] };
+
+        Assert.Same(mod, addonFirst.Find(106, isAddon: false));
+        Assert.Same(addon, addonFirst.Find(106, isAddon: true));
+        Assert.Same(mod, modFirst.Find(106, isAddon: false));
+        Assert.Same(addon, modFirst.Find(106, isAddon: true));
+        Assert.Null(addonFirst.Find(107, isAddon: false));
+    }
+
+    [Fact]
     public void InstalledModRecord_DefaultsToNotAnAddon()
     {
         // Every record written before addons were supported has no IsAddon field at all; the
@@ -158,32 +184,33 @@ public class AddonManifestFileTests
     [Fact]
     public void SetManualVersion_KeepsAModAndAnAddonWithTheSameIdApart()
     {
-        var data = Path.Combine(Path.GetTempPath(), "tcf-addonrecords-" + Guid.NewGuid().ToString("N"));
-        var install = Path.Combine(data, "SPT");
-        Directory.CreateDirectory(install);
+        var manifestPath = Path.Combine(AppPaths.DataDirectory, "installed-mods.json");
+        var backup = File.Exists(manifestPath) ? File.ReadAllText(manifestPath) : null;
 
         try
         {
-            var service = new ModInstallManifestService(data);
+            File.Delete(manifestPath);
+            var service = new ModInstallManifestService();
 
-            service.SetManualVersion(install, 116, "com.example.mod", "Some Mod", "2.0.0", versionId: 1, folders: ["SomeMod"]);
-            service.SetManualVersion(install, 116, null, "Some Addon", "1.0.1", versionId: 2, folders: ["SomeAddon"], isAddon: true);
+            service.SetManualVersion(116, "com.example.mod", "Some Mod", "2.0.0", versionId: 1, folders: ["SomeMod"]);
+            service.SetManualVersion(116, null, "Some Addon", "1.0.1", versionId: 2, folders: ["SomeAddon"], isAddon: true);
 
-            var records = service.Load(install).Mods;
+            var records = service.Load().Mods;
             Assert.Equal(2, records.Count);
             Assert.Equal("2.0.0", records.Single(r => r is { ModId: 116, IsAddon: false }).Version);
             Assert.Equal("1.0.1", records.Single(r => r is { ModId: 116, IsAddon: true }).Version);
 
             // Clearing one leaves the other exactly as it was.
-            service.ClearManualVersion(install, 116, isAddon: true);
+            service.ClearManualVersion(116, isAddon: true);
 
-            var remaining = Assert.Single(service.Load(install).Mods);
+            var remaining = Assert.Single(service.Load().Mods);
             Assert.False(remaining.IsAddon);
             Assert.Equal("2.0.0", remaining.Version);
         }
         finally
         {
-            try { Directory.Delete(data, recursive: true); } catch (IOException) { }
+            if (backup is null) File.Delete(manifestPath);
+            else File.WriteAllText(manifestPath, backup);
         }
     }
 

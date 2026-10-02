@@ -15,8 +15,8 @@ public enum LogLevel
 // 
 // Timestamped file log under &lt;app folder&gt;\Data\logs, written on a background queue so logging
 // never blocks the UI. One file per day, older files pruned. Debug is off unless a file named
-// "verbose" exists in the log folder, so the chatty per-item lines can be switched on to chase a
-// bug without a rebuild.
+// "verbose" exists next to the exe or in the log folder, so the chatty per-item lines can be switched
+// on to chase a bug without a rebuild.
 // 
 public static class AppLog
 {
@@ -61,7 +61,12 @@ public static class AppLog
         try
         {
             System.IO.Directory.CreateDirectory(Directory);
-            if (File.Exists(Path.Combine(Directory, "verbose"))) MinimumLevel = LogLevel.Debug;
+            // The Help page tells users to put it next to TCFModManager.exe; the log folder works too.
+            if (File.Exists(Path.Combine(Directory, "verbose"))
+                || File.Exists(Path.Combine(AppContext.BaseDirectory, "verbose")))
+            {
+                MinimumLevel = LogLevel.Debug;
+            }
             PruneOldFiles();
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)

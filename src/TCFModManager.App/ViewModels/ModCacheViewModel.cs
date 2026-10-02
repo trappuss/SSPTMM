@@ -100,6 +100,48 @@ public partial class ModCacheViewModel : LocalizedViewModel
         }
     }
 
+    //
+    // Swaps in fresh listings for a handful of mods, found by the update watcher, without a whole
+    // catalog fetch. A listing that isn't in the catalog is left out rather than added: the catalog
+    // is the set the full fetch keeps (above the SPT floor), and the watcher only asks about mods
+    // that are installed, so a missing one is one the catalog chose not to hold.
+    //
+    // Only a listing whose releases changed is swapped in. Some of what the watcher re-reads is
+    // unchanged on every check (hand installs The Forge couldn't place), and rewriting a couple of
+    // megabytes of cache for those each time would be for nothing.
+    //
+    // Returns whether anything was replaced. The memoized task is replaced as well, so a page
+    // awaiting EnsureLoadedAsync afterwards sees the patched list.
+    //
+    public bool Patch(IReadOnlyList<Mod> fresh)
+    {
+        if (fresh.Count == 0 || AllMods.Count == 0) return false;
+
+        var byId = fresh.GroupBy(m => m.Id).ToDictionary(g => g.Key, g => g.Last());
+        var replaced = 0;
+
+        var patched = AllMods
+            .Select(m =>
+            {
+                if (!byId.TryGetValue(m.Id, out var listing) || ReleasesOf(listing) == ReleasesOf(m)) return m;
+                replaced++;
+                return listing;
+            })
+            .ToList();
+
+        if (replaced == 0) return false;
+
+        AllMods = patched;
+        _loadTask = Task.FromResult(patched);
+        _ = Task.Run(() => _store.Save(patched));
+
+        AppLog.Debug("Catalog", $"Patch: replaced {replaced} of {fresh.Count} fetched listings");
+        return true;
+    }
+
+    private static string ReleasesOf(Mod mod) =>
+        string.Join(',', (mod.Versions ?? []).Select(v => $"{v.Id}:{v.Version}:{v.SptVersionConstraint}"));
+
     private async Task<List<Mod>> LoadAsync(CancellationToken ct)
     {
         AppLog.Debug("Catalog", "LoadAsync: start");

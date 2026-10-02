@@ -97,11 +97,12 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
         }
     }
 
-    // The latest version published on sp-mod.com for whatever mod matched this one. Null when
-    // the catalog hasn't loaded yet or nothing matched.
+    // The newest version published on sp-mod.com that runs on the installed SPT, else the newest
+    // overall when none does. Null when the catalog hasn't loaded yet or nothing matched.
     public string? LatestPublishedVersion { get; init; }
 
-    /// <summary>The version an update installs - the newest release for the installed SPT.</summary>
+    // The version an update would install - the newest release that runs on the installed SPT,
+    // which is not always the newest published. Null when no update is available.
     public string? UpdateVersion { get; init; }
 
     // The matched sp-mod.com listing's UpdatedAt. Null under the same conditions as LatestPublishedVersion.
@@ -127,14 +128,21 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
     // folder/package Name. Null when nothing matched.
     public string? MatchedModName { get; init; }
 
-    // The title the card leads with: the real sp-mod.com display name when there is one,
-    // otherwise the folder/package Name.
-    public string DisplayTitle => MatchedModName ?? Name;
+    //
+    // The name the mod gives itself in its own DLL - an SPT 4.x server mod's declared Name, or its
+    // [BepInPlugin] name. Only ever set on a card nothing in the catalog matched: a matched card
+    // keeps the catalog's name (R2 of the server mod metadata design).
+    //
+    public string? DeclaredName { get; init; }
+
+    // The title the card leads with: the real sp-mod.com display name when there is one, then the
+    // name the mod declares for itself, otherwise the folder/package Name.
+    public string DisplayTitle => MatchedModName ?? DeclaredName ?? Name;
 
     // The raw installed folder/package name, shown as a secondary line under DisplayTitle only
-    // when there's a catalog match whose name differs from the folder name.
+    // when the title came from somewhere else and differs from the folder name.
     public string? FolderNameIfDifferent =>
-        MatchedModName is not null && !string.Equals(MatchedModName, Name, StringComparison.OrdinalIgnoreCase)
+        (MatchedModName ?? DeclaredName) is { } title && !string.Equals(title, Name, StringComparison.OrdinalIgnoreCase)
             ? Name
             : null;
 
@@ -228,12 +236,12 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
     // without checking IsAddon first.
     public int? ModId { get; init; }
 
-    // ModId when it is a mod's (for the right-click menu); null for an addon.
+    // Fork: ModId when it is a mod's (for the right-click menu); null for an addon.
     public int? CatalogModId => IsAddon ? null : ModId;
 
-    // The catalog listing's preview image, for the Steam-style card. Looked up when a card first
-    // draws rather than carried through the scan: the scan does not need it, and the catalog is
-    // already in memory by the time anything is on screen.
+    // Fork: the catalog listing's preview image, for the Steam-style card. Looked up when a card
+    // first draws rather than carried through the scan: the scan does not need it, and the catalog
+    // is already in memory by the time anything is on screen.
     //
     // Mods only: an addon's ModId is an addon id, a separate sequence that would match some
     // unrelated mod's listing here.
@@ -284,6 +292,26 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
 
     public bool WasPartlyInstalled { get; init; }
 
+    //
+    // Set after a scan by InstalledViewModel when this folder is one a removal had to leave because
+    // it holds files the removed mod didn't install. Null otherwise.
+    //
+    [ObservableProperty]
+    private string? _leftoverSummary;
+
+    //
+    // Set after a scan by InstalledViewModel (ModConflicts.Apply): what this mod clashes with at load
+    // time and where to see more, or null when it clashes with nothing (OPEN-11).
+    //
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasConflicts))]
+    [NotifyPropertyChangedFor(nameof(Status))]
+    [NotifyPropertyChangedFor(nameof(StatusGlyph))]
+    [NotifyPropertyChangedFor(nameof(StatusTooltip))]
+    private string? _conflictSummary;
+
+    public bool HasConflicts => ConflictSummary is not null;
+
     public bool IsIncompleteInstall => MissingFolders.Count > 0 || WasPartlyInstalled;
 
     // One whole sentence per count: the verb has to agree with how many folders are missing, and
@@ -295,6 +323,32 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
             : Strings.Installed_IncompleteMissing(
                 MissingFolders.Count,
                 string.Join(Strings.Common_ListSeparator, MissingFolders));
+
+    //
+    // A Monitor mode download of this mod that a scan found on disk but nobody has confirmed yet -
+    // installed as far as its files show, or only partly. Set after a scan by InstalledViewModel,
+    // the same way Lists is; null when there is none, which is every card outside Monitor mode.
+    //
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasPendingDownload))]
+    [NotifyPropertyChangedFor(nameof(CanConfirmDownload))]
+    [NotifyPropertyChangedFor(nameof(DownloadSummary))]
+    [NotifyPropertyChangedFor(nameof(StatusTooltip))]
+    private PendingDownload? _pendingDownload;
+
+    public bool HasPendingDownload => PendingDownload is not null;
+
+    // Only a download whose every file is on disk at its size. A partial one is never confirmed,
+    // by the prompt or by hand - a half-copied install is exactly what the note is there to show.
+    public bool CanConfirmDownload => PendingDownload?.Match.Kind == DownloadMatchKind.Installed;
+
+    public string? DownloadSummary => PendingDownload switch
+    {
+        null => null,
+        { Match.Kind: DownloadMatchKind.Installed } p =>
+            Text(Strings.Installed_DownloadLooksInstalledFormat, p.Download.Version),
+        { } p => Text(Strings.Installed_DownloadPartialFormat, p.Download.Version),
+    };
 
     //
     // Every scan entry merged into this card: both halves of a client+server mod, and both copies
@@ -428,9 +482,12 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
 
     // This mod's status, using the same vocabulary and icons as the Browse and Dependencies pages.
     // Everything here is installed by definition, so it's only ever disabled, up-to-date or outdated.
+    // A conflict outranks the update state: the mod may not load at all.
     public ModStatus Status => IsDisabled
         ? ModStatus.Disabled
-        : UpdateAvailable switch
+        : HasConflicts
+            ? ModStatus.Conflict
+            : UpdateAvailable switch
         {
             true => ModStatus.UpdateAvailable,
             false => ModStatus.Installed,
@@ -445,36 +502,39 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
             ? "Warning24"
             : ModStatusDisplay.Glyph(Status);
 
-    // sp-mod.com holds this mod's update back: it would break another installed mod. Set after
-    // each scan by InstalledViewModel, from AppServices.HeldBack.
+    // Fork: sp-mod.com holds this mod's update back: it would break another installed mod. Set
+    // after each scan by InstalledViewModel, from AppServices.HeldBack.
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(StatusTooltip))]
     private string? _heldBackNote;
 
-    // The installed version does not run on this install's SPT - see HeldBackUpdates.NotForSptNote.
+    // Fork: the installed version does not run on this install's SPT - see HeldBackUpdates.NotForSptNote.
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(StatusTooltip), nameof(StatusGlyph))]
     private string? _notForSptNote;
 
-    // What this mod declares it cannot run without, in its own files, that nothing enabled provides -
-    // found without the network, so it covers mods installed by hand too. Set after each scan by
-    // InstalledViewModel, from ModDependencyGraph.MissingOf.
+    // Fork: what this mod declares it cannot run without, in its own files, that nothing enabled
+    // provides - found without the network, so it covers mods installed by hand too. Set after each
+    // scan by InstalledViewModel, from ModDependencyGraph.MissingOf.
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(StatusTooltip), nameof(StatusGlyph))]
     private string? _missingDependencyNote;
 
     // Missing files first: it is the only one of these the card gives no other sign of.
+    // A pending download next: the collapsed card's only sign of one is this tooltip.
     public string StatusTooltip =>
         IncompleteSummary
         ?? (IsDisabled ? null : MissingDependencyNote)
+        ?? ConflictSummary
         ?? NotForSptNote
         ?? HeldBackNote
+        ?? DownloadSummary
         ?? (HasDuplicateFolders
             ? Strings.Installed_StatusDuplicate
             : IsMixedState
                 ? Strings.Installed_StatusMixed
-                : UpdateAvailable == true && !IsDisabled && (UpdateVersion ?? LatestPublishedVersion) is { } updateVersion
-                    ? Text(Strings.Installed_StatusUpdateFormat, updateVersion)
+                : UpdateAvailable == true && !IsDisabled && (UpdateVersion ?? LatestPublishedVersion) is { } target
+                    ? Text(Strings.Installed_StatusUpdateFormat, target)
                     : ModStatusWording.Tooltip(Status));
 
     // Groups raw scan results into one card per distinct mod and looks up each against the cached
@@ -548,22 +608,33 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
             .GroupBy(a => a.ModId!.Value)
             .ToDictionary(g => g.Key, g => g.Count());
 
-        var merged = MergeSplitClientServerHalves(MergePatcherFolders(groups)).ToList();
+        var merged = MergeSplitClientServerHalves(MergePatcherFolders(groups));
 
-        // Mods more than one card resolves to: an install and a copy of it (a renamed DLL, a second
-        // folder), which match the same listing by GUID. Only the card holding the folders the
-        // record placed is that install - see BuildCard.
-        var sharedIds = merged
-            .Where(g => g.Match is not null)
-            .GroupBy(g => g.Match!.Id)
-            .Where(g => g.Count() > 1)
-            .Select(g => g.Key)
+        //
+        // A record belongs to the card holding the folders it placed. A second copy of the same mod
+        // installed by hand ("SomeMod - Copy") resolves to the same catalog listing, and taking the
+        // record by listing alone made that copy app-managed too - so removing the copy (Remove, or
+        // Keep this one on the original) went by the record and took the ORIGINAL's files instead.
+        // Where some card holds the record's folders, every other card of that listing is the
+        // copy it looks like. Where none does, the record still applies by listing, as before.
+        //
+        var ownedRecords = merged
+            .Where(g => g.Match is not null
+                && recordsByModId.TryGetValue(g.Match.Id, out var r)
+                && HoldsRecordFolder(g.Entries, r))
+            .Select(g => g.Match!.Id)
             .ToHashSet();
 
         var cards = merged
-            .Select(g => BuildCard(
-                g.Entries, g.Match, installedSptVersion, recordsByModId, addonsByParent,
-                shared: g.Match is not null && sharedIds.Contains(g.Match.Id)))
+            .Select(g =>
+            {
+                var record = g.Match is not null && recordsByModId.TryGetValue(g.Match.Id, out var found)
+                    && (!ownedRecords.Contains(g.Match.Id) || HoldsRecordFolder(g.Entries, found))
+                    ? found
+                    : null;
+
+                return BuildCard(g.Entries, g.Match, installedSptVersion, record, addonsByParent);
+            })
             .ToList();
 
         if (addonFolders.Count == 0) return cards;
@@ -793,8 +864,8 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
         // can't be talked into matching a listing called "Epic's All in One".
         if (recordsByFolder.TryGetValue(folderName, out var record))
         {
-            // Installed from a file as a local item (LocalArchive): its record is what it is known
-            // by - never a listing its plugin GUID happens to match (a pack, or one installed
+            // Fork: installed from a file as a local item (LocalArchive): its record is what it is
+            // known by - never a listing its plugin GUID happens to match (a pack, or one installed
             // offline), which would split it into hand installs and leave the record behind.
             if (LocalArchive.IsLocalId(record.ModId))
                 return new Mod { Id = record.ModId, Name = record.Name, Guid = record.Guid };
@@ -804,29 +875,19 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
             if (fromRecord is not null) return fromRecord;
         }
 
-        // The real GUID, read from a client DLL's [BepInPlugin] attribute, is tried first as an
-        // exact identifier before falling back to the folder-name heuristics below. Taken from
-        // whichever client entry actually carries one rather than the first client entry, since a
-        // patcher never has one and would otherwise skip the whole tier for a plugin sitting
-        // alongside it.
+        // The real GUID the mod declares - a client DLL's [BepInPlugin], or an SPT 4.x server mod's
+        // ModGuid - is tried first as an exact identifier before falling back to the folder-name
+        // heuristics below. The client's goes first when a card has both halves, as it always has;
+        // a server-only hand install, which never had a GUID to offer before, now matches exactly
+        // too. Taken from whichever entry actually carries one rather than the first entry, since
+        // a patcher never has one and would otherwise skip the whole tier.
         var installedGuid = entries
-            .Where(m => m.Target == InstalledModTarget.Client)
+            .OrderBy(m => m.Target == InstalledModTarget.Client ? 0 : 1)
             .Select(m => m.Guid)
             .FirstOrDefault(g => !string.IsNullOrWhiteSpace(g));
 
         if (!string.IsNullOrWhiteSpace(installedGuid) && index.ByGuid.TryGetValue(installedGuid, out var byGuid))
             return byGuid;
-
-        // Then an SPT 4 server mod's own ModGuid - often the same GUID its listing carries (Dynamic
-        // Maps' server mod is "com.mpstark.dynamicmaps", as is its plugin). Only when no plugin GUID
-        // matched: where the halves differ, the listing is keyed on the plugin's.
-        var serverGuid = entries
-            .Where(m => m.Target == InstalledModTarget.Server)
-            .Select(m => m.Guid)
-            .FirstOrDefault(g => !string.IsNullOrWhiteSpace(g));
-
-        if (!string.IsNullOrWhiteSpace(serverGuid) && index.ByGuid.TryGetValue(serverGuid, out var byServerGuid))
-            return byServerGuid;
 
         var fromName = InferFromFolderName(index, folderName);
         if (fromName is not null) return fromName;
@@ -1008,7 +1069,7 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
 
         // A manually-confirmed record places no files, so the GUID is all there is to go on.
         var guid = group.Entries
-            .Where(m => m.Target == InstalledModTarget.Client)
+            .OrderBy(m => m.Target == InstalledModTarget.Client ? 0 : 1)
             .SelectMany(m => m.AllGuids)
             .FirstOrDefault(g => !string.IsNullOrWhiteSpace(g));
 
@@ -1210,9 +1271,8 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
         List<InstalledMod> entries,
         Mod? match,
         string? installedSptVersion,
-        IReadOnlyDictionary<int, InstalledModRecord> recordsByModId,
-        IReadOnlyDictionary<int, int> addonsByParent,
-        bool shared)
+        InstalledModRecord? record,
+        IReadOnlyDictionary<int, int> addonsByParent)
     {
         // The plugin half speaks for the client side wherever there's a choice - it's the one with
         // the mod's real name, version and GUID on it, where a patcher is a support file whose
@@ -1222,27 +1282,6 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
         var client = plugin ?? patcher;
         var server = entries.FirstOrDefault(m => m.Target == InstalledModTarget.Server);
 
-        var record = match is not null && recordsByModId.TryGetValue(match.Id, out var found) ? found : null;
-
-        //
-        // With another card on the same mod, an app-managed record is this card's only when this
-        // card holds a folder it placed. Otherwise the card is a copy: shown as installed by hand,
-        // so removing it deletes its own folder or file. Given the record, removing the copy
-        // deleted the files the record placed - the real install - and left the copy behind.
-        //
-        // Judged on the client half where there is one: a copy can have been paired with the
-        // install's server half (MergeSplitClientServerHalves pairs the first client it finds), and
-        // that folder must not make the copy the install.
-        var identifying = entries.Any(m => m.Target == InstalledModTarget.Client)
-            ? entries.Where(m => m.Target == InstalledModTarget.Client)
-            : entries;
-
-        if (shared && record is { IsAppManaged: true }
-            && !InstalledModFolders.Placed(record, identifying.SelectMany(FolderNamesOf)))
-        {
-            record = null;
-        }
-
         // Not done for addon cards: an addon's record names its PARENT's folders, so comparing them
         // against the addon's own scan entries would report every one of them as missing.
         IReadOnlyList<string> missingFolders = record is null
@@ -1251,25 +1290,19 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
 
         // The version recorded at install time beats anything read off disk: plenty of authors never
         // bump the assembly version, so a mod installed as 1.2.1 can still report 1.0.0.0 from its
-        // DLL - which then reads as an update being available forever. A plugin's own two (file,
-        // and [BepInPlugin]) are settled against what is published for it.
-        var clientVersion = client is null
-            ? null
-            : InstalledModScanner.PluginVersionOf(client.Version, client.PluginVersion, match?.Versions?.Select(v => v.Version));
-        var fileVersion = clientVersion ?? server?.Version;
+        // DLL - which then reads as an update being available forever.
+        var fileVersion = client?.Version ?? server?.Version;
         var installedVersion = record?.Version ?? fileVersion;
 
         (string Key, object?[] Values)? detail = null;
-        // Only when the halves are different releases: a plugin's 1.2.1.0 and its server mod's
-        // 1.2.1 are one version written two ways.
-        if (clientVersion is not null && server is not null
-            && !string.Equals(clientVersion, server.Version, StringComparison.OrdinalIgnoreCase)
-            && !ModVersionComparer.IsSameRelease(clientVersion, server.Version)
-            && !ModVersionComparer.IsSameRelease(server.Version, clientVersion))
+        // Compared as versions, not text: a plugin declaring "1.1.5" beside a server half that only
+        // has its file version "1.1.5.0" is the same release, not a disagreement.
+        if (client is not null && server is not null
+            && !VersionsAreEquivalent(client.Version, server.Version))
         {
             detail = (
                 nameof(Strings.Installed_DetailFilesReportPairFormat),
-                [clientVersion, server.Version]);
+                [client.Version, server.Version]);
         }
         else if (record is not null && fileVersion is not null
                  && ModVersionComparer.IsUpdateAvailable(record.Version, fileVersion) is null or false
@@ -1285,11 +1318,16 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
             .OrderBy(d => d)
             .FirstOrDefault();
 
-        var latestVersion = match is null ? null : ModCardViewModel.LatestVersion(match);
-        var latestPublished = latestVersion?.Version;
-
-        // The release an update would install: the newest for this SPT, else the newest of all.
+        //
+        // What an update would install: the newest release that runs on this SPT - the same pick
+        // Browse's card, its sort and Update selected all use. Comparing against the newest release
+        // overall hid real updates: Task Search 1.0.1 on 4.0.13 has 1.9.1 for 4.0 and 2.0.2 for 4.1
+        // only, and with the newest being 4.1-only the card said nothing at all.
+        //
         var updateTarget = match is null ? null : ModCardViewModel.PickDisplayVersion(match, installedSptVersion);
+
+        // The card's "Latest published" is the same pick, so it names a release this SPT can run whenever one exists.
+        var latestPublished = updateTarget?.Version;
 
         // No installed version could be determined at all (no record, and nothing readable off the
         // files themselves) - plenty of mods never expose a usable version this way. Rather than
@@ -1312,19 +1350,11 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
         }
         else
         {
-            //
             // A newer version alone isn't enough - it also has to target the installed SPT version.
-            //
-            // Compared against the newest release FOR this SPT (the one Subscribe and Update selected
-            // would fetch), not the newest release overall. Against the newest overall, a mod whose
-            // latest release is for the next SPT line never showed an update on this one, however
-            // many releases for this line came out after the installed one - SAIN 4.4.2 on SPT 4.0.13
-            // read "up to date" with 4.4.3 out for it, because 4.5.1 was for 4.1.
-            //
             isNewer = ModVersionComparer.IsUpdateAvailable(installedVersion, updateTarget?.Version);
 
-            // Read from a DLL, which cannot carry a "-hotfix": the same numbers are the same release
-            // as far as anything here can tell - not an update for ever.
+            // Fork: read from a DLL, which cannot carry a "-hotfix": the same numbers are the same
+            // release as far as anything here can tell - not an update for ever.
             if (isNewer == true && record is null && ModVersionComparer.IsSameRelease(installedVersion, updateTarget?.Version))
                 isNewer = false;
         }
@@ -1346,11 +1376,12 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
             HasPatcher = patcher is not null,
             HasServer = server is not null,
             LatestPublishedVersion = latestPublished,
-            UpdateVersion = updateTarget?.Version,
+            UpdateVersion = updateAvailable == true ? updateTarget?.Version : null,
             LatestUpdatedAt = match?.UpdatedAt,
             MatchedModName = match?.Name,
-            Guid = match?.Guid,
-            Author = match?.Owner?.Name,
+            DeclaredName = match is null ? server?.DeclaredName ?? plugin?.DeclaredName : null,
+            Guid = match?.Guid ?? client?.Guid ?? server?.Guid,
+            Author = match?.Owner?.Name ?? (match is null ? server?.Author : null),
             CategoryTag = match?.Category?.Title,
             AddonCount = match is null ? 0 : addonsByParent.GetValueOrDefault(match.Id),
             IsFikaCompatible = match?.FikaCompatibility == true,
@@ -1380,6 +1411,12 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
     // path gives both spellings - the folder itself, and a loose DLL's file name with the extension
     // dropped, which is how the scanner and the record both name that case.
     //
+    private static bool HoldsRecordFolder(List<InstalledMod> entries, InstalledModRecord record)
+    {
+        var folders = InstalledModFolders.Resolve(record).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        return entries.SelectMany(FolderNamesOf).Any(folders.Contains);
+    }
+
     private static IEnumerable<string> FolderNamesOf(InstalledMod entry)
     {
         yield return entry.Name;
@@ -1392,10 +1429,12 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
         yield return Path.GetFileNameWithoutExtension(path);
     }
 
-    // True when a recorded version and the version the files report mean the same release, so a
-    // trailing ".0" difference - or a "-beta" the DLL cannot carry - isn't reported as a discrepancy.
-    private static bool VersionsAreEquivalent(string? recorded, string? files) =>
-        ModVersionComparer.IsSameRelease(files, recorded);
+    // True when two loosely-formatted version strings mean the same release, so a trailing ".0"
+    // difference - or (fork) a "-beta" a DLL cannot carry - isn't reported as a discrepancy.
+    private static bool VersionsAreEquivalent(string? a, string? b) =>
+        (ModVersionComparer.IsUpdateAvailable(a, b) == false && ModVersionComparer.IsUpdateAvailable(b, a) == false)
+        || ModVersionComparer.IsSameRelease(b, a)
+        || ModVersionComparer.IsSameRelease(a, b);
 
     // The folder names a catalog mod's GUID would plausibly have been installed under, normalized
     // ready to compare. Two folder-naming conventions:
@@ -1524,3 +1563,6 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
         && candidateToken.Length - folderToken.Length is > 0 and <= 5
         && candidateToken.StartsWith(folderToken, StringComparison.Ordinal);
 }
+
+// A download from the ledger and what the last scan made of it.
+public sealed record PendingDownload(DownloadedModRecord Download, DownloadMatch Match);

@@ -113,6 +113,36 @@ public partial class PlayViewModel : LocalizedViewModel
         }
     }
 
+    // "N conflicts - see Dependencies and Conflicts" (OPEN-11 R4), or null when there are none.
+    // A warning only: launching is never held up by it.
+    //
+    [ObservableProperty]
+    private string? _conflictWarning;
+
+    // Rechecked whenever the page opens - the install alone, no network.
+    public async Task RefreshConflictsAsync()
+    {
+        var installPath = AppServices.SptEnvironment.InstallPath;
+        if (string.IsNullOrWhiteSpace(installPath))
+        {
+            ConflictWarning = null;
+            return;
+        }
+
+        try
+        {
+            var (_, conflicts) = await ModConflicts.ScanAsync(installPath);
+            ConflictWarning = conflicts.Count == 0 ? null : Strings.Installed_ConflictCount(conflicts.Count, conflicts.Count);
+        }
+        catch (Exception ex) when (ex is System.IO.IOException or UnauthorizedAccessException)
+        {
+            ConflictWarning = null;
+        }
+    }
+
+    [RelayCommand]
+    private static void ShowConflicts() => AppNavigation.Navigate(typeof(Views.DependenciesPage));
+
     public PlayViewModel()
     {
         _poll.Tick += (_, _) => Refresh();

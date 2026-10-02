@@ -16,6 +16,10 @@ public enum ModConfigSaveOutcome
     // its own settings.
     Invalid,
 
+    // The file as it stood couldn't be copied aside first, so it was not written (D20). Error carries
+    // the operating system's reason.
+    BackupFailed,
+
     Failed,
 }
 
@@ -107,9 +111,18 @@ public static class ModConfigStore
                     "This file has changed on disk since it was opened here.");
             }
 
-            var backup = Backup(installPath, path, timestamp);
+            //
+            // No copy, no write: the backup is what makes a save undoable, so a save that can't make one
+            // is refused rather than made without it (D20 - reverses the earlier rule that a failed
+            // backup never stopped the save).
+            //
+            if (!TryBackup(installPath, path, timestamp, out var backup, out var backupError))
+            {
+                return new ModConfigSaveResult(ModConfigSaveOutcome.BackupFailed, null, null, backupError);
+            }
 
-            SafeFile.WriteAllText(path, text, loaded.HasByteOrderMark ? Utf8WithBom : Utf8NoBom);
+            // Written beside the file and renamed over it, so an interrupted save leaves the old file whole.
+            SafeFile.WriteText(path, text, encoding: loaded.HasByteOrderMark ? Utf8WithBom : Utf8NoBom);
 
             AppLog.Info("Configs", $"saved {Path.GetFileName(path)}{(backup is null ? "" : $" (backup: {backup})")}");
 
@@ -131,12 +144,22 @@ public static class ModConfigStore
     // the install so a whole timestamped folder can be copied back over an SPT install to undo a
     // round of edits. Returns null when there was nothing to copy.
     //
-    // A failure here is not allowed to stop the save: the backup is a convenience, and refusing to
-    // write a config because a spare copy couldn't be made would be the more annoying failure.
+    // Save refuses to write when this fails (D20); the reload path uses it as a courtesy and carries on.
     //
-    public static string? Backup(string installPath, string path, DateTimeOffset timestamp)
+    public static string? Backup(string installPath, string path, DateTimeOffset timestamp) =>
+        TryBackup(installPath, path, timestamp, out var destination, out _) ? destination : null;
+
+    //
+    // True when the file was copied aside, or when there is no file yet and so nothing to keep.
+    // A backup taken in the same second as an earlier one gets its own name rather than replacing it.
+    //
+    public static bool TryBackup(
+        string installPath, string path, DateTimeOffset timestamp, out string? destination, out string? error)
     {
-        if (!File.Exists(path)) return null;
+        destination = null;
+        error = null;
+
+        if (!File.Exists(path)) return true;
 
         try
         {
@@ -146,31 +169,40 @@ public static class ModConfigStore
             var relative = RelativeForBackup(installPath, path);
             var stamp = $"{timestamp.ToLocalTime():yyyyMMdd-HHmmss}";
             var folder = Path.Combine(BackupDirectory, stamp);
-            var destination = Path.Combine(folder, relative);
+            var target = Path.Combine(folder, relative);
 
-            // A second save of the same file within the same second must not replace the backup of
-            // what was there before the first: that one is the copy worth having.
-            for (var n = 2; File.Exists(destination); n++)
+            for (var n = 2; File.Exists(target); n++)
             {
                 folder = Path.Combine(BackupDirectory, $"{stamp}-{n}");
-                destination = Path.Combine(folder, relative);
+                target = Path.Combine(folder, relative);
             }
 
-            var directory = Path.GetDirectoryName(destination);
+            var directory = Path.GetDirectoryName(target);
             if (!string.IsNullOrEmpty(directory)) Directory.CreateDirectory(directory);
 
-            File.Copy(path, destination, overwrite: false);
+            File.Copy(path, target, overwrite: false);
 
-            // Which SPT install these copies came from, so another install's are not offered back.
+            // Fork: which SPT install these copies came from, so another install's are not offered
+            // back by BackupsOf (the Configs page's earlier versions).
+            // The copy is made either way: a marker that can't be written only leaves it unclaimed.
             var marker = Path.Combine(folder, InstallMarker);
-            if (!File.Exists(marker)) File.WriteAllText(marker, SameInstallKey(installPath));
+            try
+            {
+                if (!File.Exists(marker)) File.WriteAllText(marker, SameInstallKey(installPath));
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                AppLog.Warn("Configs", $"couldn't mark {folder} with its install: {ex.Message}");
+            }
 
-            return destination;
+            destination = target;
+            return true;
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or NotSupportedException or ArgumentException)
         {
             AppLog.Warn("Configs", $"couldn't back up {path}: {ex.Message}");
-            return null;
+            error = ex.Message;
+            return false;
         }
     }
 

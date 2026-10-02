@@ -2,7 +2,8 @@
 
 Server Map lets an SPT server publish the mod list it expects players to be running, so TCF Mod
 Manager can tell someone what they are missing **before** they launch instead of after a raid fails
-to load.
+to load. With the Server Map mod 0.2.0, it also shows **who is on the server**: every machine that
+agrees to report, whether it is in game, and whether it has what the list asks for.
 
 Two halves, and they are separate installs:
 
@@ -14,8 +15,9 @@ Two halves, and they are separate installs:
 #### Three things it does not do:
 - It never sends mod files. The server publishes a *list*; mods still only ever download from
   sp-mod.com. There is no route for a server to push you a file.
-- It never reports anything about your install to the server. Connecting asks the server who it is.
-  Nothing goes the other way.
+- It never reports anything about your install without asking. Connecting asks the server who it
+  is. Your machine only appears on the server's map after you press **Share**, and only on that
+  server - switch it off in Options and it leaves the map straight away.
 - It never blocks you playing. The check on the Play page says what it found and leaves the launch
   buttons working.
 
@@ -32,30 +34,26 @@ It is **not bundled with TCF Mod Manager** it is a separate download, published 
 app's mod page at sp-mod.com. That is deliberate: it is installed on a different machine from the
 app, by a different person, and a player joining your server needs none of it.
 
-In the app: **Options** → **Server map** → **Get the Server Map mod**. That opens the page in your
+In the app: switch the Server map page on (**Options** → **Pages** → **Server map**), then
+**Options** → **Fika and servers** → **Server map connection** → **Get the Server Map mod**. That opens the page in your
 browser.
 
-**Download the build that matches your SPT version.** There are two and they are not
-interchangeable:
+**There is one zip per SPT line** - `...-SPT4.1.zip` and `...-SPT4.0.13.zip`. Take the one that
+matches your server. The payload inside is the same build either way; only the stub differs.
 
-Your server is SPT **4.0.13** Download the **4.0** build
-Your server SPT **4.1.x** Download the **4.1** build
-
-If you install the wrong one, SPT refuses to load it and says so it will not half-work.
+If you take the wrong one, SPT refuses to load the stub and says so - it will not half-work.
 
 ## Install the Server Map mod?
 
-You need two folders. The **stub** goes where SPT looks for mods; the **payload** goes outside it,
-so removing the feature later is one folder deletion.
+The zip is laid out exactly as it installs, so installing it is one extraction.
 
 1. **Stop the server.** The payload DLL is locked while it runs, and a copy over a locked file
    fails silently you will then spend an hour debugging the previous build.
-2. Copy the **stub folder** (`TCFMM.ServerMap`, containing `TCFMM.ServerMap.Stub.dll`,
-   `TCFMM.ServerMap.Shared.dll` and the `.deps.json`) into `user\mods\` the `user` folder that
-   sits beside `SPT.Server.exe`.
-3. Copy the **payload** (`TCFMM.ServerMap.Payload.dll`) into a folder called
-   `TCFModManager\ServerMap\payload\`.
-4. **Start the server.**
+2. **Extract the zip into your SPT root** - the folder that holds `SPT_Runtime\` (4.1) or `SPT\`
+   (4.0), and `TCFModManager\`. The **stub** lands in `user\mods\TCFMM.ServerMap\`, where SPT
+   looks for mods; the **payload** lands in `TCFModManager\ServerMap\payload\`, outside it, so
+   removing the feature later is one folder deletion.
+3. **Start the server.**
 
 ## Where exactly does the payload folder go?
 
@@ -124,7 +122,7 @@ app reads it and fills the key in on its own. See "How do I fill in my own serve
 
 ## Change my server's key?
 
-**Options** → **Server map** → **Generate a new key**. It only appears on the machine actually
+**Options** → **Server map connection** → **Generate a new key**. It only appears on the machine actually
 running the server.
 
 Everyone holding the old key stops being able to see what your server publishes the moment you press
@@ -244,10 +242,69 @@ If you are setting that up from scratch, in `SPT_Data/configs/http.json`:
 
 Then give people your external address, the port, and the key.
 
+## Keep it to my own network?
+
+If only people at home - or on your Tailscale - ever play, turn on **Only answer this network** in
+**Options - Server map connection** on the server machine. Needs the Server Map mod **0.2.0** or
+later, stub included.
+
+From then on the server refuses every Server Map request from outside its own network, even the
+handshake, and the player sees *This server only answers machines on its own network*. It takes
+effect straight away; no restart.
+
+What counts as your network:
+
+- the server machine itself
+- the private ranges a router hands out - `192.168.x.x`, `10.x.x.x`, `172.16-31.x.x`
+- **Tailscale** peers (`100.64.0.0/10`), so a group on Tailscale still gets in. ZeroTier uses
+  private ranges already.
+
+It only covers Server Map. Whether people can join the SPT server itself is still `http.json` and
+your router.
+
+The switch writes `TCFModManager\Data\ServerMap\servermap.json`; `{ "lanOnly": true }` there by
+hand does the same.
+
+## See who is on my server?
+
+The **Server map** page on any machine connected to your server - yours included - lists every
+machine that reports to it, with your server first. Needs the Server Map mod **0.2.0** or later.
+
+Your server's own row comes from **TCF Mod Manager on the server machine**: connect it to your own
+server and press **Share** like anyone else. The mod never scans your install - the row shows what
+the app installed and keeps a record of.
+
+Each machine is asked once before it reports anything, so a player who says no simply is not on the
+map. Machines that do not run TCF Mod Manager never appear.
+
+The list lives in `TCFModManager\Data\ServerMap\clients.json`. A machine not heard from for 30 days
+is forgotten on its own.
+
+## Update the mod?
+
+**TCF Mod Manager tells you when to.** Its **App update** page has a **Server Map mod** card on the
+machine that runs the server: the version installed, the newest on sp-mod.com, and a warning - with
+a coloured dot on the sidebar item - when a newer one is out. It also warns when the stub in
+`user\mods` is older than the payload, which is easy to miss and stops LAN-only letting anyone in.
+Players connected to your server see the same card for your server's version, telling them to ask
+you.
+
+1. **Stop the server.**
+2. Extract the new zip for your SPT line into your SPT root, over the old files.
+3. Start the server.
+
+**Leave `TCFModManager\Data\ServerMap\` alone.** Your key, your published list and the map's
+`clients.json` are there, and none of them are in the zip.
+
+The app never updates the mod itself - it is installed by hand, on the server machine - so the card
+only says it is behind and links the mod's page.
+
 ## Remove it?
 
 Delete the `TCFModManager\ServerMap\payload\` folder. The server starts normally, the stub logs one
 line and does nothing. Delete `user\mods\TCFMM.ServerMap\` too if you want it gone entirely.
+`TCFModManager\Data\ServerMap\` holds your key, your list and the map - delete it as well if you
+will not be putting the mod back.
 
 {.endtabset}
 
@@ -259,11 +316,12 @@ How do I?...
 
 It is off by default, because without a server running the mod there is nothing for it to show.
 
-**Options** → scroll to **Server map** → toggle it **On - shown in the sidebar**.
+**Options** → **Pages** → switch **Server map** on. The **Server map connection** settings, under
+**Fika and servers**, only appear while it is on.
 
 ## Connect to a server?
 
-In the same **Server map** section of Options:
+**Options** → **Fika and servers** → open **Server map connection**:
 
 1. **Server address** the same address you put in the SPT launcher. Not `0.0.0.0`: that is a bind
    address, not one you can dial.
@@ -319,11 +377,18 @@ the list actually lives.
 
 ## Install what the server expects?
 
-Treat it like any other list:
+The quick way: when you are behind, press **Review and install** on the Play page's check or on
+your own card on the Server map page. It opens the server's list with the preview already done.
+
+Or by hand, like any other list:
 
 1. **Mod lists** → select the list badged **From server**.
 2. **Preview** to see exactly what would change.
 3. **Apply** to queue the downloads.
+
+The preview shows coloured counts at the top - *1 missing*, *2 incorrect versions*, *1 disabled*,
+*72 correct* - and a badge on every row in the same colours. An incorrect version shows the move,
+for example *3.0.0 → 3.1.2*. The Apply button says what it is about to do: *Install 1 mod*.
 
 Everything comes from sp-mod.com as usual, and you only get the entries meant for this machine: a
 player is never asked to install `fika-server`, and a headless is not sent the mods that only draw
@@ -353,6 +418,9 @@ Open the **Play** page. It checks automatically, and **Check again** re-runs it.
 | **This server's mod list has changed** | the server publishes a newer revision than you hold fetch it |
 | **Couldn't check the server** | it did not answer; you are compared against your last fetched copy |
 
+It names what is outstanding, with versions where a version is wrong: *SAIN (3.0.0 → 3.1.2)*.
+**Review and install** takes you straight to the fix.
+
 It never stops you launching. If it says you are three mods behind and you want to try anyway, the
 buttons still work.
 
@@ -366,6 +434,40 @@ can find something by the folder name if that is what you know it by.
 
 The header reads "12 of 76 mods on this list" while a filter is on, so a filtered view is never
 mistaken for a short list.
+
+## Show up on the server's map?
+
+The first time you connect to a server with the Server Map mod 0.2.0 or later, the Server map page
+asks **Share this machine with the server?**
+
+- **Share** - from then on this machine reports once a minute while TCF Mod Manager is running,
+  including when it is only in the tray.
+- **Don't share** - nothing is sent. The page remembers the answer.
+
+What is shared: the machine's name, what it is (server, player, headless), whether the game is
+running, and the mods installed on it with their versions. Everyone holding the server's key can see
+it. You are asked once per server, and again if the server's certificate changes.
+
+**Options** → **Server map connection** has the same answer as a switch, **Report this machine to
+the server**, and **Name on the map** - leave it empty to use the computer's name.
+
+## See who else is on the server?
+
+The **Server map** page lists every machine that reports to the server, the server first and your
+own marked *This machine*:
+
+- **In game**, **App open**, or **Last seen** some time ago.
+- A coloured line for where it stands against the server's list - green when it has everything,
+  amber or red naming what is outstanding.
+- Mods it has that are not on the list, and an expander with everything it has installed.
+
+It refreshes every minute while the page is open. **Refresh** sends your own report first, so your
+card always shows what you see on your own screen.
+
+## Stop showing up on the map?
+
+**Options** → **Server map connection** → switch **Report this machine to the server** off. The
+machine leaves the map straight away. Switching the Server map page off stops the reports as well.
 
 ## Stop using a server's list?
 
@@ -417,6 +519,32 @@ launcher** at the one you have.
 Operators: check the list too. A row still scoped **Client + Headless** goes to the headless by
 design that is the capture default, and pruning it is the operator's job.
 
+## The map says the server mod needs updating
+
+The server is running Server Map 0.1.0, which publishes a list but has no map. Everything else -
+the list, the pre-launch check, Review and install - works as before. The operator needs the 0.2.0
+zip.
+
+## My machine is not on the map
+
+Work through these:
+
+1. Did you press **Share**? Check **Options** → **Server map connection** → **Report this machine
+   to the server**.
+2. Is the Server map page switched on? Reports stop when it is off.
+3. Has this machine connected since the server's certificate changed? A new certificate is asked
+   about again.
+4. Press **Refresh** on the Server map page - it reports first, then reads the map.
+
+## It says the server only answers its own network
+
+The operator has turned on **Only answer this network**, and your machine is outside it. Either
+ask them to turn it off, or join their network - Tailscale is the usual way.
+
+If you **are** on the same network and still see it, the server's stub is older than its payload:
+replace `user\mods\TCFMM.ServerMap\` with the stub from the same zip. Without it the server cannot
+see who is asking, so it refuses everyone.
+
 ## Nothing answers at all
 
 Work outwards:
@@ -432,9 +560,8 @@ Work outwards:
 
 Worth knowing so you are not looking for it:
 
-- **"Who else is on this map" is empty.** The server does not report the other machines connected to
-  it. That needs a later version of the server mod, and it will ask before it reports anything about
-  your machine.
+- **Machines that do not run TCF Mod Manager never appear on the map.** Someone who installs mods
+  by hand is invisible to it.
 - **One server per install.** The app connects to one server at a time.
 - **Nothing is applied automatically.** A server can never change your install; every fetch, apply
   and download is something you press.

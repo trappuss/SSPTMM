@@ -68,6 +68,25 @@ public sealed partial class PreLaunchCheckViewModel : LocalizedViewModel
     [NotifyPropertyChangedFor(nameof(HasOutstanding))]
     private string _outstanding = "";
 
+    //
+    // The served list this install is behind, when it is behind one. Only ever a list that came FROM
+    // a server: on the host the comparison can run against the operator's own copy, and previewing
+    // that as their own list would sweep every server mod off the box.
+    //
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanReview))]
+    [NotifyCanExecuteChangedFor(nameof(ReviewCommand))]
+    private Guid? _reviewListId;
+
+    public bool CanReview => ReviewListId is not null;
+
+    // Opens Mod lists on the server's list with the preview already run. Installing is still Apply.
+    [RelayCommand(CanExecute = nameof(CanReview))]
+    private void Review()
+    {
+        if (ReviewListId is { } id) AppNavigation.ReviewList(id);
+    }
+
     public bool IsVisible => State != PreLaunchState.NotChecking;
 
     public bool IsBusy => State == PreLaunchState.Checking;
@@ -108,11 +127,13 @@ public sealed partial class PreLaunchCheckViewModel : LocalizedViewModel
             State = PreLaunchState.NotChecking;
             Message = "";
             Outstanding = "";
+            ReviewListId = null;
             return;
         }
 
         State = PreLaunchState.Checking;
         Outstanding = "";
+        ReviewListId = null;
 
         // The handshake first: it is cheap, and its list revision is what says whether the held copy
         // is still what the server is serving.
@@ -213,6 +234,8 @@ public sealed partial class PreLaunchCheckViewModel : LocalizedViewModel
 
         State = PreLaunchState.Behind;
 
+        if (held.Origin == ModListOrigin.Server) ReviewListId = held.Id;
+
         var parts = new List<string>();
         if (behind.Count > 0) parts.Add(Strings.PreLaunch_BehindCount(behind.Count));
         if (manual.Count > 0) parts.Add(Strings.PreLaunch_Manual(manual.Count));
@@ -226,6 +249,6 @@ public sealed partial class PreLaunchCheckViewModel : LocalizedViewModel
         // names are, and they are what someone checks against what the server is actually running.
         Outstanding = string.Join(
             Strings.Common_ListSeparator,
-            behind.Concat(manual).Select(a => a.Name).Order(StringComparer.OrdinalIgnoreCase));
+            behind.Concat(manual).Select(ModListActionWording.Named).Order(StringComparer.OrdinalIgnoreCase));
     }
 }

@@ -282,6 +282,34 @@ public partial class InstalledPage : Page
 
     private void SelectMode_Click(object sender, RoutedEventArgs e) => ViewModel.SelectionMode = !ViewModel.SelectionMode;
 
+    //
+    // Undo a removal: with one held it is undone straight away; with several, a menu of them (newest
+    // first) lets the user pick which one comes back.
+    //
+    private void UndoRemoval_Click(object sender, RoutedEventArgs e)
+    {
+        var command = ViewModel.UndoRemovalCommand;
+        if (command.IsRunning) return;
+
+        var held = ViewModel.HeldRemovals;
+        if (held.Count <= 1)
+        {
+            command.Execute(null);
+            return;
+        }
+
+        var menu = new ContextMenu
+        {
+            PlacementTarget = (UIElement)sender,
+            Placement = PlacementMode.Bottom,
+        };
+
+        foreach (var item in held)
+            menu.Items.Add(new MenuItem { Header = item.Label, Command = command, CommandParameter = item.Folder });
+
+        menu.IsOpen = true;
+    }
+
     // Lets the wheel scroll whichever of the two scrolling views is showing from anywhere on the
     // page - search box, filter row, group-management bar, directly over the list, all of it - by
     // driving that view's ScrollViewer ourselves unconditionally rather than only stepping in when

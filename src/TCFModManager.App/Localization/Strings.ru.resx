@@ -1015,7 +1015,7 @@
     <value>Установка отменена - страница мода {0} не подтверждена как прочитанная.</value>
   </data>
   <data name="Dependencies_Description" xml:space="preserve">
-    <value>Все установленные моды, которые объявляют зависимости, и состояние каждой из них. Моды, требующие внимания, идут первыми и сразу развёрнуты.</value>
+    <value>Моды, установленные дважды или несущие конфликтующие файлы, затем все установленные моды, которые объявляют зависимости, и состояние каждой из них. Проблемы идут первыми.</value>
   </data>
   <data name="Dependencies_Empty" xml:space="preserve">
     <value>Ни один установленный мод не объявляет зависимостей.</value>
@@ -2022,7 +2022,7 @@
     <value>Отписаться</value>
   </data>
   <data name="Installed_RemoveAppManagedBody" xml:space="preserve">
-    <value>Будут удалены ровно те файлы, которые приложение установило для этого мода.</value>
+    <value>Это удаляет ровно те файлы, которые это приложение установило для него, и возвращает все файлы, которые он заменил. Файлы, изменённые после установки или используемые другим модом, остаются на месте.</value>
   </data>
   <data name="Installed_RemovedConfigsKept_few" xml:space="preserve">
     <value>{0} файла конфигурации оставлены в {1}.</value>
@@ -2055,7 +2055,7 @@
     <value>Не удалось удалить {0}: {1}</value>
   </data>
   <data name="Installed_RemoveLegacyBodyFormat" xml:space="preserve">
-    <value>Этот мод установлен не через это приложение, поэтому будет безвозвратно удалена вся его папка, а не только размещённые им файлы:
+    <value>Этот мод установлен не через это приложение, поэтому удаляется вся его папка, а не только размещённые им файлы:
 
 {0}</value>
   </data>
@@ -2838,9 +2838,6 @@
   <data name="ModLists_EntryNotOnForge" xml:space="preserve">
     <value>нет на sp-mod.com - установлен вручную</value>
   </data>
-  <data name="ModLists_EntryPinnedToolTip" xml:space="preserve">
-    <value>Закреплён в этой установке - ни один применённый список не отложит этот мод</value>
-  </data>
   <data name="ModLists_EntrySearchPlaceholder" xml:space="preserve">
     <value>Поиск по этому списку...</value>
   </data>
@@ -3407,7 +3404,7 @@
     <value>Конфигурации</value>
   </data>
   <data name="Nav_Dependencies" xml:space="preserve">
-    <value>Зависимости</value>
+    <value>Зависимости и конфликты</value>
   </data>
   <data name="Nav_Downloads" xml:space="preserve">
     <value>Загрузки</value>
@@ -3444,9 +3441,6 @@
   </data>
   <data name="Options_Browse" xml:space="preserve">
     <value>Обзор</value>
-  </data>
-  <data name="Options_BrowseEllipsis" xml:space="preserve">
-    <value>Обзор...</value>
   </data>
   <data name="Options_BrowseHasDefault" xml:space="preserve">
     <value>Обзор: настройки по умолчанию сохранены. Их сброс подействует при следующем запуске приложения.</value>
@@ -3545,7 +3539,7 @@
     <value>Установленные: настройки по умолчанию не сохранены - страница открывается в виде «Карточки», без фильтров, с сортировкой по имени.</value>
   </data>
   <data name="Options_InstallFolderDescription" xml:space="preserve">
-    <value>Укажите здесь папку установки сервера SPT (ту, в которой лежит SPT.Server.exe). После этого установленная версия SPT используется как значение по умолчанию для фильтра версий на странице Обзор и для пометки модов, которые под неё не собраны.</value>
+    <value>Укажите здесь папку игры SPT - ту, в которой лежит EscapeFromTarkov.exe, а не папку сервера SPT внутри неё. После этого установленная версия SPT используется как значение по умолчанию для фильтра версий на странице Обзор и для пометки модов, которые под неё не собраны.</value>
   </data>
   <data name="Options_InstallFolderHeader" xml:space="preserve">
     <value>Папка установки SPT</value>
@@ -3570,15 +3564,6 @@
   </data>
   <data name="Options_ModPagesDescription" xml:space="preserve">
     <value>Перед любой загрузкой приложение предлагает открыть страницу мода - там автор размещает порядок установки, требования, известные конфликты и предупреждения. Отключите это, если предпочитаете сразу переходить к установке. Для обновлений самого приложения вопрос задаётся всегда, ведь на той странице находятся заметки о выпуске.</value>
-  </data>
-  <data name="Options_ModPagesHeader" xml:space="preserve">
-    <value>Страницы модов</value>
-  </data>
-  <data name="Options_ModPagesSwitchOff" xml:space="preserve">
-    <value>Вкл. - сначала открывать страницу каждого мода</value>
-  </data>
-  <data name="Options_ModPagesSwitchOn" xml:space="preserve">
-    <value>Выкл. - устанавливать, не открывая страницы модов</value>
   </data>
   <data name="Options_ModPagesToolTipAsking" xml:space="preserve">
     <value>Страница каждого мода открывается до начала загрузки, так что описание релиза и порядок установки оказываются перед вами первыми.</value>
@@ -3639,12 +3624,6 @@
   </data>
   <data name="Options_SharedKeyPlaceholder" xml:space="preserve">
     <value>Общий ключ (если сервер его требует)</value>
-  </data>
-  <data name="Options_SidebarOff" xml:space="preserve">
-    <value>Выкл. - скрыта</value>
-  </data>
-  <data name="Options_SidebarOn" xml:space="preserve">
-    <value>Вкл. - показана в боковой панели</value>
   </data>
   <data name="Options_SizeBy" xml:space="preserve">
     <value>×</value>
@@ -4087,12 +4066,6 @@
   <data name="ServerMap_UnreachableFormat" xml:space="preserve">
     <value>По адресу {0}:{1} никто не ответил. Возможно, сервер не запущен либо адрес или порт указаны неверно - они те же, что и в лаунчере SPT.</value>
   </data>
-  <data name="ServerMap_WhoElseEmpty" xml:space="preserve">
-    <value>Пока ничего. Сервер не сообщает о других подключённых к нему машинах, поэтому эта страница пока может показать только сам сервер. Ничья установка никуда не отправляется, в том числе ваша. Это появится в следующей версии серверного мода и будет спрашивать, прежде чем сообщать что-либо об этой машине.</value>
-  </data>
-  <data name="ServerMap_WhoElseHeader" xml:space="preserve">
-    <value>Кто ещё на этой карте</value>
-  </data>
   <data name="Sort_AuthorAscending" xml:space="preserve">
     <value>По автору (А-Я)</value>
   </data>
@@ -4146,9 +4119,6 @@
   </data>
   <data name="Sort_NameDescending" xml:space="preserve">
     <value>По названию (Я-А)</value>
-  </data>
-  <data name="Sort_RecentlyInstalled" xml:space="preserve">
-    <value>Недавно установленные</value>
   </data>
   <data name="SptEnvironment_DetectedFormat" xml:space="preserve">
     <value>Обнаружен SPT {0}.</value>
@@ -4278,5 +4248,1998 @@
   </data>
   <data name="WorkshopHome_ViewAll" xml:space="preserve">
     <value>Показать все</value>
+  </data>
+  <data name="Configs_BackupFailedFormat" xml:space="preserve">
+    <value>{0} не сохранён: не удалось сначала сделать его резервную копию ({1}). Ничего не изменено - освободите место или проверьте, что в папку Data приложения можно записывать, затем сохраните снова.</value>
+  </data>
+  <data name="ModInstall_ArchiveContainsLinkFormat" xml:space="preserve">
+    <value>{0} {1} не установлен: архив содержит ссылку («{2}»). Архивы со ссылками отклоняются, чтобы ничего за пределами мода не было затронуто.</value>
+  </data>
+  <data name="ModInstall_InstallThroughLinkFormat" xml:space="preserve">
+    <value>{0} {1} не установлен: {2} находится в папке, которая является ссылкой на другое место, и установка изменила бы то, на что она указывает. Ничего не изменено.</value>
+  </data>
+  <data name="ModInstall_OriginalNotKeptFormat" xml:space="preserve">
+    <value>{0} {1} не установлен: он заменил бы {2}, а сохранить копию этого файла заранее не удалось ({3}). Ничего не изменено.</value>
+  </data>
+  <data name="ModInstall_RecordFromAnotherInstallFormat" xml:space="preserve">
+    <value>{0} не затронут: запись приложения о нём сделана в другой установке SPT ({1}). Переключитесь на ту установку в «Параметрах», чтобы удалить или обновить его там.</value>
+  </data>
+  <data name="ModInstall_RemoveRefusedOutsideFormat" xml:space="preserve">
+    <value>{0} не удалён: он находится вне вашей папки SPT. Ничего не удалено.</value>
+  </data>
+  <data name="ModInstall_RemoveRefusedProtectedFormat" xml:space="preserve">
+    <value>{0} не удалён: он принадлежит SPT, BepInEx или игре. Ничего не удалено.</value>
+  </data>
+  <data name="ModInstall_RemoveRefusedAppFolderFormat" xml:space="preserve">
+    <value>{0} не удалён: он является частью TCF Mod Manager. Ничего не удалено.</value>
+  </data>
+  <data name="ModInstall_RemoveRefusedNotModFolderFormat" xml:space="preserve">
+    <value>{0} не удалён: это не папка мода в BepInEx\plugins, BepInEx\patchers или user\mods. Ничего не удалено.</value>
+  </data>
+  <data name="ModInstall_RemoveRefusedLinkFormat" xml:space="preserve">
+    <value>{0} не удалён: это ссылка на другую папку или он содержит ссылку. Ничего не удалено - удалите его сами в Проводнике, если это было нужно.</value>
+  </data>
+  <data name="Filter_UpdateRecentlyInstalled" xml:space="preserve">
+    <value>Установлены за последние 7 дней</value>
+  </data>
+  <data name="Options_MonitorDescription" xml:space="preserve">
+    <value>Выберите, будет ли приложение устанавливать моды за вас или только скачивать их, чтобы вы установили их сами. Просмотр, проверка обновлений и зависимости работают в обоих случаях. Что бы вы ни выбрали, рядом с каждой кнопкой установки есть маленькая кнопка, которая делает обратное - только для этого мода.</value>
+  </data>
+  <data name="Options_MonitorModeInstall" xml:space="preserve">
+    <value>Устанавливать моды за меня</value>
+  </data>
+  <data name="Options_MonitorModeDownloadOnly" xml:space="preserve">
+    <value>Только скачивать - устанавливаю сам</value>
+  </data>
+  <data name="Options_MonitorFolderHeader" xml:space="preserve">
+    <value>Папка загрузок</value>
+  </data>
+  <data name="Options_MonitorFolderDescription" xml:space="preserve">
+    <value>Куда сохраняется мод, если он скачивается, а не устанавливается. Оставьте пустым, чтобы использовать папку «Загрузки» Windows. Приложение никогда не удаляет то, что сохраняет сюда.</value>
+  </data>
+  <data name="Options_MonitorFolderPlaceholderFormat" xml:space="preserve">
+    <value>Загрузки Windows ({0})</value>
+  </data>
+  <data name="Options_MonitorFolderPickerTitle" xml:space="preserve">
+    <value>Выберите, куда сохранять скачанные моды</value>
+  </data>
+  <data name="Options_MonitorFolderReset" xml:space="preserve">
+    <value>Использовать «Загрузки»</value>
+  </data>
+  <data name="Options_MonitorFolderResetToolTip" xml:space="preserve">
+    <value>Вернуться к папке «Загрузки» Windows, где бы Windows её ни хранил.</value>
+  </data>
+  <data name="ModPageGate_InstallDownloadOnly" xml:space="preserve">
+    <value>Скачать этот мод в папку загрузок, чтобы установить его самостоятельно.</value>
+  </data>
+  <data name="ModPageGate_RedownloadDownloadOnly" xml:space="preserve">
+    <value>Скачать этот мод заново в папку загрузок, чтобы установить его самостоятельно.</value>
+  </data>
+  <data name="ModPageGate_UpdateDownloadOnly" xml:space="preserve">
+    <value>Скачать эту версию в папку загрузок, чтобы установить её самостоятельно.</value>
+  </data>
+  <data name="ModPageGate_AlternateDownload" xml:space="preserve">
+    <value>Только скачать: сохранить в папку загрузок и установить самостоятельно, вместо установки этим приложением.</value>
+  </data>
+  <data name="ModPageGate_AlternateInstall" xml:space="preserve">
+    <value>Установить: приложение установит это за вас, а не только скачает.</value>
+  </data>
+  <data name="Downloads_SavingToFormat" xml:space="preserve">
+    <value>Загрузка в {0}...</value>
+  </data>
+  <data name="Downloads_SavedFormat" xml:space="preserve">
+    <value>{0} {1} сохранён в {2}. Установите его сами, когда будете готовы - в SPT ничего не изменено.</value>
+  </data>
+  <data name="Downloads_SavedUnrecognisedFormat" xml:space="preserve">
+    <value>{0} {1} сохранён в {2}. Приложение не смогло определить, как он устанавливается, поэтому следуйте инструкциям на странице мода.</value>
+  </data>
+  <data name="Downloads_ShowInFolder" xml:space="preserve">
+    <value>Показать в папке</value>
+  </data>
+  <data name="Downloads_ShowInFolderToolTip" xml:space="preserve">
+    <value>Открыть папку с выделенным скачанным файлом.</value>
+  </data>
+  <data name="ModInstall_DownloadFolderMissingFormat" xml:space="preserve">
+    <value>Папка загрузок {0} не существует. Выберите другую на странице «Параметры» или верните папку «Загрузки».</value>
+  </data>
+  <data name="ModInstall_DownloadFolderNotWritableFormat" xml:space="preserve">
+    <value>Не удалось сохранить в {0} ({1}). Выберите на странице «Параметры» папку, в которую можно записывать.</value>
+  </data>
+  <data name="DownloadConfirm_Title" xml:space="preserve">
+    <value>Скачанные моды теперь установлены</value>
+  </data>
+  <data name="DownloadConfirm_RowDetailFormat" xml:space="preserve">
+    <value>Версия {0}, из {1}</value>
+  </data>
+  <data name="DownloadConfirm_Note" xml:space="preserve">
+    <value>Снимите отметку с тех, что указаны неверно, - о них не спросят снова, пока вы не скачаете более новую версию. Отметка мода как установленного ничего не меняет на диске.</value>
+  </data>
+  <data name="DownloadConfirm_NotNow" xml:space="preserve">
+    <value>Не сейчас</value>
+  </data>
+  <data name="DownloadConfirm_Confirm" xml:space="preserve">
+    <value>Отметить как установленные</value>
+  </data>
+  <data name="Installed_DownloadLooksInstalledFormat" xml:space="preserve">
+    <value>Вы скачали {0}, и он уже на диске, но установка ещё не подтверждена. Подтвердите её, чтобы приложение знало, какая у вас версия.</value>
+  </data>
+  <data name="Installed_DownloadPartialFormat" xml:space="preserve">
+    <value>Вы скачали {0}, но файлы на диске пока ему не соответствуют - возможно, часть отсутствует или всё ещё стоит предыдущая версия.</value>
+  </data>
+  <data name="Installed_ConfirmDownload" xml:space="preserve">
+    <value>Подтвердить установку</value>
+  </data>
+  <data name="Installed_ConfirmDownloadToolTip" xml:space="preserve">
+    <value>Записать скачанную версию как установленную. На диске ничего не меняется.</value>
+  </data>
+  <data name="Installed_DownloadConfirmedFormat" xml:space="preserve">
+    <value>{0} {1} отмечен как установленный.</value>
+  </data>
+  <data name="Filter_DownloadedNotConfirmed" xml:space="preserve">
+    <value>Скачан, не подтверждён</value>
+  </data>
+  <data name="Filter_DownloadedNotConfirmedToolTip" xml:space="preserve">
+    <value>Моды, скачанные для самостоятельной установки, которые уже на диске, но ещё не подтверждены, - включая те, чьи файлы не совпадают со скачанным.</value>
+  </data>
+  <data name="Options_MonitorConfirmHeader" xml:space="preserve">
+    <value>Когда скачанный мод оказывается установлен</value>
+  </data>
+  <data name="Options_MonitorConfirmDescription" xml:space="preserve">
+    <value>Когда вы сами устанавливаете скачанный мод, следующее сканирование страницы «Установленные» его находит. Приложение может тогда попросить подтвердить это или просто отметить на карточке мода, чтобы вы подтвердили там. Подтверждение сообщает приложению, какая у вас версия, чтобы проверка обновлений оставалась верной.</value>
+  </data>
+  <data name="Options_MonitorConfirmAsk" xml:space="preserve">
+    <value>Спрашивать после сканирования</value>
+  </data>
+  <data name="Options_MonitorConfirmQuiet" xml:space="preserve">
+    <value>Только отмечать на карточке мода</value>
+  </data>
+  <data name="Downloads_SavedConfigsNote" xml:space="preserve">
+    <value>Он содержит файлы конфигурации, которые у вас уже есть, - копирование поверх установки заменит ваши настройки, а приложение не может перенести их при установке, которую выполняет не оно.</value>
+  </data>
+  <data name="DownloadConfirm_Summary_one" xml:space="preserve">
+    <value>{0} скачанный вами мод теперь выглядит установленным. Отметить его как установленный, чтобы приложение знало вашу версию?</value>
+  </data>
+  <data name="DownloadConfirm_Summary_few" xml:space="preserve">
+    <value>{0} скачанных вами мода теперь выглядят установленными. Отметить их как установленные, чтобы приложение знало ваши версии?</value>
+  </data>
+  <data name="DownloadConfirm_Summary_many" xml:space="preserve">
+    <value>{0} скачанных вами модов теперь выглядят установленными. Отметить их как установленные, чтобы приложение знало ваши версии?</value>
+  </data>
+  <data name="Installed_DownloadsConfirmed_one" xml:space="preserve">
+    <value>{0} загрузка отмечена как установленная.</value>
+  </data>
+  <data name="Installed_DownloadsConfirmed_few" xml:space="preserve">
+    <value>{0} загрузки отмечены как установленные.</value>
+  </data>
+  <data name="Installed_DownloadsConfirmed_many" xml:space="preserve">
+    <value>{0} загрузок отмечены как установленные.</value>
+  </data>
+  <data name="Options_MonitorListSubfoldersOn" xml:space="preserve">
+    <value>Загрузки каждого списка модов попадают в папку с именем списка</value>
+  </data>
+  <data name="Options_MonitorListSubfoldersOff" xml:space="preserve">
+    <value>Загрузки списков модов попадают прямо в папку загрузок</value>
+  </data>
+  <data name="ModLists_AppliedDownloadOnlyFormat" xml:space="preserve">
+    <value>Они сохранены в {0}, чтобы вы установили их сами, - ничего не установлено.</value>
+  </data>
+  <data name="ModLists_DownloadOnlyNotice_one" xml:space="preserve">
+    <value>Режим наблюдения настроен только на скачивание, поэтому {0} мод, который этот список установил бы или обновил, будет сохранён для самостоятельной установки - ничего не будет установлено. Моды, которые он включает или отключает, всё равно перемещаются.</value>
+  </data>
+  <data name="ModLists_DownloadOnlyNotice_few" xml:space="preserve">
+    <value>Режим наблюдения настроен только на скачивание, поэтому {0} мода, которые этот список установил бы или обновил, будут сохранены для самостоятельной установки - ничего не будет установлено. Моды, которые он включает или отключает, всё равно перемещаются.</value>
+  </data>
+  <data name="ModLists_DownloadOnlyNotice_many" xml:space="preserve">
+    <value>Режим наблюдения настроен только на скачивание, поэтому {0} модов, которые этот список установил бы или обновил, будут сохранены для самостоятельной установки - ничего не будет установлено. Моды, которые он включает или отключает, всё равно перемещаются.</value>
+  </data>
+  <data name="Options_UpdateNotificationsHeader" xml:space="preserve">
+    <value>Уведомления об обновлениях</value>
+  </data>
+  <data name="Options_UpdateNotificationsDescription" xml:space="preserve">
+    <value>Пока приложение открыто, оно время от времени спрашивает The Forge об установленных у вас модах и показывает уведомление Windows, когда у одного из них выходит новая версия. Проверяются только установленные моды. О каждой версии сообщается один раз, а об обновлениях, которые страница «Установленные» уже показывает в момент включения, не сообщается.</value>
+  </data>
+  <data name="Options_UpdateIntervalHeader" xml:space="preserve">
+    <value>Проверять каждые</value>
+  </data>
+  <data name="Options_UpdateInterval30Minutes" xml:space="preserve">
+    <value>30 минут</value>
+  </data>
+  <data name="Options_UpdateInterval1Hour" xml:space="preserve">
+    <value>1 час</value>
+  </data>
+  <data name="Options_UpdateInterval3Hours" xml:space="preserve">
+    <value>3 часа</value>
+  </data>
+  <data name="Options_UpdateInterval6Hours" xml:space="preserve">
+    <value>6 часов</value>
+  </data>
+  <data name="Options_UpdateInterval12Hours" xml:space="preserve">
+    <value>12 часов</value>
+  </data>
+  <data name="Options_UpdateNotificationsNote" xml:space="preserve">
+    <value>Первая проверка проходит через один интервал после запуска приложения, а при выходе из приложения проверки прекращаются - закрытие окна завершает приложение, если оно не оставлено в области уведомлений. Нет уведомлений? Проверьте, что TCF Mod Manager разрешено их показывать в разделе Параметры Windows &gt; Система &gt; Уведомления.</value>
+  </data>
+  <data name="UpdateToast_Title_one" xml:space="preserve">
+    <value>Доступно {0} обновление мода</value>
+  </data>
+  <data name="UpdateToast_Title_few" xml:space="preserve">
+    <value>Доступно {0} обновления модов</value>
+  </data>
+  <data name="UpdateToast_Title_many" xml:space="preserve">
+    <value>Доступно {0} обновлений модов</value>
+  </data>
+  <data name="UpdateToast_ItemFormat" xml:space="preserve">
+    <value>{0} {1}</value>
+  </data>
+  <data name="UpdateToast_More_one" xml:space="preserve">
+    <value>ещё {0}</value>
+  </data>
+  <data name="UpdateToast_More_few" xml:space="preserve">
+    <value>ещё {0}</value>
+  </data>
+  <data name="UpdateToast_More_many" xml:space="preserve">
+    <value>ещё {0}</value>
+  </data>
+  <data name="UpdateToast_Open" xml:space="preserve">
+    <value>Открыть</value>
+  </data>
+  <data name="Options_UpdateCheckNow" xml:space="preserve">
+    <value>Проверить сейчас</value>
+  </data>
+  <data name="Options_UpdateCheckNowToolTip" xml:space="preserve">
+    <value>Проверяет сразу, не дожидаясь очередной проверки. Считается обычной проверкой: первая после включения запоминает уже доступные обновления без уведомления, а об объявленном обновлении второй раз не сообщается.</value>
+  </data>
+  <data name="Options_UpdateCheckChecking" xml:space="preserve">
+    <value>Проверка...</value>
+  </data>
+  <data name="Options_UpdateCheckBaseline" xml:space="preserve">
+    <value>Первая проверка выполнена. Уже доступные обновления запомнены без уведомления - дальше о новых будет сообщаться.</value>
+  </data>
+  <data name="Options_UpdateCheckAnnounced_one" xml:space="preserve">
+    <value>{0} новое обновление - показано в уведомлении.</value>
+  </data>
+  <data name="Options_UpdateCheckAnnounced_few" xml:space="preserve">
+    <value>{0} новых обновления - показаны в одном уведомлении.</value>
+  </data>
+  <data name="Options_UpdateCheckAnnounced_many" xml:space="preserve">
+    <value>{0} новых обновлений - показаны в одном уведомлении.</value>
+  </data>
+  <data name="Options_UpdateCheckNothingNew_one" xml:space="preserve">
+    <value>Ничего нового. У {0} установленного мода есть обновление, о нём уже сообщалось.</value>
+  </data>
+  <data name="Options_UpdateCheckNothingNew_few" xml:space="preserve">
+    <value>Ничего нового. У {0} установленных модов есть обновления, о них уже сообщалось.</value>
+  </data>
+  <data name="Options_UpdateCheckNothingNew_many" xml:space="preserve">
+    <value>Ничего нового. У {0} установленных модов есть обновления, о них уже сообщалось.</value>
+  </data>
+  <data name="Options_UpdateCheckNone" xml:space="preserve">
+    <value>Ни у одного установленного мода нет обновлений.</value>
+  </data>
+  <data name="Options_UpdateCheckAlreadyRunning" xml:space="preserve">
+    <value>Проверка уже выполняется.</value>
+  </data>
+  <data name="Options_UpdateCheckNoInstall" xml:space="preserve">
+    <value>Не проверено - папка установки SPT не указана.</value>
+  </data>
+  <data name="Options_UpdateCheckQueueBusy" xml:space="preserve">
+    <value>Не проверено - дождитесь окончания текущих загрузок.</value>
+  </data>
+  <data name="Options_UpdateCheckOffline" xml:space="preserve">
+    <value>Не проверено - не удалось связаться с The Forge.</value>
+  </data>
+  <data name="Options_UpdateCheckRateLimited" xml:space="preserve">
+    <value>Не проверено - The Forge попросил сделать паузу. Попробуйте через минуту.</value>
+  </data>
+  <data name="Options_UpdateCheckFailed" xml:space="preserve">
+    <value>Проверка не удалась. Подробности - в журнале в Data\logs.</value>
+  </data>
+  <data name="Options_UpdateCheckTimeFormat" xml:space="preserve">
+    <value>{0} ({1:t})</value>
+  </data>
+  <data name="Options_TrayOn" xml:space="preserve">
+    <value>При закрытии окна приложение продолжает работать в области уведомлений</value>
+  </data>
+  <data name="Options_TrayOff" xml:space="preserve">
+    <value>При закрытии окна приложение завершается</value>
+  </data>
+  <data name="Options_TrayToolTip" xml:space="preserve">
+    <value>Если включено, закрытие окна скрывает его и оставляет значок в области уведомлений, чтобы проверки продолжались. Щёлкните значок, чтобы снова открыть окно; щёлкните правой кнопкой, чтобы проверить сейчас или выйти. Доступно, только пока включены уведомления об обновлениях.</value>
+  </data>
+  <data name="Tray_ToolTip" xml:space="preserve">
+    <value>TCF Mod Manager - проверка обновлений модов</value>
+  </data>
+  <data name="Tray_Open" xml:space="preserve">
+    <value>Открыть</value>
+  </data>
+  <data name="Tray_CheckNow" xml:space="preserve">
+    <value>Проверить обновления сейчас</value>
+  </data>
+  <data name="Tray_Quit" xml:space="preserve">
+    <value>Выйти</value>
+  </data>
+  <data name="Tray_CheckResultTitle" xml:space="preserve">
+    <value>Проверка обновлений</value>
+  </data>
+  <data name="Tray_NoticeTitle" xml:space="preserve">
+    <value>TCF Mod Manager всё ещё работает</value>
+  </data>
+  <data name="Tray_NoticeBody" xml:space="preserve">
+    <value>Приложение в области уведомлений и проверяет обновления модов. Щёлкните его значок, чтобы снова открыть, или щёлкните правой кнопкой, чтобы выйти. Это можно отключить в настройках.</value>
+  </data>
+  <data name="Common_On" xml:space="preserve">
+    <value>Вкл</value>
+  </data>
+  <data name="Common_Off" xml:space="preserve">
+    <value>Выкл</value>
+  </data>
+  <data name="Options_SectionGeneral" xml:space="preserve">
+    <value>Общие</value>
+  </data>
+  <data name="Options_SectionInstalling" xml:space="preserve">
+    <value>Установка модов</value>
+  </data>
+  <data name="Options_SectionUpdates" xml:space="preserve">
+    <value>Обновления</value>
+  </data>
+  <data name="Options_SectionPages" xml:space="preserve">
+    <value>Страницы</value>
+  </data>
+  <data name="Options_SectionMultiplayer" xml:space="preserve">
+    <value>Fika и серверы</value>
+  </data>
+  <data name="Options_SectionAdvanced" xml:space="preserve">
+    <value>Дополнительно</value>
+  </data>
+  <data name="Options_InstallFolderHint" xml:space="preserve">
+    <value>Папка игры, в которой лежит EscapeFromTarkov.exe.</value>
+  </data>
+  <data name="Options_LanguageHint" xml:space="preserve">
+    <value>Текст самого приложения. Описания модов остаются на языке их автора.</value>
+  </data>
+  <data name="Options_AppearanceHint" xml:space="preserve">
+    <value>Светлая, тёмная или как в Windows.</value>
+  </data>
+  <data name="Options_WindowHint" xml:space="preserve">
+    <value>Как открывается окно. F11 в любой момент включает и выключает полноэкранный режим.</value>
+  </data>
+  <data name="Options_InstallModeHeader" xml:space="preserve">
+    <value>Режим установки</value>
+  </data>
+  <data name="Options_InstallModeHint" xml:space="preserve">
+    <value>Устанавливать моды за вас или только скачивать их. Рядом с каждой кнопкой установки есть маленькая кнопка, которая делает обратное.</value>
+  </data>
+  <data name="Options_MonitorFolderHint" xml:space="preserve">
+    <value>Куда сохраняются скачанные моды. Пусто - папка «Загрузки» Windows.</value>
+  </data>
+  <data name="Options_MonitorConfirmHint" xml:space="preserve">
+    <value>Подтверждение сообщает приложению, какую версию вы установили, чтобы проверка обновлений оставалась верной.</value>
+  </data>
+  <data name="Options_ModPagesTitle" xml:space="preserve">
+    <value>Сначала открывать страницу мода</value>
+  </data>
+  <data name="Options_ModPagesHint" xml:space="preserve">
+    <value>Шаги установки, требования и предупреждения - до начала загрузки.</value>
+  </data>
+  <data name="Options_UpdateNotificationsHint" xml:space="preserve">
+    <value>Уведомление Windows, когда у установленного мода выходит новый релиз.</value>
+  </data>
+  <data name="Options_FootprintHint" xml:space="preserve">
+    <value>Насколько глубоко каждый мод затрагивает игру. Читаются файлы - ничего не измеряется.</value>
+  </data>
+  <data name="Options_ServerMapPageHint" xml:space="preserve">
+    <value>Сравнение того, что запущено на сервере, с вашей установкой. Нужен мод Server Map на сервере.</value>
+  </data>
+  <data name="Options_ServerMapConnectionHeader" xml:space="preserve">
+    <value>Подключение к карте сервера</value>
+  </data>
+  <data name="Options_ServerMapConnectionHint" xml:space="preserve">
+    <value>Адрес и порт из вашего лаунчера SPT, а также ключ, если он есть у сервера.</value>
+  </data>
+  <data name="Options_PageDefaultsHint" xml:space="preserve">
+    <value>Задаются кнопкой «Сохранить по умолчанию» на страницах Установленные и Обзор.</value>
+  </data>
+  <data name="Options_HeadlessLauncherHint" xml:space="preserve">
+    <value>Нужен, только если он лежит не прямо в папке установки.</value>
+  </data>
+  <data name="Options_RoleSummaryPlayer" xml:space="preserve">
+    <value>Игрок</value>
+  </data>
+  <data name="Options_RoleSummaryPlaysAndHosts" xml:space="preserve">
+    <value>Игрок и хост headless Fika</value>
+  </data>
+  <data name="Options_RoleSummaryHeadless" xml:space="preserve">
+    <value>Выделенный headless Fika</value>
+  </data>
+  <data name="Options_RoleSummaryNeither" xml:space="preserve">
+    <value>Ничего не задано - считается игроком</value>
+  </data>
+  <data name="Options_DataFilesHint" xml:space="preserve">
+    <value>Просмотр и ручное редактирование JSON-файлов в Data\.</value>
+  </data>
+  <data name="ServerMap_MachinesHeader" xml:space="preserve">
+    <value>Машины на этом сервере</value>
+  </data>
+  <data name="ServerMap_MachinesEmpty" xml:space="preserve">
+    <value>На этом сервере пока никто не отмечается. Машина появится здесь, когда кто-то с TCF Mod Manager подключится и согласится поделиться тем, что у него установлено. Машины без TCF Mod Manager здесь не появляются.</value>
+  </data>
+  <data name="ServerMap_MapUnsupported" xml:space="preserve">
+    <value>Мод Server Map на этом сервере старше версии 0.2.0. Он может раздавать свой список модов, но не может показать, кто на нём. Попросите того, кто управляет сервером, обновить мод.</value>
+  </data>
+  <data name="ServerMap_MapUnavailable" xml:space="preserve">
+    <value>Не удалось прочитать карту. Повторная попытка через минуту.</value>
+  </data>
+  <data name="ServerMap_RefreshMap" xml:space="preserve">
+    <value>Обновить</value>
+  </data>
+  <data name="ServerMap_RefreshMapToolTip" xml:space="preserve">
+    <value>Снова спросить сервер, кто на нём отмечается. Пока страница открыта, это происходит и само каждую минуту.</value>
+  </data>
+  <data name="ServerMap_ThisMachine" xml:space="preserve">
+    <value>Эта машина</value>
+  </data>
+  <data name="ServerMap_RoleServer" xml:space="preserve">
+    <value>Сервер</value>
+  </data>
+  <data name="ServerMap_RolePlayer" xml:space="preserve">
+    <value>Игрок</value>
+  </data>
+  <data name="ServerMap_RoleHeadless" xml:space="preserve">
+    <value>Headless</value>
+  </data>
+  <data name="ServerMap_AppVersionFormat" xml:space="preserve">
+    <value>TCF Mod Manager {0}</value>
+  </data>
+  <data name="ServerMap_PresenceInGame" xml:space="preserve">
+    <value>В игре</value>
+  </data>
+  <data name="ServerMap_PresenceAppOpen" xml:space="preserve">
+    <value>Приложение открыто</value>
+  </data>
+  <data name="ServerMap_LastSeenMinutes_one" xml:space="preserve">
+    <value>Последняя связь {0} минуту назад</value>
+  </data>
+  <data name="ServerMap_LastSeenMinutes_few" xml:space="preserve">
+    <value>Последняя связь {0} минуты назад</value>
+  </data>
+  <data name="ServerMap_LastSeenMinutes_many" xml:space="preserve">
+    <value>Последняя связь {0} минут назад</value>
+  </data>
+  <data name="ServerMap_LastSeenHours_one" xml:space="preserve">
+    <value>Последняя связь {0} час назад</value>
+  </data>
+  <data name="ServerMap_LastSeenHours_few" xml:space="preserve">
+    <value>Последняя связь {0} часа назад</value>
+  </data>
+  <data name="ServerMap_LastSeenHours_many" xml:space="preserve">
+    <value>Последняя связь {0} часов назад</value>
+  </data>
+  <data name="ServerMap_LastSeenDays_one" xml:space="preserve">
+    <value>Последняя связь {0} день назад</value>
+  </data>
+  <data name="ServerMap_LastSeenDays_few" xml:space="preserve">
+    <value>Последняя связь {0} дня назад</value>
+  </data>
+  <data name="ServerMap_LastSeenDays_many" xml:space="preserve">
+    <value>Последняя связь {0} дней назад</value>
+  </data>
+  <data name="ServerMap_StandingNoList" xml:space="preserve">
+    <value>В этой установке нет списка модов с этого сервера, поэтому сравнивать не с чем.</value>
+  </data>
+  <data name="ServerMap_StandingUnreadable" xml:space="preserve">
+    <value>Прислала список модов, который эта версия приложения не может прочитать. Обновление TCF Mod Manager здесь должно это исправить.</value>
+  </data>
+  <data name="ServerMap_StandingNotReported" xml:space="preserve">
+    <value>Ещё не прислала свой список модов.</value>
+  </data>
+  <data name="ServerMap_StandingUpToDate_one" xml:space="preserve">
+    <value>Есть всё, что требует «{1}» ({0} мод)</value>
+  </data>
+  <data name="ServerMap_StandingUpToDate_few" xml:space="preserve">
+    <value>Есть всё, что требует «{1}» ({0} мода)</value>
+  </data>
+  <data name="ServerMap_StandingUpToDate_many" xml:space="preserve">
+    <value>Есть всё, что требует «{1}» ({0} модов)</value>
+  </data>
+  <data name="ServerMap_StandingBehind_one" xml:space="preserve">
+    <value>{0} мод нужно установить, обновить или включить: {1}</value>
+  </data>
+  <data name="ServerMap_StandingBehind_few" xml:space="preserve">
+    <value>{0} мода нужно установить, обновить или включить: {1}</value>
+  </data>
+  <data name="ServerMap_StandingBehind_many" xml:space="preserve">
+    <value>{0} модов нужно установить, обновить или включить: {1}</value>
+  </data>
+  <data name="ServerMap_StandingManual_one" xml:space="preserve">
+    <value>{0} мод нужно скачать вручную: {1}</value>
+  </data>
+  <data name="ServerMap_StandingManual_few" xml:space="preserve">
+    <value>{0} мода нужно скачать вручную: {1}</value>
+  </data>
+  <data name="ServerMap_StandingManual_many" xml:space="preserve">
+    <value>{0} модов нужно скачать вручную: {1}</value>
+  </data>
+  <data name="ServerMap_Extras_one" xml:space="preserve">
+    <value>{0} мод не из списка: {1}</value>
+  </data>
+  <data name="ServerMap_Extras_few" xml:space="preserve">
+    <value>{0} мода не из списка: {1}</value>
+  </data>
+  <data name="ServerMap_Extras_many" xml:space="preserve">
+    <value>{0} модов не из списка: {1}</value>
+  </data>
+  <data name="ServerMap_InstalledCount_one" xml:space="preserve">
+    <value>Установлен {0} мод</value>
+  </data>
+  <data name="ServerMap_InstalledCount_few" xml:space="preserve">
+    <value>Установлено {0} мода</value>
+  </data>
+  <data name="ServerMap_InstalledCount_many" xml:space="preserve">
+    <value>Установлено {0} модов</value>
+  </data>
+  <data name="ServerMap_ModDisabledFormat" xml:space="preserve">
+    <value>{0} (отключён)</value>
+  </data>
+  <data name="ServerMap_ConsentTitle" xml:space="preserve">
+    <value>Поделиться этой машиной с сервером?</value>
+  </data>
+  <data name="ServerMap_ConsentMessageFormat" xml:space="preserve">
+    <value>{0} сможет показывать всем, у кого есть его ключ, имя этой машины, установленные моды и их версии, а также запущена ли игра. Ничего не отправляется, пока вы не согласитесь, и вы можете прекратить в любой момент в параметрах — это также уберёт машину с карты.</value>
+  </data>
+  <data name="ServerMap_ConsentAllow" xml:space="preserve">
+    <value>Поделиться</value>
+  </data>
+  <data name="ServerMap_ConsentDecline" xml:space="preserve">
+    <value>Не делиться</value>
+  </data>
+  <data name="ServerMap_ReportingPendingFormat" xml:space="preserve">
+    <value>Эта машина отмечается на этом сервере как «{0}».</value>
+  </data>
+  <data name="ServerMap_ReportingFormat" xml:space="preserve">
+    <value>Эта машина отмечается на этом сервере как «{0}». Последняя отметка в {1}.</value>
+  </data>
+  <data name="ServerMap_ReportFailed" xml:space="preserve">
+    <value>Последняя отметка не дошла до сервера. Повтор каждую минуту.</value>
+  </data>
+  <data name="ServerMap_NotReporting" xml:space="preserve">
+    <value>Эта машина не отмечается на этом сервере. Это можно изменить в параметрах, в разделе «Подключение к карте сервера».</value>
+  </data>
+  <data name="Options_ServerMapReport" xml:space="preserve">
+    <value>Отмечать эту машину на сервере</value>
+  </data>
+  <data name="Options_ServerMapReportHint" xml:space="preserve">
+    <value>Показывает имя этой машины, установленные моды и запущена ли игра всем, у кого есть ключ сервера. Спрашивается один раз для каждого сервера; выключение убирает машину с карты.</value>
+  </data>
+  <data name="Options_ServerMapDisplayName" xml:space="preserve">
+    <value>Имя на карте</value>
+  </data>
+  <data name="Options_ServerMapDisplayNameHint" xml:space="preserve">
+    <value>Оставьте пустым, чтобы использовать имя этого компьютера.</value>
+  </data>
+  <data name="Common_ReviewAndInstall" xml:space="preserve">
+    <value>Просмотреть и установить</value>
+  </data>
+  <data name="Common_ReviewAndInstallToolTip" xml:space="preserve">
+    <value>Открывает «Списки модов» с выбранным списком сервера и уже готовым предпросмотром. Ничего не устанавливается, пока вы не нажмёте «Применить».</value>
+  </data>
+  <data name="ModLists_ApplyInstall_one" xml:space="preserve">
+    <value>Установить {0} мод</value>
+  </data>
+  <data name="ModLists_ApplyInstall_few" xml:space="preserve">
+    <value>Установить {0} мода</value>
+  </data>
+  <data name="ModLists_ApplyInstall_many" xml:space="preserve">
+    <value>Установить {0} модов</value>
+  </data>
+  <data name="ModLists_ApplyUpdate_one" xml:space="preserve">
+    <value>Обновить {0} мод</value>
+  </data>
+  <data name="ModLists_ApplyUpdate_few" xml:space="preserve">
+    <value>Обновить {0} мода</value>
+  </data>
+  <data name="ModLists_ApplyUpdate_many" xml:space="preserve">
+    <value>Обновить {0} модов</value>
+  </data>
+  <data name="ModLists_ApplyDownload_one" xml:space="preserve">
+    <value>Скачать {0} мод</value>
+  </data>
+  <data name="ModLists_ApplyDownload_few" xml:space="preserve">
+    <value>Скачать {0} мода</value>
+  </data>
+  <data name="ModLists_ApplyDownload_many" xml:space="preserve">
+    <value>Скачать {0} модов</value>
+  </data>
+  <data name="ModLists_ApplyInstallUpdateFormat" xml:space="preserve">
+    <value>Установить {0}, обновить {1}</value>
+  </data>
+  <data name="ModLists_ChangeVersionPairFormat" xml:space="preserve">
+    <value>{0} ({1} → {2})</value>
+  </data>
+  <data name="ModLists_StatusMissing" xml:space="preserve">
+    <value>Нет</value>
+  </data>
+  <data name="ModLists_StatusHalfInstalled" xml:space="preserve">
+    <value>Установлен не полностью</value>
+  </data>
+  <data name="ModLists_StatusDisabled" xml:space="preserve">
+    <value>Отключён</value>
+  </data>
+  <data name="ModLists_StatusDisabledMovingFormat" xml:space="preserve">
+    <value>Отключён · {0}</value>
+  </data>
+  <data name="ModLists_StatusWillDisable" xml:space="preserve">
+    <value>Будет отключён</value>
+  </data>
+  <data name="ModLists_StatusPinned" xml:space="preserve">
+    <value>Закреплён</value>
+  </data>
+  <data name="ModLists_StatusGetByHand" xml:space="preserve">
+    <value>Скачать вручную</value>
+  </data>
+  <data name="ModLists_StatusAlreadyRight" xml:space="preserve">
+    <value>Верно</value>
+  </data>
+  <data name="ModLists_StatusVersionFormat" xml:space="preserve">
+    <value>{0} → {1}</value>
+  </data>
+  <data name="ModLists_ChipMissing_one" xml:space="preserve">
+    <value>{0} отсутствует</value>
+  </data>
+  <data name="ModLists_ChipMissing_few" xml:space="preserve">
+    <value>{0} отсутствуют</value>
+  </data>
+  <data name="ModLists_ChipMissing_many" xml:space="preserve">
+    <value>{0} отсутствуют</value>
+  </data>
+  <data name="ModLists_ChipDifferentVersion_one" xml:space="preserve">
+    <value>{0} неверная версия</value>
+  </data>
+  <data name="ModLists_ChipDifferentVersion_few" xml:space="preserve">
+    <value>{0} неверные версии</value>
+  </data>
+  <data name="ModLists_ChipDifferentVersion_many" xml:space="preserve">
+    <value>{0} неверных версий</value>
+  </data>
+  <data name="ModLists_ChipHalfInstalled_one" xml:space="preserve">
+    <value>{0} установлен не полностью</value>
+  </data>
+  <data name="ModLists_ChipHalfInstalled_few" xml:space="preserve">
+    <value>{0} установлены не полностью</value>
+  </data>
+  <data name="ModLists_ChipHalfInstalled_many" xml:space="preserve">
+    <value>{0} установлены не полностью</value>
+  </data>
+  <data name="ModLists_ChipDisabled_one" xml:space="preserve">
+    <value>{0} отключён</value>
+  </data>
+  <data name="ModLists_ChipDisabled_few" xml:space="preserve">
+    <value>{0} отключены</value>
+  </data>
+  <data name="ModLists_ChipDisabled_many" xml:space="preserve">
+    <value>{0} отключены</value>
+  </data>
+  <data name="ModLists_ChipGetByHand_one" xml:space="preserve">
+    <value>{0} скачать вручную</value>
+  </data>
+  <data name="ModLists_ChipGetByHand_few" xml:space="preserve">
+    <value>{0} скачать вручную</value>
+  </data>
+  <data name="ModLists_ChipGetByHand_many" xml:space="preserve">
+    <value>{0} скачать вручную</value>
+  </data>
+  <data name="ModLists_ChipWillDisable_one" xml:space="preserve">
+    <value>{0} будет отключён</value>
+  </data>
+  <data name="ModLists_ChipWillDisable_few" xml:space="preserve">
+    <value>{0} будут отключены</value>
+  </data>
+  <data name="ModLists_ChipWillDisable_many" xml:space="preserve">
+    <value>{0} будут отключены</value>
+  </data>
+  <data name="ModLists_ChipPinned_one" xml:space="preserve">
+    <value>{0} закреплён</value>
+  </data>
+  <data name="ModLists_ChipPinned_few" xml:space="preserve">
+    <value>{0} закреплено</value>
+  </data>
+  <data name="ModLists_ChipPinned_many" xml:space="preserve">
+    <value>{0} закреплено</value>
+  </data>
+  <data name="ModLists_ChipAlreadyRight_one" xml:space="preserve">
+    <value>{0} верно</value>
+  </data>
+  <data name="ModLists_ChipAlreadyRight_few" xml:space="preserve">
+    <value>{0} верно</value>
+  </data>
+  <data name="ModLists_ChipAlreadyRight_many" xml:space="preserve">
+    <value>{0} верно</value>
+  </data>
+  <data name="ServerMap_LanOnly" xml:space="preserve">
+    <value>Этот сервер отвечает только машинам в своей сети, а эта машина вне её. Спросите того, кто им управляет, или подключитесь к его сети через VPN, например Tailscale.</value>
+  </data>
+  <data name="Options_ServerMapLanOnly" xml:space="preserve">
+    <value>Отвечать только этой сети</value>
+  </data>
+  <data name="Options_ServerMapLanOnlyHint" xml:space="preserve">
+    <value>Отклоняет любые запросы Server Map извне сети этой машины — игроки, подключающиеся через интернет, больше не видят ваш список и карту. Устройства Tailscale по-прежнему считаются локальными. Действует сразу; нужен мод Server Map 0.2.0 или новее, включая заглушку.</value>
+  </data>
+  <data name="Options_ServerMapLanOnlyFailed" xml:space="preserve">
+    <value>Не удалось сохранить настройку — см. журнал.</value>
+  </data>
+  <data name="AppUpdate_ServerMapHeader" xml:space="preserve">
+    <value>Мод Server Map</value>
+  </data>
+  <data name="AppUpdate_ServerMapLocalLabel" xml:space="preserve">
+    <value>На этом компьютере:</value>
+  </data>
+  <data name="AppUpdate_ServerMapConnectedLabel" xml:space="preserve">
+    <value>На сервере, к которому вы подключаетесь:</value>
+  </data>
+  <data name="AppUpdate_ServerMapBehindTitle" xml:space="preserve">
+    <value>Вышел более новый мод Server Map</value>
+  </data>
+  <data name="AppUpdate_ServerMapLocalBehindFormat" xml:space="preserve">
+    <value>Вышла версия {0}, а сервер на этом компьютере работает на {1}. Остановите сервер, замените payload и stub на те, что в новом архиве, и запустите его снова - шаги описаны в INSTALL.txt в архиве.</value>
+  </data>
+  <data name="AppUpdate_ServerMapStubBehindTitle" xml:space="preserve">
+    <value>Stub старше, чем payload</value>
+  </data>
+  <data name="AppUpdate_ServerMapStubBehindFormat" xml:space="preserve">
+    <value>Stub в user\mods - версии {0}, а payload - {1}. Замените stub на тот, что из того же архива, что и payload, - до тех пор Отвечать только этой сети отказывает всем компьютерам.</value>
+  </data>
+  <data name="AppUpdate_ServerMapConnectedBehindFormat" xml:space="preserve">
+    <value>Сервер, к которому вы подключаетесь, работает на {0}, а вышла {1}. Обновить его может только тот, кто им управляет, - сообщите ему.</value>
+  </data>
+  <data name="AppUpdate_ServerMapUpToDate" xml:space="preserve">
+    <value>Мод Server Map обновлён.</value>
+  </data>
+  <data name="AppUpdate_ServerMapCheckFailed" xml:space="preserve">
+    <value>Не удалось проверить на sp-mod.com, есть ли более новый мод Server Map. Проверить сейчас попробует снова.</value>
+  </data>
+  <data name="AppUpdate_ServerMapOpenPage" xml:space="preserve">
+    <value>Открыть страницу мода</value>
+  </data>
+  <data name="Nav_Help" xml:space="preserve">
+    <value>Справка</value>
+  </data>
+  <data name="Help_Intro" xml:space="preserve">
+    <value>Пошаговые ответы на то, что чаще всего нужно сделать. В каждом указано, на какой странице и какие кнопки нажимать.</value>
+  </data>
+  <data name="Help_OpenGuide" xml:space="preserve">
+    <value>Открыть полное руководство</value>
+  </data>
+  <data name="Help_OpenGuideToolTip" xml:space="preserve">
+    <value>Страница приложения на sp-mod.com - всё, что здесь, только подробнее, плюс ограничения и решение проблем. Она на английском.</value>
+  </data>
+  <data name="Help_SearchPlaceholder" xml:space="preserve">
+    <value>Как мне...?</value>
+  </data>
+  <data name="Help_NoMatches" xml:space="preserve">
+    <value>Ответа на это пока нет. Попробуйте меньше слов или откройте полное руководство.</value>
+  </data>
+  <data name="Help_StepNumberFormat" xml:space="preserve">
+    <value>{0}.</value>
+  </data>
+  <data name="Help_Start_Title" xml:space="preserve">
+    <value>С чего начать</value>
+  </data>
+  <data name="Help_Start_Setup_Title" xml:space="preserve">
+    <value>Настроить приложение под мою установку SPT</value>
+  </data>
+  <data name="Help_Start_Setup_Step1" xml:space="preserve">
+    <value>Откройте {0} на боковой панели.</value>
+  </data>
+  <data name="Help_Start_Setup_Step2" xml:space="preserve">
+    <value>В разделе {0} нажмите {1} и выберите папку игры SPT - ту, где лежит EscapeFromTarkov.exe, а не папку сервера внутри неё.</value>
+  </data>
+  <data name="Help_Start_Setup_Step3" xml:space="preserve">
+    <value>Нажмите {0}. В строке ниже должна появиться ваша версия SPT.</value>
+  </data>
+  <data name="Help_Start_Setup_Note" xml:space="preserve">
+    <value>Приложение - не мод. Держите его в отдельной папке, никогда не в BepInEx\plugins или user\mods.</value>
+  </data>
+  <data name="Help_Start_Version_Title" xml:space="preserve">
+    <value>Проверить, что приложение нашло правильную версию SPT</value>
+  </data>
+  <data name="Help_Start_Version_Step1" xml:space="preserve">
+    <value>Посмотрите на конец заголовка окна - там в квадратных скобках указана ваша версия SPT.</value>
+  </data>
+  <data name="Help_Start_Version_Step2" xml:space="preserve">
+    <value>Если её нет или она неверная, откройте {0} и прочитайте строку под {1}.</value>
+  </data>
+  <data name="Help_Start_Version_Step3" xml:space="preserve">
+    <value>Если версия не находится, обычно выбрана папка на уровень глубже. Выберите папку с EscapeFromTarkov.exe и нажмите {0}.</value>
+  </data>
+  <data name="Help_Browse_Compatible_Title" xml:space="preserve">
+    <value>Найти моды, которые работают на моей версии SPT</value>
+  </data>
+  <data name="Help_Browse_Compatible_Step1" xml:space="preserve">
+    <value>Откройте {0}. Страница уже отфильтрована по вашей версии SPT.</value>
+  </data>
+  <data name="Help_Browse_Compatible_Step2" xml:space="preserve">
+    <value>Галочка рядом с SPT на карточке значит, что последняя версия мода работает на вашей; крестик - что нет.</value>
+  </data>
+  <data name="Help_Browse_Compatible_Step3" xml:space="preserve">
+    <value>Чтобы увидеть больше, откройте вверху список версий SPT и отметьте другие версии или нажмите {0}.</value>
+  </data>
+  <data name="Help_Browse_Install_Title" xml:space="preserve">
+    <value>Установить мод и нужные ему моды</value>
+  </data>
+  <data name="Help_Browse_Install_Step1" xml:space="preserve">
+    <value>Найдите мод на странице {0} и нажмите кнопку загрузки в правом нижнем углу его карточки.</value>
+  </data>
+  <data name="Help_Browse_Install_Step2" xml:space="preserve">
+    <value>Окно попросит сначала прочитать страницу мода. Нажмите {0}, прочитайте её, затем нажмите {1}.</value>
+  </data>
+  <data name="Help_Browse_Install_Step3" xml:space="preserve">
+    <value>Если ему нужны моды, которых у вас нет, их страницы показываются так же - {0} ставит в очередь и их.</value>
+  </data>
+  <data name="Help_Browse_Install_Step4" xml:space="preserve">
+    <value>Следите за ходом на странице {0}. Когда там написано, что мод установлен, он загрузится при следующем запуске SPT.</value>
+  </data>
+  <data name="Help_Browse_Install_Note" xml:space="preserve">
+    <value>Сначала закройте игру и сервер - файлы модов нельзя заменить, пока они запущены.</value>
+  </data>
+  <data name="Help_Browse_Author_Title" xml:space="preserve">
+    <value>Найти все моды одного автора</value>
+  </data>
+  <data name="Help_Browse_Author_Step1" xml:space="preserve">
+    <value>В поле поиска на странице {0} введите @ и сразу имя автора, без пробела.</value>
+  </data>
+  <data name="Help_Browse_Author_Step2" xml:space="preserve">
+    <value>Без @ поиск идёт по названиям модов.</value>
+  </data>
+  <data name="Help_Browse_HideInstalled_Title" xml:space="preserve">
+    <value>Скрыть моды, которые у меня уже есть</value>
+  </data>
+  <data name="Help_Browse_HideInstalled_Step1" xml:space="preserve">
+    <value>На странице {0} откройте список с надписью {1} и отметьте {2}.</value>
+  </data>
+  <data name="Help_Browse_HideInstalled_Step2" xml:space="preserve">
+    <value>Чтобы страница Обзор всегда открывалась так, нажмите {0}.</value>
+  </data>
+  <data name="Help_Browse_HideInstalled_Note" xml:space="preserve">
+    <value>Отключённый мод считается установленным, поэтому он тоже скрывается.</value>
+  </data>
+  <data name="Help_Installed_Updates_Title" xml:space="preserve">
+    <value>Посмотреть, каким модам нужно обновление</value>
+  </data>
+  <data name="Help_Installed_Updates_Step1" xml:space="preserve">
+    <value>Откройте {0}. У мода с обновлением значок состояния - стрелка вверх.</value>
+  </data>
+  <data name="Help_Installed_Updates_Step2" xml:space="preserve">
+    <value>Чтобы показать только их, переключите список с надписью {0} на {1}.</value>
+  </data>
+  <data name="Help_Installed_Update_Title" xml:space="preserve">
+    <value>Обновить или заново скачать мод</value>
+  </data>
+  <data name="Help_Installed_Update_Step1" xml:space="preserve">
+    <value>На странице {0} щёлкните карточку мода, чтобы открыть её, затем нажмите {1}.</value>
+  </data>
+  <data name="Help_Installed_Update_Step2" xml:space="preserve">
+    <value>Последняя версия, которая работает на вашем SPT, уже выбрана. Нажмите {0} - или {1}, чтобы скачать заново ту версию, что у вас стоит.</value>
+  </data>
+  <data name="Help_Installed_Update_Step3" xml:space="preserve">
+    <value>Когда попросят, прочитайте страницу мода, затем нажмите {0}.</value>
+  </data>
+  <data name="Help_Installed_Update_Note" xml:space="preserve">
+    <value>Чтобы обновить несколько сразу, нажмите {0}, отметьте их и нажмите {1}.</value>
+  </data>
+  <data name="Help_Installed_Views_Title" xml:space="preserve">
+    <value>Изменить вид страницы Установленные</value>
+  </data>
+  <data name="Help_Installed_Views_Step1" xml:space="preserve">
+    <value>Вверху страницы {0} нажмите {1}, {2} или {3}.</value>
+  </data>
+  <data name="Help_Installed_Views_Step2" xml:space="preserve">
+    <value>Все три показывают одни и те же моды с теми же фильтрами и сортировкой - меняется только раскладка.</value>
+  </data>
+  <data name="Help_Installed_Groups_Title" xml:space="preserve">
+    <value>Разложить моды по своим группам</value>
+  </data>
+  <data name="Help_Installed_Groups_Step1" xml:space="preserve">
+    <value>На странице {0} нажмите {1}.</value>
+  </data>
+  <data name="Help_Installed_Groups_Step2" xml:space="preserve">
+    <value>Введите название в поле с надписью {0} и нажмите {1}.</value>
+  </data>
+  <data name="Help_Installed_Groups_Step3" xml:space="preserve">
+    <value>Перетащите мод на группу, чтобы переместить его туда. Щёлкните мод, не перетаскивая, чтобы открыть его.</value>
+  </data>
+  <data name="Help_Installed_Groups_Note" xml:space="preserve">
+    <value>Группы нужны только вам - SPT их не видит. У каждой группы есть кнопки, чтобы включить или отключить её целиком.</value>
+  </data>
+  <data name="Help_Installed_Disable_Title" xml:space="preserve">
+    <value>Отключить мод, не удаляя его</value>
+  </data>
+  <data name="Help_Installed_Disable_Step1" xml:space="preserve">
+    <value>На странице {0} нажмите кнопку включения на карточке или в строке мода.</value>
+  </data>
+  <data name="Help_Installed_Disable_Step2" xml:space="preserve">
+    <value>Если от него зависит другой мод, вам покажут какой, и его можно отключить вместе с ним.</value>
+  </data>
+  <data name="Help_Installed_Disable_Step3" xml:space="preserve">
+    <value>Нажмите ту же кнопку ещё раз, чтобы снова его включить.</value>
+  </data>
+  <data name="Help_Installed_Disable_Note" xml:space="preserve">
+    <value>Ничего не удаляется - мод переносится в папку .disabled, которую SPT не загружает, и его настройки сохраняются.</value>
+  </data>
+  <data name="Help_Installed_DisableMany_Title" xml:space="preserve">
+    <value>Отключить несколько модов сразу</value>
+  </data>
+  <data name="Help_Installed_DisableMany_Step1" xml:space="preserve">
+    <value>На странице {0} нажмите {1} и отметьте моды.</value>
+  </data>
+  <data name="Help_Installed_DisableMany_Step2" xml:space="preserve">
+    <value>Нажмите {0}.</value>
+  </data>
+  <data name="Help_Installed_DisableMany_Note" xml:space="preserve">
+    <value>В виде {0} кнопки каждой группы включают или отключают её целиком.</value>
+  </data>
+  <data name="Help_Installed_Undo_Title" xml:space="preserve">
+    <value>Отменить включение или отключение модов</value>
+  </data>
+  <data name="Help_Installed_Undo_Step1" xml:space="preserve">
+    <value>Вверху страницы {0} нажмите {1}. На кнопке написано, какое изменение она отменит.</value>
+  </data>
+  <data name="Help_Installed_Undo_Step2" xml:space="preserve">
+    <value>Отменить можно только последнее изменение.</value>
+  </data>
+  <data name="Help_ModLists_Capture_Title" xml:space="preserve">
+    <value>Сохранить мои моды как список</value>
+  </data>
+  <data name="Help_ModLists_Capture_Step1" xml:space="preserve">
+    <value>Откройте {0}.</value>
+  </data>
+  <data name="Help_ModLists_Capture_Step2" xml:space="preserve">
+    <value>В разделе {0} введите название и нажмите {1}.</value>
+  </data>
+  <data name="Help_ModLists_Capture_Note" xml:space="preserve">
+    <value>Список записывает каждый включённый мод с той версией, что у вас стоит. На диске ничего не меняется.</value>
+  </data>
+  <data name="Help_ModLists_Apply_Title" xml:space="preserve">
+    <value>Перейти на другой список</value>
+  </data>
+  <data name="Help_ModLists_Apply_Step1" xml:space="preserve">
+    <value>На странице {0} выберите список в разделе {1}.</value>
+  </data>
+  <data name="Help_ModLists_Apply_Step2" xml:space="preserve">
+    <value>Нажмите {0}, чтобы увидеть, что изменится. Пока ничего не переносится.</value>
+  </data>
+  <data name="Help_ModLists_Apply_Step3" xml:space="preserve">
+    <value>Закройте игру и сервер, затем нажмите {0}.</value>
+  </data>
+  <data name="Help_ModLists_Apply_Note" xml:space="preserve">
+    <value>При применении скачивается недостающее, а моды, которых нет в списке, переносятся в папку отключённых. Ничего не удаляется.</value>
+  </data>
+  <data name="Help_ModLists_Pin_Title" xml:space="preserve">
+    <value>Оставить мод при любом списке</value>
+  </data>
+  <data name="Help_ModLists_Pin_Step1" xml:space="preserve">
+    <value>На странице {0} щёлкните карточку мода, чтобы открыть её, и нажмите {1}.</value>
+  </data>
+  <data name="Help_ModLists_Pin_Step2" xml:space="preserve">
+    <value>Закреплённый мод никакой список не отложит. Чтобы отменить, нажмите {0} там же.</value>
+  </data>
+  <data name="Help_ModLists_Edit_Title" xml:space="preserve">
+    <value>Изменить состав списка</value>
+  </data>
+  <data name="Help_ModLists_Edit_Step1" xml:space="preserve">
+    <value>Выберите список на странице {0}. Нажмите {1}, чтобы добавить моды, или X в строке, чтобы убрать мод.</value>
+  </data>
+  <data name="Help_ModLists_Edit_Step2" xml:space="preserve">
+    <value>Нажмите {0}. Меняется только список - ничего не устанавливается и не переносится.</value>
+  </data>
+  <data name="Help_ModLists_Edit_Step3" xml:space="preserve">
+    <value>Нажмите {0}, когда захотите, чтобы установка ему соответствовала.</value>
+  </data>
+  <data name="Help_ModLists_Edit_Note" xml:space="preserve">
+    <value>Импортированный список или присланный сервером доступен только для чтения - нажмите {0}, чтобы получить свой, который можно менять.</value>
+  </data>
+  <data name="Help_ModLists_Share_Title" xml:space="preserve">
+    <value>Поделиться списком с другом</value>
+  </data>
+  <data name="Help_ModLists_Share_Step1" xml:space="preserve">
+    <value>Выберите список на странице {0}, нажмите {1} и сохраните файл.</value>
+  </data>
+  <data name="Help_ModLists_Share_Step2" xml:space="preserve">
+    <value>Отправьте файл как угодно. Друг нажимает {0} на странице {1} и выбирает его.</value>
+  </data>
+  <data name="Help_ModLists_Share_Step3" xml:space="preserve">
+    <value>Затем он нажимает {0}, а потом {1}. Его приложение само скачивает каждый мод с sp-mod.com.</value>
+  </data>
+  <data name="Help_ModLists_Share_Note" xml:space="preserve">
+    <value>В файле названы моды и версии, но не сами файлы модов, поэтому он крошечный.</value>
+  </data>
+  <data name="Help_ModLists_Server_Title" xml:space="preserve">
+    <value>Получить моды, которые стоят на сервере</value>
+  </data>
+  <data name="Help_ModLists_Server_Step1" xml:space="preserve">
+    <value>В разделе {0}, в группе {1}, включите {2}.</value>
+  </data>
+  <data name="Help_ModLists_Server_Step2" xml:space="preserve">
+    <value>Раскройте {0} стрелкой в строке, укажите адрес, порт и ключ сервера, затем нажмите {1}.</value>
+  </data>
+  <data name="Help_ModLists_Server_Step3" xml:space="preserve">
+    <value>Откройте {0}. Если вам чего-то не хватает, нажмите {1}.</value>
+  </data>
+  <data name="Help_ModLists_Server_Step4" xml:space="preserve">
+    <value>Проверьте предпросмотр и нажмите {0}.</value>
+  </data>
+  <data name="Help_ModLists_Server_Note" xml:space="preserve">
+    <value>На сервере должен стоять мод Server Map. Список сервера никогда не отключает ваши собственные моды.</value>
+  </data>
+  <data name="Help_ModLists_Undo_Title" xml:space="preserve">
+    <value>Вернуть всё как было после применения списка</value>
+  </data>
+  <data name="Help_ModLists_Undo_Step1" xml:space="preserve">
+    <value>На странице {0} нажмите {1}.</value>
+  </data>
+  <data name="Help_ModLists_Undo_Step2" xml:space="preserve">
+    <value>Каждый мод возвращается в состояние до последнего применения. Применение другого списка заменяет эту отмену.</value>
+  </data>
+  <data name="Help_TitleBarToolTip" xml:space="preserve">
+    <value>Справка по этой странице (F1)</value>
+  </data>
+  <data name="MainWindow_HowToSetUp" xml:space="preserve">
+    <value>Как настроить</value>
+  </data>
+  <data name="MainWindow_HowToSetUpToolTip" xml:space="preserve">
+    <value>Пошаговая настройка в справке.</value>
+  </data>
+  <data name="Help_Play_Start_Title" xml:space="preserve">
+    <value>Запустить сервер и игру</value>
+  </data>
+  <data name="Help_Play_Start_Step1" xml:space="preserve">
+    <value>Откройте {0}.</value>
+  </data>
+  <data name="Help_Play_Start_Step2" xml:space="preserve">
+    <value>В разделе {0} нажмите {1} и дождитесь, пока его окно консоли закончит запуск.</value>
+  </data>
+  <data name="Help_Play_Start_Step3" xml:space="preserve">
+    <value>Нажмите {0}, выберите профиль и запустите игру.</value>
+  </data>
+  <data name="Help_Play_Start_Note" xml:space="preserve">
+    <value>Сервер продолжает работать, если закрыть это приложение. Закройте его собственное окно, когда закончите.</value>
+  </data>
+  <data name="Help_Play_Check_Title" xml:space="preserve">
+    <value>Посмотреть, чего мне не хватает, перед входом на сервер</value>
+  </data>
+  <data name="Help_Play_Check_Step1" xml:space="preserve">
+    <value>Откройте {0}. Проверка вверху сравнивает вашу установку со списком модов, которому вы следуете, и называет всё, чего нет или что не той версии.</value>
+  </data>
+  <data name="Help_Play_Check_Step2" xml:space="preserve">
+    <value>Нажмите {0}, когда что-то измените.</value>
+  </data>
+  <data name="Help_Play_Check_Step3" xml:space="preserve">
+    <value>Если вы отстаёте от списка сервера, нажмите {0}, проверьте предпросмотр и нажмите {1}.</value>
+  </data>
+  <data name="Help_Play_Check_Note" xml:space="preserve">
+    <value>Проверка никогда не мешает запуску - она только сообщает.</value>
+  </data>
+  <data name="Help_Browse_Addon_Title" xml:space="preserve">
+    <value>Установить аддон для мода</value>
+  </data>
+  <data name="Help_Browse_Addon_Step1" xml:space="preserve">
+    <value>На странице {0} щёлкните карточку мода, чтобы открыть её. Если на карточке указано число аддонов, они у мода есть.</value>
+  </data>
+  <data name="Help_Browse_Addon_Step2" xml:space="preserve">
+    <value>Прокрутите вниз до аддонов и нажмите кнопку установки у нужного.</value>
+  </data>
+  <data name="Help_Browse_Addon_Step3" xml:space="preserve">
+    <value>Когда попросят, прочитайте страницу аддона и продолжайте как при любой другой установке.</value>
+  </data>
+  <data name="Help_Browse_Addon_Note" xml:space="preserve">
+    <value>Аддон должен подходить к той версии мода, что у вас стоит, а не к версии SPT, - поэтому сначала установите или обновите сам мод.</value>
+  </data>
+  <data name="Help_Configs_Edit_Title" xml:space="preserve">
+    <value>Изменить настройки мода</value>
+  </data>
+  <data name="Help_Configs_Edit_Step1" xml:space="preserve">
+    <value>Откройте {0} и выберите файл мода в списке - поле поиска находит его по названию мода или файла.</value>
+  </data>
+  <data name="Help_Configs_Edit_Step2" xml:space="preserve">
+    <value>Отредактируйте текст справа.</value>
+  </data>
+  <data name="Help_Configs_Edit_Step3" xml:space="preserve">
+    <value>Нажмите {0}. Перезаписываются только изменённые строки.</value>
+  </data>
+  <data name="Help_Configs_Edit_Note" xml:space="preserve">
+    <value>При каждом сохранении копия старого файла кладётся в Data\config-backups. {0} отменяет несохранённые изменения.</value>
+  </data>
+  <data name="Help_Configs_Policy_Title" xml:space="preserve">
+    <value>Выбрать, что станет с моими настройками при обновлении мода</value>
+  </data>
+  <data name="Help_Configs_Policy_Step1" xml:space="preserve">
+    <value>На странице {0} откройте один из файлов конфигурации мода.</value>
+  </data>
+  <data name="Help_Configs_Policy_Step2" xml:space="preserve">
+    <value>Рядом с {0} выберите {1}, {2} или {3}.</value>
+  </data>
+  <data name="Help_Configs_Policy_Note" xml:space="preserve">
+    <value>Выбор относится ко всем файлам конфигурации этого мода и запоминается до его следующего обновления.</value>
+  </data>
+  <data name="Help_Configs_Original_Title" xml:space="preserve">
+    <value>Вернуть исходное значение настройки</value>
+  </data>
+  <data name="Help_Configs_Original_Step1" xml:space="preserve">
+    <value>На странице {0} откройте файл с пометкой {1} рядом с конфигурацией мода - в нём значения, с которыми мод поставлялся.</value>
+  </data>
+  <data name="Help_Configs_Original_Step2" xml:space="preserve">
+    <value>Скопируйте нужное значение в настоящую конфигурацию и нажмите {0}.</value>
+  </data>
+  <data name="Help_Configs_Original_Note" xml:space="preserve">
+    <value>Такой файл есть не у каждого мода. При каждом сохранении предыдущий файл также кладётся в Data\config-backups в папке приложения.</value>
+  </data>
+  <data name="Help_Configs_Leftover_Title" xml:space="preserve">
+    <value>Найти настройки, оставшиеся от удалённого мода</value>
+  </data>
+  <data name="Help_Configs_Leftover_Step1" xml:space="preserve">
+    <value>На странице {0} переключите фильтр рядом с полем поиска на {1}.</value>
+  </data>
+  <data name="Help_Configs_Leftover_Step2" xml:space="preserve">
+    <value>Файлы в разделе {0} не принадлежат ни одному установленному плагину - обычно это мод, который вы удалили.</value>
+  </data>
+  <data name="Help_Configs_Leftover_Note" xml:space="preserve">
+    <value>Их правка ничего не меняет в игре. Они лежат на случай, если захотите вернуть старые настройки.</value>
+  </data>
+  <data name="Help_Dependencies_Check_Title" xml:space="preserve">
+    <value>Проверить, что у каждого мода есть всё нужное</value>
+  </data>
+  <data name="Help_Dependencies_Check_Step1" xml:space="preserve">
+    <value>Откройте {0}. Под конфликтами раздел {1} перечисляет каждый установленный мод, которому нужны другие моды, и есть ли каждый из них.</value>
+  </data>
+  <data name="Help_Dependencies_Check_Step2" xml:space="preserve">
+    <value>Моды, которым чего-то не хватает, стоят вверху этого списка и уже раскрыты. Нажмите кнопку установки рядом с недостающим.</value>
+  </data>
+  <data name="Help_Dependencies_Check_Step3" xml:space="preserve">
+    <value>После установки нажмите {0}, чтобы проверить снова.</value>
+  </data>
+  <data name="Help_Footprint_Enable_Title" xml:space="preserve">
+    <value>Включить страницу След модов</value>
+  </data>
+  <data name="Help_Footprint_Enable_Step1" xml:space="preserve">
+    <value>В разделе {0}, в группе {1}, включите {2}.</value>
+  </data>
+  <data name="Help_Footprint_Enable_Step2" xml:space="preserve">
+    <value>На боковой панели появится {0}.</value>
+  </data>
+  <data name="Help_Footprint_Read_Title" xml:space="preserve">
+    <value>Понять, что показывает страница След модов</value>
+  </data>
+  <data name="Help_Footprint_Read_Step1" xml:space="preserve">
+    <value>Откройте {0}. Для каждого мода видно, каких частей игры касаются его файлы, - клиент, сервер, диск.</value>
+  </data>
+  <data name="Help_Footprint_Read_Step2" xml:space="preserve">
+    <value>С помощью {0} поставьте первыми моды, которые затрагивают больше всего.</value>
+  </data>
+  <data name="Help_Footprint_Read_Step3" xml:space="preserve">
+    <value>Откройте мод, чтобы увидеть, что значит каждая часть.</value>
+  </data>
+  <data name="Help_Footprint_Read_Note" xml:space="preserve">
+    <value>Ничего не замеряется. Страница показывает, что содержит мод, а не насколько быстро он работает.</value>
+  </data>
+  <data name="Help_ServerMap_Enable_Title" xml:space="preserve">
+    <value>Включить страницу Карта сервера</value>
+  </data>
+  <data name="Help_ServerMap_Enable_Step1" xml:space="preserve">
+    <value>В разделе {0}, в группе {1}, включите {2}.</value>
+  </data>
+  <data name="Help_ServerMap_Enable_Step2" xml:space="preserve">
+    <value>На боковой панели появится {0}.</value>
+  </data>
+  <data name="Help_ServerMap_Enable_Note" xml:space="preserve">
+    <value>Нужен сервер с модом Server Map. {0} там же открывает его страницу.</value>
+  </data>
+  <data name="Help_ServerMap_Connect_Title" xml:space="preserve">
+    <value>Подключиться к серверу</value>
+  </data>
+  <data name="Help_ServerMap_Connect_Step1" xml:space="preserve">
+    <value>В разделе {0} раскройте {1} стрелкой в строке и укажите адрес и порт из лаунчера SPT и ключ, если он есть у сервера.</value>
+  </data>
+  <data name="Help_ServerMap_Connect_Step2" xml:space="preserve">
+    <value>Нажмите {0}.</value>
+  </data>
+  <data name="Help_ServerMap_Connect_Step3" xml:space="preserve">
+    <value>В первый раз вас спросят, показывать ли эту машину на карте сервера. Нажмите {0} или {1}.</value>
+  </data>
+  <data name="Help_ServerMap_Connect_Step4" xml:space="preserve">
+    <value>Откройте {0}. Список модов сервера загрузится сам и сохранится на странице {1}.</value>
+  </data>
+  <data name="Help_ServerMap_Connect_Note" xml:space="preserve">
+    <value>Если сертификат сервера когда-нибудь изменится, вас спросят раньше всего остального. Нажимайте {0}, только если знаете, почему он изменился.</value>
+  </data>
+  <data name="Help_ServerMap_Publish_Title" xml:space="preserve">
+    <value>Опубликовать мой список модов со своего сервера</value>
+  </data>
+  <data name="Help_ServerMap_Publish_Step1" xml:space="preserve">
+    <value>На машине, где работает сервер, откройте {0}, введите название и нажмите {1}.</value>
+  </data>
+  <data name="Help_ServerMap_Publish_Step2" xml:space="preserve">
+    <value>Уберите всё, что не нужно игрокам. Кнопка области в каждой строке показывает, для каких машин она.</value>
+  </data>
+  <data name="Help_ServerMap_Publish_Step3" xml:space="preserve">
+    <value>Нажмите {0}, затем {1}.</value>
+  </data>
+  <data name="Help_ServerMap_Publish_Note" xml:space="preserve">
+    <value>Не применяйте этот урезанный список на машине сервера - он отключит собственные моды сервера. Держите полный список для сервера, а публикуйте урезанный.</value>
+  </data>
+  <data name="Help_Downloads_Watch_Title" xml:space="preserve">
+    <value>Следить за загрузкой или отменить её</value>
+  </data>
+  <data name="Help_Downloads_Watch_Step1" xml:space="preserve">
+    <value>Откройте {0}. У каждого мода виден ход загрузки и оставшееся время, а устанавливаются они по одному.</value>
+  </data>
+  <data name="Help_Downloads_Watch_Step2" xml:space="preserve">
+    <value>Нажмите {0} на карточке, чтобы остановить её. То, что она поставила в очередь как зависимости, отменяется вместе с ней.</value>
+  </data>
+  <data name="Help_Downloads_Watch_Step3" xml:space="preserve">
+    <value>Если что-то не удалось, нажмите {0}, чтобы попробовать снова.</value>
+  </data>
+  <data name="Help_Downloads_Watch_Note" xml:space="preserve">
+    <value>Когда файлы уже раскладываются по местам, установка доводится до конца, так что мод никогда не остаётся установленным наполовину.</value>
+  </data>
+  <data name="Help_Downloads_Where_Title" xml:space="preserve">
+    <value>Найти мод, скачанный для ручной установки</value>
+  </data>
+  <data name="Help_Downloads_Where_Step1" xml:space="preserve">
+    <value>На странице {0} на карточке мода написано, куда сохранён файл.</value>
+  </data>
+  <data name="Help_Downloads_Where_Step2" xml:space="preserve">
+    <value>Нажмите {0}, чтобы открыть эту папку с выделенным файлом.</value>
+  </data>
+  <data name="Help_Monitor_Title" xml:space="preserve">
+    <value>Установка модов вручную</value>
+  </data>
+  <data name="Help_Monitor_Enable_Title" xml:space="preserve">
+    <value>Скачивать моды, чтобы ставить их самому</value>
+  </data>
+  <data name="Help_Monitor_Enable_Step1" xml:space="preserve">
+    <value>Откройте {0} и найдите группу {1}.</value>
+  </data>
+  <data name="Help_Monitor_Enable_Step2" xml:space="preserve">
+    <value>Переключите {0} на {1}.</value>
+  </data>
+  <data name="Help_Monitor_Enable_Step3" xml:space="preserve">
+    <value>Чтобы выбрать, куда класть файлы, раскройте строку стрелкой и выберите папку в разделе {0}. Если оставить пустым, они попадут в папку «Загрузки» Windows.</value>
+  </data>
+  <data name="Help_Monitor_Enable_Note" xml:space="preserve">
+    <value>Обзор, обновления, зависимости и списки модов продолжают работать. В папке SPT ничего не трогается, так что скачивать можно при запущенном SPT.</value>
+  </data>
+  <data name="Help_Monitor_Other_Title" xml:space="preserve">
+    <value>Сделать наоборот для одного мода</value>
+  </data>
+  <data name="Help_Monitor_Other_Step1" xml:space="preserve">
+    <value>Рядом с каждой кнопкой установки есть кнопка поменьше, которая делает обратное для этого одного мода.</value>
+  </data>
+  <data name="Help_Monitor_Other_Step2" xml:space="preserve">
+    <value>Наведите на неё, чтобы увидеть, что она делает, и нажмите.</value>
+  </data>
+  <data name="Help_Monitor_Confirm_Title" xml:space="preserve">
+    <value>Сообщить приложению, что я установил скачанный мод</value>
+  </data>
+  <data name="Help_Monitor_Confirm_Step1" xml:space="preserve">
+    <value>Установите мод вручную из скачанного файла.</value>
+  </data>
+  <data name="Help_Monitor_Confirm_Step2" xml:space="preserve">
+    <value>Откройте {0}. Сканирование найдёт мод и спросит - нажмите {1}.</value>
+  </data>
+  <data name="Help_Monitor_Confirm_Step3" xml:space="preserve">
+    <value>Или нажмите {0} на карточке мода.</value>
+  </data>
+  <data name="Help_Monitor_Confirm_Note" xml:space="preserve">
+    <value>Чтобы получать пометку на карточке вместо вопроса, измените {0} в параметрах.</value>
+  </data>
+  <data name="Help_Updates_Enable_Title" xml:space="preserve">
+    <value>Узнавать, когда у моего мода выходит обновление</value>
+  </data>
+  <data name="Help_Updates_Enable_Step1" xml:space="preserve">
+    <value>В разделе {0}, в группе {1}, включите {2}.</value>
+  </data>
+  <data name="Help_Updates_Enable_Step2" xml:space="preserve">
+    <value>Раскройте строку стрелкой и выберите частоту в пункте {0}.</value>
+  </data>
+  <data name="Help_Updates_Enable_Step3" xml:space="preserve">
+    <value>Нажмите {0}, чтобы проверить сразу.</value>
+  </data>
+  <data name="Help_Updates_Enable_Note" xml:space="preserve">
+    <value>Щелчок по уведомлению открывает {0} с модами, у которых есть обновления. О каждом релизе сообщается один раз.</value>
+  </data>
+  <data name="Help_Updates_Tray_Title" xml:space="preserve">
+    <value>Продолжать проверку с закрытым окном</value>
+  </data>
+  <data name="Help_Updates_Tray_Step1" xml:space="preserve">
+    <value>Раскройте {0} стрелкой в строке и включите настройку с надписью {1}.</value>
+  </data>
+  <data name="Help_Updates_Tray_Step2" xml:space="preserve">
+    <value>Теперь при закрытии окна в области уведомлений остаётся значок. Щёлкните его, чтобы снова открыть приложение.</value>
+  </data>
+  <data name="Help_Updates_Tray_Step3" xml:space="preserve">
+    <value>Щёлкните значок правой кнопкой и нажмите {0}, чтобы закрыть приложение совсем.</value>
+  </data>
+  <data name="Help_AppUpdate_Update_Title" xml:space="preserve">
+    <value>Обновить это приложение</value>
+  </data>
+  <data name="Help_AppUpdate_Update_Step1" xml:space="preserve">
+    <value>Когда выходит новая версия, об этом сообщает баннер. Нажмите {0} или откройте {1}.</value>
+  </data>
+  <data name="Help_AppUpdate_Update_Step2" xml:space="preserve">
+    <value>Прочитайте, что изменилось, затем нажмите {0}.</value>
+  </data>
+  <data name="Help_AppUpdate_Update_Step3" xml:space="preserve">
+    <value>Когда попросят, откройте страницу мода. Затем приложение скачает обновление, закроется, заменит себя и откроется снова.</value>
+  </data>
+  <data name="Help_AppUpdate_Update_Note" xml:space="preserve">
+    <value>Ваши настройки и моды не затрагиваются. {0} сразу ищет новую версию.</value>
+  </data>
+  <data name="Help_Browse_Install_Title_Monitor" xml:space="preserve">
+    <value>Скачать мод и нужные ему моды</value>
+  </data>
+  <data name="Help_Browse_Install_Step4_Monitor" xml:space="preserve">
+    <value>Следите за ходом на странице {0}. На карточке написано, куда сохранён файл, - установите его оттуда сами.</value>
+  </data>
+  <data name="Help_Browse_Install_Note_Monitor" xml:space="preserve">
+    <value>В папке SPT ничего не трогается, так что SPT может оставаться запущенным, пока идёт скачивание.</value>
+  </data>
+  <data name="Help_Installed_Update_Step2_Monitor" xml:space="preserve">
+    <value>Последняя версия, которая работает на вашем SPT, уже выбрана. Нажмите {0}, чтобы скачать её, - или {1}, чтобы заново скачать ту версию, что у вас стоит, - затем установите файл сами.</value>
+  </data>
+  <data name="Help_ModLists_Apply_Note_Monitor" xml:space="preserve">
+    <value>При применении недостающее сохраняется в папку загрузок, чтобы вы установили его сами, а моды, которых нет в списке, переносятся в папку отключённых. Ничего не удаляется.</value>
+  </data>
+  <data name="Help_Downloads_Watch_Step1_Monitor" xml:space="preserve">
+    <value>Откройте {0}. У каждого мода виден ход загрузки и оставшееся время, а скачиваются они по одному.</value>
+  </data>
+  <data name="Help_Downloads_Watch_Note_Monitor" xml:space="preserve">
+    <value>Скачивание никогда не перезаписывает файл - вторая копия сохраняется рядом с первой.</value>
+  </data>
+  <data name="Help_ReportProblem" xml:space="preserve">
+    <value>Сообщить о проблеме</value>
+  </data>
+  <data name="Help_ReportProblemToolTip" xml:space="preserve">
+    <value>Открывает вкладку обращений на странице этого приложения на sp-mod.com, где можно рассказать автору, что пошло не так. Она на английском.</value>
+  </data>
+  <data name="Help_OpenPageFormat" xml:space="preserve">
+    <value>Открыть: {0}</value>
+  </data>
+  <data name="Help_ShowMeHow" xml:space="preserve">
+    <value>Показать как</value>
+  </data>
+  <data name="Help_Problems_Title" xml:space="preserve">
+    <value>Что-то не так</value>
+  </data>
+  <data name="Help_Installed_Remove_Title" xml:space="preserve">
+    <value>Удалить мод</value>
+  </data>
+  <data name="Help_Installed_Remove_Step1" xml:space="preserve">
+    <value>На странице {0} щёлкните карточку мода, чтобы открыть её, и нажмите {1}.</value>
+  </data>
+  <data name="Help_Installed_Remove_Step2" xml:space="preserve">
+    <value>Подтвердите. Если у мода есть свои файлы конфигурации, вас спросят, оставить их - они откладываются, а не удаляются - или удалить вместе с модом.</value>
+  </data>
+  <data name="Help_Installed_Remove_Note" xml:space="preserve">
+    <value>Удалённые файлы какое-то время хранятся (Параметры, «Хранить удалённые моды»), а на странице «Установленные» можно отменить любое из этих удалений. Отключённый мод сначала нужно снова включить, и только потом удалять. Чтобы убрать мод из игры, не удаляя его, просто отключите его.</value>
+  </data>
+  <data name="Help_Installed_Downgrade_Title" xml:space="preserve">
+    <value>Вернуться к более старой версии мода</value>
+  </data>
+  <data name="Help_Installed_Downgrade_Step1" xml:space="preserve">
+    <value>На странице {0} щёлкните карточку мода, чтобы открыть её, затем нажмите {1}.</value>
+  </data>
+  <data name="Help_Installed_Downgrade_Step2" xml:space="preserve">
+    <value>Выберите старую версию в списке. Версии для других релизов SPT скрыты - нажмите {0}, чтобы их увидеть.</value>
+  </data>
+  <data name="Help_Installed_Downgrade_Step3" xml:space="preserve">
+    <value>Нажмите {0} и подтвердите.</value>
+  </data>
+  <data name="Help_Installed_Downgrade_Note" xml:space="preserve">
+    <value>Старая версия может не прочитать настройки или данные профиля, сохранённые более новой, поэтому сначала загляните на страницу мода.</value>
+  </data>
+  <data name="Help_Installed_SortOut_Title" xml:space="preserve">
+    <value>Исправить мод, который лежит в двух местах сразу</value>
+  </data>
+  <data name="Help_Installed_SortOut_Step1" xml:space="preserve">
+    <value>На странице {0} у мода, который есть и во включённой, и в отключённой папке, на карточке предупреждение. Это обычная причина, почему отключённый мод всё равно загружается.</value>
+  </data>
+  <data name="Help_Installed_SortOut_Step2" xml:space="preserve">
+    <value>Откройте карточку, нажмите {0} и выберите, какую копию оставить.</value>
+  </data>
+  <data name="Help_Installed_SortOut_Note" xml:space="preserve">
+    <value>Другая копия откладывается, а не удаляется. Две копии, которые обе включены, показываются в разделе «Зависимости и конфликты».</value>
+  </data>
+  <data name="Help_Options_Language_Title" xml:space="preserve">
+    <value>Сменить язык приложения</value>
+  </data>
+  <data name="Help_Options_Language_Step1" xml:space="preserve">
+    <value>В разделе {0}, в группе {1}, выберите язык в пункте {2}.</value>
+  </data>
+  <data name="Help_Options_Language_Step2" xml:space="preserve">
+    <value>Системный по умолчанию следует языку Windows. Смена сразу вступает в силу - ничего не перезапускается.</value>
+  </data>
+  <data name="Help_Options_Language_Note" xml:space="preserve">
+    <value>Большинство переводов сделано машиной. Если что-то звучит неправильно, нажмите {0} вверху этой страницы и напишите, как должно быть.</value>
+  </data>
+  <data name="Help_Options_Theme_Title" xml:space="preserve">
+    <value>Переключиться между светлой и тёмной темой</value>
+  </data>
+  <data name="Help_Options_Theme_Step1" xml:space="preserve">
+    <value>В разделе {0} переключите {1} на {2}, {3} или {4}.</value>
+  </data>
+  <data name="Help_Options_Role_Title" xml:space="preserve">
+    <value>Сообщить приложению, что эта машина - headless Fika</value>
+  </data>
+  <data name="Help_Options_Role_Step1" xml:space="preserve">
+    <value>В разделе {0}, в группе {1}, раскройте {2} стрелкой в строке.</value>
+  </data>
+  <data name="Help_Options_Role_Step2" xml:space="preserve">
+    <value>Переключите настройки так, чтобы там было написано {0} и {1}.</value>
+  </data>
+  <data name="Help_Options_Role_Note" xml:space="preserve">
+    <value>Тогда список модов сервера приходит без модов, нужных только игроку. Если headless-лаунчер не находится сам, укажите его в пункте {0}.</value>
+  </data>
+  <data name="Help_Problems_Greyed_Title" xml:space="preserve">
+    <value>Кнопки «Обновить» или «Удалить» неактивны</value>
+  </data>
+  <data name="Help_Problems_Greyed_Step1" xml:space="preserve">
+    <value>Мод отключён. На странице {0} нажмите кнопку включения на его карточке, чтобы снова его включить.</value>
+  </data>
+  <data name="Help_Problems_Greyed_Step2" xml:space="preserve">
+    <value>Когда он включён, «Обновить» и «Удалить» снова работают.</value>
+  </data>
+  <data name="Help_Problems_CloseSpt_Title" xml:space="preserve">
+    <value>Просит сначала закрыть игру или сервер</value>
+  </data>
+  <data name="Help_Problems_CloseSpt_Step1" xml:space="preserve">
+    <value>Закройте игру и окно консоли сервера.</value>
+  </data>
+  <data name="Help_Problems_CloseSpt_Step2" xml:space="preserve">
+    <value>Попробуйте ещё раз.</value>
+  </data>
+  <data name="Help_Problems_CloseSpt_Note" xml:space="preserve">
+    <value>Они держат файлы модов открытыми, а занятый файл нельзя заменить.</value>
+  </data>
+  <data name="Help_Problems_Partial_Title" xml:space="preserve">
+    <value>Установка остановилась на полпути</value>
+  </data>
+  <data name="Help_Problems_Partial_Step1" xml:space="preserve">
+    <value>На странице {0} на карточке мода написано, что он установлен лишь частично.</value>
+  </data>
+  <data name="Help_Problems_Partial_Step2" xml:space="preserve">
+    <value>Откройте карточку, нажмите {0}, затем {1}, чтобы довести установку до конца, - или нажмите {2} на карточке, чтобы всё убрать.</value>
+  </data>
+  <data name="Help_Problems_Partial_Note" xml:space="preserve">
+    <value>Обычная причина - SPT запустили во время установки.</value>
+  </data>
+  <data name="Help_Problems_Notifications_Title" xml:space="preserve">
+    <value>Уведомления об обновлениях не появляются</value>
+  </data>
+  <data name="Help_Problems_Notifications_Step1" xml:space="preserve">
+    <value>В разделе {0}, в группе {1}, нажмите {2} и прочитайте строку под кнопкой.</value>
+  </data>
+  <data name="Help_Problems_Notifications_Step2" xml:space="preserve">
+    <value>Первая проверка после включения только запоминает уже имеющиеся обновления - уведомления она не показывает никогда.</value>
+  </data>
+  <data name="Help_Problems_Notifications_Step3" xml:space="preserve">
+    <value>Если проверки находят обновления, но ничего не появляется, откройте Параметры Windows, затем Система, затем Уведомления, разрешите TCF Mod Manager и выключите «Не беспокоить».</value>
+  </data>
+  <data name="Help_Problems_AppUpdate_Title" xml:space="preserve">
+    <value>Обновление приложения не прошло</value>
+  </data>
+  <data name="Help_Problems_AppUpdate_Step1" xml:space="preserve">
+    <value>Ваша текущая версия не тронута и продолжает работать.</value>
+  </data>
+  <data name="Help_Problems_AppUpdate_Step2" xml:space="preserve">
+    <value>Если приложение лежит в Program Files, перенесите его туда, где у вас есть права на запись, проверьте свободное место на диске и попробуйте снова на странице {0}.</value>
+  </data>
+  <data name="Help_Problems_AppUpdate_Note" xml:space="preserve">
+    <value>Что помешало, написано в журнале в Data\logs.</value>
+  </data>
+  <data name="Help_Problems_Report_Title" xml:space="preserve">
+    <value>Сообщить о проблеме</value>
+  </data>
+  <data name="Help_Problems_Report_Step1" xml:space="preserve">
+    <value>Нажмите {0} вверху этой страницы. Откроется вкладка обращений на странице этого приложения на sp-mod.com.</value>
+  </data>
+  <data name="Help_Problems_Report_Step2" xml:space="preserve">
+    <value>Опишите, что вы делали и что произошло, и приложите сегодняшний журнал из Data\logs - файл, названный tcfmm- и датой.</value>
+  </data>
+  <data name="Help_Problems_Report_Step3" xml:space="preserve">
+    <value>Для подробностей положите рядом с TCFModManager.exe пустой файл с именем verbose без расширения, повторите действия и пришлите новый журнал.</value>
+  </data>
+  <data name="Help_Problems_Report_Note" xml:space="preserve">
+    <value>Об ошибке в переводе тоже стоит сообщить: какой язык, что написано и как должно быть.</value>
+  </data>
+  <data name="Help_Start_Setup_Keywords" xml:space="preserve">
+    <value>папка установки, путь, настроить, первый раз</value>
+  </data>
+  <data name="Help_Start_Version_Keywords" xml:space="preserve">
+    <value>версия неизвестна, неправильная версия, определить, версия SPT</value>
+  </data>
+  <data name="Help_Play_Start_Keywords" xml:space="preserve">
+    <value>запустить, играть, запуск игры, сервер, лаунчер</value>
+  </data>
+  <data name="Help_Play_Check_Keywords" xml:space="preserve">
+    <value>недостающие моды, зайти, перед рейдом, сравнить, список сервера</value>
+  </data>
+  <data name="Help_Browse_Compatible_Keywords" xml:space="preserve">
+    <value>совместимый, работает с, фильтр, версия SPT</value>
+  </data>
+  <data name="Help_Browse_Install_Keywords" xml:space="preserve">
+    <value>установить, добавить, скачать, зависимости</value>
+  </data>
+  <data name="Help_Browse_Author_Keywords" xml:space="preserve">
+    <value>автор, создатель, поиск, моддер</value>
+  </data>
+  <data name="Help_Browse_HideInstalled_Keywords" xml:space="preserve">
+    <value>скрыть установленные, уже есть, фильтр</value>
+  </data>
+  <data name="Help_Browse_Addon_Keywords" xml:space="preserve">
+    <value>аддон, дополнение, расширение</value>
+  </data>
+  <data name="Help_Installed_Updates_Keywords" xml:space="preserve">
+    <value>обновления, устарел, новая версия, нужно обновить</value>
+  </data>
+  <data name="Help_Installed_Update_Keywords" xml:space="preserve">
+    <value>обновить, скачать заново, переустановить, последняя версия</value>
+  </data>
+  <data name="Help_Installed_Views_Keywords" xml:space="preserve">
+    <value>вид, раскладка, карточки, список, группы</value>
+  </data>
+  <data name="Help_Installed_Groups_Keywords" xml:space="preserve">
+    <value>группы, категории, разделители, упорядочить, сортировать, папки</value>
+  </data>
+  <data name="Help_Installed_Disable_Keywords" xml:space="preserve">
+    <value>отключить, выключить, включить, деактивировать</value>
+  </data>
+  <data name="Help_Installed_DisableMany_Keywords" xml:space="preserve">
+    <value>несколько, много, выбрать, отключить все</value>
+  </data>
+  <data name="Help_Installed_Undo_Keywords" xml:space="preserve">
+    <value>отменить, вернуть, откатить, ошибка</value>
+  </data>
+  <data name="Help_Installed_Remove_Keywords" xml:space="preserve">
+    <value>удалить, деинсталлировать, стереть, убрать</value>
+  </data>
+  <data name="Help_Installed_Downgrade_Keywords" xml:space="preserve">
+    <value>понизить версию, старая версия, откатить, предыдущая версия</value>
+  </data>
+  <data name="Help_Installed_SortOut_Keywords" xml:space="preserve">
+    <value>дубликат, дважды, две копии, всё равно загружается</value>
+  </data>
+  <data name="Help_ModLists_Capture_Keywords" xml:space="preserve">
+    <value>сохранить, профиль, пресет, снимок</value>
+  </data>
+  <data name="Help_ModLists_Apply_Keywords" xml:space="preserve">
+    <value>переключить, загрузить, применить, профиль, сменить список</value>
+  </data>
+  <data name="Help_ModLists_Pin_Keywords" xml:space="preserve">
+    <value>закрепить, оставить, всегда, защитить, не отключать</value>
+  </data>
+  <data name="Help_ModLists_Edit_Keywords" xml:space="preserve">
+    <value>редактировать, изменить, добавить моды, убрать из списка</value>
+  </data>
+  <data name="Help_ModLists_Share_Keywords" xml:space="preserve">
+    <value>поделиться, экспорт, импорт, отправить, друг, файл</value>
+  </data>
+  <data name="Help_ModLists_Server_Keywords" xml:space="preserve">
+    <value>сервер, синхронизировать, те же моды, друзья, мультиплеер</value>
+  </data>
+  <data name="Help_ModLists_Undo_Keywords" xml:space="preserve">
+    <value>отменить, вернуть, восстановить</value>
+  </data>
+  <data name="Help_Configs_Edit_Keywords" xml:space="preserve">
+    <value>конфигурация, настройки, параметры, cfg, json, изменить</value>
+  </data>
+  <data name="Help_Configs_Policy_Keywords" xml:space="preserve">
+    <value>сохранить настройки, обновление, объединить, перезаписать</value>
+  </data>
+  <data name="Help_Configs_Original_Keywords" xml:space="preserve">
+    <value>по умолчанию, сброс, исходное значение, заводские</value>
+  </data>
+  <data name="Help_Configs_Leftover_Keywords" xml:space="preserve">
+    <value>остатки, старые настройки, осиротевшие, удалённый мод</value>
+  </data>
+  <data name="Help_Dependencies_Check_Keywords" xml:space="preserve">
+    <value>зависимости, требования, нужно, не хватает, обязательно</value>
+  </data>
+  <data name="Help_Dependencies_Conflicts_Title" xml:space="preserve">
+    <value>Найти моды, которые мешают друг другу</value>
+  </data>
+  <data name="Help_Dependencies_Conflicts_Step1" xml:space="preserve">
+    <value>Откройте {0}. Раздел {1} вверху перечисляет моды, установленные дважды, и моды, которые приносят разные копии одного и того же файла.</value>
+  </data>
+  <data name="Help_Dependencies_Conflicts_Step2" xml:space="preserve">
+    <value>У каждого указан его вид. {0}: BepInEx загружает только один из них, и выбрать, какой, нельзя. {1}: SPT не загружает ни одного. {2}: каждый мод получает ту копию, что загрузилась первой, поэтому один из них может работать не так, как задумано.</value>
+  </data>
+  <data name="Help_Dependencies_Conflicts_Step3" xml:space="preserve">
+    <value>Нажмите {0}, чтобы проверить снова после любых изменений.</value>
+  </data>
+  <data name="Help_Dependencies_Conflicts_Note" xml:space="preserve">
+    <value>Проверка читает то, что лежит на диске, поэтому моды, установленные вручную, тоже проверяются. Отключённые моды не проверяются, потому что SPT их не загружает, а одинаковые копии файла никогда не показываются - они не мешают.</value>
+  </data>
+  <data name="Help_Dependencies_Conflicts_Keywords" xml:space="preserve">
+    <value>конфликт, дубликат, дважды, две копии, не загружается, не грузится, тот же мод, dll</value>
+  </data>
+  <data name="Help_Dependencies_Keep_Title" xml:space="preserve">
+    <value>Оставить одну копию мода, установленного дважды</value>
+  </data>
+  <data name="Help_Dependencies_Keep_Step1" xml:space="preserve">
+    <value>В разделе {0} найдите копию, которую хотите оставить, и нажмите {1}.</value>
+  </data>
+  <data name="Help_Dependencies_Keep_Step2" xml:space="preserve">
+    <value>Проверьте, что будет удалено, и подтвердите. Если у мода есть клиентская и серверная части, дублирующиеся половины другой копии удаляются вместе.</value>
+  </data>
+  <data name="Help_Dependencies_Keep_Step3" xml:space="preserve">
+    <value>Передумали? Нажмите «Отменить» вверху страницы {0}, чтобы вернуть удалённые копии.</value>
+  </data>
+  <data name="Help_Dependencies_Keep_Note" xml:space="preserve">
+    <value>Кнопка {0} неактивна, если другая копия установлена этим приложением и в ней есть файлы, которые не дублируются: при удалении они тоже уйдут. Наведите на кнопку, чтобы увидеть причину, и удалите этот мод на странице «Установленные», где «Удалить» показывает всё, что будет удалено. У разных копий одного файла кнопки нет: оставьте нужный мод или обратитесь к авторам.</value>
+  </data>
+  <data name="Help_Dependencies_Keep_Keywords" xml:space="preserve">
+    <value>оставить, оставить один, удалить дубликат, удалить копию, отменить</value>
+  </data>
+  <data name="Help_Dependencies_Spot_Title" xml:space="preserve">
+    <value>Увидеть конфликты на других страницах</value>
+  </data>
+  <data name="Help_Dependencies_Spot_Step1" xml:space="preserve">
+    <value>На странице {0} у мода в конфликте на карточке есть предупреждение - наведите на него, чтобы увидеть, с какими модами он конфликтует. Число конфликтов над списком открывает {1}.</value>
+  </data>
+  <data name="Help_Dependencies_Spot_Step2" xml:space="preserve">
+    <value>Чтобы показать только эти моды, выберите в фильтрах {0}.</value>
+  </data>
+  <data name="Help_Dependencies_Spot_Step3" xml:space="preserve">
+    <value>Страница {0} тоже предупреждает о конфликтах перед запуском. Играть она никогда не мешает.</value>
+  </data>
+  <data name="Help_Dependencies_Spot_Keywords" xml:space="preserve">
+    <value>предупреждение о конфликте, есть конфликты, фильтр, предупреждение перед игрой, красный</value>
+  </data>
+  <data name="Help_Problems_NotLoading_Title" xml:space="preserve">
+    <value>Мод не загружается</value>
+  </data>
+  <data name="Help_Problems_NotLoading_Step1" xml:space="preserve">
+    <value>Откройте {0}. В разделе {1} самая частая причина - мод, установленный дважды, или два мода с конфликтующими файлами.</value>
+  </data>
+  <data name="Help_Problems_NotLoading_Step2" xml:space="preserve">
+    <value>Ниже, в разделе {0}, проверьте, что у него есть все нужные моды.</value>
+  </data>
+  <data name="Help_Problems_NotLoading_Step3" xml:space="preserve">
+    <value>На странице {0} проверьте, что мод включён. У мода, который есть и во включённой, и в отключённой папке, на карточке предупреждение.</value>
+  </data>
+  <data name="Help_Problems_NotLoading_Note" xml:space="preserve">
+    <value>Всё равно не загружается? Проверьте на странице {0}, что мод сделан для вашей версии SPT.</value>
+  </data>
+  <data name="Help_Problems_NotLoading_Keywords" xml:space="preserve">
+    <value>не загружается, не грузится, не работает, нет в игре, сломан, не отображается</value>
+  </data>
+  <data name="Help_Footprint_Enable_Keywords" xml:space="preserve">
+    <value>след, производительность, включить, включить страницу</value>
+  </data>
+  <data name="Help_Footprint_Read_Keywords" xml:space="preserve">
+    <value>след, производительность, лаги, fps, тяжёлый, влияние</value>
+  </data>
+  <data name="Help_ServerMap_Enable_Keywords" xml:space="preserve">
+    <value>карта сервера, включить, включить страницу, сервер</value>
+  </data>
+  <data name="Help_ServerMap_Connect_Keywords" xml:space="preserve">
+    <value>подключиться, сервер, адрес, ключ, порт, сертификат</value>
+  </data>
+  <data name="Help_ServerMap_Publish_Keywords" xml:space="preserve">
+    <value>опубликовать, хостить, список сервера, администратор</value>
+  </data>
+  <data name="Help_Downloads_Watch_Keywords" xml:space="preserve">
+    <value>загрузки, ход, отменить, остановить, очередь</value>
+  </data>
+  <data name="Help_Downloads_Where_Keywords" xml:space="preserve">
+    <value>где, найти файл, папка загрузок, zip</value>
+  </data>
+  <data name="Help_Monitor_Enable_Keywords" xml:space="preserve">
+    <value>только скачивать, ручная установка, сам, вручную</value>
+  </data>
+  <data name="Help_Monitor_Other_Keywords" xml:space="preserve">
+    <value>один мод, наоборот, исключение</value>
+  </data>
+  <data name="Help_Monitor_Confirm_Keywords" xml:space="preserve">
+    <value>подтвердить, отметить установленным, установлен вручную</value>
+  </data>
+  <data name="Help_Updates_Enable_Keywords" xml:space="preserve">
+    <value>уведомления, оповещения, сообщать</value>
+  </data>
+  <data name="Help_Updates_Tray_Keywords" xml:space="preserve">
+    <value>трей, фон, свернуть, продолжать работать</value>
+  </data>
+  <data name="Help_AppUpdate_Update_Keywords" xml:space="preserve">
+    <value>обновить приложение, новая версия</value>
+  </data>
+  <data name="Help_Options_Language_Keywords" xml:space="preserve">
+    <value>язык, перевод, русский, английский</value>
+  </data>
+  <data name="Help_Options_Theme_Keywords" xml:space="preserve">
+    <value>тёмная тема, светлая, тёмная, тема, цвета, оформление</value>
+  </data>
+  <data name="Help_Options_Role_Keywords" xml:space="preserve">
+    <value>headless, Fika, выделенный, хост, без игрока</value>
+  </data>
+  <data name="Help_Problems_Greyed_Keywords" xml:space="preserve">
+    <value>неактивна, серая кнопка, не могу обновить, не могу удалить</value>
+  </data>
+  <data name="Help_Problems_CloseSpt_Keywords" xml:space="preserve">
+    <value>закрыть игру, занят, заблокирован, запущен, не устанавливается</value>
+  </data>
+  <data name="Help_Problems_Partial_Keywords" xml:space="preserve">
+    <value>установлен наполовину, ошибка, сломан, не до конца</value>
+  </data>
+  <data name="Help_Problems_Notifications_Keywords" xml:space="preserve">
+    <value>нет уведомлений, не приходят уведомления</value>
+  </data>
+  <data name="Help_Problems_AppUpdate_Keywords" xml:space="preserve">
+    <value>обновление не удалось, не обновилось, ошибка</value>
+  </data>
+  <data name="Help_Problems_Report_Keywords" xml:space="preserve">
+    <value>баг, проблема, вылет, ошибка, сообщить, журнал, лог</value>
+  </data>
+  <data name="Installed_RemovedUndoHint" xml:space="preserve">
+    <value>Нажмите «Отменить», чтобы вернуть его.</value>
+  </data>
+  <data name="Installed_UndoRemovalFormat" xml:space="preserve">
+    <value>Отменить удаление {0}</value>
+  </data>
+  <data name="Installed_UndoRemovalToolTip" xml:space="preserve">
+    <value>Возвращает мод точно в том виде, в каком он был до удаления. То, что с тех пор оказалось на его месте, не перезаписывается.</value>
+  </data>
+  <data name="Installed_UndoneFormat" xml:space="preserve">
+    <value>{0} возвращён.</value>
+  </data>
+  <data name="Installed_UndoNothing" xml:space="preserve">
+    <value>Отменять нечего - удалённые файлы уже стёрты.</value>
+  </data>
+  <data name="Installed_RemoveHeldFormat" xml:space="preserve">
+    <value>Удалённые файлы хранятся в установке {0}, так что это можно отменить.</value>
+  </data>
+  <data name="Installed_RemoveHeldUntilCleared" xml:space="preserve">
+    <value>Удалённые файлы хранятся в установке, пока вы не очистите их в «Параметрах», так что это можно отменить.</value>
+  </data>
+  <data name="Installed_RemoveNotHeld" xml:space="preserve">
+    <value>Удалённые файлы стираются сразу (Параметры, Хранить удалённые моды), так что это нельзя отменить.</value>
+  </data>
+  <data name="Installed_RemoveUnstampedFormat" xml:space="preserve">
+    <value>Запись приложения о нём не указывает, в какой установке SPT она сделана. Он будет удалён из {0}.</value>
+  </data>
+  <data name="Options_RemovedModsHeader" xml:space="preserve">
+    <value>Хранить удалённые моды</value>
+  </data>
+  <data name="Options_RemovedModsHint" xml:space="preserve">
+    <value>При удалении мода его файлы переносятся в скрытую папку установки, чтобы это можно было отменить. Выберите, как долго они там хранятся.</value>
+  </data>
+  <data name="Options_RemovedModsDescription" xml:space="preserve">
+    <value>Удалённые моды хранятся в .tcfmm-removed в папке SPT и стираются при запуске приложения, когда их срок истёк. Обновления тоже оставляют там заменённую версию.</value>
+  </data>
+  <data name="Options_RemovedModsDeleteStraightAway" xml:space="preserve">
+    <value>Удалять сразу</value>
+  </data>
+  <data name="Options_RemovedModsOneDay" xml:space="preserve">
+    <value>1 день</value>
+  </data>
+  <data name="Options_RemovedModsSevenDays" xml:space="preserve">
+    <value>7 дней</value>
+  </data>
+  <data name="Options_RemovedModsFourteenDays" xml:space="preserve">
+    <value>14 дней</value>
+  </data>
+  <data name="Options_RemovedModsThirtyDays" xml:space="preserve">
+    <value>30 дней</value>
+  </data>
+  <data name="Options_RemovedModsUntilCleared" xml:space="preserve">
+    <value>Пока я их не очищу</value>
+  </data>
+  <data name="Options_RemovedModsClearFormat" xml:space="preserve">
+    <value>Очистить удалённые моды ({0})</value>
+  </data>
+  <data name="Options_RemovedModsClearTitle" xml:space="preserve">
+    <value>Очистить удалённые моды</value>
+  </data>
+  <data name="Options_RemovedModsClearConfirmFormat" xml:space="preserve">
+    <value>Стереть все удалённые моды, хранящиеся в {1} ({0})? После этого ни одно сделанное удаление нельзя будет отменить.</value>
+  </data>
+  <data name="Options_RemovedModsClearedFormat" xml:space="preserve">
+    <value>Удалённые моды очищены - освобождено {0}.</value>
+  </data>
+  <data name="Options_RemovedModsNothingToClear" xml:space="preserve">
+    <value>Нечего очищать</value>
+  </data>
+  <data name="Installed_RemovedKeptChanged_one" xml:space="preserve">
+    <value>{0} файл, изменённый после установки, оставлен на месте.</value>
+  </data>
+  <data name="Installed_RemovedKeptChanged_few" xml:space="preserve">
+    <value>{0} файла, изменённых после установки, оставлены на месте.</value>
+  </data>
+  <data name="Installed_RemovedKeptChanged_many" xml:space="preserve">
+    <value>{0} файлов, изменённых после установки, оставлены на месте.</value>
+  </data>
+  <data name="Installed_RemovedKeptOwned_one" xml:space="preserve">
+    <value>{0} файл, который использует и другой мод, оставлен на месте.</value>
+  </data>
+  <data name="Installed_RemovedKeptOwned_few" xml:space="preserve">
+    <value>{0} файла, которые используют и другие моды, оставлены на месте.</value>
+  </data>
+  <data name="Installed_RemovedKeptOwned_many" xml:space="preserve">
+    <value>{0} файлов, которые используют и другие моды, оставлены на месте.</value>
+  </data>
+  <data name="Installed_RemovedRefused_one" xml:space="preserve">
+    <value>{0} файл, принадлежащий SPT или игре либо лежащий вне мода, не тронут.</value>
+  </data>
+  <data name="Installed_RemovedRefused_few" xml:space="preserve">
+    <value>{0} файла, принадлежащих SPT или игре либо лежащих вне мода, не тронуты.</value>
+  </data>
+  <data name="Installed_RemovedRefused_many" xml:space="preserve">
+    <value>{0} файлов, принадлежащих SPT или игре либо лежащих вне мода, не тронуты.</value>
+  </data>
+  <data name="Installed_RemovedRestored_one" xml:space="preserve">
+    <value>{0} файл, который он заменил, возвращён.</value>
+  </data>
+  <data name="Installed_RemovedRestored_few" xml:space="preserve">
+    <value>{0} файла, которые он заменил, возвращены.</value>
+  </data>
+  <data name="Installed_RemovedRestored_many" xml:space="preserve">
+    <value>{0} файлов, которые он заменил, возвращены.</value>
+  </data>
+  <data name="Installed_UndoneBlocked_one" xml:space="preserve">
+    <value>{1} возвращён, кроме {0} элемента: на его месте теперь другое. Он всё ещё в {2}.</value>
+  </data>
+  <data name="Installed_UndoneBlocked_few" xml:space="preserve">
+    <value>{1} возвращён, кроме {0} элементов: на их месте теперь другое. Они всё ещё в {2}.</value>
+  </data>
+  <data name="Installed_UndoneBlocked_many" xml:space="preserve">
+    <value>{1} возвращён, кроме {0} элементов: на их месте теперь другое. Они всё ещё в {2}.</value>
+  </data>
+  <data name="Downloads_KeptSptFiles_one" xml:space="preserve">
+    <value>{0} файл из этого архива принадлежит SPT, BepInEx или игре и оставлен как есть.</value>
+  </data>
+  <data name="Downloads_KeptSptFiles_few" xml:space="preserve">
+    <value>{0} файла из этого архива принадлежат SPT, BepInEx или игре и оставлены как есть.</value>
+  </data>
+  <data name="Downloads_KeptSptFiles_many" xml:space="preserve">
+    <value>{0} файлов из этого архива принадлежат SPT, BepInEx или игре и оставлены как есть.</value>
+  </data>
+  <data name="Downloads_KeptOriginals_one" xml:space="preserve">
+    <value>{0} файл, который он заменил, сохранён, чтобы вернуть его при удалении.</value>
+  </data>
+  <data name="Downloads_KeptOriginals_few" xml:space="preserve">
+    <value>{0} файла, которые он заменил, сохранены, чтобы вернуть их при удалении.</value>
+  </data>
+  <data name="Downloads_KeptOriginals_many" xml:space="preserve">
+    <value>{0} файлов, которые он заменил, сохранены, чтобы вернуть их при удалении.</value>
+  </data>
+  <data name="Installed_UndoRemovalPickFormat" xml:space="preserve">
+    <value>Отменить удаление ({0})</value>
+  </data>
+  <data name="Installed_UndoRemovalItemFormat" xml:space="preserve">
+    <value>{0} - удалён {1}</value>
+  </data>
+  <data name="Installed_LeftoverFormat" xml:space="preserve">
+    <value>Осталось после удаления {0} ({1}) - в этой папке есть файлы, которые {0} не устанавливал.</value>
+  </data>
+  <data name="Installed_RemovedFolderLeft_one" xml:space="preserve">
+    <value>Его папка {1} оставлена: в ней {0} файл, который мод не устанавливал.</value>
+  </data>
+  <data name="Installed_RemovedFolderLeft_few" xml:space="preserve">
+    <value>Его папка {1} оставлена: в ней {0} файла, которые мод не устанавливал.</value>
+  </data>
+  <data name="Installed_RemovedFolderLeft_many" xml:space="preserve">
+    <value>Его папка {1} оставлена: в ней {0} файлов, которые мод не устанавливал.</value>
+  </data>
+  <data name="Install_IncompatibleTitle" xml:space="preserve">
+    <value>Не для вашей версии SPT</value>
+  </data>
+  <data name="Install_IncompatibleOneFormat" xml:space="preserve">
+    <value>Ни одна версия этого мода на sp-mod.com не поддерживает SPT {0}. Самая новая:
+
+{1}
+
+Всё равно установить? SPT может отказаться его загружать.</value>
+  </data>
+  <data name="Install_IncompatibleBatchFormat" xml:space="preserve">
+    <value>Эти моды не поддерживают SPT {0}:
+
+{1}
+
+Всё равно установить? SPT может отказаться их загружать. «Нет» установит остальные без них.</value>
+  </data>
+  <data name="Install_IncompatibleLineFormat" xml:space="preserve">
+    <value>{0} {1} - нужна SPT {2}</value>
+  </data>
+  <data name="Install_IncompatibleNotInstalledFormat" xml:space="preserve">
+    <value>{0} не установлен - ни одна его версия не поддерживает SPT {1}.</value>
+  </data>
+  <data name="Install_IncompatibleLeftOutFormat" xml:space="preserve">
+    <value>Пропущены, так как не поддерживают SPT {0}: {1}.</value>
+  </data>
+  <data name="ModList_ReasonIncompatibleFormat" xml:space="preserve">
+    <value>версия {0} не поддерживает SPT {1}, а установка всё равно не была выбрана</value>
+  </data>
+  <data name="Conflicts_Header" xml:space="preserve">
+    <value>Конфликты</value>
+  </data>
+  <data name="Dependencies_Header" xml:space="preserve">
+    <value>Зависимости</value>
+  </data>
+  <data name="Conflicts_None" xml:space="preserve">
+    <value>Конфликтов нет: ничего не установлено дважды, и никакие два мода не несут разные копии одного файла.</value>
+  </data>
+  <data name="Conflicts_KindDuplicatePlugin" xml:space="preserve">
+    <value>Один и тот же плагин установлен дважды</value>
+  </data>
+  <data name="Conflicts_KindDuplicateServerMod" xml:space="preserve">
+    <value>Один и тот же серверный мод установлен дважды</value>
+  </data>
+  <data name="Conflicts_KindDifferentCopies" xml:space="preserve">
+    <value>Разные копии одного файла</value>
+  </data>
+  <data name="Conflicts_ExplainDuplicatePluginFormat" xml:space="preserve">
+    <value>Все они регистрируют плагин {0}. BepInEx загрузит только один, и выбрать какой нельзя. Оставьте один, остальные отключите или удалите.</value>
+  </data>
+  <data name="Conflicts_ExplainDuplicateServerModFormat" xml:space="preserve">
+    <value>Все они объявляют серверный мод {0}. SPT пропускает серверный мод, ID которого встречается дважды, поэтому не загрузится ни один. Оставьте один, остальные отключите или удалите.</value>
+  </data>
+  <data name="Conflicts_ExplainDifferentCopiesFormat" xml:space="preserve">
+    <value>Каждый несёт свою копию {0}, и копии различаются. Используется только та, что загрузилась первой, всеми модами, которым она нужна, поэтому один из этих модов может работать не так, как задумано. Спросите авторов или оставьте нужный.</value>
+  </data>
+  <data name="Conflicts_CopyFormat" xml:space="preserve">
+    <value>{0}, версия {1}</value>
+  </data>
+  <data name="Conflicts_OpenFolderToolTip" xml:space="preserve">
+    <value>Открыть эту папку</value>
+  </data>
+  <data name="Installed_StatusConflictFormat" xml:space="preserve">
+    <value>{0}
+См. «Зависимости и конфликты».</value>
+  </data>
+  <data name="Installed_ConflictWithFormat" xml:space="preserve">
+    <value>{0}: вместе с {1}</value>
+  </data>
+  <data name="Installed_ConflictCount_one" xml:space="preserve">
+    <value>{0} конфликт - см. «Зависимости и конфликты»</value>
+  </data>
+  <data name="Installed_ConflictCount_few" xml:space="preserve">
+    <value>{0} конфликта - см. «Зависимости и конфликты»</value>
+  </data>
+  <data name="Installed_ConflictCount_many" xml:space="preserve">
+    <value>{0} конфликтов - см. «Зависимости и конфликты»</value>
+  </data>
+  <data name="Conflicts_KeepThis" xml:space="preserve">
+    <value>Оставить этот</value>
+  </data>
+  <data name="Conflicts_KeepThisToolTip" xml:space="preserve">
+    <value>Оставить эту копию и удалить остальные. Они попадут туда же, куда удалённые моды, и «Отменить» на странице «Установленные» сможет их вернуть.</value>
+  </data>
+  <data name="Conflicts_KeepConfirmTitle" xml:space="preserve">
+    <value>Оставить одну копию</value>
+  </data>
+  <data name="Conflicts_KeepConfirmFormat" xml:space="preserve">
+    <value>Оставить {0} в {1} и удалить:
+
+{2}
+
+{3}</value>
+  </data>
+  <data name="Conflicts_KeepLineFormat" xml:space="preserve">
+    <value>{0} - {1}</value>
+  </data>
+  <data name="Conflicts_KeptFormat" xml:space="preserve">
+    <value>{0} оставлен. {1} удалён - «Отменить» на странице «Установленные» вернёт его.</value>
+  </data>
+  <data name="Conflicts_KeepFailedFormat" xml:space="preserve">
+    <value>Не удалось удалить {0}: {1}</value>
+  </data>
+  <data name="Filter_HasConflicts" xml:space="preserve">
+    <value>Есть конфликты</value>
+  </data>
+  <data name="Filter_HasConflictsToolTip" xml:space="preserve">
+    <value>Только моды в конфликте: установленные дважды или несущие другую копию файла, который несёт другой мод. См. «Зависимости и конфликты».</value>
+  </data>
+  <data name="Play_ConflictsHint" xml:space="preserve">
+    <value>Некоторые моды могут не загрузиться. Запустить всё равно можно.</value>
+  </data>
+  <data name="Conflicts_KeepBlockedFormat" xml:space="preserve">
+    <value>У {0} есть и файлы, которые не дублируются, а установлен он этим приложением, поэтому удалить его можно только целиком - эти файлы тоже уйдут. Удалите его на странице «Установленные», где «Удалить» показывает всё, что будет удалено.</value>
   </data>
 </root>

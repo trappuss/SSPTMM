@@ -1,210 +1,238 @@
-using System.Collections.Concurrent;
+using System.Globalization;
 using System.Text;
 using System.Text.Json;
 
 namespace TCFModManager.Core.Services;
 
-/// <summary>A damaged or unreadable data file found while reading it, and what was done.</summary>
-/// <param name="Path">The file.</param>
-/// <param name="KeptAs">Where the damaged copy was kept, when it could be kept.</param>
-/// <param name="RestoredFromBackup">True when the last good copy (.bak) was put back in its place.</param>
-/// <param name="CouldNotRead">True when the file could not be read at all (held open elsewhere) -
-/// it is left as it is, and not saved over this session.</param>
-public sealed record SafeFileProblem(string Path, string? KeptAs, bool RestoredFromBackup, bool CouldNotRead = false);
-
 //
-// Writing and reading the app's own data files so that a crash, a power cut or a locked file can
-// never quietly cost the user their settings, their collections or the record of what each mod
-// installed.
+// How every file this app keeps is written, and what happens when one can't be read back
+// (CLOSED-10-TCFResilience-DESIGN.md §9, D18/D19).
 //
-// Writing: the new content goes to a file beside the old one, is flushed to the disk, and only then
-// takes the old one's place - a crash at any moment leaves either the old file or the new one, never
-// half of one. Files that hold what the user made (settings, collections, install records) also keep
-// the previous version as a .bak.
+// A write goes to a temporary file beside the target, is flushed to disk, and only then renamed over
+// the old one - so a crash, a full disk or a killed process leaves either the old file or the new
+// one, never half of either. ServerMapServerSettings already worked this way; now everything does.
 //
-// Reading: a file that is not valid JSON any more is not thrown away. It is copied aside as
-// <name>.corrupt-<time>, the .bak is put back if it reads, and the problem is reported (Problems /
-// ProblemFound) so the app can say so. A file that cannot be read at all (held open by an antivirus
-// scan, a sync client) is tried again a few times; if it still cannot be read, writes to it are
-// refused for the rest of the session, so defaults can never be saved over data that is still there.
+// A file that can't be parsed is copied aside as "<name>.damaged-<time>" before its store falls back
+// to an empty default, so the next save - which writes that default over it - can no longer lose
+// what was there.
+//
+// User-data files also keep rolling backups: before a save replaces a file that still parses, a copy
+// goes into "backups\<name>\" beside it. At most one every BackupInterval, the newest BackupsKept
+// kept, so a burst of saves (a mod list applying fifty mods) can't push every older copy out.
 //
 public static class SafeFile
 {
-    private static readonly ConcurrentDictionary<string, byte> Unreadable = new(StringComparer.OrdinalIgnoreCase);
-    private static readonly ConcurrentDictionary<string, byte> Reported = new(StringComparer.OrdinalIgnoreCase);
-    private static readonly ConcurrentQueue<SafeFileProblem> Found = new();
+    // ------------------------------------------------------------------ fork: telling the user
+    //
+    // The Steam fork says so when a file is found damaged (App.ReportDataProblems), rather than
+    // leaving it to the log: settings or collections falling back to empty is something to know.
+    // Each damaged copy kept is reported once, whichever store found it, from whichever thread.
+    //
+    private static readonly System.Collections.Concurrent.ConcurrentQueue<SafeFileProblem> Found = new();
 
-    // How many times, and how far apart, a locked file is tried again before giving up.
-    private const int ReadAttempts = 5;
-    private static readonly TimeSpan ReadRetryDelay = TimeSpan.FromMilliseconds(150);
-
-    /// <summary>Every problem found this session, oldest first.</summary>
+    /// <summary>Every damaged file found this session, oldest first.</summary>
     public static IReadOnlyList<SafeFileProblem> Problems => [.. Found];
 
-    /// <summary>Raised when a damaged or unreadable file is found; may be raised off the UI thread.</summary>
+    /// <summary>Raised when a damaged file is found and kept aside; may be raised off the UI thread.</summary>
     public static event EventHandler<SafeFileProblem>? ProblemFound;
 
-    // ------------------------------------------------------------------ writing
-
-    /// <summary>Writes text so the file is either all old or all new, never half written.
-    /// <paramref name="keepBackup"/> keeps the previous version beside it as <c>.bak</c>.
-    /// Returns false - and writes nothing - for a file that could not be read this session.</summary>
-    public static bool WriteAllText(string path, string text, Encoding? encoding = null, bool keepBackup = false)
-    {
-        // As File.WriteAllText: UTF-8 without a byte order mark unless an encoding with one is given.
-        encoding ??= new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
-        return WriteAllBytes(path, [.. encoding.GetPreamble(), .. encoding.GetBytes(text)], keepBackup);
-    }
-
-    /// <inheritdoc cref="WriteAllText"/>
-    public static bool WriteAllBytes(string path, byte[] bytes, bool keepBackup = false)
-    {
-        var full = Path.GetFullPath(path);
-        if (Unreadable.ContainsKey(full))
-        {
-            AppLog.Warn("Data", $"not saving {Path.GetFileName(full)}: it could not be read this session, and saving now would replace what is in it");
-            return false;
-        }
-
-        Directory.CreateDirectory(Path.GetDirectoryName(full)!);
-
-        var temp = full + ".tmp";
-        using (var stream = new FileStream(temp, FileMode.Create, FileAccess.Write, FileShare.None, 4096, FileOptions.WriteThrough))
-        {
-            stream.Write(bytes, 0, bytes.Length);
-            stream.Flush(flushToDisk: true);
-        }
-
-        if (!File.Exists(full))
-        {
-            File.Move(temp, full);
-            return true;
-        }
-
-        if (keepBackup)
-        {
-            try
-            {
-                File.Replace(temp, full, full + ".bak", ignoreMetadataErrors: true);
-                return true;
-            }
-            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or PlatformNotSupportedException)
-            {
-                // Some file systems (and some sync clients) refuse the swap; the same result, in two steps.
-                AppLog.Debug("Data", $"replace refused for {Path.GetFileName(full)} ({ex.Message}); copying instead");
-                File.Copy(full, full + ".bak", overwrite: true);
-            }
-        }
-
-        File.Move(temp, full, overwrite: true);
-        return true;
-    }
-
-    // ------------------------------------------------------------------ reading
-
-    /// <summary>Reads a JSON data file. Null when there is none - or when it is damaged and has no
-    /// good backup, in which case the damaged copy is kept aside and the problem reported.</summary>
-    public static T? ReadJson<T>(string path, Func<string, T?> parse, bool throwIfUnreadable = false) where T : class
-    {
-        var full = Path.GetFullPath(path);
-        if (!File.Exists(full)) return null;
-
-        string text;
-        try
-        {
-            text = ReadWithRetry(full);
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-        {
-            // Still there, and still ours - just not readable right now. Never save defaults over it.
-            Unreadable[full] = 0;
-            AppLog.Error("Data", $"{Path.GetFileName(full)} could not be read; it will not be saved over this session", ex);
-            Report(new SafeFileProblem(full, null, false, CouldNotRead: true));
-            if (throwIfUnreadable) throw;
-            return null;
-        }
-
-        Unreadable.TryRemove(full, out _);
-
-        try
-        {
-            return parse(text);
-        }
-        catch (JsonException ex)
-        {
-            AppLog.Error("Data", $"{Path.GetFileName(full)} is damaged: {ex.Message}");
-            return Recover(full, parse);
-        }
-    }
-
-    // The damaged file kept aside; the backup put back if it reads.
-    private static T? Recover<T>(string full, Func<string, T?> parse) where T : class
-    {
-        string? keptAs = $"{full}.corrupt-{DateTime.Now:yyyyMMdd-HHmmss}";
-        try
-        {
-            File.Copy(full, keptAs, overwrite: false);
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-        {
-            // Already kept a moment ago (the same second), or the folder is read-only.
-            AppLog.Warn("Data", $"could not keep a copy of the damaged {Path.GetFileName(full)}: {ex.Message}");
-            if (!File.Exists(keptAs)) keptAs = null;
-        }
-
-        var backup = full + ".bak";
-        if (File.Exists(backup))
-        {
-            try
-            {
-                var restored = parse(File.ReadAllText(backup));
-                if (restored is not null)
-                {
-                    File.Copy(backup, full, overwrite: true);
-                    AppLog.Warn("Data", $"{Path.GetFileName(full)} restored from its backup");
-                    Report(new SafeFileProblem(full, keptAs, true));
-                    return restored;
-                }
-            }
-            catch (Exception ex) when (ex is JsonException or IOException or UnauthorizedAccessException)
-            {
-                AppLog.Warn("Data", $"the backup of {Path.GetFileName(full)} could not be used either: {ex.Message}");
-            }
-        }
-
-        Report(new SafeFileProblem(full, keptAs, false));
-        return null;
-    }
-
-    private static string ReadWithRetry(string full)
-    {
-        for (var attempt = 1; ; attempt++)
-        {
-            try
-            {
-                return File.ReadAllText(full);
-            }
-            catch (IOException) when (attempt < ReadAttempts)
-            {
-                Thread.Sleep(ReadRetryDelay);
-            }
-        }
-    }
-
-    // Once per file per session: a file read ten times before it is saved again is one problem.
     private static void Report(SafeFileProblem problem)
     {
-        if (!Reported.TryAdd(problem.Path, 0)) return;
+        if (Found.Any(p => string.Equals(p.KeptAs, problem.KeptAs, StringComparison.OrdinalIgnoreCase))) return;
 
         Found.Enqueue(problem);
         ProblemFound?.Invoke(null, problem);
     }
 
-    /// <summary>For tests: forgets what this session has found.</summary>
-    public static void ResetForTests()
+    // ------------------------------------------------------------------
+
+    public const int BackupsKept = 5;
+    public const int DamagedCopiesKept = 5;
+    public static readonly TimeSpan BackupInterval = TimeSpan.FromMinutes(10);
+
+    private const string BackupFolderName = "backups";
+    private const string DamagedMarker = ".damaged-";
+
+    private static readonly UTF8Encoding Utf8NoBom = new(encoderShouldEmitUTF8Identifier: false);
+
+    // The text is written as UTF-8 without a byte order mark unless another encoding is given.
+    public static void WriteText(string path, string text, bool keepBackups = false, Encoding? encoding = null) =>
+        WriteBytes(path, (encoding ?? Utf8NoBom).GetPreamble().Concat((encoding ?? Utf8NoBom).GetBytes(text)).ToArray(), keepBackups);
+
+    public static void WriteBytes(string path, byte[] bytes, bool keepBackups = false)
     {
-        Unreadable.Clear();
-        Reported.Clear();
-        while (Found.TryDequeue(out _)) { }
+        var full = Path.GetFullPath(path);
+        var directory = Path.GetDirectoryName(full)!;
+        Directory.CreateDirectory(directory);
+
+        var temp = Path.Combine(directory, $".{Path.GetFileName(full)}.tmp-{Guid.NewGuid():N}");
+
+        try
+        {
+            using (var stream = new FileStream(temp, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            {
+                stream.Write(bytes);
+                stream.Flush(flushToDisk: true);
+            }
+
+            if (keepBackups) TryBackUp(full);
+
+            File.Move(temp, full, overwrite: true);
+        }
+        catch
+        {
+            TryDelete(temp);
+            throw;
+        }
+    }
+
+    //
+    // Copies a file that failed to parse to "<name>.damaged-<time>" beside it, and logs it at Error.
+    // Called by a store's Load just before it falls back to an empty default. Returns the copy, or
+    // null when there was nothing to copy or the copy itself failed.
+    //
+    // A store can be loaded many times while its file stays damaged, so an identical copy already
+    // there is reused rather than piling up another one each time.
+    //
+    public static string? PreserveDamaged(string path)
+    {
+        try
+        {
+            var full = Path.GetFullPath(path);
+            if (!File.Exists(full)) return null;
+
+            var directory = Path.GetDirectoryName(full)!;
+            var name = Path.GetFileName(full);
+            var bytes = File.ReadAllBytes(full);
+
+            var existing = Directory.EnumerateFiles(directory, name + DamagedMarker + "*")
+                .OrderByDescending(f => f, StringComparer.Ordinal)
+                .FirstOrDefault();
+
+            if (existing is not null && SameBytes(existing, bytes)) return existing;
+
+            var copy = UniquePath(Path.Combine(directory, $"{name}{DamagedMarker}{DateTime.Now.ToString(StampFormat, CultureInfo.InvariantCulture)}"));
+            File.WriteAllBytes(copy, bytes);
+
+            AppLog.Error("Data", $"{name} could not be read; kept it as {Path.GetFileName(copy)} and carried on without it");
+            Report(new SafeFileProblem(full, copy));
+
+            Prune(Directory.EnumerateFiles(directory, name + DamagedMarker + "*"), DamagedCopiesKept);
+            return copy;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            AppLog.Error("Data", $"{Path.GetFileName(path)} could not be read, and a copy of it could not be kept either: {ex.Message}");
+            return null;
+        }
+    }
+
+    // The folder a file's rolling backups go in: "backups\<file name>\" beside it.
+    public static string BackupFolderFor(string path)
+    {
+        var full = Path.GetFullPath(path);
+        return Path.Combine(Path.GetDirectoryName(full)!, BackupFolderName, Path.GetFileName(full));
+    }
+
+    //
+    // Backs the current file up before it is replaced - only if it still parses as JSON (a damaged
+    // file is PreserveDamaged's, and must not push a good backup out), and only if the newest backup
+    // is older than BackupInterval. Never stops the save: a backup that can't be written is logged.
+    //
+    private static void TryBackUp(string full)
+    {
+        try
+        {
+            if (!File.Exists(full)) return;
+            if (!ParsesAsJson(full)) return;
+
+            var folder = BackupFolderFor(full);
+            Directory.CreateDirectory(folder);
+
+            // Each backup is named for when it was taken, so its age is read from the name rather than
+            // from file times, which a copy carries over from the original.
+            var newest = Directory.EnumerateFiles(folder)
+                .Select(f => StampOf(Path.GetFileName(f)))
+                .Where(t => t is not null)
+                .Max();
+
+            if (newest is { } taken && DateTime.Now - taken < BackupInterval) return;
+
+            var backup = UniquePath(Path.Combine(
+                folder,
+                DateTime.Now.ToString(StampFormat, CultureInfo.InvariantCulture) + Path.GetExtension(full)));
+            File.Copy(full, backup);
+
+            Prune(Directory.EnumerateFiles(folder), BackupsKept);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            AppLog.Warn("Data", $"couldn't back up {Path.GetFileName(full)} before saving it: {ex.Message}");
+        }
+    }
+
+    private static bool ParsesAsJson(string full)
+    {
+        try
+        {
+            using var stream = File.OpenRead(full);
+            using var _ = JsonDocument.Parse(stream);
+            return true;
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
+
+    // Keeps the newest `keep` files by name - every name here starts with a sortable timestamp.
+    private static void Prune(IEnumerable<string> files, int keep)
+    {
+        foreach (var old in files.OrderByDescending(f => f, StringComparer.Ordinal).Skip(keep))
+            TryDelete(old);
+    }
+
+    // Two in the same millisecond only happen in tests, but a name that's taken is never reused.
+    private static string UniquePath(string path)
+    {
+        if (!File.Exists(path)) return path;
+
+        for (var n = 2; ; n++)
+        {
+            var candidate = $"{path}-{n}";
+            if (!File.Exists(candidate)) return candidate;
+        }
+    }
+
+    private const string StampFormat = "yyyyMMdd-HHmmss-fff";
+
+    // The time at the start of a backup's name, or null for anything else in the folder.
+    private static DateTime? StampOf(string fileName) =>
+        fileName.Length >= StampFormat.Length
+        && DateTime.TryParseExact(fileName[..StampFormat.Length], StampFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out var stamp)
+            ? stamp
+            : null;
+
+    private static bool SameBytes(string path, byte[] bytes)
+    {
+        try
+        {
+            var info = new FileInfo(path);
+            return info.Length == bytes.Length && File.ReadAllBytes(path).AsSpan().SequenceEqual(bytes);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            return false;
+        }
+    }
+
+    private static void TryDelete(string path)
+    {
+        try { File.Delete(path); }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { }
     }
 }
+
+/// <summary>A data file found damaged and kept aside (SafeFile.PreserveDamaged): the file, and the
+/// copy kept of it, when one could be kept.</summary>
+public sealed record SafeFileProblem(string Path, string? KeptAs);

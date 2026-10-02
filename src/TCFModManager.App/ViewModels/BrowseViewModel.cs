@@ -110,6 +110,21 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
             ShowInstalledChange();
         };
 
+        //
+        // The update watcher swapped fresh listings into the catalog. The cards on screen still
+        // hold the old ones, so the filter runs again over the patched list - on the same page -
+        // and the status dots pick up the new versions.
+        //
+        AppServices.UpdateWatcher.UpdatesFound += async (_, _) =>
+        {
+            await RefreshInstalledIndexAsync();
+            if (!HasLoadedResults) return;
+
+            var page = CurrentPage;
+            ApplyFilter();
+            if (page > 1) GoToPage(page, isNavigation: false);
+        };
+
         // Before the subscription below, so applying a saved default doesn't count as a change.
         SavedFilterDefaults.ApplyAttributes(AttributeOptions, _defaults?.Attributes);
 
@@ -845,7 +860,7 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
         var catalog = AppServices.ModCache.AllMods;
         var addons = AppServices.Addons.AllAddons;
         var sptVersion = AppServices.SptEnvironment.InstalledVersion;
-        var records = AppServices.InstallManifest.Load(installPath).Mods;
+        var records = AppServices.InstallManifest.Load().ModsFor(installPath);
 
         // Scan and match together off the UI thread. The match is the slow half - InstalledViewModel
         // has run it this way since the matching rewrite, and doing it inline here was the last
@@ -1283,16 +1298,26 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
     [RelayCommand]
     private Task InstallAsync(ModCardViewModel? card) => QueueForDownloadAsync(card, DownloadAction.Install, pinned: null);
 
+    // 1.19: the small button beside Install - the opposite of Monitor mode's setting, for this one mod.
+    [RelayCommand]
+    private Task InstallAlternateAsync(ModCardViewModel? card) =>
+        QueueForDownloadAsync(card, DownloadAction.Install, pinned: null, alternate: true);
+
     /// <summary>Subscribe on the item page: the same as Browse's, without the mod-page dialog for
-    /// the mod itself - its page is the one on screen. Its required items still get theirs.</summary>
-    public Task SubscribeFromItemPageAsync(ModCardViewModel card) =>
-        QueueForDownloadAsync(card, DownloadAction.Install, pinned: null, pageSeen: true);
+    /// the mod itself - its page is the one on screen. Its required items still get theirs.
+    /// <paramref name="alternate"/> is the small button beside it (Monitor mode's other way).</summary>
+    public Task SubscribeFromItemPageAsync(ModCardViewModel card, bool alternate = false) =>
+        QueueForDownloadAsync(card, DownloadAction.Install, pinned: null, pageSeen: true, alternate: alternate);
 
     /// <summary>Re-queues an already-installed mod's currently displayed version - the same pick
     /// Install would make - for a fresh download and reinstall. Shown on the card in Install's place
     /// once a mod is installed, e.g. to recover from corrupted or hand-edited files.</summary>
     [RelayCommand]
     private Task RedownloadAsync(ModCardViewModel? card) => QueueForDownloadAsync(card, DownloadAction.Redownload, pinned: null);
+
+    [RelayCommand]
+    private Task RedownloadAlternateAsync(ModCardViewModel? card) =>
+        QueueForDownloadAsync(card, DownloadAction.Redownload, pinned: null, alternate: true);
 
     /// <summary>Installs one particular version of a mod that is not installed - the item page's
     /// Versions tab. Same gate and queue as Subscribe.</summary>
@@ -1311,7 +1336,8 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
         Redownload,
     }
 
-    private async Task QueueForDownloadAsync(ModCardViewModel? card, DownloadAction action, ModVersion? pinned, bool pageSeen = false)
+    private async Task QueueForDownloadAsync(
+        ModCardViewModel? card, DownloadAction action, ModVersion? pinned, bool pageSeen = false, bool alternate = false)
     {
         if (card is null) return;
 
@@ -1323,6 +1349,7 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
         }
 
         var mod = card.Mod;
+        var downloadOnly = AppServices.ModPageGate.DownloadOnlyFor(alternate);
 
         // Every install from Browse, Home and the item page comes through here, so this is where
         // the app's own listing is refused, whatever link led to it - see IsSelf. (Mod lists refuse
@@ -1335,8 +1362,8 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
 
         // Same rule as the Installed page: a disabled mod's install record points at folders it no
         // longer occupies, so reinstalling over it would place files where nothing loads them and
-        // leave the disabled copy behind as a duplicate.
-        if (card.IsDisabled)
+        // leave the disabled copy behind as a duplicate. A download places nothing, so it is spared.
+        if (card.IsDisabled && !downloadOnly)
         {
             StatusMessage = Text(Strings.Browse_DisabledFormat, mod.Name);
             return;
@@ -1361,6 +1388,19 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
             if (chosen?.Version is null)
             {
                 StatusMessage = Text(Strings.Browse_NoVersionFormat, mod.Name);
+                return;
+            }
+
+            // 1.19: PickDisplayVersion falls back to the newest version when none supports the
+            // installed SPT - the card says so in red, and installing it is asked about rather than
+            // done silently. (A version picked by hand on the item page's Versions tab was chosen
+            // knowing that.)
+            if (SptCompatibility.IsIncompatible(chosen.SptVersionConstraint)
+                && !SptCompatibility.ConfirmAnyway(
+                    [SptCompatibility.Line(mod.Name ?? Strings.Browse_ThisMod, chosen.Version, chosen.SptVersionConstraint)],
+                    batch: false))
+            {
+                StatusMessage = Text(Strings.Install_IncompatibleNotInstalledFormat, mod.Name, AppServices.SptEnvironment.InstalledVersion);
                 return;
             }
 
@@ -1427,7 +1467,8 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
             }
         }
 
-        if (!await ConfirmFileClashesAsync(mod, chosenVersionId, chosenVersion, installPath))
+        // A download places nothing, so nothing of another mod's can be written over.
+        if (!downloadOnly && !await ConfirmFileClashesAsync(mod, chosenVersionId, chosenVersion, installPath))
         {
             StatusMessage = Cancelled();
             return;
@@ -1448,7 +1489,8 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
 
         // Just this item: the required ones were declined here, so the queue is not told to go
         // looking for them again.
-        var item = AppServices.DownloadQueue.Enqueue(target, chosenVersion, installPath, resolve, checkDependencies: missing is null);
+        var item = AppServices.DownloadQueue.Enqueue(
+            target, chosenVersion, installPath, resolve, checkDependencies: missing is null, downloadOnly: downloadOnly);
         if (withRequired && missing is { Count: > 0 }) AppServices.DownloadQueue.EnqueueDependencies(item, missing);
 
         StatusMessage = withRequired && missing is { Count: > 0 }
@@ -1495,7 +1537,7 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
             var own = FindInstalledMatch(mod);
 
             clashes = ModFileConflicts.Find(
-                installPath, paths, target, AppServices.InstallManifest.Load(installPath).Mods,
+                installPath, paths, target, AppServices.InstallManifest.Load().ModsFor(installPath),
                 full => own is not null && own.Entries.Any(e =>
                     string.Equals(System.IO.Path.GetFullPath(e.FolderPath), System.IO.Path.GetFullPath(full), StringComparison.OrdinalIgnoreCase)
                     || ModFileConflicts.IsInside(full, e.FolderPath)),

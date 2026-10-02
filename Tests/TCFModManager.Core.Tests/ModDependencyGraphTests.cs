@@ -178,50 +178,62 @@ public class ModDependencyGraphTests
         Assert.Empty(graph.DependenciesOf(mod));
     }
 
-    [Fact]
-    public void MissingOf_NamesHardDependenciesNothingEnabledProvides()
-    {
-        var disabledLibrary = Client("Library", "com.author.library", disabled: true);
-        var consumer = Client("Consumer", "com.author.consumer", false,
-            new ModDependencyRef("com.author.library", IsSoft: false),
-            new ModDependencyRef("com.someone.absent", IsSoft: false),
-            new ModDependencyRef("com.someone.optional", IsSoft: true));
-
-        var graph = ModDependencyGraph.Build([disabledLibrary, consumer]);
-        var missing = graph.MissingOf(consumer);
-
-        Assert.Equal(2, missing.Count);
-        Assert.Same(disabledLibrary, missing.Single(m => m.Identifier == "com.author.library").DisabledProvider);
-        Assert.Null(missing.Single(m => m.Identifier == "com.someone.absent").DisabledProvider);
-    }
-
-    [Fact]
-    public void MissingOf_IsEmpty_WhenAnEnabledCopySitsBesideADisabledOne()
-    {
-        var enabled = Client("Library", "com.author.library");
-        var disabled = Client("Library", "com.author.library", disabled: true);
-        var consumer = Client("Consumer", "com.author.consumer", false, new ModDependencyRef("com.author.library", IsSoft: false));
-
-        Assert.Empty(ModDependencyGraph.Build([enabled, disabled, consumer]).MissingOf(consumer));
-    }
-
-    [Fact]
-    public void MissingOf_NeverNamesWhatTheModProvidesItself()
-    {
-        InstalledMod Copy(bool disabled) => new()
+    private static InstalledMod Spt4Server(string name, string guid, params ModDependencyRef[] dependencies) =>
+        new()
         {
-            Name = "Kit",
-            Guid = "com.author.kit",
-            Guids = ["com.author.kit", "com.author.kit.api"],
-            Target = InstalledModTarget.Client,
-            FolderPath = Path.Combine("C:", "SPT", "BepInEx", disabled ? "plugins.disabled" : "plugins", "Kit"),
-            IsDisabled = disabled,
-            Dependencies = [new ModDependencyRef("com.author.kit.api", IsSoft: false)],
+            Name = name,
+            Guid = guid,
+            Guids = [guid],
+            Target = InstalledModTarget.Server,
+            FolderPath = Path.Combine("C:", "SPT", "SPT", "user", "mods", name),
+            Dependencies = dependencies,
         };
 
-        var enabled = Copy(false);
-        var graph = ModDependencyGraph.Build([enabled, Copy(true)]);
+    [Fact]
+    public void DependentsOf_MatchesAnSpt4ServerModByItsDeclaredGuid()
+    {
+        var library = Spt4Server("WTT-ServerCommonLib", "com.wtt.commonlib");
+        var consumer = Spt4Server("BlackDivServer", "com.blackdiv.tacticaltoaster",
+            new ModDependencyRef("com.wtt.commonlib", IsSoft: false, ">=2.0.0"));
 
-        Assert.Empty(graph.MissingOf(enabled));
+        var graph = ModDependencyGraph.Build([library, consumer]);
+
+        Assert.Same(consumer, Assert.Single(graph.DependentsOf(library)).Dependent);
+        Assert.Empty(graph.UnresolvedOf(consumer));
+    }
+
+    // SPT 4.x mods commonly give both halves one GUID. A server mod's dependency is on the other
+    // mod's server half, and a plugin's on its client half - never across.
+    [Fact]
+    public void Dependency_OnAGuidBothHalvesShare_ResolvesToTheDependantsOwnSide()
+    {
+        var libraryClient = Client("WTT-ClientCommonLib", "com.wtt.commonlib");
+        var libraryServer = Spt4Server("WTT-ServerCommonLib", "com.wtt.commonlib");
+        var serverConsumer = Spt4Server("BlackDivServer", "com.blackdiv.tacticaltoaster",
+            new ModDependencyRef("com.wtt.commonlib", IsSoft: false));
+        var clientConsumer = Client("BlackDiv", "com.blackdiv.tacticaltoaster", false,
+            new ModDependencyRef("com.wtt.commonlib", IsSoft: false));
+
+        var graph = ModDependencyGraph.Build([libraryClient, libraryServer, serverConsumer, clientConsumer]);
+
+        Assert.Same(libraryServer, Assert.Single(graph.DependenciesOf(serverConsumer)).Dependency);
+        Assert.Same(libraryClient, Assert.Single(graph.DependenciesOf(clientConsumer)).Dependency);
+    }
+
+    // Seen on the real 4.0 install: Foldables' plugin depends on "com.tyfon.uifixes", which only UI
+    // Fixes' SERVER half declares. BepInEx can't satisfy that from a server mod, so it stays
+    // unresolved rather than tying the plugin to the server half in the disable cascade.
+    [Fact]
+    public void Dependency_WithNoMatchOnItsOwnSide_StaysUnresolved()
+    {
+        var serverOnly = Spt4Server("Tyfon.UIFixes.Server", "com.tyfon.uifixes");
+        var clientConsumer = Client("ozen-Foldables", "com.ozen.foldables", false,
+            new ModDependencyRef("com.tyfon.uifixes", IsSoft: true));
+
+        var graph = ModDependencyGraph.Build([serverOnly, clientConsumer]);
+
+        Assert.Empty(graph.DependenciesOf(clientConsumer));
+        Assert.Empty(graph.DependentsOf(serverOnly));
+        Assert.Equal(["com.tyfon.uifixes"], graph.UnresolvedOf(clientConsumer));
     }
 }

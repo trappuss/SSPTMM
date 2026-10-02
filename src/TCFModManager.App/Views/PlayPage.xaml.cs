@@ -1,3 +1,4 @@
+using System.Windows;
 using System.Windows.Controls;
 using TCFModManager.App.ViewModels;
 
@@ -25,6 +26,7 @@ public partial class PlayPage : Page
             // and "Check again" covers the rest.
             //
             _ = AppServices.PreLaunchCheck.CheckAsync();
+            _ = ViewModel.RefreshConflictsAsync();
         };
 
         Unloaded += (_, _) => ViewModel.StopPolling();
@@ -43,4 +45,7 @@ public partial class PlayPage : Page
         if (e.ExtentHeightChange != 0) return;
         ViewModel.FollowServerLog = e.VerticalOffset + e.ViewportHeight >= e.ExtentHeight - 2;
     }
+
+    private void RoleShowMeHow_Click(object sender, RoutedEventArgs e) =>
+        AppNavigation.ShowHelp("options", "options.role");
 }

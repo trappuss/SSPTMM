@@ -33,14 +33,15 @@ public sealed class ModDownloadService(HttpClient? httpClient = null) : IDisposa
     public static string ValidatorPathFor(string partPath) => partPath + ".validator";
 
     // Downloads <paramref name="downloadUrl"/> to <paramref name="destinationPath"/>,
-    // reporting fractional progress (0.0-1.0) when a Content-Length header is available.
+    // reporting fractional progress (0.0-1.0) when a Content-Length header is available. Returns the
+    // file name the server offered, for a caller that saves the archive under a name of its own.
     //
-    // <paramref name="resumable"/>: what identifies the file (the server's ETag or Last-Modified,
+    // Fork - <paramref name="resumable"/>: what identifies the file (the server's ETag or Last-Modified,
     // and its full length) is kept beside it while it downloads, so a later attempt can resume it.
     // <paramref name="resume"/>: when part of the file is already there from an attempt that broke
     // off, only the rest is asked for - and joined on only when the server sends exactly the rest
     // of exactly the same file. Anything else is thrown away and started again.
-    public async Task DownloadAsync(
+    public async Task<DownloadResponse> DownloadAsync(
         string downloadUrl,
         string destinationPath,
         IProgress<double>? progress = null,
@@ -102,6 +103,8 @@ public sealed class ModDownloadService(HttpClient? httpClient = null) : IDisposa
         var range = response.Content.Headers.ContentRange;
 
         response.EnsureSuccessStatusCode();
+
+        var offeredName = OfferedFileName(response);
 
         var resuming = response.StatusCode == System.Net.HttpStatusCode.PartialContent;
         if (!resuming) have = 0;
@@ -189,6 +192,26 @@ public sealed class ModDownloadService(HttpClient? httpClient = null) : IDisposa
         // Unconditional, so the throttle above can never swallow the last fraction and leave a bar
         // stopped short of the end.
         progress?.Report(1.0);
+
+        return new DownloadResponse(offeredName, totalRead);
+    }
+
+    //
+    // The Content-Disposition file name, preferring the RFC 5987 filename* form, which is the one
+    // that carries non-ASCII names intact. Only the last path segment is kept: the header is the
+    // server's to write, and a name holding a folder is not one to follow out of the folder chosen.
+    //
+    private static string? OfferedFileName(HttpResponseMessage response)
+    {
+        var disposition = response.Content.Headers.ContentDisposition;
+        var name = disposition?.FileNameStar ?? disposition?.FileName;
+        if (string.IsNullOrWhiteSpace(name)) return null;
+
+        name = name.Trim().Trim('"').Replace('\\', '/');
+        var slash = name.LastIndexOf('/');
+        if (slash >= 0) name = name[(slash + 1)..];
+
+        return string.IsNullOrWhiteSpace(name) ? null : name;
     }
 
     private static (string Identity, long Length)? ReadValidator(string path)
@@ -237,3 +260,7 @@ public sealed class ModDownloadService(HttpClient? httpClient = null) : IDisposa
         if (_ownsHttpClient) _http.Dispose();
     }
 }
+
+// What a finished download reported: the name the server offered for the file, if any, and how many
+// bytes arrived.
+public sealed record DownloadResponse(string? OfferedFileName, long Bytes);

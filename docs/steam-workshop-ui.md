@@ -978,6 +978,63 @@ included. Reproduced here with a server process the test run could not read (the
 with InstallInUse; with no such process they pass). The tests now see no processes (TestSetup); the
 guard itself is unchanged, and still refuses to touch an install while SPT runs.
 
+## Twenty-first round: merged with the original's 1.19.0-beta (2026-10-02)
+
+The original app's 1.19.0-beta (92 commits since the last merge base) is merged in. The choice made
+for the one part both had rewritten - installing and removing mods - was **the original's**:
+
+- Removing a mod moves its files into a holding folder in the install, with **Undo** on Subscribed
+  items and "Keep removed mods" in Options deciding how long they stay.
+- SPT's, BepInEx's and the game's own files are never placed over or removed; a few areas take new
+  files only. A file another mod or a hand install put there is kept in `Data\overwritten` before
+  it is written over, and put back when the mod is removed.
+- **Dependencies and Conflicts** lists mods installed twice or shipping clashing files.
+- One list of install records again (`Data\installed-mods.json`), each record stamped with the SPT
+  install it was made in. The fork's per-install lists (`Data\InstallRecords\`) are moved into it,
+  stamped, the first time this build starts; the old folder is renamed `InstallRecords.before-1.19`
+  and kept. Where the same mod had a record in two installs, the install the app is set to wins and
+  the other stays in that folder (logged). Pages read only the records for the install the app is
+  set to (and unstamped ones), as the per-install lists did.
+
+The fork's own additions are kept on top of it:
+
+- Archives with a read-me, licence or picture beside the wrapper folder, or beside `BepInEx\` and
+  `user\` at the top - those files are never put in the SPT folder (the original places a loose
+  file in the install root where nothing is there yet; the fork keeps documents and pictures out).
+- `plugins\` and `patchers\` without the `BepInEx` folder around them.
+- Install from file, kept downloads and three downloads at once, copies of the SPT profiles before
+  an install or a removal, the per-install "SPT is running" check.
+- The warning before an install that would write over another mod's files (now worked out from the
+  same layout rules the install uses), and "needs X, which is not installed / is disabled" on
+  Subscribed items' cards.
+
+What the fork had that is gone with the original's install core:
+
+- The crash journal: an install stopped part-way (power cut, the app killed) is no longer put back
+  on the next start. Closing the window or quitting from the tray while one is being placed still
+  asks first.
+- The fork's own record of files an install replaced (`ReplacedFiles`): the original keeps its own
+  copies in `Data\overwritten` from now on. Copies the fork made before the merge stay in
+  `InstallRecords.before-1.19\<install>\ReplacedFiles` and are not put back by the app.
+- A `BepInEx\config\*.cfg` in an archive is now placed over the user's (the user's kept in
+  `Data\overwritten` and put back on removal), where the fork never placed one.
+
+From the original, in the Steam layout:
+
+- **Help** is a hub tab, and the "?" in the title bar and F1 open it at the page on screen.
+- **Monitor mode** (Options > Install mode): every install button can download only. The item page
+  has a small button beside Subscribe for the other way round, for that one mod; Update all and
+  collections follow the setting.
+- Update notifications and running in the tray, one copy of the app per folder (a second start
+  brings the first forward), server map reporting, and the SPT-version question before installing
+  a version that is not for the installed SPT.
+- Options is laid out the original's way, in sections; the fork's settings sit in it (Starting the
+  game, Tabs and background and Scrolling under General; Downloads and Unsubscribing under
+  Installing mods; SPT profile backups under Advanced), with On/Off switches like the rest.
+
+Not done in this round: Help's own text still names the original's sidebar and page names
+("Installed", "Browse" in the sidebar).
+
 ## Values that could not be measured (marked HUNCH in the source)
 
 - The smooth-scroll distance and time (100px, 250ms) - chosen to feel like a browser, not measured.

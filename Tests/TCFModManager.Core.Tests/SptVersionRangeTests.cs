@@ -108,15 +108,16 @@ public class SptVersionRangeTests
     }
 
     [Theory]
-    // A soft lower-bound pin (no explicit narrower upper bound within that same line) is really
-    // just "the patch I built against" - SAIN 4.5.0 ships "~4.1.3" and must not show incompatible
-    // with SPT 4.1.1 or 4.1.2. Later patches in the line still pass too.
-    [InlineData("~4.1.3", "4.1.1", true)]
+    // The lower bound is honoured as written (2026-10-02): a server mod built against a newer patch
+    // won't load on an older one - PityLoot "~4.1.6" on SPT 4.1.5. Later patches in the line pass.
+    [InlineData("~4.1.6", "4.1.5", false)]
+    [InlineData("~4.1.3", "4.1.1", false)]
     [InlineData("~4.1.3", "4.1.3", true)]
     [InlineData("~4.1.3", "4.1.9", true)]
     [InlineData("~4.1.3", "4.0.13", false)]
     [InlineData("~4.1.3", "4.2.0", false)]
-    [InlineData("^4.0.13", "4.0.5", true)]
+    [InlineData("^4.0.13", "4.0.5", false)]
+    [InlineData("^4.0.13", "4.1.5", true)]
     // But an EXPLICIT narrow range within one line is a real, deliberate exclusion several mods in
     // Chris's catalog use on purpose (e.g. HandsAreNotBusy, LetMeRightClick "broken on 4.1.3+";
     // "Temporary Fixes" "broken on 4.0.14+") and must keep failing outside that stated window.
@@ -125,18 +126,15 @@ public class SptVersionRangeTests
     [InlineData(">=4.1.0 <4.1.3", "4.1.4", false)]
     [InlineData(">=4.0.0 <=4.0.13", "4.0.5", true)]
     [InlineData(">=4.0.0 <=4.0.13", "4.0.20", false)]
-    // An open-ended lower bound with no upper clause at all ("&gt;=4.1.3", nothing else) is ALSO
-    // just a soft pin, not a real floor (confirmed against NoMenuFPSLimit, mod 2364 - its newest
-    // version ships bare "&gt;=4.1.3" with no other 4.1 version at all, and Chris confirmed his install
-    // is 4.1.1/4.1.2 and expects it green). Only an explicit upper bound is still respected.
-    [InlineData(">=4.1.3", "4.1.1", true)]
+    // An open-ended lower bound is a real floor too.
+    [InlineData(">=4.1.3", "4.1.1", false)]
     [InlineData(">=4.1.3", "4.1.3", true)]
     [InlineData(">=4.1.3", "4.1.9", true)]
     [InlineData(">=4.1.3", "4.0.13", false)]
     // No upper bound at all means exactly that - 4.2.0 and beyond satisfy it too, same as plain
     // ">=" always has (this half isn't the line-relaxation, it's ordinary ">=" semantics).
     [InlineData(">=4.1.3", "4.2.0", true)]
-    public void IsSatisfiedBy_SoftLowerBoundPinsMatchTheWholeLineButExplicitNarrowRangesStayStrict(
+    public void IsSatisfiedBy_LowerBoundsAreFloorsAndExplicitNarrowRangesStayStrict(
         string constraint, string version, bool expected) =>
         Assert.Equal(expected, SptVersionMatcher.IsSatisfiedBy(constraint, version));
 
@@ -148,15 +146,14 @@ public class SptVersionRangeTests
     }
 
     [Theory]
-    // A bare exact constraint still runs on any patch of its own line - SPT doesn't break mod
-    // compatibility between patches, so a mod pinned to "4.1.2" must not show as incompatible with
-    // an installed SPT 4.1.1 (or 4.1.3, 4.1.4, ...). Only a different line actually disqualifies it.
-    [InlineData("4.1.2", "4.1.1", true)]
+    // A bare exact constraint is the release the author built against: it runs on that patch and
+    // later ones of its own line, never an earlier patch or another line.
+    [InlineData("4.1.2", "4.1.1", false)]
     [InlineData("4.1.2", "4.1.2", true)]
     [InlineData("4.1.2", "4.1.4", true)]
     [InlineData("4.1.2", "4.0.13", false)]
     [InlineData("4.1.2", "4.2.0", false)]
-    public void IsSatisfiedBy_BareExactMatchesAnyPatchOnItsOwnLine(string constraint, string version, bool expected) =>
+    public void IsSatisfiedBy_BareExactMatchesThatPatchAndLaterOnItsOwnLine(string constraint, string version, bool expected) =>
         Assert.Equal(expected, SptVersionMatcher.IsSatisfiedBy(constraint, version));
 
     [Fact]

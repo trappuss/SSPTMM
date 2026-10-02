@@ -210,7 +210,7 @@ public sealed class ProfileBackups(string? root = null, int keep = 10)
             var before = Directory.Exists(folder) ? Take(installPath, BeforeRestore, force: false, spare: backup.Path) : null;
 
             Directory.CreateDirectory(folder);
-            foreach (var (destination, bytes) in files) SafeFile.WriteAllBytes(destination, bytes);
+            foreach (var (destination, bytes) in files) SafeFile.WriteBytes(destination, bytes);
 
             AppLog.Info("Profiles", $"restored {System.IO.Path.GetFileName(backup.Path)} into {folder}");
             return before;

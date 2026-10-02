@@ -9,47 +9,70 @@ public enum InstalledModTarget
 
 //
 // One dependency an installed mod declares about itself. Identifier is a BepInEx plugin GUID for a
-// client mod (from [BepInDependency]), a package.json package name for an SPT 3 server mod (from
-// "modDependencies"), or another server mod's ModGuid for an SPT 4 one (from its metadata's
-// ModDependencies). A soft dependency is one the dependent still loads without.
+// client mod (from [BepInDependency]), a package.json package name for an SPT 3.x server mod (from
+// "modDependencies"), or a mod GUID for an SPT 4.x server mod (from its ModDependencies). A soft
+// dependency is one the dependent still loads without.
 //
-public sealed record ModDependencyRef(string Identifier, bool IsSoft);
+// VersionRange is the version the dependant asks for, as written ("~1.0.0", ">=2.0.0"), when it
+// declared one. Carried, not judged: compare it with ModVersionMatcher, never SptVersionMatcher.
+//
+public sealed record ModDependencyRef(string Identifier, bool IsSoft, string? VersionRange = null);
+
+//
+// One DLL inside an enabled client entry, for the conflict check (OPEN-11 C3). RelativePath is from
+// the entry's own folder, forward-slash; a loose DLL's is just its file name. AssemblyName and
+// AssemblyVersion come from the assembly's own definition and are null for a file that isn't a
+// managed assembly (a native DLL), which is then known only by its file name.
+//
+public sealed record ModAssembly(string RelativePath, string? AssemblyName, string? AssemblyVersion, long Size)
+{
+    public string FileName => RelativePath[(RelativePath.LastIndexOf('/') + 1)..];
+}
 
 // One mod found on disk by InstalledModScanner. Represents what's installed locally, not a catalog listing.
 public sealed class InstalledMod
 {
     public required string Name { get; init; }
 
-    // Null when no version could be determined.
+    //
+    // The version the mod says it is: package.json's "version" for an SPT 3.x server mod, the
+    // declared version for an SPT 4.x server mod or a client plugin ([BepInPlugin]'s third
+    // argument), and the DLL's file version only when nothing is declared. Null when no version
+    // could be determined.
+    //
     public string? Version { get; init; }
 
     //
-    // A plugin's own version, from its [BepInPlugin] - the one BepInEx loads it as - when that differs
-    // from Version (the DLL's file version). Which of the two a published version is, is decided
-    // where the published versions are known (InstalledModCardViewModel.PluginVersionOf).
+    // The DLL's own file version, whatever Version ended up as. Authors routinely leave it at
+    // 1.0.0.0, which is why it is only a fallback - kept for the "Files report ..." line.
     //
-    public string? PluginVersion { get; init; }
+    public string? FileVersion { get; init; }
 
     //
-    // The GUID that stands for this mod's identity - the first [BepInPlugin] GUID found in its
-    // folder, or an SPT 4 server mod's ModGuid (from the metadata class in its DLL). Null for an
-    // SPT 3 server mod (package.json), and wherever none could be read. Catalog matching and the
-    // dependency graph key on this, so it stays one value per mod.
+    // The name the mod gives itself - [BepInPlugin]'s name, or an SPT 4.x server mod's declared
+    // Name - when it declares one. Display only: Name stays the folder name, since groups, pins
+    // and list entries are keyed on it.
     //
-    // A mod's two halves often share one GUID (SAIN's plugin and server mod are both "me.sol.sain")
-    // and often do not ("com.chazut.orbit" and "com.chazut.orbit.server"). A client dependency is
-    // only ever met by a client GUID, a server one by a server GUID - see ModDependencyGraph.
+    public string? DeclaredName { get; init; }
+
+    // SPT 4.x server mods only: the SPT range the mod says it was built for, e.g. "~4.0.0".
+    public string? SptVersion { get; init; }
+
+    //
+    // The GUID that stands for this mod's identity - the first [BepInPlugin] GUID found in a client
+    // mod's folder, or an SPT 4.x server mod's declared ModGuid. Null for an SPT 3.x server mod, and
+    // whenever none could be read. Catalog matching and the dependency graph key on this, so it
+    // stays one value per mod.
     //
     public string? Guid { get; init; }
 
     //
-    // Every [BepInPlugin] GUID found in this mod's folder, not just the one above (for a server
-    // mod, its one ModGuid).
+    // Every [BepInPlugin] GUID found in this mod's folder, not just the one above.
     //
     // A single mod folder routinely holds several plugin DLLs - an API, a config UI, a utilities
     // assembly - each registering its own GUID, and each keeping its own file in BepInEx\config
     // named after it. Keeping only the first would leave all the others' configs looking like they
-    // belonged to no installed mod at all.
+    // belonged to no installed mod at all. A server mod has at most one - its declared ModGuid.
     //
     public IReadOnlyList<string> Guids { get; init; } = [];
 
@@ -58,7 +81,7 @@ public sealed class InstalledMod
     public IReadOnlyList<string> AllGuids =>
         Guids.Count > 0 ? Guids : Guid is null ? [] : [Guid];
 
-    // Populated only for server mods, from package.json's "author" field or the DLL's metadata.
+    // Populated only for server mods, from package.json's "author" field or the declared Author.
     public string? Author { get; init; }
 
     public required InstalledModTarget Target { get; init; }
@@ -84,13 +107,13 @@ public sealed class InstalledMod
     //
     public bool IsDisabled { get; init; }
 
-    //
-    // True for a server mod whose name for dependencies could not be read - an SPT 4 mod whose DLL
-    // gives no GUID as a plain literal. A server dependency nothing installed is found for may then
-    // be this one, so none is called missing (see ModDependencyGraph).
-    //
-    public bool IdentityUnknown { get; init; }
-
     // What this mod declares it needs, read from its own files. Empty when it declares nothing.
     public IReadOnlyList<ModDependencyRef> Dependencies { get; init; } = [];
+
+    //
+    // Every DLL BepInEx would load from this entry - recursive, as BepInEx searches plugins - with its
+    // assembly identity. Filled for enabled client entries only: a disabled one isn't loaded, so it
+    // can't conflict, and a server mod's DLLs are loaded by SPT one mod at a time.
+    //
+    public IReadOnlyList<ModAssembly> Assemblies { get; init; } = [];
 }

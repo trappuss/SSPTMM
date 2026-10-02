@@ -139,6 +139,9 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
     // Adds a request to the end of the queue and returns immediately; the download/install
     // happens later when the worker reaches it. When <paramref name="dependencyOf"/> is set, the
     // new item is registered against it so cancelling that item cancels this one too.
+    //
+    // <paramref name="downloadOnly"/> saves the archive for the user to install instead (Monitor
+    // mode). A dependency takes its parent's value, whatever is passed here.
     public DownloadQueueItemViewModel Enqueue(
         InstallTarget target,
         string versionLabel,
@@ -146,9 +149,19 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
         Func<Task<ModVersion?>> resolveVersion,
         bool checkDependencies = true,
         DownloadQueueItemViewModel? dependencyOf = null,
-        long? totalBytes = null)
+        long? totalBytes = null,
+        bool downloadOnly = false,
+        string? downloadSubfolder = null)
     {
-        var item = new DownloadQueueItemViewModel(target, versionLabel, installPath, resolveVersion, checkDependencies, totalBytes);
+        if (dependencyOf is not null)
+        {
+            downloadOnly = dependencyOf.DownloadOnly;
+            downloadSubfolder = dependencyOf.DownloadSubfolder;
+        }
+
+        var item = new DownloadQueueItemViewModel(
+            target, versionLabel, installPath, resolveVersion, checkDependencies, totalBytes,
+            downloadOnly, downloadSubfolder);
         dependencyOf?.AddDependency(item);
         item.PropertyChanged += OnItemChanged;
 
@@ -356,6 +369,15 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
             token.ThrowIfCancellationRequested();
             if (token != item.Token) return;
 
+            // 1.19: Download only keeps the archive (and its record) without installing it - it never
+            // takes an install turn. Fork: it takes one of the download slots like any other download,
+            // and runs beside this loop rather than in it, so the items queued after it are not held up.
+            if (item.DownloadOnly)
+            {
+                _ = SaveOnlyAsync(item, version, token);
+                return;
+            }
+
             item.Version = version;
             _installs.Writer.TryWrite(new InstallTurn(item, token, FetchArchiveAsync(item, version, token)));
         }
@@ -535,9 +557,22 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
 
             var installed = Text(Strings.Downloads_InstalledFormat, item.ModName, item.VersionLabel);
 
-            item.StatusMessage = configs is null
-                ? installed
-                : string.Join(Strings.Common_SentenceSeparator, installed, configs);
+            //
+            // What the install deliberately didn't do is said on the card (D5): SPT's own files it left
+            // alone - named one per line in the tooltip - and originals it kept to put back later (D22).
+            //
+            var skipped = result.SkippedProtected ?? [];
+            var keptSpt = skipped.Count > 0 ? Strings.Downloads_KeptSptFiles(skipped.Count, skipped.Count) : null;
+            var keptOriginals = result.OriginalsKept > 0
+                ? Strings.Downloads_KeptOriginals(result.OriginalsKept, result.OriginalsKept)
+                : null;
+
+            item.StatusMessage = string.Join(
+                Strings.Common_SentenceSeparator,
+                new[] { installed, configs, keptSpt, keptOriginals }.Where(s => !string.IsNullOrEmpty(s)));
+            item.StatusDetail = skipped.Count > 0
+                ? string.Join(Environment.NewLine, new[] { item.StatusMessage, "" }.Concat(skipped))
+                : null;
             ItemInstalled?.Invoke(this, EventArgs.Empty);
         }
         catch (Exception ex)
@@ -622,6 +657,73 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
 
         item.Status = DownloadQueueItemStatus.Failed;
     }
+
+    // Fork: Download only, in a download slot. Failures settle the card here - nothing awaits this.
+    private async Task SaveOnlyAsync(DownloadQueueItemViewModel item, ModVersion version, CancellationToken token)
+    {
+        var slot = false;
+        try
+        {
+            item.StatusMessage = Strings.Downloads_WaitingToDownload;
+            await _downloadSlots.WaitAsync(token);
+            slot = true;
+
+            if (token != item.Token) return;
+            await SaveArchiveAsync(item, version);
+        }
+        catch (Exception ex)
+        {
+            if (ex is not OperationCanceledException)
+                AppLog.Error("Downloads", $"saving {item.ModName} failed: {ex}");
+            if (token == item.Token) Settle(item, ex);
+        }
+        finally
+        {
+            if (slot) _downloadSlots.Release();
+        }
+    }
+
+    //
+    // Monitor mode's branch: the same download, saved to the user's folder instead of installed.
+    // Nothing in the SPT install is touched, so there is no running-SPT check and no ItemInstalled -
+    // what is on disk has not changed.
+    //
+    private static async Task SaveArchiveAsync(DownloadQueueItemViewModel item, ModVersion version)
+    {
+        var folder = DownloadFolders.Resolve(new SettingsService().Load().Monitor.DownloadFolder);
+
+        item.Status = DownloadQueueItemStatus.Downloading;
+        item.StatusMessage = Text(Strings.Downloads_SavingToFormat, folder);
+
+        var downloadProgress = new Progress<double>(p => item.Progress = p);
+
+        var result = await AppServices.ModArchive.SaveArchiveAsync(
+            item.Target, version, folder, item.InstallPath, item.DownloadSubfolder, downloadProgress, item.Token);
+
+        item.Status = DownloadQueueItemStatus.Completed;
+        item.Progress = 1.0;
+        item.SavedPath = result.Record.ArchivePath;
+
+        var saved = Text(
+            result.Record.Unrecognised ? Strings.Downloads_SavedUnrecognisedFormat : Strings.Downloads_SavedFormat,
+            item.ModName,
+            item.VersionLabel,
+            result.Record.ArchivePath);
+
+        item.StatusMessage = ReplacesConfigs(result.Record, item.InstallPath)
+            ? string.Join(Strings.Common_SentenceSeparator, saved, Strings.Downloads_SavedConfigsNote)
+            : saved;
+    }
+
+    //
+    // §8: config protection only runs on an install this app does. Said when the archive carries a
+    // server config file that is already on disk - an update the user will be copying over their
+    // own settings - and not for a first download, where there is nothing of theirs to lose.
+    //
+    private static bool ReplacesConfigs(DownloadedModRecord download, string installPath) =>
+        download.ExpectedFiles.Any(f =>
+            ModConfigFiles.IsServerModConfig(f.Path)
+            && File.Exists(Path.Combine(installPath, f.Path.Replace('/', Path.DirectorySeparatorChar))));
 
     // Resolves item's full dependency tree for the version being installed, cross-references it against
     // a fresh disk scan + catalog match, and offers to queue anything missing via one
@@ -830,7 +932,7 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
         await AppServices.ModCache.EnsureLoadedAsync();
         var scanned = await Task.Run(() => InstalledModScanner.Scan(installPath));
         var installedMatches = InstalledModCardViewModel.BuildFrom(
-            scanned, AppServices.ModCache.AllMods, sptVersion, AppServices.InstallManifest.Load(installPath).Mods,
+            scanned, AppServices.ModCache.AllMods, sptVersion, AppServices.InstallManifest.Load().ModsFor(installPath),
             AppServices.Addons.AllAddons);
 
         // Every dependency node is a mod, so addon cards - whose ModId is an addon id - are left

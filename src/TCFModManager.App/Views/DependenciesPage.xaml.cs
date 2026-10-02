@@ -25,12 +25,15 @@ public partial class DependenciesPage : Page
         AddHandler(PreviewMouseWheelEvent, new MouseWheelEventHandler(Page_PreviewMouseWheel), true);
     }
 
-    // Resolves on first open only; re-navigating reuses what's already there, and Refresh re-runs it.
+    // Dependencies resolve on first open only - re-navigating reuses them, and Refresh re-runs them.
+    // Conflicts are rechecked on every open: they come from the install alone and change as soon as a
+    // mod is installed, disabled or removed elsewhere in the app.
     private async void DependenciesPage_Loaded(object sender, RoutedEventArgs e)
     {
-        if (ViewModel.HasLoaded || ViewModel.IsBusy) return;
+        if (ViewModel.IsBusy) return;
 
-        await ViewModel.RefreshCommand.ExecuteAsync(null);
+        if (ViewModel.HasLoaded) await ViewModel.RefreshConflictsCommand.ExecuteAsync(null);
+        else await ViewModel.RefreshCommand.ExecuteAsync(null);
     }
 
     // Lets the wheel scroll the dependency tree from anywhere on the page, not just while

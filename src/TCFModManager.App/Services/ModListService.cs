@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Windows;
@@ -23,6 +24,26 @@ public sealed record ModListInstall(
 // one, worked out against the same scan, or a rescan between the two silently changes what happens.
 //
 public sealed record ModListPreview(ModList List, ModListPlan Plan, ModListInstall Install);
+
+//
+// Monitor mode's say in a list apply (§9, R6): whether its installs and updates are saved for the
+// user to install instead, and the subfolder a list's downloads go into. Enables and disables run
+// either way - they move folders inside the install and place nothing new.
+//
+public sealed record ModListDownloadMode(bool DownloadOnly, string? Subfolder)
+{
+    public static ModListDownloadMode Install { get; } = new(false, null);
+
+    // Read at the moment it is needed, so a list applied just after the Options setting changed
+    // follows the new setting.
+    public static ModListDownloadMode For(ModList list)
+    {
+        var monitor = new SettingsService().Load().Monitor;
+        if (monitor.InstallMode != InstallMode.DownloadOnly) return Install;
+
+        return new ModListDownloadMode(true, monitor.DownloadListSubfolders ? list.Name : null);
+    }
+}
 
 //
 // One mod the add-a-mod picker can put on a list: the entry a list would store for it, plus the
@@ -74,7 +95,7 @@ public sealed class ModListService
         await AppServices.ModCache.EnsureLoadedAsync();
         await AppServices.Addons.EnsureLoadedAsync();
 
-        var records = AppServices.InstallManifest.Load(installPath).Mods;
+        var records = AppServices.InstallManifest.Load().ModsFor(installPath);
         var catalog = AppServices.ModCache.AllMods;
         var sptVersion = AppServices.SptEnvironment.InstalledVersion;
 
@@ -172,11 +193,12 @@ public sealed class ModListService
         prompts ??= ModListPrompts.Reject;
 
         await BackUpProfilesAsync(preview.Install.InstallPath);
+        var mode = ModListDownloadMode.For(preview.List);
 
         var result = await ModListApplier.ApplyAsync(
             preview.Plan,
             preview.Install.Candidates,
-            (fetches, token) => FetchAsync(preview.Install, fetches, prompts, token),
+            (fetches, token) => FetchAsync(preview.Install, fetches, prompts, mode, token),
             new ModListApplyOptions
             {
                 // Named after the list being applied, not "Before X" - the snapshot is only ever
@@ -214,14 +236,9 @@ public sealed class ModListService
     // A copy of the SPT profiles from before the list changes the install, off the UI thread - not
     // while SPT runs (the apply is refused then, and its server may be writing them).
     //
-    // Also where an install left half-done is finished first (or the apply refused while it cannot
-    // be): the list's enables and disables must not move files that undo is about to put back.
-    //
     private static async Task BackUpProfilesAsync(string? installPath)
     {
         if (string.IsNullOrWhiteSpace(installPath)) return;
-
-        await Task.Run(() => AppServices.ModInstall.EnsureNothingPending(installPath));
 
         if (ModInstallService.RunningBlockers(installPath).Count == 0)
             await Task.Run(() => AppServices.ProfileBackups.BackupIfChanged(installPath, ProfileBackups.BeforeList));
@@ -249,7 +266,8 @@ public sealed class ModListService
         var result = await ModListApplier.ApplyAsync(
             preview.Plan,
             preview.Install.Candidates,
-            (fetches, token) => FetchAsync(preview.Install, fetches, prompts ?? ModListPrompts.Reject, token),
+            (fetches, token) => FetchAsync(
+                preview.Install, fetches, prompts ?? ModListPrompts.Reject, ModListDownloadMode.For(snapshot), token),
             new ModListApplyOptions
             {
                 SptVersion = preview.Install.SptVersion,
@@ -282,6 +300,7 @@ public sealed class ModListService
         ModListInstall install,
         IReadOnlyList<ModListAction> fetches,
         ModListPrompts prompts,
+        ModListDownloadMode mode,
         CancellationToken ct)
     {
         var resolution = await ResolveAsync(fetches, install.Candidates, install.SptVersion, ct);
@@ -304,6 +323,24 @@ public sealed class ModListService
         if (downloads.Count == 0) return new ModListFetchOutcome([], failed, false);
 
         //
+        // Versions that don't support the installed SPT are asked about once for the batch, like a
+        // single install. No leaves those out, each named as a failure, and fetches the rest.
+        //
+        var incompatible = downloads.Where(d => SptCompatibility.IsIncompatible(d.Version.SptVersionConstraint)).ToList();
+        if (incompatible.Count > 0 && !prompts.InstallIncompatible(incompatible))
+        {
+            foreach (var d in incompatible)
+            {
+                failed.Add(new ModListFetchFailure(
+                    d.Action.Name,
+                    Text(Strings.ModList_ReasonIncompatibleFormat, d.Version.Version, AppServices.SptEnvironment.InstalledVersion)));
+            }
+
+            downloads.RemoveAll(incompatible.Contains);
+            if (downloads.Count == 0) return new ModListFetchOutcome([], failed, false);
+        }
+
+        //
         // The same gate a manual install goes through, asked once for the whole batch rather than
         // once per mod - ConfirmAll is the existing path for exactly this, and it honours the
         // Options switch that turns the gate off.
@@ -311,7 +348,7 @@ public sealed class ModListService
         if (!prompts.ConfirmModPages(downloads))
             return new ModListFetchOutcome([], failed, Cancelled: true);
 
-        return await QueueAsync(install.InstallPath, downloads, failed, ct);
+        return await QueueAsync(install.InstallPath, downloads, failed, mode, ct);
     }
 
     //
@@ -323,27 +360,35 @@ public sealed class ModListService
         string installPath,
         IReadOnlyList<ModListDownload> downloads,
         List<ModListFetchFailure> failed,
+        ModListDownloadMode mode,
         CancellationToken ct)
     {
         var waiting = new List<(ModListDownload Download, DownloadQueueItemViewModel Item)>();
+        var fetched = new List<ModListAction>();
 
         foreach (var download in downloads)
         {
             var version = download.Version;
+
+            if (mode.DownloadOnly && AlreadySaved(download.Target, version))
+            {
+                fetched.Add(download.Action);
+                continue;
+            }
 
             var item = await EnqueueAsync(
                 download.Target,
                 version.Version ?? download.Action.TargetVersion ?? "latest",
                 installPath,
                 () => Task.FromResult<ModVersion?>(version),
-                version.ContentLength);
+                version.ContentLength,
+                mode);
 
             waiting.Add((download, item));
         }
 
         using var cancelling = ct.Register(() => CancelAll(waiting.Select(w => w.Item)));
 
-        var fetched = new List<ModListAction>();
         var cancelled = false;
 
         foreach (var (download, item) in waiting)
@@ -640,18 +685,40 @@ public sealed class ModListService
         return completion.Task;
     }
 
+    //
+    // A download-only apply of a list the user hasn't finished installing by hand yet: the same
+    // version is still pending in the ledger and its archive is still where it was saved. Fetching
+    // it again would only leave a "Foo (2).zip" beside the first, every time the list is applied.
+    //
+    private static bool AlreadySaved(InstallTarget target, ModVersion version)
+    {
+        if (AppServices.DownloadLedger.Find(target.Id, target.IsAddon) is not
+            { State: DownloadState.Pending } saved) return false;
+
+        var same = (version.Id != 0 && saved.VersionId == version.Id)
+            || string.Equals(saved.Version, version.Version, StringComparison.Ordinal);
+
+        if (!same || !File.Exists(saved.ArchivePath)) return false;
+
+        AppLog.Info("ModLists", $"{target.Name} {saved.Version} already saved at {saved.ArchivePath}; not fetched again");
+        return true;
+    }
+
     // The queue's list is bound to the Downloads page, so it is only ever touched on the UI thread.
     private static Task<DownloadQueueItemViewModel> EnqueueAsync(
         InstallTarget target,
         string versionLabel,
         string installPath,
         Func<Task<ModVersion?>> resolveVersion,
-        long? totalBytes)
+        long? totalBytes,
+        ModListDownloadMode mode)
     {
         // The size is passed in rather than left for the worker to discover: every version is
         // already resolved by this point, so the whole apply can be sized before it starts.
         DownloadQueueItemViewModel Enqueue() =>
-            AppServices.DownloadQueue.Enqueue(target, versionLabel, installPath, resolveVersion, totalBytes: totalBytes);
+            AppServices.DownloadQueue.Enqueue(
+                target, versionLabel, installPath, resolveVersion, totalBytes: totalBytes,
+                downloadOnly: mode.DownloadOnly, downloadSubfolder: mode.Subfolder);
 
         var dispatcher = Application.Current?.Dispatcher;
 

@@ -11,12 +11,14 @@
     xmlns:controls="clr-namespace:System.Windows.Controls;assembly=PresentationFramework"
     xmlns:converters="clr-namespace:TCFModManager.App.Converters"
     xmlns:loc="clr-namespace:TCFModManager.App.Localization"
+    xmlns:app="clr-namespace:TCFModManager.App"
     Title="{loc:Str Nav_Dependencies}"
     Loaded="DependenciesPage_Loaded"
     ScrollViewer.CanContentScroll="False">
     <Page.Resources>
         <controls:BooleanToVisibilityConverter x:Key="BoolToVisibility" />
         <converters:CountToVisibilityConverter x:Key="HasItems" />
+        <converters:NullToVisibilityConverter x:Key="NullToCollapsed" />
     </Page.Resources>
     <!-- Scroll-anywhere is wired up in code-behind (see the constructor and
          Page_PreviewMouseWheel in DependenciesPage.xaml.cs) as a PreviewMouseWheel handler
@@ -60,24 +62,113 @@
             Foreground="{DynamicResource TextFillColorSecondaryBrush}"
             Text="{Binding StatusMessage}" />
 
-        <!-- Shown once a scan has finished and found nothing to report. -->
-        <TextBlock
-            Grid.Row="2"
-            MaxWidth="420"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            TextAlignment="Center"
-            TextWrapping="Wrap"
-            Foreground="{DynamicResource TextFillColorTertiaryBrush}"
-            Text="{loc:Str Dependencies_Empty}"
-            Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibility}}" />
-
         <ScrollViewer
             x:Name="TreesScrollViewer"
             FocusVisualStyle="{x:Null}"
             Grid.Row="2"
-            VerticalScrollBarVisibility="Auto"
-            Visibility="{Binding Trees.Count, Converter={StaticResource HasItems}}">
+            VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+            <!-- Conflicts first (OPEN-11): a mod that won't load matters more than one that's behind. -->
+            <TextBlock
+                Margin="0,0,0,8"
+                FontSize="16"
+                FontWeight="SemiBold"
+                Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                Text="{loc:Str Conflicts_Header}"
+                Visibility="{Binding ConflictsChecked, Converter={StaticResource BoolToVisibility}}" />
+            <TextBlock
+                Margin="0,0,0,16"
+                TextWrapping="Wrap"
+                Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                Text="{loc:Str Conflicts_None}"
+                Visibility="{Binding ShowNoConflicts, Converter={StaticResource BoolToVisibility}}" />
+            <ItemsControl Focusable="False" Margin="0,0,0,16" ItemsSource="{Binding Conflicts}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <ui:Card Margin="0,0,0,8" Padding="16,12">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon
+                                        Margin="0,0,10,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="18"
+                                        Symbol="ErrorCircle24"
+                                        Foreground="{DynamicResource SystemFillColorCriticalBrush}" />
+                                    <TextBlock VerticalAlignment="Center" FontWeight="SemiBold" Text="{Binding Title}" />
+                                </StackPanel>
+                                <TextBlock
+                                    Margin="28,4,0,8"
+                                    TextWrapping="Wrap"
+                                    Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                    Text="{Binding Explanation}" />
+                                <ItemsControl Focusable="False" Margin="28,0,0,0" ItemsSource="{Binding Members}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Style="{StaticResource HoverRow}">
+                                                <Grid MinHeight="34">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                                        <TextBlock TextTrimming="CharacterEllipsis">
+                                                            <Run Text="{Binding ModName, Mode=OneWay}" />
+                                                            <Run Text="{Binding Location, StringFormat=' - {0}', Mode=OneWay}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                                        </TextBlock>
+                                                        <TextBlock
+                                                            FontSize="11"
+                                                            TextTrimming="CharacterEllipsis"
+                                                            Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                                            Text="{Binding Detail}"
+                                                            Visibility="{Binding Detail, Converter={StaticResource NullToCollapsed}}" />
+                                                    </StackPanel>
+                                                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <ui:Button
+                                                        Margin="0,0,4,0"
+                                                        Padding="10,2"
+                                                        VerticalAlignment="Center"
+                                                        Appearance="Secondary"
+                                                        Content="{loc:Str Conflicts_KeepThis}"
+                                                        ToolTip="{Binding KeepToolTip}"
+                                                        ToolTipService.ShowOnDisabled="True"
+                                                        Command="{Binding DataContext.KeepConflictCopyCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
+                                                        CommandParameter="{Binding}"
+                                                        IsEnabled="{Binding CanKeep}"
+                                                        Visibility="{Binding IsKeepable, Converter={StaticResource BoolToVisibility}}" />
+                                                    <ui:Button
+                                                        Padding="4"
+                                                        VerticalAlignment="Center"
+                                                        Appearance="Transparent"
+                                                        Icon="{ui:SymbolIcon FolderOpen20}"
+                                                        ToolTip="{loc:Str Conflicts_OpenFolderToolTip}"
+                                                        Command="{Binding DataContext.OpenConflictFolderCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
+                                                        CommandParameter="{Binding}" />
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </ui:Card>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <TextBlock
+                Margin="0,0,0,8"
+                FontSize="16"
+                FontWeight="SemiBold"
+                Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                Text="{loc:Str Dependencies_Header}"
+                Visibility="{Binding HasLoaded, Converter={StaticResource BoolToVisibility}}" />
+            <!-- Shown once a scan has finished and found no dependencies to report. -->
+            <TextBlock
+                TextWrapping="Wrap"
+                Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                Text="{loc:Str Dependencies_Empty}"
+                Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibility}}" />
+
             <ItemsControl Focusable="False" ItemsSource="{Binding Trees}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
@@ -140,20 +231,40 @@
                                                 <Run Text="{Binding StatusText, StringFormat=' - {0}', Mode=OneWay}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
                                             </TextBlock>
 
-                                            <!-- Only rows that are actually missing or outdated get an action. -->
-                                            <ui:Button
+                                            <!-- Only rows that are actually missing or outdated get an action. The
+                                                 small button does the opposite of Monitor mode's setting. -->
+                                            <StackPanel
                                                 Grid.Column="2"
-                                                Padding="10,2"
                                                 VerticalAlignment="Center"
-                                                Appearance="Secondary"
-                                                Content="{Binding InstallButtonText}"
-                                                Command="{Binding DataContext.InstallCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
-                                                CommandParameter="{Binding}"
-                                                Visibility="{Binding CanInstall, Converter={StaticResource BoolToVisibility}}"
-                                                IsEnabled="{Binding IsNotQueued}"
-                                                ToolTip="{Binding InstallToolTip}"
-                                                ToolTipService.ShowOnDisabled="True"
-                                                ToolTipService.ShowDuration="20000" />
+                                                Orientation="Horizontal"
+                                                Visibility="{Binding CanInstall, Converter={StaticResource BoolToVisibility}}">
+                                                <ui:Button
+                                                    Margin="0,0,4,0"
+                                                    Padding="4"
+                                                    VerticalAlignment="Center"
+                                                    Appearance="Transparent"
+                                                    Command="{Binding DataContext.InstallAlternateCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
+                                                    CommandParameter="{Binding}"
+                                                    IsEnabled="{Binding IsNotQueued}"
+                                                    ToolTip="{Binding AlternateToolTip, Source={x:Static app:AppServices.ModPageGate}}">
+                                                    <ui:Button.Icon>
+                                                        <ui:SymbolIcon
+                                                            FontSize="14"
+                                                            Symbol="{Binding AlternateSymbol, Source={x:Static app:AppServices.ModPageGate}}" />
+                                                    </ui:Button.Icon>
+                                                </ui:Button>
+                                                <ui:Button
+                                                    Padding="10,2"
+                                                    VerticalAlignment="Center"
+                                                    Appearance="Secondary"
+                                                    Content="{Binding InstallButtonText}"
+                                                    Command="{Binding DataContext.InstallCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
+                                                    CommandParameter="{Binding}"
+                                                    IsEnabled="{Binding IsNotQueued}"
+                                                    ToolTip="{Binding InstallToolTip}"
+                                                    ToolTipService.ShowOnDisabled="True"
+                                                    ToolTipService.ShowDuration="20000" />
+                                            </StackPanel>
                                             </Grid>
                                         </Border>
                                     </DataTemplate>
@@ -163,6 +274,7 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
+            </StackPanel>
         </ScrollViewer>
     </Grid>
 </Page>

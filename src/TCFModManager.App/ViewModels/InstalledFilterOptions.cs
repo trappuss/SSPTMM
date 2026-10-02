@@ -15,6 +15,10 @@ public enum UpdateFilter
 
     // Only mods with no sp-mod.com match at all show (MatchedModName == null).
     NotFound,
+
+    // Only mods installed in the last RecentDays days, newest first - this order wins over the
+    // Sort by dropdown while it is picked. Mods with no known install date are left out.
+    RecentlyInstalled,
 }
 
 // One entry in Installed's Update status dropdown. Overrides ToString() so the label shows instead

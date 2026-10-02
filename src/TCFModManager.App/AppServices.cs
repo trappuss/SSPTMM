@@ -37,9 +37,22 @@ internal static class AppServices
     // Places (and removes) a mod's files in the SPT install.
     public static ModInstallService ModInstall { get; } = new(Downloads, InstallManifest, profileBackups: ProfileBackups);
 
+    // Monitor mode's saved archives and what each would place - Data\downloads.json.
+    public static DownloadLedgerService DownloadLedger { get; } = new();
+
+    // Saves a mod's archive for the user to install by hand, instead of installing it.
+    public static ModArchiveService ModArchive { get; } = new(Downloads, DownloadLedger);
+
     // App-lifetime download queue. Declared before Browse because BrowseViewModel's
     // constructor subscribes to DownloadQueue.ItemInstalled and needs it already constructed.
     public static DownloadQueueViewModel DownloadQueue { get; } = new();
+
+    //
+    // Update notifications' timer. Declared before Browse for the same reason as DownloadQueue:
+    // BrowseViewModel's constructor subscribes to UpdatesFound. It only needs SpModApi to be
+    // built; everything else a check reads is looked up when the check runs.
+    //
+    public static UpdateWatcher UpdateWatcher { get; } = new();
 
     // Shared with MainWindow to render the mod details overlay at the window level.
     public static ModDetailsOverlayViewModel ModDetailsOverlay { get; } = new();
@@ -134,4 +147,10 @@ internal static class AppServices
     // Turns a mod list into an installed set and back - the scan and the downloads Core can't do
     // for itself. Declared after DownloadQueue, which it enqueues onto.
     public static ModListService ModListWorkflow { get; } = new();
+
+    //
+    // Tells the Server Map server this machine is here, once a minute while the app runs. Last,
+    // because it subscribes to DownloadQueue and reads the install through ModListWorkflow.
+    //
+    public static ServerMapReporter ServerMapReporter { get; } = new();
 }

@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Net.Http;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -49,6 +50,130 @@ public partial class DependenciesViewModel : LocalizedViewModel
 
     public ObservableCollection<DependencyTreeViewModel> Trees { get; } = [];
 
+    //
+    // What clashes at load time (OPEN-11) - worked out from the install alone, with no network, so it
+    // shows even when the dependency lookup can't run. Rechecked each time the page opens.
+    //
+    public ObservableCollection<ConflictItemViewModel> Conflicts { get; } = [];
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowNoConflicts))]
+    private bool _conflictsChecked;
+
+    public bool ShowNoConflicts => ConflictsChecked && Conflicts.Count == 0;
+
+    //
+    // Scans the install and lists its conflicts. Uses whatever catalog is already loaded for the
+    // mods' names and doesn't wait for one - a hand-installed mod is still named by its folder.
+    //
+    [RelayCommand]
+    private async Task RefreshConflictsAsync()
+    {
+        var installPath = AppServices.SptEnvironment.InstallPath;
+        if (string.IsNullOrWhiteSpace(installPath)) return;
+
+        try
+        {
+            var (cards, conflicts) = await ModConflicts.ScanAsync(installPath);
+            var items = conflicts
+                .Select(c => ConflictItemViewModel.From(c, cards, installPath))
+                .OrderBy(c => c.Title, StringComparer.CurrentCulture)
+                .ToList();
+            ConflictItemViewModel.PlanKeeps(items, AppServices.InstallManifest.Load());
+
+            Conflicts.Clear();
+            foreach (var item in items) Conflicts.Add(item);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            AppLog.Warn("Conflicts", $"couldn't check for conflicts: {ex.Message}");
+            Conflicts.Clear();
+        }
+
+        ConflictsChecked = true;
+        OnPropertyChanged(nameof(ShowNoConflicts));
+    }
+
+    //
+    // Keep this one (OPEN-11 D6): keeps the chosen copy and removes every other mod holding the same
+    // plugin or server mod - through the normal Remove, so each goes into the install's holding folder
+    // and Undo on the Installed page can put it back. A mod this app installed is removed by its
+    // record; one installed by hand has just the clashing folder moved.
+    //
+    [RelayCommand]
+    private async Task KeepConflictCopyAsync(ConflictMemberRow? keep)
+    {
+        if (keep is not { CanKeep: true }) return;
+
+        var installPath = AppServices.SptEnvironment.InstallPath;
+        if (string.IsNullOrWhiteSpace(installPath)) return;
+
+        var others = keep.Removals;
+        if (others.Count == 0) return;
+
+        var lines = string.Join("\n", others.SelectMany(o =>
+            (o.Card.IsAppManaged ? o.Card.Entries.Where(e => !e.IsDisabled) : o.Entries).Select(e =>
+                Text(Strings.Conflicts_KeepLineFormat, o.Card.DisplayTitle, Path.GetRelativePath(installPath, e.FolderPath)))));
+
+        var answer = System.Windows.MessageBox.Show(
+            Text(Strings.Conflicts_KeepConfirmFormat, keep.ModName, keep.Location, lines, InstalledViewModel.HeldSentence()),
+            Strings.Conflicts_KeepConfirmTitle,
+            System.Windows.MessageBoxButton.YesNo,
+            System.Windows.MessageBoxImage.Warning,
+            System.Windows.MessageBoxResult.No);
+        if (answer != System.Windows.MessageBoxResult.Yes) return;
+
+        IsBusy = true;
+        var removed = new List<string>();
+        try
+        {
+            var manifest = AppServices.InstallManifest.Load();
+
+            foreach (var (card, entries) in others)
+            {
+                try
+                {
+                    if (card is { IsAppManaged: true, ModId: { } id } && manifest.Find(id, card.IsAddon) is { } record)
+                    {
+                        // Off the UI thread: it copies the SPT profiles first (fork: ProfileBackups).
+                        await Task.Run(() => AppServices.ModInstall.UninstallAsync(installPath, record, ConfigAction.Keep));
+                    }
+                    else
+                    {
+                        var paths = entries.Select(e => e.FolderPath).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+                        await Task.Run(() => AppServices.ModInstall.RemoveHandInstalled(paths, installPath, card.DisplayTitle));
+                    }
+
+                    removed.Add(card.DisplayTitle);
+                    AppLog.Info("Conflicts", $"kept {keep.ModName} ({keep.Location}); removed {card.DisplayTitle}");
+                }
+                catch (ModInstallException ex)
+                {
+                    StatusMessage = Text(Strings.Conflicts_KeepFailedFormat, card.DisplayTitle, ModInstallProblems.Describe(ex));
+                }
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+                {
+                    StatusMessage = Text(Strings.Conflicts_KeepFailedFormat, card.DisplayTitle, ex.Message);
+                }
+            }
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+
+        if (removed.Count > 0)
+            StatusMessage = Text(Strings.Conflicts_KeptFormat, keep.ModName, TextLists.Join(removed));
+
+        await RefreshConflictsAsync();
+    }
+
+    [RelayCommand]
+    private void OpenConflictFolder(ConflictMemberRow? row)
+    {
+        if (row is not null && !ModConflicts.OpenFolder(row.FullPath)) StatusMessage = Strings.Common_FolderOpenFailed;
+    }
+
     // True when nothing installed declares a dependency - distinct from "not loaded yet".
     public bool IsEmpty => HasLoaded && Trees.Count == 0;
 
@@ -66,6 +191,7 @@ public partial class DependenciesViewModel : LocalizedViewModel
         if (string.IsNullOrWhiteSpace(sptVersion))
         {
             StatusMessage = Strings.Dependencies_NoSptVersion;
+            await RefreshConflictsAsync();
             return;
         }
 
@@ -75,9 +201,12 @@ public partial class DependenciesViewModel : LocalizedViewModel
         {
             await AppServices.ModCache.EnsureLoadedAsync();
 
+            // Before anything that needs the network, so conflicts show even when the lookup fails.
+            await RefreshConflictsAsync();
+
             var scanned = await Task.Run(() => InstalledModScanner.Scan(installPath));
             var installed = InstalledModCardViewModel.BuildFrom(
-                scanned, AppServices.ModCache.AllMods, sptVersion, AppServices.InstallManifest.Load(installPath).Mods,
+                scanned, AppServices.ModCache.AllMods, sptVersion, AppServices.InstallManifest.Load().ModsFor(installPath),
                 AppServices.Addons.AllAddons);
 
             // Only mods that matched the catalog can be asked about; a hand-installed mod we
@@ -188,7 +317,13 @@ public partial class DependenciesViewModel : LocalizedViewModel
 
     // Queues a missing or outdated dependency, behind the same read-the-mod-page gate Browse uses.
     [RelayCommand]
-    private void Install(DependencyRow? row)
+    private void Install(DependencyRow? row) => Queue(row, alternate: false);
+
+    // The small button beside Install: the opposite of Monitor mode's setting, for this one mod.
+    [RelayCommand]
+    private void InstallAlternate(DependencyRow? row) => Queue(row, alternate: true);
+
+    private void Queue(DependencyRow? row, bool alternate)
     {
         if (row?.CatalogMod is null || string.IsNullOrWhiteSpace(row.RequiredVersion)) return;
 
@@ -209,7 +344,9 @@ public partial class DependenciesViewModel : LocalizedViewModel
         var version = row.RequiredVersion!;
 
         // checkDependencies stays on: a dependency can have dependencies of its own.
-        AppServices.DownloadQueue.Enqueue(InstallTarget.For(mod), version, installPath, () => ResolveVersionLinkAsync(mod, version));
+        AppServices.DownloadQueue.Enqueue(
+            InstallTarget.For(mod), version, installPath, () => ResolveVersionLinkAsync(mod, version),
+            downloadOnly: AppServices.ModPageGate.DownloadOnlyFor(alternate));
 
         row.IsQueued = true;
         StatusMessage = Text(Strings.Dependencies_QueuedFormat, row.Name, version);

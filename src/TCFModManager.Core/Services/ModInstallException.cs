@@ -21,7 +21,7 @@ public enum ModInstallAction
     // Applying a mod list, which enables and disables mods in one pass.
     ApplyList,
 
-    // Putting a copy of the SPT profiles back.
+    // Fork: putting a copy of the SPT profiles back (ProfileBackups).
     RestoreProfiles,
 }
 
@@ -55,27 +55,36 @@ public enum ModInstallFailure
     // ExpectedBytes and ReceivedBytes.
     DownloadIncomplete,
 
-    // Placing the files failed part-way, and the install was put back exactly as it was before - the
-    // previous version, if there was one, is still installed. Carries ModName, Version and the
+    // A download-only save was pointed at a folder that doesn't exist - most likely one picked on
+    // Options and since moved or deleted. Carries Folder.
+    DownloadFolderMissing,
+
+    // A download-only save couldn't create its file in the chosen folder. Carries Folder, and the
     // underlying exception as InnerException.
-    RolledBack,
+    DownloadFolderNotWritable,
 
-    // Not enough free space on the install's drive to copy the files in. Carries ModName, Version,
-    // ExpectedBytes (needed) and ReceivedBytes (free).
-    NotEnoughSpace,
+    // A removal was refused before anything was deleted, because the path failed one of
+    // InstallPathGuard's checks. Carries Folder (the path) and Refusal (which check).
+    RemovalRefused,
 
-    // Placing the files failed, and putting the install back was stopped part-way too (a file held
-    // open). The way back is kept and is finished before anything else is installed or removed.
-    // Carries ModName, Version and the underlying exception as InnerException.
-    NotPutBackYet,
+    // The extracted archive holds a junction or symbolic link. Refused before anything in the install
+    // is removed or placed. Carries ModName, Version and ArchiveEntry (the link, relative to the
+    // archive's content).
+    ArchiveContainsLink,
 
-    // An earlier install stopped part-way has not been put back yet (a file still held open), so
-    // nothing is changed until it has. Carries ModName (that earlier install's).
-    EarlierInstallPending,
+    // A file the archive places would be written through a junction or symbolic link in the install,
+    // which would change whatever the link points at. Refused before anything is removed or placed.
+    // Carries ModName, Version and Folder (the install-relative path that passes through the link).
+    InstallThroughLink,
 
-    // As EarlierInstallPending, but because the app's install records (installed-mods.json) cannot
-    // be read, so whether that earlier install finished cannot be told. Carries ModName.
-    RecordsUnreadable,
+    // A file the archive places would replace one no record owns, and that file couldn't be copied
+    // aside first. Refused before anything is removed or placed. Carries ModName, Version, Folder
+    // (the install-relative path) and the underlying exception as InnerException.
+    OriginalNotKept,
+
+    // The record being removed or updated was made in a different SPT install (D17). Refused before
+    // anything is touched. Carries ModName and Folder (the install the record belongs to).
+    RecordFromAnotherInstall,
 }
 
 //
@@ -109,4 +118,10 @@ public sealed class ModInstallException(ModInstallFailure reason, Exception? inn
     public long? ExpectedBytes { get; init; }
 
     public long? ReceivedBytes { get; init; }
+
+    // The download folder a download-only save was refused, or the path a removal refused.
+    public string? Folder { get; init; }
+
+    // Which of InstallPathGuard's checks refused a removal.
+    public PathRefusal? Refusal { get; init; }
 }

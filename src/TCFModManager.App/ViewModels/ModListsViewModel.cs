@@ -97,13 +97,34 @@ public sealed partial class ModListRowViewModel(
     }
 }
 
-// One line of a plan, as the diff shows it.
-public sealed record ModListActionRowViewModel(string Kind, string Name, string Detail, int Order, ModListAction Action)
+//
+// One line of a plan, laid out like a line of the list's contents - title, what the list records
+// about it, its scope - with a coloured badge saying where this machine stands against the entry.
+// Tone picks the badge colour - Good (green), Warn (caution yellow), Disabled (blue), Bad (red),
+// Neutral (grey) - and Icon is the shared status glyph for the same state, so a badge reads as the
+// icon Installed would show for that mod.
+//
+public sealed record ModListActionRowViewModel(
+    string Kind,
+    string Name,
+    string Detail,
+    int Order,
+    ModListAction Action,
+    string EntryDetail,
+    string? ScopeLabel,
+    string Status,
+    string Tone,
+    string Icon)
 {
+    public bool HasScope => ScopeLabel is not null;
+
     public bool CanPin => Action is { Kind: ModListActionKind.Disable, Installed: not null };
 
     public bool CanUnpin => Action is { Kind: ModListActionKind.Pinned, Installed: not null };
 }
+
+// One coloured count at the top of a preview: "1 missing", "72 already right".
+public sealed record PlanChip(string Text, string Tone, string Icon);
 
 // One mod on the selected list, as the contents panel shows it.
 public sealed record ModListEntryRowViewModel(
@@ -495,6 +516,49 @@ public partial class ModListsViewModel : LocalizedViewModel
     [NotifyPropertyChangedFor(nameof(HasVersionWarning))]
     private string? _versionWarning;
 
+    // Monitor mode (§9): said before an apply whose installs and updates will only be downloaded.
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasDownloadOnlyNotice))]
+    private string? _downloadOnlyNotice;
+
+    public bool HasDownloadOnlyNotice => DownloadOnlyNotice is not null;
+
+    //
+    // The plan at a glance, as coloured counts in the shared status colours: red for what is missing
+    // here, amber for what is here but not as the list has it, green for what is already right, grey
+    // for what needs a person or is left alone. Each row below carries the same colour, so the chip
+    // and the rows it counts are one thing.
+    //
+    public ObservableCollection<PlanChip> PlanChips { get; } = [];
+
+    //
+    // What Apply will do, on the button itself: "Install 1 mod", "Install 2, update 1", or in
+    // Install mode "Download 3 mods". Plain Apply when there is nothing to fetch - an apply that only
+    // enables or disables, or nothing previewed yet.
+    //
+    public string ApplyLabel
+    {
+        get
+        {
+            if (_preview is not { } preview) return Strings.ModLists_Apply;
+
+            var plan = preview.Plan;
+            var installs = plan.Install.Count();
+            var updates = plan.Update.Count() + plan.Enable.Count(a => a.NeedsUpdateAfterEnable);
+
+            if (installs + updates == 0) return Strings.ModLists_Apply;
+
+            if (ModListDownloadMode.For(preview.List).DownloadOnly)
+                return Strings.ModLists_ApplyDownload(installs + updates);
+
+            if (installs > 0 && updates > 0) return Text(Strings.ModLists_ApplyInstallUpdateFormat, installs, updates);
+
+            return installs > 0 ? Strings.ModLists_ApplyInstall(installs) : Strings.ModLists_ApplyUpdate(updates);
+        }
+    }
+
+    private void NotifyPlanWording() => OnPropertyChanged(nameof(ApplyLabel));
+
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanRevert))]
     [NotifyCanExecuteChangedFor(nameof(ApplyCommand))]
@@ -733,7 +797,7 @@ public partial class ModListsViewModel : LocalizedViewModel
 
         _recordFolders = _pins.Count == 0
             ? []
-            : AppServices.InstallManifest.Load(AppServices.SptEnvironment.InstallPath).Mods
+            : AppServices.InstallManifest.Load().ModsFor(AppServices.SptEnvironment.InstallPath)
                 .GroupBy(r => (r.ModId, r.IsAddon))
                 .ToDictionary(g => g.Key, g => g.SelectMany(r => r.Folders).ToList());
     }
@@ -832,9 +896,12 @@ public partial class ModListsViewModel : LocalizedViewModel
     {
         _preview = null;
         PlanRows.Clear();
+        PlanChips.Clear();
         PlanSummary = null;
         VersionWarning = null;
+        DownloadOnlyNotice = null;
         ApplyCommand.NotifyCanExecuteChanged();
+        NotifyPlanWording();
     }
 
     [RelayCommand]
@@ -896,6 +963,19 @@ public partial class ModListsViewModel : LocalizedViewModel
         });
     }
 
+    //
+    // Selects a list and previews it - where Review and install on the Play page and the Server map
+    // page lands. The plan is on screen and Apply is one press away; nothing is applied from here.
+    //
+    public async Task ReviewAsync(Guid listId)
+    {
+        Refresh(listId);
+
+        if (Selected?.Id != listId || !PreviewCommand.CanExecute(null)) return;
+
+        await PreviewCommand.ExecuteAsync(null);
+    }
+
     // Works out what applying the selected list would do. Nothing moves and nothing downloads.
     [RelayCommand(CanExecute = nameof(CanUseStoredList))]
     private async Task PreviewAsync()
@@ -925,6 +1005,9 @@ public partial class ModListsViewModel : LocalizedViewModel
 
         var plan = preview.Plan;
 
+        PlanChips.Clear();
+        foreach (var chip in Chips(plan)) PlanChips.Add(chip);
+
         var counts = new List<string>();
         void Count(int n, string format) { if (n > 0) counts.Add(Text(format, n)); }
 
@@ -946,17 +1029,112 @@ public partial class ModListsViewModel : LocalizedViewModel
                 ? Text(Strings.ModLists_VersionWarningFormat, captured, current)
                 : null;
 
+        var downloads = plan.Install.Count() + plan.Update.Count()
+            + plan.Enable.Count(a => a.NeedsUpdateAfterEnable);
+        DownloadOnlyNotice = downloads > 0 && ModListDownloadMode.For(preview.List).DownloadOnly
+            ? Strings.ModLists_DownloadOnlyNotice(downloads)
+            : null;
+
         ApplyCommand.NotifyCanExecuteChanged();
+        NotifyPlanWording();
         StatusMessage = plan.RequiresGameClosed
             ? Strings.ModLists_CloseSptBeforeApply
             : Text(Strings.ModLists_PreviewedFormat, preview.List.Name);
     }
 
-    private static IEnumerable<ModListActionRowViewModel> Rows(ModListPlan plan) =>
-        plan.Actions
-            .Select(a => new ModListActionRowViewModel(Label(a), a.Name, Detail(a), Order(a.Kind), a))
+    private IEnumerable<ModListActionRowViewModel> Rows(ModListPlan plan)
+    {
+        _titles = CatalogTitles();
+
+        return plan.Actions
+            .Select(PlanRow)
             .OrderBy(r => r.Order)
             .ThenBy(r => r.Name, StringComparer.OrdinalIgnoreCase);
+    }
+
+    //
+    // A row with an entry reads exactly as that entry does in the contents view. A row without one -
+    // a mod installed here that the list does not name, about to be disabled or held by a pin - is
+    // described from what is installed, in the same shape.
+    //
+    private ModListActionRowViewModel PlanRow(ModListAction action)
+    {
+        var entry = action.Entry ?? (action.Installed is { } installed
+            ? new ModListEntry
+            {
+                Name = installed.Name,
+                ModId = installed.ModId,
+                IsAddon = installed.IsAddon,
+                Version = installed.Version,
+                Folders = [.. installed.Folders],
+            }
+            : null);
+
+        var name = entry?.ModId is { } id && _titles.TryGetValue((id, entry.IsAddon), out var title)
+            ? title
+            : action.Name;
+
+        var (status, tone, icon) = StatusOf(action);
+
+        return new ModListActionRowViewModel(
+            Label(action),
+            name,
+            Detail(action),
+            Order(action.Kind),
+            action,
+            entry is null ? string.Empty : EntryDetail(entry, name),
+            action.Entry is { } listed ? ModListScopes.Label(listed.EffectiveScope) : null,
+            status,
+            tone,
+            icon);
+    }
+
+    private const string DisabledGlyph = "PlugDisconnected24";
+
+    private static (string Status, string Tone, string Icon) StatusOf(ModListAction action) => action.Kind switch
+    {
+        ModListActionKind.Install =>
+            (Strings.ModLists_StatusMissing, "Bad", ModStatusDisplay.Glyph(ModStatus.NotInstalled)),
+        ModListActionKind.Update when action.IsRepair =>
+            (Strings.ModLists_StatusHalfInstalled, "Warn", "ErrorCircle24"),
+        ModListActionKind.Update =>
+            (VersionMove(action), "Warn", ModStatusDisplay.Glyph(ModStatus.UpdateAvailable)),
+        ModListActionKind.Enable when action.NeedsUpdateAfterEnable && !action.IsRepair =>
+            (Text(Strings.ModLists_StatusDisabledMovingFormat, VersionMove(action)), "Disabled", DisabledGlyph),
+        ModListActionKind.Enable => (Strings.ModLists_StatusDisabled, "Disabled", DisabledGlyph),
+        ModListActionKind.Disable => (Strings.ModLists_StatusWillDisable, "Neutral", DisabledGlyph),
+        ModListActionKind.Pinned => (Strings.ModLists_StatusPinned, "Neutral", "Pin24"),
+        ModListActionKind.Manual =>
+            (Strings.ModLists_StatusGetByHand, "Neutral", ModStatusDisplay.Glyph(ModStatus.NoCompatibleVersion)),
+        _ => (Strings.ModLists_StatusAlreadyRight, "Good", ModStatusDisplay.Glyph(ModStatus.Installed)),
+    };
+
+    // "3.0.0 → 3.1.2": the version installed here, then the one the list asks for.
+    private static string VersionMove(ModListAction action) =>
+        Text(Strings.ModLists_StatusVersionFormat,
+            action.InstalledVersion ?? Strings.Common_Unknown,
+            action.TargetVersion ?? Strings.ModLists_ActionNewestPublished);
+
+    private static IEnumerable<PlanChip> Chips(ModListPlan plan)
+    {
+        var repairs = plan.Update.Count(a => a.IsRepair);
+
+        (int Count, Func<int, string> Text, string Tone, string Icon)[] chips =
+        [
+            (plan.Install.Count(), n => Strings.ModLists_ChipMissing(n), "Bad", ModStatusDisplay.Glyph(ModStatus.NotInstalled)),
+            (plan.Update.Count() - repairs, n => Strings.ModLists_ChipDifferentVersion(n), "Warn",
+                ModStatusDisplay.Glyph(ModStatus.UpdateAvailable)),
+            (repairs, n => Strings.ModLists_ChipHalfInstalled(n), "Warn", "ErrorCircle24"),
+            (plan.Enable.Count(), n => Strings.ModLists_ChipDisabled(n), "Disabled", DisabledGlyph),
+            (plan.Manual.Count(), n => Strings.ModLists_ChipGetByHand(n), "Neutral",
+                ModStatusDisplay.Glyph(ModStatus.NoCompatibleVersion)),
+            (plan.Disable.Count(), n => Strings.ModLists_ChipWillDisable(n), "Neutral", DisabledGlyph),
+            (plan.Pinned.Count(), n => Strings.ModLists_ChipPinned(n), "Neutral", "Pin24"),
+            (plan.Keep.Count(), n => Strings.ModLists_ChipAlreadyRight(n), "Good", ModStatusDisplay.Glyph(ModStatus.Installed)),
+        ];
+
+        return chips.Where(c => c.Count > 0).Select(c => new PlanChip(c.Text(c.Count), c.Tone, c.Icon));
+    }
 
     private static string Label(ModListAction action) => action.Kind switch
     {
@@ -1072,7 +1250,7 @@ public partial class ModListsViewModel : LocalizedViewModel
 
             if (result.Completed)
             {
-                StatusMessage = Completed(result);
+                StatusMessage = Completed(result, ModListDownloadMode.For(preview.List));
                 ClearPlan();
                 Refresh(preview.List.Id);
                 return;
@@ -1103,7 +1281,7 @@ public partial class ModListsViewModel : LocalizedViewModel
         });
     }
 
-    private static string Completed(ModListApplyResult result)
+    private static string Completed(ModListApplyResult result, ModListDownloadMode mode)
     {
         var parts = new List<string>();
         void Count(int n, string format) { if (n > 0) parts.Add(Text(format, n)); }
@@ -1117,6 +1295,14 @@ public partial class ModListsViewModel : LocalizedViewModel
             : Text(Strings.ModLists_AppliedFormat, string.Join(Strings.Common_ListSeparator, parts));
 
         // Whole sentences appended to a whole sentence, rather than clauses glued to one.
+        if (mode.DownloadOnly && result.Fetched.Fetched.Count > 0)
+        {
+            var folder = DownloadFolders.Resolve(new SettingsService().Load().Monitor.DownloadFolder);
+            if (mode.Subfolder is { } subfolder) folder = Path.Combine(folder, DownloadFolders.SafeName(subfolder));
+
+            message += " " + Text(Strings.ModLists_AppliedDownloadOnlyFormat, folder);
+        }
+
         var manual = result.Manual.Count;
         if (manual > 0)
         {

@@ -1,6 +1,10 @@
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls.Primitives;
+using System.Windows.Data;
+using System.Windows.Input;
+using TCFModManager.App.Help;
+using TCFModManager.App.Localization;
 using TCFModManager.App.Services;
 using TCFModManager.App.Views;
 using TCFModManager.Core.SpModApi;
@@ -19,10 +23,8 @@ public partial class MainWindow : FluentWindow
         // F11/Escape and records the window's position on close - see WindowLayout.
         WindowLayout.Attach(this, RootTitleBar);
 
-        // The hub tabs and the Workshop strips navigate through AppNavigation; this is the one real
-        // navigation call behind it, and every navigation - whoever asked for it - is reported back.
-        AppNavigation.Attach(pageType => RootNavigationView.Navigate(pageType));
-        RootNavigationView.Navigated += (_, args) => AppNavigation.ReportNavigated(args.Page.GetType());
+        // The hub tabs and the Workshop strips navigate through AppNavigation, which hears every
+        // navigation once it is attached (on Loaded, below) and reports it back here.
         AppNavigation.Navigated += (_, pageType) => SyncHeader(pageType);
 
         // A tab switched on or off in Options: the lit tab may have moved with it.
@@ -41,14 +43,28 @@ public partial class MainWindow : FluentWindow
             ItemPage.Close();
         };
 
+        // F1 is the title bar's "?" (Help R8). Preview, so a focused text box doesn't get it first.
+        PreviewKeyDown += (_, e) =>
+        {
+            if (e.Key != Key.F1 || Keyboard.Modifiers != ModifierKeys.None) return;
+
+            ShowHelp();
+            e.Handled = true;
+        };
+
         Loaded += (_, _) =>
         {
-            // The theme itself was applied at startup. This hooks up repainting the chrome when the
-            // theme changes.
+            HelpButtonToolTip();
+
+            // The theme itself was applied at startup. This hooks up the two things that need a
+            // window: repainting the chrome when the theme changes, and following Windows.
             AppTheme.Attach(this);
 
-            // Steam's Workshop tab opens on the Workshop's front page.
-            AppNavigation.Navigate(typeof(WorkshopHomePage));
+            // Subscribed items when this launch came from clicking an update notification (§6);
+            // otherwise Steam's Workshop tab, on the Workshop's front page. Attached first, so a
+            // click landing from here on navigates by itself.
+            AppNavigation.Attach(RootNavigationView);
+            AppNavigation.Navigate(AppNavigation.StartOnInstalled ? typeof(InstalledPage) : typeof(WorkshopHomePage));
 
             // Fire-and-forget: whether a newer build of this app exists on sp-mod.com has no
             // bearing on the window opening, and a failed check just leaves the banner down.
@@ -61,6 +77,23 @@ public partial class MainWindow : FluentWindow
 
             // A data file found damaged while the app was starting: said now the window is up.
             Dispatcher.BeginInvoke(App.ReportDataProblems, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+        };
+
+        //
+        // Running in the tray (§8a): with the setting on, closing hides the window instead, and the
+        // tray icon goes as soon as the window is back, however it came back.
+        //
+        Closing += (_, e) =>
+        {
+            if (!AppTray.HidesOnClose()) return;
+
+            e.Cancel = true;
+            AppTray.HideToTray(this);
+        };
+
+        IsVisibleChanged += (_, _) =>
+        {
+            if (IsVisible) AppTray.OnWindowShown();
         };
 
         // A mod opened from anywhere opens as its Workshop item page, over the page it came from.
@@ -196,25 +229,40 @@ public partial class MainWindow : FluentWindow
     }
 
     //
-    // Closing while a mod's files are being placed would stop it part-way. It would be put back next
-    // time (see InstallJournal), but the install the user asked for would not have happened - so they
-    // are asked first.
+    // Closing while a mod's files are being placed would stop it part-way, and the install the user
+    // asked for would not have happened - so they are asked first. Not when closing only hides the
+    // window to the tray (the install carries on), nor once the app is quitting, which no answer
+    // here could stop.
     //
     protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
     {
-        var installing = AppServices.DownloadQueue.Items.FirstOrDefault(i => i.Status == ViewModels.DownloadQueueItemStatus.Installing);
-        if (installing is not null && System.Windows.MessageBox.Show(
-                this,
-                Localization.LocalizationService.Text(Localization.Strings.App_CloseWhileInstallingFormat, installing.ModName),
-                Localization.Strings.App_CloseWhileInstallingTitle,
-                System.Windows.MessageBoxButton.YesNo,
-                MessageBoxImage.Warning) != System.Windows.MessageBoxResult.Yes)
+        if (AppTray.IsQuitting || AppTray.HidesOnClose())
+        {
+            base.OnClosing(e);
+            return;
+        }
+
+        if (!MayStopAnInstall(this))
         {
             e.Cancel = true;
             return;
         }
 
         base.OnClosing(e);
+    }
+
+    // Whether ending the app now is all right: asked only while a mod's files are being placed.
+    // The tray's Quit asks it too, since with the window hidden it never gets OnClosing's turn.
+    public static bool MayStopAnInstall(Window? owner)
+    {
+        var installing = AppServices.DownloadQueue.Items.FirstOrDefault(i => i.Status == ViewModels.DownloadQueueItemStatus.Installing);
+        if (installing is null) return true;
+
+        var text = Localization.LocalizationService.Text(Localization.Strings.App_CloseWhileInstallingFormat, installing.ModName);
+        var answer = owner is { IsVisible: true }
+            ? System.Windows.MessageBox.Show(owner, text, Localization.Strings.App_CloseWhileInstallingTitle, System.Windows.MessageBoxButton.YesNo, MessageBoxImage.Warning)
+            : System.Windows.MessageBox.Show(text, Localization.Strings.App_CloseWhileInstallingTitle, System.Windows.MessageBoxButton.YesNo, MessageBoxImage.Warning);
+        return answer == System.Windows.MessageBoxResult.Yes;
     }
 
     // How many SteamDialogs are open over this window; the backdrop shows while any is.
@@ -276,6 +324,41 @@ public partial class MainWindow : FluentWindow
     // Steam's "Store Page" button, pointed at the catalog this app browses.
     private void ModSite_Click(object sender, RoutedEventArgs e) =>
         Process.Start(new ProcessStartInfo(new SpModApiOptions().BaseUrl) { UseShellExecute = true });
+
+    private void RootTitleBar_HelpClicked(TitleBar sender, RoutedEventArgs e) => ShowHelp();
+
+    //
+    // The "?" and F1. A ContentDialog (mod details, mod update) sits over the page inside this
+    // window, so both still reach the window while it is up - and Help would open underneath it,
+    // hidden. The dialog is closed first, the same as its Close button, and Help opens at the
+    // section for the page it was over. The other dialogs are separate modal windows, which keep
+    // this window from getting either.
+    //
+    private void ShowHelp()
+    {
+        if (RootContentDialogPresenter.Content is ContentDialog dialog) dialog.Hide(ContentDialogResult.None);
+
+        AppNavigation.ShowHelpForCurrentPage();
+    }
+
+    private void HowToSetUp_Click(object sender, RoutedEventArgs e) =>
+        AppNavigation.ShowHelp(HelpCatalog.StartSectionId);
+
+    //
+    // The caption "?" is a template part with no tooltip of its own. Bound rather than set, so it
+    // follows a language change like every {loc:Str}. Whether Windows shows it depends on the
+    // caption hit-testing handing the mouse to WPF there; if it doesn't, nothing is lost.
+    //
+    private void HelpButtonToolTip()
+    {
+        if (RootTitleBar.Template?.FindName("PART_HelpButton", RootTitleBar) is not FrameworkElement button) return;
+
+        button.SetBinding(ToolTipProperty, new Binding($"[{nameof(Strings.Help_TitleBarToolTip)}]")
+        {
+            Source = LocalizationService.Instance,
+            Mode = BindingMode.OneWay,
+        });
+    }
 
     // The banner's action takes the user to the update page to read what changed and decide there,
     // rather than starting a download straight off a banner.

@@ -48,45 +48,67 @@ public static class ModInstallProblems
             Size(problem.ReceivedBytes),
             Size(problem.ExpectedBytes)),
 
-        // Nothing changed: said as plainly as that, with why.
-        ModInstallFailure.NotPutBackYet => string.Format(
-            CultureInfo.CurrentCulture,
-            Strings.ModInstall_NotPutBackYetFormat,
-            problem.ModName,
-            problem.Version,
-            problem.InnerException?.Message),
-
-        ModInstallFailure.RecordsUnreadable => string.Format(
-            CultureInfo.CurrentCulture,
-            Strings.ModInstall_RecordsUnreadableFormat,
-            problem.ModName),
-
-        ModInstallFailure.EarlierInstallPending => string.Format(
-            CultureInfo.CurrentCulture,
-            Strings.ModInstall_EarlierInstallPendingFormat,
-            problem.ModName),
-
-        ModInstallFailure.RolledBack => string.Format(
-            CultureInfo.CurrentCulture,
-            Strings.ModInstall_RolledBackFormat,
-            problem.ModName,
-            problem.Version,
-            problem.InnerException?.Message),
-
-        ModInstallFailure.NotEnoughSpace => string.Format(
-            CultureInfo.CurrentCulture,
-            Strings.ModInstall_NotEnoughSpaceFormat,
-            problem.ModName,
-            Size(problem.ExpectedBytes),
-            Size(problem.ReceivedBytes)),
-
         ModInstallFailure.UnsafeArchiveEntry => string.Format(
             CultureInfo.CurrentCulture,
             Strings.ModInstall_UnsafeArchiveEntryFormat,
             problem.ArchiveEntry),
 
+        ModInstallFailure.DownloadFolderMissing => string.Format(
+            CultureInfo.CurrentCulture,
+            Strings.ModInstall_DownloadFolderMissingFormat,
+            problem.Folder),
+
+        ModInstallFailure.DownloadFolderNotWritable => string.Format(
+            CultureInfo.CurrentCulture,
+            Strings.ModInstall_DownloadFolderNotWritableFormat,
+            problem.Folder,
+            problem.InnerException?.Message),
+
+        ModInstallFailure.ArchiveContainsLink => string.Format(
+            CultureInfo.CurrentCulture,
+            Strings.ModInstall_ArchiveContainsLinkFormat,
+            problem.ModName,
+            problem.Version,
+            problem.ArchiveEntry),
+
+        ModInstallFailure.RemovalRefused => RemovalRefused(problem.Folder, problem.Refusal),
+
+        ModInstallFailure.InstallThroughLink => string.Format(
+            CultureInfo.CurrentCulture,
+            Strings.ModInstall_InstallThroughLinkFormat,
+            problem.ModName,
+            problem.Version,
+            problem.Folder),
+
+        ModInstallFailure.RecordFromAnotherInstall => string.Format(
+            CultureInfo.CurrentCulture,
+            Strings.ModInstall_RecordFromAnotherInstallFormat,
+            problem.ModName,
+            problem.Folder),
+
+        ModInstallFailure.OriginalNotKept => string.Format(
+            CultureInfo.CurrentCulture,
+            Strings.ModInstall_OriginalNotKeptFormat,
+            problem.ModName,
+            problem.Version,
+            problem.Folder,
+            problem.InnerException?.Message),
+
         _ => string.Format(CultureInfo.CurrentCulture, Strings.ModInstall_UnexpectedFormat, problem.Reason),
     };
+
+    // Why a path was not removed. Every one of these is said before anything was deleted.
+    public static string RemovalRefused(string? path, PathRefusal? refusal) => string.Format(
+        CultureInfo.CurrentCulture,
+        refusal switch
+        {
+            PathRefusal.Protected => Strings.ModInstall_RemoveRefusedProtectedFormat,
+            PathRefusal.AppFolder => Strings.ModInstall_RemoveRefusedAppFolderFormat,
+            PathRefusal.NotAModFolder => Strings.ModInstall_RemoveRefusedNotModFolderFormat,
+            PathRefusal.Link => Strings.ModInstall_RemoveRefusedLinkFormat,
+            _ => Strings.ModInstall_RemoveRefusedOutsideFormat,
+        },
+        path);
 
     // Bytes as the Downloads page writes them, so one failure doesn't spell sizes its own way.
     private static string Size(long? bytes) =>

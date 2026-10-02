@@ -161,6 +161,21 @@
                         Text="{Binding HeldBackNote}"
                         Visibility="{Binding HeldBackNote, Converter={StaticResource NullToCollapsed}}" />
 
+                    <!-- What a removal left behind because it holds files the mod didn't install. -->
+                    <TextBlock
+                        Foreground="{DynamicResource SystemFillColorCautionBrush}"
+                        TextWrapping="Wrap"
+                        Text="{Binding LeftoverSummary}"
+                        Visibility="{Binding LeftoverSummary, Converter={StaticResource NullToCollapsed}}" />
+
+                    <!-- Monitor mode: a download of this mod the scan found on disk, not yet
+                         confirmed - or found only partly, which is never confirmed. -->
+                    <TextBlock
+                        Foreground="{DynamicResource SystemFillColorCautionBrush}"
+                        TextWrapping="Wrap"
+                        Text="{Binding DownloadSummary}"
+                        Visibility="{Binding DownloadSummary, Converter={StaticResource NullToCollapsed}}" />
+
                     <TextBlock
                         Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                         TextWrapping="Wrap"
@@ -232,6 +247,16 @@
                             Command="{Binding DataContext.ResolveDuplicateCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
                             CommandParameter="{Binding}"
                             ToolTip="{loc:Str Installed_SortOutToolTip}" />
+
+                        <!-- Monitor mode: says the download found on disk is installed (1.19). -->
+                        <ui:Button
+                            Margin="0,4,8,0"
+                            Content="{loc:Str Installed_ConfirmDownload}"
+                            Icon="{ui:SymbolIcon CheckmarkCircle24}"
+                            Visibility="{Binding CanConfirmDownload, Converter={StaticResource BoolToVis}}"
+                            Command="{Binding DataContext.ConfirmDownloadCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
+                            CommandParameter="{Binding}"
+                            ToolTip="{loc:Str Installed_ConfirmDownloadToolTip}" />
 
                         <ui:Button
                             Margin="0,4,8,0"
@@ -789,9 +814,31 @@
                 DockPanel.Dock="Right"
                 Margin="0,0,8,0"
                 Content="{Binding UndoLabel}"
-                Icon="{ui:SymbolIcon ArrowUndo24}"
+                Icon="{ui:SymbolIcon ArrowUndo20}"
                 Command="{Binding UndoCommand}"
                 Visibility="{Binding CanUndo, Converter={StaticResource BoolToVis}}" />
+
+            <!-- Undo a removal (D28) - shown while one is held. With several held, it opens a menu
+                of them to pick from (UndoRemoval_Click). Default padding, like Rescan and Undo beside it. -->
+            <ui:Button
+                DockPanel.Dock="Right"
+                Margin="0,0,8,0"
+                Icon="{ui:SymbolIcon ArrowUndo20}"
+                Content="{Binding UndoRemovalLabel}"
+                ToolTip="{loc:Str Installed_UndoRemovalToolTip}"
+                Visibility="{Binding UndoRemovalLabel, Converter={StaticResource NullToCollapsed}}"
+                Click="UndoRemoval_Click" />
+
+            <!-- "N conflicts - see Dependencies and Conflicts" (OPEN-11), shown only when there are any. -->
+            <ui:Button
+                DockPanel.Dock="Right"
+                Margin="0,0,8,0"
+                Appearance="Transparent"
+                Foreground="{DynamicResource SystemFillColorCriticalBrush}"
+                Icon="{ui:SymbolIcon ErrorCircle20}"
+                Content="{Binding ConflictCountLabel}"
+                Command="{Binding ShowConflictsCommand}"
+                Visibility="{Binding ConflictCountLabel, Converter={StaticResource NullToCollapsed}}" />
 
             <!-- Turns the cards, or List's and Groups' rows, into a tick-list for acting on several
                  items at once. -->

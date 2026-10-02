@@ -38,12 +38,12 @@ public sealed class ModListStore
 
     public ModListData Load()
     {
-        // A damaged file is kept aside and its backup put back - see SafeFile.
-        var read = SafeFile.ReadJson(_filePath, json => JsonSerializer.Deserialize<ModListData>(json, Options) ?? new ModListData());
-        if (read is null) return new ModListData { SchemaVersion = SchemaVersion };
+        if (!File.Exists(_filePath)) return new ModListData { SchemaVersion = SchemaVersion };
 
+        try
         {
-            var data = read;
+            var json = File.ReadAllText(_filePath);
+            var data = JsonSerializer.Deserialize<ModListData>(json, Options) ?? new ModListData();
 
             var storedVersion = data.SchemaVersion;
 
@@ -71,6 +71,12 @@ public sealed class ModListStore
             }
 
             return data;
+        }
+        catch (JsonException)
+        {
+            // Kept aside first: the next save would otherwise write an empty list set over every list.
+            SafeFile.PreserveDamaged(_filePath);
+            return new ModListData { SchemaVersion = SchemaVersion };
         }
     }
 
@@ -142,7 +148,8 @@ public sealed class ModListStore
     {
         data.SchemaVersion = SchemaVersion;
 
-        SafeFile.WriteAllText(_filePath, JsonSerializer.Serialize(data, Options), keepBackup: true);
+        Directory.CreateDirectory(Path.GetDirectoryName(_filePath)!);
+        SafeFile.WriteText(_filePath, JsonSerializer.Serialize(data, Options), keepBackups: true);
     }
 
     public ModList? Find(Guid id) => Load().Lists.FirstOrDefault(l => l.Id == id);
@@ -180,41 +187,6 @@ public sealed class ModListStore
         data.Lists.Add(list);
         Save(data);
         return list;
-    }
-
-    //
-    // What storing a list read from a file would replace, so the user can be asked first. Add
-    // replaces by Id, which is right for a newer revision of a list received before - and wrong for
-    // one's own list coming back from a file (it turned read-only, and any edits since the export
-    // were gone), or for an older file of a list already received.
-    //
-    public ModListImportClash ClashFor(ModList incoming)
-    {
-        if (Find(incoming.Id) is not { } existing) return ModListImportClash.None;
-        if (existing.IsEditable) return ModListImportClash.YourOwnList;
-        return existing.Revision > incoming.Revision ? ModListImportClash.OlderThanStored : ModListImportClash.None;
-    }
-
-    // The same list under a new Id, so it is stored beside the one it would have replaced.
-    public static ModList AsSeparateList(ModList incoming, string name)
-    {
-        var copy = new ModList
-        {
-            Id = Guid.NewGuid(),
-            Name = name,
-            Description = incoming.Description,
-            Revision = incoming.Revision,
-            Origin = incoming.Origin,
-            Policy = incoming.Policy,
-            DerivedFrom = incoming.Id,
-            Source = incoming.Source,
-            SptVersion = incoming.SptVersion,
-            Link = incoming.Link,
-            CreatedAt = incoming.CreatedAt,
-            UpdatedAt = incoming.UpdatedAt,
-        };
-        copy.Entries.AddRange(incoming.Entries);
-        return copy;
     }
 
     //
@@ -437,6 +409,44 @@ public sealed class ModListStore
             ? null
             : data.Lists.FirstOrDefault(l => l.Id == data.ActiveServerListId);
     }
+
+    // ---- fork: importing a list file over one already stored
+
+    //
+    // What storing a list read from a file would replace, so the user can be asked first. Add
+    // replaces by Id, which is right for a newer revision of a list received before - and wrong for
+    // one's own list coming back from a file (it turned read-only, and any edits since the export
+    // were gone), or for an older file of a list already received.
+    //
+    public ModListImportClash ClashFor(ModList incoming)
+    {
+        if (Find(incoming.Id) is not { } existing) return ModListImportClash.None;
+        if (existing.IsEditable) return ModListImportClash.YourOwnList;
+        return existing.Revision > incoming.Revision ? ModListImportClash.OlderThanStored : ModListImportClash.None;
+    }
+
+    // The same list under a new Id, so it is stored beside the one it would have replaced.
+    public static ModList AsSeparateList(ModList incoming, string name)
+    {
+        var copy = new ModList
+        {
+            Id = Guid.NewGuid(),
+            Name = name,
+            Description = incoming.Description,
+            Revision = incoming.Revision,
+            Origin = incoming.Origin,
+            Policy = incoming.Policy,
+            DerivedFrom = incoming.Id,
+            Source = incoming.Source,
+            SptVersion = incoming.SptVersion,
+            Link = incoming.Link,
+            CreatedAt = incoming.CreatedAt,
+            UpdatedAt = incoming.UpdatedAt,
+        };
+        copy.Entries.AddRange(incoming.Entries);
+        return copy;
+    }
+
 }
 
 /// <summary>What importing a list file would replace.</summary>

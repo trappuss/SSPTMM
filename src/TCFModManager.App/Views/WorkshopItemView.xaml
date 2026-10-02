@@ -532,6 +532,23 @@
                                             </StackPanel>
                                         </Button>
 
+                                        <!-- 1.19's small button beside Install: the other way round from
+                                             Monitor mode's setting, for this one mod - save the archive
+                                             instead of installing it, or install it in Monitor mode. -->
+                                        <Border Visibility="{Binding IsSubscribed, Converter={StaticResource FalseToVisible}}">
+                                            <Button
+                                                Width="34"
+                                                MinHeight="32"
+                                                Margin="0,0,8,0"
+                                                Padding="0"
+                                                Style="{StaticResource SteamButton}"
+                                                Command="{Binding SubscribeAlternateCommand}"
+                                                ToolTip="{Binding AlternateToolTip, Source={x:Static app:AppServices.ModPageGate}}"
+                                                Visibility="{Binding IsInQueue, Converter={StaticResource FalseToVisible}}">
+                                                <ui:SymbolIcon FontSize="16" Symbol="{Binding AlternateSymbol, Source={x:Static app:AppServices.ModPageGate}}" />
+                                            </Button>
+                                        </Border>
+
                                         <!-- Subscribe, or - once installed - Subscribed, which
                                              turns into Unsubscribe under the pointer, exactly as
                                              Steam's does. -->

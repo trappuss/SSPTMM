@@ -5,8 +5,8 @@ namespace TCFModManager.Core.Services;
 // One mod needing another, as declared by the dependent itself.
 public sealed record ModDependencyLink(InstalledMod Dependent, InstalledMod Dependency, bool IsSoft);
 
-/// <summary>A hard dependency a mod declares that nothing enabled provides: not installed at all
-/// (<paramref name="DisabledProvider"/> null), or installed only in a disabled folder.</summary>
+/// <summary>Fork: a hard dependency a mod declares that nothing enabled provides: not installed at
+/// all (<paramref name="DisabledProvider"/> null), or installed only in a disabled folder.</summary>
 public sealed record ModMissingDependency(string Identifier, InstalledMod? DisabledProvider);
 
 //
@@ -29,30 +29,26 @@ public sealed class ModDependencyGraph
         var all = mods.ToList();
         var graph = new ModDependencyGraph();
 
-        // A client mod is identified by its [BepInPlugin] GUIDs, a server mod by its package name
-        // (SPT 3) or ModGuid (SPT 4). Each can resolve more than one installed mod - the same mod
-        // present in a container and in that container's ".disabled" sibling.
-        //
-        // Kept per side: BepInEx meets a [BepInDependency] only with a loaded plugin, and the SPT
-        // server meets ModDependencies only with a loaded server mod. A mod's two halves often share
-        // a GUID (SAIN's are both "me.sol.sain"), and its server half being there does nothing for
-        // a plugin that needs the client half.
-        var byIdentifier = new Dictionary<(InstalledModTarget, string), List<InstalledMod>>(SideComparer.Instance);
+        // A client mod is identified by its [BepInPlugin] GUID, a server mod by its declared ModGuid
+        // (SPT 4.x) or package name (SPT 3.x). Both can resolve more than one installed mod - the
+        // same mod present in a container and in that container's ".disabled" sibling, or a mod
+        // shipping both halves.
+        var byIdentifier = new Dictionary<string, List<InstalledMod>>(StringComparer.OrdinalIgnoreCase);
 
         foreach (var mod in all)
         {
             foreach (var identifier in Identifiers(mod))
             {
-                if (!byIdentifier.TryGetValue((mod.Target, identifier), out var matches))
-                    byIdentifier[(mod.Target, identifier)] = matches = [];
+                if (!byIdentifier.TryGetValue(identifier, out var matches))
+                    byIdentifier[identifier] = matches = [];
 
                 matches.Add(mod);
             }
         }
 
-        // An enabled server mod whose GUID could not be read might be what a server dependency
-        // names: none is called missing then, only unresolved.
-        var serverUnknown = all.Any(m => m is { Target: InstalledModTarget.Server, IdentityUnknown: true, IsDisabled: false });
+        // Fork: an enabled server mod whose identity could not be read might be what a server
+        // dependency names - none is called missing then, only unresolved.
+        var serverUnknown = all.Any(m => !m.IsDisabled && IdentityUnknown(m));
 
         foreach (var mod in all)
         {
@@ -62,20 +58,34 @@ public sealed class ModDependencyGraph
 
             foreach (var declared in mod.Dependencies)
             {
-                if (!byIdentifier.TryGetValue((mod.Target, declared.Identifier), out var matches))
+                var mayBeMissing = !declared.IsSoft && !own.Contains(declared.Identifier)
+                    && !(mod.Target == InstalledModTarget.Server && serverUnknown);
+
+                if (!byIdentifier.TryGetValue(declared.Identifier, out var matches))
                 {
                     graph.AddUnresolved(mod, declared.Identifier);
-                    if (!declared.IsSoft && !(mod.Target == InstalledModTarget.Server && serverUnknown))
-                        graph.AddMissing(mod, new ModMissingDependency(declared.Identifier, null));
+                    if (mayBeMissing) graph.AddMissing(mod, new ModMissingDependency(declared.Identifier, null));
                     continue;
                 }
 
-                // Provided only by disabled copies: on disk, but SPT loads none of them.
-                var providers = matches.Where(m => !ReferenceEquals(m, mod)).ToList();
-                if (!declared.IsSoft && !own.Contains(declared.Identifier) && providers.Count > 0 && providers.All(m => m.IsDisabled))
+                // A server mod's ModDependencies can only be met by a server mod, and a plugin's
+                // [BepInDependency] only by a plugin - SPT and BepInEx each check their own side. That
+                // matters now server mods carry GUIDs: SPT 4.x mods often give both halves one, and
+                // some plugins depend on a GUID that only the other side declares.
+                var sameSide = matches.Where(m => m.Target == mod.Target).ToList();
+                if (sameSide.Count == 0)
+                {
+                    graph.AddUnresolved(mod, declared.Identifier);
+                    if (mayBeMissing) graph.AddMissing(mod, new ModMissingDependency(declared.Identifier, null));
+                    continue;
+                }
+
+                // Fork: provided only by disabled copies - on disk, but nothing loads them.
+                var providers = sameSide.Where(m => !ReferenceEquals(m, mod)).ToList();
+                if (mayBeMissing && providers.Count > 0 && providers.All(m => m.IsDisabled))
                     graph.AddMissing(mod, new ModMissingDependency(declared.Identifier, providers[0]));
 
-                foreach (var dependency in matches)
+                foreach (var dependency in sameSide)
                 {
                     if (ReferenceEquals(dependency, mod)) continue;
 
@@ -101,7 +111,8 @@ public sealed class ModDependencyGraph
     public IReadOnlyList<string> UnresolvedOf(InstalledMod mod) =>
         _unresolved.TryGetValue(mod, out var identifiers) ? identifiers : [];
 
-    // What a mod declares it cannot run without (hard dependencies only) that no enabled mod provides.
+    // Fork: what a mod declares it cannot run without (hard dependencies only) that no enabled mod
+    // on its own side provides.
     public IReadOnlyList<ModMissingDependency> MissingOf(InstalledMod mod) =>
         _missing.TryGetValue(mod, out var missing) ? missing : [];
 
@@ -170,22 +181,17 @@ public sealed class ModDependencyGraph
         if (mod.Target == InstalledModTarget.Server && !string.IsNullOrWhiteSpace(mod.Name)) yield return mod.Name;
     }
 
-    private sealed class SideComparer : IEqualityComparer<(InstalledModTarget Side, string Identifier)>
-    {
-        public static readonly SideComparer Instance = new();
-
-        public bool Equals((InstalledModTarget Side, string Identifier) x, (InstalledModTarget Side, string Identifier) y) =>
-            x.Side == y.Side && StringComparer.OrdinalIgnoreCase.Equals(x.Identifier, y.Identifier);
-
-        public int GetHashCode((InstalledModTarget Side, string Identifier) key) =>
-            HashCode.Combine(key.Side, StringComparer.OrdinalIgnoreCase.GetHashCode(key.Identifier));
-    }
-
     private static List<ModDependencyLink> List(Dictionary<InstalledMod, List<ModDependencyLink>> map, InstalledMod key)
     {
         if (!map.TryGetValue(key, out var list)) map[key] = list = [];
         return list;
     }
+
+    // A server mod with no GUID whose version came off its DLL: an SPT 4 mod whose metadata record
+    // could not be read, so what it provides is not known. (An SPT 3 mod is known by its package
+    // name, and has its version from package.json.)
+    private static bool IdentityUnknown(InstalledMod mod) =>
+        mod.Target == InstalledModTarget.Server && mod.AllGuids.Count == 0 && (mod.FileVersion is not null || mod.Version is null);
 
     private void AddMissing(InstalledMod mod, ModMissingDependency missing)
     {

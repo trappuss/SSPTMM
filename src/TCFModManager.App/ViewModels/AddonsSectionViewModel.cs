@@ -37,7 +37,7 @@ public sealed partial class AddonsSectionViewModel : LocalizedViewModel
     {
         await AppServices.Addons.EnsureLoadedAsync();
 
-        var records = AppServices.InstallManifest.Load(AppServices.SptEnvironment.InstallPath).Mods;
+        var records = AppServices.InstallManifest.Load().ModsFor(AppServices.SptEnvironment.InstallPath);
 
         Addons.Clear();
         foreach (var addon in AppServices.Addons.ForMod(parentModId))

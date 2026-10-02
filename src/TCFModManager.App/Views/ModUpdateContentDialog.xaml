@@ -112,6 +112,20 @@
                 Command="{Binding RedownloadCommand}"
                 ToolTip="{Binding RedownloadToolTip, Source={x:Static app:AppServices.ModPageGate}}"
                 Visibility="{Binding ShowRedownloadButton, Converter={StaticResource TrueToVisible}}" />
+            <!-- Does the showing action the other way round from Monitor mode's setting, for this
+                 one mod: download only when the app installs, install when it only downloads. -->
+            <ui:Button
+                DockPanel.Dock="Right"
+                Margin="0,0,4,0"
+                Padding="6"
+                Appearance="Transparent"
+                Command="{Binding AlternateCommand}"
+                ToolTip="{Binding AlternateToolTip, Source={x:Static app:AppServices.ModPageGate}}"
+                Visibility="{Binding ShowAlternateButton, Converter={StaticResource TrueToVisible}}">
+                <ui:Button.Icon>
+                    <ui:SymbolIcon Symbol="{Binding AlternateSymbol, Source={x:Static app:AppServices.ModPageGate}}" />
+                </ui:Button.Icon>
+            </ui:Button>
             <ui:Button
                 DockPanel.Dock="Right"
                 Margin="0,0,8,0"

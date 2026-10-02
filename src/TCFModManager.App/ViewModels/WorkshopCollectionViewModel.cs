@@ -996,7 +996,7 @@ public sealed partial class WorkshopCollectionViewModel : LocalizedViewModel, IM
 
         if (answer is not (0 or 1)) return;
 
-        var page = InstalledViewModel.Current ?? new InstalledViewModel();
+        var page = InstalledViewModel.ForActions;
         Message = (answer == 0
             ? await page.DisableModsAsync(installed)
             : await page.RemoveModsAsync(installed)) ?? Message;

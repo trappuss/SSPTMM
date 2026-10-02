@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using TCFModManager.App.Localization;
 using TCFModManager.Core.Models;
+using TCFModManager.Core.Services;
 
 namespace TCFModManager.App.ViewModels;
 
@@ -45,6 +46,26 @@ public sealed partial class DownloadQueueItemViewModel : LocalizedViewModel
 
     // Whether the worker should resolve this item's dependency tree and offer to queue anything missing before downloading it. False for items added as a dependency of another queued item.
     public bool CheckDependencies { get; }
+
+    //
+    // Monitor mode: save the archive for the user to install instead of installing it. Fixed when
+    // the item is queued, so changing the Options setting doesn't turn a queued install into a
+    // download halfway down the list. Dependencies queued behind it take the same value (D4).
+    //
+    public bool DownloadOnly { get; }
+
+    // A mod list's name, for a list apply's downloads to go into their own subfolder (§9).
+    public string? DownloadSubfolder { get; }
+
+    //
+    // Where a download-only item's archive was saved, once it has been. Drives Show in folder.
+    //
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasSavedFile))]
+    [NotifyCanExecuteChangedFor(nameof(ShowInFolderCommand))]
+    private string? _savedPath;
+
+    public bool HasSavedFile => !string.IsNullOrEmpty(SavedPath);
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(CancelCommand))]
@@ -232,6 +253,11 @@ public sealed partial class DownloadQueueItemViewModel : LocalizedViewModel
     [ObservableProperty]
     private string _statusMessage = Strings.Downloads_WaitingInQueue;
 
+    // The status line in full plus anything worth naming one per line - shown as its tooltip, since the
+    // line itself is trimmed to one row. Null for no tooltip.
+    [ObservableProperty]
+    private string? _statusDetail;
+
     // True while installing, since that stage has no byte count to report fractional progress for.
     public bool IsIndeterminateProgress => Status == DownloadQueueItemStatus.Installing;
 
@@ -301,6 +327,7 @@ public sealed partial class DownloadQueueItemViewModel : LocalizedViewModel
         previous.Dispose();
 
         Progress = 0;
+        SavedPath = null;
         Status = DownloadQueueItemStatus.Pending;
         StatusMessage = Strings.Downloads_WaitingInQueue;
         IsRetry = true;
@@ -324,7 +351,9 @@ public sealed partial class DownloadQueueItemViewModel : LocalizedViewModel
         string installPath,
         Func<Task<ModVersion?>> resolveVersion,
         bool checkDependencies,
-        long? totalBytes = null)
+        long? totalBytes = null,
+        bool downloadOnly = false,
+        string? downloadSubfolder = null)
     {
         Target = target;
         VersionLabel = versionLabel;
@@ -332,6 +361,25 @@ public sealed partial class DownloadQueueItemViewModel : LocalizedViewModel
         _resolveVersion = resolveVersion;
         CheckDependencies = checkDependencies;
         _totalBytes = totalBytes;
+        DownloadOnly = downloadOnly;
+        DownloadSubfolder = downloadSubfolder;
+    }
+
+    // Opens Explorer on the saved archive with it selected - the same thing the Configs page does.
+    [RelayCommand(CanExecute = nameof(HasSavedFile))]
+    private void ShowInFolder()
+    {
+        if (SavedPath is not { } path) return;
+
+        try
+        {
+            Process.Start(new ProcessStartInfo("explorer.exe", $"/select,\"{path}\"") { UseShellExecute = true });
+        }
+        catch (Exception ex)
+        {
+            AppLog.Warn("Downloads", $"couldn't open the folder for {path}: {ex.Message}");
+            StatusMessage = Strings.Common_FolderOpenFailed;
+        }
     }
 
     internal Task<ModVersion?> ResolveVersionAsync() => _resolveVersion();

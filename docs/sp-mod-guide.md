@@ -2,9 +2,13 @@
 
 It also keeps **mod lists** - save the set you run, switch between sets, send one to a friend, or follow the list a server publishes and know what you are missing before you launch. Plus a config editor, a start button for the server and the launcher, and an optional page that reads what each installed mod actually ships.
 
-WPF with Fluent Design, .NET 9, no account or API key needed.
+Rather install mods yourself? **Monitor mode** has the app download each mod for you to install by hand, and still keep track of what you have. And with **update notifications** on, it tells you when a mod you have gets a new release - even from the tray, with its window closed.
 
-The released build is self-contained - you don't need to install .NET separately.
+**Stuck on something?** The app has its own **Help** page in the sidebar: short step-by-step answers for every page, in your language. Press **?** in the title bar or **F1** to open it at the page you're on. This page is the full reference.
+
+WPF with Fluent Design and .NET 9
+
+The released build is entirely self-contained.
 
 #### Guide and Information
 
@@ -41,7 +45,7 @@ Starts the install rather than making you go and find it. It is the first page i
 - **Fika headless client** gets its own card, and only on a setup that has a headless launcher. A headless hosts raids for other people rather than being the one you play on, so it never shares a button with the game.
 
 #### Before you join
-The page checks your install against the mod list you are following - your own, or one a server published - and says what is outstanding. **Check again** re-runs it.
+The page checks your install against the mod list you are following - your own, or one a server published - and says what is outstanding, with versions where a version is wrong: *SAIN (3.0.0 → 3.1.2)*. **Check again** re-runs it. When you are behind a server's list, **Review and install** opens that list on the Mod lists page with its preview already done.
 
 It never blocks a launch. The mods it names may not matter for the raid you are about to play, the server may be wrong, and a launch held up by a warning nobody can override is worse than a mismatch.
 
@@ -86,6 +90,11 @@ Clicking any mod opens a dialog with:
 
 Mods can be removed from here too.
 
+#### Mods you installed by hand
+A mod this app installed is known exactly - its listing and version come from the install record. For one you installed yourself, the app reads what the mod says about itself: a client plugin's ID, name and version, and on SPT 4 a server mod's ID, name, version and the other server mods it needs. The ID matches it to its listing on sp-mod, whatever you named the folder. When nothing on sp-mod matches, the card is titled with the name the mod gives itself, with the folder shown as **Installed as**.
+
+If a mod says it is a different version from the one you know you have, **Confirm as installed** in its details records the right one, and that wins from then on.
+
 #### Three ways to look at the list
 The buttons at the top of the page switch between them. They all show the same filtered, sorted mods - only the layout changes.
 
@@ -93,7 +102,7 @@ The buttons at the top of the page switch between them. They all show the same f
 - **Groups** - your own MO2-style separators. Make a group, drag mods into it, collapse the ones you're not working on, and enable, disable or invert a whole group in one click. Drag a mod to the top edge of the window and the list scrolls for you.
 - **List** - one row per mod, scrolling continuously. Open a row for everything the app knows about that mod: its GUID, installed and published versions, install date, group, content flags, whether this app installed it or you did by hand, and the exact folders it occupies.
 
-Sort by name, author, group or install date. Every filter and sort applies to all three views.
+Sort by name, author or group. To see what you've just installed, pick **Installed in the last 7 days** in the update status filter - newest first. Every filter and sort applies to all three views.
 
 #### information
 Groups are yours to organise however you like - SPT never sees them. They do matter for one thing: disabling a whole group at once.
@@ -104,13 +113,18 @@ A BepInEx patcher belongs to a mod rather than being one, so a patcher folder is
 Two things in `BepInEx\patchers` are deliberately left out, the same way core SPT plugins are: SPT's own preloader patcher, and general BepInEx utilities that mods bundle alongside themselves (currently FixPluginTypesSerialization). Neither is published on sp-mod, and neither is yours to manage from here.
 
 #### warning
-Mods installed with this app have every file they placed recorded, which is what makes a clean uninstall possible. Anything you installed by hand beforehand has no such record, so removing it deletes its whole folder rather than a known file list.
+Mods installed with this app have every file they placed recorded, which is what makes a clean uninstall possible. Anything you installed by hand beforehand has no such record, so removing it takes its whole folder rather than a known file list.
 
 
 #### Your configs aren't thrown away
 If a server mod has config files of its own (`user\mods\<mod>\config\*.json`), removing it asks what you want done with them: keep them - they're moved to a timestamped folder under `Data\LegacyConfigs\`, with their original paths intact so the folder can be copied back over your SPT install - or delete them with the rest of the mod. Updating a mod always keeps a copy, without asking, and carries your settings into the new version - see the Configs tab.
 
 Client mod settings live in `BepInEx\config`, outside the mod's own folder, so removing a mod never touches them.
+
+#### Removing a mod can be undone
+Remove doesn't delete anything straight away. The mod's files move to a hidden `.tcfmm-removed\` folder inside your SPT install, and **Undo** on the Installed page puts a removal back exactly as it was - with several held, it lists them so you can pick which, in any order. It never overwrites something that has taken a file's place since. How long removed mods are kept is up to you under **Options, Keep removed mods**: delete straight away, 1, 7, 14 (the default) or 30 days, or until you clear them; **Clear removed mods** frees the space now.
+
+A removal only takes what is provably the mod's. It leaves a file that changed since it was installed, a file another installed mod also uses, and anything belonging to SPT, BepInEx or the game - and it puts back any file the mod had replaced when it went in. The result line says what was left and why. If the mod's folder has to stay because it holds files the mod didn't install - a note you added, say - the result says so, and that folder's card is marked as left behind by the removal.
 
 
 ### Disabling mods
@@ -168,7 +182,7 @@ A move interrupted partway - or one done by hand - can leave the same mod in bot
 ### Mod lists
 A **mod list** is a named set of mods and the versions of them you run. Capture what you have now, switch between sets, send one to a friend, or follow the one a server publishes. It records mods and versions, never files, so capturing is instant however big your install is.
 
-**Capture** saves whatever is enabled right now. **Preview** works out what applying it would do and shows you one row per mod - install, update, enable, set aside - and nothing moves until you press **Apply**.
+**Capture** saves whatever is enabled right now. **Preview** works out what applying it would do and nothing moves until you press **Apply**. The preview starts with coloured counts - *1 missing* in red, *2 incorrect versions* in amber, *1 disabled* in blue, *72 correct* in green, and grey for anything you have to fetch yourself, anything it would set aside and pinned mods. Every row below reads like the list itself - name, folder, version, scope - with a badge in the same colours and the icon the Installed page uses for that state. An incorrect version shows the move, *3.0.0 → 3.1.2*, and the Apply button says what it is about to do: *Install 1 mod*, *Install 2, update 1*.
 
 **Apply** downloads what the list names and you do not have, enables what you have but had switched off, and moves anything the list does not name into the disabled folder. **Nothing is ever deleted.** Setting a mod aside is the same move the Installed page's disable button makes, and it is near-instant however large the mod is.
 
@@ -292,8 +306,16 @@ Three things a merge deliberately does not do. **A setting you added yourself** 
 #### warning
 The first update of any mod after this feature arrived has nothing to compare against - the app has to have recorded what the previous version shipped, which it now does at every install - so that one update replaces the file and says so. From its next update on, that mod merges normally. A config the merge can't read (JSON5, or one big enough to be data rather than settings) is replaced too, and says which it was; set that mod to **Keep mine** if you edit it.
 
-### Dependencies
-Resolves the dependency tree of every installed mod that declares one, and reports each dependency's state against what's actually on disk.
+### Dependencies and Conflicts
+**Conflicts** come first: mods that will fight when the game loads. Worked out from your install alone, so it works offline and for mods you installed by hand, and checked again every time you open the page.
+
+- **The same plugin installed twice** - two folders registering one plugin, such as `SAIN` and `SAIN.4.4.3`. BepInEx loads only one, and you don't get to choose which.
+- **The same server mod installed twice** - SPT skips a server mod whose ID it finds twice, so **neither copy loads**.
+- **Different copies of one file** - two mods each shipping their own, different copy of a library. Only one copy loads, for everyone. Identical copies are fine and aren't listed.
+
+Each lists every mod involved with the folder it's in, and a button to open it. For a mod installed twice, **Keep this one** keeps that copy and removes the others the normal way - so **Undo** on the Installed page can put them back. A mod in a conflict shows a red status on the Installed page, where **Show - Has conflicts** narrows the list to them and the status line counts them with a link here. The Play page warns too, without stopping you launching.
+
+**Dependencies** resolves the dependency tree of every installed mod that declares one, and reports each dependency's state against what's actually on disk.
 
 That includes **version conflicts** - where two installed mods want incompatible versions of the same dependency - which is the failure mode that usually shows up as an unexplained crash on load rather than an error message. Dependencies you've disabled are called out as disabled rather than missing.
 
@@ -324,15 +346,18 @@ Readings are cached in `Data\mod_footprints.json` and a mod is re-read only when
 ### Server map
 An optional page - **off by default**, turned on in Options - that connects to an SPT server running the **Server Map mod** and shows what that server runs, so you can be ready before you launch rather than after a raid fails to load.
 
-- **The mod goes on the server**, not on your machine. It is a separate download, published as an addon of this mod - **Options - Server map - Get the Server Map mod** opens its page - and a player joining a server needs none of it.
-- **Connecting sends nothing about your install.** It asks the server who it is; the server never asks anything about you.
+- **The mod goes on the server**, not on your machine. It is a separate download, published as an addon of this mod - **Options - Server map connection - Get the Server Map mod** opens its page - and a player joining a server needs none of it.
+- **Nothing about your install is sent without asking.** Connecting asks the server who it is. With the Server Map mod 0.2.0 the page asks once whether to **Share** this machine on the server's map; say no and nothing is sent. **Options - Server map connection** has the same answer as a switch, and the name the machine shows.
 - **The server serves a list, never files.** Mods are still only ever downloaded from sp-mod.com. A server that could push files at you would break the one rule this app is built on, so there is no route for it to do so.
 - **Certificates are pinned on first use.** SPT serves a self-signed certificate, so the app remembers the exact one your server presented and tells you if it ever changes - which is what a machine-in-the-middle would look like. Trust the new one or refuse it.
 - **A shared key** guards everything but the handshake. The operator gives it to you; on the server's own machine the app finds it by itself.
+- **LAN-only, for the operator.** On the server machine, **Options - Server map connection - Only answer this network** makes the server refuse every request from outside its own network - Tailscale peers still count as inside.
 
 **Connecting fetches the list for you** and saves it as a read-only mod list, marked as coming from that server; it is fetched again on its own whenever the server's revision moves. **Fetch again** asks for it even when the revision hasn't moved, for a copy you have edited or deleted.
 
 Saving is not applying. From there it is an ordinary list - preview it on the Mod lists page, apply it, keep your own alongside it - and the Play page's check compares against it before you launch.
+
+**The map** lists every machine that shares itself with the server, the server first and yours marked *This machine*: whether each is in game, has the app open or was last seen some time ago, and whether it has what the server's list asks for - named, with versions, in the usual status colours. When your own card is behind, **Review and install** takes you to the fix. Only machines running this app appear, and the map needs the Server Map mod 0.2.0 on the server.
 
 #### If you run the server
 The Server Map mod's own page carries the operator guide - installing the payload and the stub for your SPT line, where the key and the published list live (`TCFModManager\Data\ServerMap\`), rotating the key, and opening a port. The mod list half - capturing, pruning, publishing, and the one thing not to apply on the machine that hosts - is on the Mod lists tab.
@@ -351,6 +376,8 @@ The install queue. Items process one at a time; each resolves its dependencies a
 #### How an install actually runs
 The archive is downloaded and extracted into a hidden scratch folder inside your SPT install (`.tcfmm-work\`, swept of stale runs each time), then moved into place.
 
+SPT's, BepInEx's and the game's own files are never replaced. When a mod replaces a file you put there yourself - a hand-installed mod's, say - the original is kept and goes back if the mod is removed. The result line says what was left as it was.
+
 When you're updating, the previous version is only removed **after** the new one has downloaded and extracted successfully - a failed or cancelled download can't leave you with neither. Once files start being placed, the operation runs to completion rather than tearing out a half-installed mod.
 
 #### warning
@@ -358,6 +385,64 @@ Installing and removing both refuse to start while **T***** or the SPT server is
 
 #### information
 Before anything is queued, the app asks you to open the mod's page here on sp-mod first - same as installing manually, and it keeps mod authors' page views and instructions in the loop.
+
+
+### Monitor mode
+For when you would rather install mods yourself. Instead of installing, the app downloads each mod's archive from sp-mod into a folder you choose and leaves the installing to you. Browsing, update checks, dependencies and mod lists all keep working.
+
+**Turning it on.** In **Options - Monitor mode**, change **Install mods for me** to **Download only - I install them myself**. The **Download folder** below it is where archives go; leave it empty to use your Windows Downloads folder, wherever Windows keeps it. The app never deletes anything it saves there.
+
+**One mod the other way round.** Whichever you pick, every install button has a smaller button beside it that does the opposite for that one mod - download just this one while the app installs everything else, or have the app install just this one while you download the rest. It is on Browse cards, in the update dialog, on addon rows and on the Dependencies and Conflicts page. Hover it to see which way round it is.
+
+**What a download does.** It goes through the Downloads queue like any install, and its card says where the file was saved, with a **Show in folder** button. Nothing inside your SPT install is touched, so you can download while SPT is running. Any dependencies it offers to fetch are downloaded the same way. Files keep the name sp-mod serves them under and are never overwritten - a second copy is saved as `Name (2).zip`. An archive the app can't recognise as an SPT mod is still saved, and the card tells you to follow the mod page's install steps.
+
+#### Once you've installed it
+The next time the **Installed** page scans, it checks each download against your install. When every file in the archive is on disk at the size the archive says, the download counts as installed:
+
+- **By default, you're asked.** A window after the scan lists every download that now looks installed, all ticked. **Mark installed** records the ones you leave ticked; any you untick aren't asked about again until you download a newer version. **Not now** leaves them all waiting, and won't ask again until the app is next started.
+- **Or just note it.** Under **When a downloaded mod shows up installed** in Options, pick **Just note it on the mod's card**, and the mod's opened card says so and gets a **Confirm install** button instead.
+
+Confirming only tells the app which version you have, so update checks and dependencies are right - nothing on disk changes. When only some of the files match - part of the mod is missing, or the old version is still there - the card says so and it is never confirmed. **Show - Downloaded, not confirmed** lists every mod in either state.
+
+#### Mod lists in Monitor mode
+Applying a list downloads what it would install or update, and says so in the preview before anything runs. The downloads go into a folder named after the list, inside your download folder - the switch under **Download folder** in Options puts them straight into the download folder instead. Mods the list enables or disables are still moved, since that places nothing new. Applying the list again doesn't download anything that is still waiting for you to install.
+
+#### warning
+**Your settings are only carried across an update the app does itself.** Copying a new version over your install by hand replaces the mod's config files with the author's defaults. The queue card warns you when a download holds config files you already have - back yours up first, or copy only the files you need.
+
+#### information
+Everything still comes from sp-mod. Monitor mode changes who places the files, not where they come from - it does not install archives from anywhere else.
+
+
+### Update notifications
+Off until you switch it on. With it on, the app asks sp-mod every so often whether any mod you have installed has a new release, and shows a Windows notification when one has - so you hear about an update without going to look for it. It works the same whether the app installs your mods or Monitor mode has you install them.
+
+**Turning it on.** In **Options - Update notifications**, switch on **Notify me when an installed mod has an update**, and pick how often under **Check every** - from 30 minutes to 12 hours, every hour to start with. The first check runs one interval after the app starts, never at launch. **Check now** runs one straight away and says underneath what it found.
+
+**What gets announced.**
+- **Only what you have installed is asked about** - one request per check for the lot, not a trawl through the whole catalog. Addons are checked too.
+- **An update means what the Installed page means by it:** the newest release that runs on your SPT. A notification never names an update the Installed page doesn't show.
+- **Each release is announced once.** Restarting the app doesn't repeat it; a newer release of the same mod is news again.
+- **Switching it on doesn't announce what's already there.** The first check notes every update the Installed page already shows, and from then on only new releases are announced. Updates that come out while the app is closed are announced on the first check after it starts.
+- **Disabled mods aren't announced**, and neither is an update you've already downloaded in Monitor mode but not installed yet.
+- **One notification per check**, however many it found - "3 mod updates available: SAIN 4.5.2, UI Fixes 6.0.2 and 1 more". A newer one replaces an older one still waiting in the Notification Centre.
+
+**Clicking it** - the notification or its **Open** button - brings the app forward on the **Installed** page with **Show** set to **Needs update**. If the app has been closed since, clicking it starts the app on that page. There's no "update all" on the notification: updating goes through the app, where the running-SPT check and the dependency prompt can do their jobs.
+
+When a check finds something, the Installed page and Browse's status dots pick up the new version without a refresh.
+
+#### Keeping it running in the tray
+Closing the window normally quits the app, and the checks stop with it. Under the notifications switch, turn on **Closing the window keeps the app running in the tray** and closing hides the window instead, leaving the app's icon in the notification area by the clock. The first time it happens, a notification says so. The switch is only available while notifications are on.
+
+- **Click the icon** to open the window again.
+- **Right-click it** for **Open**, **Check for updates now** and **Quit**. While this is on, Quit is how you actually close the app.
+- **Launching the app again** while it's in the tray just brings the window back.
+
+#### information
+Only one copy of the app runs from a folder at a time - launching it again brings the running one forward instead of opening a second. A separate copy kept beside a second SPT install still runs alongside it.
+
+#### warning
+Windows has the last word on notifications. If none appear, check that TCF Mod Manager is allowed under **Windows Settings - System - Notifications**, and that Do not disturb isn't on. Windows also holds notifications back while a game is full screen, and the app doesn't try to get around that.
 
 
 ### App updates
@@ -389,7 +474,7 @@ The app doesn't list *itself* on the Browse page, since installing it into `BepI
 
 
 ### Files & logs
-Everything lives next to the exe, not in `%LocalAppData%`:
+Everything lives next to the exe:
 
 | Path | What |
 | --- | --- |
@@ -400,18 +485,21 @@ Everything lives next to the exe, not in `%LocalAppData%`:
 | `Data\dependency_flags.json` | Per-mod "has dependencies" answers, re-checked when a mod publishes |
 | `Data\mod_groups.json` | Your groups, and which mod is in which |
 | `Data\mod_lists.json` | Your mod lists, which ones you follow, your pinned mods, and the single undo point |
+| `Data\downloads.json` | Monitor mode: each archive saved for you to install, what it would place, and whether you've confirmed it |
+| `Data\update_notifications.json` | Update notifications: which releases have already been announced, so none is announced twice |
 | `Data\addon_cache.json` | Cached addon catalog |
 | `Data\mod_footprints.json` | Cached footprint readings, only if that page is on |
 | `Data\config-backups\` | One timestamped folder per config save, laid out like your install |
 | `Data\logs\tcfmm-<date>.log` | Daily log |
 | `Staging\` | Default destination for manually downloaded archives |
 | `Data\LegacyConfigs\` | Config files kept from removed and updated mods, one timestamped folder each |
+| `Data\overwritten\` | Files an install replaced that weren't another installed mod's, kept to put back when that mod is removed |
 | `Data\ConfigBaselines\` | A copy of the config files each mod version shipped, which is what lets an update tell your changes from the author's |
 | `Data\mod_configs.json` | Your per-mod choice of what an update does with that mod's configs, and any unusual places it keeps them |
-| `Data\ServerMap\` | On a server: the shared key (`servermap-key.txt`) and the list it publishes |
+| `Data\ServerMap\` | On a server: the shared key (`servermap-key.txt`), the list it publishes, and the map's machines (`clients.json`) |
 | `.tcfmm-update\` | Hidden. Only exists while an app update is downloading, or if one failed; cleaned up on the next launch |
 
-Two more folders are created inside your **SPT install**, both hidden: `.tcfmm-work\` (scratch space while a mod installs, swept each run) and `.tcfmm-duplicates\` (copies set aside by **Sort out**, kept until you delete them).
+Three more folders are created inside your **SPT install**, all hidden: `.tcfmm-work\` (scratch space while a mod installs, swept each run), `.tcfmm-duplicates\` (copies set aside by **Sort out**, kept until you delete them) and `.tcfmm-removed\` (removed mods, kept for Undo as long as **Keep removed mods** says).
 
 `Data\installed-mods.json` - not folder names, not DLL file versions - is the authority on what's installed and at what version.
 
@@ -420,17 +508,18 @@ Info level by default, rotated daily as `tcfmm-<yyyyMMdd>.log`. To get Debug-lev
 
 
 ### Limitations
-Worth knowing before you rely on it. None of these lose data quietly - they're places where the app either won't help or will tell you it can't.
 
 #### What it can and can't see
 - **Mods nested a folder deeper** - `BepInEx\plugins\Author\ModName\mod.dll` rather than `BepInEx\plugins\ModName\mod.dll` - are listed under the outer folder's name with an unknown version.
-- **Mods you installed by hand are matched by folder name**, since there's no install record to read. If the folder name doesn't clearly point at one listing, the mod shows as not found on sp-mod: you can still see, group, disable and remove it, but not update it from here. A folder name that could plausibly be two different mods is deliberately left unmatched rather than guessed at.
+- **Mods you installed by hand are matched by the ID they declare, then by folder name**, since there's no install record to read. If neither clearly points at one listing, the mod shows as not found on sp-mod: you can still see, group, disable and remove it, but not update it from here. A folder name that could plausibly be two different mods is deliberately left unmatched rather than guessed at.
+- **A mod's version is only as good as what it declares.** Some authors forget to update it, and some mods work theirs out while the game runs, which the app can't read - those fall back to the DLL's file version. Either way, **Confirm as installed** puts it right.
+- **A listing can number its releases differently from the mod it installs.** A helper mod declaring 0.0.7 on a listing whose releases are 4.x shows an update that never clears. Confirm as installed ends it.
 
 #### Installing
 - **Archives have to be packaged normally** - a `BepInEx\`, `user\`, `SPT\` or `SPT_Runtime\` folder at the top, optionally inside one wrapper folder. Anything else is refused with a message telling you to install it by hand, rather than being scattered into your install.
 - **Everything in the archive gets installed.** Mods that ship optional variants in separate folders, or a readme, get all of it copied in. Choose-your-variant mods are worth installing by hand.
-- **Files are overwritten without a backup.** If two mods ship the same file, the second one installed wins.
-- **Removing a mod deletes the files it recorded.** If another mod happens to share one of those files, removing the first takes it with it.
+- **If two mods ship the same file, the second one installed wins.** Removing either one leaves the file for the other.
+- **Mods installed before v1.19.0 are only fully protected after their next update or reinstall.** Until then their record has no fingerprints: removing one also takes a file you changed since (into `.tcfmm-removed\`, so it can be got back), and leaves its files in the install root or `EscapeFromTarkov_Data\Managed` in place.
 - **You need roughly twice the archive's size free** on the SPT drive - the download and extraction are staged there before anything is placed.
 - **Very large mods on a slow connection can time out** and have to be started again; downloads don't resume.
 
@@ -461,14 +550,26 @@ Worth knowing before you rely on it. None of these lose data quietly - they're p
 - **Settings kept somewhere unusual are only recognised once you say so** - a `Presets\` folder rather than `config\`, for instance. The three buttons on the Configs page are how you say so, and SVM comes set up already.
 - **A folder of your own files is matched by name.** Renaming the mod's folder loses its entry, the same way a mod group does.
 
+#### Monitor mode
+- **Your settings aren't carried across a hand install.** Config protection only runs on an install the app does; copying an update over by hand replaces the mod's configs.
+- **A hand install is recognised by file size, not contents.** A file of the right size is taken as the right file.
+- **A mod installed somewhere other than where its archive lays it out isn't recognised** - into a different folder, or straight into a disabled one. It stays waiting; **Confirm as installed** in the mod's update dialog records the version by hand.
+- **"Not now" lasts until the app is closed.** The next time it starts, anything still waiting is asked about again.
+
+#### Update notifications
+- **Checks only run while the app does.** Closing the window ends them unless the app is kept in the tray, and it doesn't start with Windows.
+- **A mod you installed by hand can be announced once too often.** With no install record, its version is read from what the mod declares, and a declared version that lags behind the real one reads as out of date. It's announced once at most, and confirming the version on the mod's card ends it.
+- **Checks are at least 30 minutes apart.** **Check now** is there when you want one sooner.
+
 #### Server map
 - **Client and server must be on the same SPT line**, which is SPT's rule rather than this app's.
-- **The server publishes a list, not files**, and the page reports nothing about your install back to it.
+- **The server publishes a list, not files.** The page reports this machine to the server's map only after you say **Share**, and only to that server.
+- **Only machines running this app appear on the map.** A player who installs by hand is invisible to it.
 - **A server's certificate is pinned on first connect.** If it changes you are asked before anything else happens, because that is also what an interception would look like.
 
 #### Scope
 - **One SPT install at a time.** The record of what's installed belongs to the app, not to the install it points at, so pointing Options at a second SPT folder will carry the first one's records across. Use a separate copy of the app per install.
-- **The catalog refreshes once per session** in the background. Mods published while the app is open won't appear until you press Refresh cache or restart.
+- **The catalog refreshes once per session** in the background. Mods published while the app is open won't appear until you press Refresh cache or restart - except the mods you have installed, which update notifications re-read on every check while they're on.
 - **It won't run while SPT does.** Installing or removing anything with T***** or the server open is refused, because those lock the files being replaced.
 
 
@@ -513,8 +614,11 @@ Press **Refresh from server** on the list, on the Mod lists page. It asks again 
 #### My headless installed a pile of mods it doesn't need
 It is reading as an ordinary player. **Options - What this machine is** says whether anybody plays there and whether it runs a headless client; a served list is only trimmed once that is answered. If the app never asked, it didn't find `FikaHeadlessManager.exe` at the top of the install folder - point **Options - Fika headless launcher** at it.
 
+#### No update notifications appear
+First make sure a check has actually run: press **Check now** in **Options - Update notifications** and read the line under it. The first check after switching on only notes what's already there, so it never shows one. A check is also skipped while downloads are running, while no SPT install is set, and while sp-mod can't be reached - the log's `Updates` lines say which. If checks are finding updates and still nothing appears, Windows is holding them back: check **Windows Settings - System - Notifications** allows TCF Mod Manager, and that Do not disturb is off.
+
 #### Reporting a bug
-Grab `Data\logs\tcfmm-<date>.log` - ideally after adding the `verbose` marker file and reproducing the problem - and open an issue at [github.com/TheCrimsonFckr/TCFModManager](https://github.com/TheCrimsonFckr/TCFModManager).
+Grab `Data\logs\tcfmm-<date>.log` - ideally after adding the `verbose` marker file and reproducing the problem - and open an issue on the new [issues tab](https://sp-mod.com/mod/2945/tcf-mod-manager#issues).
 
 
 ### Translating
@@ -530,7 +634,7 @@ Mod names, descriptions, changelogs and category names come from sp-mod and stay
 #### Found something wrong? That is the useful thing
 You do not need git, an editor, or the whole file. One bad line is worth reporting on its own.
 
-Open an issue at [github.com/TheCrimsonFckr/TCFModManager](https://github.com/TheCrimsonFckr/TCFModManager) with three things:
+Open an issue on the new [issues tab](https://sp-mod.com/mod/2945/tcf-mod-manager#issues) with three things:
 
 1. Which language.
 2. What it says now - a screenshot is perfect, or just the text.
@@ -552,7 +656,7 @@ Leave anything in braces exactly as it is - `{0}`, `{1}`, and the part after a c
 #### information
 You don't have to finish, and you don't have to keep up. A string you haven't translated is shown in English, so a half-done language is a part-English app rather than a broken one - send what you have. The same holds after a release adds new text: your language carries on working and only the new strings read in English until somebody gets to them.
 
-#### Things worth knowing before you start
+#### Things to keep in mind
 **Counted sentences are split by form.** "1 mod installed" and "3 mods installed" are separate entries whose keys end `_one` and `_other`. English needs two forms; Russian needs three and already has them in this file, Czech four, Arabic six. Say which your language needs when you send it - the extra forms are a small change here, and the key names were built to take them.
 
 **Two entries are not translations.** `Meta_LanguageName` is your language's name written in your language, the way the dropdown should list it - `Deutsch`, not `German`. `Meta_TranslationCredit` is yours: put your name in it and it appears under the language picker in Options.
@@ -561,14 +665,30 @@ You don't have to finish, and you don't have to keep up. A string you haven't tr
 
 
 ### Planning
-- Mod lists / profiles - Completed
-- Mod list sharing and handling (if you have played Arma modded or Total War modded, think like that) - Completed
-- Mod syncing, getting on the same level as the server you are joining - Completed
-- Server mapping - Released, and being built on
-- Fika headless support, so a headless is served only what it needs - Completed
-- Window default sizes - Completed
-- Default filtering and page defaults - Completed
-- Config protection, so updating a mod stops replacing your settings - Completed
-- Per-mod pins, so a mod you always want on survives any list you apply - Completed
+- Mod lists / profiles - *Completed*
+- Mod list sharing and handling (if you have played Arma modded or Total War modded, think like that) - *Completed*
+- Mod syncing, getting on the same level as the server you are joining - *Completed*
+- Fika headless support, so a headless is served only what it needs - *Completed*
+- Window default sizes - *Completed*
+- Default filtering and page defaults - *Completed*
+- Config protection, so updating a mod stops replacing your settings - *Completed*
+- Per-mod pins, so a mod you always want on survives any list you apply - *Completed*
+- Server mapping, with who is on the server and where each machine stands - *Completed*
+- Local languages based on OS - *Initial release, ongoing*
+- Options to use app to monitor mods rather than manage them - *Completed*
+- Update notifications, with the app kept running in the tray - *Completed*
+- Additional mod footprint monitoring to show data around their usage on 
+your systems - *Planning/developing*
+
+
+### New Issues Feature (beta) 
+If you find an issue, be it bug, spelling, language, want to request a feature or ask a question please use the new [Issues Tab](https://sp-mod.com/mod/2945/tcf-mod-manager#issues).
+When reporting an issue please grab the `Data\logs\tcfmm-<date>.log` - ideally after adding the `verbose` marker file and reproducing the problem.
+
+
+### Disclaimer
+I use AI to help write this mod, everything is initially written by myself (I'm a
+developer by profession), then passed though Claude (Fable model) for refinements and to highlight any additional changes the LLM thinks are worth making. Absolutely everything is reviewed and tested by myself before I commit anything. This is done because I simply do not have enough time in day to make full refinements and multiple passes myself. If you are not
+comfortable using an application that uses AI as a tool then please do not download it.
 
 {.endtabset}

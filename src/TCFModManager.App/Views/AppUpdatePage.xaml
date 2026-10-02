@@ -85,6 +85,93 @@
                 </StackPanel>
             </ui:Card>
 
+            <!-- The Server Map mod. Installed by hand on the machine running the server, so this
+                 card only ever says it is behind and links its page - there is no install button.
+                 Shown on the server's own machine (the files on disk) and on a machine connected
+                 to a server (what that server's /hello reports). -->
+            <ui:Card
+                Padding="16"
+                Margin="0,16,0,0"
+                Visibility="{Binding ShowServerMapMod, Converter={StaticResource BoolToVis}}">
+                <StackPanel>
+                    <TextBlock
+                        Text="{loc:Str AppUpdate_ServerMapHeader}"
+                        FontWeight="SemiBold"
+                        Margin="0,0,0,8" />
+
+                    <StackPanel
+                        Orientation="Horizontal"
+                        Margin="0,0,0,4"
+                        Visibility="{Binding HasServerMapLocal, Converter={StaticResource BoolToVis}}">
+                        <TextBlock Margin="0,0,4,0" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="{loc:Str AppUpdate_ServerMapLocalLabel}" />
+                        <TextBlock FontWeight="SemiBold" Text="{Binding ServerMapLocalVersion, Mode=OneWay}" />
+                    </StackPanel>
+
+                    <StackPanel
+                        Orientation="Horizontal"
+                        Margin="0,0,0,4"
+                        Visibility="{Binding HasServerMapConnected, Converter={StaticResource BoolToVis}}">
+                        <TextBlock Margin="0,0,4,0" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="{loc:Str AppUpdate_ServerMapConnectedLabel}" />
+                        <TextBlock FontWeight="SemiBold" Text="{Binding ServerMapConnectedVersion, Mode=OneWay}" />
+                    </StackPanel>
+
+                    <StackPanel
+                        Orientation="Horizontal"
+                        Margin="0,0,0,4"
+                        Visibility="{Binding ServerMapLatestVersion, Converter={StaticResource NullToCollapsed}}">
+                        <TextBlock Margin="0,0,4,0" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="{loc:Str AppUpdate_LatestLabel}" />
+                        <TextBlock FontWeight="SemiBold" Text="{Binding ServerMapLatestVersion, Mode=OneWay}" />
+                    </StackPanel>
+
+                    <ui:InfoBar
+                        Margin="0,12,0,0"
+                        IsOpen="True"
+                        IsClosable="False"
+                        Severity="Warning"
+                        Title="{loc:Str AppUpdate_ServerMapBehindTitle}"
+                        Message="{Binding ServerMapLocalBehindMessage}"
+                        Visibility="{Binding ServerMapLocalBehind, Converter={StaticResource BoolToVis}}" />
+
+                    <ui:InfoBar
+                        Margin="0,12,0,0"
+                        IsOpen="True"
+                        IsClosable="False"
+                        Severity="Warning"
+                        Title="{loc:Str AppUpdate_ServerMapStubBehindTitle}"
+                        Message="{Binding ServerMapStubBehindMessage}"
+                        Visibility="{Binding ServerMapStubBehind, Converter={StaticResource BoolToVis}}" />
+
+                    <ui:InfoBar
+                        Margin="0,12,0,0"
+                        IsOpen="True"
+                        IsClosable="False"
+                        Severity="Warning"
+                        Title="{loc:Str AppUpdate_ServerMapBehindTitle}"
+                        Message="{Binding ServerMapConnectedBehindMessage}"
+                        Visibility="{Binding ServerMapConnectedBehind, Converter={StaticResource BoolToVis}}" />
+
+                    <TextBlock
+                        Margin="0,8,0,0"
+                        Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                        TextWrapping="Wrap"
+                        Text="{loc:Str AppUpdate_ServerMapUpToDate}"
+                        Visibility="{Binding ShowServerMapUpToDate, Converter={StaticResource BoolToVis}}" />
+
+                    <TextBlock
+                        Margin="0,8,0,0"
+                        Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                        TextWrapping="Wrap"
+                        Text="{loc:Str AppUpdate_ServerMapCheckFailed}"
+                        Visibility="{Binding ServerMapCheckFailed, Converter={StaticResource BoolToVis}}" />
+
+                    <ui:Button
+                        Margin="0,12,0,0"
+                        Content="{loc:Str AppUpdate_ServerMapOpenPage}"
+                        Icon="{ui:SymbolIcon Open24}"
+                        Command="{Binding OpenServerMapModPageCommand}" />
+                </StackPanel>
+            </ui:Card>
+
             <!-- Everything below only exists when there's actually something newer. -->
             <StackPanel Visibility="{Binding UpdateAvailable, Converter={StaticResource BoolToVis}}">
 

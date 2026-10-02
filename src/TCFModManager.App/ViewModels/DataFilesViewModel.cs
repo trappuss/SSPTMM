@@ -69,30 +69,8 @@ public partial class DataFilesViewModel : LocalizedViewModel
 
     partial void OnSelectedFileChanged(string? value) => Load();
 
-    // installed-mods.json is the current install's records (each install keeps its own - see
-    // ModInstallManifestService); with no install set, the old shared list.
-    private static string? PathFor(string? file)
-    {
-        if (file is null) return null;
-
-        if (string.Equals(file, "installed-mods.json", StringComparison.OrdinalIgnoreCase)
-            && AppServices.SptEnvironment.InstallPath is { Length: > 0 } installPath)
-        {
-            try
-            {
-                // Null (nothing to edit) when the install's folder is not there right now.
-                return AppServices.InstallManifest.RecordsFileFor(installPath);
-            }
-            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-            {
-                // Not the old shared list instead: an edit there would not be what this install reads.
-                AppLog.Warn("DataFiles", $"couldn't open this install's records: {ex.Message}");
-                return null;
-            }
-        }
-
-        return Path.Combine(AppPaths.DataDirectory, file);
-    }
+    private static string? PathFor(string? file) =>
+        file is null ? null : Path.Combine(AppPaths.DataDirectory, file);
 
     // The file Text was loaded from: Save writes back to it, not to whatever PathFor would say now -
     // installed-mods.json follows the install setting, which can change while this window is open.
@@ -158,9 +136,8 @@ public partial class DataFilesViewModel : LocalizedViewModel
 
         try
         {
-            // All or nothing, the previous version kept as .bak - see SafeFile.
-            if (!SafeFile.WriteAllText(path, Text, keepBackup: true))
-                throw new IOException(LocalizationService.Text(Strings.DataFiles_UnreadableNotSaved, Path.GetFileName(path)));
+            if (File.Exists(path)) File.Copy(path, path + ".bak", overwrite: true);
+            SafeFile.WriteText(path, Text, keepBackups: true);
             _savedText = Text;
             HasError = false;
             StatusMessage = LocalizationService.Text(

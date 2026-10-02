@@ -994,7 +994,7 @@ Qualunque cosa scegli, la versione ora sul disco viene prima copiata in {1}.</va
     <value>Installazione annullata - la pagina di {0} non è stata confermata come letta.</value>
   </data>
   <data name="Dependencies_Description" xml:space="preserve">
-    <value>Tutti i mod installati che dichiarano dipendenze, e se ognuna è soddisfatta. I mod che richiedono attenzione sono elencati per primi e partono espansi.</value>
+    <value>Le mod installate due volte o con file in conflitto, poi tutte le mod installate che dichiarano dipendenze, e se ognuna è soddisfatta. I problemi sono elencati per primi.</value>
   </data>
   <data name="Dependencies_Empty" xml:space="preserve">
     <value>Nessun mod installato dichiara dipendenze.</value>
@@ -1917,7 +1917,7 @@ La copia che non conservi viene spostata in una cartella nascosta .tcfmm-duplica
     <value>Annulla sottoscrizione</value>
   </data>
   <data name="Installed_RemoveAppManagedBody" xml:space="preserve">
-    <value>Verranno eliminati esattamente i file che questa app ha installato per questo mod.</value>
+    <value>Questo rimuove esattamente i file che questa app ha installato per la mod e rimette ogni file che aveva sostituito. I file modificati dopo l'installazione, o usati anche da un'altra mod, restano dove sono.</value>
   </data>
   <data name="Installed_RemovedConfigsKept_one" xml:space="preserve">
     <value>Un file di configurazione conservato in {1}.</value>
@@ -1944,7 +1944,7 @@ La copia che non conservi viene spostata in una cartella nascosta .tcfmm-duplica
     <value>Impossibile rimuovere {0}: {1}</value>
   </data>
   <data name="Installed_RemoveLegacyBodyFormat" xml:space="preserve">
-    <value>Questo mod non è stato installato tramite questa app, quindi verrà eliminata definitivamente tutta la sua cartella e non solo i file che ha inserito:
+    <value>Questa mod non è stata installata tramite questa app, quindi viene rimossa tutta la sua cartella e non solo i file che ha inserito:
 
 {0}</value>
   </data>
@@ -2676,9 +2676,6 @@ Una lista mod registra quali mod installare e attivare. Applicarne una scarica d
   <data name="ModLists_EntryNotOnForge" xml:space="preserve">
     <value>non su sp-mod.com - installato a mano</value>
   </data>
-  <data name="ModLists_EntryPinnedToolTip" xml:space="preserve">
-    <value>Fissato su questa installazione - nessuna lista che applichi lo metterà da parte</value>
-  </data>
   <data name="ModLists_EntrySearchPlaceholder" xml:space="preserve">
     <value>Cerca in questa lista...</value>
   </data>
@@ -3230,7 +3227,7 @@ Fai un backup del profilo prima di continuare, se ci tieni.</value>
     <value>Configurazioni</value>
   </data>
   <data name="Nav_Dependencies" xml:space="preserve">
-    <value>Dipendenze</value>
+    <value>Dipendenze e conflitti</value>
   </data>
   <data name="Nav_Downloads" xml:space="preserve">
     <value>Download</value>
@@ -3267,9 +3264,6 @@ Fai un backup del profilo prima di continuare, se ci tieni.</value>
   </data>
   <data name="Options_Browse" xml:space="preserve">
     <value>Sfoglia</value>
-  </data>
-  <data name="Options_BrowseEllipsis" xml:space="preserve">
-    <value>Sfoglia...</value>
   </data>
   <data name="Options_BrowseHasDefault" xml:space="preserve">
     <value>Sfoglia: è salvato un valore predefinito. Se lo cancelli, l'effetto si vede al prossimo avvio dell'app.</value>
@@ -3368,7 +3362,7 @@ Fai un backup del profilo prima di continuare, se ci tieni.</value>
     <value>Installati: nessun valore predefinito salvato - si apre su Schede, senza filtri, ordinato per nome.</value>
   </data>
   <data name="Options_InstallFolderDescription" xml:space="preserve">
-    <value>Indica qui la cartella di installazione del tuo server SPT (quella che contiene SPT.Server.exe). Una volta impostata, la versione di SPT installata viene usata come predefinita per il filtro versione in Sfoglia e per segnalare i mod che non sono creati per essa.</value>
+    <value>Indica qui la cartella di gioco di SPT - quella che contiene EscapeFromTarkov.exe, non la cartella del server SPT al suo interno. Una volta impostata, la versione di SPT installata viene usata come predefinita per il filtro versione in Sfoglia e per segnalare i mod che non sono creati per essa.</value>
   </data>
   <data name="Options_InstallFolderHeader" xml:space="preserve">
     <value>Cartella di installazione SPT</value>
@@ -3393,15 +3387,6 @@ Fai un backup del profilo prima di continuare, se ci tieni.</value>
   </data>
   <data name="Options_ModPagesDescription" xml:space="preserve">
     <value>Prima di scaricare qualsiasi cosa, questa app ti chiede di aprire la pagina del mod - dove il suo autore mette i passaggi di installazione, i requisiti, i conflitti noti e gli avvisi. Disattivalo se preferisci andare dritto all'installazione. Gli aggiornamenti di questa app lo chiedono sempre, perché è su quella pagina che stanno le sue note di rilascio.</value>
-  </data>
-  <data name="Options_ModPagesHeader" xml:space="preserve">
-    <value>Pagine dei mod</value>
-  </data>
-  <data name="Options_ModPagesSwitchOff" xml:space="preserve">
-    <value>Attivo - apri prima la pagina di ogni mod</value>
-  </data>
-  <data name="Options_ModPagesSwitchOn" xml:space="preserve">
-    <value>Disattivo - installa senza aprire le pagine dei mod</value>
   </data>
   <data name="Options_ModPagesToolTipAsking" xml:space="preserve">
     <value>La pagina di ogni mod si apre prima che venga scaricato qualcosa, così le sue note di rilascio e le istruzioni di installazione ti stanno davanti per prime.</value>
@@ -3462,12 +3447,6 @@ Fai un backup del profilo prima di continuare, se ci tieni.</value>
   </data>
   <data name="Options_SharedKeyPlaceholder" xml:space="preserve">
     <value>Chiave condivisa (se il server ne richiede una)</value>
-  </data>
-  <data name="Options_SidebarOff" xml:space="preserve">
-    <value>Disattivo - nascosta</value>
-  </data>
-  <data name="Options_SidebarOn" xml:space="preserve">
-    <value>Attivo - mostrata nella barra laterale</value>
   </data>
   <data name="Options_SizeBy" xml:space="preserve">
     <value>x</value>
@@ -3880,12 +3859,6 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
   <data name="ServerMap_UnreachableFormat" xml:space="preserve">
     <value>Nessuna risposta da {0}:{1}. Il server potrebbe non essere in esecuzione, oppure l'indirizzo o la porta potrebbero essere sbagliati - sono gli stessi che usi nel launcher SPT.</value>
   </data>
-  <data name="ServerMap_WhoElseEmpty" xml:space="preserve">
-    <value>Ancora niente. Il server non segnala le altre macchine collegate, quindi per ora questa pagina può mostrare solo il server stesso. L'installazione di nessuno viene mandata da nessuna parte, compresa la tua. Questo arriverà con una versione successiva del mod server, e chiederà il permesso prima di segnalare qualsiasi cosa su questa macchina.</value>
-  </data>
-  <data name="ServerMap_WhoElseHeader" xml:space="preserve">
-    <value>Chi altro c'è su questa mappa</value>
-  </data>
   <data name="Sort_AuthorAscending" xml:space="preserve">
     <value>Per autore (A-Z)</value>
   </data>
@@ -3939,9 +3912,6 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
   </data>
   <data name="Sort_NameDescending" xml:space="preserve">
     <value>Per nome (Z-A)</value>
-  </data>
-  <data name="Sort_RecentlyInstalled" xml:space="preserve">
-    <value>Installati di recente</value>
   </data>
   <data name="SptEnvironment_DetectedFormat" xml:space="preserve">
     <value>Rilevato SPT {0}.</value>
@@ -4071,5 +4041,1893 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
   </data>
   <data name="WorkshopHome_ViewAll" xml:space="preserve">
     <value>Mostra tutto</value>
+  </data>
+  <data name="Configs_BackupFailedFormat" xml:space="preserve">
+    <value>{0} non è stato salvato: prima non è stato possibile farne un backup ({1}). Non è stato modificato nulla - libera un po' di spazio o controlla che la cartella Data dell'app sia scrivibile, poi salva di nuovo.</value>
+  </data>
+  <data name="ModInstall_ArchiveContainsLinkFormat" xml:space="preserve">
+    <value>{0} {1} non è stato installato: il suo archivio contiene un collegamento ("{2}"). Gli archivi con collegamenti vengono rifiutati, così niente al di fuori della mod può essere toccato.</value>
+  </data>
+  <data name="ModInstall_InstallThroughLinkFormat" xml:space="preserve">
+    <value>{0} {1} non è stato installato: {2} si trova in una cartella che è un collegamento a un altro percorso, e l'installazione ne modificherebbe la destinazione. Non è stato modificato nulla.</value>
+  </data>
+  <data name="ModInstall_OriginalNotKeptFormat" xml:space="preserve">
+    <value>{0} {1} non è stato installato: sostituirebbe {2}, e prima non è stato possibile conservarne una copia ({3}). Non è stato modificato nulla.</value>
+  </data>
+  <data name="ModInstall_RecordFromAnotherInstallFormat" xml:space="preserve">
+    <value>{0} non è stato toccato: la registrazione dell'app che lo riguarda è stata fatta in un'altra installazione di SPT ({1}). Torna a quell'installazione nelle Opzioni per rimuoverlo o aggiornarlo lì.</value>
+  </data>
+  <data name="ModInstall_RemoveRefusedOutsideFormat" xml:space="preserve">
+    <value>{0} non è stato rimosso: non si trova nella tua cartella di SPT. Non è stato eliminato nulla.</value>
+  </data>
+  <data name="ModInstall_RemoveRefusedProtectedFormat" xml:space="preserve">
+    <value>{0} non è stato rimosso: appartiene a SPT, BepInEx o al gioco. Non è stato eliminato nulla.</value>
+  </data>
+  <data name="ModInstall_RemoveRefusedAppFolderFormat" xml:space="preserve">
+    <value>{0} non è stato rimosso: fa parte di TCF Mod Manager. Non è stato eliminato nulla.</value>
+  </data>
+  <data name="ModInstall_RemoveRefusedNotModFolderFormat" xml:space="preserve">
+    <value>{0} non è stato rimosso: non è una cartella di mod in BepInEx\plugins, BepInEx\patchers o user\mods. Non è stato eliminato nulla.</value>
+  </data>
+  <data name="ModInstall_RemoveRefusedLinkFormat" xml:space="preserve">
+    <value>{0} non è stato rimosso: è un collegamento a un'altra cartella, o ne contiene uno. Non è stato eliminato nulla - rimuovilo tu da Esplora file, se era quello che volevi.</value>
+  </data>
+  <data name="Filter_UpdateRecentlyInstalled" xml:space="preserve">
+    <value>Installati negli ultimi 7 giorni</value>
+  </data>
+  <data name="Options_MonitorDescription" xml:space="preserve">
+    <value>Scegli se questa app installa i mod per te o si limita a scaricarli perché tu li installi da solo. La navigazione, il controllo degli aggiornamenti e le dipendenze funzionano in entrambi i casi. Qualunque sia la scelta, accanto a ogni pulsante di installazione c'è un piccolo pulsante che fa l'altra cosa, solo per quel mod.</value>
+  </data>
+  <data name="Options_MonitorModeInstall" xml:space="preserve">
+    <value>Installa i mod per me</value>
+  </data>
+  <data name="Options_MonitorModeDownloadOnly" xml:space="preserve">
+    <value>Solo download - li installo io</value>
+  </data>
+  <data name="Options_MonitorFolderHeader" xml:space="preserve">
+    <value>Cartella di download</value>
+  </data>
+  <data name="Options_MonitorFolderDescription" xml:space="preserve">
+    <value>Dove viene salvato un mod quando viene scaricato invece che installato. Lascia vuoto per usare la cartella Download di Windows. L'app non elimina mai nulla di ciò che salva qui.</value>
+  </data>
+  <data name="Options_MonitorFolderPlaceholderFormat" xml:space="preserve">
+    <value>Download di Windows ({0})</value>
+  </data>
+  <data name="Options_MonitorFolderPickerTitle" xml:space="preserve">
+    <value>Scegli dove salvare i mod scaricati</value>
+  </data>
+  <data name="Options_MonitorFolderReset" xml:space="preserve">
+    <value>Usa Download</value>
+  </data>
+  <data name="Options_MonitorFolderResetToolTip" xml:space="preserve">
+    <value>Torna alla cartella Download di Windows, ovunque Windows la tenga.</value>
+  </data>
+  <data name="ModPageGate_InstallDownloadOnly" xml:space="preserve">
+    <value>Scarica questo mod nella cartella di download, per installarlo da solo.</value>
+  </data>
+  <data name="ModPageGate_RedownloadDownloadOnly" xml:space="preserve">
+    <value>Scarica di nuovo questo mod nella cartella di download, per installarlo da solo.</value>
+  </data>
+  <data name="ModPageGate_UpdateDownloadOnly" xml:space="preserve">
+    <value>Scarica questa versione nella cartella di download, per installarla da solo.</value>
+  </data>
+  <data name="ModPageGate_AlternateDownload" xml:space="preserve">
+    <value>Solo download: salvalo nella cartella di download e installalo da solo, invece di farlo installare a questa app.</value>
+  </data>
+  <data name="ModPageGate_AlternateInstall" xml:space="preserve">
+    <value>Installa: lascia che sia questa app a installarlo, invece di scaricarlo soltanto.</value>
+  </data>
+  <data name="Downloads_SavingToFormat" xml:space="preserve">
+    <value>Download in {0}...</value>
+  </data>
+  <data name="Downloads_SavedFormat" xml:space="preserve">
+    <value>{0} {1} salvato in {2}. Installalo da solo quando sei pronto - in SPT non è stato cambiato nulla.</value>
+  </data>
+  <data name="Downloads_SavedUnrecognisedFormat" xml:space="preserve">
+    <value>{0} {1} salvato in {2}. Questa app non è riuscita a capire come si installa, quindi segui i passaggi sulla pagina del mod.</value>
+  </data>
+  <data name="Downloads_ShowInFolder" xml:space="preserve">
+    <value>Mostra nella cartella</value>
+  </data>
+  <data name="Downloads_ShowInFolderToolTip" xml:space="preserve">
+    <value>Apri la cartella con il file scaricato selezionato.</value>
+  </data>
+  <data name="ModInstall_DownloadFolderMissingFormat" xml:space="preserve">
+    <value>La cartella di download {0} non esiste. Scegline un'altra nella pagina Opzioni, oppure torna alla cartella Download.</value>
+  </data>
+  <data name="ModInstall_DownloadFolderNotWritableFormat" xml:space="preserve">
+    <value>Impossibile salvare in {0} ({1}). Scegli nella pagina Opzioni una cartella in cui puoi scrivere.</value>
+  </data>
+  <data name="DownloadConfirm_Title" xml:space="preserve">
+    <value>Mod scaricati ora installati</value>
+  </data>
+  <data name="DownloadConfirm_RowDetailFormat" xml:space="preserve">
+    <value>Versione {0}, da {1}</value>
+  </data>
+  <data name="DownloadConfirm_Note" xml:space="preserve">
+    <value>Togli la spunta a quelli che non sono corretti - non verrà più chiesto finché non scarichi una versione più recente. Segnare un mod come installato non cambia nulla sul disco.</value>
+  </data>
+  <data name="DownloadConfirm_NotNow" xml:space="preserve">
+    <value>Non ora</value>
+  </data>
+  <data name="DownloadConfirm_Confirm" xml:space="preserve">
+    <value>Segna come installato</value>
+  </data>
+  <data name="Installed_DownloadLooksInstalledFormat" xml:space="preserve">
+    <value>Hai scaricato {0} ed è sul disco, ma la sua installazione non è ancora stata confermata. Confermala perché questa app sappia quale versione hai.</value>
+  </data>
+  <data name="Installed_DownloadPartialFormat" xml:space="preserve">
+    <value>Hai scaricato {0}, ma i file sul disco non corrispondono ancora - potrebbe mancarne una parte, o c'è ancora la versione precedente.</value>
+  </data>
+  <data name="Installed_ConfirmDownload" xml:space="preserve">
+    <value>Conferma installazione</value>
+  </data>
+  <data name="Installed_ConfirmDownloadToolTip" xml:space="preserve">
+    <value>Registra la versione scaricata come quella installata. Sul disco non cambia nulla.</value>
+  </data>
+  <data name="Installed_DownloadConfirmedFormat" xml:space="preserve">
+    <value>{0} {1} segnato come installato.</value>
+  </data>
+  <data name="Filter_DownloadedNotConfirmed" xml:space="preserve">
+    <value>Scaricato, non confermato</value>
+  </data>
+  <data name="Filter_DownloadedNotConfirmedToolTip" xml:space="preserve">
+    <value>Mod scaricati per installarli da solo che sono sul disco ma non ancora confermati - compresi quelli i cui file non corrispondono al download.</value>
+  </data>
+  <data name="Options_MonitorConfirmHeader" xml:space="preserve">
+    <value>Quando un mod scaricato risulta installato</value>
+  </data>
+  <data name="Options_MonitorConfirmDescription" xml:space="preserve">
+    <value>Quando installi da solo un mod scaricato, la successiva scansione della pagina Installati lo trova. Questa app può chiederti di confermarlo allora, oppure segnalarlo sulla scheda del mod perché tu lo confermi lì. Confermare dice all'app quale versione hai, così i controlli degli aggiornamenti restano corretti.</value>
+  </data>
+  <data name="Options_MonitorConfirmAsk" xml:space="preserve">
+    <value>Chiedimelo dopo la scansione</value>
+  </data>
+  <data name="Options_MonitorConfirmQuiet" xml:space="preserve">
+    <value>Segnalarlo solo sulla scheda del mod</value>
+  </data>
+  <data name="Downloads_SavedConfigsNote" xml:space="preserve">
+    <value>Contiene file di configurazione che hai già - copiarlo sulla tua installazione sostituisce le tue impostazioni, e questa app non può conservarle in un'installazione che non fa lei.</value>
+  </data>
+  <data name="DownloadConfirm_Summary_one" xml:space="preserve">
+    <value>Un mod che hai scaricato ora risulta installato. Segnarlo come installato, così questa app sa quale versione hai?</value>
+  </data>
+  <data name="DownloadConfirm_Summary_other" xml:space="preserve">
+    <value>{0} mod che hai scaricato ora risultano installati. Segnarli come installati, così questa app sa quali versioni hai?</value>
+  </data>
+  <data name="Installed_DownloadsConfirmed_one" xml:space="preserve">
+    <value>1 download segnato come installato.</value>
+  </data>
+  <data name="Installed_DownloadsConfirmed_other" xml:space="preserve">
+    <value>{0} download segnati come installati.</value>
+  </data>
+  <data name="Options_MonitorListSubfoldersOn" xml:space="preserve">
+    <value>I download di ogni lista di mod vanno in una cartella con il nome della lista</value>
+  </data>
+  <data name="Options_MonitorListSubfoldersOff" xml:space="preserve">
+    <value>I download delle liste di mod vanno direttamente nella cartella di download</value>
+  </data>
+  <data name="ModLists_AppliedDownloadOnlyFormat" xml:space="preserve">
+    <value>Sono stati salvati in {0} perché tu li installi - non è stato installato nulla.</value>
+  </data>
+  <data name="ModLists_DownloadOnlyNotice_one" xml:space="preserve">
+    <value>La modalità monitoraggio è impostata su Solo download, quindi il mod che questa lista installerebbe o aggiornerebbe verrà salvato perché tu lo installi da solo - non verrà installato nulla. I mod che attiva o disattiva vengono comunque spostati.</value>
+  </data>
+  <data name="ModLists_DownloadOnlyNotice_other" xml:space="preserve">
+    <value>La modalità monitoraggio è impostata su Solo download, quindi i {0} mod che questa lista installerebbe o aggiornerebbe verranno salvati perché tu li installi da solo - non verrà installato nulla. I mod che attiva o disattiva vengono comunque spostati.</value>
+  </data>
+  <data name="Options_UpdateNotificationsHeader" xml:space="preserve">
+    <value>Notifiche di aggiornamento</value>
+  </data>
+  <data name="Options_UpdateNotificationsDescription" xml:space="preserve">
+    <value>Finché l'app è aperta, chiede ogni tanto a The Forge dei mod che hai installato e mostra una notifica di Windows quando uno di loro ha una nuova versione. Vengono controllati solo i mod installati. Ogni versione viene annunciata una volta sola, e gli aggiornamenti che la pagina Installati mostra già quando attivi questa opzione non vengono annunciati.</value>
+  </data>
+  <data name="Options_UpdateIntervalHeader" xml:space="preserve">
+    <value>Controlla ogni</value>
+  </data>
+  <data name="Options_UpdateInterval30Minutes" xml:space="preserve">
+    <value>30 minuti</value>
+  </data>
+  <data name="Options_UpdateInterval1Hour" xml:space="preserve">
+    <value>1 ora</value>
+  </data>
+  <data name="Options_UpdateInterval3Hours" xml:space="preserve">
+    <value>3 ore</value>
+  </data>
+  <data name="Options_UpdateInterval6Hours" xml:space="preserve">
+    <value>6 ore</value>
+  </data>
+  <data name="Options_UpdateInterval12Hours" xml:space="preserve">
+    <value>12 ore</value>
+  </data>
+  <data name="Options_UpdateNotificationsNote" xml:space="preserve">
+    <value>Il primo controllo avviene un intervallo dopo l'avvio dell'app, e i controlli si fermano quando l'app si chiude - chiudere la finestra la chiude, a meno che non resti nell'area di notifica. Nessuna notifica? Verifica che TCF Mod Manager possa mostrarle in Impostazioni di Windows &gt; Sistema &gt; Notifiche.</value>
+  </data>
+  <data name="UpdateToast_Title_one" xml:space="preserve">
+    <value>Aggiornamento mod disponibile</value>
+  </data>
+  <data name="UpdateToast_Title_other" xml:space="preserve">
+    <value>{0} aggiornamenti mod disponibili</value>
+  </data>
+  <data name="UpdateToast_ItemFormat" xml:space="preserve">
+    <value>{0} {1}</value>
+  </data>
+  <data name="UpdateToast_More_one" xml:space="preserve">
+    <value>1 altro</value>
+  </data>
+  <data name="UpdateToast_More_other" xml:space="preserve">
+    <value>altri {0}</value>
+  </data>
+  <data name="UpdateToast_Open" xml:space="preserve">
+    <value>Apri</value>
+  </data>
+  <data name="Options_UpdateCheckNow" xml:space="preserve">
+    <value>Controlla ora</value>
+  </data>
+  <data name="Options_UpdateCheckNowToolTip" xml:space="preserve">
+    <value>Controlla subito invece di aspettare. Vale come un controllo: il primo dopo l'attivazione annota gli aggiornamenti già disponibili senza notifica, e un aggiornamento annunciato non viene annunciato di nuovo.</value>
+  </data>
+  <data name="Options_UpdateCheckChecking" xml:space="preserve">
+    <value>Controllo in corso...</value>
+  </data>
+  <data name="Options_UpdateCheckBaseline" xml:space="preserve">
+    <value>Primo controllo fatto. Gli aggiornamenti già disponibili sono stati annotati senza notifica - d'ora in poi quelli nuovi verranno annunciati.</value>
+  </data>
+  <data name="Options_UpdateCheckAnnounced_one" xml:space="preserve">
+    <value>1 nuovo aggiornamento - mostrato in una notifica.</value>
+  </data>
+  <data name="Options_UpdateCheckAnnounced_other" xml:space="preserve">
+    <value>{0} nuovi aggiornamenti - mostrati in una notifica.</value>
+  </data>
+  <data name="Options_UpdateCheckNothingNew_one" xml:space="preserve">
+    <value>Niente di nuovo. 1 mod installato ha un aggiornamento, già annunciato.</value>
+  </data>
+  <data name="Options_UpdateCheckNothingNew_other" xml:space="preserve">
+    <value>Niente di nuovo. {0} mod installati hanno un aggiornamento, già annunciato.</value>
+  </data>
+  <data name="Options_UpdateCheckNone" xml:space="preserve">
+    <value>Nessun mod installato ha un aggiornamento.</value>
+  </data>
+  <data name="Options_UpdateCheckAlreadyRunning" xml:space="preserve">
+    <value>Un controllo è già in corso.</value>
+  </data>
+  <data name="Options_UpdateCheckNoInstall" xml:space="preserve">
+    <value>Non controllato - nessuna cartella d'installazione di SPT impostata.</value>
+  </data>
+  <data name="Options_UpdateCheckQueueBusy" xml:space="preserve">
+    <value>Non controllato - aspetta che finiscano i download in corso.</value>
+  </data>
+  <data name="Options_UpdateCheckOffline" xml:space="preserve">
+    <value>Non controllato - impossibile raggiungere The Forge.</value>
+  </data>
+  <data name="Options_UpdateCheckRateLimited" xml:space="preserve">
+    <value>Non controllato - The Forge ha chiesto una pausa. Riprova tra un minuto.</value>
+  </data>
+  <data name="Options_UpdateCheckFailed" xml:space="preserve">
+    <value>Il controllo non è riuscito. Il log in Data\logs ha i dettagli.</value>
+  </data>
+  <data name="Options_UpdateCheckTimeFormat" xml:space="preserve">
+    <value>{0} ({1:t})</value>
+  </data>
+  <data name="Options_TrayOn" xml:space="preserve">
+    <value>Chiudendo la finestra l'app resta attiva nell'area di notifica</value>
+  </data>
+  <data name="Options_TrayOff" xml:space="preserve">
+    <value>Chiudendo la finestra l'app si chiude</value>
+  </data>
+  <data name="Options_TrayToolTip" xml:space="preserve">
+    <value>Se è attivo, chiudere la finestra la nasconde e lascia un'icona nell'area di notifica, così i controlli continuano. Fai clic sull'icona per riaprire la finestra; clic destro per controllare subito o uscire. Disponibile solo con le notifiche di aggiornamento attive.</value>
+  </data>
+  <data name="Tray_ToolTip" xml:space="preserve">
+    <value>TCF Mod Manager - controlla gli aggiornamenti dei mod</value>
+  </data>
+  <data name="Tray_Open" xml:space="preserve">
+    <value>Apri</value>
+  </data>
+  <data name="Tray_CheckNow" xml:space="preserve">
+    <value>Controlla aggiornamenti ora</value>
+  </data>
+  <data name="Tray_Quit" xml:space="preserve">
+    <value>Esci</value>
+  </data>
+  <data name="Tray_CheckResultTitle" xml:space="preserve">
+    <value>Controllo aggiornamenti</value>
+  </data>
+  <data name="Tray_NoticeTitle" xml:space="preserve">
+    <value>TCF Mod Manager è ancora attivo</value>
+  </data>
+  <data name="Tray_NoticeBody" xml:space="preserve">
+    <value>È nell'area di notifica e controlla gli aggiornamenti dei mod. Fai clic sulla sua icona per riaprirlo, o clic destro per uscire. Puoi disattivarlo nelle Opzioni.</value>
+  </data>
+  <data name="Common_On" xml:space="preserve">
+    <value>Attivo</value>
+  </data>
+  <data name="Common_Off" xml:space="preserve">
+    <value>Disattivo</value>
+  </data>
+  <data name="Options_SectionGeneral" xml:space="preserve">
+    <value>Generale</value>
+  </data>
+  <data name="Options_SectionInstalling" xml:space="preserve">
+    <value>Installazione dei mod</value>
+  </data>
+  <data name="Options_SectionUpdates" xml:space="preserve">
+    <value>Aggiornamenti</value>
+  </data>
+  <data name="Options_SectionPages" xml:space="preserve">
+    <value>Pagine</value>
+  </data>
+  <data name="Options_SectionMultiplayer" xml:space="preserve">
+    <value>Fika e server</value>
+  </data>
+  <data name="Options_SectionAdvanced" xml:space="preserve">
+    <value>Avanzate</value>
+  </data>
+  <data name="Options_InstallFolderHint" xml:space="preserve">
+    <value>La cartella del gioco, quella che contiene EscapeFromTarkov.exe.</value>
+  </data>
+  <data name="Options_LanguageHint" xml:space="preserve">
+    <value>I testi dell'app. Le descrizioni dei mod restano nella lingua del loro autore.</value>
+  </data>
+  <data name="Options_AppearanceHint" xml:space="preserve">
+    <value>Chiaro, scuro o come Windows.</value>
+  </data>
+  <data name="Options_WindowHint" xml:space="preserve">
+    <value>Come si apre la finestra. F11 attiva e disattiva lo schermo intero in qualsiasi momento.</value>
+  </data>
+  <data name="Options_InstallModeHeader" xml:space="preserve">
+    <value>Modalità di installazione</value>
+  </data>
+  <data name="Options_InstallModeHint" xml:space="preserve">
+    <value>Installare i mod per te o solo scaricarli. Accanto a ogni pulsante di installazione c'è un piccolo pulsante che fa l'altra cosa.</value>
+  </data>
+  <data name="Options_MonitorFolderHint" xml:space="preserve">
+    <value>Dove vengono salvati i mod scaricati. Vuoto significa la cartella Download di Windows.</value>
+  </data>
+  <data name="Options_MonitorConfirmHint" xml:space="preserve">
+    <value>Confermare dice all'app quale versione hai installato, così il controllo degli aggiornamenti resta corretto.</value>
+  </data>
+  <data name="Options_ModPagesTitle" xml:space="preserve">
+    <value>Aprire prima la pagina di ogni mod</value>
+  </data>
+  <data name="Options_ModPagesHint" xml:space="preserve">
+    <value>Passaggi di installazione, requisiti e avvisi, prima che venga scaricato qualcosa.</value>
+  </data>
+  <data name="Options_UpdateNotificationsHint" xml:space="preserve">
+    <value>Una notifica di Windows quando un mod installato ha una nuova versione.</value>
+  </data>
+  <data name="Options_FootprintHint" xml:space="preserve">
+    <value>Quanto a fondo ogni mod interviene nel gioco. Legge i file - nulla viene misurato.</value>
+  </data>
+  <data name="Options_ServerMapPageHint" xml:space="preserve">
+    <value>Confronta ciò che un server esegue con la tua installazione. Richiede il mod Server Map sul server.</value>
+  </data>
+  <data name="Options_ServerMapConnectionHeader" xml:space="preserve">
+    <value>Connessione alla mappa server</value>
+  </data>
+  <data name="Options_ServerMapConnectionHint" xml:space="preserve">
+    <value>L'indirizzo e la porta del tuo launcher SPT, più la chiave se il server ne ha una.</value>
+  </data>
+  <data name="Options_PageDefaultsHint" xml:space="preserve">
+    <value>Impostato con "Salva come predefinito" nelle pagine Installati e Sfoglia.</value>
+  </data>
+  <data name="Options_HeadlessLauncherHint" xml:space="preserve">
+    <value>Serve solo se non si trova direttamente nella cartella di installazione.</value>
+  </data>
+  <data name="Options_RoleSummaryPlayer" xml:space="preserve">
+    <value>Giocatore</value>
+  </data>
+  <data name="Options_RoleSummaryPlaysAndHosts" xml:space="preserve">
+    <value>Giocatore e host headless Fika</value>
+  </data>
+  <data name="Options_RoleSummaryHeadless" xml:space="preserve">
+    <value>Headless Fika dedicato</value>
+  </data>
+  <data name="Options_RoleSummaryNeither" xml:space="preserve">
+    <value>Nulla impostato - trattato come giocatore</value>
+  </data>
+  <data name="Options_DataFilesHint" xml:space="preserve">
+    <value>Visualizza o modifica a mano i file JSON in Data\.</value>
+  </data>
+  <data name="ServerMap_MachinesHeader" xml:space="preserve">
+    <value>Macchine su questo server</value>
+  </data>
+  <data name="ServerMap_MachinesEmpty" xml:space="preserve">
+    <value>Ancora nessuno si segnala a questo server. Una macchina compare qui quando qualcuno che usa TCF Mod Manager si connette e accetta di condividere ciò che ha installato. Le macchine senza TCF Mod Manager non compaiono mai.</value>
+  </data>
+  <data name="ServerMap_MapUnsupported" xml:space="preserve">
+    <value>Il mod Server Map di questo server è precedente alla 0.2.0. Può fornire la sua lista mod, ma non mostrare chi c'è. Chiedi a chi gestisce il server di aggiornare il mod.</value>
+  </data>
+  <data name="ServerMap_MapUnavailable" xml:space="preserve">
+    <value>Impossibile leggere la mappa in questo momento. Nuovo tentativo tra un minuto.</value>
+  </data>
+  <data name="ServerMap_RefreshMap" xml:space="preserve">
+    <value>Aggiorna</value>
+  </data>
+  <data name="ServerMap_RefreshMapToolTip" xml:space="preserve">
+    <value>Chiedi di nuovo al server chi si segnala. La pagina lo fa anche ogni minuto finché è aperta.</value>
+  </data>
+  <data name="ServerMap_ThisMachine" xml:space="preserve">
+    <value>Questa macchina</value>
+  </data>
+  <data name="ServerMap_RoleServer" xml:space="preserve">
+    <value>Server</value>
+  </data>
+  <data name="ServerMap_RolePlayer" xml:space="preserve">
+    <value>Giocatore</value>
+  </data>
+  <data name="ServerMap_RoleHeadless" xml:space="preserve">
+    <value>Headless</value>
+  </data>
+  <data name="ServerMap_AppVersionFormat" xml:space="preserve">
+    <value>TCF Mod Manager {0}</value>
+  </data>
+  <data name="ServerMap_PresenceInGame" xml:space="preserve">
+    <value>In gioco</value>
+  </data>
+  <data name="ServerMap_PresenceAppOpen" xml:space="preserve">
+    <value>App aperta</value>
+  </data>
+  <data name="ServerMap_LastSeenMinutes_one" xml:space="preserve">
+    <value>Visto l'ultima volta 1 minuto fa</value>
+  </data>
+  <data name="ServerMap_LastSeenMinutes_other" xml:space="preserve">
+    <value>Visto l'ultima volta {0} minuti fa</value>
+  </data>
+  <data name="ServerMap_LastSeenHours_one" xml:space="preserve">
+    <value>Visto l'ultima volta 1 ora fa</value>
+  </data>
+  <data name="ServerMap_LastSeenHours_other" xml:space="preserve">
+    <value>Visto l'ultima volta {0} ore fa</value>
+  </data>
+  <data name="ServerMap_LastSeenDays_one" xml:space="preserve">
+    <value>Visto l'ultima volta 1 giorno fa</value>
+  </data>
+  <data name="ServerMap_LastSeenDays_other" xml:space="preserve">
+    <value>Visto l'ultima volta {0} giorni fa</value>
+  </data>
+  <data name="ServerMap_StandingNoList" xml:space="preserve">
+    <value>Questa installazione non ha una lista mod di questo server, quindi non c'è nulla con cui confrontare.</value>
+  </data>
+  <data name="ServerMap_StandingUnreadable" xml:space="preserve">
+    <value>Ha inviato una lista mod che questa versione dell'app non sa leggere. Aggiornare TCF Mod Manager qui dovrebbe risolvere.</value>
+  </data>
+  <data name="ServerMap_StandingNotReported" xml:space="preserve">
+    <value>Non ha ancora inviato la sua lista mod.</value>
+  </data>
+  <data name="ServerMap_StandingUpToDate_one" xml:space="preserve">
+    <value>Ha tutto ciò che «{1}» richiede (un mod)</value>
+  </data>
+  <data name="ServerMap_StandingUpToDate_other" xml:space="preserve">
+    <value>Ha tutto ciò che «{1}» richiede ({0} mod)</value>
+  </data>
+  <data name="ServerMap_StandingBehind_one" xml:space="preserve">
+    <value>Un mod da installare, aggiornare o attivare: {1}</value>
+  </data>
+  <data name="ServerMap_StandingBehind_other" xml:space="preserve">
+    <value>{0} mod da installare, aggiornare o attivare: {1}</value>
+  </data>
+  <data name="ServerMap_StandingManual_one" xml:space="preserve">
+    <value>Un mod da scaricare a mano: {1}</value>
+  </data>
+  <data name="ServerMap_StandingManual_other" xml:space="preserve">
+    <value>{0} mod da scaricare a mano: {1}</value>
+  </data>
+  <data name="ServerMap_Extras_one" xml:space="preserve">
+    <value>Un mod non in lista: {1}</value>
+  </data>
+  <data name="ServerMap_Extras_other" xml:space="preserve">
+    <value>{0} mod non in lista: {1}</value>
+  </data>
+  <data name="ServerMap_InstalledCount_one" xml:space="preserve">
+    <value>Un mod installato</value>
+  </data>
+  <data name="ServerMap_InstalledCount_other" xml:space="preserve">
+    <value>{0} mod installati</value>
+  </data>
+  <data name="ServerMap_ModDisabledFormat" xml:space="preserve">
+    <value>{0} (disattivato)</value>
+  </data>
+  <data name="ServerMap_ConsentTitle" xml:space="preserve">
+    <value>Condividere questa macchina con il server?</value>
+  </data>
+  <data name="ServerMap_ConsentMessageFormat" xml:space="preserve">
+    <value>{0} può mostrare a chiunque abbia la sua chiave il nome di questa macchina, quali mod sono installati e in che versione, e se il gioco è in esecuzione. Non viene inviato nulla finché non dici di sì, e puoi smettere in qualsiasi momento dalle Opzioni, cosa che rimuove anche questa macchina dalla mappa.</value>
+  </data>
+  <data name="ServerMap_ConsentAllow" xml:space="preserve">
+    <value>Condividi</value>
+  </data>
+  <data name="ServerMap_ConsentDecline" xml:space="preserve">
+    <value>Non condividere</value>
+  </data>
+  <data name="ServerMap_ReportingPendingFormat" xml:space="preserve">
+    <value>Questa macchina si segnala a questo server come «{0}».</value>
+  </data>
+  <data name="ServerMap_ReportingFormat" xml:space="preserve">
+    <value>Questa macchina si segnala a questo server come «{0}». Ultima segnalazione alle {1}.</value>
+  </data>
+  <data name="ServerMap_ReportFailed" xml:space="preserve">
+    <value>L'ultima segnalazione non ha raggiunto il server. Si riprova ogni minuto.</value>
+  </data>
+  <data name="ServerMap_NotReporting" xml:space="preserve">
+    <value>Questa macchina non si segnala a questo server. Puoi cambiarlo nelle Opzioni, sotto Connessione alla mappa server.</value>
+  </data>
+  <data name="Options_ServerMapReport" xml:space="preserve">
+    <value>Segnala questa macchina al server</value>
+  </data>
+  <data name="Options_ServerMapReportHint" xml:space="preserve">
+    <value>Condivide il nome di questa macchina, i mod installati e se il gioco è in esecuzione con chiunque abbia la chiave del server. Chiesto una volta per server; disattivarlo rimuove questa macchina dalla mappa.</value>
+  </data>
+  <data name="Options_ServerMapDisplayName" xml:space="preserve">
+    <value>Nome sulla mappa</value>
+  </data>
+  <data name="Options_ServerMapDisplayNameHint" xml:space="preserve">
+    <value>Lascia vuoto per usare il nome di questo computer.</value>
+  </data>
+  <data name="Common_ReviewAndInstall" xml:space="preserve">
+    <value>Controlla e installa</value>
+  </data>
+  <data name="Common_ReviewAndInstallToolTip" xml:space="preserve">
+    <value>Apre Liste mod con la lista del server selezionata e la sua Anteprima già pronta. Non viene installato nulla finché non premi Applica.</value>
+  </data>
+  <data name="ModLists_ApplyInstall_one" xml:space="preserve">
+    <value>Installa un mod</value>
+  </data>
+  <data name="ModLists_ApplyInstall_other" xml:space="preserve">
+    <value>Installa {0} mod</value>
+  </data>
+  <data name="ModLists_ApplyUpdate_one" xml:space="preserve">
+    <value>Aggiorna un mod</value>
+  </data>
+  <data name="ModLists_ApplyUpdate_other" xml:space="preserve">
+    <value>Aggiorna {0} mod</value>
+  </data>
+  <data name="ModLists_ApplyDownload_one" xml:space="preserve">
+    <value>Scarica un mod</value>
+  </data>
+  <data name="ModLists_ApplyDownload_other" xml:space="preserve">
+    <value>Scarica {0} mod</value>
+  </data>
+  <data name="ModLists_ApplyInstallUpdateFormat" xml:space="preserve">
+    <value>Installa {0}, aggiorna {1}</value>
+  </data>
+  <data name="ModLists_ChangeVersionPairFormat" xml:space="preserve">
+    <value>{0} ({1} → {2})</value>
+  </data>
+  <data name="ModLists_StatusMissing" xml:space="preserve">
+    <value>Mancante</value>
+  </data>
+  <data name="ModLists_StatusHalfInstalled" xml:space="preserve">
+    <value>Installato a metà</value>
+  </data>
+  <data name="ModLists_StatusDisabled" xml:space="preserve">
+    <value>Disattivato</value>
+  </data>
+  <data name="ModLists_StatusDisabledMovingFormat" xml:space="preserve">
+    <value>Disattivato · {0}</value>
+  </data>
+  <data name="ModLists_StatusWillDisable" xml:space="preserve">
+    <value>Verrà disattivato</value>
+  </data>
+  <data name="ModLists_StatusPinned" xml:space="preserve">
+    <value>Fissato</value>
+  </data>
+  <data name="ModLists_StatusGetByHand" xml:space="preserve">
+    <value>Scarica tu</value>
+  </data>
+  <data name="ModLists_StatusAlreadyRight" xml:space="preserve">
+    <value>Corretto</value>
+  </data>
+  <data name="ModLists_StatusVersionFormat" xml:space="preserve">
+    <value>{0} → {1}</value>
+  </data>
+  <data name="ModLists_ChipMissing_one" xml:space="preserve">
+    <value>{0} mancante</value>
+  </data>
+  <data name="ModLists_ChipMissing_other" xml:space="preserve">
+    <value>{0} mancanti</value>
+  </data>
+  <data name="ModLists_ChipDifferentVersion_one" xml:space="preserve">
+    <value>{0} versione errata</value>
+  </data>
+  <data name="ModLists_ChipDifferentVersion_other" xml:space="preserve">
+    <value>{0} versioni errate</value>
+  </data>
+  <data name="ModLists_ChipHalfInstalled_one" xml:space="preserve">
+    <value>{0} installato a metà</value>
+  </data>
+  <data name="ModLists_ChipHalfInstalled_other" xml:space="preserve">
+    <value>{0} installati a metà</value>
+  </data>
+  <data name="ModLists_ChipDisabled_one" xml:space="preserve">
+    <value>{0} disattivato</value>
+  </data>
+  <data name="ModLists_ChipDisabled_other" xml:space="preserve">
+    <value>{0} disattivati</value>
+  </data>
+  <data name="ModLists_ChipGetByHand_one" xml:space="preserve">
+    <value>{0} da scaricare tu</value>
+  </data>
+  <data name="ModLists_ChipGetByHand_other" xml:space="preserve">
+    <value>{0} da scaricare tu</value>
+  </data>
+  <data name="ModLists_ChipWillDisable_one" xml:space="preserve">
+    <value>{0} da disattivare</value>
+  </data>
+  <data name="ModLists_ChipWillDisable_other" xml:space="preserve">
+    <value>{0} da disattivare</value>
+  </data>
+  <data name="ModLists_ChipPinned_one" xml:space="preserve">
+    <value>{0} fissato</value>
+  </data>
+  <data name="ModLists_ChipPinned_other" xml:space="preserve">
+    <value>{0} fissati</value>
+  </data>
+  <data name="ModLists_ChipAlreadyRight_one" xml:space="preserve">
+    <value>{0} corretto</value>
+  </data>
+  <data name="ModLists_ChipAlreadyRight_other" xml:space="preserve">
+    <value>{0} corretti</value>
+  </data>
+  <data name="ServerMap_LanOnly" xml:space="preserve">
+    <value>Questo server risponde solo alle macchine della sua rete, e questa è fuori. Chiedi a chi lo gestisce, oppure entra nella sua rete tramite una VPN come Tailscale.</value>
+  </data>
+  <data name="Options_ServerMapLanOnly" xml:space="preserve">
+    <value>Rispondi solo a questa rete</value>
+  </data>
+  <data name="Options_ServerMapLanOnlyHint" xml:space="preserve">
+    <value>Rifiuta ogni richiesta Server Map che arriva da fuori della rete di questa macchina - chi si connette via Internet non vede più la tua lista né la mappa. I dispositivi Tailscale contano ancora come locali. Ha effetto subito; richiede il mod Server Map 0.2.0 o successivo, stub compreso.</value>
+  </data>
+  <data name="Options_ServerMapLanOnlyFailed" xml:space="preserve">
+    <value>Impossibile salvare l'impostazione - vedi il log.</value>
+  </data>
+  <data name="AppUpdate_ServerMapHeader" xml:space="preserve">
+    <value>Mod Server Map</value>
+  </data>
+  <data name="AppUpdate_ServerMapLocalLabel" xml:space="preserve">
+    <value>Su questo computer:</value>
+  </data>
+  <data name="AppUpdate_ServerMapConnectedLabel" xml:space="preserve">
+    <value>Sul server a cui ti colleghi:</value>
+  </data>
+  <data name="AppUpdate_ServerMapBehindTitle" xml:space="preserve">
+    <value>È uscita una mod Server Map più recente</value>
+  </data>
+  <data name="AppUpdate_ServerMapLocalBehindFormat" xml:space="preserve">
+    <value>È uscita la versione {0} e il server di questo computer usa la {1}. Ferma il server, sostituisci payload e stub con quelli del nuovo zip, poi riavvialo - i passaggi sono in INSTALL.txt nello zip.</value>
+  </data>
+  <data name="AppUpdate_ServerMapStubBehindTitle" xml:space="preserve">
+    <value>Lo stub è più vecchio del payload</value>
+  </data>
+  <data name="AppUpdate_ServerMapStubBehindFormat" xml:space="preserve">
+    <value>Lo stub in user\mods è {0} e il payload è {1}. Sostituisci lo stub con quello dello stesso zip del payload - finché non lo fai, Rispondi solo a questa rete rifiuta ogni computer.</value>
+  </data>
+  <data name="AppUpdate_ServerMapConnectedBehindFormat" xml:space="preserve">
+    <value>Il server a cui ti colleghi usa la {0}, ed è uscita la {1}. Può aggiornarlo solo chi gestisce quel server - avvisalo.</value>
+  </data>
+  <data name="AppUpdate_ServerMapUpToDate" xml:space="preserve">
+    <value>La mod Server Map è aggiornata.</value>
+  </data>
+  <data name="AppUpdate_ServerMapCheckFailed" xml:space="preserve">
+    <value>Impossibile controllare su sp-mod.com se c'è una mod Server Map più recente. Controlla ora riprova.</value>
+  </data>
+  <data name="AppUpdate_ServerMapOpenPage" xml:space="preserve">
+    <value>Apri la pagina del mod</value>
+  </data>
+  <data name="Nav_Help" xml:space="preserve">
+    <value>Guida</value>
+  </data>
+  <data name="Help_Intro" xml:space="preserve">
+    <value>Risposte passo passo alle cose che si vogliono fare più spesso. Ognuna indica la pagina e i pulsanti da usare.</value>
+  </data>
+  <data name="Help_OpenGuide" xml:space="preserve">
+    <value>Apri la guida completa</value>
+  </data>
+  <data name="Help_OpenGuideToolTip" xml:space="preserve">
+    <value>La pagina dell'app su sp-mod.com - tutto quello che c'è qui più in dettaglio, con i limiti e la risoluzione dei problemi. È in inglese.</value>
+  </data>
+  <data name="Help_SearchPlaceholder" xml:space="preserve">
+    <value>Come faccio a...?</value>
+  </data>
+  <data name="Help_NoMatches" xml:space="preserve">
+    <value>Non c'è ancora una risposta. Prova con meno parole, o apri la guida completa.</value>
+  </data>
+  <data name="Help_StepNumberFormat" xml:space="preserve">
+    <value>{0}.</value>
+  </data>
+  <data name="Help_Start_Title" xml:space="preserve">
+    <value>Per iniziare</value>
+  </data>
+  <data name="Help_Start_Setup_Title" xml:space="preserve">
+    <value>Configurare l'app per la mia installazione di SPT</value>
+  </data>
+  <data name="Help_Start_Setup_Step1" xml:space="preserve">
+    <value>Apri {0} nella barra laterale.</value>
+  </data>
+  <data name="Help_Start_Setup_Step2" xml:space="preserve">
+    <value>Sotto {0}, premi {1} e scegli la cartella del gioco SPT - quella che contiene EscapeFromTarkov.exe, non la cartella del server al suo interno.</value>
+  </data>
+  <data name="Help_Start_Setup_Step3" xml:space="preserve">
+    <value>Premi {0}. La riga sotto dovrebbe ora indicare la tua versione di SPT.</value>
+  </data>
+  <data name="Help_Start_Setup_Note" xml:space="preserve">
+    <value>L'app non è un mod. Tienila in una cartella tutta sua, mai in BepInEx\plugins o user\mods.</value>
+  </data>
+  <data name="Help_Start_Version_Title" xml:space="preserve">
+    <value>Controllare che l'app abbia trovato la versione giusta di SPT</value>
+  </data>
+  <data name="Help_Start_Version_Step1" xml:space="preserve">
+    <value>Guarda la fine del titolo della finestra - mostra la tua versione di SPT tra parentesi quadre.</value>
+  </data>
+  <data name="Help_Start_Version_Step2" xml:space="preserve">
+    <value>Se manca o è sbagliata, apri {0} e leggi la riga sotto {1}.</value>
+  </data>
+  <data name="Help_Start_Version_Step3" xml:space="preserve">
+    <value>Una versione che non si trova di solito significa che la cartella è un livello troppo in basso. Scegli la cartella con EscapeFromTarkov.exe e premi {0}.</value>
+  </data>
+  <data name="Help_Browse_Compatible_Title" xml:space="preserve">
+    <value>Trovare i mod che funzionano sulla mia versione di SPT</value>
+  </data>
+  <data name="Help_Browse_Compatible_Step1" xml:space="preserve">
+    <value>Apri {0}. La pagina è già filtrata sulla tua versione di SPT.</value>
+  </data>
+  <data name="Help_Browse_Compatible_Step2" xml:space="preserve">
+    <value>Una spunta accanto a SPT su una scheda significa che la sua versione più recente funziona sulla tua; una croce, che non funziona.</value>
+  </data>
+  <data name="Help_Browse_Compatible_Step3" xml:space="preserve">
+    <value>Per vederne di più, apri in alto il menu delle versioni di SPT e spunta altre versioni, oppure premi {0}.</value>
+  </data>
+  <data name="Help_Browse_Install_Title" xml:space="preserve">
+    <value>Installare un mod e i mod che gli servono</value>
+  </data>
+  <data name="Help_Browse_Install_Step1" xml:space="preserve">
+    <value>Trova il mod in {0} e premi il pulsante di download in basso a destra nella sua scheda.</value>
+  </data>
+  <data name="Help_Browse_Install_Step2" xml:space="preserve">
+    <value>Una finestra ti chiede di leggere prima la pagina del mod. Premi {0}, leggila, poi premi {1}.</value>
+  </data>
+  <data name="Help_Browse_Install_Step3" xml:space="preserve">
+    <value>Se gli servono mod che non hai, le loro pagine vengono elencate allo stesso modo - {0} mette in coda anche quelle.</value>
+  </data>
+  <data name="Help_Browse_Install_Step4" xml:space="preserve">
+    <value>Seguila in {0}. Quando risulta installato, il mod viene caricato al prossimo avvio di SPT.</value>
+  </data>
+  <data name="Help_Browse_Install_Note" xml:space="preserve">
+    <value>Chiudi prima il gioco e il server - i file dei mod non si possono sostituire mentre sono in esecuzione.</value>
+  </data>
+  <data name="Help_Browse_Author_Title" xml:space="preserve">
+    <value>Trovare tutti i mod di un autore</value>
+  </data>
+  <data name="Help_Browse_Author_Step1" xml:space="preserve">
+    <value>Nella casella di ricerca di {0}, scrivi @ seguito dal nome dell'autore, senza spazi.</value>
+  </data>
+  <data name="Help_Browse_Author_Step2" xml:space="preserve">
+    <value>Senza la @, cerchi invece nei nomi dei mod.</value>
+  </data>
+  <data name="Help_Browse_HideInstalled_Title" xml:space="preserve">
+    <value>Nascondere i mod che ho già</value>
+  </data>
+  <data name="Help_Browse_HideInstalled_Step1" xml:space="preserve">
+    <value>In {0}, apri il menu che mostra {1} e spunta {2}.</value>
+  </data>
+  <data name="Help_Browse_HideInstalled_Step2" xml:space="preserve">
+    <value>Perché Sfoglia si apra sempre così, premi {0}.</value>
+  </data>
+  <data name="Help_Browse_HideInstalled_Note" xml:space="preserve">
+    <value>Un mod disattivato conta come installato, quindi viene nascosto anche lui.</value>
+  </data>
+  <data name="Help_Installed_Updates_Title" xml:space="preserve">
+    <value>Vedere quali mod vanno aggiornati</value>
+  </data>
+  <data name="Help_Installed_Updates_Step1" xml:space="preserve">
+    <value>Apri {0}. Un mod con un aggiornamento mostra una freccia verso l'alto come icona di stato.</value>
+  </data>
+  <data name="Help_Installed_Updates_Step2" xml:space="preserve">
+    <value>Per vedere solo quelli, cambia il menu che mostra {0} in {1}.</value>
+  </data>
+  <data name="Help_Installed_Update_Title" xml:space="preserve">
+    <value>Aggiornare o riscaricare un mod</value>
+  </data>
+  <data name="Help_Installed_Update_Step1" xml:space="preserve">
+    <value>In {0}, fai clic sulla scheda del mod per aprirla, poi premi {1}.</value>
+  </data>
+  <data name="Help_Installed_Update_Step2" xml:space="preserve">
+    <value>La versione più recente che funziona sul tuo SPT è già selezionata. Premi {0} - oppure {1} per scaricare di nuovo la versione che hai.</value>
+  </data>
+  <data name="Help_Installed_Update_Step3" xml:space="preserve">
+    <value>Leggi la pagina del mod quando ti viene chiesto, poi premi {0}.</value>
+  </data>
+  <data name="Help_Installed_Update_Note" xml:space="preserve">
+    <value>Per aggiornarne diversi insieme, premi {0}, spuntali e premi {1}.</value>
+  </data>
+  <data name="Help_Installed_Views_Title" xml:space="preserve">
+    <value>Cambiare la disposizione della pagina Installati</value>
+  </data>
+  <data name="Help_Installed_Views_Step1" xml:space="preserve">
+    <value>In cima a {0}, premi {1}, {2} o {3}.</value>
+  </data>
+  <data name="Help_Installed_Views_Step2" xml:space="preserve">
+    <value>Tutte e tre mostrano gli stessi mod con gli stessi filtri e lo stesso ordinamento - cambia solo la disposizione.</value>
+  </data>
+  <data name="Help_Installed_Groups_Title" xml:space="preserve">
+    <value>Ordinare i miei mod in gruppi miei</value>
+  </data>
+  <data name="Help_Installed_Groups_Step1" xml:space="preserve">
+    <value>In {0}, premi {1}.</value>
+  </data>
+  <data name="Help_Installed_Groups_Step2" xml:space="preserve">
+    <value>Scrivi un nome nella casella che mostra {0} e premi {1}.</value>
+  </data>
+  <data name="Help_Installed_Groups_Step3" xml:space="preserve">
+    <value>Trascina un mod su un gruppo per spostarlo lì. Fai clic su un mod senza trascinarlo per aprirlo.</value>
+  </data>
+  <data name="Help_Installed_Groups_Note" xml:space="preserve">
+    <value>I gruppi servono solo a te - SPT non li vede mai. Ogni gruppo ha pulsanti per attivarlo o disattivarlo tutto insieme.</value>
+  </data>
+  <data name="Help_Installed_Disable_Title" xml:space="preserve">
+    <value>Disattivare un mod senza eliminarlo</value>
+  </data>
+  <data name="Help_Installed_Disable_Step1" xml:space="preserve">
+    <value>In {0}, premi il pulsante di accensione sulla scheda o sulla riga del mod.</value>
+  </data>
+  <data name="Help_Installed_Disable_Step2" xml:space="preserve">
+    <value>Se un altro mod ne dipende, ti viene mostrato quale, e puoi disattivarlo insieme.</value>
+  </data>
+  <data name="Help_Installed_Disable_Step3" xml:space="preserve">
+    <value>Premi di nuovo lo stesso pulsante per riattivarlo.</value>
+  </data>
+  <data name="Help_Installed_Disable_Note" xml:space="preserve">
+    <value>Non si elimina nulla - il mod va in una cartella .disabled che SPT non carica, e le sue impostazioni restano.</value>
+  </data>
+  <data name="Help_Installed_DisableMany_Title" xml:space="preserve">
+    <value>Disattivare più mod insieme</value>
+  </data>
+  <data name="Help_Installed_DisableMany_Step1" xml:space="preserve">
+    <value>In {0}, premi {1} e spunta i mod.</value>
+  </data>
+  <data name="Help_Installed_DisableMany_Step2" xml:space="preserve">
+    <value>Premi {0}.</value>
+  </data>
+  <data name="Help_Installed_DisableMany_Note" xml:space="preserve">
+    <value>Nella vista {0}, i pulsanti di ogni gruppo attivano o disattivano l'intero gruppo.</value>
+  </data>
+  <data name="Help_Installed_Undo_Title" xml:space="preserve">
+    <value>Annullare l'attivazione o la disattivazione di mod</value>
+  </data>
+  <data name="Help_Installed_Undo_Step1" xml:space="preserve">
+    <value>In cima a {0}, premi {1}. Il pulsante indica la modifica che annulla.</value>
+  </data>
+  <data name="Help_Installed_Undo_Step2" xml:space="preserve">
+    <value>Si può annullare solo l'ultima modifica.</value>
+  </data>
+  <data name="Help_ModLists_Capture_Title" xml:space="preserve">
+    <value>Salvare i mod che uso come lista</value>
+  </data>
+  <data name="Help_ModLists_Capture_Step1" xml:space="preserve">
+    <value>Apri {0}.</value>
+  </data>
+  <data name="Help_ModLists_Capture_Step2" xml:space="preserve">
+    <value>Sotto {0}, scrivi un nome e premi {1}.</value>
+  </data>
+  <data name="Help_ModLists_Capture_Note" xml:space="preserve">
+    <value>La lista registra ogni mod attivato nella versione che hai. Sul disco non cambia nulla.</value>
+  </data>
+  <data name="Help_ModLists_Apply_Title" xml:space="preserve">
+    <value>Passare a un'altra lista</value>
+  </data>
+  <data name="Help_ModLists_Apply_Step1" xml:space="preserve">
+    <value>In {0}, scegli la lista sotto {1}.</value>
+  </data>
+  <data name="Help_ModLists_Apply_Step2" xml:space="preserve">
+    <value>Premi {0} per vedere cosa cambierebbe. Non si sposta ancora nulla.</value>
+  </data>
+  <data name="Help_ModLists_Apply_Step3" xml:space="preserve">
+    <value>Chiudi il gioco e il server, poi premi {0}.</value>
+  </data>
+  <data name="Help_ModLists_Apply_Note" xml:space="preserve">
+    <value>Applicare scarica ciò che manca e sposta i mod che la lista non nomina nella cartella disattivata. Non si elimina nulla.</value>
+  </data>
+  <data name="Help_ModLists_Pin_Title" xml:space="preserve">
+    <value>Tenere un mod qualunque lista io scelga</value>
+  </data>
+  <data name="Help_ModLists_Pin_Step1" xml:space="preserve">
+    <value>In {0}, fai clic sulla scheda del mod per aprirla e premi {1}.</value>
+  </data>
+  <data name="Help_ModLists_Pin_Step2" xml:space="preserve">
+    <value>Un mod fissato non viene mai messa da parte da una lista. Premi {0} nello stesso punto per annullare.</value>
+  </data>
+  <data name="Help_ModLists_Edit_Title" xml:space="preserve">
+    <value>Cambiare cosa c'è in una lista</value>
+  </data>
+  <data name="Help_ModLists_Edit_Step1" xml:space="preserve">
+    <value>Scegli la lista in {0}. Premi {1} per aggiungere mod, o la X su una riga per toglierne una.</value>
+  </data>
+  <data name="Help_ModLists_Edit_Step2" xml:space="preserve">
+    <value>Premi {0}. Cambia solo la lista - non si installa né si sposta nulla.</value>
+  </data>
+  <data name="Help_ModLists_Edit_Step3" xml:space="preserve">
+    <value>Premi {0} quando vuoi che la tua installazione corrisponda alla lista.</value>
+  </data>
+  <data name="Help_ModLists_Edit_Note" xml:space="preserve">
+    <value>Una lista importata, o inviata da un server, è di sola lettura - premi {0} per averne una modificabile.</value>
+  </data>
+  <data name="Help_ModLists_Share_Title" xml:space="preserve">
+    <value>Condividere una lista con un amico</value>
+  </data>
+  <data name="Help_ModLists_Share_Step1" xml:space="preserve">
+    <value>Scegli la lista in {0}, premi {1} e salva il file.</value>
+  </data>
+  <data name="Help_ModLists_Share_Step2" xml:space="preserve">
+    <value>Invia il file come preferisci. Il tuo amico preme {0} in {1} e lo sceglie.</value>
+  </data>
+  <data name="Help_ModLists_Share_Step3" xml:space="preserve">
+    <value>Poi preme {0} e infine {1}. La sua app scarica ogni mod da sp-mod.com da sola.</value>
+  </data>
+  <data name="Help_ModLists_Share_Note" xml:space="preserve">
+    <value>Il file nomina mod e versioni, mai i file dei mod, quindi è minuscolo.</value>
+  </data>
+  <data name="Help_ModLists_Server_Title" xml:space="preserve">
+    <value>Ottenere i mod che usa un server</value>
+  </data>
+  <data name="Help_ModLists_Server_Step1" xml:space="preserve">
+    <value>In {0}, sotto {1}, attiva {2}.</value>
+  </data>
+  <data name="Help_ModLists_Server_Step2" xml:space="preserve">
+    <value>Apri {0} con la freccia sulla sua riga, inserisci indirizzo, porta e chiave del server, poi premi {1}.</value>
+  </data>
+  <data name="Help_ModLists_Server_Step3" xml:space="preserve">
+    <value>Apri {0}. Se ti manca qualcosa, premi {1}.</value>
+  </data>
+  <data name="Help_ModLists_Server_Step4" xml:space="preserve">
+    <value>Controlla l'anteprima e premi {0}.</value>
+  </data>
+  <data name="Help_ModLists_Server_Note" xml:space="preserve">
+    <value>Il server ha bisogno del mod Server Map. La lista di un server non disattiva mai i tuoi mod.</value>
+  </data>
+  <data name="Help_ModLists_Undo_Title" xml:space="preserve">
+    <value>Rimettere tutto com'era dopo aver applicato una lista</value>
+  </data>
+  <data name="Help_ModLists_Undo_Step1" xml:space="preserve">
+    <value>In {0}, premi {1}.</value>
+  </data>
+  <data name="Help_ModLists_Undo_Step2" xml:space="preserve">
+    <value>Ogni mod torna com'era prima dell'ultima applicazione. Applicare un'altra lista sostituisce questo annullamento.</value>
+  </data>
+  <data name="Help_TitleBarToolTip" xml:space="preserve">
+    <value>Guida per questa pagina (F1)</value>
+  </data>
+  <data name="MainWindow_HowToSetUp" xml:space="preserve">
+    <value>Come configurare</value>
+  </data>
+  <data name="MainWindow_HowToSetUpToolTip" xml:space="preserve">
+    <value>La configurazione passo passo nella guida.</value>
+  </data>
+  <data name="Help_Play_Start_Title" xml:space="preserve">
+    <value>Avviare il server e il gioco</value>
+  </data>
+  <data name="Help_Play_Start_Step1" xml:space="preserve">
+    <value>Apri {0}.</value>
+  </data>
+  <data name="Help_Play_Start_Step2" xml:space="preserve">
+    <value>Sotto {0}, premi {1} e aspetta che la sua finestra della console abbia finito di avviarsi.</value>
+  </data>
+  <data name="Help_Play_Start_Step3" xml:space="preserve">
+    <value>Premi {0}, scegli il tuo profilo e avvia il gioco.</value>
+  </data>
+  <data name="Help_Play_Start_Note" xml:space="preserve">
+    <value>Il server resta in esecuzione se chiudi questa app. Chiudi la sua finestra quando hai finito.</value>
+  </data>
+  <data name="Help_Play_Check_Title" xml:space="preserve">
+    <value>Vedere cosa mi manca prima di entrare in un server</value>
+  </data>
+  <data name="Help_Play_Check_Step1" xml:space="preserve">
+    <value>Apri {0}. Il controllo in alto confronta la tua installazione con la lista mod che segui e indica tutto ciò che manca o è alla versione sbagliata.</value>
+  </data>
+  <data name="Help_Play_Check_Step2" xml:space="preserve">
+    <value>Premi {0} dopo aver cambiato qualcosa.</value>
+  </data>
+  <data name="Help_Play_Check_Step3" xml:space="preserve">
+    <value>Se sei indietro rispetto alla lista di un server, premi {0}, controlla l'anteprima e premi {1}.</value>
+  </data>
+  <data name="Help_Play_Check_Note" xml:space="preserve">
+    <value>Il controllo non ti impedisce mai di avviare - te lo dice soltanto.</value>
+  </data>
+  <data name="Help_Browse_Addon_Title" xml:space="preserve">
+    <value>Installare un addon per un mod</value>
+  </data>
+  <data name="Help_Browse_Addon_Step1" xml:space="preserve">
+    <value>In {0}, fai clic sulla scheda del mod per aprirla. Una scheda che indica un numero di addon ne ha di pubblicati.</value>
+  </data>
+  <data name="Help_Browse_Addon_Step2" xml:space="preserve">
+    <value>Scorri fino ai suoi addon e premi il pulsante di installazione su quello che vuoi.</value>
+  </data>
+  <data name="Help_Browse_Addon_Step3" xml:space="preserve">
+    <value>Leggi la pagina dell'addon quando ti viene chiesto, poi continua come per qualsiasi altra installazione.</value>
+  </data>
+  <data name="Help_Browse_Addon_Note" xml:space="preserve">
+    <value>Un addon deve corrispondere alla versione del suo mod che hai, non alla tua versione di SPT - quindi installa o aggiorna prima il mod.</value>
+  </data>
+  <data name="Help_Configs_Edit_Title" xml:space="preserve">
+    <value>Cambiare le impostazioni di un mod</value>
+  </data>
+  <data name="Help_Configs_Edit_Step1" xml:space="preserve">
+    <value>Apri {0} e scegli il file del mod dall'elenco - la casella di ricerca lo trova per nome del mod o del file.</value>
+  </data>
+  <data name="Help_Configs_Edit_Step2" xml:space="preserve">
+    <value>Modifica il testo a destra.</value>
+  </data>
+  <data name="Help_Configs_Edit_Step3" xml:space="preserve">
+    <value>Premi {0}. Vengono riscritte solo le righe che hai cambiato.</value>
+  </data>
+  <data name="Help_Configs_Edit_Note" xml:space="preserve">
+    <value>Ogni salvataggio tiene una copia del vecchio file in Data\config-backups. {0} scarta le modifiche non salvate.</value>
+  </data>
+  <data name="Help_Configs_Policy_Title" xml:space="preserve">
+    <value>Scegliere cosa succede alle mie impostazioni quando un mod si aggiorna</value>
+  </data>
+  <data name="Help_Configs_Policy_Step1" xml:space="preserve">
+    <value>In {0}, apri uno dei file di configurazione del mod.</value>
+  </data>
+  <data name="Help_Configs_Policy_Step2" xml:space="preserve">
+    <value>Accanto a {0}, scegli {1}, {2} o {3}.</value>
+  </data>
+  <data name="Help_Configs_Policy_Note" xml:space="preserve">
+    <value>La scelta vale per tutti i file di configurazione di quel mod, e viene ricordata per il suo prossimo aggiornamento.</value>
+  </data>
+  <data name="Help_Configs_Original_Title" xml:space="preserve">
+    <value>Recuperare il valore originale di un'impostazione</value>
+  </data>
+  <data name="Help_Configs_Original_Step1" xml:space="preserve">
+    <value>In {0}, apri il file contrassegnato {1} accanto alla configurazione del mod - contiene i valori con cui è arrivato il mod.</value>
+  </data>
+  <data name="Help_Configs_Original_Step2" xml:space="preserve">
+    <value>Copia il valore che vuoi nella configurazione vera e premi {0}.</value>
+  </data>
+  <data name="Help_Configs_Original_Note" xml:space="preserve">
+    <value>Non tutti i mod ne forniscono uno. Ogni salvataggio tiene anche il file precedente in Data\config-backups, nella cartella di questa app.</value>
+  </data>
+  <data name="Help_Configs_Leftover_Title" xml:space="preserve">
+    <value>Trovare le impostazioni lasciate da un mod rimosso</value>
+  </data>
+  <data name="Help_Configs_Leftover_Step1" xml:space="preserve">
+    <value>In {0}, imposta il filtro accanto alla casella di ricerca su {1}.</value>
+  </data>
+  <data name="Help_Configs_Leftover_Step2" xml:space="preserve">
+    <value>I file sotto {0} non appartengono a nessun plugin installato - di solito a un mod che hai rimosso.</value>
+  </data>
+  <data name="Help_Configs_Leftover_Note" xml:space="preserve">
+    <value>Modificarli non cambia nulla nel gioco. Sono lì solo se rivuoi le vecchie impostazioni.</value>
+  </data>
+  <data name="Help_Dependencies_Check_Title" xml:space="preserve">
+    <value>Controllare che ogni mod abbia ciò che gli serve</value>
+  </data>
+  <data name="Help_Dependencies_Check_Step1" xml:space="preserve">
+    <value>Apri {0}. Sotto i conflitti, {1} elenca ogni mod installato che ha bisogno di altri mod, e se ognuno è presente.</value>
+  </data>
+  <data name="Help_Dependencies_Check_Step2" xml:space="preserve">
+    <value>I mod a cui manca qualcosa sono in cima a quell'elenco, già aperti. Premi il pulsante di installazione accanto a ciò che manca.</value>
+  </data>
+  <data name="Help_Dependencies_Check_Step3" xml:space="preserve">
+    <value>Premi {0} per ricontrollare dopo l'installazione.</value>
+  </data>
+  <data name="Help_Footprint_Enable_Title" xml:space="preserve">
+    <value>Attivare la pagina Impronta mod</value>
+  </data>
+  <data name="Help_Footprint_Enable_Step1" xml:space="preserve">
+    <value>In {0}, sotto {1}, attiva {2}.</value>
+  </data>
+  <data name="Help_Footprint_Enable_Step2" xml:space="preserve">
+    <value>{0} compare nella barra laterale.</value>
+  </data>
+  <data name="Help_Footprint_Read_Title" xml:space="preserve">
+    <value>Leggere cosa mostra la pagina Impronta mod</value>
+  </data>
+  <data name="Help_Footprint_Read_Step1" xml:space="preserve">
+    <value>Apri {0}. Ogni mod mostra quali parti del gioco raggiungono i suoi file - il client, il server, il disco.</value>
+  </data>
+  <data name="Help_Footprint_Read_Step2" xml:space="preserve">
+    <value>Usa {0} per mettere prima i mod che arrivano più lontano.</value>
+  </data>
+  <data name="Help_Footprint_Read_Step3" xml:space="preserve">
+    <value>Apri un mod per vedere cosa significa ogni parte.</value>
+  </data>
+  <data name="Help_Footprint_Read_Note" xml:space="preserve">
+    <value>Nulla viene cronometrato o misurato. Mostra cosa contiene un mod, non quanto va veloce.</value>
+  </data>
+  <data name="Help_ServerMap_Enable_Title" xml:space="preserve">
+    <value>Attivare la pagina Mappa server</value>
+  </data>
+  <data name="Help_ServerMap_Enable_Step1" xml:space="preserve">
+    <value>In {0}, sotto {1}, attiva {2}.</value>
+  </data>
+  <data name="Help_ServerMap_Enable_Step2" xml:space="preserve">
+    <value>{0} compare nella barra laterale.</value>
+  </data>
+  <data name="Help_ServerMap_Enable_Note" xml:space="preserve">
+    <value>Serve un server su cui gira il mod Server Map. {0}, nello stesso punto, apre la sua pagina.</value>
+  </data>
+  <data name="Help_ServerMap_Connect_Title" xml:space="preserve">
+    <value>Collegarsi a un server</value>
+  </data>
+  <data name="Help_ServerMap_Connect_Step1" xml:space="preserve">
+    <value>In {0}, apri {1} con la freccia sulla sua riga e inserisci indirizzo e porta dal tuo launcher SPT, e la chiave se il server ne ha una.</value>
+  </data>
+  <data name="Help_ServerMap_Connect_Step2" xml:space="preserve">
+    <value>Premi {0}.</value>
+  </data>
+  <data name="Help_ServerMap_Connect_Step3" xml:space="preserve">
+    <value>La prima volta ti viene chiesto se mostrare questa macchina sulla mappa del server. Premi {0} o {1}.</value>
+  </data>
+  <data name="Help_ServerMap_Connect_Step4" xml:space="preserve">
+    <value>Apri {0}. La lista mod del server viene scaricata per te e salvata in {1}.</value>
+  </data>
+  <data name="Help_ServerMap_Connect_Note" xml:space="preserve">
+    <value>Se il certificato del server cambia, ti viene chiesto prima di qualsiasi altra cosa. Premi {0} solo se sai perché è cambiato.</value>
+  </data>
+  <data name="Help_ServerMap_Publish_Title" xml:space="preserve">
+    <value>Pubblicare la mia lista mod dal mio server</value>
+  </data>
+  <data name="Help_ServerMap_Publish_Step1" xml:space="preserve">
+    <value>Sulla macchina dove gira il server, apri {0}, scrivi un nome e premi {1}.</value>
+  </data>
+  <data name="Help_ServerMap_Publish_Step2" xml:space="preserve">
+    <value>Togli ciò che non serve ai giocatori. Il pulsante di ambito di ogni riga dice per quali macchine è.</value>
+  </data>
+  <data name="Help_ServerMap_Publish_Step3" xml:space="preserve">
+    <value>Premi {0}, poi {1}.</value>
+  </data>
+  <data name="Help_ServerMap_Publish_Note" xml:space="preserve">
+    <value>Non applicare quella lista ridotta sulla macchina del server - disattiverebbe i mod del server stesso. Tieni una lista completa per il server e pubblica quella ridotta.</value>
+  </data>
+  <data name="Help_Downloads_Watch_Title" xml:space="preserve">
+    <value>Seguire o annullare un download</value>
+  </data>
+  <data name="Help_Downloads_Watch_Step1" xml:space="preserve">
+    <value>Apri {0}. Ogni mod mostra l'avanzamento e il tempo rimanente, e si installano uno alla volta.</value>
+  </data>
+  <data name="Help_Downloads_Watch_Step2" xml:space="preserve">
+    <value>Premi {0} su una scheda per fermarla. Quello che ha messo in coda come dipendenza viene annullato insieme.</value>
+  </data>
+  <data name="Help_Downloads_Watch_Step3" xml:space="preserve">
+    <value>Se qualcosa non è riuscito, premi {0} per riprovare.</value>
+  </data>
+  <data name="Help_Downloads_Watch_Note" xml:space="preserve">
+    <value>Quando i file vengono messi al loro posto l'installazione arriva in fondo, così un mod non resta mai installato a metà.</value>
+  </data>
+  <data name="Help_Downloads_Where_Title" xml:space="preserve">
+    <value>Trovare un mod scaricato da installare io</value>
+  </data>
+  <data name="Help_Downloads_Where_Step1" xml:space="preserve">
+    <value>In {0}, la scheda del mod dice dove è stato salvato il file.</value>
+  </data>
+  <data name="Help_Downloads_Where_Step2" xml:space="preserve">
+    <value>Premi {0} per aprire quella cartella con il file selezionato.</value>
+  </data>
+  <data name="Help_Monitor_Title" xml:space="preserve">
+    <value>Installare i mod da sé</value>
+  </data>
+  <data name="Help_Monitor_Enable_Title" xml:space="preserve">
+    <value>Scaricare i mod per installarli io</value>
+  </data>
+  <data name="Help_Monitor_Enable_Step1" xml:space="preserve">
+    <value>Apri {0} e trova {1}.</value>
+  </data>
+  <data name="Help_Monitor_Enable_Step2" xml:space="preserve">
+    <value>Cambia {0} in {1}.</value>
+  </data>
+  <data name="Help_Monitor_Enable_Step3" xml:space="preserve">
+    <value>Per scegliere dove vanno i file, apri la riga con la sua freccia e scegli una cartella sotto {0}. Se resta vuoto, vanno nella cartella Download di Windows.</value>
+  </data>
+  <data name="Help_Monitor_Enable_Note" xml:space="preserve">
+    <value>Sfoglia, aggiornamenti, dipendenze e liste mod continuano a funzionare. Nella cartella di SPT non si tocca nulla, quindi puoi scaricare mentre SPT è in esecuzione.</value>
+  </data>
+  <data name="Help_Monitor_Other_Title" xml:space="preserve">
+    <value>Fare il contrario per un solo mod</value>
+  </data>
+  <data name="Help_Monitor_Other_Step1" xml:space="preserve">
+    <value>Ogni pulsante di installazione ha accanto un pulsante più piccolo che fa il contrario per quel mod.</value>
+  </data>
+  <data name="Help_Monitor_Other_Step2" xml:space="preserve">
+    <value>Passaci sopra con il mouse per vedere in che senso funziona, poi premilo.</value>
+  </data>
+  <data name="Help_Monitor_Confirm_Title" xml:space="preserve">
+    <value>Dire all'app che ho installato un mod scaricato</value>
+  </data>
+  <data name="Help_Monitor_Confirm_Step1" xml:space="preserve">
+    <value>Installa il mod a mano dal file scaricato.</value>
+  </data>
+  <data name="Help_Monitor_Confirm_Step2" xml:space="preserve">
+    <value>Apri {0}. La scansione trova il mod e chiede - premi {1}.</value>
+  </data>
+  <data name="Help_Monitor_Confirm_Step3" xml:space="preserve">
+    <value>Oppure premi {0} sulla scheda del mod.</value>
+  </data>
+  <data name="Help_Monitor_Confirm_Note" xml:space="preserve">
+    <value>Per vederlo annotato sulla scheda invece di ricevere la domanda, cambia {0} nelle opzioni.</value>
+  </data>
+  <data name="Help_Updates_Enable_Title" xml:space="preserve">
+    <value>Sapere quando un mod che ho si aggiorna</value>
+  </data>
+  <data name="Help_Updates_Enable_Step1" xml:space="preserve">
+    <value>In {0}, sotto {1}, attiva {2}.</value>
+  </data>
+  <data name="Help_Updates_Enable_Step2" xml:space="preserve">
+    <value>Apri la riga con la sua freccia e scegli ogni quanto sotto {0}.</value>
+  </data>
+  <data name="Help_Updates_Enable_Step3" xml:space="preserve">
+    <value>Premi {0} per controllare subito.</value>
+  </data>
+  <data name="Help_Updates_Enable_Note" xml:space="preserve">
+    <value>Un clic su una notifica apre {0} con i mod che hanno aggiornamenti. Ogni release viene annunciata una volta sola.</value>
+  </data>
+  <data name="Help_Updates_Tray_Title" xml:space="preserve">
+    <value>Continuare a controllare con la finestra chiusa</value>
+  </data>
+  <data name="Help_Updates_Tray_Step1" xml:space="preserve">
+    <value>Apri {0} con la freccia sulla sua riga e attiva l'impostazione che mostra {1}.</value>
+  </data>
+  <data name="Help_Updates_Tray_Step2" xml:space="preserve">
+    <value>Chiudendo la finestra ora resta un'icona nell'area di notifica. Fai clic per riaprire l'app.</value>
+  </data>
+  <data name="Help_Updates_Tray_Step3" xml:space="preserve">
+    <value>Fai clic destro sull'icona e premi {0} per chiudere l'app del tutto.</value>
+  </data>
+  <data name="Help_AppUpdate_Update_Title" xml:space="preserve">
+    <value>Aggiornare questa app</value>
+  </data>
+  <data name="Help_AppUpdate_Update_Step1" xml:space="preserve">
+    <value>Quando esce una nuova versione, un banner lo segnala. Premi {0}, o apri {1}.</value>
+  </data>
+  <data name="Help_AppUpdate_Update_Step2" xml:space="preserve">
+    <value>Leggi cosa è cambiato, poi premi {0}.</value>
+  </data>
+  <data name="Help_AppUpdate_Update_Step3" xml:space="preserve">
+    <value>Apri la pagina del mod quando ti viene chiesto. L'app scarica l'aggiornamento, si chiude, si sostituisce e si riapre.</value>
+  </data>
+  <data name="Help_AppUpdate_Update_Note" xml:space="preserve">
+    <value>Le tue impostazioni e i tuoi mod restano come sono. {0} cerca subito una nuova versione.</value>
+  </data>
+  <data name="Help_Browse_Install_Title_Monitor" xml:space="preserve">
+    <value>Scaricare un mod e i mod che gli servono</value>
+  </data>
+  <data name="Help_Browse_Install_Step4_Monitor" xml:space="preserve">
+    <value>Seguilo in {0}. La scheda dice dove è stato salvato il file - installalo tu da lì.</value>
+  </data>
+  <data name="Help_Browse_Install_Note_Monitor" xml:space="preserve">
+    <value>Nella cartella di SPT non si tocca nulla, quindi SPT può restare in esecuzione mentre scarichi.</value>
+  </data>
+  <data name="Help_Installed_Update_Step2_Monitor" xml:space="preserve">
+    <value>La versione più recente che funziona sul tuo SPT è già selezionata. Premi {0} per scaricarla - oppure {1} per scaricare di nuovo la versione che hai - poi installa il file tu.</value>
+  </data>
+  <data name="Help_ModLists_Apply_Note_Monitor" xml:space="preserve">
+    <value>Applicare salva ciò che manca nella tua cartella di download perché tu lo installi, e sposta i mod che la lista non nomina nella cartella disattivata. Non si elimina nulla.</value>
+  </data>
+  <data name="Help_Downloads_Watch_Step1_Monitor" xml:space="preserve">
+    <value>Apri {0}. Ogni mod mostra l'avanzamento e il tempo rimanente, e si scaricano uno alla volta.</value>
+  </data>
+  <data name="Help_Downloads_Watch_Note_Monitor" xml:space="preserve">
+    <value>Un download non sovrascrive mai un file - una seconda copia viene salvata accanto alla prima.</value>
+  </data>
+  <data name="Help_ReportProblem" xml:space="preserve">
+    <value>Segnala un problema</value>
+  </data>
+  <data name="Help_ReportProblemToolTip" xml:space="preserve">
+    <value>Apre la scheda delle segnalazioni sulla pagina sp-mod.com di questa app, dove puoi dire all'autore cosa è andato storto. È in inglese.</value>
+  </data>
+  <data name="Help_OpenPageFormat" xml:space="preserve">
+    <value>Apri {0}</value>
+  </data>
+  <data name="Help_ShowMeHow" xml:space="preserve">
+    <value>Mostrami come</value>
+  </data>
+  <data name="Help_Problems_Title" xml:space="preserve">
+    <value>Qualcosa non va</value>
+  </data>
+  <data name="Help_Installed_Remove_Title" xml:space="preserve">
+    <value>Rimuovere un mod</value>
+  </data>
+  <data name="Help_Installed_Remove_Step1" xml:space="preserve">
+    <value>In {0}, fai clic sulla scheda del mod per aprirla e premi {1}.</value>
+  </data>
+  <data name="Help_Installed_Remove_Step2" xml:space="preserve">
+    <value>Conferma. Se il mod ha file di configurazione suoi, ti viene chiesto se tenerli - vengono messi da parte, non eliminati - o rimuoverli insieme.</value>
+  </data>
+  <data name="Help_Installed_Remove_Note" xml:space="preserve">
+    <value>I file rimossi vengono conservati per un po' (Opzioni, Conserva le mod rimosse) e dalla pagina Installati puoi annullare una qualsiasi di queste rimozioni. Un mod disattivato va riattivato prima di poterlo rimuovere. Per togliere un mod dal gioco senza eliminarlo, disattivalo invece.</value>
+  </data>
+  <data name="Help_Installed_Downgrade_Title" xml:space="preserve">
+    <value>Tornare a una versione più vecchia di un mod</value>
+  </data>
+  <data name="Help_Installed_Downgrade_Step1" xml:space="preserve">
+    <value>In {0}, fai clic sulla scheda del mod per aprirla, poi premi {1}.</value>
+  </data>
+  <data name="Help_Installed_Downgrade_Step2" xml:space="preserve">
+    <value>Scegli la versione più vecchia nell'elenco. Le versioni per altre release di SPT sono nascoste - premi {0} per vederle.</value>
+  </data>
+  <data name="Help_Installed_Downgrade_Step3" xml:space="preserve">
+    <value>Premi {0} e conferma.</value>
+  </data>
+  <data name="Help_Installed_Downgrade_Note" xml:space="preserve">
+    <value>Una versione più vecchia potrebbe non leggere impostazioni o dati del profilo salvati da una più recente, quindi controlla prima la pagina del mod.</value>
+  </data>
+  <data name="Help_Installed_SortOut_Title" xml:space="preserve">
+    <value>Sistemare un mod che si trova in due posti</value>
+  </data>
+  <data name="Help_Installed_SortOut_Step1" xml:space="preserve">
+    <value>In {0}, un mod presente sia in una cartella attiva sia in una disattivata ha un avviso sulla scheda. È il motivo più comune per cui un mod disattivato si carica ancora.</value>
+  </data>
+  <data name="Help_Installed_SortOut_Step2" xml:space="preserve">
+    <value>Apri la scheda, premi {0} e scegli la copia da tenere.</value>
+  </data>
+  <data name="Help_Installed_SortOut_Note" xml:space="preserve">
+    <value>L'altra copia viene messa da parte, non eliminata. Due copie entrambe attive compaiono invece sotto Dipendenze e conflitti.</value>
+  </data>
+  <data name="Help_Options_Language_Title" xml:space="preserve">
+    <value>Cambiare la lingua dell'app</value>
+  </data>
+  <data name="Help_Options_Language_Step1" xml:space="preserve">
+    <value>In {0}, sotto {1}, scegli una lingua in {2}.</value>
+  </data>
+  <data name="Help_Options_Language_Step2" xml:space="preserve">
+    <value>Predefinita di sistema segue la lingua impostata in Windows. Il cambio è immediato - non si riavvia nulla.</value>
+  </data>
+  <data name="Help_Options_Language_Note" xml:space="preserve">
+    <value>La maggior parte delle traduzioni è automatica. Se qualcosa suona male, premi {0} in cima a questa pagina e scrivi come dovrebbe essere.</value>
+  </data>
+  <data name="Help_Options_Theme_Title" xml:space="preserve">
+    <value>Passare dal chiaro allo scuro</value>
+  </data>
+  <data name="Help_Options_Theme_Step1" xml:space="preserve">
+    <value>In {0}, cambia {1} in {2}, {3} o {4}.</value>
+  </data>
+  <data name="Help_Options_Role_Title" xml:space="preserve">
+    <value>Dire all'app che questa macchina è un headless Fika</value>
+  </data>
+  <data name="Help_Options_Role_Step1" xml:space="preserve">
+    <value>In {0}, sotto {1}, apri {2} con la freccia sulla sua riga.</value>
+  </data>
+  <data name="Help_Options_Role_Step2" xml:space="preserve">
+    <value>Imposta le opzioni in modo che mostrino {0} e {1}.</value>
+  </data>
+  <data name="Help_Options_Role_Note" xml:space="preserve">
+    <value>La lista mod di un server arriva poi senza i mod che servono solo a chi gioca. Se il launcher headless non viene trovato da solo, indicalo in {0}.</value>
+  </data>
+  <data name="Help_Problems_Greyed_Title" xml:space="preserve">
+    <value>Aggiorna o Rimuovi è disattivato</value>
+  </data>
+  <data name="Help_Problems_Greyed_Step1" xml:space="preserve">
+    <value>Il mod è disattivato. In {0}, premi il pulsante di accensione sulla sua scheda per riattivarlo.</value>
+  </data>
+  <data name="Help_Problems_Greyed_Step2" xml:space="preserve">
+    <value>Una volta attivo, Aggiorna e Rimuovi tornano a funzionare.</value>
+  </data>
+  <data name="Help_Problems_CloseSpt_Title" xml:space="preserve">
+    <value>Mi dice di chiudere prima il gioco o il server</value>
+  </data>
+  <data name="Help_Problems_CloseSpt_Step1" xml:space="preserve">
+    <value>Chiudi il gioco e la finestra della console del server.</value>
+  </data>
+  <data name="Help_Problems_CloseSpt_Step2" xml:space="preserve">
+    <value>Riprova.</value>
+  </data>
+  <data name="Help_Problems_CloseSpt_Note" xml:space="preserve">
+    <value>Tengono aperti i file dei mod, e un file in uso non si può sostituire.</value>
+  </data>
+  <data name="Help_Problems_Partial_Title" xml:space="preserve">
+    <value>Un'installazione si è fermata a metà</value>
+  </data>
+  <data name="Help_Problems_Partial_Step1" xml:space="preserve">
+    <value>In {0}, la scheda del mod dice che è installato solo in parte.</value>
+  </data>
+  <data name="Help_Problems_Partial_Step2" xml:space="preserve">
+    <value>Apri la scheda, premi {0} e poi {1} per completarla - oppure premi {2} sulla scheda per ripulirla.</value>
+  </data>
+  <data name="Help_Problems_Partial_Note" xml:space="preserve">
+    <value>La causa più comune è avviare SPT mentre un'installazione è in corso.</value>
+  </data>
+  <data name="Help_Problems_Notifications_Title" xml:space="preserve">
+    <value>Le notifiche degli aggiornamenti non compaiono</value>
+  </data>
+  <data name="Help_Problems_Notifications_Step1" xml:space="preserve">
+    <value>In {0}, sotto {1}, premi {2} e leggi la riga sotto.</value>
+  </data>
+  <data name="Help_Problems_Notifications_Step2" xml:space="preserve">
+    <value>Il primo controllo dopo l'attivazione registra solo gli aggiornamenti già presenti - non mostra mai una notifica.</value>
+  </data>
+  <data name="Help_Problems_Notifications_Step3" xml:space="preserve">
+    <value>Se i controlli trovano aggiornamenti ma non compare nulla, apri Impostazioni di Windows, poi Sistema, poi Notifiche, consenti TCF Mod Manager e disattiva Non disturbare.</value>
+  </data>
+  <data name="Help_Problems_AppUpdate_Title" xml:space="preserve">
+    <value>Un aggiornamento dell'app non è andato a buon fine</value>
+  </data>
+  <data name="Help_Problems_AppUpdate_Step1" xml:space="preserve">
+    <value>La versione che hai non è stata toccata e funziona ancora.</value>
+  </data>
+  <data name="Help_Problems_AppUpdate_Step2" xml:space="preserve">
+    <value>Se l'app è in Programmi, spostala in una cartella dove puoi scrivere, controlla lo spazio libero sul disco e riprova in {0}.</value>
+  </data>
+  <data name="Help_Problems_AppUpdate_Note" xml:space="preserve">
+    <value>Il log in Data\logs dice cosa l'ha fermato.</value>
+  </data>
+  <data name="Help_Problems_Report_Title" xml:space="preserve">
+    <value>Segnalare un problema</value>
+  </data>
+  <data name="Help_Problems_Report_Step1" xml:space="preserve">
+    <value>Premi {0} in cima a questa pagina. Apre la scheda delle segnalazioni sulla pagina sp-mod.com di questa app.</value>
+  </data>
+  <data name="Help_Problems_Report_Step2" xml:space="preserve">
+    <value>Scrivi cosa hai fatto e cosa è successo, e allega il log di oggi da Data\logs - il file che si chiama tcfmm- seguito dalla data.</value>
+  </data>
+  <data name="Help_Problems_Report_Step3" xml:space="preserve">
+    <value>Per più dettagli, metti un file vuoto chiamato verbose, senza estensione, accanto a TCFModManager.exe, rifallo e invia il nuovo log.</value>
+  </data>
+  <data name="Help_Problems_Report_Note" xml:space="preserve">
+    <value>Anche una traduzione sbagliata merita una segnalazione: quale lingua, cosa dice e cosa dovrebbe dire.</value>
+  </data>
+  <data name="Help_Start_Setup_Keywords" xml:space="preserve">
+    <value>cartella di installazione, percorso, configurare, prima volta</value>
+  </data>
+  <data name="Help_Start_Version_Keywords" xml:space="preserve">
+    <value>versione sconosciuta, versione sbagliata, rilevare, versione SPT</value>
+  </data>
+  <data name="Help_Play_Start_Keywords" xml:space="preserve">
+    <value>avviare, giocare, avvia gioco, server, launcher</value>
+  </data>
+  <data name="Help_Play_Check_Keywords" xml:space="preserve">
+    <value>mod mancanti, entrare, prima del raid, confrontare, lista del server</value>
+  </data>
+  <data name="Help_Browse_Compatible_Keywords" xml:space="preserve">
+    <value>compatibile, funziona con, filtrare, versione SPT</value>
+  </data>
+  <data name="Help_Browse_Install_Keywords" xml:space="preserve">
+    <value>installare, aggiungere, ottenere, scaricare, dipendenze</value>
+  </data>
+  <data name="Help_Browse_Author_Keywords" xml:space="preserve">
+    <value>autore, creatore, di, cercare, modder</value>
+  </data>
+  <data name="Help_Browse_HideInstalled_Keywords" xml:space="preserve">
+    <value>nascondere installati, già presenti, filtrare</value>
+  </data>
+  <data name="Help_Browse_Addon_Keywords" xml:space="preserve">
+    <value>addon, estensione, aggiunta, extra</value>
+  </data>
+  <data name="Help_Installed_Updates_Keywords" xml:space="preserve">
+    <value>aggiornamenti, obsoleto, nuova versione, da aggiornare</value>
+  </data>
+  <data name="Help_Installed_Update_Keywords" xml:space="preserve">
+    <value>aggiornare, riscaricare, reinstallare, ultima versione</value>
+  </data>
+  <data name="Help_Installed_Views_Keywords" xml:space="preserve">
+    <value>vista, disposizione, schede, elenco, gruppi</value>
+  </data>
+  <data name="Help_Installed_Groups_Keywords" xml:space="preserve">
+    <value>gruppi, categorie, separatori, organizzare, ordinare, cartelle</value>
+  </data>
+  <data name="Help_Installed_Disable_Keywords" xml:space="preserve">
+    <value>disattivare, spegnere, attivare</value>
+  </data>
+  <data name="Help_Installed_DisableMany_Keywords" xml:space="preserve">
+    <value>più mod, tanti, selezionare, disattivare tutti</value>
+  </data>
+  <data name="Help_Installed_Undo_Keywords" xml:space="preserve">
+    <value>annullare, tornare indietro, ripristinare, errore</value>
+  </data>
+  <data name="Help_Installed_Remove_Keywords" xml:space="preserve">
+    <value>rimuovere, disinstallare, eliminare, cancellare, togliere</value>
+  </data>
+  <data name="Help_Installed_Downgrade_Keywords" xml:space="preserve">
+    <value>downgrade, versione più vecchia, tornare indietro, versione precedente</value>
+  </data>
+  <data name="Help_Installed_SortOut_Keywords" xml:space="preserve">
+    <value>duplicato, due volte, due copie, si carica ancora</value>
+  </data>
+  <data name="Help_ModLists_Capture_Keywords" xml:space="preserve">
+    <value>salvare, profilo, preset, istantanea</value>
+  </data>
+  <data name="Help_ModLists_Apply_Keywords" xml:space="preserve">
+    <value>cambiare, caricare, applicare, profilo, cambiare lista</value>
+  </data>
+  <data name="Help_ModLists_Pin_Keywords" xml:space="preserve">
+    <value>fissare, tenere, sempre, proteggere, mai disattivare</value>
+  </data>
+  <data name="Help_ModLists_Edit_Keywords" xml:space="preserve">
+    <value>modificare, cambiare, aggiungere mod, togliere dalla lista</value>
+  </data>
+  <data name="Help_ModLists_Share_Keywords" xml:space="preserve">
+    <value>condividere, esportare, importare, inviare, amico, file</value>
+  </data>
+  <data name="Help_ModLists_Server_Keywords" xml:space="preserve">
+    <value>server, sincronizzare, stessi mod, amici, multigiocatore</value>
+  </data>
+  <data name="Help_ModLists_Undo_Keywords" xml:space="preserve">
+    <value>annullare, tornare indietro, ripristinare</value>
+  </data>
+  <data name="Help_Configs_Edit_Keywords" xml:space="preserve">
+    <value>configurazione, impostazioni, opzioni, cfg, json, modificare</value>
+  </data>
+  <data name="Help_Configs_Policy_Keywords" xml:space="preserve">
+    <value>tenere impostazioni, aggiornamento, unire, sovrascrivere</value>
+  </data>
+  <data name="Help_Configs_Original_Keywords" xml:space="preserve">
+    <value>predefinito, ripristinare, valore originale, fabbrica</value>
+  </data>
+  <data name="Help_Configs_Leftover_Keywords" xml:space="preserve">
+    <value>avanzi, vecchie impostazioni, orfano, mod rimosso</value>
+  </data>
+  <data name="Help_Dependencies_Check_Keywords" xml:space="preserve">
+    <value>dipendenze, requisiti, serve, manca, richiesto</value>
+  </data>
+  <data name="Help_Dependencies_Conflicts_Title" xml:space="preserve">
+    <value>Trovare i mod che si scontrano</value>
+  </data>
+  <data name="Help_Dependencies_Conflicts_Step1" xml:space="preserve">
+    <value>Apri {0}. {1}, in alto, elenca i mod installati due volte e i mod che portano copie diverse dello stesso file.</value>
+  </data>
+  <data name="Help_Dependencies_Conflicts_Step2" xml:space="preserve">
+    <value>Ognuno indica di che tipo è. {0}: BepInEx ne carica solo uno, e non puoi scegliere quale. {1}: SPT non ne carica nessuno. {2}: ogni mod riceve la copia caricata per prima, quindi uno di loro potrebbe non funzionare come previsto.</value>
+  </data>
+  <data name="Help_Dependencies_Conflicts_Step3" xml:space="preserve">
+    <value>Premi {0} per ricontrollare dopo ogni modifica.</value>
+  </data>
+  <data name="Help_Dependencies_Conflicts_Note" xml:space="preserve">
+    <value>Il controllo legge ciò che c'è sul disco, quindi vengono controllati anche i mod installati a mano. I mod disattivati non vengono controllati, perché SPT non li carica, e le copie identiche di un file non vengono mai elencate - non fanno danni.</value>
+  </data>
+  <data name="Help_Dependencies_Conflicts_Keywords" xml:space="preserve">
+    <value>conflitto, scontro, duplicato, due volte, due copie, non si carica, non viene caricato, stesso mod, dll</value>
+  </data>
+  <data name="Help_Dependencies_Keep_Title" xml:space="preserve">
+    <value>Tenere una copia di un mod installato due volte</value>
+  </data>
+  <data name="Help_Dependencies_Keep_Step1" xml:space="preserve">
+    <value>Sotto {0}, trova la copia da tenere e premi {1}.</value>
+  </data>
+  <data name="Help_Dependencies_Keep_Step2" xml:space="preserve">
+    <value>Controlla cosa verrà rimosso e conferma. Se il mod ha una parte client e una server, le metà duplicate dell'altra copia vengono rimosse insieme.</value>
+  </data>
+  <data name="Help_Dependencies_Keep_Step3" xml:space="preserve">
+    <value>Hai cambiato idea? Premi Annulla in cima a {0} per rimettere le copie rimosse.</value>
+  </data>
+  <data name="Help_Dependencies_Keep_Note" xml:space="preserve">
+    <value>{0} è disattivato quando un'altra copia è stata installata con questa app e ha anche file non duplicati, perché rimuoverla porterebbe via anche quelli. Passa il mouse sul pulsante per vedere il motivo, e rimuovi invece quel mod dalla pagina Installati, dove Rimuovi mostra tutto ciò che porta via. Le copie diverse di un file non hanno un pulsante: tieni il mod che ti serve, o chiedi agli autori.</value>
+  </data>
+  <data name="Help_Dependencies_Keep_Keywords" xml:space="preserve">
+    <value>tieni, tenerne uno, rimuovi duplicato, elimina copia, annulla</value>
+  </data>
+  <data name="Help_Dependencies_Spot_Title" xml:space="preserve">
+    <value>Vedere i conflitti da altre pagine</value>
+  </data>
+  <data name="Help_Dependencies_Spot_Step1" xml:space="preserve">
+    <value>In {0}, un mod in conflitto ha un avviso sulla scheda - passaci sopra il mouse per vedere con quali mod si scontra. Il numero di conflitti sopra l'elenco apre {1}.</value>
+  </data>
+  <data name="Help_Dependencies_Spot_Step2" xml:space="preserve">
+    <value>Per mostrare solo quei mod, scegli {0} nei filtri.</value>
+  </data>
+  <data name="Help_Dependencies_Spot_Step3" xml:space="preserve">
+    <value>Anche {0} avvisa dei conflitti prima dell'avvio. Non ti impedisce mai di giocare.</value>
+  </data>
+  <data name="Help_Dependencies_Spot_Keywords" xml:space="preserve">
+    <value>avviso di conflitto, ha conflitti, filtro, avviso prima di giocare, rosso</value>
+  </data>
+  <data name="Help_Problems_NotLoading_Title" xml:space="preserve">
+    <value>Un mod non si carica</value>
+  </data>
+  <data name="Help_Problems_NotLoading_Step1" xml:space="preserve">
+    <value>Apri {0}. Sotto {1}, un mod installato due volte, o due mod con file in conflitto, è il motivo più comune.</value>
+  </data>
+  <data name="Help_Problems_NotLoading_Step2" xml:space="preserve">
+    <value>Più in basso, sotto {0}, controlla che abbia tutti i mod che gli servono.</value>
+  </data>
+  <data name="Help_Problems_NotLoading_Step3" xml:space="preserve">
+    <value>In {0}, controlla che il mod sia attivo. Un mod presente sia in una cartella attiva sia in una disattivata ha un avviso sulla scheda.</value>
+  </data>
+  <data name="Help_Problems_NotLoading_Note" xml:space="preserve">
+    <value>Ancora non si carica? Controlla in {0} che il mod sia fatto per la tua versione di SPT.</value>
+  </data>
+  <data name="Help_Problems_NotLoading_Keywords" xml:space="preserve">
+    <value>non si carica, non viene caricato, non funziona, manca nel gioco, rotto, non compare</value>
+  </data>
+  <data name="Help_Footprint_Enable_Keywords" xml:space="preserve">
+    <value>impronta, prestazioni, attivare, attivare pagina</value>
+  </data>
+  <data name="Help_Footprint_Read_Keywords" xml:space="preserve">
+    <value>impronta, prestazioni, lag, fps, pesante, impatto</value>
+  </data>
+  <data name="Help_ServerMap_Enable_Keywords" xml:space="preserve">
+    <value>mappa server, attivare, attivare pagina, server</value>
+  </data>
+  <data name="Help_ServerMap_Connect_Keywords" xml:space="preserve">
+    <value>collegare, server, indirizzo, chiave, porta, certificato</value>
+  </data>
+  <data name="Help_ServerMap_Publish_Keywords" xml:space="preserve">
+    <value>pubblicare, ospitare, lista del server, gestore</value>
+  </data>
+  <data name="Help_Downloads_Watch_Keywords" xml:space="preserve">
+    <value>download, avanzamento, annullare, fermare, coda</value>
+  </data>
+  <data name="Help_Downloads_Where_Keywords" xml:space="preserve">
+    <value>dove, trovare il file, cartella download, zip</value>
+  </data>
+  <data name="Help_Monitor_Enable_Keywords" xml:space="preserve">
+    <value>solo download, installazione manuale, da solo, a mano</value>
+  </data>
+  <data name="Help_Monitor_Other_Keywords" xml:space="preserve">
+    <value>un mod, al contrario, eccezione</value>
+  </data>
+  <data name="Help_Monitor_Confirm_Keywords" xml:space="preserve">
+    <value>confermare, segnare installato, installato a mano</value>
+  </data>
+  <data name="Help_Updates_Enable_Keywords" xml:space="preserve">
+    <value>notifiche, avvisi, avvisare, segnalare</value>
+  </data>
+  <data name="Help_Updates_Tray_Keywords" xml:space="preserve">
+    <value>area di notifica, sfondo, ridurre, continuare</value>
+  </data>
+  <data name="Help_AppUpdate_Update_Keywords" xml:space="preserve">
+    <value>aggiornare app, nuova versione</value>
+  </data>
+  <data name="Help_Options_Language_Keywords" xml:space="preserve">
+    <value>lingua, traduzione, italiano, inglese</value>
+  </data>
+  <data name="Help_Options_Theme_Keywords" xml:space="preserve">
+    <value>modalità scura, chiaro, scuro, tema, colori, aspetto</value>
+  </data>
+  <data name="Help_Options_Role_Keywords" xml:space="preserve">
+    <value>headless, Fika, dedicato, host, nessun giocatore</value>
+  </data>
+  <data name="Help_Problems_Greyed_Keywords" xml:space="preserve">
+    <value>disattivato, grigio, pulsante disattivato, non posso aggiornare, non posso rimuovere</value>
+  </data>
+  <data name="Help_Problems_CloseSpt_Keywords" xml:space="preserve">
+    <value>chiudere il gioco, in uso, bloccato, in esecuzione, non installa</value>
+  </data>
+  <data name="Help_Problems_Partial_Keywords" xml:space="preserve">
+    <value>installato a metà, fallito, rotto, incompleto</value>
+  </data>
+  <data name="Help_Problems_Notifications_Keywords" xml:space="preserve">
+    <value>nessuna notifica, non avvisato</value>
+  </data>
+  <data name="Help_Problems_AppUpdate_Keywords" xml:space="preserve">
+    <value>aggiornamento fallito, non aggiornato, errore</value>
+  </data>
+  <data name="Help_Problems_Report_Keywords" xml:space="preserve">
+    <value>bug, problema, crash, errore, segnalare, log</value>
+  </data>
+  <data name="Installed_RemovedUndoHint" xml:space="preserve">
+    <value>Usa Annulla per rimetterla.</value>
+  </data>
+  <data name="Installed_UndoRemovalFormat" xml:space="preserve">
+    <value>Annulla la rimozione di {0}</value>
+  </data>
+  <data name="Installed_UndoRemovalToolTip" xml:space="preserve">
+    <value>Rimette la mod esattamente com'era prima della rimozione. Niente di ciò che ha preso il suo posto nel frattempo viene sovrascritto.</value>
+  </data>
+  <data name="Installed_UndoneFormat" xml:space="preserve">
+    <value>{0} è stata rimessa.</value>
+  </data>
+  <data name="Installed_UndoNothing" xml:space="preserve">
+    <value>Non c'è niente da annullare - i file rimossi sono stati eliminati.</value>
+  </data>
+  <data name="Installed_RemoveHeldFormat" xml:space="preserve">
+    <value>I file rimossi restano nell'installazione per {0}, quindi puoi annullare.</value>
+  </data>
+  <data name="Installed_RemoveHeldUntilCleared" xml:space="preserve">
+    <value>I file rimossi restano nell'installazione finché non li elimini nelle Opzioni, quindi puoi annullare.</value>
+  </data>
+  <data name="Installed_RemoveNotHeld" xml:space="preserve">
+    <value>I file rimossi vengono eliminati subito (Opzioni, Conserva le mod rimosse), quindi non si può annullare.</value>
+  </data>
+  <data name="Installed_RemoveUnstampedFormat" xml:space="preserve">
+    <value>La registrazione dell'app non indica in quale installazione di SPT è stata fatta. Verrà rimossa da {0}.</value>
+  </data>
+  <data name="Options_RemovedModsHeader" xml:space="preserve">
+    <value>Conserva le mod rimosse</value>
+  </data>
+  <data name="Options_RemovedModsHint" xml:space="preserve">
+    <value>Rimuovere una mod sposta i suoi file in una cartella nascosta dell'installazione, così si può annullare. Scegli per quanto tempo restano lì.</value>
+  </data>
+  <data name="Options_RemovedModsDescription" xml:space="preserve">
+    <value>Le mod rimosse restano in .tcfmm-removed nella tua cartella di SPT e vengono eliminate all'avvio dell'app quando il loro tempo è scaduto. Anche gli aggiornamenti vi conservano la versione che hanno sostituito.</value>
+  </data>
+  <data name="Options_RemovedModsDeleteStraightAway" xml:space="preserve">
+    <value>Elimina subito</value>
+  </data>
+  <data name="Options_RemovedModsOneDay" xml:space="preserve">
+    <value>1 giorno</value>
+  </data>
+  <data name="Options_RemovedModsSevenDays" xml:space="preserve">
+    <value>7 giorni</value>
+  </data>
+  <data name="Options_RemovedModsFourteenDays" xml:space="preserve">
+    <value>14 giorni</value>
+  </data>
+  <data name="Options_RemovedModsThirtyDays" xml:space="preserve">
+    <value>30 giorni</value>
+  </data>
+  <data name="Options_RemovedModsUntilCleared" xml:space="preserve">
+    <value>Finché non le elimino</value>
+  </data>
+  <data name="Options_RemovedModsClearFormat" xml:space="preserve">
+    <value>Elimina le mod rimosse ({0})</value>
+  </data>
+  <data name="Options_RemovedModsClearTitle" xml:space="preserve">
+    <value>Elimina le mod rimosse</value>
+  </data>
+  <data name="Options_RemovedModsClearConfirmFormat" xml:space="preserve">
+    <value>Eliminare tutte le mod rimosse conservate in {1} ({0})? Dopo non sarà più possibile annullare nessuna rimozione fatta finora.</value>
+  </data>
+  <data name="Options_RemovedModsClearedFormat" xml:space="preserve">
+    <value>Mod rimosse eliminate - {0} liberati.</value>
+  </data>
+  <data name="Options_RemovedModsNothingToClear" xml:space="preserve">
+    <value>Niente da eliminare</value>
+  </data>
+  <data name="Installed_RemovedKeptChanged_one" xml:space="preserve">
+    <value>1 file modificato dopo l'installazione è stato lasciato al suo posto.</value>
+  </data>
+  <data name="Installed_RemovedKeptChanged_other" xml:space="preserve">
+    <value>{0} file modificati dopo l'installazione sono stati lasciati al loro posto.</value>
+  </data>
+  <data name="Installed_RemovedKeptOwned_one" xml:space="preserve">
+    <value>1 file usato anche da un'altra mod è stato lasciato al suo posto.</value>
+  </data>
+  <data name="Installed_RemovedKeptOwned_other" xml:space="preserve">
+    <value>{0} file usati anche da altre mod sono stati lasciati al loro posto.</value>
+  </data>
+  <data name="Installed_RemovedRefused_one" xml:space="preserve">
+    <value>1 file che appartiene a SPT o al gioco, o che si trova fuori dalla mod, non è stato toccato.</value>
+  </data>
+  <data name="Installed_RemovedRefused_other" xml:space="preserve">
+    <value>{0} file che appartengono a SPT o al gioco, o che si trovano fuori dalla mod, non sono stati toccati.</value>
+  </data>
+  <data name="Installed_RemovedRestored_one" xml:space="preserve">
+    <value>1 file che aveva sostituito è stato rimesso.</value>
+  </data>
+  <data name="Installed_RemovedRestored_other" xml:space="preserve">
+    <value>{0} file che aveva sostituito sono stati rimessi.</value>
+  </data>
+  <data name="Installed_UndoneBlocked_one" xml:space="preserve">
+    <value>{1} è stata rimessa, tranne 1 elemento: al suo posto ora c'è altro. È ancora in {2}.</value>
+  </data>
+  <data name="Installed_UndoneBlocked_other" xml:space="preserve">
+    <value>{1} è stata rimessa, tranne {0} elementi: al loro posto ora c'è altro. Sono ancora in {2}.</value>
+  </data>
+  <data name="Downloads_KeptSptFiles_one" xml:space="preserve">
+    <value>1 file di questo archivio appartiene a SPT, BepInEx o al gioco ed è stato lasciato com'è.</value>
+  </data>
+  <data name="Downloads_KeptSptFiles_other" xml:space="preserve">
+    <value>{0} file di questo archivio appartengono a SPT, BepInEx o al gioco e sono stati lasciati come sono.</value>
+  </data>
+  <data name="Downloads_KeptOriginals_one" xml:space="preserve">
+    <value>1 file che ha sostituito è stato conservato, per rimetterlo se la mod viene rimossa.</value>
+  </data>
+  <data name="Downloads_KeptOriginals_other" xml:space="preserve">
+    <value>{0} file che ha sostituito sono stati conservati, per rimetterli se la mod viene rimossa.</value>
+  </data>
+  <data name="Installed_UndoRemovalPickFormat" xml:space="preserve">
+    <value>Annulla una rimozione ({0})</value>
+  </data>
+  <data name="Installed_UndoRemovalItemFormat" xml:space="preserve">
+    <value>{0} - rimossa il {1}</value>
+  </data>
+  <data name="Installed_LeftoverFormat" xml:space="preserve">
+    <value>Rimasta dopo la rimozione di {0} ({1}) - questa cartella contiene file che {0} non ha installato.</value>
+  </data>
+  <data name="Installed_RemovedFolderLeft_one" xml:space="preserve">
+    <value>La sua cartella {1} è stata lasciata: contiene 1 file che la mod non ha installato.</value>
+  </data>
+  <data name="Installed_RemovedFolderLeft_other" xml:space="preserve">
+    <value>La sua cartella {1} è stata lasciata: contiene {0} file che la mod non ha installato.</value>
+  </data>
+  <data name="Install_IncompatibleTitle" xml:space="preserve">
+    <value>Non fatta per la tua versione di SPT</value>
+  </data>
+  <data name="Install_IncompatibleOneFormat" xml:space="preserve">
+    <value>Nessuna versione di questa mod su sp-mod.com supporta SPT {0}. La più recente è:
+
+{1}
+
+Installarla comunque? SPT potrebbe rifiutarsi di caricarla.</value>
+  </data>
+  <data name="Install_IncompatibleBatchFormat" xml:space="preserve">
+    <value>Queste non supportano SPT {0}:
+
+{1}
+
+Installarle comunque? SPT potrebbe rifiutarsi di caricarle. No installa il resto senza di loro.</value>
+  </data>
+  <data name="Install_IncompatibleLineFormat" xml:space="preserve">
+    <value>{0} {1} - richiede SPT {2}</value>
+  </data>
+  <data name="Install_IncompatibleNotInstalledFormat" xml:space="preserve">
+    <value>{0} non è stata installata - nessuna sua versione supporta SPT {1}.</value>
+  </data>
+  <data name="Install_IncompatibleLeftOutFormat" xml:space="preserve">
+    <value>Escluse perché non supportano SPT {0}: {1}.</value>
+  </data>
+  <data name="ModList_ReasonIncompatibleFormat" xml:space="preserve">
+    <value>la versione {0} non supporta SPT {1}, e non si è scelto di installarla comunque</value>
+  </data>
+  <data name="Conflicts_Header" xml:space="preserve">
+    <value>Conflitti</value>
+  </data>
+  <data name="Dependencies_Header" xml:space="preserve">
+    <value>Dipendenze</value>
+  </data>
+  <data name="Conflicts_None" xml:space="preserve">
+    <value>Nessun conflitto: niente è installato due volte e nessuna coppia di mod porta copie diverse dello stesso file.</value>
+  </data>
+  <data name="Conflicts_KindDuplicatePlugin" xml:space="preserve">
+    <value>Lo stesso plugin installato due volte</value>
+  </data>
+  <data name="Conflicts_KindDuplicateServerMod" xml:space="preserve">
+    <value>La stessa mod server installata due volte</value>
+  </data>
+  <data name="Conflicts_KindDifferentCopies" xml:space="preserve">
+    <value>Copie diverse dello stesso file</value>
+  </data>
+  <data name="Conflicts_ExplainDuplicatePluginFormat" xml:space="preserve">
+    <value>Registrano tutti il plugin {0}. BepInEx ne carica solo uno, e non puoi scegliere quale. Tienine uno e disattiva o rimuovi gli altri.</value>
+  </data>
+  <data name="Conflicts_ExplainDuplicateServerModFormat" xml:space="preserve">
+    <value>Dichiarano tutti la mod server {0}. SPT salta una mod server il cui ID trova due volte, quindi nessuna viene caricata. Tienine una e disattiva o rimuovi le altre.</value>
+  </data>
+  <data name="Conflicts_ExplainDifferentCopiesFormat" xml:space="preserve">
+    <value>Ognuno porta la propria copia di {0}, e le copie sono diverse. Viene usata solo la prima caricata, da tutte le mod che ne hanno bisogno, quindi una di queste mod potrebbe non funzionare come previsto. Chiedi ai loro autori, o tieni quella che ti serve.</value>
+  </data>
+  <data name="Conflicts_CopyFormat" xml:space="preserve">
+    <value>{0}, versione {1}</value>
+  </data>
+  <data name="Conflicts_OpenFolderToolTip" xml:space="preserve">
+    <value>Apri questa cartella</value>
+  </data>
+  <data name="Installed_StatusConflictFormat" xml:space="preserve">
+    <value>{0}
+Vedi Dipendenze e conflitti.</value>
+  </data>
+  <data name="Installed_ConflictWithFormat" xml:space="preserve">
+    <value>{0}: con {1}</value>
+  </data>
+  <data name="Installed_ConflictCount_one" xml:space="preserve">
+    <value>1 conflitto - vedi Dipendenze e conflitti</value>
+  </data>
+  <data name="Installed_ConflictCount_other" xml:space="preserve">
+    <value>{0} conflitti - vedi Dipendenze e conflitti</value>
+  </data>
+  <data name="Conflicts_KeepThis" xml:space="preserve">
+    <value>Tieni questa</value>
+  </data>
+  <data name="Conflicts_KeepThisToolTip" xml:space="preserve">
+    <value>Tieni questa copia e rimuovi le altre. Finiscono dove vanno le mod rimosse, quindi Annulla nella pagina Installati può rimetterle.</value>
+  </data>
+  <data name="Conflicts_KeepConfirmTitle" xml:space="preserve">
+    <value>Tieni una copia</value>
+  </data>
+  <data name="Conflicts_KeepConfirmFormat" xml:space="preserve">
+    <value>Tenere {0} in {1} e rimuovere:
+
+{2}
+
+{3}</value>
+  </data>
+  <data name="Conflicts_KeepLineFormat" xml:space="preserve">
+    <value>{0} - {1}</value>
+  </data>
+  <data name="Conflicts_KeptFormat" xml:space="preserve">
+    <value>Tenuta {0}. Rimossa {1} - Annulla nella pagina Installati la rimette.</value>
+  </data>
+  <data name="Conflicts_KeepFailedFormat" xml:space="preserve">
+    <value>Impossibile rimuovere {0}: {1}</value>
+  </data>
+  <data name="Filter_HasConflicts" xml:space="preserve">
+    <value>Ha conflitti</value>
+  </data>
+  <data name="Filter_HasConflictsToolTip" xml:space="preserve">
+    <value>Solo le mod in conflitto: installate due volte, o con una copia diversa di un file che porta un'altra mod. Vedi Dipendenze e conflitti.</value>
+  </data>
+  <data name="Play_ConflictsHint" xml:space="preserve">
+    <value>Alcune mod potrebbero non caricarsi. Puoi comunque avviare.</value>
+  </data>
+  <data name="Conflicts_KeepBlockedFormat" xml:space="preserve">
+    <value>{0} ha anche file che non sono duplicati, ed è stata installata con questa app, quindi si può rimuovere solo per intero - anche quei file andrebbero via. Rimuovila invece dalla pagina Installati, dove Rimuovi mostra tutto ciò che porta via.</value>
   </data>
 </root>

@@ -26,13 +26,16 @@ public static class ModUpdates
         var installPath = AppServices.SptEnvironment.InstallPath;
         if (string.IsNullOrWhiteSpace(installPath)) return (AppMessages.NoSptInstallFolder, false);
 
+        // 1.19: follows Monitor mode's setting. A download places nothing, so the warning below is moot.
+        var downloadOnly = AppServices.ModPageGate.DownloadOnlyFor(alternate: false);
+
         //
         // One warning covering every hand-installed mod in the batch, for the same reason the
         // single-mod path warns at all: there is no record of which files the current version
         // placed, so the new one goes on top of it.
         //
         var handInstalled = targets.Where(t => !t.IsAppManaged).Select(t => t.Title).ToList();
-        if (handInstalled.Count > 0 && MessageBox.Show(
+        if (!downloadOnly && handInstalled.Count > 0 && MessageBox.Show(
                 LocalizationService.Text(Strings.Installed_UpdateHandInstalledBodyFormat, TextLists.Join(handInstalled)),
                 Strings.Installed_UpdateHandInstalledTitle(handInstalled.Count),
                 MessageBoxButton.YesNo,
@@ -41,23 +44,51 @@ public static class ModUpdates
             return (Strings.Installed_UpdateCancelled, false);
         }
 
+        //
+        // 1.19: any update whose version doesn't support the installed SPT - PickDisplayVersion falls
+        // back to the newest when none does - is asked about once for the batch. No leaves those out
+        // and updates the rest.
+        //
+        var queue = targets.ToList();
+        var incompatible = queue
+            .Select(t => (Target: t, Version: t.Mod.Versions?.FirstOrDefault(v => v.Version == t.Version)))
+            .Where(t => SptCompatibility.IsIncompatible(t.Version?.SptVersionConstraint))
+            .ToList();
+
+        var leftOut = string.Empty;
+        if (incompatible.Count > 0 && !SptCompatibility.ConfirmAnyway(
+                [.. incompatible.Select(t => SptCompatibility.Line(t.Target.Title, t.Version!.Version, t.Version.SptVersionConstraint))],
+                batch: true))
+        {
+            var dropped = incompatible.Select(t => t.Target).ToHashSet();
+            queue.RemoveAll(dropped.Contains);
+            leftOut = LocalizationService.Text(
+                Strings.Install_IncompatibleLeftOutFormat,
+                AppServices.SptEnvironment.InstalledVersion,
+                TextLists.Join([.. incompatible.Select(t => t.Target.Title)]));
+
+            if (queue.Count == 0) return (leftOut, false);
+        }
+
         // The same dialog a single install goes through, asked once for the batch - each with the
         // change notes of the version it updates to. ConfirmAll honours the Options switch that
         // turns the dialog off.
-        var links = targets
+        var links = queue
             .Select(t => new ModPageLink(t.Title, t.Mod.DetailUrl) { ModId = t.Mod.Id, ChangeNotesVersion = t.Version })
             .ToList();
         if (!ReadModPageConfirmationWindow.ConfirmAll(links)) return (Strings.Installed_UpdateCancelledUnread, false);
 
-        foreach (var target in targets)
+        foreach (var target in queue)
         {
             var mod = target.Mod;
             var version = target.Version;
             AppServices.DownloadQueue.Enqueue(
-                InstallTarget.For(mod), version, installPath, () => ResolveVersionLinkAsync(mod, version));
+                InstallTarget.For(mod), version, installPath, () => ResolveVersionLinkAsync(mod, version),
+                downloadOnly: downloadOnly);
         }
 
-        return (Strings.Installed_UpdateQueued(targets.Count), true);
+        var queued = Strings.Installed_UpdateQueued(queue.Count);
+        return (leftOut.Length == 0 ? queued : string.Join(Strings.Common_SentenceSeparator, queued, leftOut), true);
     }
 
     // The version's own record, for its download link.

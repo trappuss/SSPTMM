@@ -57,16 +57,46 @@ public sealed class InstalledModRecord
     public bool IsAppManaged { get; init; } = true;
 
     //
-    // Files that were already in the install - placed by hand, or by another mod - where this install
-    // put one of its own (install-relative, forward-slash). A copy of each was kept first (see
-    // ReplacedFileStore), and removing this mod puts it back rather than leaving a hole. Empty on
-    // records written before this existed.
+    // The size and SHA-256 of files in Files as they were placed, so a removal only ever takes a file
+    // that is still exactly what was put there (D21). Empty on records written before v1.19.0 and on
+    // manually-confirmed ones; a file with no fingerprint falls back to the path checks alone.
+    // A list rather than a dictionary because a deserialized dictionary would lose its
+    // case-insensitive comparer - look one up with FingerprintFor.
     //
-    public List<string> Replaced { get; init; } = [];
+    public List<FileFingerprint> Fingerprints { get; init; } = [];
+
+    //
+    // The SPT install this record was made in, as a full path - removal refuses anywhere else (D17).
+    // Null on records written before v1.19.0 until they are stamped.
+    //
+    public string? InstallPath { get; init; }
+
+    // Files this install placed over that no record owned, with where the originals were kept (D22).
+    public List<OverwrittenFile> Overwrote { get; init; } = [];
+
+    public FileFingerprint? FingerprintFor(string path) =>
+        Fingerprints.FirstOrDefault(f => string.Equals(f.Path, path, StringComparison.OrdinalIgnoreCase));
 }
 
 // The full set of installed-mod records for one SPT install.
 public sealed class ModInstallManifest
 {
     public List<InstalledModRecord> Mods { get; init; } = [];
+
+    // Mods and addons are numbered separately and the numbers overlap, so a record is only ever
+    // found by both halves of its identity.
+    public InstalledModRecord? Find(int modId, bool isAddon) =>
+        Mods.FirstOrDefault(m => m.ModId == modId && m.IsAddon == isAddon);
+
+    // Fork: the records that can describe <paramref name="installPath"/> - its own, and the ones made
+    // before 1.19.0 that name no install. Another install's record says nothing about the files here:
+    // read as this install's, a folder there showed as app-installed at that install's version, and
+    // could not then be removed or updated here (D17). Every record when no install is given.
+    public List<InstalledModRecord> ModsFor(string? installPath)
+    {
+        if (string.IsNullOrWhiteSpace(installPath)) return Mods;
+
+        var stamp = Services.InstallStamp.Of(installPath);
+        return [.. Mods.Where(m => m.InstallPath is null || string.Equals(m.InstallPath, stamp, StringComparison.OrdinalIgnoreCase))];
+    }
 }

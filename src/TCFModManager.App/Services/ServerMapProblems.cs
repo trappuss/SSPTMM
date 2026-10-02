@@ -48,6 +48,8 @@ public static class ServerMapProblems
         // A plain SPT server 404s the route and a stub whose payload is missing 503s it - the same
         // answer either way, so the wording covers both without guessing which.
         //
+        ServerMapProblem.LanOnly => Strings.ServerMap_LanOnly,
+
         ServerMapProblem.NotServerMap => Format(
             Strings.ServerMap_NotServerMapFormat, probe.Endpoint.Host, probe.Endpoint.Port),
 
@@ -123,6 +125,8 @@ public static class ServerMapProblems
 
         ServerMapProblem.KeyRejected => Strings.ServerMap_KeyRejected,
 
+        ServerMapProblem.LanOnly => Strings.ServerMap_LanOnly,
+
         ServerMapProblem.ListUnreadable => Format(Strings.ServerMap_ListUnreadableFormat, result.ParseError),
 
         // Also what a list fetch without a handshake of its own reports when nothing answered.
@@ -143,6 +147,19 @@ public static class ServerMapProblems
     // How the key is described in Options. Says what it is and is not, because the word "key"
     // invites people to treat it as a password and reuse one.
     //
+    //
+    // Why the map could not be read. A server mod older than 0.2.0 is not a failure - it is a server
+    // that has no map yet, and the operator is the one who can change that.
+    //
+    public static string DescribeMap(ServerMapProblem problem) => problem switch
+    {
+        ServerMapProblem.MapUnsupported => Strings.ServerMap_MapUnsupported,
+        ServerMapProblem.LanOnly => Strings.ServerMap_LanOnly,
+        ServerMapProblem.KeyRequired => Strings.ServerMap_KeyRequired,
+        ServerMapProblem.KeyRejected => Strings.ServerMap_KeyRejected,
+        _ => Strings.ServerMap_MapUnavailable,
+    };
+
     public static string DescribeKey(bool hasKey, bool serverRequiresKey) => (hasKey, serverRequiresKey) switch
     {
         (false, true) => Strings.ServerMap_KeyNeeded,

@@ -23,8 +23,8 @@ public class SptVersionRangeFormatterTests
     [InlineData(">3.8.0", "newer than 3.8")]
     [InlineData("<4.0.0", "up to 3.x")]
     // Bare version is an exact match.
-    [InlineData("3.9.0", "3.9 only")]
-    [InlineData("4.0.13", "4.0.13 only")]
+    [InlineData("3.9.0", "3.9.x")]
+    [InlineData("4.0.13", "4.0.13 - 4.0.x")]
     public void Format_RendersConstraintAsPlainRange(string constraint, string expected) =>
         Assert.Equal(expected, SptVersionRangeFormatter.Format(constraint));
 

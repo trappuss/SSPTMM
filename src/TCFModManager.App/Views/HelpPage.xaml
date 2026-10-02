@@ -1,0 +1,188 @@
+<!-- ScrollViewer.CanContentScroll="False" opts this page out of WPF-UI's outer DynamicScrollViewer,
+     so SectionsScrollViewer below is the only thing that scrolls - see InstalledPage.xaml. -->
+<Page
+    x:Class="TCFModManager.App.Views.HelpPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:controls="clr-namespace:System.Windows.Controls;assembly=PresentationFramework"
+    xmlns:behaviors="clr-namespace:TCFModManager.App.Behaviors"
+    xmlns:loc="clr-namespace:TCFModManager.App.Localization"
+    Title="{loc:Str Nav_Help}"
+    ScrollViewer.CanContentScroll="False">
+    <Page.Resources>
+        <controls:BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+    </Page.Resources>
+    <Grid
+        x:Name="RootGrid"
+        Margin="16"
+        Background="Transparent">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <ui:Card Grid.Row="0" Margin="0,0,0,12">
+            <DockPanel>
+                <ui:Button
+                    DockPanel.Dock="Right"
+                    Margin="8,0,0,0"
+                    VerticalAlignment="Center"
+                    Content="{loc:Str Help_ReportProblem}"
+                    Icon="{ui:SymbolIcon Bug24}"
+                    Command="{Binding ReportProblemCommand}"
+                    ToolTip="{loc:Str Help_ReportProblemToolTip}" />
+                <ui:Button
+                    DockPanel.Dock="Right"
+                    Margin="12,0,0,0"
+                    VerticalAlignment="Center"
+                    Content="{loc:Str Help_OpenGuide}"
+                    Icon="{ui:SymbolIcon Open24}"
+                    Command="{Binding OpenGuideCommand}"
+                    ToolTip="{loc:Str Help_OpenGuideToolTip}" />
+                <TextBlock
+                    VerticalAlignment="Center"
+                    TextWrapping="Wrap"
+                    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                    Text="{loc:Str Help_Intro}" />
+            </DockPanel>
+        </ui:Card>
+
+        <ui:TextBox
+            Grid.Row="1"
+            Margin="0,0,0,12"
+            PlaceholderText="{loc:Str Help_SearchPlaceholder}"
+            Icon="{ui:SymbolIcon Search24}"
+            Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
+
+        <TextBlock
+            Grid.Row="2"
+            MaxWidth="420"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            TextAlignment="Center"
+            TextWrapping="Wrap"
+            Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+            Text="{loc:Str Help_NoMatches}">
+            <TextBlock.Style>
+                <Style TargetType="TextBlock">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding HasMatches}" Value="False">
+                            <Setter Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
+
+        <ScrollViewer
+            x:Name="SectionsScrollViewer"
+            Grid.Row="2"
+            Focusable="False"
+            VerticalScrollBarVisibility="Auto"
+            Visibility="{Binding HasMatches, Converter={StaticResource BoolToVisibility}}">
+            <ItemsControl x:Name="SectionsList" Focusable="False" ItemsSource="{Binding Sections}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel
+                            Margin="0,0,0,16"
+                            Visibility="{Binding IsVisible, Converter={StaticResource BoolToVisibility}}">
+                            <StackPanel Margin="2,0,0,8" Orientation="Horizontal">
+                                <ui:SymbolIcon
+                                    Margin="0,0,8,0"
+                                    VerticalAlignment="Center"
+                                    FontSize="20"
+                                    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                    Symbol="{Binding Icon}" />
+                                <TextBlock
+                                    VerticalAlignment="Center"
+                                    FontSize="18"
+                                    FontWeight="SemiBold"
+                                    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                    Text="{Binding Title}" />
+                            </StackPanel>
+
+                            <ItemsControl Focusable="False" ItemsSource="{Binding Topics}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <ui:CardExpander
+                                            Style="{StaticResource HoverCardExpander}"
+                                            Margin="0,0,0,6"
+                                            IsExpanded="{Binding IsExpanded, Mode=TwoWay}"
+                                            Visibility="{Binding IsVisible, Converter={StaticResource BoolToVisibility}}">
+                                            <ui:CardExpander.Header>
+                                                <TextBlock
+                                                    VerticalAlignment="Center"
+                                                    FontWeight="SemiBold"
+                                                    TextWrapping="Wrap"
+                                                    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                                    Text="{Binding Title}" />
+                                            </ui:CardExpander.Header>
+
+                                            <StackPanel>
+                                                <ItemsControl Focusable="False" ItemsSource="{Binding Steps}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Grid Margin="0,0,0,6">
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="Auto" MinWidth="24" />
+                                                                    <ColumnDefinition Width="*" />
+                                                                </Grid.ColumnDefinitions>
+                                                                <TextBlock
+                                                                    Grid.Column="0"
+                                                                    Margin="0,0,6,0"
+                                                                    Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                                                    Text="{Binding NumberLabel}" />
+                                                                <TextBlock
+                                                                    Grid.Column="1"
+                                                                    TextWrapping="Wrap"
+                                                                    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                                                    behaviors:HelpInlines.Step="{Binding}" />
+                                                            </Grid>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+
+                                                <Grid
+                                                    Margin="0,6,0,0"
+                                                    Visibility="{Binding HasNote, Converter={StaticResource BoolToVisibility}}">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" MinWidth="24" />
+                                                        <ColumnDefinition Width="*" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <ui:SymbolIcon
+                                                        Grid.Column="0"
+                                                        Margin="0,1,6,0"
+                                                        HorizontalAlignment="Left"
+                                                        VerticalAlignment="Top"
+                                                        FontSize="16"
+                                                        Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                                        Symbol="Info24" />
+                                                    <TextBlock
+                                                        Grid.Column="1"
+                                                        TextWrapping="Wrap"
+                                                        Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                                        behaviors:HelpInlines.Step="{Binding Note}" />
+                                                </Grid>
+
+                                                <ui:Button
+                                                    Margin="0,10,0,0"
+                                                    HorizontalAlignment="Left"
+                                                    Content="{Binding OpenPageLabel}"
+                                                    Icon="{ui:SymbolIcon ArrowRight24}"
+                                                    Command="{Binding OpenPageCommand}"
+                                                    Visibility="{Binding CanOpenPage, Converter={StaticResource BoolToVisibility}}" />
+                                            </StackPanel>
+                                        </ui:CardExpander>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
+</Page>

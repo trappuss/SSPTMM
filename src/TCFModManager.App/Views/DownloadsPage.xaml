@@ -193,6 +193,7 @@
                                         FontSize="11"
                                         Foreground="{DynamicResource TextFillColorSecondaryBrush}"
                                         TextTrimming="CharacterEllipsis"
+                                        ToolTip="{Binding StatusDetail}"
                                         Text="{Binding StatusMessage}" />
 
                                     <!-- One box per figure - see StatBox above for why they aren't
@@ -278,6 +279,18 @@
                                         ToolTip="{loc:Str Downloads_RetryToolTip}"
                                         Command="{Binding RetryCommand}"
                                         Visibility="{Binding CanRetry, Converter={StaticResource BoolToVisibility}}" />
+
+                                    <!-- A download-only item's archive, once saved (Monitor mode). -->
+                                    <ui:Button
+                                        Margin="0,8,0,0"
+                                        Padding="10,4"
+                                        HorizontalAlignment="Right"
+                                        Appearance="Secondary"
+                                        Icon="{ui:SymbolIcon FolderOpen24}"
+                                        Content="{loc:Str Downloads_ShowInFolder}"
+                                        ToolTip="{loc:Str Downloads_ShowInFolderToolTip}"
+                                        Command="{Binding ShowInFolderCommand}"
+                                        Visibility="{Binding HasSavedFile, Converter={StaticResource BoolToVisibility}}" />
                                 </StackPanel>
                             </Grid>
                         </ui:Card>

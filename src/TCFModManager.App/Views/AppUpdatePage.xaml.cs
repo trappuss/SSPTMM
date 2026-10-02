@@ -20,5 +20,9 @@ public partial class AppUpdatePage : Page
     {
         DataContext = ViewModel;
         InitializeComponent();
+
+        // The Server Map mod's files can change while the app runs (an operator dropping in a new
+        // payload), and reading them is cheap, so they are read again every time the page shows.
+        Loaded += (_, _) => ViewModel.RefreshServerMapInstall();
     }
 }

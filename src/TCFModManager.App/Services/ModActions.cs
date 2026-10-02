@@ -48,7 +48,7 @@ public static class ModActions
     {
         if (AppServices.Browse.InstalledMatchFor(mod) is not { } installed) return null;
 
-        var page = InstalledViewModel.Current ?? new InstalledViewModel();
+        var page = InstalledViewModel.ForActions;
 
         // What the removal itself said - not whatever the page's status line said last (its rescan
         // puts a count there).

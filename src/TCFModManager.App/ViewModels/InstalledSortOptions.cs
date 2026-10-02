@@ -11,9 +11,6 @@ public enum ModSortOption
     AuthorAscending,
     AuthorDescending,
 
-    // Newest InstalledAt first; a mod with no determinable install date sorts last.
-    RecentlyInstalled,
-
     // By the user-defined group a mod is in; ungrouped mods sort last in both directions.
     GroupAscending,
     GroupDescending,

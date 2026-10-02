@@ -94,6 +94,29 @@ public class ModConfigDiscoveryTests : IDisposable
     // to nothing - real case: kmyuhkyuk-KmyTarkovApi ships KmyTarkovApi, KmyTarkovConfiguration,
     // KmyTarkovReflection and KmyTarkovUtils, and only the first was recognised.
     //
+    // An SPT 4.x server half often declares the same GUID as its client half. A BepInEx config
+    // file is always the client's, whichever half the scan happened to list first.
+    [Fact]
+    public void Find_ClientConfig_IsNeverClaimedByAServerModSharingTheGuid()
+    {
+        ClientConfig("com.blackdiv.tacticaltoaster.cfg");
+
+        var server = new InstalledMod
+        {
+            Name = "BlackDivServer",
+            Guid = "com.blackdiv.tacticaltoaster",
+            Guids = ["com.blackdiv.tacticaltoaster"],
+            Target = InstalledModTarget.Server,
+            FolderPath = ServerModFolder("BlackDivServer"),
+        };
+
+        var entry = Assert.Single(ModConfigDiscovery.Find(_installRoot, [server, Client("BlackDiv", "com.blackdiv.tacticaltoaster")])
+            .Where(e => e.Format == ModConfigFormat.BepInExCfg));
+
+        Assert.Equal(ModConfigSource.Client, entry.Source);
+        Assert.Equal("BlackDiv", entry.ModName);
+    }
+
     [Fact]
     public void Find_MatchesEveryGuidAModsFolderRegisters()
     {

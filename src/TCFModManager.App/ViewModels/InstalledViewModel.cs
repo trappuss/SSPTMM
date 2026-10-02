@@ -92,7 +92,11 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         new(nameof(Strings.Filter_UpdateNeeded), UpdateFilter.NeedsUpdate),
         new(nameof(Strings.Filter_UpdateUpToDate), UpdateFilter.UpToDate),
         new(nameof(Strings.Filter_UpdateNotFound), UpdateFilter.NotFound),
+        new(nameof(Strings.Filter_UpdateRecentlyInstalled), UpdateFilter.RecentlyInstalled),
     ];
+
+    // How far back the Recently installed filter looks.
+    private const int RecentDays = 7;
 
     [ObservableProperty]
     private UpdateFilterItem _selectedUpdateFilter;
@@ -126,7 +130,6 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         new(nameof(Strings.Sort_AuthorDescending), ModSortOption.AuthorDescending),
         new(nameof(Strings.Sort_GroupAscending), ModSortOption.GroupAscending),
         new(nameof(Strings.Sort_GroupDescending), ModSortOption.GroupDescending),
-        new(nameof(Strings.Sort_RecentlyInstalled), ModSortOption.RecentlyInstalled),
     ];
 
     [ObservableProperty]
@@ -145,8 +148,24 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     // graph built off the scan, which reads BepInEx's own metadata, so it covers everything
     // installed rather than whatever has been looked up so far.
     //
+    // Plus one of Installed's own: Monitor mode downloads that are on disk but unconfirmed (R8).
     public ObservableCollection<ModAttributeOption> AttributeOptions { get; } =
-        ModAttributeOption.Standard(nameof(Strings.Filter_HasDependenciesInstalledToolTip));
+    [
+        .. ModAttributeOption.Standard(nameof(Strings.Filter_HasDependenciesInstalledToolTip)),
+        new(ModAttributeFilter.DownloadedNotConfirmed,
+            nameof(Strings.Filter_DownloadedNotConfirmed),
+            nameof(Strings.Filter_DownloadedNotConfirmedToolTip)),
+        new(ModAttributeFilter.HasConflicts,
+            nameof(Strings.Filter_HasConflicts),
+            nameof(Strings.Filter_HasConflictsToolTip)),
+    ];
+
+    //
+    // Downloads the confirm prompt has already put to the user this session and been told "not
+    // now". A scan runs after every remove, enable and dialog close, so without this the same
+    // question would come back every few seconds.
+    //
+    private readonly HashSet<(int ModId, bool IsAddon, string Version)> _deferredDownloads = [];
 
     [ObservableProperty]
     private string _attributeFilterSummary = Strings.Filter_AnyMod;
@@ -393,10 +412,14 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     private bool _categoryDefaultApplied;
     private bool _groupDefaultApplied;
 
+    // A default saved before Recently installed moved from Sort by to this dropdown carries it as
+    // Sort = "RecentlyInstalled"; with no update status of its own saved, that becomes this filter.
     private UpdateFilterItem DefaultUpdateFilter() =>
-        SavedFilterDefaults.Parse<UpdateFilter>(_defaults?.UpdateStatus) is { } value
+        SavedFilterDefaults.Parse<UpdateFilter>(_defaults?.UpdateStatus) is { } value and not UpdateFilter.All
             ? UpdateFilterOptions.FirstOrDefault(o => o.Value == value) ?? UpdateFilterOptions[0]
-            : UpdateFilterOptions[0];
+            : _defaults?.Sort == nameof(UpdateFilter.RecentlyInstalled)
+                ? UpdateFilterOptions.First(o => o.Value == UpdateFilter.RecentlyInstalled)
+                : UpdateFilterOptions[0];
 
     private EnabledFilterItem DefaultEnabledFilter() =>
         SavedFilterDefaults.Parse<EnabledFilter>(_defaults?.Enabled) is { } value
@@ -459,9 +482,29 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     //
     public static InstalledViewModel? Current { get; private set; }
 
-    public InstalledViewModel()
+    // Whether this page has scanned at least once - see the UpdatesFound subscription below.
+    private bool _hasScanned;
+
+    //
+    // For a removal asked for elsewhere (the item page, the right-click menu, a collection) before
+    // Subscribed items has been opened: one kept apart from the page. It is never Current, and it
+    // leaves the page's own business alone - the update notification's filter, the watcher's
+    // rescans, Monitor mode's confirm window - so none of those happen twice, or to the wrong one.
+    //
+    public static InstalledViewModel ForActions => Current ?? (_forActions ??= new InstalledViewModel(forPage: false));
+
+    private static InstalledViewModel? _forActions;
+
+    private readonly bool _forPage;
+
+    public InstalledViewModel() : this(forPage: true)
     {
-        Current = this;
+    }
+
+    private InstalledViewModel(bool forPage)
+    {
+        _forPage = forPage;
+        if (forPage) Current = this;
 
         // Installs and updates finishing in the queue show here without a Rescan: a second after the
         // last one of a batch lands, the page scans again, as Steam's list updates by itself.
@@ -527,7 +570,34 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
                 AutoApplyFilter();
             };
         }
+
+        //
+        // A click on an update notification opens this page on "Updates available" (§6). Taken
+        // here when the click is what built the page, and from the event when it already existed.
+        //
+        if (!forPage) return;
+
+        if (AppNavigation.TakeShowUpdates()) _selectedUpdateFilter = UpdatesAvailableFilter();
+
+        AppNavigation.ShowUpdatesRequested += (_, _) =>
+        {
+            if (!ReferenceEquals(Current, this)) return;
+            if (AppNavigation.TakeShowUpdates()) SelectedUpdateFilter = UpdatesAvailableFilter();
+        };
+
+        //
+        // The update watcher patched the catalog, so the arrows on screen are out of date. Only once
+        // the page has scanned - before that, its first scan reads the patched catalog anyway.
+        //
+        AppServices.UpdateWatcher.UpdatesFound += async (_, _) =>
+        {
+            if (!ReferenceEquals(Current, this) || !_hasScanned || ScanCommand.IsRunning) return;
+            await ScanCommand.ExecuteAsync(null);
+        };
     }
+
+    private UpdateFilterItem UpdatesAvailableFilter() =>
+        UpdateFilterOptions.First(o => o.Value == UpdateFilter.NeedsUpdate);
 
     partial void OnSelectedCategoryChanged(CategoryFilterItem value) => AutoApplyFilter();
 
@@ -871,6 +941,8 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     [RelayCommand]
     private async Task ScanAsync()
     {
+        _hasScanned = true;
+
         var installPath = AppServices.SptEnvironment.InstallPath;
         if (string.IsNullOrWhiteSpace(installPath))
         {
@@ -902,7 +974,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
             // What this app itself installed, and which folders it placed - identifies those mods
             // exactly instead of inferring them from folder names.
-            var installRecords = AppServices.InstallManifest.Load(installPath).Mods;
+            var installRecords = AppServices.InstallManifest.Load().ModsFor(installPath);
 
             // Read once here rather than inside the background work, so a catalog refresh landing
             // mid-scan can't swap the list out from under it.
@@ -913,7 +985,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
             // The whole scan-and-match pass runs off the UI thread. Matching a large install
             // against a full catalog is the slower half of the two, and doing it inline is what
             // made navigating to this page hang.
-            var (scanned, cards, dependencies, loadedGuids) = await Task.Run(() =>
+            var (scanned, cards, dependencies, loadedGuids, downloads, conflicts) = await Task.Run(() =>
             {
                 var found = InstalledModScanner.Scan(installPath);
 
@@ -923,7 +995,8 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
                 // Built off the same scan the cards came from, so every link points at an entry
                 // some card owns.
-                return (found, built, ModDependencyGraph.Build(found), InstalledModScanner.LoadedPluginGuids(installPath));
+                return (found, built, ModDependencyGraph.Build(found), InstalledModScanner.LoadedPluginGuids(installPath),
+                    MatchDownloads(found, installPath, installRecords), ModConflicts.Find(built));
             });
 
             // What was open in each view, keyed the same way group assignments are, so the sets
@@ -933,6 +1006,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
             var openRows = OpenKeys(_all, m => m.IsRowExpanded);
 
             _all = cards;
+            RefreshUndo();
 
             // What sp-mod.com held back last time stands until it answers again.
             foreach (var card in cards)
@@ -952,6 +1026,15 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
             ApplyListMembership(cards);
             ApplyPins(cards);
+            ApplyPendingDownloads(cards, downloads);
+            ApplyLeftovers(cards);
+            ModConflicts.Apply(cards, conflicts);
+            ConflictCountLabel = conflicts.Count == 0 ? null : Strings.Installed_ConflictCount(conflicts.Count, conflicts.Count);
+            if (conflicts.Count > 0)
+            {
+                AppLog.Info("Conflicts", string.Join("; ", conflicts.Select(c =>
+                    $"{c.Kind} {c.Identifier}: {string.Join(", ", c.Members.Select(m => m.Entry.Name).Distinct())}")));
+            }
             ApplyBadgeVisibility();
             _dependencies = dependencies;
 
@@ -1008,6 +1091,140 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         {
             IsBusy = false;
         }
+
+        if (_forPage) await OfferDownloadConfirmationsAsync();
+    }
+
+    //
+    // Monitor mode, §7: every pending download checked against this scan. Runs on the scan's
+    // background thread, since the size check is one stat per file the archive would place.
+    //
+    // A download this app has since installed itself - its record is app-managed at the same
+    // version - is settled here without asking: there is nothing for the user to confirm.
+    //
+    private static List<PendingDownload> MatchDownloads(
+        IReadOnlyList<InstalledMod> scanned, string installPath, IReadOnlyList<InstalledModRecord> records)
+    {
+        var pending = AppServices.DownloadLedger.Pending();
+        if (pending.Count == 0) return [];
+
+        var folders = DownloadMatcher.FolderNames(scanned);
+        var results = new List<PendingDownload>();
+
+        foreach (var download in pending)
+        {
+            var record = records.FirstOrDefault(r => r.ModId == download.ModId && r.IsAddon == download.IsAddon);
+            if (record is { IsAppManaged: true, Incomplete: false }
+                && string.Equals(record.Version, download.Version, StringComparison.Ordinal))
+            {
+                AppServices.DownloadLedger.SetState(
+                    download.ModId, download.IsAddon, download.Version, DownloadState.Confirmed);
+                continue;
+            }
+
+            var match = DownloadMatcher.Check(download, installPath, folders);
+            if (match.Kind != DownloadMatchKind.Absent) results.Add(new PendingDownload(download, match));
+        }
+
+        AppLog.Debug("Monitor",
+            $"{pending.Count} pending download(s): " +
+            $"{results.Count(r => r.Match.Kind == DownloadMatchKind.Installed)} look installed, " +
+            $"{results.Count(r => r.Match.Kind == DownloadMatchKind.Partial)} partly");
+
+        return results;
+    }
+
+    //
+    // Ties each matched download to its card: by listing id first, and by folder when the card
+    // resolved to a different listing (or none) - the folder is what the download named.
+    //
+    private static void ApplyPendingDownloads(
+        IReadOnlyList<InstalledModCardViewModel> cards, IReadOnlyList<PendingDownload> downloads)
+    {
+        foreach (var card in cards) card.PendingDownload = null;
+
+        foreach (var download in downloads)
+        {
+            var d = download.Download;
+            var expected = d.ExpectedFolders.ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            var card = cards.FirstOrDefault(c => c.ModId == d.ModId && c.IsAddon == d.IsAddon)
+                ?? cards.FirstOrDefault(c => c.Entries.Any(e => !e.IsDisabled && expected.Overlaps(
+                    DownloadMatcher.FolderNames([e]))));
+
+            if (card is not null) card.PendingDownload = download;
+        }
+    }
+
+    //
+    // R2's default: one prompt per scan listing every download that now looks installed, each with
+    // a tick box. Ticked ones are confirmed, unticked ones dismissed for that version; "Not now"
+    // leaves them all pending and doesn't ask again this session. The quiet setting skips the
+    // prompt, and the card's own Confirm install button does the same job one mod at a time.
+    //
+    private async Task OfferDownloadConfirmationsAsync()
+    {
+        if (new SettingsService().Load().Monitor.DownloadConfirmation != DownloadConfirmation.Ask) return;
+
+        var offered = _all
+            .Where(c => c.CanConfirmDownload)
+            .Select(c => c.PendingDownload!)
+            .Where(p => !_deferredDownloads.Contains(Key(p.Download)))
+            .GroupBy(p => Key(p.Download))
+            .Select(g => g.First())
+            .ToList();
+
+        if (offered.Count == 0) return;
+
+        var answer = DownloadConfirmWindow.Ask(offered.Select(p => p.Download).ToList());
+
+        if (answer is null)
+        {
+            foreach (var p in offered) _deferredDownloads.Add(Key(p.Download));
+            AppLog.Info("Monitor", $"confirm prompt deferred for {offered.Count} download(s)");
+            return;
+        }
+
+        foreach (var p in offered)
+        {
+            var d = p.Download;
+
+            if (answer.Contains(d))
+            {
+                AppServices.InstallManifest.ConfirmDownload(d, AppServices.SptEnvironment.InstallPath);
+                AppServices.DownloadLedger.SetState(d.ModId, d.IsAddon, d.Version, DownloadState.Confirmed);
+            }
+            else
+            {
+                AppServices.DownloadLedger.SetState(d.ModId, d.IsAddon, d.Version, DownloadState.Dismissed);
+            }
+        }
+
+        AppLog.Info("Monitor", $"confirmed {answer.Count} of {offered.Count} download(s) from the prompt");
+
+        await ScanAsync();
+
+        if (answer.Count > 0) StatusMessage = Strings.Installed_DownloadsConfirmed(answer.Count);
+    }
+
+    private static (int, bool, string) Key(DownloadedModRecord d) => (d.ModId, d.IsAddon, d.Version);
+
+    // The card's own Confirm install - the quiet setting's way in, and always available on a card
+    // whose download looks installed.
+    [RelayCommand]
+    private async Task ConfirmDownloadAsync(InstalledModCardViewModel? mod)
+    {
+        if (mod?.PendingDownload is not { Match.Kind: DownloadMatchKind.Installed } pending) return;
+
+        var d = pending.Download;
+        AppServices.InstallManifest.ConfirmDownload(d, AppServices.SptEnvironment.InstallPath);
+        AppServices.DownloadLedger.SetState(d.ModId, d.IsAddon, d.Version, DownloadState.Confirmed);
+
+        AppLog.Info("Monitor", $"confirmed {d.Name} {d.Version} from its card");
+
+        await ScanAsync();
+
+        StatusMessage = Text(Strings.Installed_DownloadConfirmedFormat, d.Name, d.Version);
     }
 
     // What each installed mod has for a later SPT release - see SptUpgradeReport.
@@ -1177,7 +1394,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     }
 
     /// <summary>Removes a mod from the install: the manifest-precise ModInstallService.UninstallAsync path
-    /// for anything IsAppManaged, or RemoveLegacyPath (delete the mod's whole folder) otherwise. Both paths
+    /// for anything IsAppManaged, or RemoveHandInstalled (move the mod's whole folder into holding) otherwise. Both paths
     /// confirm first.</summary>
     [RelayCommand]
     private async Task RemoveAsync(InstalledModCardViewModel? mod)
@@ -1205,8 +1422,8 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         ConfigAction configAction;
         if (mod.IsAppManaged && mod.ModId is { } modId)
         {
-            var manifest = AppServices.InstallManifest.Load(installPath);
-            var record = manifest.Mods.FirstOrDefault(m => m.ModId == modId && m.IsAddon == mod.IsAddon);
+            var manifest = AppServices.InstallManifest.Load();
+            var record = manifest.Find(modId, mod.IsAddon);
             if (record is null) return StatusMessage = Text(Strings.Installed_RemoveNoRecordFormat, mod.Name);
 
             //
@@ -1221,7 +1438,19 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToList();
 
-            if (ConfirmRemoval(mod.DisplayTitle, Strings.Installed_RemoveAppManagedBody, configs.Count, needed)
+            //
+            // 1.19: a record made before v1.19.0 doesn't say which install it came from (D17). When
+            // the app doesn't sit inside this install either, nothing proves it belongs here - so the
+            // install is named before anything happens.
+            //
+            var body = record.InstallPath is null && !InstallStamp.AppIsInside(installPath)
+                ? Sentences(Strings.Installed_RemoveAppManagedBody, Text(Strings.Installed_RemoveUnstampedFormat, installPath))
+                : Strings.Installed_RemoveAppManagedBody;
+
+            // Asked even with the question switched off: nothing else says which install it goes from.
+            var unstamped = record.InstallPath is null && !InstallStamp.AppIsInside(installPath);
+
+            if (ConfirmRemoval(mod.DisplayTitle, body, configs.Count, needed, mustAsk: unstamped)
                 is not { } answer)
             {
                 return null;
@@ -1233,6 +1462,16 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         {
             var paths = LegacyPaths(mod);
             if (paths.Count == 0) return StatusMessage = Text(Strings.Installed_RemoveNoFolderFormat, mod.Name);
+
+            //
+            // 1.19: every folder is checked before the user is asked and before anything moves, so a
+            // mod with one acceptable folder and one refused one is left whole rather than half removed.
+            //
+            foreach (var path in paths)
+            {
+                if (InstallPathGuard.CheckModFolder(installPath, path) is { } refusal)
+                    return StatusMessage = ModInstallProblems.RemovalRefused(path, refusal);
+            }
 
             var configs = ModInstallService.FindLegacyConfigs(installPath, paths);
             if (ConfirmRemoval(
@@ -1324,33 +1563,45 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
         if (mod.IsAppManaged && mod.ModId is { } modId)
         {
-            var record = AppServices.InstallManifest.Load(installPath).Mods.FirstOrDefault(m => m.ModId == modId && m.IsAddon == mod.IsAddon);
+            var record = AppServices.InstallManifest.Load().Find(modId, mod.IsAddon);
             if (record is null) return (false, Text(Strings.Installed_RemoveNoRecordFormat, mod.Name), true);
 
             // Off the UI thread: deleting a large mod's files and copying the SPT profiles first.
             var result = await Task.Run(() => AppServices.ModInstall.UninstallAsync(installPath, record, configAction));
             return (
                 true,
-                DescribeRemoval(mod.Name, result.FailedFiles.Count, result.ConfigsKept, result.ConfigsFolder),
-                result.FailedFiles.Count > 0 || result.ConfigsKept > 0);
+                DescribeRemoval(mod.Name, result.FailedFiles.Count, result.ConfigsKept, result.ConfigsFolder, result),
+                result.FailedFiles.Count > 0 || result.ConfigsKept > 0 || result.KeptChanged.Count > 0
+                    || result.KeptOwned.Count > 0 || result.RefusedFiles is { Count: > 0 } || result.FoldersLeft.Count > 0);
         }
 
         var paths = LegacyPaths(mod);
         if (paths.Count == 0) return (false, Text(Strings.Installed_RemoveNoFolderFormat, mod.Name), true);
+
+        foreach (var path in paths)
+        {
+            if (InstallPathGuard.CheckModFolder(installPath, path) is { } refusal)
+                return (false, ModInstallProblems.RemovalRefused(path, refusal), true);
+        }
+
+        // Checked before the configs move, so SPT running can't leave them moved out of a mod whose
+        // folder then stays put.
+        ModInstallService.EnsureInstallNotInUse(ModInstallAction.Remove, installPath);
 
         var configs = ModInstallService.FindLegacyConfigs(installPath, paths);
         var kept = configAction == ConfigAction.Keep && configs.Count > 0
             ? ModInstallService.KeepLegacyConfigs(installPath, configs, mod.Name)
             : new KeptConfigs(0, null);
 
-        foreach (var path in paths) ModInstallService.RemoveLegacyPath(path, installPath);
+        // 1.19: into the install's holding folder, where Undo can bring it back (D27, D28).
+        var held = AppServices.ModInstall.RemoveHandInstalled([.. paths], installPath, mod.Name, kept.Folder);
 
         // A manually-confirmed version record would otherwise dangle, pointing at a mod that's no
         // longer on disk.
         if (mod.IsManualOverride && mod.ModId is { } overriddenModId)
-            AppServices.InstallManifest.ClearManualVersion(installPath, overriddenModId, mod.IsAddon);
+            AppServices.InstallManifest.ClearManualVersion(overriddenModId, mod.IsAddon);
 
-        return (true, DescribeRemoval(mod.Name, failedFiles: 0, kept.Count, kept.Folder), kept.Count > 0);
+        return (true, DescribeRemoval(mod.Name, failedFiles: 0, kept.Count, kept.Folder, held: held is not null), kept.Count > 0);
     }
 
     /// <summary>Removes the installed mods with these sp-mod.com ids - a collection's Unsubscribe
@@ -1452,6 +1703,27 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
         if (!CheckBeforeRemoving(targets)) return null;
 
+        //
+        // 1.19 (D17): records made before 1.19.0 don't say which install they came from. When the app
+        // doesn't sit inside this install either, the install is named before anything goes - asked
+        // whatever the unsubscribe question is set to, since nothing else would say it.
+        //
+        if (!InstallStamp.AppIsInside(installPath))
+        {
+            var manifest = AppServices.InstallManifest.Load();
+            var unstamped = targets
+                .Where(c => c is { IsAppManaged: true, ModId: { } id } && manifest.Find(id, c.IsAddon) is { InstallPath: null })
+                .Select(c => c.DisplayTitle)
+                .ToList();
+
+            if (unstamped.Count > 0 && !Confirm(
+                    Text(Strings.Installed_UnsubscribeTitleFormat, TextLists.Join(unstamped)),
+                    Text(Strings.Installed_RemoveUnstampedManyFormat, installPath, string.Join("\n", unstamped))))
+            {
+                return null;
+            }
+        }
+
         var removed = 0;
         var problems = new List<string>();
 
@@ -1469,7 +1741,10 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
                 catch (ModInstallException ex)
                 {
                     problems.Add(ModInstallProblems.Describe(ex));
-                    break;
+
+                    // SPT started meanwhile stops the rest; a reason of this one's own (1.19: a record
+                    // from another install, a refused folder) leaves the others to go ahead.
+                    if (ex.Reason == ModInstallFailure.InstallInUse) break;
                 }
                 catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
                 {
@@ -1618,9 +1893,6 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         IsBusy = true;
         try
         {
-            // An install left half-done is finished first (see the disable path).
-            await Task.Run(() => AppServices.ModInstall.EnsureNothingPending(installPath));
-
             var timestamp = DateTimeOffset.UtcNow;
             foreach (var pair in pairs)
             {
@@ -2021,10 +2293,6 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         ModDisableOutcome outcome;
         try
         {
-            // An install left half-done is finished first: moving its folder now would split it.
-            if (AppServices.SptEnvironment.InstallPath is { Length: > 0 } pendingIn)
-                await Task.Run(() => AppServices.ModInstall.EnsureNothingPending(pendingIn));
-
             // Not while SPT runs: the move is refused then, and its server may be writing them.
             if (AppServices.SptEnvironment.InstallPath is { Length: > 0 } profilesOf
                 && ModInstallService.RunningBlockers(profilesOf).Count == 0)
@@ -2233,10 +2501,11 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     // answer that deletes nothing.
     //
     private static ConfigAction? ConfirmRemoval(
-        string modName, string message, int configCount, IReadOnlyList<(string Name, string Detail)> needed)
+        string modName, string message, int configCount, IReadOnlyList<(string Name, string Detail)> needed,
+        bool mustAsk = false)
     {
         var settingsService = new SettingsService();
-        if (!settingsService.Load().ConfirmUnsubscribe) return ConfigAction.Keep;
+        if (!mustAsk && !settingsService.Load().ConfirmUnsubscribe) return ConfigAction.Keep;
 
         var body = new System.Windows.Controls.StackPanel { MaxWidth = 640 };
         body.Children.Add(Paragraph(message));
@@ -2254,7 +2523,9 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
             body.Children.Add(Paragraph(Strings.Installed_UnsubscribeConfigs(configCount, modName, configCount, AppPaths.LegacyConfigsDirectory)));
 
         // Most people reaching for Remove are troubleshooting, where disabling does the job without
-        // deleting anything - worth saying at the point they're about to delete.
+        // deleting anything - worth saying at the point they're about to delete. Before it (1.19),
+        // how long the removed files are kept, which is what decides whether it can be undone.
+        body.Children.Add(Paragraph(HeldSentence()));
         body.Children.Add(Paragraph(Strings.Installed_RemoveDisableHint));
 
         var dontAsk = AddDontAsk(body);
@@ -2338,17 +2609,186 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         Margin = new Thickness(0, top, 0, 12),
     };
 
-    private static string DescribeRemoval(string modName, int failedFiles, int configsKept, string? configsFolder)
+    //
+    // What a removal did, in order of what the user most needs to know: whether it went, what it left
+    // in place and why, what it put back, where configs went, and that it can be undone.
+    //
+    private static string DescribeRemoval(
+        string modName, int failedFiles, int configsKept, string? configsFolder, UninstallResult? result = null, bool held = false)
     {
-        var message = failedFiles == 0
-            ? Text(Strings.Installed_RemovedFormat, modName)
-            : Strings.Installed_RemovedFailed(failedFiles, modName, failedFiles);
+        var parts = new List<string>
+        {
+            failedFiles == 0
+                ? Text(Strings.Installed_RemovedFormat, modName)
+                : Strings.Installed_RemovedFailed(failedFiles, modName, failedFiles),
+        };
 
-        if (configsKept == 0 || configsFolder is null) return message;
+        if (result is not null)
+        {
+            if (result.KeptChanged.Count > 0)
+                parts.Add(Strings.Installed_RemovedKeptChanged(result.KeptChanged.Count, result.KeptChanged.Count));
+            if (result.KeptOwned.Count > 0)
+                parts.Add(Strings.Installed_RemovedKeptOwned(result.KeptOwned.Count, result.KeptOwned.Count));
+            if (result.RefusedFiles is { Count: > 0 } refused)
+                parts.Add(Strings.Installed_RemovedRefused(refused.Count, refused.Count));
+            if (result.OriginalsRestored > 0)
+                parts.Add(Strings.Installed_RemovedRestored(result.OriginalsRestored, result.OriginalsRestored));
 
-        return Sentences(
-            message,
-            Strings.Installed_RemovedConfigsKept(configsKept, configsKept, configsFolder));
+            // A folder that had to stay for files the mod didn't install - otherwise it looks like a
+            // mod still installed, with nothing saying why.
+            foreach (var left in result.FoldersLeft)
+                parts.Add(Strings.Installed_RemovedFolderLeft(left.Files, left.Files, left.Folder.Replace('/', '\\')));
+        }
+
+        if (configsKept > 0 && configsFolder is not null)
+            parts.Add(Strings.Installed_RemovedConfigsKept(configsKept, configsKept, configsFolder));
+
+        if (held || result?.HoldingFolder is not null)
+            parts.Add(Strings.Installed_RemovedUndoHint);
+
+        return string.Join(Strings.Common_SentenceSeparator, parts);
+    }
+
+    //
+    // The sentence the removal confirmation ends with: how long removed files are kept, from the
+    // Keep removed mods setting (D27).
+    //
+    internal static string HeldSentence() => new SettingsService().Load().RemovedModsRetention switch
+    {
+        RemovedModsRetention.DeleteStraightAway => Strings.Installed_RemoveNotHeld,
+        RemovedModsRetention.UntilCleared => Strings.Installed_RemoveHeldUntilCleared,
+        var days => Text(Strings.Installed_RemoveHeldFormat, OptionsViewModel.RetentionLabel(days)),
+    };
+
+    // "N conflicts - see Dependencies and Conflicts" on the status line, or null when there are none.
+    [ObservableProperty]
+    private string? _conflictCountLabel;
+
+    [RelayCommand]
+    private static void ShowConflicts() => AppNavigation.Navigate(typeof(DependenciesPage));
+
+    // The Undo button's text, or null to hide it. One removal held: "Undo removing <mod>", which
+    // undoes it on click. Several: "Undo a removal (n)", which opens HeldRemovals to pick from.
+    [ObservableProperty]
+    private string? _undoRemovalLabel;
+
+    // Every removal still held for this install that can be undone, newest first - the Undo menu.
+    [ObservableProperty]
+    private IReadOnlyList<HeldRemovalItem> _heldRemovals = [];
+
+    private void RefreshUndo()
+    {
+        var installPath = AppServices.SptEnvironment.InstallPath;
+        var held = string.IsNullOrWhiteSpace(installPath) ? [] : RemovedMods.Undoable(installPath);
+
+        HeldRemovals =
+        [
+            .. held.Select(h => new HeldRemovalItem(
+                h.Folder, Text(Strings.Installed_UndoRemovalItemFormat, h.Log.ModName, WhenLabel(h.Log.RemovedAt)))),
+        ];
+
+        UndoRemovalLabel = held.Count switch
+        {
+            0 => null,
+            1 => Text(Strings.Installed_UndoRemovalFormat, held[0].Log.ModName),
+            var count => Text(Strings.Installed_UndoRemovalPickFormat, count),
+        };
+    }
+
+    private static string WhenLabel(DateTimeOffset at) =>
+        at.ToLocalTime().ToString("g", System.Globalization.CultureInfo.CurrentCulture);
+
+    //
+    // Marks the card of each folder a removal had to leave behind (RemovalLog.FoldersLeft) while that
+    // removal is still held, so a leftover doesn't pass for a mod that's still installed.
+    //
+    private static void ApplyLeftovers(IReadOnlyList<InstalledModCardViewModel> cards)
+    {
+        foreach (var card in cards) card.LeftoverSummary = null;
+
+        var installPath = AppServices.SptEnvironment.InstallPath;
+        if (string.IsNullOrWhiteSpace(installPath)) return;
+
+        var left = new Dictionary<string, RemovalLog>(StringComparer.OrdinalIgnoreCase);
+        foreach (var (_, log) in RemovedMods.Undoable(installPath))
+            foreach (var folder in log.FoldersLeft)
+                left.TryAdd(SamePath(Path.Combine(installPath, folder)), log);
+
+        if (left.Count == 0) return;
+
+        foreach (var card in cards.Where(c => !c.IsAppManaged))
+        {
+            var log = card.Entries
+                .Select(e => left.GetValueOrDefault(SamePath(e.FolderPath)))
+                .FirstOrDefault(l => l is not null);
+
+            if (log is not null)
+                card.LeftoverSummary = Text(Strings.Installed_LeftoverFormat, log.ModName, WhenLabel(log.RemovedAt));
+        }
+    }
+
+    private static string SamePath(string path)
+    {
+        try { return Path.TrimEndingDirectorySeparator(Path.GetFullPath(path)); }
+        catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException)
+        {
+            return path;
+        }
+    }
+
+    //
+    // Puts a removal back (D28): the one picked from the Undo menu, or the only one held. Any can go
+    // first, and none ever overwrites: anything that has taken a removed file's place since is
+    // reported and stays held.
+    //
+    [RelayCommand]
+    private async Task UndoRemovalAsync(string? folder)
+    {
+        var installPath = AppServices.SptEnvironment.InstallPath;
+        if (string.IsNullOrWhiteSpace(installPath)) return;
+
+        var undoable = RemovedMods.Undoable(installPath);
+        var picked = folder is null
+            ? (undoable.Count == 1 ? undoable[0] : default)
+            : undoable.FirstOrDefault(u => string.Equals(u.Folder, folder, StringComparison.OrdinalIgnoreCase));
+
+        if (picked.Folder is null)
+        {
+            StatusMessage = Strings.Installed_UndoNothing;
+            RefreshUndo();
+            return;
+        }
+
+        var latest = picked;
+
+        IsBusy = true;
+        try
+        {
+            // Off the UI thread: putting back a large mod copies a lot of files.
+            var result = await Task.Run(() => AppServices.ModInstall.UndoRemoval(installPath, latest.Folder));
+
+            StatusMessage = !result.Ran
+                ? Strings.Installed_UndoNothing
+                : result.Blocked.Count == 0
+                    ? Text(Strings.Installed_UndoneFormat, latest.Log.ModName)
+                    : Strings.Installed_UndoneBlocked(result.Blocked.Count, result.Blocked.Count, latest.Log.ModName, latest.Folder);
+
+            ModRemoved?.Invoke(this, EventArgs.Empty);
+        }
+        catch (ModInstallException ex)
+        {
+            StatusMessage = ModInstallProblems.Describe(ex);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            StatusMessage = Text(Strings.Installed_RemoveFailedFormat, latest.Log.ModName, ex.Message);
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+
+        await ScanAsync();
     }
 
     private bool CanGoToPreviousPage() => CurrentPage > 1;
@@ -2399,12 +2839,15 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         // author instead of name - e.g. "@Acidphantasm".
         var authorQuery = query.StartsWith('@') ? query[1..].Trim() : null;
 
+        var recentSince = DateTimeOffset.Now.AddDays(-RecentDays);
+
         var matched = _all
             .Where(m => SelectedUpdateFilter.Value switch
             {
                 UpdateFilter.NeedsUpdate => m.UpdateAvailable == true,
                 UpdateFilter.UpToDate => m.UpdateAvailable == false,
                 UpdateFilter.NotFound => m.MatchedModName is null,
+                UpdateFilter.RecentlyInstalled => m.InstalledAt is { } at && at >= recentSince,
                 _ => true, // All - no restriction
             })
             .Where(m => SelectedEnabledFilter.Value switch
@@ -2424,9 +2867,16 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
             .Where(m => !IsOn(ModAttributeFilter.HideAds) || !m.ContainsAds)
             .Where(m => !IsOn(ModAttributeFilter.HideAiContent) || !m.ContainsAiContent)
             .Where(m => !IsOn(ModAttributeFilter.HasDependencies) || m.HasDependencies)
-            .Where(m => !IsOn(ModAttributeFilter.HasAddons) || m.HasAddons);
+            .Where(m => !IsOn(ModAttributeFilter.HasAddons) || m.HasAddons)
+            .Where(m => !IsOn(ModAttributeFilter.DownloadedNotConfirmed) || m.HasPendingDownload)
+            .Where(m => !IsOn(ModAttributeFilter.HasConflicts) || m.HasConflicts);
 
-        _filtered = SortMods(matched, SelectedSortOption.Value).ToList();
+        _filtered = SelectedUpdateFilter.Value == UpdateFilter.RecentlyInstalled
+            ? matched
+                .OrderByDescending(m => m.InstalledAt)
+                .ThenBy(m => m.DisplayTitle, StringComparer.OrdinalIgnoreCase)
+                .ToList()
+            : SortMods(matched, SelectedSortOption.Value).ToList();
 
         // Every view now disagrees with _filtered, including the two that aren't on screen - they
         // catch up when switched to.
@@ -2488,9 +2938,6 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
             ModSortOption.GroupDescending => mods
                 .OrderBy(m => m.GroupName is null)
                 .ThenByDescending(m => m.GroupName, StringComparer.OrdinalIgnoreCase)
-                .ThenBy(m => m.DisplayTitle, StringComparer.OrdinalIgnoreCase),
-            ModSortOption.RecentlyInstalled => mods
-                .OrderByDescending(m => m.InstalledAt ?? DateTimeOffset.MinValue)
                 .ThenBy(m => m.DisplayTitle, StringComparer.OrdinalIgnoreCase),
             _ => mods,
         };

@@ -62,8 +62,8 @@ public sealed class ModConfigOptionsStore(string? filePath = null)
 
         try
         {
-            // A damaged file is kept aside and its backup put back - see SafeFile.
-            var read = SafeFile.ReadJson(_filePath, json => JsonSerializer.Deserialize<Dictionary<string, ModConfigOptions>>(json, Options));
+            var read = JsonSerializer.Deserialize<Dictionary<string, ModConfigOptions>>(
+                File.ReadAllText(_filePath), Options);
 
             return read is null
                 ? new Dictionary<string, ModConfigOptions>(StringComparer.OrdinalIgnoreCase)
@@ -74,6 +74,7 @@ public sealed class ModConfigOptionsStore(string? filePath = null)
             // A hand-edited file that no longer parses means every mod is back on the default, which
             // is what it was before anybody set anything.
             AppLog.Warn("Configs", $"couldn't read {_filePath}: {ex.Message}");
+            if (ex is JsonException) SafeFile.PreserveDamaged(_filePath);
             return new Dictionary<string, ModConfigOptions>(StringComparer.OrdinalIgnoreCase);
         }
     }
@@ -156,7 +157,8 @@ public sealed class ModConfigOptionsStore(string? filePath = null)
     {
         try
         {
-            SafeFile.WriteAllText(_filePath, JsonSerializer.Serialize(options, Options), keepBackup: true);
+            Directory.CreateDirectory(Path.GetDirectoryName(_filePath)!);
+            SafeFile.WriteText(_filePath, JsonSerializer.Serialize(options, Options), keepBackups: true);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {

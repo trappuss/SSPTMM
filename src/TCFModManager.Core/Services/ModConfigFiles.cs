@@ -10,8 +10,7 @@ namespace TCFModManager.Core.Services;
 // keep, and ModConfigDiscovery gates every file it finds through it, so the Configs page and the
 // removal path can never end up disagreeing about what a config is.
 //
-// Client mods keep their config in BepInEx\config, outside the mod folder. An archive that ships one
-// does not get to overwrite the user's, and a removal leaves it where it is - see IsBepInExConfig.
+// Client mods keep their config in BepInEx\config, outside the mod folder - see IsBepInExConfig.
 //
 public static class ModConfigFiles
 {
@@ -45,8 +44,9 @@ public static class ModConfigFiles
 
     //
     // True for a file in BepInEx\config - a client plugin's settings. BepInEx writes it the first time
-    // the plugin runs and keeps it from then on, so the copy on disk is the user's, and an install
-    // leaves it be (see ModInstallService).
+    // the plugin runs and keeps it from then on, so the copy on disk is the user's. (Since the merge
+    // with 1.19 an archive's copy is placed over it like any other file, the user's kept in
+    // Data\overwritten and put back on removal; the fork's rule of never placing one is not applied.)
     //
     public static bool IsBepInExConfig(string relativePath) =>
         relativePath.Replace('\\', '/').StartsWith("BepInEx/config/", StringComparison.OrdinalIgnoreCase);
@@ -210,8 +210,13 @@ public static class ModConfigFiles
             {
                 if (ModConfigPaths.Normalise(relative) is not { } clean) continue;
 
-                var folder = Path.Combine(installPath, ToNative($"{prefix}/{clean}"));
-                if (!Directory.Exists(folder)) continue;
+                if (InstallPathGuard.CheckRecordedPath(installPath, $"{prefix}/{clean}", out var folder) is { } refusal)
+                {
+                    AppLog.Warn("Configs", $"not reading {prefix}/{clean} ({refusal})");
+                    continue;
+                }
+
+                if (!Directory.Exists(folder) || InstallPathGuard.ContainsLink(folder)) continue;
 
                 try
                 {
@@ -321,7 +326,13 @@ public static class ModConfigFiles
 
         foreach (var relative in relativeFiles)
         {
-            var source = Path.Combine(installPath, relative.Replace('/', Path.DirectorySeparatorChar));
+            // Moving a file out of the install is as final for the install as deleting it (D13).
+            if (InstallPathGuard.CheckRecordedPath(installPath, relative, out var source) is { } refusal)
+            {
+                AppLog.Warn("Configs", $"left {relative} in place ({refusal})");
+                continue;
+            }
+
             if (!File.Exists(source)) continue;
 
             var destination = Path.Combine(destinationRoot, relative.Replace('/', Path.DirectorySeparatorChar));

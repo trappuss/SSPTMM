@@ -24,8 +24,6 @@ public partial class ModListsPage : Page
 
     private async void ModListsPage_Loaded(object sender, RoutedEventArgs e)
     {
-        ViewModel.Refresh();
-
         // A collection's page may have sent this page here with something to do - see
         // ModListsViewModel.Request - or may send it while it is showing.
         ModListsViewModel.Requested -= OnRequested;
@@ -35,6 +33,14 @@ public partial class ModListsPage : Page
         AppServices.Browse.InstalledIndexChanged -= OnInstalledIndexChanged;
         AppServices.Browse.InstalledIndexChanged += OnInstalledIndexChanged;
 
+        // A server's list to review (Play page, Server map): opened on it, previewed.
+        if (AppNavigation.TakeReviewList() is { } review)
+        {
+            await ViewModel.ReviewAsync(review);
+            return;
+        }
+
+        ViewModel.Refresh();
         await ViewModel.HandleRequestAsync();
     }
 
