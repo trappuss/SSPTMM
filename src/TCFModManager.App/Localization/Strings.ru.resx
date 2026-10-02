@@ -1179,14 +1179,8 @@
   <data name="Downloads_ClearFinished" xml:space="preserve">
     <value>Очистить завершённые</value>
   </data>
-  <data name="Downloads_Description" xml:space="preserve">
-    <value>Загрузки устанавливаются строго по одной, в том порядке, в котором вы их поставили в очередь, - добавляйте сколько угодно со страницы Обзор или из окна обновления и возвращайтесь сюда за прогрессом.</value>
-  </data>
   <data name="Downloads_DownloadedToFormat" xml:space="preserve">
     <value>Загружено в {0}</value>
-  </data>
-  <data name="Downloads_Empty" xml:space="preserve">
-    <value>В очереди пока ничего нет - нажмите Установить на карточке на странице Обзор или Обновить в окне сведений о моде, чтобы что-то сюда добавить.</value>
   </data>
   <data name="Downloads_EnterModId" xml:space="preserve">
     <value>Введите id мода (или GUID) и точную версию.</value>
@@ -2064,9 +2058,6 @@
   </data>
   <data name="Installed_RemoveNoRecordFormat" xml:space="preserve">
     <value>Не удалось найти запись об установке {0} - возможно, он уже удалён.</value>
-  </data>
-  <data name="Installed_RemoveToolTip" xml:space="preserve">
-    <value>Удалить этот мод</value>
   </data>
   <data name="Installed_SaveAsDefaultToolTip" xml:space="preserve">
     <value>Страница будет открываться с теми фильтрами, сортировкой, видом и числом карточек на страницу, что выбраны сейчас. Поле поиска в это не входит. Сбросить это можно на странице Параметры.</value>
@@ -3260,9 +3251,6 @@
   </data>
   <data name="ModUpdate_CurrentlyInstalledFormat" xml:space="preserve">
     <value>Сейчас установлена: {0}</value>
-  </data>
-  <data name="ModUpdate_DisabledNoticeFormat" xml:space="preserve">
-    <value>{0} отключён. Включите его на странице Установленные, чтобы обновить или скачать заново.</value>
   </data>
   <data name="ModUpdate_Downgrade" xml:space="preserve">
     <value>Понизить версию</value>
@@ -5011,9 +4999,6 @@
   <data name="Help_Start_Setup_Title" xml:space="preserve">
     <value>Настроить приложение под мою установку SPT</value>
   </data>
-  <data name="Help_Start_Setup_Step1" xml:space="preserve">
-    <value>Откройте {0} на боковой панели.</value>
-  </data>
   <data name="Help_Start_Setup_Step2" xml:space="preserve">
     <value>В разделе {0} нажмите {1} и выберите папку игры SPT - ту, где лежит EscapeFromTarkov.exe, а не папку сервера внутри неё.</value>
   </data>
@@ -5038,27 +5023,6 @@
   <data name="Help_Browse_Compatible_Title" xml:space="preserve">
     <value>Найти моды, которые работают на моей версии SPT</value>
   </data>
-  <data name="Help_Browse_Compatible_Step1" xml:space="preserve">
-    <value>Откройте {0}. Страница уже отфильтрована по вашей версии SPT.</value>
-  </data>
-  <data name="Help_Browse_Compatible_Step2" xml:space="preserve">
-    <value>Галочка рядом с SPT на карточке значит, что последняя версия мода работает на вашей; крестик - что нет.</value>
-  </data>
-  <data name="Help_Browse_Compatible_Step3" xml:space="preserve">
-    <value>Чтобы увидеть больше, откройте вверху список версий SPT и отметьте другие версии или нажмите {0}.</value>
-  </data>
-  <data name="Help_Browse_Install_Title" xml:space="preserve">
-    <value>Установить мод и нужные ему моды</value>
-  </data>
-  <data name="Help_Browse_Install_Step1" xml:space="preserve">
-    <value>Найдите мод на странице {0} и нажмите кнопку загрузки в правом нижнем углу его карточки.</value>
-  </data>
-  <data name="Help_Browse_Install_Step2" xml:space="preserve">
-    <value>Окно попросит сначала прочитать страницу мода. Нажмите {0}, прочитайте её, затем нажмите {1}.</value>
-  </data>
-  <data name="Help_Browse_Install_Step3" xml:space="preserve">
-    <value>Если ему нужны моды, которых у вас нет, их страницы показываются так же - {0} ставит в очередь и их.</value>
-  </data>
   <data name="Help_Browse_Install_Step4" xml:space="preserve">
     <value>Следите за ходом на странице {0}. Когда там написано, что мод установлен, он загрузится при следующем запуске SPT.</value>
   </data>
@@ -5076,12 +5040,6 @@
   </data>
   <data name="Help_Browse_HideInstalled_Title" xml:space="preserve">
     <value>Скрыть моды, которые у меня уже есть</value>
-  </data>
-  <data name="Help_Browse_HideInstalled_Step1" xml:space="preserve">
-    <value>На странице {0} откройте список с надписью {1} и отметьте {2}.</value>
-  </data>
-  <data name="Help_Browse_HideInstalled_Step2" xml:space="preserve">
-    <value>Чтобы страница Обзор всегда открывалась так, нажмите {0}.</value>
   </data>
   <data name="Help_Browse_HideInstalled_Note" xml:space="preserve">
     <value>Отключённый мод считается установленным, поэтому он тоже скрывается.</value>
@@ -5109,9 +5067,6 @@
   </data>
   <data name="Help_Installed_Update_Note" xml:space="preserve">
     <value>Чтобы обновить несколько сразу, нажмите {0}, отметьте их и нажмите {1}.</value>
-  </data>
-  <data name="Help_Installed_Views_Title" xml:space="preserve">
-    <value>Изменить вид страницы Установленные</value>
   </data>
   <data name="Help_Installed_Views_Step1" xml:space="preserve">
     <value>Вверху страницы {0} нажмите {1}, {2} или {3}.</value>
@@ -5305,12 +5260,6 @@
   <data name="Help_Browse_Addon_Title" xml:space="preserve">
     <value>Установить аддон для мода</value>
   </data>
-  <data name="Help_Browse_Addon_Step1" xml:space="preserve">
-    <value>На странице {0} щёлкните карточку мода, чтобы открыть её. Если на карточке указано число аддонов, они у мода есть.</value>
-  </data>
-  <data name="Help_Browse_Addon_Step2" xml:space="preserve">
-    <value>Прокрутите вниз до аддонов и нажмите кнопку установки у нужного.</value>
-  </data>
   <data name="Help_Browse_Addon_Step3" xml:space="preserve">
     <value>Когда попросят, прочитайте страницу аддона и продолжайте как при любой другой установке.</value>
   </data>
@@ -5386,9 +5335,6 @@
   <data name="Help_Footprint_Enable_Step1" xml:space="preserve">
     <value>В разделе {0}, в группе {1}, включите {2}.</value>
   </data>
-  <data name="Help_Footprint_Enable_Step2" xml:space="preserve">
-    <value>На боковой панели появится {0}.</value>
-  </data>
   <data name="Help_Footprint_Read_Title" xml:space="preserve">
     <value>Понять, что показывает страница След модов</value>
   </data>
@@ -5409,9 +5355,6 @@
   </data>
   <data name="Help_ServerMap_Enable_Step1" xml:space="preserve">
     <value>В разделе {0}, в группе {1}, включите {2}.</value>
-  </data>
-  <data name="Help_ServerMap_Enable_Step2" xml:space="preserve">
-    <value>На боковой панели появится {0}.</value>
   </data>
   <data name="Help_ServerMap_Enable_Note" xml:space="preserve">
     <value>Нужен сервер с модом Server Map. {0} там же открывает его страницу.</value>
@@ -5452,9 +5395,6 @@
   <data name="Help_Downloads_Watch_Title" xml:space="preserve">
     <value>Следить за загрузкой или отменить её</value>
   </data>
-  <data name="Help_Downloads_Watch_Step1" xml:space="preserve">
-    <value>Откройте {0}. У каждого мода виден ход загрузки и оставшееся время, а устанавливаются они по одному.</value>
-  </data>
   <data name="Help_Downloads_Watch_Step2" xml:space="preserve">
     <value>Нажмите {0} на карточке, чтобы остановить её. То, что она поставила в очередь как зависимости, отменяется вместе с ней.</value>
   </data>
@@ -5493,9 +5433,6 @@
   </data>
   <data name="Help_Monitor_Other_Title" xml:space="preserve">
     <value>Сделать наоборот для одного мода</value>
-  </data>
-  <data name="Help_Monitor_Other_Step1" xml:space="preserve">
-    <value>Рядом с каждой кнопкой установки есть кнопка поменьше, которая делает обратное для этого одного мода.</value>
   </data>
   <data name="Help_Monitor_Other_Step2" xml:space="preserve">
     <value>Наведите на неё, чтобы увидеть, что она делает, и нажмите.</value>
@@ -5572,17 +5509,11 @@
   <data name="Help_ModLists_Apply_Note_Monitor" xml:space="preserve">
     <value>При применении недостающее сохраняется в папку загрузок, чтобы вы установили его сами, а моды, которых нет в списке, переносятся в папку отключённых. Ничего не удаляется.</value>
   </data>
-  <data name="Help_Downloads_Watch_Step1_Monitor" xml:space="preserve">
-    <value>Откройте {0}. У каждого мода виден ход загрузки и оставшееся время, а скачиваются они по одному.</value>
-  </data>
   <data name="Help_Downloads_Watch_Note_Monitor" xml:space="preserve">
     <value>Скачивание никогда не перезаписывает файл - вторая копия сохраняется рядом с первой.</value>
   </data>
   <data name="Help_ReportProblem" xml:space="preserve">
     <value>Сообщить о проблеме</value>
-  </data>
-  <data name="Help_ReportProblemToolTip" xml:space="preserve">
-    <value>Открывает вкладку обращений на странице этого приложения на sp-mod.com, где можно рассказать автору, что пошло не так. Она на английском.</value>
   </data>
   <data name="Help_OpenPageFormat" xml:space="preserve">
     <value>Открыть: {0}</value>
@@ -5593,17 +5524,11 @@
   <data name="Help_Problems_Title" xml:space="preserve">
     <value>Что-то не так</value>
   </data>
-  <data name="Help_Installed_Remove_Title" xml:space="preserve">
-    <value>Удалить мод</value>
-  </data>
   <data name="Help_Installed_Remove_Step1" xml:space="preserve">
     <value>На странице {0} щёлкните карточку мода, чтобы открыть её, и нажмите {1}.</value>
   </data>
   <data name="Help_Installed_Remove_Step2" xml:space="preserve">
     <value>Подтвердите. Если у мода есть свои файлы конфигурации, вас спросят, оставить их - они откладываются, а не удаляются - или удалить вместе с модом.</value>
-  </data>
-  <data name="Help_Installed_Remove_Note" xml:space="preserve">
-    <value>Удалённые файлы какое-то время хранятся (Параметры, «Хранить удалённые моды»), а на странице «Установленные» можно отменить любое из этих удалений. Отключённый мод сначала нужно снова включить, и только потом удалять. Чтобы убрать мод из игры, не удаляя его, просто отключите его.</value>
   </data>
   <data name="Help_Installed_Downgrade_Title" xml:space="preserve">
     <value>Вернуться к более старой версии мода</value>
@@ -5662,14 +5587,8 @@
   <data name="Help_Options_Role_Note" xml:space="preserve">
     <value>Тогда список модов сервера приходит без модов, нужных только игроку. Если headless-лаунчер не находится сам, укажите его в пункте {0}.</value>
   </data>
-  <data name="Help_Problems_Greyed_Title" xml:space="preserve">
-    <value>Кнопки «Обновить» или «Удалить» неактивны</value>
-  </data>
   <data name="Help_Problems_Greyed_Step1" xml:space="preserve">
     <value>Мод отключён. На странице {0} нажмите кнопку включения на его карточке, чтобы снова его включить.</value>
-  </data>
-  <data name="Help_Problems_Greyed_Step2" xml:space="preserve">
-    <value>Когда он включён, «Обновить» и «Удалить» снова работают.</value>
   </data>
   <data name="Help_Problems_CloseSpt_Title" xml:space="preserve">
     <value>Просит сначала закрыть игру или сервер</value>
@@ -5746,14 +5665,8 @@
   <data name="Help_Browse_Compatible_Keywords" xml:space="preserve">
     <value>совместимый, работает с, фильтр, версия SPT</value>
   </data>
-  <data name="Help_Browse_Install_Keywords" xml:space="preserve">
-    <value>установить, добавить, скачать, зависимости</value>
-  </data>
   <data name="Help_Browse_Author_Keywords" xml:space="preserve">
     <value>автор, создатель, поиск, моддер</value>
-  </data>
-  <data name="Help_Browse_HideInstalled_Keywords" xml:space="preserve">
-    <value>скрыть установленные, уже есть, фильтр</value>
   </data>
   <data name="Help_Browse_Addon_Keywords" xml:space="preserve">
     <value>аддон, дополнение, расширение</value>
@@ -5778,9 +5691,6 @@
   </data>
   <data name="Help_Installed_Undo_Keywords" xml:space="preserve">
     <value>отменить, вернуть, откатить, ошибка</value>
-  </data>
-  <data name="Help_Installed_Remove_Keywords" xml:space="preserve">
-    <value>удалить, деинсталлировать, стереть, убрать</value>
   </data>
   <data name="Help_Installed_Downgrade_Keywords" xml:space="preserve">
     <value>понизить версию, старая версия, откатить, предыдущая версия</value>
@@ -5853,9 +5763,6 @@
   </data>
   <data name="Help_Dependencies_Keep_Step3" xml:space="preserve">
     <value>Передумали? Нажмите «Отменить» вверху страницы {0}, чтобы вернуть удалённые копии.</value>
-  </data>
-  <data name="Help_Dependencies_Keep_Note" xml:space="preserve">
-    <value>Кнопка {0} неактивна, если другая копия установлена этим приложением и в ней есть файлы, которые не дублируются: при удалении они тоже уйдут. Наведите на кнопку, чтобы увидеть причину, и удалите этот мод на странице «Установленные», где «Удалить» показывает всё, что будет удалено. У разных копий одного файла кнопки нет: оставьте нужный мод или обратитесь к авторам.</value>
   </data>
   <data name="Help_Dependencies_Keep_Keywords" xml:space="preserve">
     <value>оставить, оставить один, удалить дубликат, удалить копию, отменить</value>
@@ -5940,9 +5847,6 @@
   </data>
   <data name="Help_Options_Role_Keywords" xml:space="preserve">
     <value>headless, Fika, выделенный, хост, без игрока</value>
-  </data>
-  <data name="Help_Problems_Greyed_Keywords" xml:space="preserve">
-    <value>неактивна, серая кнопка, не могу обновить, не могу удалить</value>
   </data>
   <data name="Help_Problems_CloseSpt_Keywords" xml:space="preserve">
     <value>закрыть игру, занят, заблокирован, запущен, не устанавливается</value>

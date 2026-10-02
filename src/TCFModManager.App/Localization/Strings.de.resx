@@ -1146,14 +1146,8 @@ Was du auch wählst: Die Version, die gerade auf der Festplatte liegt, wird zuer
   <data name="Downloads_ClearFinished" xml:space="preserve">
     <value>Fertige entfernen</value>
   </data>
-  <data name="Downloads_Description" xml:space="preserve">
-    <value>Downloads werden streng nacheinander installiert, in der Reihenfolge, in der du sie eingereiht hast - reihe unter Durchsuchen oder in einem Update-Dialog so viele ein, wie du willst, und schau hier nach dem Fortschritt.</value>
-  </data>
   <data name="Downloads_DownloadedToFormat" xml:space="preserve">
     <value>Heruntergeladen nach {0}</value>
-  </data>
-  <data name="Downloads_Empty" xml:space="preserve">
-    <value>Noch nichts eingereiht - klicke auf einer Karte unter Durchsuchen auf Installieren oder im Detail-Dialog eines Mods auf Aktualisieren, um hier etwas hinzuzufügen.</value>
   </data>
   <data name="Downloads_EnterModId" xml:space="preserve">
     <value>Gib eine Mod-ID (oder GUID) und eine genaue Version ein.</value>
@@ -1953,9 +1947,6 @@ Die Kopie, die du nicht behältst, wird in einen versteckten Ordner .ssptmm-dupl
   </data>
   <data name="Installed_RemoveNoRecordFormat" xml:space="preserve">
     <value>Kein Installationseintrag für {0} gefunden - er wurde vielleicht schon entfernt.</value>
-  </data>
-  <data name="Installed_RemoveToolTip" xml:space="preserve">
-    <value>Diesen Mod entfernen</value>
   </data>
   <data name="Installed_SaveAsDefaultToolTip" xml:space="preserve">
     <value>Öffnet diese Seite mit den Filtern, der Sortierung, der Ansicht und der Anzahl pro Seite, die gerade eingestellt sind. Das Suchfeld gehört nicht dazu. Unter Optionen lässt sich das wieder zurücksetzen.</value>
@@ -3086,9 +3077,6 @@ Eine Modliste hält fest, welche Mods installiert und aktiviert werden sollen. W
   </data>
   <data name="ModUpdate_CurrentlyInstalledFormat" xml:space="preserve">
     <value>Aktuell installiert: {0}</value>
-  </data>
-  <data name="ModUpdate_DisabledNoticeFormat" xml:space="preserve">
-    <value>{0} ist deaktiviert. Aktivier ihn auf der Seite Installiert, um ihn zu aktualisieren oder neu herunterzuladen.</value>
   </data>
   <data name="ModUpdate_Downgrade" xml:space="preserve">
     <value>Downgrade</value>
@@ -4726,9 +4714,6 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   <data name="Help_Start_Setup_Title" xml:space="preserve">
     <value>Die App für meine SPT-Installation einrichten</value>
   </data>
-  <data name="Help_Start_Setup_Step1" xml:space="preserve">
-    <value>Öffne {0} in der Seitenleiste.</value>
-  </data>
   <data name="Help_Start_Setup_Step2" xml:space="preserve">
     <value>Klicke unter {0} auf {1} und wähle deinen SPT-Spielordner - den mit EscapeFromTarkov.exe darin, nicht den Serverordner darin.</value>
   </data>
@@ -4753,27 +4738,6 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   <data name="Help_Browse_Compatible_Title" xml:space="preserve">
     <value>Mods finden, die auf meiner SPT-Version laufen</value>
   </data>
-  <data name="Help_Browse_Compatible_Step1" xml:space="preserve">
-    <value>Öffne {0}. Die Seite ist schon auf deine SPT-Version gefiltert.</value>
-  </data>
-  <data name="Help_Browse_Compatible_Step2" xml:space="preserve">
-    <value>Ein Häkchen neben SPT auf einer Karte heißt, dass die neueste Version auf deiner läuft; ein Kreuz heißt, dass nicht.</value>
-  </data>
-  <data name="Help_Browse_Compatible_Step3" xml:space="preserve">
-    <value>Um mehr zu sehen, öffne oben das Auswahlfeld für die SPT-Version und hake weitere Versionen an, oder klicke auf {0}.</value>
-  </data>
-  <data name="Help_Browse_Install_Title" xml:space="preserve">
-    <value>Einen Mod und die Mods, die er braucht, installieren</value>
-  </data>
-  <data name="Help_Browse_Install_Step1" xml:space="preserve">
-    <value>Such den Mod unter {0} und klicke unten rechts auf seiner Karte auf die Download-Schaltfläche.</value>
-  </data>
-  <data name="Help_Browse_Install_Step2" xml:space="preserve">
-    <value>Ein Fenster bittet dich, zuerst die Seite des Mods zu lesen. Klicke auf {0}, lies sie und klicke dann auf {1}.</value>
-  </data>
-  <data name="Help_Browse_Install_Step3" xml:space="preserve">
-    <value>Braucht er Mods, die du nicht hast, werden ihre Seiten genauso aufgelistet - {0} reiht sie ebenfalls ein.</value>
-  </data>
   <data name="Help_Browse_Install_Step4" xml:space="preserve">
     <value>Verfolge es unter {0}. Sobald dort installiert steht, wird der Mod beim nächsten Start von SPT geladen.</value>
   </data>
@@ -4791,12 +4755,6 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   </data>
   <data name="Help_Browse_HideInstalled_Title" xml:space="preserve">
     <value>Mods ausblenden, die ich schon habe</value>
-  </data>
-  <data name="Help_Browse_HideInstalled_Step1" xml:space="preserve">
-    <value>Öffne unter {0} das Auswahlfeld, in dem {1} steht, und hake {2} an.</value>
-  </data>
-  <data name="Help_Browse_HideInstalled_Step2" xml:space="preserve">
-    <value>Damit Durchsuchen jedes Mal so öffnet, klicke auf {0}.</value>
   </data>
   <data name="Help_Browse_HideInstalled_Note" xml:space="preserve">
     <value>Ein deaktivierter Mod zählt als installiert und wird deshalb ebenfalls ausgeblendet.</value>
@@ -4824,9 +4782,6 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   </data>
   <data name="Help_Installed_Update_Note" xml:space="preserve">
     <value>Um mehrere auf einmal zu aktualisieren, klicke auf {0}, hake sie an und klicke auf {1}.</value>
-  </data>
-  <data name="Help_Installed_Views_Title" xml:space="preserve">
-    <value>Die Ansicht der Seite Installiert ändern</value>
   </data>
   <data name="Help_Installed_Views_Step1" xml:space="preserve">
     <value>Klicke oben unter {0} auf {1}, {2} oder {3}.</value>
@@ -5020,12 +4975,6 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   <data name="Help_Browse_Addon_Title" xml:space="preserve">
     <value>Ein Addon für einen Mod installieren</value>
   </data>
-  <data name="Help_Browse_Addon_Step1" xml:space="preserve">
-    <value>Klicke unter {0} auf die Karte des Mods, um sie zu öffnen. Eine Karte, die eine Anzahl Addons nennt, hat welche.</value>
-  </data>
-  <data name="Help_Browse_Addon_Step2" xml:space="preserve">
-    <value>Scroll nach unten zu den Addons und klicke beim gewünschten auf die Installieren-Schaltfläche.</value>
-  </data>
   <data name="Help_Browse_Addon_Step3" xml:space="preserve">
     <value>Lies die Seite des Addons, wenn du gefragt wirst, und mach dann weiter wie bei jeder anderen Installation.</value>
   </data>
@@ -5101,9 +5050,6 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   <data name="Help_Footprint_Enable_Step1" xml:space="preserve">
     <value>Schalte unter {0}, im Bereich {1}, {2} ein.</value>
   </data>
-  <data name="Help_Footprint_Enable_Step2" xml:space="preserve">
-    <value>{0} erscheint in der Seitenleiste.</value>
-  </data>
   <data name="Help_Footprint_Read_Title" xml:space="preserve">
     <value>Lesen, was die Seite Mod-Fußabdruck zeigt</value>
   </data>
@@ -5124,9 +5070,6 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   </data>
   <data name="Help_ServerMap_Enable_Step1" xml:space="preserve">
     <value>Schalte unter {0}, im Bereich {1}, {2} ein.</value>
-  </data>
-  <data name="Help_ServerMap_Enable_Step2" xml:space="preserve">
-    <value>{0} erscheint in der Seitenleiste.</value>
   </data>
   <data name="Help_ServerMap_Enable_Note" xml:space="preserve">
     <value>Sie braucht einen Server, auf dem der Mod Server Map läuft. {0}, an derselben Stelle, öffnet seine Seite.</value>
@@ -5167,9 +5110,6 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   <data name="Help_Downloads_Watch_Title" xml:space="preserve">
     <value>Einen Download verfolgen oder abbrechen</value>
   </data>
-  <data name="Help_Downloads_Watch_Step1" xml:space="preserve">
-    <value>Öffne {0}. Jeder Mod zeigt seinen Fortschritt und die Restzeit, und sie werden nacheinander installiert.</value>
-  </data>
   <data name="Help_Downloads_Watch_Step2" xml:space="preserve">
     <value>Klicke auf einer Karte auf {0}, um sie anzuhalten. Was sie als Abhängigkeit eingereiht hat, wird mit abgebrochen.</value>
   </data>
@@ -5208,9 +5148,6 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   </data>
   <data name="Help_Monitor_Other_Title" xml:space="preserve">
     <value>Einen einzelnen Mod andersherum behandeln</value>
-  </data>
-  <data name="Help_Monitor_Other_Step1" xml:space="preserve">
-    <value>Jede Installieren-Schaltfläche hat daneben eine kleinere, die für diesen einen Mod das Gegenteil tut.</value>
   </data>
   <data name="Help_Monitor_Other_Step2" xml:space="preserve">
     <value>Fahr mit der Maus darüber, um zu sehen, in welche Richtung sie geht, und klicke dann darauf.</value>
@@ -5287,17 +5224,11 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   <data name="Help_ModLists_Apply_Note_Monitor" xml:space="preserve">
     <value>Beim Anwenden wird, was fehlt, zum Selbstinstallieren in deinen Download-Ordner gespeichert, und Mods, die die Liste nicht nennt, kommen in den deaktivierten Ordner. Nichts wird gelöscht.</value>
   </data>
-  <data name="Help_Downloads_Watch_Step1_Monitor" xml:space="preserve">
-    <value>Öffne {0}. Jeder Mod zeigt seinen Fortschritt und die Restzeit, und sie werden nacheinander heruntergeladen.</value>
-  </data>
   <data name="Help_Downloads_Watch_Note_Monitor" xml:space="preserve">
     <value>Ein Download überschreibt nie eine Datei - eine zweite Kopie wird neben der ersten gespeichert.</value>
   </data>
   <data name="Help_ReportProblem" xml:space="preserve">
     <value>Problem melden</value>
-  </data>
-  <data name="Help_ReportProblemToolTip" xml:space="preserve">
-    <value>Öffnet den Issues-Tab auf der sp-mod.com-Seite dieser App, wo du dem Autor sagen kannst, was schiefging. Er ist auf Englisch.</value>
   </data>
   <data name="Help_OpenPageFormat" xml:space="preserve">
     <value>{0} öffnen</value>
@@ -5308,17 +5239,11 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   <data name="Help_Problems_Title" xml:space="preserve">
     <value>Etwas stimmt nicht</value>
   </data>
-  <data name="Help_Installed_Remove_Title" xml:space="preserve">
-    <value>Einen Mod entfernen</value>
-  </data>
   <data name="Help_Installed_Remove_Step1" xml:space="preserve">
     <value>Klicke unter {0} auf die Karte des Mods, um sie zu öffnen, und dann auf {1}.</value>
   </data>
   <data name="Help_Installed_Remove_Step2" xml:space="preserve">
     <value>Bestätige. Hat der Mod eigene Konfigurationsdateien, wirst du gefragt, ob du sie behalten willst - sie werden beiseitegelegt, nicht gelöscht - oder ob sie mit entfernt werden sollen.</value>
-  </data>
-  <data name="Help_Installed_Remove_Note" xml:space="preserve">
-    <value>Entfernte Dateien werden eine Weile aufbewahrt (Optionen, Entfernte Mods behalten), und auf der Seite Installiert lässt sich jedes davon zurückholen. Ein deaktivierter Mod muss erst wieder eingeschaltet werden, bevor er sich entfernen lässt. Um einen Mod aus dem Spiel zu nehmen, ohne ihn zu löschen, schalte ihn stattdessen aus.</value>
   </data>
   <data name="Help_Installed_Downgrade_Title" xml:space="preserve">
     <value>Zu einer älteren Version eines Mods zurückkehren</value>
@@ -5377,14 +5302,8 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   <data name="Help_Options_Role_Note" xml:space="preserve">
     <value>Die Modliste eines Servers kommt dann ohne die Mods an, die nur ein Spieler braucht. Wird der Headless-Launcher nicht von selbst gefunden, zeig {0} darauf.</value>
   </data>
-  <data name="Help_Problems_Greyed_Title" xml:space="preserve">
-    <value>Aktualisieren oder Entfernen ist ausgegraut</value>
-  </data>
   <data name="Help_Problems_Greyed_Step1" xml:space="preserve">
     <value>Der Mod ist ausgeschaltet. Klicke unter {0} auf die Ein/Aus-Schaltfläche seiner Karte, um ihn wieder einzuschalten.</value>
-  </data>
-  <data name="Help_Problems_Greyed_Step2" xml:space="preserve">
-    <value>Sobald er an ist, funktionieren Aktualisieren und Entfernen wieder.</value>
   </data>
   <data name="Help_Problems_CloseSpt_Title" xml:space="preserve">
     <value>Es heißt, ich soll zuerst das Spiel oder den Server schließen</value>
@@ -5461,14 +5380,8 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   <data name="Help_Browse_Compatible_Keywords" xml:space="preserve">
     <value>kompatibel, funktioniert mit, filtern, SPT-Version, unterstützt</value>
   </data>
-  <data name="Help_Browse_Install_Keywords" xml:space="preserve">
-    <value>installieren, hinzufügen, holen, herunterladen, Abhängigkeiten</value>
-  </data>
   <data name="Help_Browse_Author_Keywords" xml:space="preserve">
     <value>Autor, Ersteller, von, suchen, Modder</value>
-  </data>
-  <data name="Help_Browse_HideInstalled_Keywords" xml:space="preserve">
-    <value>installierte ausblenden, schon vorhanden, filtern, nicht installiert</value>
   </data>
   <data name="Help_Browse_Addon_Keywords" xml:space="preserve">
     <value>Addon, Erweiterung, Zusatz, Extra</value>
@@ -5493,9 +5406,6 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   </data>
   <data name="Help_Installed_Undo_Keywords" xml:space="preserve">
     <value>rückgängig, zurück, wiederherstellen, Fehler</value>
-  </data>
-  <data name="Help_Installed_Remove_Keywords" xml:space="preserve">
-    <value>entfernen, deinstallieren, löschen, loswerden</value>
   </data>
   <data name="Help_Installed_Downgrade_Keywords" xml:space="preserve">
     <value>downgrade, ältere Version, zurückrollen, vorherige Version</value>
@@ -5568,9 +5478,6 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   </data>
   <data name="Help_Dependencies_Keep_Step3" xml:space="preserve">
     <value>Doch anders entschieden? Klicke oben auf {0} auf die Rückgängig-Schaltfläche, um die entfernten Kopien zurückzuholen.</value>
-  </data>
-  <data name="Help_Dependencies_Keep_Note" xml:space="preserve">
-    <value>{0} ist ausgegraut, wenn eine andere Kopie mit dieser App installiert wurde und auch Dateien hat, die nicht doppelt sind - beim Entfernen gingen diese mit. Fahre mit der Maus über die Schaltfläche, um den Grund zu sehen, und entferne diesen Mod stattdessen auf der Seite Installiert, wo Entfernen alles zeigt, was es mitnimmt. Für unterschiedliche Kopien einer Datei gibt es keine Schaltfläche: Behalte den Mod, den du brauchst, oder frag die Autoren.</value>
   </data>
   <data name="Help_Dependencies_Keep_Keywords" xml:space="preserve">
     <value>behalten, einen behalten, Duplikat entfernen, Kopie löschen, rückgängig</value>
@@ -5655,9 +5562,6 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   </data>
   <data name="Help_Options_Role_Keywords" xml:space="preserve">
     <value>Headless, Fika, dediziert, Host, kein Spieler</value>
-  </data>
-  <data name="Help_Problems_Greyed_Keywords" xml:space="preserve">
-    <value>ausgegraut, deaktivierte Schaltfläche, kann nicht aktualisieren, kann nicht entfernen</value>
   </data>
   <data name="Help_Problems_CloseSpt_Keywords" xml:space="preserve">
     <value>Spiel schließen, in Benutzung, gesperrt, läuft, kann nicht installieren</value>

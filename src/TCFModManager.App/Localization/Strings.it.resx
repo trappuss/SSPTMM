@@ -1146,14 +1146,8 @@ Qualunque cosa scegli, la versione ora sul disco viene prima copiata in {1}.</va
   <data name="Downloads_ClearFinished" xml:space="preserve">
     <value>Azzera completati</value>
   </data>
-  <data name="Downloads_Description" xml:space="preserve">
-    <value>I download si installano rigorosamente uno alla volta, nell'ordine in cui li hai messi in coda - mettine in coda quanti vuoi da Sfoglia o da una finestra di aggiornamento e torna qui per vedere l'avanzamento.</value>
-  </data>
   <data name="Downloads_DownloadedToFormat" xml:space="preserve">
     <value>Scaricato in {0}</value>
-  </data>
-  <data name="Downloads_Empty" xml:space="preserve">
-    <value>Ancora niente in coda - fai clic su Installa su una scheda di Sfoglia, o su Aggiorna nella finestra dei dettagli di un mod, per aggiungere qualcosa qui.</value>
   </data>
   <data name="Downloads_EnterModId" xml:space="preserve">
     <value>Inserisci un id mod (o GUID) e una versione esatta.</value>
@@ -1953,9 +1947,6 @@ La copia che non conservi viene spostata in una cartella nascosta .ssptmm-duplic
   </data>
   <data name="Installed_RemoveNoRecordFormat" xml:space="preserve">
     <value>Nessun registro di installazione trovato per {0} - potrebbe essere già stato rimosso.</value>
-  </data>
-  <data name="Installed_RemoveToolTip" xml:space="preserve">
-    <value>Rimuovi questo mod</value>
   </data>
   <data name="Installed_SaveAsDefaultToolTip" xml:space="preserve">
     <value>Apre questa pagina con i filtri, l'ordinamento, la vista e gli elementi per pagina impostati adesso. La casella di ricerca non è inclusa. Da Opzioni puoi azzerarlo.</value>
@@ -3086,9 +3077,6 @@ Una lista mod registra quali mod installare e attivare. Applicarne una scarica d
   </data>
   <data name="ModUpdate_CurrentlyInstalledFormat" xml:space="preserve">
     <value>Attualmente installata: {0}</value>
-  </data>
-  <data name="ModUpdate_DisabledNoticeFormat" xml:space="preserve">
-    <value>{0} è disattivato. Attivalo nella pagina Installati per aggiornarlo o riscaricarlo.</value>
   </data>
   <data name="ModUpdate_Downgrade" xml:space="preserve">
     <value>Downgrade</value>
@@ -4726,9 +4714,6 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
   <data name="Help_Start_Setup_Title" xml:space="preserve">
     <value>Configurare l'app per la mia installazione di SPT</value>
   </data>
-  <data name="Help_Start_Setup_Step1" xml:space="preserve">
-    <value>Apri {0} nella barra laterale.</value>
-  </data>
   <data name="Help_Start_Setup_Step2" xml:space="preserve">
     <value>Sotto {0}, premi {1} e scegli la cartella del gioco SPT - quella che contiene EscapeFromTarkov.exe, non la cartella del server al suo interno.</value>
   </data>
@@ -4753,27 +4738,6 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
   <data name="Help_Browse_Compatible_Title" xml:space="preserve">
     <value>Trovare i mod che funzionano sulla mia versione di SPT</value>
   </data>
-  <data name="Help_Browse_Compatible_Step1" xml:space="preserve">
-    <value>Apri {0}. La pagina è già filtrata sulla tua versione di SPT.</value>
-  </data>
-  <data name="Help_Browse_Compatible_Step2" xml:space="preserve">
-    <value>Una spunta accanto a SPT su una scheda significa che la sua versione più recente funziona sulla tua; una croce, che non funziona.</value>
-  </data>
-  <data name="Help_Browse_Compatible_Step3" xml:space="preserve">
-    <value>Per vederne di più, apri in alto il menu delle versioni di SPT e spunta altre versioni, oppure premi {0}.</value>
-  </data>
-  <data name="Help_Browse_Install_Title" xml:space="preserve">
-    <value>Installare un mod e i mod che gli servono</value>
-  </data>
-  <data name="Help_Browse_Install_Step1" xml:space="preserve">
-    <value>Trova il mod in {0} e premi il pulsante di download in basso a destra nella sua scheda.</value>
-  </data>
-  <data name="Help_Browse_Install_Step2" xml:space="preserve">
-    <value>Una finestra ti chiede di leggere prima la pagina del mod. Premi {0}, leggila, poi premi {1}.</value>
-  </data>
-  <data name="Help_Browse_Install_Step3" xml:space="preserve">
-    <value>Se gli servono mod che non hai, le loro pagine vengono elencate allo stesso modo - {0} mette in coda anche quelle.</value>
-  </data>
   <data name="Help_Browse_Install_Step4" xml:space="preserve">
     <value>Seguila in {0}. Quando risulta installato, il mod viene caricato al prossimo avvio di SPT.</value>
   </data>
@@ -4791,12 +4755,6 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
   </data>
   <data name="Help_Browse_HideInstalled_Title" xml:space="preserve">
     <value>Nascondere i mod che ho già</value>
-  </data>
-  <data name="Help_Browse_HideInstalled_Step1" xml:space="preserve">
-    <value>In {0}, apri il menu che mostra {1} e spunta {2}.</value>
-  </data>
-  <data name="Help_Browse_HideInstalled_Step2" xml:space="preserve">
-    <value>Perché Sfoglia si apra sempre così, premi {0}.</value>
   </data>
   <data name="Help_Browse_HideInstalled_Note" xml:space="preserve">
     <value>Un mod disattivato conta come installato, quindi viene nascosto anche lui.</value>
@@ -4824,9 +4782,6 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
   </data>
   <data name="Help_Installed_Update_Note" xml:space="preserve">
     <value>Per aggiornarne diversi insieme, premi {0}, spuntali e premi {1}.</value>
-  </data>
-  <data name="Help_Installed_Views_Title" xml:space="preserve">
-    <value>Cambiare la disposizione della pagina Installati</value>
   </data>
   <data name="Help_Installed_Views_Step1" xml:space="preserve">
     <value>In cima a {0}, premi {1}, {2} o {3}.</value>
@@ -5020,12 +4975,6 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
   <data name="Help_Browse_Addon_Title" xml:space="preserve">
     <value>Installare un addon per un mod</value>
   </data>
-  <data name="Help_Browse_Addon_Step1" xml:space="preserve">
-    <value>In {0}, fai clic sulla scheda del mod per aprirla. Una scheda che indica un numero di addon ne ha di pubblicati.</value>
-  </data>
-  <data name="Help_Browse_Addon_Step2" xml:space="preserve">
-    <value>Scorri fino ai suoi addon e premi il pulsante di installazione su quello che vuoi.</value>
-  </data>
   <data name="Help_Browse_Addon_Step3" xml:space="preserve">
     <value>Leggi la pagina dell'addon quando ti viene chiesto, poi continua come per qualsiasi altra installazione.</value>
   </data>
@@ -5101,9 +5050,6 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
   <data name="Help_Footprint_Enable_Step1" xml:space="preserve">
     <value>In {0}, sotto {1}, attiva {2}.</value>
   </data>
-  <data name="Help_Footprint_Enable_Step2" xml:space="preserve">
-    <value>{0} compare nella barra laterale.</value>
-  </data>
   <data name="Help_Footprint_Read_Title" xml:space="preserve">
     <value>Leggere cosa mostra la pagina Impronta mod</value>
   </data>
@@ -5124,9 +5070,6 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
   </data>
   <data name="Help_ServerMap_Enable_Step1" xml:space="preserve">
     <value>In {0}, sotto {1}, attiva {2}.</value>
-  </data>
-  <data name="Help_ServerMap_Enable_Step2" xml:space="preserve">
-    <value>{0} compare nella barra laterale.</value>
   </data>
   <data name="Help_ServerMap_Enable_Note" xml:space="preserve">
     <value>Serve un server su cui gira il mod Server Map. {0}, nello stesso punto, apre la sua pagina.</value>
@@ -5167,9 +5110,6 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
   <data name="Help_Downloads_Watch_Title" xml:space="preserve">
     <value>Seguire o annullare un download</value>
   </data>
-  <data name="Help_Downloads_Watch_Step1" xml:space="preserve">
-    <value>Apri {0}. Ogni mod mostra l'avanzamento e il tempo rimanente, e si installano uno alla volta.</value>
-  </data>
   <data name="Help_Downloads_Watch_Step2" xml:space="preserve">
     <value>Premi {0} su una scheda per fermarla. Quello che ha messo in coda come dipendenza viene annullato insieme.</value>
   </data>
@@ -5208,9 +5148,6 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
   </data>
   <data name="Help_Monitor_Other_Title" xml:space="preserve">
     <value>Fare il contrario per un solo mod</value>
-  </data>
-  <data name="Help_Monitor_Other_Step1" xml:space="preserve">
-    <value>Ogni pulsante di installazione ha accanto un pulsante più piccolo che fa il contrario per quel mod.</value>
   </data>
   <data name="Help_Monitor_Other_Step2" xml:space="preserve">
     <value>Passaci sopra con il mouse per vedere in che senso funziona, poi premilo.</value>
@@ -5287,17 +5224,11 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
   <data name="Help_ModLists_Apply_Note_Monitor" xml:space="preserve">
     <value>Applicare salva ciò che manca nella tua cartella di download perché tu lo installi, e sposta i mod che la lista non nomina nella cartella disattivata. Non si elimina nulla.</value>
   </data>
-  <data name="Help_Downloads_Watch_Step1_Monitor" xml:space="preserve">
-    <value>Apri {0}. Ogni mod mostra l'avanzamento e il tempo rimanente, e si scaricano uno alla volta.</value>
-  </data>
   <data name="Help_Downloads_Watch_Note_Monitor" xml:space="preserve">
     <value>Un download non sovrascrive mai un file - una seconda copia viene salvata accanto alla prima.</value>
   </data>
   <data name="Help_ReportProblem" xml:space="preserve">
     <value>Segnala un problema</value>
-  </data>
-  <data name="Help_ReportProblemToolTip" xml:space="preserve">
-    <value>Apre la scheda delle segnalazioni sulla pagina sp-mod.com di questa app, dove puoi dire all'autore cosa è andato storto. È in inglese.</value>
   </data>
   <data name="Help_OpenPageFormat" xml:space="preserve">
     <value>Apri {0}</value>
@@ -5308,17 +5239,11 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
   <data name="Help_Problems_Title" xml:space="preserve">
     <value>Qualcosa non va</value>
   </data>
-  <data name="Help_Installed_Remove_Title" xml:space="preserve">
-    <value>Rimuovere un mod</value>
-  </data>
   <data name="Help_Installed_Remove_Step1" xml:space="preserve">
     <value>In {0}, fai clic sulla scheda del mod per aprirla e premi {1}.</value>
   </data>
   <data name="Help_Installed_Remove_Step2" xml:space="preserve">
     <value>Conferma. Se il mod ha file di configurazione suoi, ti viene chiesto se tenerli - vengono messi da parte, non eliminati - o rimuoverli insieme.</value>
-  </data>
-  <data name="Help_Installed_Remove_Note" xml:space="preserve">
-    <value>I file rimossi vengono conservati per un po' (Opzioni, Conserva le mod rimosse) e dalla pagina Installati puoi annullare una qualsiasi di queste rimozioni. Un mod disattivato va riattivato prima di poterlo rimuovere. Per togliere un mod dal gioco senza eliminarlo, disattivalo invece.</value>
   </data>
   <data name="Help_Installed_Downgrade_Title" xml:space="preserve">
     <value>Tornare a una versione più vecchia di un mod</value>
@@ -5377,14 +5302,8 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
   <data name="Help_Options_Role_Note" xml:space="preserve">
     <value>La lista mod di un server arriva poi senza i mod che servono solo a chi gioca. Se il launcher headless non viene trovato da solo, indicalo in {0}.</value>
   </data>
-  <data name="Help_Problems_Greyed_Title" xml:space="preserve">
-    <value>Aggiorna o Rimuovi è disattivato</value>
-  </data>
   <data name="Help_Problems_Greyed_Step1" xml:space="preserve">
     <value>Il mod è disattivato. In {0}, premi il pulsante di accensione sulla sua scheda per riattivarlo.</value>
-  </data>
-  <data name="Help_Problems_Greyed_Step2" xml:space="preserve">
-    <value>Una volta attivo, Aggiorna e Rimuovi tornano a funzionare.</value>
   </data>
   <data name="Help_Problems_CloseSpt_Title" xml:space="preserve">
     <value>Mi dice di chiudere prima il gioco o il server</value>
@@ -5461,14 +5380,8 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
   <data name="Help_Browse_Compatible_Keywords" xml:space="preserve">
     <value>compatibile, funziona con, filtrare, versione SPT</value>
   </data>
-  <data name="Help_Browse_Install_Keywords" xml:space="preserve">
-    <value>installare, aggiungere, ottenere, scaricare, dipendenze</value>
-  </data>
   <data name="Help_Browse_Author_Keywords" xml:space="preserve">
     <value>autore, creatore, di, cercare, modder</value>
-  </data>
-  <data name="Help_Browse_HideInstalled_Keywords" xml:space="preserve">
-    <value>nascondere installati, già presenti, filtrare</value>
   </data>
   <data name="Help_Browse_Addon_Keywords" xml:space="preserve">
     <value>addon, estensione, aggiunta, extra</value>
@@ -5493,9 +5406,6 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
   </data>
   <data name="Help_Installed_Undo_Keywords" xml:space="preserve">
     <value>annullare, tornare indietro, ripristinare, errore</value>
-  </data>
-  <data name="Help_Installed_Remove_Keywords" xml:space="preserve">
-    <value>rimuovere, disinstallare, eliminare, cancellare, togliere</value>
   </data>
   <data name="Help_Installed_Downgrade_Keywords" xml:space="preserve">
     <value>downgrade, versione più vecchia, tornare indietro, versione precedente</value>
@@ -5568,9 +5478,6 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
   </data>
   <data name="Help_Dependencies_Keep_Step3" xml:space="preserve">
     <value>Hai cambiato idea? Premi Annulla in cima a {0} per rimettere le copie rimosse.</value>
-  </data>
-  <data name="Help_Dependencies_Keep_Note" xml:space="preserve">
-    <value>{0} è disattivato quando un'altra copia è stata installata con questa app e ha anche file non duplicati, perché rimuoverla porterebbe via anche quelli. Passa il mouse sul pulsante per vedere il motivo, e rimuovi invece quel mod dalla pagina Installati, dove Rimuovi mostra tutto ciò che porta via. Le copie diverse di un file non hanno un pulsante: tieni il mod che ti serve, o chiedi agli autori.</value>
   </data>
   <data name="Help_Dependencies_Keep_Keywords" xml:space="preserve">
     <value>tieni, tenerne uno, rimuovi duplicato, elimina copia, annulla</value>
@@ -5655,9 +5562,6 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
   </data>
   <data name="Help_Options_Role_Keywords" xml:space="preserve">
     <value>headless, Fika, dedicato, host, nessun giocatore</value>
-  </data>
-  <data name="Help_Problems_Greyed_Keywords" xml:space="preserve">
-    <value>disattivato, grigio, pulsante disattivato, non posso aggiornare, non posso rimuovere</value>
   </data>
   <data name="Help_Problems_CloseSpt_Keywords" xml:space="preserve">
     <value>chiudere il gioco, in uso, bloccato, in esecuzione, non installa</value>

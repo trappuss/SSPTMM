@@ -20,10 +20,11 @@ internal static class HelpCatalog
 {
     //
     // SSPTMM: the original's help on updating the app itself (its App update section and the
-    // "the update won't install" problem) is left out - this app doesn't update itself (SelfMod).
+    // "the update won't install" problem) is left out - this app doesn't update itself (SelfMod) -
+    // and so is choosing a light or dark theme, which the Steam look doesn't offer (AppTheme).
     // Left out here rather than deleted, so a merge of the original's Help has nothing to undo.
     //
-    private static readonly HashSet<string> NotForThisApp = ["appupdate", "problems.appupdate"];
+    private static readonly HashSet<string> NotForThisApp = ["appupdate", "problems.appupdate", "options.theme"];
 
     public static IReadOnlyList<HelpSection> Sections { get; } = ForThisApp(AllSections());
 
@@ -78,17 +79,16 @@ internal static class HelpCatalog
         new("browse", () => Strings.Nav_Browse, SymbolRegular.Apps24, typeof(BrowsePage),
         [
             Topic("browse.compatible", () => Strings.Help_Browse_Compatible_Title,
-                Step(() => Strings.Help_Browse_Compatible_Step1, () => Strings.Nav_Browse),
+                Step(() => Strings.Help_Browse_Compatible_Step1, () => Strings.Nav_Workshop, () => Strings.Nav_Browse),
                 Step(() => Strings.Help_Browse_Compatible_Step2),
-                Step(() => Strings.Help_Browse_Compatible_Step3, () => Strings.Common_ClearFilters))
+                Step(() => Strings.Help_Browse_Compatible_Step3, () => Strings.Workshop_SptVersionHeader))
                 .WithKeywords(() => Strings.Help_Browse_Compatible_Keywords),
 
             Topic("browse.install",
                 ByMode(() => Strings.Help_Browse_Install_Title, () => Strings.Help_Browse_Install_Title_Monitor),
-                Step(() => Strings.Help_Browse_Install_Step1, () => Strings.Nav_Browse),
-                Step(() => Strings.Help_Browse_Install_Step2,
-                    () => Strings.ReadModPage_ButtonOpen, () => Strings.Common_Continue),
-                Step(() => Strings.Help_Browse_Install_Step3, () => Strings.Common_Continue),
+                Step(() => Strings.Help_Browse_Install_Step1, () => Strings.Nav_Browse, () => Strings.Item_Subscribe),
+                Step(() => Strings.Help_Browse_Install_Step2, () => Strings.Subscribe_All, () => Strings.Subscribe_JustThisItem),
+                Step(() => Strings.Help_Browse_Install_Step3, () => Strings.ReadModPage_ButtonOpen, () => Strings.Common_Continue),
                 Step(ByMode(() => Strings.Help_Browse_Install_Step4, () => Strings.Help_Browse_Install_Step4_Monitor),
                     () => Strings.Nav_Downloads))
                 .WithNote(ByMode(() => Strings.Help_Browse_Install_Note, () => Strings.Help_Browse_Install_Note_Monitor))
@@ -100,8 +100,7 @@ internal static class HelpCatalog
                 .WithKeywords(() => Strings.Help_Browse_Author_Keywords),
 
             Topic("browse.hideinstalled", () => Strings.Help_Browse_HideInstalled_Title,
-                Step(() => Strings.Help_Browse_HideInstalled_Step1,
-                    () => Strings.Nav_Browse, () => Strings.Filter_AnyMod, () => Strings.Filter_HideInstalled),
+                Step(() => Strings.Help_Browse_HideInstalled_Step1, () => Strings.Nav_Browse, () => Strings.Workshop_ModTags, () => Strings.Workshop_TagSubscribed),
                 Step(() => Strings.Help_Browse_HideInstalled_Step2, () => Strings.Common_SaveAsDefault))
                 .WithNote(() => Strings.Help_Browse_HideInstalled_Note)
                 .WithKeywords(() => Strings.Help_Browse_HideInstalled_Keywords),
@@ -172,7 +171,7 @@ internal static class HelpCatalog
                 Step(() => Strings.Help_Installed_Remove_Step1,
                     () => Strings.Nav_Installed, () => Strings.Installed_Remove),
                 Step(() => Strings.Help_Installed_Remove_Step2))
-                .WithNote(() => Strings.Help_Installed_Remove_Note)
+                .WithNote(() => Strings.Help_Installed_Remove_Note, () => Strings.Nav_Options, () => Strings.Options_RemovedModsHeader, () => Strings.Workshop_SubscribedItems)
                 .WithKeywords(() => Strings.Help_Installed_Remove_Keywords),
 
             Topic("installed.downgrade", () => Strings.Help_Installed_Downgrade_Title,
@@ -301,7 +300,7 @@ internal static class HelpCatalog
                     () => Strings.Conflicts_Header, () => Strings.Conflicts_KeepThis),
                 Step(() => Strings.Help_Dependencies_Keep_Step2),
                 Step(() => Strings.Help_Dependencies_Keep_Step3, () => Strings.Nav_Installed))
-                .WithNote(() => Strings.Help_Dependencies_Keep_Note, () => Strings.Conflicts_KeepThis)
+                .WithNote(() => Strings.Help_Dependencies_Keep_Note, () => Strings.Conflicts_KeepThis, () => Strings.Workshop_SubscribedItems, () => Strings.Installed_Remove)
                 .WithKeywords(() => Strings.Help_Dependencies_Keep_Keywords),
 
             Topic("dependencies.spot", () => Strings.Help_Dependencies_Spot_Title,
@@ -401,7 +400,7 @@ internal static class HelpCatalog
                 .WithPage(typeof(OptionsPage)),
 
             Topic("monitor.other", () => Strings.Help_Monitor_Other_Title,
-                Step(() => Strings.Help_Monitor_Other_Step1),
+                Step(() => Strings.Help_Monitor_Other_Step1, () => Strings.Item_Subscribe, () => Strings.Nav_Dependencies),
                 Step(() => Strings.Help_Monitor_Other_Step2))
                 .WithKeywords(() => Strings.Help_Monitor_Other_Keywords)
                 .WithPage(typeof(BrowsePage)),
@@ -488,7 +487,7 @@ internal static class HelpCatalog
 
             Topic("problems.greyed", () => Strings.Help_Problems_Greyed_Title,
                 Step(() => Strings.Help_Problems_Greyed_Step1, () => Strings.Nav_Installed),
-                Step(() => Strings.Help_Problems_Greyed_Step2))
+                Step(() => Strings.Help_Problems_Greyed_Step2, () => Strings.ModUpdate_Update, () => Strings.Installed_Remove))
                 .WithPage(typeof(InstalledPage))
                 .WithKeywords(() => Strings.Help_Problems_Greyed_Keywords),
 
@@ -552,7 +551,7 @@ internal static class HelpCatalog
     private static Func<string> ByMode(Func<string> install, Func<string> downloadOnly) =>
         () => AppServices.ModPageGate.IsDownloadOnly ? downloadOnly() : install();
 
-    // The sidebar name of a page Open can go to, so the button reads "Open Installed" in any language.
+    // The tab name of a page Open can go to, so the button reads "Open Installed" in any language.
     public static string PageName(Type page) => page.Name switch
     {
         nameof(PlayPage) => Strings.Nav_Play,
@@ -569,8 +568,8 @@ internal static class HelpCatalog
         _ => page.Name,
     };
 
-    // Whether a page can be opened right now. The two optional pages are out of the sidebar until
-    // switched on, and sending someone to a page they can't see from the sidebar would only confuse -
+    // Whether a page can be opened right now. The two optional pages have no tab until
+    // switched on, and sending someone to a page they can't see in the tabs would only confuse -
     // their "Turn this page on" how-to goes to Options instead.
     public static bool CanOpen(Type page) =>
         page != typeof(FootprintPage) && page != typeof(ServerMapPage)
@@ -583,7 +582,7 @@ internal static class HelpCatalog
         new(format, labels);
 }
 
-// One sidebar page's worth of how-tos, or Getting started. PageType is the page the "?" opens this
+// One page's worth of how-tos, or Getting started. PageType is the page the "?" opens this
 // section from; null for a section that isn't a page.
 internal sealed record HelpSection(
     string Id,

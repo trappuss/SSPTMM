@@ -363,7 +363,7 @@
     <value>Unsubscribe</value>
   </data>
   <data name="Installed_RemoveToolTip" xml:space="preserve">
-    <value>Remove this mod</value>
+    <value>Unsubscribe: remove this mod's files from your SPT install</value>
   </data>
   <data name="Installed_DisabledTag" xml:space="preserve">
     <value>DISABLED</value>
@@ -931,8 +931,8 @@ A mod list records which mods to install and enable. Applying one downloads what
     <value>Put every failed or cancelled download back on the queue.</value>
   </data>
   <data name="Downloads_Description" xml:space="preserve">
-    <value>Downloads install strictly one at a time, in the order you queued them - queue as many as you like from Browse or an update dialog and check back here for progress.</value>
-    <comment>Browse is the page name, as in the sidebar.</comment>
+    <value>Up to three mods download at once and they install one at a time, in the order you queued them - subscribe to as many as you like and check back here for progress.</value>
+    <comment>Subscribe is the button on a mod's page.</comment>
   </data>
   <data name="Downloads_StatQueue" xml:space="preserve">
     <value>Queue</value>
@@ -951,8 +951,8 @@ A mod list records which mods to install and enable. Applying one downloads what
     <comment>Shown in place of an estimate before any size is known.</comment>
   </data>
   <data name="Downloads_Empty" xml:space="preserve">
-    <value>Nothing queued yet - click Install on a Browse card, or Update in a mod's details dialog, to add something here.</value>
-    <comment>Install and Update are buttons elsewhere in the app - translate them as they are translated there.</comment>
+    <value>Nothing queued yet - press Subscribe on a mod's page, or Update in its update dialog, to add something here.</value>
+    <comment>Subscribe and Update are buttons elsewhere in the app - translate them as they are translated there.</comment>
   </data>
   <data name="Downloads_AddonTag" xml:space="preserve">
     <value>Addon</value>
@@ -3353,8 +3353,8 @@ Whichever you pick, the version currently on disk is copied into {1} first.</val
     <comment>Shown before an update, when this mod's config policy is ConfigPolicy_Merge. Data\LegacyConfigs is a folder path and stays as it is.</comment>
   </data>
   <data name="ModUpdate_DisabledNoticeFormat" xml:space="preserve">
-    <value>{0} is disabled. Enable it on the Installed page to update or redownload it.</value>
-    <comment>{0} is a mod name. Installed is the page name - translate it as in Nav_Installed.</comment>
+    <value>{0} is disabled. Turn it back on in Subscribed items to update or redownload it.</value>
+    <comment>{0} is a mod name. Subscribed items is the page name - translate it as in Workshop_SubscribedItems.</comment>
   </data>
   <data name="ModUpdate_ShowingAllVersions" xml:space="preserve">
     <value>Showing every published version, including ones for other SPT releases.</value>
@@ -7509,7 +7509,7 @@ Install the file as it is anyway?</value>
     <comment>How-to title. Titles are phrased as what the reader wants to do.</comment>
   </data>
   <data name="Help_Start_Setup_Step1" xml:space="preserve">
-    <value>Open {0} in the sidebar.</value>
+    <value>Open {0} in the tabs at the top.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_Start_Setup_Step2" xml:space="preserve">
@@ -7544,30 +7544,30 @@ Install the file as it is anyway?</value>
     <comment>How-to title.</comment>
   </data>
   <data name="Help_Browse_Compatible_Step1" xml:space="preserve">
-    <value>Open {0}. It starts filtered to your SPT version.</value>
+    <value>Open {0}, then {1}. It starts filtered to your SPT version.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_Browse_Compatible_Step2" xml:space="preserve">
-    <value>A tick beside SPT on a card means its newest version runs on yours; a cross means it doesn't.</value>
+    <value>Hover a card: a tick beside SPT in the box that opens means its newest version runs on yours; a cross means it doesn't.</value>
   </data>
   <data name="Help_Browse_Compatible_Step3" xml:space="preserve">
-    <value>To see more, open the SPT version dropdown at the top and tick other versions, or press {0}.</value>
+    <value>To see more, tick other versions under {0} on the left, or untick yours to see every version.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_Browse_Install_Title" xml:space="preserve">
-    <value>Install a mod and the mods it needs</value>
+    <value>Subscribe to a mod and the mods it needs</value>
     <comment>How-to title.</comment>
   </data>
   <data name="Help_Browse_Install_Step1" xml:space="preserve">
-    <value>Find the mod on {0} and press the download button at the bottom right of its card.</value>
+    <value>Find the mod on {0} and click its card to open its page, then press {1}. Or hover the card and press the small + at its bottom right.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_Browse_Install_Step2" xml:space="preserve">
-    <value>A window asks you to read the mod's page first. Press {0}, read it, then press {1}.</value>
+    <value>If it needs mods you don't have, a window lists them. Press {0} to get them too, or {1} to leave them out.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_Browse_Install_Step3" xml:space="preserve">
-    <value>If it needs mods you don't have, their pages are listed the same way - {0} queues them too.</value>
+    <value>A window then asks you to read the mod pages you haven't seen yet. Press {0} on each, read it, then press {1}.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_Browse_Install_Step4" xml:space="preserve">
@@ -7594,11 +7594,11 @@ Install the file as it is anyway?</value>
     <comment>How-to title.</comment>
   </data>
   <data name="Help_Browse_HideInstalled_Step1" xml:space="preserve">
-    <value>On {0}, open the dropdown that reads {1} and tick {2}.</value>
+    <value>On {0}, under {1} on the left, tick the minus box beside {2}.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_Browse_HideInstalled_Step2" xml:space="preserve">
-    <value>To have Browse open this way every time, press {0}.</value>
+    <value>To have Browse open this way every time, press the gear beside the search box, then {0}.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it. 'Browse' is the page name, Nav_Browse.</comment>
   </data>
   <data name="Help_Browse_HideInstalled_Note" xml:space="preserve">
@@ -7637,7 +7637,7 @@ Install the file as it is anyway?</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_Installed_Views_Title" xml:space="preserve">
-    <value>Change how the Installed page is laid out</value>
+    <value>Change how Subscribed items is laid out</value>
     <comment>How-to title. 'Installed' is the page name, Nav_Installed.</comment>
   </data>
   <data name="Help_Installed_Views_Step1" xml:space="preserve">
@@ -7884,11 +7884,11 @@ Install the file as it is anyway?</value>
     <comment>How-to title. An addon is extra content published for one mod.</comment>
   </data>
   <data name="Help_Browse_Addon_Step1" xml:space="preserve">
-    <value>On {0}, click the mod's card to open it. A card that says how many addons it has has some published.</value>
+    <value>On {0}, click the mod's card to open its page. Hover a card first to see whether it has addons - the box that opens says how many.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_Browse_Addon_Step2" xml:space="preserve">
-    <value>Scroll down to its addons and press the install button on the one you want.</value>
+    <value>Its addons are listed under its description. Press the install button on the one you want.</value>
   </data>
   <data name="Help_Browse_Addon_Step3" xml:space="preserve">
     <value>Read the addon's page when asked, then continue as for any other install.</value>
@@ -7985,7 +7985,7 @@ Install the file as it is anyway?</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_Footprint_Enable_Step2" xml:space="preserve">
-    <value>{0} appears in the sidebar.</value>
+    <value>{0} appears in the tabs at the top.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_Footprint_Read_Title" xml:space="preserve">
@@ -8015,7 +8015,7 @@ Install the file as it is anyway?</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_ServerMap_Enable_Step2" xml:space="preserve">
-    <value>{0} appears in the sidebar.</value>
+    <value>{0} appears in the tabs at the top.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_ServerMap_Enable_Note" xml:space="preserve">
@@ -8069,7 +8069,7 @@ Install the file as it is anyway?</value>
     <comment>How-to title.</comment>
   </data>
   <data name="Help_Downloads_Watch_Step1" xml:space="preserve">
-    <value>Open {0}. Each mod shows its progress and the time left, and they install one at a time.</value>
+    <value>Open {0}. Each mod shows its progress and the time left. Up to three download at once, and they install one at a time, in the order you queued them.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_Downloads_Watch_Step2" xml:space="preserve">
@@ -8123,7 +8123,7 @@ Install the file as it is anyway?</value>
     <comment>How-to title.</comment>
   </data>
   <data name="Help_Monitor_Other_Step1" xml:space="preserve">
-    <value>Every install button has a smaller button beside it that does the opposite for that one mod.</value>
+    <value>On a mod's page, the small button beside {0} does the opposite for that one mod. Its update dialog, its addons and {1} have one beside their install buttons too.</value>
   </data>
   <data name="Help_Monitor_Other_Step2" xml:space="preserve">
     <value>Hover it to see which way round it is, then press it.</value>
@@ -8222,7 +8222,7 @@ Install the file as it is anyway?</value>
     <comment>Shown instead of the key without _Monitor while Monitor mode (download only) is on.</comment>
   </data>
   <data name="Help_Downloads_Watch_Step1_Monitor" xml:space="preserve">
-    <value>Open {0}. Each mod shows its progress and the time left, and they're downloaded one at a time.</value>
+    <value>Open {0}. Each mod shows its progress and the time left, and up to three download at once.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it. Shown instead of the key without _Monitor while Monitor mode (download only) is on.</comment>
   </data>
   <data name="Help_Downloads_Watch_Note_Monitor" xml:space="preserve">
@@ -8234,7 +8234,7 @@ Install the file as it is anyway?</value>
     <comment>Button at the top of the Help page; opens the issues tab of the app's page on sp-mod.com.</comment>
   </data>
   <data name="Help_ReportProblemToolTip" xml:space="preserve">
-    <value>Opens the issues tab on this app's sp-mod.com page, where you can tell the author what went wrong. It is in English.</value>
+    <value>Opens the Issues page of this app's GitHub repository, where you can tell the author what went wrong. It is in English.</value>
     <comment>Tooltip on Help_ReportProblem.</comment>
   </data>
   <data name="Help_OpenPageFormat" xml:space="preserve">
@@ -8250,7 +8250,7 @@ Install the file as it is anyway?</value>
     <comment>Help section heading for troubleshooting.</comment>
   </data>
   <data name="Help_Installed_Remove_Title" xml:space="preserve">
-    <value>Remove a mod</value>
+    <value>Unsubscribe from a mod</value>
     <comment>How-to title.</comment>
   </data>
   <data name="Help_Installed_Remove_Step1" xml:space="preserve">
@@ -8261,7 +8261,7 @@ Install the file as it is anyway?</value>
     <value>Confirm. If the mod has config files of its own, you're asked whether to keep them - they're set aside, not deleted - or remove them too.</value>
   </data>
   <data name="Help_Installed_Remove_Note" xml:space="preserve">
-    <value>Removed files are kept for a while (Options, Keep removed mods), and Undo on the Installed page puts any of them back. A disabled mod has to be turned back on before it can be removed. To take a mod out of the game without deleting it, turn it off instead.</value>
+    <value>Removed files are kept for a while ({0}, {1}), and the Undo removing button at the top of {2} puts any of them back. A disabled mod has to be turned back on before it can be unsubscribed. To take a mod out of the game without deleting it, turn it off instead.</value>
   </data>
   <data name="Help_Installed_Downgrade_Title" xml:space="preserve">
     <value>Go back to an older version of a mod</value>
@@ -8337,7 +8337,7 @@ Install the file as it is anyway?</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_Problems_Greyed_Title" xml:space="preserve">
-    <value>Update or Remove is greyed out</value>
+    <value>Update is greyed out, or a mod won't unsubscribe</value>
     <comment>How-to title, phrased as the problem the reader sees.</comment>
   </data>
   <data name="Help_Problems_Greyed_Step1" xml:space="preserve">
@@ -8345,7 +8345,7 @@ Install the file as it is anyway?</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_Problems_Greyed_Step2" xml:space="preserve">
-    <value>Update and Remove work again once it's on.</value>
+    <value>{0} and {1} work again once it's on.</value>
   </data>
   <data name="Help_Problems_CloseSpt_Title" xml:space="preserve">
     <value>It says to close the game or server first</value>
@@ -8445,7 +8445,7 @@ Install the file as it is anyway?</value>
     <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
   </data>
   <data name="Help_Browse_Install_Keywords" xml:space="preserve">
-    <value>install, add, get, download, dependencies</value>
+    <value>install, add, get, download, dependencies, subscribe, required items</value>
     <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
   </data>
   <data name="Help_Browse_Author_Keywords" xml:space="preserve">
@@ -8453,7 +8453,7 @@ Install the file as it is anyway?</value>
     <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
   </data>
   <data name="Help_Browse_HideInstalled_Keywords" xml:space="preserve">
-    <value>hide installed, already have, filter, not installed</value>
+    <value>hide installed, already have, filter, not installed, subscribed, hide subscribed</value>
     <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
   </data>
   <data name="Help_Browse_Addon_Keywords" xml:space="preserve">
@@ -8489,7 +8489,7 @@ Install the file as it is anyway?</value>
     <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
   </data>
   <data name="Help_Installed_Remove_Keywords" xml:space="preserve">
-    <value>remove, uninstall, delete, get rid of</value>
+    <value>remove, uninstall, delete, get rid of, unsubscribe</value>
     <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
   </data>
   <data name="Help_Installed_Downgrade_Keywords" xml:space="preserve">
@@ -8579,7 +8579,7 @@ Install the file as it is anyway?</value>
     <value>Changed your mind? Press Undo at the top of {0} to put the removed copies back.</value>
   </data>
   <data name="Help_Dependencies_Keep_Note" xml:space="preserve">
-    <value>{0} is greyed out when another copy was installed with this app and also has files that aren't duplicated, because removing it would take those too. Hover the button to see why, and remove that mod from the Installed page instead, where Remove shows everything it takes. Different copies of one file have no button: keep the mod you need, or ask the authors.</value>
+    <value>{0} is greyed out when another copy was installed with this app and also has files that aren't duplicated, because removing it would take those too. Hover the button to see why, and unsubscribe from that mod on {1} instead, where {2} shows everything it takes. Different copies of one file have no button: keep the mod you need, or ask the authors.</value>
   </data>
   <data name="Help_Dependencies_Keep_Keywords" xml:space="preserve">
     <value>keep, keep one, remove duplicate, delete copy, undo</value>
@@ -8682,7 +8682,7 @@ Install the file as it is anyway?</value>
     <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
   </data>
   <data name="Help_Problems_Greyed_Keywords" xml:space="preserve">
-    <value>greyed out, grayed out, disabled button, can't update, can't remove</value>
+    <value>greyed out, grayed out, disabled button, can't update, can't remove, can't unsubscribe, unsubscribe</value>
     <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
   </data>
   <data name="Help_Problems_CloseSpt_Keywords" xml:space="preserve">

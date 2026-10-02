@@ -151,7 +151,7 @@ public partial class HelpViewModel : LocalizedViewModel
         return (target, topic);
     }
 
-    // Before the page shows, so each Open button knows whether its page is in the sidebar right now.
+    // Before the page shows, so each Open button knows whether its page has a tab right now.
     public void RefreshOpenButtons()
     {
         foreach (var section in Sections)
@@ -206,7 +206,7 @@ public partial class HelpTopicViewModel : LocalizedViewModel
 
     public string Keywords => _topic.Keywords?.Invoke() ?? string.Empty;
 
-    // The Open button: the page the steps happen on, when there is one and it is in the sidebar.
+    // The Open button: the page the steps happen on, when there is one and it has a tab.
     public bool CanOpenPage => _page is not null && HelpCatalog.CanOpen(_page);
 
     public string OpenPageLabel => _page is null

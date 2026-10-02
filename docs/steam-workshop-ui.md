@@ -1068,6 +1068,30 @@ by TheCrimsonFckr and credited as such.
 - **The GitHub repository** is renamed SSSPTMM -> SSPTMM (on GitHub, by hand); the push script uses
   the new name and moves a remote still pointing at either old one.
 
+## Round 23: Help for the Steam layout (2026-10-02)
+
+Help was the original's, written for its sidebar and pages. Every topic was checked against the
+Steam layout (file and line for each change kept with the round's notes) and 18 of 53 corrected:
+
+- No "sidebar": pages are named as the tabs at the top; Browse is reached through Workshop.
+- Browse: the SPT tick or cross and the addon count are in the box a card opens on hover; the SPT
+  versions are tick rows on the left; Hide installed is the minus box beside Subscribed under MOD
+  TAGS; Save as default is in the gear beside the search box.
+- Subscribing: from a mod's page or the small + on a card; the Additional Required Items question
+  comes first, then the read-the-page window for pages not seen yet.
+- Subscribed items: "Unsubscribe", Undo removing at the top, Keep removed mods in Options.
+- Downloads: up to three at once, installed one at a time in queue order.
+- Monitor mode's small button: beside Subscribe on a mod's page, in the update dialog, on addon and
+  Dependencies rows (not on a card's +).
+- A disabled mod: only Update greys out; Unsubscribe says to turn it on first.
+- The light/dark theme topic is left out (the Steam look has one theme), as are the original's
+  pages on updating the app.
+- Report a problem's tooltip names GitHub Issues; Downloads' own description and empty message, the
+  update dialog's disabled-mod notice and Unsubscribe's tooltip use the new names too.
+
+The German, French, Italian and Russian text for the changed steps falls back to English until it
+is translated.
+
 ## Values that could not be measured (marked HUNCH in the source)
 
 - The smooth-scroll distance and time (100px, 250ms) - chosen to feel like a browser, not measured.
