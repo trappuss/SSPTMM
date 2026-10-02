@@ -11,6 +11,8 @@ namespace TCFModManager.Core.Tests;
 // record fields stages 3 and 4 fill in. Every test works in its own temp folder and checks the disk
 // afterwards.
 //
+// Fork: shares Data\config-backups with ModConfigStoreTests - see ConfigBackupsCollection.
+[Collection(ConfigBackupsCollection.Name)]
 public class ResilienceRecordTests : IDisposable
 {
     private readonly string _root = Path.Combine(Path.GetTempPath(), "tcfmm-records-" + Guid.NewGuid().ToString("N"));
@@ -321,8 +323,10 @@ public class ResilienceRecordTests : IDisposable
         }
         finally
         {
-            foreach (var dir in Directory.GetDirectories(ModConfigStore.BackupDirectory, stamp + "*"))
-                Directory.Delete(dir, recursive: true);
+            // Fork: a missing folder here would otherwise hide whatever failed above.
+            if (Directory.Exists(ModConfigStore.BackupDirectory))
+                foreach (var dir in Directory.GetDirectories(ModConfigStore.BackupDirectory, stamp + "*"))
+                    Directory.Delete(dir, recursive: true);
         }
     }
 

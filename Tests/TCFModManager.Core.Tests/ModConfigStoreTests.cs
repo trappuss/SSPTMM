@@ -4,6 +4,13 @@ using Xunit;
 
 namespace TCFModManager.Core.Tests;
 
+//
+// Fork: in one collection with ResilienceRecordTests, which saves configs into the same shared
+// Data\config-backups folder. xunit runs different classes at the same time, so this class's Dispose
+// (which deletes that folder) could pull it out from under one of those tests mid-save - seen as a
+// DirectoryNotFoundException on Windows, never on the build machine.
+//
+[Collection(ConfigBackupsCollection.Name)]
 public class ModConfigStoreTests : IDisposable
 {
     private readonly string _installRoot;
@@ -274,4 +281,11 @@ public class ModConfigStoreTests : IDisposable
 
         Assert.Single(ModConfigStore.BackupsOf(_installRoot + Path.DirectorySeparatorChar, path));
     }
+}
+
+// Test classes that use ModConfigStore.BackupDirectory, the one Data\config-backups folder they share.
+[CollectionDefinition(Name)]
+public sealed class ConfigBackupsCollection
+{
+    public const string Name = "config-backups";
 }

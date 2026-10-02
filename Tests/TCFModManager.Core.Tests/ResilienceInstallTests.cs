@@ -20,7 +20,9 @@ public class ResilienceInstallTests : IDisposable
     private readonly ModInstallManifestService _manifest;
 
     // Ids no real catalog entry will collide with in the test Data folder.
-    private static int _nextId = 970_000 + Random.Shared.Next(0, 10_000) * 10;
+    // Fork: each class that keeps files under Data\overwritten has its own 100,000 ids, so two classes
+    // running at once never share (and clean up) the same folder there.
+    private static int _nextId = 2_100_000 + Random.Shared.Next(0, 10_000) * 10;
     private readonly List<int> _ids = [];
 
     public ResilienceInstallTests()
