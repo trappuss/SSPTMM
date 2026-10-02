@@ -6,16 +6,24 @@ and wording as `steamcommunity.com/app/<id>/workshop/`, with every mod-manager f
 there underneath. This file records **where each value came from**, **what maps to what**, and
 **every place the fork knowingly differs from Steam or rests on a guess**.
 
-Update, rebuild and run: double-click `steam-ui-rebuild-and-run.bat` in the repo root. It takes the
-newest `steam-workshop-ui.bundle` from `Claude outputs\` (moving the `steam-workshop-ui` branch
-forward only, and switching to it if another branch is checked out - it never drops commits),
-closes this build if it is open, clears the old build output (keeping
-`dist\steam-ui\Data`) and then runs the script below. It is kept out of git on purpose (see
-`.gitignore`): it switches the branch, and git must not replace the script while it runs.
+The scripts, in the repo root (each writes what it did to `logs\`):
 
-Build and run what is already there: double-click `steam-ui-build-and-run.bat` in the repo root. It installs a local
-.NET 9 SDK if the PC has none, runs the tests, publishes `dist\steam-ui\TCFModManager.exe`, and
-starts it. That build keeps its own `Data\` folder, so it does not touch an existing install.
+- **`SSPTMM-update-and-run.bat`** - the everyday one. It takes the newest
+  `steam-workshop-ui.bundle` from `Claude outputs\` (moving the `steam-workshop-ui` branch forward
+  only, and switching to it if another branch is checked out - it never drops commits), closes this
+  build if it is open, clears the old build output (keeping `dist\SSPTMM\Data`) and then runs the
+  build script below. Kept out of git on purpose (see `.gitignore`): it switches the branch, and git
+  must not replace the script while it runs.
+- **`SSPTMM-build-and-run.bat`** - builds and runs what is already there: installs a local .NET 9
+  SDK if the PC has none, runs the tests, publishes `dist\SSPTMM\SSPTMM.exe` and starts it. That
+  build keeps its own `Data\` folder, so it does not touch another install. (A build from before the
+  rename, in `dist\steam-ui\`, is moved to `dist\SSPTMM\` once.)
+- **`SSPTMM-push-to-github.bat`** - sends the branch to https://github.com/trappuss/SSPTMM. Also
+  kept out of git.
+- **`tools\SSPTMM-measure-scrolling.bat`** - the scrolling measurement; writes
+  `logs\perf-report.txt`.
+
+Older rounds below name the scripts by their names at the time (`steam-ui-*.bat`).
 
 ## How the look is applied
 

@@ -3,29 +3,30 @@ setlocal EnableExtensions
 rem ---------------------------------------------------------------------------------------------
 rem  SSPTMM - measure how smoothly the app scrolls on this PC. One double-click.
 rem
-rem   1. Closes the build in dist\steam-ui if it is open (any other copy of the app is left alone)
+rem   1. Closes the build in dist\SSPTMM if it is open (any other copy of the app is left alone)
 rem      and starts it again with its measuring switched on (TCFMM_PERF=1).
 rem   2. You scroll a few pages, as this window says, then close the app.
-rem   3. Reads what the app logged and writes "Claude outputs\perf-report.txt": frames per second
+rem   3. Reads what the app logged and writes logs\perf-report.txt: frames per second
 rem      and the longest stall while scrolling, page by page; how long each description took to
 rem      show; the graphics card and screen. A short summary is shown here too.
 rem
-rem  Nothing is changed or sent anywhere. Build the app first with steam-ui-rebuild-and-run.bat.
+rem  Nothing is changed or sent anywhere. Build the app first with SSPTMM-update-and-run.bat.
 rem ---------------------------------------------------------------------------------------------
 
-pushd "%~dp0" || exit /b 1
-set "ROOT=%~dp0"
-set "OUT=%ROOT%dist\steam-ui"
-set "REPORT=%ROOT%Claude outputs\perf-report.txt"
+rem This file is in tools\: everything else is found from the folder above it.
+pushd "%~dp0.." || exit /b 1
+set "ROOT=%CD%\"
+set "OUT=%ROOT%dist\SSPTMM"
+set "REPORT=%ROOT%logs\perf-report.txt"
 set "SELF=%~f0"
 
 if not exist "%OUT%\SSPTMM.exe" (
-    echo dist\steam-ui\SSPTMM.exe is not there yet. Run steam-ui-rebuild-and-run.bat first,
+    echo dist\SSPTMM\SSPTMM.exe is not there yet. Run SSPTMM-update-and-run.bat first,
     echo close the app it opens, then run this again.
     goto :end
 )
 
-echo [1/3] Closing dist\steam-ui\SSPTMM.exe if it is open...
+echo [1/3] Closing dist\SSPTMM\SSPTMM.exe if it is open...
 powershell -NoProfile -ExecutionPolicy Bypass -Command "Get-Process SSPTMM -ErrorAction SilentlyContinue | Where-Object { $_.Path -eq $env:OUT + '\SSPTMM.exe' } | Stop-Process -Force; Start-Sleep -Seconds 1"
 
 rem Only log lines written from now on count: the time as digits, compared with the log line's own.
@@ -46,7 +47,7 @@ start "" /wait "%OUT%\SSPTMM.exe"
 set "TCFMM_PERF="
 
 echo [3/3] Reading the log...
-if not exist "%ROOT%Claude outputs" mkdir "%ROOT%Claude outputs"
+if not exist "%ROOT%logs" mkdir "%ROOT%logs"
 powershell -NoProfile -ExecutionPolicy Bypass -Command "$t = [IO.File]::ReadAllText($env:SELF); $m = '#' + '#PS'; Invoke-Expression ('& {' + [char]10 + $t.Substring($t.IndexOf($m)) + [char]10 + '}')"
 
 :end
@@ -70,7 +71,7 @@ $perf = @($lines | Where-Object { $_ -match '\[Perf\]' -and $_.Length -ge 19 -an
 if (-not ($perf | Where-Object { $_ -match 'measuring - render tier' })) {
     Write-Host ''
     Write-Host 'The app did not record anything - it may not have started, or it is an older build without'
-    Write-Host 'measuring. Run steam-ui-rebuild-and-run.bat, close the app, then run this again.'
+    Write-Host 'measuring. Run SSPTMM-update-and-run.bat, close the app, then run this again.'
     return
 }
 
@@ -157,4 +158,4 @@ Write-Host ''
 $last = $out.FindIndex({ param($x) $x.StartsWith('How to read it') })
 $out.GetRange(0, $last + 1) | ForEach-Object { Write-Host $_ }
 Write-Host ''
-Write-Host 'The full report is in "Claude outputs\perf-report.txt". Tell Claude it is there.'
+Write-Host 'The full report is in logs\perf-report.txt. Tell Claude it is there.'

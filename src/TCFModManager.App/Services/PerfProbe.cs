@@ -8,7 +8,7 @@ namespace TCFModManager.App.Services;
 
 //
 // Measurements for the log, on request only: started with the environment variable TCFMM_PERF=1
-// (steam-ui-measure.bat sets it), off otherwise and costing nothing.
+// (tools\SSPTMM-measure-scrolling.bat sets it), off otherwise and costing nothing.
 //
 // For every second in which something scrolled it logs how many frames were drawn and the longest
 // gap between two of them - "[Perf] scrolling: fps 58.9, worst 31ms". Seconds with no scrolling are
@@ -134,7 +134,7 @@ public static class PerfProbe
 
             if (_scrolled)
             {
-                // Invariant, so steam-ui-measure.bat can read the numbers whatever the language.
+                // Invariant, so SSPTMM-measure-scrolling.bat can read the numbers whatever the language.
                 AppLog.Info("Perf", FormattableString.Invariant($"scrolling: fps {frames * 1000.0 / window.ElapsedMilliseconds:F1}, worst {worst:F0}ms"));
             }
 

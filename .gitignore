@@ -1,9 +1,15 @@
 # Build output
 bin/
-# Update-rebuild-run script Claude hands over beside the repo rather than in it: it moves the
-# branch, and a script that git itself might replace mid-run would be cut off halfway.
+# Update-and-run script Claude hands over beside the repo rather than in it: it moves the branch,
+# and a script that git itself might replace mid-run would be cut off halfway. The push script
+# lives beside it. (steam-ui-*: their names before the app was SSPTMM.)
+SSPTMM-update-and-run.bat
+SSPTMM-push-to-github.bat
 steam-ui-rebuild-and-run.bat
-# The .NET SDK steam-ui-build-and-run.bat installs locally when a PC has none
+steam-ui-push-to-github.bat
+# What the .bat files write about each run
+logs/
+# The .NET SDK SSPTMM-build-and-run.bat installs locally when a PC has none
 .dotnet/
 obj/
 dist/

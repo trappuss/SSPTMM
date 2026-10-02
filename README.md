@@ -33,8 +33,8 @@ Problems with SSPTMM belong here, in this repository's
 
 ## Building and running
 
-Double-click **`steam-ui-build-and-run.bat`**. It installs the .NET 9 SDK into the folder if the PC
-has none, builds, runs the tests, publishes a self-contained `SSPTMM.exe` into `dist\steam-ui\` and
+Double-click **`SSPTMM-build-and-run.bat`**. It installs the .NET 9 SDK into the folder if the PC
+has none, builds, runs the tests, publishes a self-contained `SSPTMM.exe` into `dist\SSPTMM\` and
 starts it. The build keeps its own `Data\` folder (settings, caches, logs) beside the exe, so it
 never touches another copy of the app.
 
