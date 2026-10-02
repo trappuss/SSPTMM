@@ -8851,6 +8851,14 @@ Install the file as it is anyway?</value>
     <value>{0} files in this archive belong to SPT, BepInEx or the game and were left as they are.</value>
     <comment>{0} is a count. Added to a finished install's status line.</comment>
   </data>
+  <data name="Downloads_KeptSettings_one" xml:space="preserve">
+    <value>Your settings in BepInEx\config were already there and were kept: 1 file.</value>
+    <comment>{0} is a count. Added to a finished install's status line: the archive's own copies of those settings files were not put over the user's.</comment>
+  </data>
+  <data name="Downloads_KeptSettings_other" xml:space="preserve">
+    <value>Your settings in BepInEx\config were already there and were kept: {0} files.</value>
+    <comment>{0} is a count. Added to a finished install's status line: the archive's own copies of those settings files were not put over the user's.</comment>
+  </data>
   <data name="Downloads_KeptOriginals_one" xml:space="preserve">
     <value>1 file it replaced was kept, to put back if it's removed.</value>
     <comment>{0} is a count. Added to a finished install's status line.</comment>

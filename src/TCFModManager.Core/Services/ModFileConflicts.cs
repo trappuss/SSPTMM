@@ -74,8 +74,9 @@ public static class ModFileConflicts
 
             if (ModConfigFiles.IsUserData(relative, ModConfigFiles.OptionsFor(relative, configOptions))) continue;
 
-            // 1.19's new-file-only areas: a file already there is left as it is, never written over.
-            if (ProtectedInstallPaths.IsNewFileOnly(relative)) continue;
+            // 1.19's new-file-only areas, and (fork) a plugin's settings in BepInEx\config: a file
+            // already there is left as it is, never written over.
+            if (ProtectedInstallPaths.IsNewFileOnly(relative) || ModConfigFiles.IsBepInExConfig(relative)) continue;
 
             if (owners.TryGetValue(relative, out var listed))
             {

@@ -567,11 +567,17 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
                 ? Strings.Downloads_KeptOriginals(result.OriginalsKept, result.OriginalsKept)
                 : null;
 
+            // Fork: the user's plugin settings the archive would have put its defaults over.
+            var keptSettings = result.KeptSettings.Count > 0
+                ? Strings.Downloads_KeptSettings(result.KeptSettings.Count, result.KeptSettings.Count)
+                : null;
+
             item.StatusMessage = string.Join(
                 Strings.Common_SentenceSeparator,
-                new[] { installed, configs, keptSpt, keptOriginals }.Where(s => !string.IsNullOrEmpty(s)));
-            item.StatusDetail = skipped.Count > 0
-                ? string.Join(Environment.NewLine, new[] { item.StatusMessage, "" }.Concat(skipped))
+                new[] { installed, configs, keptSpt, keptSettings, keptOriginals }.Where(s => !string.IsNullOrEmpty(s)));
+            var named = skipped.Concat(result.KeptSettings).ToList();
+            item.StatusDetail = named.Count > 0
+                ? string.Join(Environment.NewLine, new[] { item.StatusMessage, "" }.Concat(named))
                 : null;
             ItemInstalled?.Invoke(this, EventArgs.Empty);
         }

@@ -409,6 +409,7 @@ public sealed class ModInstallService(
             status?.Report(new ModInstallProgress(
                 ModInstallStage.Installing, Total: placements.Count));
             var placedFiles = new List<string>(placements.Count);
+            var keptSettings = new List<string>();
             var reportClock = Stopwatch.StartNew();
 
             try
@@ -423,6 +424,15 @@ public sealed class ModInstallService(
                     // keep the version on disk, and both are still recorded as this install's files so
                     // a later removal knows about them.
                     //
+                    // Fork: the user's plugin settings already in BepInEx\config - see ConfigCarryOver.
+                    if (pending.KeptSettings.Contains(installRelativeForward))
+                    {
+                        keptSettings.Add(installRelativeForward);
+                        if (existing?.Files.Contains(installRelativeForward, StringComparer.OrdinalIgnoreCase) == true)
+                            placedFiles.Add(installRelativeForward);
+                        continue;
+                    }
+
                     if (pending.Untouchable.Contains(installRelativeForward)
                         || pending.Preserved.Contains(installRelativeForward))
                     {
@@ -465,7 +475,7 @@ public sealed class ModInstallService(
                 // interrupted update leaves the old version deleted and the new one untracked. The
                 // originals kept so far are recorded too - they are owed back whatever happens next.
                 SaveRecord(target, version, placedFiles, incomplete: true, installPath, overwrote,
-                    Fingerprint(installPath, placedFiles));
+                    KeepSettingsPrints(Fingerprint(installPath, placedFiles), pending, existing));
 
                 AppLog.Error("Install",
                     $"{target.Name} {version.Version} incomplete after {placedFiles.Count}/{placements.Count} file(s)", ex);
@@ -502,13 +512,17 @@ public sealed class ModInstallService(
             //
             var fingerprintClock = Stopwatch.StartNew();
             record = SaveRecord(target, version, placedFiles, incomplete: false, installPath, overwrote,
-                Fingerprint(installPath, placedFiles));
+                KeepSettingsPrints(Fingerprint(installPath, placedFiles), pending, existing));
             AppLog.Debug("Install", $"fingerprinted {record.Fingerprints.Count} file(s) in {fingerprintClock.ElapsedMilliseconds}ms");
 
             status?.Report(new ModInstallProgress(ModInstallStage.Done));
+            if (keptSettings.Count > 0)
+                AppLog.Info("Install", $"{target.Name} {version.Version}: kept the settings already in {string.Join(", ", keptSettings)}");
+
             return new ModInstallResult(record, report.Files.Count > 0 ? report : null, skippedProtected)
             {
                 OriginalsKept = overwrote.Count - (existing?.Overwrote.Count ?? 0),
+                KeptSettings = keptSettings,
             };
         }
         catch (OperationCanceledException)
@@ -568,6 +582,26 @@ public sealed class ModInstallService(
     // The size and SHA-256 of every recorded file still on disk. A file that can't be read gets no
     // fingerprint, and removal falls back to the path checks for it - never a guessed one.
     //
+    //
+    // Fork: a kept BepInEx\config file keeps the PREVIOUS version's fingerprint rather than one taken
+    // now. Taken now, the user's tuned copy would read as "exactly what this app placed", and the next
+    // update would put its defaults over it, a removal take it out. With the old one it still reads as
+    // changed since install, and stays; with none (a record from before fingerprints) it stays too.
+    //
+    private static List<FileFingerprint> KeepSettingsPrints(
+        List<FileFingerprint> prints, PendingConfigs pending, InstalledModRecord? existing)
+    {
+        if (pending.KeptSettings.Count == 0) return prints;
+
+        prints.RemoveAll(p => pending.KeptSettings.Contains(p.Path));
+        foreach (var path in pending.KeptSettings)
+        {
+            if (existing?.FingerprintFor(path) is { } old) prints.Add(old);
+        }
+
+        return prints;
+    }
+
     private static List<FileFingerprint> Fingerprint(string installPath, IEnumerable<string> recorded)
     {
         var prints = new List<FileFingerprint>();
@@ -1570,6 +1604,10 @@ public sealed record ModInstallResult(
     // Files no record owned that this install replaced, kept in Data to put back on removal (D22).
     // Only the ones this install kept - originals an earlier version kept aren't counted again.
     public int OriginalsKept { get; init; }
+
+    // Fork: BepInEx\config files the archive ships that were already there, left as they are - the
+    // user's plugin settings (see ConfigCarryOver.Prepare).
+    public IReadOnlyList<string> KeptSettings { get; init; } = [];
 }
 
 // Result of ModInstallService.UninstallAsync. FailedFiles lists files that couldn't be

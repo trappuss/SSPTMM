@@ -1017,8 +1017,8 @@ What the fork had that is gone with the original's install core:
 - The fork's own record of files an install replaced (`ReplacedFiles`): the original keeps its own
   copies in `Data\overwritten` from now on. Copies the fork made before the merge stay in
   `InstallRecords.before-1.19\<install>\ReplacedFiles` and are not put back by the app.
-- A `BepInEx\config\*.cfg` in an archive is now placed over the user's (the user's kept in
-  `Data\overwritten` and put back on removal), where the fork never placed one.
+- A `BepInEx\config\*.cfg` in an archive was placed over the user's at first; Round 24 brought
+  back the fork's rule.
 
 From the original, in the Steam layout:
 
@@ -1091,6 +1091,25 @@ Steam layout (file and line for each change kept with the round's notes) and 18 
 
 The German, French, Italian and Russian text for the changed steps falls back to English until it
 is translated.
+
+## Round 24: BepInEx settings are the user's again (2026-10-02)
+
+Checked first: with 1.19's install, an update put the mod's default `BepInEx\config\*.cfg` over the
+one the user had tuned (the tuned copy went into the holding folder, where Keep removed mods
+deletes it after its time), and a first install put the archive's defaults over a `.cfg` BepInEx
+had already written. The fork's rule is back, built on 1.19's own "keep the user's documents" path:
+
+- An archive's `.cfg` is placed only where none is there yet - or over the copy this app placed,
+  when it is still exactly as placed (its fingerprint matches), so an untouched default still
+  follows the mod's new version.
+- A kept file the previous version placed stays in the record with that version's fingerprint, so
+  it keeps reading as changed: the next update leaves it too, and Unsubscribe leaves it in place.
+  One that was there before the mod was installed is not recorded at all.
+- The download card says so ("Your settings in BepInEx\config were already there and were kept"),
+  and names the files in its tooltip. The file-clash warning before an install leaves these out.
+- `BepInEx\config\BepInEx.cfg` stays BepInEx's own, never placed or removed, as in 1.19.
+- 1.19's tests that used a `.cfg` as "a file someone else put there" use a hand-placed plugin file
+  instead; the new rule has its own tests (ForkBepInExConfigTests).
 
 ## Values that could not be measured (marked HUNCH in the source)
 

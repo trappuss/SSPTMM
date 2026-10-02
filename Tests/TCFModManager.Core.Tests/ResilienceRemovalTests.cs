@@ -10,6 +10,9 @@ namespace TCFModManager.Core.Tests;
 // InstallAsync into a throwaway SPT layout, removed, updated and put back, and every test asserts on
 // the disk - the install, the holding folder and Data - not on what the code reports.
 //
+// Fork: the hand-placed file these use was BepInEx/config/other.cfg in the original. A plugin's
+// settings there are never written over in SSPTMM (ConfigCarryOver.Prepare), so the same originals
+// behaviour is shown with a hand-placed plugin file instead.
 public class ResilienceRemovalTests : IDisposable
 {
     private readonly string _root = Path.Combine(Path.GetTempPath(), "tcfmm-removal-" + Guid.NewGuid().ToString("N"));
@@ -167,15 +170,15 @@ public class ResilienceRemovalTests : IDisposable
     [Fact]
     public async Task Remove_PutsBackWhatTheModReplaced()
     {
-        Write("BepInEx/config/other.cfg", "someone else's settings");
+        Write("BepInEx/plugins/Shared/other.dll", "someone else's settings");
         var target = NewTarget();
         await Install(target, "1.0.0",
             ("BepInEx/plugins/Mod/mod.dll", "the mod"),
-            ("BepInEx/config/other.cfg", "the mod's version"));
+            ("BepInEx/plugins/Shared/other.dll", "the mod's version"));
 
         var result = await Service().UninstallAsync(_install, RecordOf(target), ConfigAction.Delete);
 
-        Assert.Equal("someone else's settings", File.ReadAllText(Full("BepInEx/config/other.cfg")));
+        Assert.Equal("someone else's settings", File.ReadAllText(Full("BepInEx/plugins/Shared/other.dll")));
         Assert.Equal(1, result.OriginalsRestored);
         Assert.False(Directory.Exists(Path.Combine(AppPaths.DataDirectory, ModInstallService.OverwrittenDirectoryName, target.Id.ToString())));
         Assert.Single(Directory.GetFiles(Path.Combine(result.HoldingFolder!, RemovedMods.OriginalsFolder), "*", SearchOption.AllDirectories));
@@ -203,16 +206,16 @@ public class ResilienceRemovalTests : IDisposable
     [Fact]
     public async Task Remove_DoesntPutAnOriginalOverSomethingThatsThere()
     {
-        Write("BepInEx/config/other.cfg", "someone else's settings");
+        Write("BepInEx/plugins/Shared/other.dll", "someone else's settings");
         var target = NewTarget();
         await Install(target, "1.0.0",
             ("BepInEx/plugins/Mod/mod.dll", "the mod"),
-            ("BepInEx/config/other.cfg", "the mod's version"));
-        File.WriteAllText(Full("BepInEx/config/other.cfg"), "changed since");
+            ("BepInEx/plugins/Shared/other.dll", "the mod's version"));
+        File.WriteAllText(Full("BepInEx/plugins/Shared/other.dll"), "changed since");
 
         var result = await Service().UninstallAsync(_install, RecordOf(target), ConfigAction.Delete);
 
-        Assert.Equal("changed since", File.ReadAllText(Full("BepInEx/config/other.cfg")));
+        Assert.Equal("changed since", File.ReadAllText(Full("BepInEx/plugins/Shared/other.dll")));
         var log = RemovedMods.ReadLog(result.HoldingFolder!)!;
         Assert.Contains(log.Entries, e => e.Outcome == RemovalOutcome.OriginalNotRestoredOccupied);
     }
@@ -249,11 +252,11 @@ public class ResilienceRemovalTests : IDisposable
     [Fact]
     public async Task Undo_PutsEverythingBackByteForByte()
     {
-        Write("BepInEx/config/other.cfg", "someone else's settings");
+        Write("BepInEx/plugins/Shared/other.dll", "someone else's settings");
         var target = NewTarget();
         await Install(target, "1.0.0",
             ("BepInEx/plugins/Mod/mod.dll", "the mod"),
-            ("BepInEx/config/other.cfg", "the mod's version"));
+            ("BepInEx/plugins/Shared/other.dll", "the mod's version"));
         var before = RecordOf(target);
         var keptCopy = Path.Combine(AppPaths.DataDirectory, Assert.Single(before.Overwrote).BackupPath);
 
@@ -263,7 +266,7 @@ public class ResilienceRemovalTests : IDisposable
         Assert.True(undo.Ran);
         Assert.Empty(undo.Blocked);
         Assert.Equal("the mod", File.ReadAllText(Full("BepInEx/plugins/Mod/mod.dll")));
-        Assert.Equal("the mod's version", File.ReadAllText(Full("BepInEx/config/other.cfg")));
+        Assert.Equal("the mod's version", File.ReadAllText(Full("BepInEx/plugins/Shared/other.dll")));
         Assert.Equal("someone else's settings", File.ReadAllText(keptCopy));
         Assert.NotNull(_manifest.Load().Find(target.Id, false));
         Assert.False(Directory.Exists(removal.HoldingFolder));

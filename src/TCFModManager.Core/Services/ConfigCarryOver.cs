@@ -61,6 +61,25 @@ public sealed class ConfigCarryOver(
             .Where(p => File.Exists(Path.Combine(installPath, ToNative(p))))
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
+        //
+        // Fork: a client plugin's settings in BepInEx\config that are already there. BepInEx writes
+        // that file the first time the plugin runs and the user tunes it from then on, so an
+        // archive's copy - its defaults - never goes over it: not on a first install, not on an
+        // update. The one exception is the copy this app placed, still exactly as placed (its
+        // fingerprint matches): nobody has touched it, and the new version's defaults may as well
+        // replace the old ones. Left in place on the removal half of an update too (Protected).
+        //
+        var keptSettings = incoming
+            .Where(p => ModConfigFiles.IsBepInExConfig(p) && !ProtectedInstallPaths.IsProtected(p))
+            .Where(p =>
+            {
+                var full = Path.Combine(installPath, ToNative(p));
+                return File.Exists(full) && !(existing?.FingerprintFor(p) is { } print && print.Matches(full));
+            })
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        preserved.UnionWith(keptSettings);
+
         var archived = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         var untouchable = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var archiveFolder = ModConfigFiles.ArchiveFolder(_archiveRoot, modName, timestamp);
@@ -93,7 +112,10 @@ public sealed class ConfigCarryOver(
         if (archived.Count > 0)
             AppLog.Info("Configs", $"copied {archived.Count} config file(s) from {modName} into {archiveFolder}");
 
-        return new PendingConfigs(archived.Count > 0 ? archiveFolder : null, archived, untouchable, preserved);
+        return new PendingConfigs(archived.Count > 0 ? archiveFolder : null, archived, untouchable, preserved)
+        {
+            KeptSettings = keptSettings,
+        };
     }
 
     //
@@ -326,4 +348,10 @@ public sealed record PendingConfigs(
 
     // Everything the install path must not place over or delete.
     public IEnumerable<string> Protected => Untouchable.Concat(Preserved);
+
+    // Fork: the BepInEx\config files among Preserved - the user's plugin settings, kept as they are.
+    // Only the ones the previous version's record lists stay recorded (with that version's
+    // fingerprint, so they still read as changed); one that was there before this mod was installed
+    // is not this mod's file, and is not recorded at all.
+    public IReadOnlySet<string> KeptSettings { get; init; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 }

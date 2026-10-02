@@ -10,6 +10,9 @@ namespace TCFModManager.Core.Tests;
 // against a throwaway SPT layout (EscapeFromTarkov.exe at the root, the server under SPT\), with the
 // archive served from memory, and asserts on what is on disk and in the record afterwards.
 //
+// Fork: the hand-placed file these use was BepInEx/config/other.cfg in the original. A plugin's
+// settings there are never written over in SSPTMM (ConfigCarryOver.Prepare), so the same originals
+// behaviour is shown with a hand-placed plugin file instead.
 public class ResilienceInstallTests : IDisposable
 {
     private readonly string _root = Path.Combine(Path.GetTempPath(), "tcfmm-install-" + Guid.NewGuid().ToString("N"));
@@ -235,14 +238,14 @@ public class ResilienceInstallTests : IDisposable
 
         Assert.Empty(result.Record.Overwrote);
 
-        Write("BepInEx/config/other.cfg", "someone else's settings");
+        Write("BepInEx/plugins/Shared/other.dll", "someone else's settings");
         var second = NewTarget();
         var result2 = await Install(second, "1.0.0",
             ("BepInEx/plugins/Second/s.dll", "second"),
-            ("BepInEx/config/other.cfg", "replacement settings"));
+            ("BepInEx/plugins/Shared/other.dll", "replacement settings"));
 
         var kept = Assert.Single(result2.Record.Overwrote);
-        Assert.Equal("BepInEx/config/other.cfg", kept.Path);
+        Assert.Equal("BepInEx/plugins/Shared/other.dll", kept.Path);
         Assert.False(kept.SameMod);
         Assert.Equal("someone else's settings", File.ReadAllText(Path.Combine(AppPaths.DataDirectory, kept.BackupPath)));
     }
@@ -263,16 +266,16 @@ public class ResilienceInstallTests : IDisposable
     [Fact]
     public async Task AnUpdate_CarriesTheOriginalsForward_AndDoesntKeepItsOwnOldVersion()
     {
-        Write("BepInEx/config/other.cfg", "someone else's settings");
+        Write("BepInEx/plugins/Shared/other.dll", "someone else's settings");
         var target = NewTarget();
 
         await Install(target, "1.0.0",
             ("BepInEx/plugins/Mod/mod.dll", "v1"),
-            ("BepInEx/config/other.cfg", "v1 settings"));
+            ("BepInEx/plugins/Shared/other.dll", "v1 settings"));
 
         var result = await Install(target, "2.0.0",
             ("BepInEx/plugins/Mod/mod.dll", "v2"),
-            ("BepInEx/config/other.cfg", "v2 settings"));
+            ("BepInEx/plugins/Shared/other.dll", "v2 settings"));
 
         var kept = Assert.Single(result.Record.Overwrote);
         Assert.Equal("someone else's settings", File.ReadAllText(Path.Combine(AppPaths.DataDirectory, kept.BackupPath)));
@@ -282,7 +285,7 @@ public class ResilienceInstallTests : IDisposable
     [Fact]
     public async Task AnOriginalThatCantBeKept_StopsTheInstallBeforeAnythingChanges()
     {
-        Write("BepInEx/config/other.cfg", "someone else's settings");
+        Write("BepInEx/plugins/Shared/other.dll", "someone else's settings");
         var target = NewTarget();
 
         // A file where the mod's keep-folder has to go makes the copy impossible.
@@ -292,11 +295,11 @@ public class ResilienceInstallTests : IDisposable
 
         var ex = await Assert.ThrowsAsync<ModInstallException>(() => Install(target, "1.0.0",
             ("BepInEx/plugins/Mod/mod.dll", "the mod"),
-            ("BepInEx/config/other.cfg", "replacement")));
+            ("BepInEx/plugins/Shared/other.dll", "replacement")));
 
         Assert.Equal(ModInstallFailure.OriginalNotKept, ex.Reason);
-        Assert.Equal("BepInEx/config/other.cfg", ex.Folder);
-        Assert.Equal("someone else's settings", File.ReadAllText(Full("BepInEx/config/other.cfg")));
+        Assert.Equal("BepInEx/plugins/Shared/other.dll", ex.Folder);
+        Assert.Equal("someone else's settings", File.ReadAllText(Full("BepInEx/plugins/Shared/other.dll")));
         Assert.False(File.Exists(Full("BepInEx/plugins/Mod/mod.dll")));
         Assert.Empty(_manifest.Load().Mods);
     }
