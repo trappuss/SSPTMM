@@ -6,7 +6,7 @@
     xmlns:loc="clr-namespace:TCFModManager.App.Localization"
     xmlns:behaviors="clr-namespace:TCFModManager.App.Behaviors"
     xmlns:converters="clr-namespace:TCFModManager.App.Converters"
-    Title="{loc:Str Nav_AppUpdate}"
+    Title="{loc:Str Nav_About}"
     ScrollViewer.CanContentScroll="False">
     <!--
         ScrollViewer.CanContentScroll="False" on the Page itself opts this page out of WPF-UI's
@@ -17,11 +17,39 @@
     <Page.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
         <converters:NullToVisibilityConverter x:Key="NullToCollapsed" />
+        <converters:FalseToVisibilityConverter x:Key="FalseToVisible" />
     </Page.Resources>
 
     <ScrollViewer FocusVisualStyle="{x:Null}" VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="24,16,24,16">
 
+            <!--
+                SSPTMM: what this app is, its version, and the app it is built on. Shown in place of
+                the original's own-update section below, which only applies to the original.
+            -->
+            <ui:Card Padding="16" Visibility="{Binding IsFork, Converter={StaticResource BoolToVis}}">
+                <StackPanel>
+                    <TextBlock FontSize="20" FontWeight="SemiBold" Text="{Binding AppName, Mode=OneWay}" />
+                    <TextBlock Margin="0,2,0,0" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="{Binding VersionLine, Mode=OneWay}" />
+                    <TextBlock Margin="0,12,0,0" TextWrapping="Wrap" Text="{loc:Str About_Description}" />
+                    <TextBlock Margin="0,12,0,0" TextWrapping="Wrap" Text="{Binding BasedOnLine, Mode=OneWay}" />
+                    <TextBlock Margin="0,4,0,0" Foreground="{DynamicResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" Text="{loc:Str About_Updates}" />
+                    <StackPanel Margin="0,12,0,0" Orientation="Horizontal">
+                        <ui:Button
+                            Content="{loc:Str About_SourceLink}"
+                            Icon="{ui:SymbolIcon Open24}"
+                            Command="{Binding OpenRepositoryCommand}" />
+                        <ui:Button
+                            Margin="8,0,0,0"
+                            Appearance="Transparent"
+                            Content="{loc:Str About_OriginalLink}"
+                            Icon="{ui:SymbolIcon Open24}"
+                            Command="{Binding OpenOriginalCommand}" />
+                    </StackPanel>
+                </StackPanel>
+            </ui:Card>
+
+            <StackPanel Visibility="{Binding IsFork, Converter={StaticResource FalseToVisible}}">
             <!-- Where this comes from. Stated up front rather than buried, because "an app that
                  updates itself" is worth being unambiguous about. -->
             <ui:InfoBar
@@ -84,6 +112,7 @@
                         Visibility="{Binding ShowUpToDate, Converter={StaticResource BoolToVis}}" />
                 </StackPanel>
             </ui:Card>
+            </StackPanel>
 
             <!-- The Server Map mod. Installed by hand on the machine running the server, so this
                  card only ever says it is behind and links its page - there is no install button.
@@ -254,12 +283,6 @@
                             TextWrapping="Wrap"
                             Text="{loc:Str AppUpdate_InstallNote}"
                             Visibility="{Binding CanInstallHere, Converter={StaticResource BoolToVis}}" />
-                        <!-- The fork: why there is no Install button - see SelfMod.IsFork. -->
-                        <TextBlock
-                            Margin="0,8,0,0"
-                            TextWrapping="Wrap"
-                            Text="{loc:Str AppUpdate_ForkNote}"
-                            Visibility="{Binding IsFork, Converter={StaticResource BoolToVis}}" />
 
                         <StackPanel
                             Margin="0,12,0,0"

@@ -237,12 +237,12 @@
                     <ToggleButton Style="{StaticResource SteamHubTab}" Tag="{x:Type views:OptionsPage}" Click="HubTab_Click">
                         <TextBlock Text="{loc:Str Nav_Options}" />
                     </ToggleButton>
-                    <!-- The dot only appears when there is an update, coloured as the banner is:
-                         informational for a fix, success for a feature release, attention for a
-                         major one - or caution when only the Server Map mod is behind. -->
+                    <!-- About: this app, its version and the app it is built on (the original's
+                         own-update page, which SSPTMM does not use). The dot only appears when the
+                         Server Map mod is behind (caution). -->
                     <ToggleButton Style="{StaticResource SteamHubTab}" Tag="{x:Type views:AppUpdatePage}" Click="HubTab_Click">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{loc:Str Nav_AppUpdate}" />
+                            <TextBlock Text="{loc:Str Nav_About}" />
                             <ui:InfoBadge
                                 Width="8"
                                 Height="8"

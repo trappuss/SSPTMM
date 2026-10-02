@@ -1314,7 +1314,7 @@ public sealed class ModInstallService(
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
-            var fallback = Path.Combine(Path.GetTempPath(), "TCFModManager", id);
+            var fallback = Path.Combine(Path.GetTempPath(), SelfMod.ShortName, id);
             Directory.CreateDirectory(fallback);
             canMove = string.Equals(
                 Path.GetPathRoot(Path.GetFullPath(fallback)),

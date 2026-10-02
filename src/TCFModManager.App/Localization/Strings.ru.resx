@@ -154,7 +154,7 @@
 {1}</value>
   </data>
   <data name="App_CrashTitle" xml:space="preserve">
-    <value>TCF Mod Manager - Непредвиденная ошибка</value>
+    <value>Steamified SPT Mod Manager - Непредвиденная ошибка</value>
   </data>
   <data name="AppUpdate_BannerTitleFormat" xml:space="preserve">
     <value>{0}: {1}</value>
@@ -1833,13 +1833,13 @@
 Нет  -  оставить отключённую копию и включить её
 Отмена  -  оставить как есть
 
-Копия, которую вы не оставите, будет перемещена в скрытую папку .tcfmm-duplicates в вашей установке SPT, а не удалена.</value>
+Копия, которую вы не оставите, будет перемещена в скрытую папку .ssptmm-duplicates в вашей установке SPT, а не удалена.</value>
   </data>
   <data name="Installed_DuplicateKeptDisabledFormat" xml:space="preserve">
-    <value>Дубликат {0} разобран - оставлена отключённая копия, вторая лежит в .tcfmm-duplicates в вашей установке SPT.</value>
+    <value>Дубликат {0} разобран - оставлена отключённая копия, вторая лежит в .ssptmm-duplicates в вашей установке SPT.</value>
   </data>
   <data name="Installed_DuplicateKeptEnabledFormat" xml:space="preserve">
-    <value>Дубликат {0} разобран - оставлена включённая копия, вторая лежит в .tcfmm-duplicates в вашей установке SPT.</value>
+    <value>Дубликат {0} разобран - оставлена включённая копия, вторая лежит в .ssptmm-duplicates в вашей установке SPT.</value>
   </data>
   <data name="Installed_DuplicateTitleFormat" xml:space="preserve">
     <value>Разобрать дубликат {0}?</value>
@@ -2484,9 +2484,6 @@
   </data>
   <data name="ModListFile_AllFiles" xml:space="preserve">
     <value>Все файлы</value>
-  </data>
-  <data name="ModListFile_TypeName" xml:space="preserve">
-    <value>Список модов TCF</value>
   </data>
   <data name="ModLists_ActionAddon" xml:space="preserve">
     <value>Аддон</value>
@@ -4013,7 +4010,7 @@
     <value>Доверенный сертификат {0}. Сертификат SPT самоподписан для localhost, поэтому сервер опознаётся именно по этому отпечатку, а не по имени в сертификате.</value>
   </data>
   <data name="ServerMap_ProtocolNewerFormat" xml:space="preserve">
-    <value>Server Map на этом сервере новее, чем понимает приложение (он использует версию протокола {0}, приложение - {1}). Обновите TCF Mod Manager.</value>
+    <value>Server Map на этом сервере новее, чем понимает приложение (он использует версию протокола {0}, приложение - {1}). Обновите Steamified SPT Mod Manager.</value>
   </data>
   <data name="ServerMap_ProtocolOlderFormat" xml:space="preserve">
     <value>Server Map на этом сервере старее, чем понимает приложение (он использует версию протокола {0}, приложение - {1}). Попросите того, кто им управляет, обновить мод.</value>
@@ -4271,7 +4268,7 @@
     <value>{0} не удалён: он принадлежит SPT, BepInEx или игре. Ничего не удалено.</value>
   </data>
   <data name="ModInstall_RemoveRefusedAppFolderFormat" xml:space="preserve">
-    <value>{0} не удалён: он является частью TCF Mod Manager. Ничего не удалено.</value>
+    <value>{0} не удалён: он является частью Steamified SPT Mod Manager. Ничего не удалено.</value>
   </data>
   <data name="ModInstall_RemoveRefusedNotModFolderFormat" xml:space="preserve">
     <value>{0} не удалён: это не папка мода в BepInEx\plugins, BepInEx\patchers или user\mods. Ничего не удалено.</value>
@@ -4457,7 +4454,7 @@
     <value>12 часов</value>
   </data>
   <data name="Options_UpdateNotificationsNote" xml:space="preserve">
-    <value>Первая проверка проходит через один интервал после запуска приложения, а при выходе из приложения проверки прекращаются - закрытие окна завершает приложение, если оно не оставлено в области уведомлений. Нет уведомлений? Проверьте, что TCF Mod Manager разрешено их показывать в разделе Параметры Windows &gt; Система &gt; Уведомления.</value>
+    <value>Первая проверка проходит через один интервал после запуска приложения, а при выходе из приложения проверки прекращаются - закрытие окна завершает приложение, если оно не оставлено в области уведомлений. Нет уведомлений? Проверьте, что Steamified SPT Mod Manager разрешено их показывать в разделе Параметры Windows &gt; Система &gt; Уведомления.</value>
   </data>
   <data name="UpdateToast_Title_one" xml:space="preserve">
     <value>Доступно {0} обновление мода</value>
@@ -4547,7 +4544,7 @@
     <value>Если включено, закрытие окна скрывает его и оставляет значок в области уведомлений, чтобы проверки продолжались. Щёлкните значок, чтобы снова открыть окно; щёлкните правой кнопкой, чтобы проверить сейчас или выйти. Доступно, только пока включены уведомления об обновлениях.</value>
   </data>
   <data name="Tray_ToolTip" xml:space="preserve">
-    <value>TCF Mod Manager - проверка обновлений модов</value>
+    <value>Steamified SPT Mod Manager - проверка обновлений модов</value>
   </data>
   <data name="Tray_Open" xml:space="preserve">
     <value>Открыть</value>
@@ -4562,7 +4559,7 @@
     <value>Проверка обновлений</value>
   </data>
   <data name="Tray_NoticeTitle" xml:space="preserve">
-    <value>TCF Mod Manager всё ещё работает</value>
+    <value>Steamified SPT Mod Manager всё ещё работает</value>
   </data>
   <data name="Tray_NoticeBody" xml:space="preserve">
     <value>Приложение в области уведомлений и проверяет обновления модов. Щёлкните его значок, чтобы снова открыть, или щёлкните правой кнопкой, чтобы выйти. Это можно отключить в настройках.</value>
@@ -4660,9 +4657,6 @@
   <data name="ServerMap_MachinesHeader" xml:space="preserve">
     <value>Машины на этом сервере</value>
   </data>
-  <data name="ServerMap_MachinesEmpty" xml:space="preserve">
-    <value>На этом сервере пока никто не отмечается. Машина появится здесь, когда кто-то с TCF Mod Manager подключится и согласится поделиться тем, что у него установлено. Машины без TCF Mod Manager здесь не появляются.</value>
-  </data>
   <data name="ServerMap_MapUnsupported" xml:space="preserve">
     <value>Мод Server Map на этом сервере старше версии 0.2.0. Он может раздавать свой список модов, но не может показать, кто на нём. Попросите того, кто управляет сервером, обновить мод.</value>
   </data>
@@ -4686,9 +4680,6 @@
   </data>
   <data name="ServerMap_RoleHeadless" xml:space="preserve">
     <value>Headless</value>
-  </data>
-  <data name="ServerMap_AppVersionFormat" xml:space="preserve">
-    <value>TCF Mod Manager {0}</value>
   </data>
   <data name="ServerMap_PresenceInGame" xml:space="preserve">
     <value>В игре</value>
@@ -4725,9 +4716,6 @@
   </data>
   <data name="ServerMap_StandingNoList" xml:space="preserve">
     <value>В этой установке нет списка модов с этого сервера, поэтому сравнивать не с чем.</value>
-  </data>
-  <data name="ServerMap_StandingUnreadable" xml:space="preserve">
-    <value>Прислала список модов, который эта версия приложения не может прочитать. Обновление TCF Mod Manager здесь должно это исправить.</value>
   </data>
   <data name="ServerMap_StandingNotReported" xml:space="preserve">
     <value>Ещё не прислала свой список модов.</value>
@@ -5007,9 +4995,6 @@
   </data>
   <data name="Help_OpenGuide" xml:space="preserve">
     <value>Открыть полное руководство</value>
-  </data>
-  <data name="Help_OpenGuideToolTip" xml:space="preserve">
-    <value>Страница приложения на sp-mod.com - всё, что здесь, только подробнее, плюс ограничения и решение проблем. Она на английском.</value>
   </data>
   <data name="Help_SearchPlaceholder" xml:space="preserve">
     <value>Как мне...?</value>
@@ -5720,7 +5705,7 @@
     <value>Первая проверка после включения только запоминает уже имеющиеся обновления - уведомления она не показывает никогда.</value>
   </data>
   <data name="Help_Problems_Notifications_Step3" xml:space="preserve">
-    <value>Если проверки находят обновления, но ничего не появляется, откройте Параметры Windows, затем Система, затем Уведомления, разрешите TCF Mod Manager и выключите «Не беспокоить».</value>
+    <value>Если проверки находят обновления, но ничего не появляется, откройте Параметры Windows, затем Система, затем Уведомления, разрешите Steamified SPT Mod Manager и выключите «Не беспокоить».</value>
   </data>
   <data name="Help_Problems_AppUpdate_Title" xml:space="preserve">
     <value>Обновление приложения не прошло</value>
@@ -5737,14 +5722,11 @@
   <data name="Help_Problems_Report_Title" xml:space="preserve">
     <value>Сообщить о проблеме</value>
   </data>
-  <data name="Help_Problems_Report_Step1" xml:space="preserve">
-    <value>Нажмите {0} вверху этой страницы. Откроется вкладка обращений на странице этого приложения на sp-mod.com.</value>
-  </data>
   <data name="Help_Problems_Report_Step2" xml:space="preserve">
-    <value>Опишите, что вы делали и что произошло, и приложите сегодняшний журнал из Data\logs - файл, названный tcfmm- и датой.</value>
+    <value>Опишите, что вы делали и что произошло, и приложите сегодняшний журнал из Data\logs - файл, названный ssptmm- и датой.</value>
   </data>
   <data name="Help_Problems_Report_Step3" xml:space="preserve">
-    <value>Для подробностей положите рядом с TCFModManager.exe пустой файл с именем verbose без расширения, повторите действия и пришлите новый журнал.</value>
+    <value>Для подробностей положите рядом с SSPTMM.exe пустой файл с именем verbose без расширения, повторите действия и пришлите новый журнал.</value>
   </data>
   <data name="Help_Problems_Report_Note" xml:space="preserve">
     <value>Об ошибке в переводе тоже стоит сообщить: какой язык, что написано и как должно быть.</value>
@@ -6011,7 +5993,7 @@
     <value>При удалении мода его файлы переносятся в скрытую папку установки, чтобы это можно было отменить. Выберите, как долго они там хранятся.</value>
   </data>
   <data name="Options_RemovedModsDescription" xml:space="preserve">
-    <value>Удалённые моды хранятся в .tcfmm-removed в папке SPT и стираются при запуске приложения, когда их срок истёк. Обновления тоже оставляют там заменённую версию.</value>
+    <value>Удалённые моды хранятся в .ssptmm-removed в папке SPT и стираются при запуске приложения, когда их срок истёк. Обновления тоже оставляют там заменённую версию.</value>
   </data>
   <data name="Options_RemovedModsDeleteStraightAway" xml:space="preserve">
     <value>Удалять сразу</value>

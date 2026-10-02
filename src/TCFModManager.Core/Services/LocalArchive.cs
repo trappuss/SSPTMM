@@ -80,7 +80,7 @@ public static class LocalArchive
 
     public static async Task<LocalArchiveContents> InspectAsync(string archivePath, CancellationToken ct = default)
     {
-        var dir = Path.Combine(Path.GetTempPath(), "TCFModManager", "inspect-" + Guid.NewGuid().ToString("N"));
+        var dir = Path.Combine(Path.GetTempPath(), SelfMod.ShortName, "inspect-" + Guid.NewGuid().ToString("N"));
         try
         {
             await ModInstallService.ExtractAsync(archivePath, dir, ct).ConfigureAwait(false);

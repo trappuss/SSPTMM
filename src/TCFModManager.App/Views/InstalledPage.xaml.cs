@@ -125,7 +125,7 @@ public partial class InstalledPage : Page
     private static string[] KeepDroppedTempFiles(string[] files)
     {
         var temp = System.IO.Path.GetFullPath(System.IO.Path.GetTempPath());
-        var kept = System.IO.Path.Combine(temp, "TCFModManager-dropped");
+        var kept = System.IO.Path.Combine(temp, "SSPTMM-dropped");
 
         // Copies from earlier drops, installed (or not) long since.
         try

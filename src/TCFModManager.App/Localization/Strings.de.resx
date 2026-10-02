@@ -154,7 +154,7 @@ Das wurde hier hingeschrieben:
 {1}</value>
   </data>
   <data name="App_CrashTitle" xml:space="preserve">
-    <value>TCF Mod Manager - Unerwarteter Fehler</value>
+    <value>Steamified SPT Mod Manager - Unerwarteter Fehler</value>
   </data>
   <data name="AppUpdate_BannerTitleFormat" xml:space="preserve">
     <value>{0}: {1}</value>
@@ -1743,13 +1743,13 @@ Ja  -  die aktivierte Kopie behalten
 Nein  -  die deaktivierte Kopie behalten und aktivieren
 Abbrechen  -  alles so lassen
 
-Die Kopie, die du nicht behältst, wird in einen versteckten Ordner .tcfmm-duplicates in deiner SPT-Installation verschoben, nicht gelöscht.</value>
+Die Kopie, die du nicht behältst, wird in einen versteckten Ordner .ssptmm-duplicates in deiner SPT-Installation verschoben, nicht gelöscht.</value>
   </data>
   <data name="Installed_DuplicateKeptDisabledFormat" xml:space="preserve">
-    <value>{0} bereinigt - die deaktivierte Kopie wurde behalten, die andere liegt in .tcfmm-duplicates in deiner SPT-Installation.</value>
+    <value>{0} bereinigt - die deaktivierte Kopie wurde behalten, die andere liegt in .ssptmm-duplicates in deiner SPT-Installation.</value>
   </data>
   <data name="Installed_DuplicateKeptEnabledFormat" xml:space="preserve">
-    <value>{0} bereinigt - die aktivierte Kopie wurde behalten, die andere liegt in .tcfmm-duplicates in deiner SPT-Installation.</value>
+    <value>{0} bereinigt - die aktivierte Kopie wurde behalten, die andere liegt in .ssptmm-duplicates in deiner SPT-Installation.</value>
   </data>
   <data name="Installed_DuplicateTitleFormat" xml:space="preserve">
     <value>{0} bereinigen?</value>
@@ -2349,9 +2349,6 @@ Die Kopie, die du nicht behältst, wird in einen versteckten Ordner .tcfmm-dupli
   </data>
   <data name="ModListFile_AllFiles" xml:space="preserve">
     <value>Alle Dateien</value>
-  </data>
-  <data name="ModListFile_TypeName" xml:space="preserve">
-    <value>TCF-Modliste</value>
   </data>
   <data name="ModLists_ActionAddon" xml:space="preserve">
     <value>Addon</value>
@@ -3815,7 +3812,7 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
     <value>Vertraut dem Zertifikat {0}. Das Zertifikat von SPT ist selbst signiert und lautet auf localhost, deshalb ist dieser Fingerabdruck - nicht der Name darauf - das, was den Server identifiziert.</value>
   </data>
   <data name="ServerMap_ProtocolNewerFormat" xml:space="preserve">
-    <value>Das Server Map dieses Servers ist neuer, als diese App versteht (er spricht Version {0}, diese App {1}). Aktualisiere TCF Mod Manager.</value>
+    <value>Das Server Map dieses Servers ist neuer, als diese App versteht (er spricht Version {0}, diese App {1}). Aktualisiere Steamified SPT Mod Manager.</value>
   </data>
   <data name="ServerMap_ProtocolOlderFormat" xml:space="preserve">
     <value>Das Server Map dieses Servers ist älter, als diese App versteht (er spricht Version {0}, diese App {1}). Bitte denjenigen, der ihn betreibt, den Mod zu aktualisieren.</value>
@@ -4064,7 +4061,7 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
     <value>{0} wurde nicht entfernt: Es gehört zu SPT, BepInEx oder dem Spiel. Es wurde nichts gelöscht.</value>
   </data>
   <data name="ModInstall_RemoveRefusedAppFolderFormat" xml:space="preserve">
-    <value>{0} wurde nicht entfernt: Es gehört zu TCF Mod Manager. Es wurde nichts gelöscht.</value>
+    <value>{0} wurde nicht entfernt: Es gehört zu Steamified SPT Mod Manager. Es wurde nichts gelöscht.</value>
   </data>
   <data name="ModInstall_RemoveRefusedNotModFolderFormat" xml:space="preserve">
     <value>{0} wurde nicht entfernt: Es ist kein Mod-Ordner in BepInEx\plugins, BepInEx\patchers oder user\mods. Es wurde nichts gelöscht.</value>
@@ -4241,7 +4238,7 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
     <value>12 Stunden</value>
   </data>
   <data name="Options_UpdateNotificationsNote" xml:space="preserve">
-    <value>Die erste Prüfung läuft ein Intervall nach dem Start der App, und die Prüfungen enden, wenn die App beendet wird - das Schließen des Fensters beendet sie, außer sie bleibt im Infobereich. Keine Benachrichtigungen? Prüfe, ob TCF Mod Manager sie unter Windows-Einstellungen &gt; System &gt; Benachrichtigungen anzeigen darf.</value>
+    <value>Die erste Prüfung läuft ein Intervall nach dem Start der App, und die Prüfungen enden, wenn die App beendet wird - das Schließen des Fensters beendet sie, außer sie bleibt im Infobereich. Keine Benachrichtigungen? Prüfe, ob Steamified SPT Mod Manager sie unter Windows-Einstellungen &gt; System &gt; Benachrichtigungen anzeigen darf.</value>
   </data>
   <data name="UpdateToast_Title_one" xml:space="preserve">
     <value>Mod-Update verfügbar</value>
@@ -4319,7 +4316,7 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
     <value>Ist das an, wird das Fenster beim Schließen ausgeblendet und ein Symbol im Infobereich bleibt, damit die Prüfungen weiterlaufen. Klicke auf das Symbol, um das Fenster wieder zu öffnen; per Rechtsklick kannst du sofort prüfen oder die App beenden. Nur verfügbar, solange Update-Benachrichtigungen an sind.</value>
   </data>
   <data name="Tray_ToolTip" xml:space="preserve">
-    <value>TCF Mod Manager - prüft auf Mod-Updates</value>
+    <value>Steamified SPT Mod Manager - prüft auf Mod-Updates</value>
   </data>
   <data name="Tray_Open" xml:space="preserve">
     <value>Öffnen</value>
@@ -4334,7 +4331,7 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
     <value>Update-Prüfung</value>
   </data>
   <data name="Tray_NoticeTitle" xml:space="preserve">
-    <value>TCF Mod Manager läuft noch</value>
+    <value>Steamified SPT Mod Manager läuft noch</value>
   </data>
   <data name="Tray_NoticeBody" xml:space="preserve">
     <value>Die App ist im Infobereich und prüft auf Mod-Updates. Klicke auf ihr Symbol, um sie wieder zu öffnen, oder per Rechtsklick, um sie zu beenden. Du kannst das in den Optionen ausschalten.</value>
@@ -4432,9 +4429,6 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   <data name="ServerMap_MachinesHeader" xml:space="preserve">
     <value>Maschinen auf diesem Server</value>
   </data>
-  <data name="ServerMap_MachinesEmpty" xml:space="preserve">
-    <value>Noch meldet sich niemand bei diesem Server. Eine Maschine erscheint hier, sobald jemand mit TCF Mod Manager sich verbindet und zustimmt, zu teilen, was installiert ist. Maschinen ohne TCF Mod Manager erscheinen nie.</value>
-  </data>
   <data name="ServerMap_MapUnsupported" xml:space="preserve">
     <value>Der Server-Map-Mod dieses Servers ist älter als 0.2.0. Er kann seine Modliste bereitstellen, aber nicht zeigen, wer darauf ist. Frag denjenigen, der den Server betreibt, ob er den Mod aktualisiert.</value>
   </data>
@@ -4458,9 +4452,6 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   </data>
   <data name="ServerMap_RoleHeadless" xml:space="preserve">
     <value>Headless</value>
-  </data>
-  <data name="ServerMap_AppVersionFormat" xml:space="preserve">
-    <value>TCF Mod Manager {0}</value>
   </data>
   <data name="ServerMap_PresenceInGame" xml:space="preserve">
     <value>Im Spiel</value>
@@ -4488,9 +4479,6 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   </data>
   <data name="ServerMap_StandingNoList" xml:space="preserve">
     <value>Diese Installation hat keine Modliste von diesem Server, es gibt also nichts zum Vergleichen.</value>
-  </data>
-  <data name="ServerMap_StandingUnreadable" xml:space="preserve">
-    <value>Hat eine Modliste gesendet, die diese Version der App nicht lesen kann. Ein Update von TCF Mod Manager hier sollte das beheben.</value>
   </data>
   <data name="ServerMap_StandingNotReported" xml:space="preserve">
     <value>Hat seine Modliste noch nicht gesendet.</value>
@@ -4722,9 +4710,6 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   </data>
   <data name="Help_OpenGuide" xml:space="preserve">
     <value>Vollständige Anleitung öffnen</value>
-  </data>
-  <data name="Help_OpenGuideToolTip" xml:space="preserve">
-    <value>Die Seite der App auf sp-mod.com - alles hier ausführlicher, dazu Einschränkungen und Fehlerbehebung. Sie ist auf Englisch.</value>
   </data>
   <data name="Help_SearchPlaceholder" xml:space="preserve">
     <value>Wie kann ich ...?</value>
@@ -5435,7 +5420,7 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
     <value>Die erste Prüfung nach dem Einschalten merkt sich nur die Updates, die schon da sind - sie zeigt nie eine Benachrichtigung.</value>
   </data>
   <data name="Help_Problems_Notifications_Step3" xml:space="preserve">
-    <value>Finden die Prüfungen Updates, aber es erscheint nichts, öffne die Windows-Einstellungen, dann System, dann Benachrichtigungen, erlaube TCF Mod Manager und schalte Nicht stören aus.</value>
+    <value>Finden die Prüfungen Updates, aber es erscheint nichts, öffne die Windows-Einstellungen, dann System, dann Benachrichtigungen, erlaube Steamified SPT Mod Manager und schalte Nicht stören aus.</value>
   </data>
   <data name="Help_Problems_AppUpdate_Title" xml:space="preserve">
     <value>Ein App-Update ist nicht durchgelaufen</value>
@@ -5452,14 +5437,11 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   <data name="Help_Problems_Report_Title" xml:space="preserve">
     <value>Ein Problem melden</value>
   </data>
-  <data name="Help_Problems_Report_Step1" xml:space="preserve">
-    <value>Klicke oben auf dieser Seite auf {0}. Es öffnet den Issues-Tab auf der sp-mod.com-Seite dieser App.</value>
-  </data>
   <data name="Help_Problems_Report_Step2" xml:space="preserve">
-    <value>Schreib, was du getan hast und was passiert ist, und häng das heutige Protokoll aus Data\logs an - die Datei, die mit tcfmm- und dem Datum heißt.</value>
+    <value>Schreib, was du getan hast und was passiert ist, und häng das heutige Protokoll aus Data\logs an - die Datei, die mit ssptmm- und dem Datum heißt.</value>
   </data>
   <data name="Help_Problems_Report_Step3" xml:space="preserve">
-    <value>Für mehr Details leg eine leere Datei namens verbose, ohne Endung, neben TCFModManager.exe, mach es noch einmal und schick das neue Protokoll.</value>
+    <value>Für mehr Details leg eine leere Datei namens verbose, ohne Endung, neben SSPTMM.exe, mach es noch einmal und schick das neue Protokoll.</value>
   </data>
   <data name="Help_Problems_Report_Note" xml:space="preserve">
     <value>Auch eine falsche Übersetzung lohnt sich zu melden: welche Sprache, was dort steht und was dort stehen sollte.</value>
@@ -5726,7 +5708,7 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
     <value>Beim Entfernen eines Mods werden seine Dateien in einen versteckten Ordner der Installation verschoben, damit es sich rückgängig machen lässt. Wähle, wie lange sie dort bleiben.</value>
   </data>
   <data name="Options_RemovedModsDescription" xml:space="preserve">
-    <value>Entfernte Mods werden in .tcfmm-removed in deinem SPT-Ordner aufbewahrt und beim Start der App gelöscht, wenn ihre Zeit abgelaufen ist. Updates legen dort auch die Version ab, die sie ersetzt haben.</value>
+    <value>Entfernte Mods werden in .ssptmm-removed in deinem SPT-Ordner aufbewahrt und beim Start der App gelöscht, wenn ihre Zeit abgelaufen ist. Updates legen dort auch die Version ab, die sie ersetzt haben.</value>
   </data>
   <data name="Options_RemovedModsDeleteStraightAway" xml:space="preserve">
     <value>Sofort löschen</value>

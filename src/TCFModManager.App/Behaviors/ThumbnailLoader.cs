@@ -95,7 +95,7 @@ public static class ThumbnailLoader
     private static HttpClient CreateClient()
     {
         var http = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
-        http.DefaultRequestHeaders.UserAgent.ParseAdd($"TCFModManager/{AppVersion.Current}");
+        http.DefaultRequestHeaders.UserAgent.ParseAdd($"{SelfMod.ShortName}/{AppVersion.Current}");
         http.DefaultRequestHeaders.Referrer = Referrer;
         return http;
     }

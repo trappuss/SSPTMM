@@ -1,19 +1,19 @@
 @echo off
 setlocal EnableExtensions
 rem ---------------------------------------------------------------------------------------------
-rem  Steam Workshop UI fork - build, test and run, in one double-click.
+rem  SSPTMM (Steamified SPT Mod Manager) - build, test and run, in one double-click.
 rem
 rem   1. Finds a .NET 9 SDK. If there isn't one, installs one into .dotnet\ beside this file
 rem      (Microsoft's own dotnet-install script: no admin rights, nothing installed system-wide).
 rem   2. Builds the app once (that build also writes the pseudo-locale file the tests read).
 rem   3. Runs the test suite. A failure stops here and says so.
-rem   4. Publishes a self-contained TCFModManager.exe into dist\steam-ui\.
+rem   4. Publishes a self-contained SSPTMM.exe into dist\steam-ui\.
 rem   5. Starts it.
 rem
 rem  Everything it does is also written to steam-ui-build.log beside this file.
 rem
 rem  The build in dist\steam-ui\ keeps its own Data\ folder (settings, catalog cache) next to its
-rem  exe, as the app always does - so it never touches the TCFModManager you already use. Point it
+rem  exe, as the app always does - so it never touches TCF Mod Manager or another copy you already use. Point it
 rem  at your SPT folder once in Options, as with a fresh install.
 rem ---------------------------------------------------------------------------------------------
 
@@ -27,7 +27,7 @@ set "LOCALSDK=%ROOT%.dotnet"
 set "DOTNET_CLI_TELEMETRY_OPTOUT=1"
 set "DOTNET_NOLOGO=1"
 
-> "%LOG%" echo Steam Workshop UI build - %DATE% %TIME%
+> "%LOG%" echo SSPTMM build - %DATE% %TIME%
 
 call :say "[1/5] Looking for the .NET 9 SDK..."
 set "DOTNET="
@@ -60,15 +60,17 @@ call :say "[3/5] Running the tests..."
 if errorlevel 1 goto :fail_tests
 call :say "      All tests passed."
 
-call :say "[4/5] Publishing TCFModManager.exe into dist\steam-ui\ ..."
+call :say "[4/5] Publishing SSPTMM.exe into dist\steam-ui\ ..."
 "%DOTNET%" publish "src\TCFModManager.App" -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o "%OUT%" --nologo >> "%LOG%" 2>&1
 if errorlevel 1 goto :fail_build
-if not exist "%OUT%\TCFModManager.exe" goto :fail_build
+if not exist "%OUT%\SSPTMM.exe" goto :fail_build
+rem Its name before it became SSPTMM: left over from an earlier build, it would only confuse.
+if exist "%OUT%\TCFModManager.exe" del /q "%OUT%\TCFModManager.exe"
 
 call :say "[5/5] Starting it..."
-start "" "%OUT%\TCFModManager.exe"
+start "" "%OUT%\SSPTMM.exe"
 call :say ""
-call :say "Done. The exe is dist\steam-ui\TCFModManager.exe"
+call :say "Done. The exe is dist\steam-ui\SSPTMM.exe"
 call :say "Its own log files are in dist\steam-ui\Data\logs\"
 echo.
 pause

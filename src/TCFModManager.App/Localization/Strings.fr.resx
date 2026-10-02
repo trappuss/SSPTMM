@@ -154,7 +154,7 @@ Il a été écrit dans :
 {1}</value>
   </data>
   <data name="App_CrashTitle" xml:space="preserve">
-    <value>TCF Mod Manager - Erreur inattendue</value>
+    <value>Steamified SPT Mod Manager - Erreur inattendue</value>
   </data>
   <data name="AppUpdate_BannerTitleFormat" xml:space="preserve">
     <value>{0} : {1}</value>
@@ -1743,13 +1743,13 @@ Oui  -  garder la copie activée
 Non  -  garder la copie désactivée, et l'activer
 Annuler  -  laisser tel quel
 
-La copie que vous ne gardez pas est déplacée dans un dossier caché .tcfmm-duplicates de votre installation SPT, elle n'est pas supprimée.</value>
+La copie que vous ne gardez pas est déplacée dans un dossier caché .ssptmm-duplicates de votre installation SPT, elle n'est pas supprimée.</value>
   </data>
   <data name="Installed_DuplicateKeptDisabledFormat" xml:space="preserve">
-    <value>Doublon de {0} réglé - la copie désactivée a été conservée, l'autre est dans .tcfmm-duplicates de votre installation SPT.</value>
+    <value>Doublon de {0} réglé - la copie désactivée a été conservée, l'autre est dans .ssptmm-duplicates de votre installation SPT.</value>
   </data>
   <data name="Installed_DuplicateKeptEnabledFormat" xml:space="preserve">
-    <value>Doublon de {0} réglé - la copie activée a été conservée, l'autre est dans .tcfmm-duplicates de votre installation SPT.</value>
+    <value>Doublon de {0} réglé - la copie activée a été conservée, l'autre est dans .ssptmm-duplicates de votre installation SPT.</value>
   </data>
   <data name="Installed_DuplicateTitleFormat" xml:space="preserve">
     <value>Régler le doublon de {0} ?</value>
@@ -2349,9 +2349,6 @@ La copie que vous ne gardez pas est déplacée dans un dossier caché .tcfmm-dup
   </data>
   <data name="ModListFile_AllFiles" xml:space="preserve">
     <value>Tous les fichiers</value>
-  </data>
-  <data name="ModListFile_TypeName" xml:space="preserve">
-    <value>Liste de mods TCF</value>
   </data>
   <data name="ModLists_ActionAddon" xml:space="preserve">
     <value>Addon</value>
@@ -3815,7 +3812,7 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
     <value>Certificat {0} approuvé. Le certificat de SPT est auto-signé pour localhost, c'est donc cette empreinte - et non le nom qu'elle porte - qui identifie le serveur.</value>
   </data>
   <data name="ServerMap_ProtocolNewerFormat" xml:space="preserve">
-    <value>Le Server Map de ce serveur est plus récent que ce que cette app comprend (il parle la version {0}, cette app parle la {1}). Mettez TCF Mod Manager à jour.</value>
+    <value>Le Server Map de ce serveur est plus récent que ce que cette app comprend (il parle la version {0}, cette app parle la {1}). Mettez Steamified SPT Mod Manager à jour.</value>
   </data>
   <data name="ServerMap_ProtocolOlderFormat" xml:space="preserve">
     <value>Le Server Map de ce serveur est plus ancien que ce que cette app comprend (il parle la version {0}, cette app parle la {1}). Demandez à la personne qui le gère de mettre le mod à jour.</value>
@@ -4064,7 +4061,7 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
     <value>{0} n'a pas été supprimé : il appartient à SPT, à BepInEx ou au jeu. Rien n'a été effacé.</value>
   </data>
   <data name="ModInstall_RemoveRefusedAppFolderFormat" xml:space="preserve">
-    <value>{0} n'a pas été supprimé : il fait partie de TCF Mod Manager. Rien n'a été effacé.</value>
+    <value>{0} n'a pas été supprimé : il fait partie de Steamified SPT Mod Manager. Rien n'a été effacé.</value>
   </data>
   <data name="ModInstall_RemoveRefusedNotModFolderFormat" xml:space="preserve">
     <value>{0} n'a pas été supprimé : ce n'est pas un dossier de mod dans BepInEx\plugins, BepInEx\patchers ou user\mods. Rien n'a été effacé.</value>
@@ -4241,7 +4238,7 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
     <value>12 heures</value>
   </data>
   <data name="Options_UpdateNotificationsNote" xml:space="preserve">
-    <value>La première vérification a lieu un intervalle après le démarrage de l'application, et les vérifications s'arrêtent quand elle quitte - fermer la fenêtre la quitte, sauf si elle reste dans la zone de notification. Pas de notifications ? Vérifiez que TCF Mod Manager a le droit d'en afficher dans Paramètres Windows &gt; Système &gt; Notifications.</value>
+    <value>La première vérification a lieu un intervalle après le démarrage de l'application, et les vérifications s'arrêtent quand elle quitte - fermer la fenêtre la quitte, sauf si elle reste dans la zone de notification. Pas de notifications ? Vérifiez que Steamified SPT Mod Manager a le droit d'en afficher dans Paramètres Windows &gt; Système &gt; Notifications.</value>
   </data>
   <data name="UpdateToast_Title_one" xml:space="preserve">
     <value>Mise à jour de mod disponible</value>
@@ -4319,7 +4316,7 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
     <value>Si cette option est activée, fermer la fenêtre la masque et laisse une icône dans la zone de notification, pour que les vérifications continuent. Cliquez sur l'icône pour rouvrir la fenêtre ; clic droit pour vérifier maintenant ou quitter. Disponible uniquement quand les notifications de mise à jour sont activées.</value>
   </data>
   <data name="Tray_ToolTip" xml:space="preserve">
-    <value>TCF Mod Manager - vérifie les mises à jour de mods</value>
+    <value>Steamified SPT Mod Manager - vérifie les mises à jour de mods</value>
   </data>
   <data name="Tray_Open" xml:space="preserve">
     <value>Ouvrir</value>
@@ -4334,7 +4331,7 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
     <value>Vérification des mises à jour</value>
   </data>
   <data name="Tray_NoticeTitle" xml:space="preserve">
-    <value>TCF Mod Manager tourne toujours</value>
+    <value>Steamified SPT Mod Manager tourne toujours</value>
   </data>
   <data name="Tray_NoticeBody" xml:space="preserve">
     <value>Il est dans la zone de notification et vérifie les mises à jour de mods. Cliquez sur son icône pour le rouvrir, ou faites un clic droit pour le quitter. Vous pouvez désactiver ce comportement dans les Options.</value>
@@ -4432,9 +4429,6 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
   <data name="ServerMap_MachinesHeader" xml:space="preserve">
     <value>Machines sur ce serveur</value>
   </data>
-  <data name="ServerMap_MachinesEmpty" xml:space="preserve">
-    <value>Personne ne se signale encore à ce serveur. Une machine apparaît ici dès qu'une personne utilisant TCF Mod Manager s'y connecte et accepte de partager ce qu'elle a installé. Les machines sans TCF Mod Manager n'apparaissent jamais.</value>
-  </data>
   <data name="ServerMap_MapUnsupported" xml:space="preserve">
     <value>Le mod Server Map de ce serveur est antérieur à la 0.2.0. Il peut servir sa liste de mods, mais pas montrer qui s'y trouve. Demandez à la personne qui gère le serveur de mettre le mod à jour.</value>
   </data>
@@ -4458,9 +4452,6 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
   </data>
   <data name="ServerMap_RoleHeadless" xml:space="preserve">
     <value>Headless</value>
-  </data>
-  <data name="ServerMap_AppVersionFormat" xml:space="preserve">
-    <value>TCF Mod Manager {0}</value>
   </data>
   <data name="ServerMap_PresenceInGame" xml:space="preserve">
     <value>En jeu</value>
@@ -4488,9 +4479,6 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
   </data>
   <data name="ServerMap_StandingNoList" xml:space="preserve">
     <value>Cette installation ne détient aucune liste de mods de ce serveur, il n'y a donc rien à comparer.</value>
-  </data>
-  <data name="ServerMap_StandingUnreadable" xml:space="preserve">
-    <value>A envoyé une liste de mods que cette version de l'application ne sait pas lire. Mettre à jour TCF Mod Manager ici devrait régler le problème.</value>
   </data>
   <data name="ServerMap_StandingNotReported" xml:space="preserve">
     <value>N'a pas encore envoyé sa liste de mods.</value>
@@ -4722,9 +4710,6 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
   </data>
   <data name="Help_OpenGuide" xml:space="preserve">
     <value>Ouvrir le guide complet</value>
-  </data>
-  <data name="Help_OpenGuideToolTip" xml:space="preserve">
-    <value>La page de l'application sur sp-mod.com - tout ce qui est ici plus en détail, avec ses limites et le dépannage. Elle est en anglais.</value>
   </data>
   <data name="Help_SearchPlaceholder" xml:space="preserve">
     <value>Comment faire pour...?</value>
@@ -5435,7 +5420,7 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
     <value>La première vérification après l'activation note seulement les mises à jour déjà là - elle n'affiche jamais de notification.</value>
   </data>
   <data name="Help_Problems_Notifications_Step3" xml:space="preserve">
-    <value>Si les vérifications trouvent des mises à jour mais que rien ne s'affiche, ouvrez les Paramètres Windows, puis Système, puis Notifications, autorisez TCF Mod Manager et désactivez Ne pas déranger.</value>
+    <value>Si les vérifications trouvent des mises à jour mais que rien ne s'affiche, ouvrez les Paramètres Windows, puis Système, puis Notifications, autorisez Steamified SPT Mod Manager et désactivez Ne pas déranger.</value>
   </data>
   <data name="Help_Problems_AppUpdate_Title" xml:space="preserve">
     <value>Une mise à jour de l'application n'est pas passée</value>
@@ -5452,14 +5437,11 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
   <data name="Help_Problems_Report_Title" xml:space="preserve">
     <value>Signaler un problème</value>
   </data>
-  <data name="Help_Problems_Report_Step1" xml:space="preserve">
-    <value>Cliquez sur {0} en haut de cette page. Cela ouvre l'onglet des tickets sur la page sp-mod.com de cette application.</value>
-  </data>
   <data name="Help_Problems_Report_Step2" xml:space="preserve">
-    <value>Dites ce que vous avez fait et ce qui s'est passé, et joignez le journal du jour depuis Data\logs - le fichier nommé tcfmm- suivi de la date.</value>
+    <value>Dites ce que vous avez fait et ce qui s'est passé, et joignez le journal du jour depuis Data\logs - le fichier nommé ssptmm- suivi de la date.</value>
   </data>
   <data name="Help_Problems_Report_Step3" xml:space="preserve">
-    <value>Pour plus de détails, placez un fichier vide nommé verbose, sans extension, à côté de TCFModManager.exe, recommencez et envoyez le nouveau journal.</value>
+    <value>Pour plus de détails, placez un fichier vide nommé verbose, sans extension, à côté de SSPTMM.exe, recommencez et envoyez le nouveau journal.</value>
   </data>
   <data name="Help_Problems_Report_Note" xml:space="preserve">
     <value>Une traduction fausse mérite aussi d'être signalée : quelle langue, ce qui est écrit et ce qui devrait l'être.</value>
@@ -5726,7 +5708,7 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
     <value>Supprimer un mod déplace ses fichiers dans un dossier caché de l'installation, afin de pouvoir annuler. Choisissez combien de temps ils y restent.</value>
   </data>
   <data name="Options_RemovedModsDescription" xml:space="preserve">
-    <value>Les mods supprimés sont conservés dans .tcfmm-removed dans votre dossier SPT, puis effacés au démarrage de l'application une fois leur délai écoulé. Les mises à jour y conservent aussi la version qu'elles ont remplacée.</value>
+    <value>Les mods supprimés sont conservés dans .ssptmm-removed dans votre dossier SPT, puis effacés au démarrage de l'application une fois leur délai écoulé. Les mises à jour y conservent aussi la version qu'elles ont remplacée.</value>
   </data>
   <data name="Options_RemovedModsDeleteStraightAway" xml:space="preserve">
     <value>Effacer immédiatement</value>

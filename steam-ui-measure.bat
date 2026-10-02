@@ -1,7 +1,7 @@
 @echo off
 setlocal EnableExtensions
 rem ---------------------------------------------------------------------------------------------
-rem  Steam Workshop UI fork - measure how smoothly the app scrolls on this PC. One double-click.
+rem  SSPTMM - measure how smoothly the app scrolls on this PC. One double-click.
 rem
 rem   1. Closes the build in dist\steam-ui if it is open (any other copy of the app is left alone)
 rem      and starts it again with its measuring switched on (TCFMM_PERF=1).
@@ -19,14 +19,14 @@ set "OUT=%ROOT%dist\steam-ui"
 set "REPORT=%ROOT%Claude outputs\perf-report.txt"
 set "SELF=%~f0"
 
-if not exist "%OUT%\TCFModManager.exe" (
-    echo dist\steam-ui\TCFModManager.exe is not there yet. Run steam-ui-rebuild-and-run.bat first,
+if not exist "%OUT%\SSPTMM.exe" (
+    echo dist\steam-ui\SSPTMM.exe is not there yet. Run steam-ui-rebuild-and-run.bat first,
     echo close the app it opens, then run this again.
     goto :end
 )
 
-echo [1/3] Closing dist\steam-ui\TCFModManager.exe if it is open...
-powershell -NoProfile -ExecutionPolicy Bypass -Command "Get-Process TCFModManager -ErrorAction SilentlyContinue | Where-Object { $_.Path -eq $env:OUT + '\TCFModManager.exe' } | Stop-Process -Force; Start-Sleep -Seconds 1"
+echo [1/3] Closing dist\steam-ui\SSPTMM.exe if it is open...
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Get-Process SSPTMM -ErrorAction SilentlyContinue | Where-Object { $_.Path -eq $env:OUT + '\SSPTMM.exe' } | Stop-Process -Force; Start-Sleep -Seconds 1"
 
 rem Only log lines written from now on count: the time as digits, compared with the log line's own.
 set "START="
@@ -42,7 +42,7 @@ echo       c. Close that item, open one with a short description, and scroll it 
 echo       d. Close the app. The report is written as soon as it closes.
 echo.
 set "TCFMM_PERF=1"
-start "" /wait "%OUT%\TCFModManager.exe"
+start "" /wait "%OUT%\SSPTMM.exe"
 set "TCFMM_PERF="
 
 echo [3/3] Reading the log...
@@ -60,7 +60,7 @@ $ErrorActionPreference = 'Stop'
 $logs = Join-Path $env:OUT 'Data\logs'
 $lines = @()
 if (Test-Path $logs) {
-    Get-ChildItem $logs -Filter 'tcfmm-*.log' | Sort-Object Name | Select-Object -Last 2 | ForEach-Object {
+    Get-ChildItem $logs -Filter 'ssptmm-*.log' | Sort-Object Name | Select-Object -Last 2 | ForEach-Object {
         $lines += Get-Content -LiteralPath $_.FullName -Encoding UTF8
     }
 }
@@ -112,7 +112,7 @@ try {
 $refresh = ($gpu | Where-Object { $_.CurrentRefreshRate } | Select-Object -First 1).CurrentRefreshRate
 
 $out = New-Object System.Collections.Generic.List[string]
-$out.Add("TCFModManager (Steam Workshop UI) - scrolling measurement, $(Get-Date -Format 'yyyy-MM-dd HH:mm')")
+$out.Add("SSPTMM - scrolling measurement, $(Get-Date -Format 'yyyy-MM-dd HH:mm')")
 $out.Add('')
 $out.Add("Windows:   $os")
 $out.Add("Processor: $cpu")

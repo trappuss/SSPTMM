@@ -18,7 +18,23 @@ namespace TCFModManager.App.Help;
 //
 internal static class HelpCatalog
 {
-    public static IReadOnlyList<HelpSection> Sections { get; } =
+    //
+    // SSPTMM: the original's help on updating the app itself (its App update section and the
+    // "the update won't install" problem) is left out - this app doesn't update itself (SelfMod).
+    // Left out here rather than deleted, so a merge of the original's Help has nothing to undo.
+    //
+    private static readonly HashSet<string> NotForThisApp = ["appupdate", "problems.appupdate"];
+
+    public static IReadOnlyList<HelpSection> Sections { get; } = ForThisApp(AllSections());
+
+    private static List<HelpSection> ForThisApp(IReadOnlyList<HelpSection> sections) =>
+    [
+        .. sections
+            .Where(s => SelfMod.ChecksOriginalUpdates || !NotForThisApp.Contains(s.Id))
+            .Select(s => s with { Topics = [.. s.Topics.Where(t => SelfMod.ChecksOriginalUpdates || !NotForThisApp.Contains(t.Id))] }),
+    ];
+
+    private static IReadOnlyList<HelpSection> AllSections() =>
     [
         new(StartSectionId, () => Strings.Help_Start_Title, SymbolRegular.Rocket24, null,
         [
@@ -520,8 +536,9 @@ internal static class HelpCatalog
 
     public const string ProblemsSectionId = "problems";
 
-    // The app's issues tab on sp-mod.com - where Report a problem goes.
-    public static string IssuesUrl => SelfMod.ModPageUrl + "#issues";
+    // This app's GitHub issues - where Report a problem goes. (Not the original app's sp-mod.com
+    // page: SSPTMM's problems are not TCF Mod Manager's to answer.)
+    public static string IssuesUrl => SelfMod.IssuesUrl;
 
     // The section the "?" opens for a page: its own, or Getting started for a page that has none.
     public static string SectionIdFor(Type? pageType) =>
@@ -547,7 +564,7 @@ internal static class HelpCatalog
         nameof(FootprintPage) => Strings.Nav_Footprint,
         nameof(ServerMapPage) => Strings.Nav_ServerMap,
         nameof(DownloadsPage) => Strings.Nav_Downloads,
-        nameof(AppUpdatePage) => Strings.Nav_AppUpdate,
+        nameof(AppUpdatePage) => SelfMod.ChecksOriginalUpdates ? Strings.Nav_AppUpdate : Strings.Nav_About,
         nameof(OptionsPage) => Strings.Nav_Options,
         _ => page.Name,
     };

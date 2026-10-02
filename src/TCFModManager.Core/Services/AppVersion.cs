@@ -16,7 +16,7 @@ public static class AppVersion
     public static string Current { get; } = Resolve();
 
     // What the title bar shows.
-    public static string DisplayTitle { get; } = $"{SelfMod.Name} - {Current}";
+    public static string DisplayTitle { get; } = $"{SelfMod.AppName} - {Current}";
 
     private static string Resolve()
     {

@@ -32,7 +32,7 @@ public static class AppLog
     public static string Directory { get; } = Path.Combine(AppPaths.DataDirectory, "logs");
 
     // The file today's entries go to.
-    public static string CurrentFile => Path.Combine(Directory, $"tcfmm-{DateTime.Now:yyyyMMdd}.log");
+    public static string CurrentFile => Path.Combine(Directory, $"ssptmm-{DateTime.Now:yyyyMMdd}.log");
 
     // Entries below this are dropped. Debug is enabled by the "verbose" marker file.
     public static LogLevel MinimumLevel { get; set; } = LogLevel.Info;
@@ -80,7 +80,7 @@ public static class AppLog
         var header = new StringBuilder()
             .AppendLine()
             .AppendLine("========================================================")
-            .AppendLine($"TCF Mod Manager {version} started {DateTime.Now:yyyy-MM-dd HH:mm:ss}")
+            .AppendLine($"{SelfMod.AppName} {version} started {DateTime.Now:yyyy-MM-dd HH:mm:ss}")
             .AppendLine($"OS {Environment.OSVersion} / .NET {Environment.Version} / {(Environment.Is64BitProcess ? "x64" : "x86")}")
             .AppendLine($"Data folder: {AppPaths.DataDirectory}")
             .AppendLine($"Log level: {MinimumLevel} (create a file named \"verbose\" here for Debug)");
@@ -162,7 +162,8 @@ public static class AppLog
     {
         var cutoff = DateTime.Now.AddDays(-RetentionDays);
 
-        foreach (var file in System.IO.Directory.EnumerateFiles(Directory, "tcfmm-*.log"))
+        // The old name too (tcfmm-, from before the app was SSPTMM), so those age out the same way.
+        foreach (var file in System.IO.Directory.EnumerateFiles(Directory, "ssptmm-*.log").Concat(System.IO.Directory.EnumerateFiles(Directory, "tcfmm-*.log")))
         {
             try
             {

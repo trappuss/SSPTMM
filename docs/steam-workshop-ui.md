@@ -1,6 +1,7 @@
-# Steam Workshop UI fork
+# SSPTMM - the Steam Workshop look
 
-This fork of TCFModManager dresses the app as Steam's Workshop: the same palette, type, layout
+SSPTMM (Steamified SPT Mod Manager) began as a fork of TCF Mod Manager and is now its own app,
+built on that app's code (see Round 22). It dresses the app as Steam's Workshop: the same palette, type, layout
 and wording as `steamcommunity.com/app/<id>/workshop/`, with every mod-manager feature still
 there underneath. This file records **where each value came from**, **what maps to what**, and
 **every place the fork knowingly differs from Steam or rests on a guess**.
@@ -1034,6 +1035,38 @@ From the original, in the Steam layout:
 
 Not done in this round: Help's own text still names the original's sidebar and page names
 ("Installed", "Browse" in the sidebar).
+
+## Round 22: SSPTMM, its own app (2026-10-02)
+
+The fork becomes its own tool: **SSPTMM - Steamified SPT Mod Manager**, built on TCF Mod Manager
+by TheCrimsonFckr and credited as such.
+
+- **Name everywhere a person sees one:** the title bar, the exe (`SSPTMM.exe`, described to Windows
+  as "Steamified SPT Mod Manager" - the name its notification settings and Task Manager show), the
+  tray, notifications, error titles, Help, and the logs (`Data\logs\ssptmm-<date>.log`; the old
+  `tcfmm-` logs age out as before). sp-mod.com sees the user agent `SSPTMM/<version>`. A mod list
+  file says `SSPTMM` as the app that wrote it; either app reads the other's.
+- **Its own version:** 1.0.0. The TCF Mod Manager release it is based on is on the About page
+  (`SelfMod.OriginalVersion` - bump it with each merge of the original).
+- **About** replaces App update in the hub: the name, version, what it is, the credit and links to
+  this app's GitHub repository and to TCF Mod Manager's page. The original's update check no longer
+  runs at all, and Help leaves out its pages on updating the app. The Server Map mod is still
+  checked, and the dot on About means only that it is behind.
+- **Report a problem** in Help goes to this app's GitHub Issues; **Open the full guide** still opens
+  TCF Mod Manager's sp-mod.com page and says so - most of it applies.
+- **Placeholder art:** `src\TCFModManager.App\Assets\AppIcon.ico` (the icon) and
+  `Assets\WorkshopBanner.png` (512x512, the Workshop banner's picture) - plain originals in Steam's
+  blues. Replace either file with your own art and rebuild.
+- **README** is SSPTMM's own; TCF Mod Manager's is kept in `docs\tcf-mod-manager-readme.md` for its
+  technical notes.
+- **Kept on purpose:** the code's names (`TCFModManager.*` projects and namespaces), so newer TCF
+  Mod Manager releases still merge; and the folders this app makes inside an SPT install
+  (`.tcfmm-removed`, `.tcfmm-work`, `.tcfmm-duplicates`) and the Server Map mod's files, so what is
+  held for Undo is still found, and an install shared with TCF Mod Manager stays readable by both.
+- **The Server Map** sends this app's version as before; machines are listed with "App version"
+  rather than "TCF Mod Manager", since either app can be on the other end.
+- **The GitHub repository** is renamed SSSPTMM -> SSPTMM (on GitHub, by hand); the push script uses
+  the new name and moves a remote still pointing at either old one.
 
 ## Values that could not be measured (marked HUNCH in the source)
 

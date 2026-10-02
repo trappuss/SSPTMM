@@ -1262,7 +1262,7 @@ A mod list records which mods to install and enable. Applying one downloads what
     <value>Conflict - two mods need incompatible versions</value>
   </data>
   <data name="ModListFile_TypeName" xml:space="preserve">
-    <value>TCF mod list</value>
+    <value>SPT mod list</value>
     <comment>The name beside the .tcfmodlist pattern in a file dialog's type list.</comment>
   </data>
   <data name="ModListFile_AllFiles" xml:space="preserve">
@@ -1623,8 +1623,8 @@ That happens legitimately if the server was rebuilt or you're reaching it throug
     <comment>Server Map is the mod's name and stays as it is.</comment>
   </data>
   <data name="ServerMap_ProtocolNewerFormat" xml:space="preserve">
-    <value>That server's Server Map is newer than this app understands (it speaks version {0}, this app speaks {1}). Update TCF Mod Manager.</value>
-    <comment>TCF Mod Manager is this app's name and stays as it is.</comment>
+    <value>That server's Server Map is newer than this app understands (it speaks version {0}, this app speaks {1}). Update Steamified SPT Mod Manager.</value>
+    <comment>Steamified SPT Mod Manager is this app's name and stays as it is.</comment>
   </data>
   <data name="ServerMap_ProtocolOlderFormat" xml:space="preserve">
     <value>That server's Server Map is older than this app understands (it speaks version {0}, this app speaks {1}). Ask whoever runs it to update the mod.</value>
@@ -2511,7 +2511,7 @@ Yes  -  keep the enabled copy
 No  -  keep the disabled copy, and enable it
 Cancel  -  leave it as it is
 
-The copy you don't keep is moved into a hidden .tcfmm-duplicates folder in your SPT install, not deleted.</value>
+The copy you don't keep is moved into a hidden .ssptmm-duplicates folder in your SPT install, not deleted.</value>
     <comment>{0} is a mod name, {1} the folder paths one per line. Yes/No/Cancel are the Windows button captions and follow the operating system's language, so keep them as they appear there. .tcfmm-duplicates is a folder name and stays as it is.</comment>
   </data>
   <data name="Installed_DuplicateTitleFormat" xml:space="preserve">
@@ -2519,11 +2519,11 @@ The copy you don't keep is moved into a hidden .tcfmm-duplicates folder in your 
     <comment>{0} is a mod name. Dialog title.</comment>
   </data>
   <data name="Installed_DuplicateKeptEnabledFormat" xml:space="preserve">
-    <value>Sorted out {0} - kept the enabled copy, the other is in .tcfmm-duplicates in your SPT install.</value>
+    <value>Sorted out {0} - kept the enabled copy, the other is in .ssptmm-duplicates in your SPT install.</value>
     <comment>{0} is a mod name. One whole sentence per outcome rather than "enabled"/"disabled" dropped into one.</comment>
   </data>
   <data name="Installed_DuplicateKeptDisabledFormat" xml:space="preserve">
-    <value>Sorted out {0} - kept the disabled copy, the other is in .tcfmm-duplicates in your SPT install.</value>
+    <value>Sorted out {0} - kept the disabled copy, the other is in .ssptmm-duplicates in your SPT install.</value>
     <comment>{0} is a mod name.</comment>
   </data>
   <data name="Installed_UpdateNotInCatalogFormat" xml:space="preserve">
@@ -4664,8 +4664,8 @@ You can turn it back on at any time.</value>
     <comment>Between the width and height boxes on the Options page. Some languages prefer the multiplication sign; either reads as "by".</comment>
   </data>
   <data name="App_CrashTitle" xml:space="preserve">
-    <value>TCF Mod Manager - Unexpected Error</value>
-    <comment>Title of the dialog shown when the app hits an error it cannot handle. TCF Mod Manager is the app's name and stays as it is.</comment>
+    <value>Steamified SPT Mod Manager - Unexpected Error</value>
+    <comment>Title of the dialog shown when the app hits an error it cannot handle. Steamified SPT Mod Manager is the app's name and stays as it is.</comment>
   </data>
   <data name="App_CrashBodyFormat" xml:space="preserve">
     <value>Something went wrong and wasn't handled:
@@ -6340,10 +6340,6 @@ This was written to:
     <value>Could not be checked just now</value>
     <comment>On a favorite whose page could not be read from sp-mod.com.</comment>
   </data>
-  <data name="AppUpdate_ForkNote" xml:space="preserve">
-    <value>This is the Steam Workshop fork of TCF Mod Manager. The download on sp-mod.com is the original app, and installing it would replace this build and everything the fork changes - so it is not installed from here. A newer original version is worth merging into the fork instead.</value>
-    <comment>App update page, in the fork: why there is no Install button.</comment>
-  </data>
   <data name="App_DataProblemTitle" xml:space="preserve">
     <value>A data file needs attention</value>
     <comment>Title of the message about a damaged or unreadable data file.</comment>
@@ -6761,8 +6757,8 @@ Install the file as it is anyway?</value>
     <comment>{0} is a folder or file path.</comment>
   </data>
   <data name="ModInstall_RemoveRefusedAppFolderFormat" xml:space="preserve">
-    <value>Didn't remove {0}: it is part of TCF Mod Manager. Nothing was deleted.</value>
-    <comment>{0} is a folder or file path. TCF Mod Manager is the app name, not translated.</comment>
+    <value>Didn't remove {0}: it is part of Steamified SPT Mod Manager. Nothing was deleted.</value>
+    <comment>{0} is a folder or file path. Steamified SPT Mod Manager is the app name, not translated.</comment>
   </data>
   <data name="ModInstall_RemoveRefusedNotModFolderFormat" xml:space="preserve">
     <value>Didn't remove {0}: it isn't a mod folder in BepInEx\plugins, BepInEx\patchers or user\mods. Nothing was deleted.</value>
@@ -6972,7 +6968,7 @@ Install the file as it is anyway?</value>
     <value>12 hours</value>
   </data>
   <data name="Options_UpdateNotificationsNote" xml:space="preserve">
-    <value>The first check runs one interval after the app starts, and checks stop when the app quits - closing the window quits it, unless it's kept in the tray. No notifications? Check that TCF Mod Manager is allowed to show them in Windows Settings &gt; System &gt; Notifications.</value>
+    <value>The first check runs one interval after the app starts, and checks stop when the app quits - closing the window quits it, unless it's kept in the tray. No notifications? Check that Steamified SPT Mod Manager is allowed to show them in Windows Settings &gt; System &gt; Notifications.</value>
     <comment>Windows Settings &gt; System &gt; Notifications is the path in Windows; use the names Windows itself shows in your language.</comment>
   </data>
   <data name="UpdateToast_Title_one" xml:space="preserve">
@@ -7064,7 +7060,7 @@ Install the file as it is anyway?</value>
     <value>With this on, closing the window hides it and leaves an icon in the notification area, so the checks carry on. Click the icon to open the window again; right-click it to check now or quit. Only available while update notifications are on.</value>
   </data>
   <data name="Tray_ToolTip" xml:space="preserve">
-    <value>TCF Mod Manager - checking for mod updates</value>
+    <value>Steamified SPT Mod Manager - checking for mod updates</value>
     <comment>Shown when the mouse rests on the tray icon. Keep it short: Windows cuts it off at 127 characters.</comment>
   </data>
   <data name="Tray_Open" xml:space="preserve">
@@ -7084,7 +7080,7 @@ Install the file as it is anyway?</value>
     <comment>Title of the notification that answers the tray menu's Check for updates now.</comment>
   </data>
   <data name="Tray_NoticeTitle" xml:space="preserve">
-    <value>TCF Mod Manager is still running</value>
+    <value>Steamified SPT Mod Manager is still running</value>
     <comment>Notification shown the first time the window is closed to the tray.</comment>
   </data>
   <data name="Tray_NoticeBody" xml:space="preserve">
@@ -7184,7 +7180,7 @@ Install the file as it is anyway?</value>
     <value>Machines on this server</value>
   </data>
   <data name="ServerMap_MachinesEmpty" xml:space="preserve">
-    <value>Nobody reports to this server yet. A machine appears here once someone running TCF Mod Manager connects and agrees to share what it has installed. Machines that do not run TCF Mod Manager never appear.</value>
+    <value>Nobody reports to this server yet. A machine appears here once someone running Steamified SPT Mod Manager or TCF Mod Manager connects and agrees to share what it has installed. Machines that run neither never appear.</value>
   </data>
   <data name="ServerMap_MapUnsupported" xml:space="preserve">
     <value>This server's Server Map mod is older than 0.2.0. It can serve its mod list, but it cannot show who is on it. Ask whoever runs the server to update the mod.</value>
@@ -7211,7 +7207,7 @@ Install the file as it is anyway?</value>
     <value>Headless</value>
   </data>
   <data name="ServerMap_AppVersionFormat" xml:space="preserve">
-    <value>TCF Mod Manager {0}</value>
+    <value>App version {0}</value>
   </data>
   <data name="ServerMap_PresenceInGame" xml:space="preserve">
     <value>In game</value>
@@ -7241,7 +7237,7 @@ Install the file as it is anyway?</value>
     <value>This install holds no mod list from this server, so there is nothing to compare against.</value>
   </data>
   <data name="ServerMap_StandingUnreadable" xml:space="preserve">
-    <value>Sent a mod list this version of the app can't read. Updating TCF Mod Manager here should fix it.</value>
+    <value>Sent a mod list this version of the app can't read. Updating the app on that machine should fix it.</value>
   </data>
   <data name="ServerMap_StandingNotReported" xml:space="preserve">
     <value>Hasn't sent its mod list yet.</value>
@@ -7489,7 +7485,7 @@ Install the file as it is anyway?</value>
     <comment>Button opening the app's page on sp-mod.com.</comment>
   </data>
   <data name="Help_OpenGuideToolTip" xml:space="preserve">
-    <value>The app's page on sp-mod.com - everything here in more depth, plus its limitations and troubleshooting. It is in English.</value>
+    <value>The original TCF Mod Manager's page on sp-mod.com, which this app is based on - most of it applies here too, with Steam's names for the pages. It is in English.</value>
     <comment>Tooltip on Help_OpenGuide. Keep saying the guide is in English.</comment>
   </data>
   <data name="Help_SearchPlaceholder" xml:space="preserve">
@@ -8391,7 +8387,7 @@ Install the file as it is anyway?</value>
     <value>The first check after switching on only notes the updates already there - it never shows a notification.</value>
   </data>
   <data name="Help_Problems_Notifications_Step3" xml:space="preserve">
-    <value>If checks find updates but nothing appears, open Windows Settings, then System, then Notifications, allow TCF Mod Manager and turn Do not disturb off.</value>
+    <value>If checks find updates but nothing appears, open Windows Settings, then System, then Notifications, allow Steamified SPT Mod Manager and turn Do not disturb off.</value>
     <comment>Windows Settings, System, Notifications and Do not disturb are Windows' own names - use what your Windows calls them.</comment>
   </data>
   <data name="Help_Problems_AppUpdate_Title" xml:space="preserve">
@@ -8414,16 +8410,16 @@ Install the file as it is anyway?</value>
     <comment>How-to title.</comment>
   </data>
   <data name="Help_Problems_Report_Step1" xml:space="preserve">
-    <value>Press {0} at the top of this page. It opens the issues tab on this app's sp-mod.com page.</value>
+    <value>Press {0} at the top of this page. It opens the Issues page of this app's GitHub repository.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_Problems_Report_Step2" xml:space="preserve">
-    <value>Say what you did and what happened, and attach today's log from Data\logs - the file named tcfmm- and the date.</value>
+    <value>Say what you did and what happened, and attach today's log from Data\logs - the file named ssptmm- and the date.</value>
     <comment>Data\logs and tcfmm- are literal.</comment>
   </data>
   <data name="Help_Problems_Report_Step3" xml:space="preserve">
-    <value>For more detail, put an empty file named verbose, with no extension, next to TCFModManager.exe, do it again and send the new log.</value>
-    <comment>verbose and TCFModManager.exe are literal - don't translate them.</comment>
+    <value>For more detail, put an empty file named verbose, with no extension, next to SSPTMM.exe, do it again and send the new log.</value>
+    <comment>verbose and SSPTMM.exe are literal - don't translate them.</comment>
   </data>
   <data name="Help_Problems_Report_Note" xml:space="preserve">
     <value>A wrong translation is worth reporting too: say which language, what it says, and what it should say.</value>
@@ -8760,7 +8756,7 @@ Install the file as it is anyway?</value>
     <comment>Options setting hint, under the title.</comment>
   </data>
   <data name="Options_RemovedModsDescription" xml:space="preserve">
-    <value>Removed mods are kept in .tcfmm-removed inside your SPT folder, and deleted when the app starts once their time is up. Updates keep the version they replaced there too.</value>
+    <value>Removed mods are kept in .ssptmm-removed inside your SPT folder, and deleted when the app starts once their time is up. Updates keep the version they replaced there too.</value>
     <comment>Tooltip on the Keep removed mods setting. .tcfmm-removed is a folder name, not translated.</comment>
   </data>
   <data name="Options_RemovedModsDeleteStraightAway" xml:space="preserve">
@@ -9027,5 +9023,33 @@ See Dependencies and Conflicts.</value>
   <data name="Conflicts_KeepBlockedFormat" xml:space="preserve">
     <value>{0} also has files that aren't duplicated, and it was installed with this app, so it can only be removed whole - those files would go too. Remove it from the Installed page instead, where Remove shows everything it takes.</value>
     <comment>Tooltip on a disabled Keep this one. {0} the other mod.</comment>
+  </data>
+  <data name="Nav_About" xml:space="preserve">
+    <value>About</value>
+    <comment>Hub tab and page title: the app, its version, where it comes from.</comment>
+  </data>
+  <data name="About_Description" xml:space="preserve">
+    <value>A mod manager for SPT that looks and works like Steam's Workshop: find mods and collections on sp-mod.com, subscribe, and keep your install up to date.</value>
+    <comment>About page: what the app is, under its name.</comment>
+  </data>
+  <data name="About_VersionFormat" xml:space="preserve">
+    <value>Version {0}</value>
+    <comment>About page. {0} is the version number.</comment>
+  </data>
+  <data name="About_BasedOnFormat" xml:space="preserve">
+    <value>Based on TCF Mod Manager {0} by {1}.</value>
+    <comment>About page credit. {0} is the original app's version, {1} its author. TCF Mod Manager is a name, not translated.</comment>
+  </data>
+  <data name="About_OriginalLink" xml:space="preserve">
+    <value>TCF Mod Manager on sp-mod.com</value>
+    <comment>About page: link to the original app's page.</comment>
+  </data>
+  <data name="About_SourceLink" xml:space="preserve">
+    <value>Source code and issues on GitHub</value>
+    <comment>About page: link to this app's GitHub repository.</comment>
+  </data>
+  <data name="About_Updates" xml:space="preserve">
+    <value>This app doesn't update itself. New versions come from its GitHub repository.</value>
+    <comment>About page, under the version.</comment>
   </data>
 </root>

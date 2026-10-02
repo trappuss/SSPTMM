@@ -135,7 +135,7 @@ public static class ModListFile
             new ModListDocument
             {
                 SchemaVersion = SchemaVersionFor(list),
-                App = "TCFModManager",
+                App = SelfMod.ShortName,
                 Author = string.IsNullOrWhiteSpace(author) ? null : author.Trim(),
                 ExportedAt = exportedAt ?? DateTimeOffset.UtcNow,
                 List = list,

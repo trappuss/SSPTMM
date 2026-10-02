@@ -188,6 +188,23 @@ public partial class AppUpdateViewModel : LocalizedViewModel
     //
     private async Task RunCheckAsync(bool announce)
     {
+        // SSPTMM: the original app's listing is not asked about at all - its releases are merged in,
+        // never installed or announced here. Only the Server Map mod is checked.
+        if (!SelfMod.ChecksOriginalUpdates)
+        {
+            IsChecking = true;
+            try
+            {
+                await CheckServerMapModAsync().ConfigureAwait(true);
+            }
+            finally
+            {
+                IsChecking = false;
+            }
+
+            return;
+        }
+
         IsChecking = true;
         CheckError = null;
 
@@ -250,6 +267,32 @@ public partial class AppUpdateViewModel : LocalizedViewModel
     private bool CanInstallUpdate() => !SelfMod.IsFork && Update?.CanInstall == true && !IsInstalling;
 
     public bool IsFork => SelfMod.IsFork;
+
+    // ---- About (SSPTMM) -------------------------------------------------------------------------
+
+    public string AppName => SelfMod.AppName;
+
+    public string VersionLine => Text(Strings.About_VersionFormat, AppVersion.Current);
+
+    public string BasedOnLine => Text(Strings.About_BasedOnFormat, SelfMod.OriginalVersion, SelfMod.OriginalAuthor);
+
+    [RelayCommand]
+    private static void OpenRepository() => OpenUrl(SelfMod.RepositoryUrl);
+
+    [RelayCommand]
+    private static void OpenOriginal() => OpenUrl(SelfMod.ModPageUrl);
+
+    private static void OpenUrl(string url)
+    {
+        try
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true });
+        }
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
+        {
+            AppLog.Warn("About", $"couldn't open {url}: {ex.Message}");
+        }
+    }
 
     public bool CanInstallHere => !SelfMod.IsFork;
 

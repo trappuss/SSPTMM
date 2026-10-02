@@ -19,15 +19,40 @@ public static class SelfMod
 
     public const string Name = "TCF Mod Manager";
 
+    // ---- this app ---------------------------------------------------------------------------------
+    //
+    // Steamified SPT Mod Manager (SSPTMM) is its own tool, built on TCF Mod Manager's code. Everything
+    // above is the ORIGINAL app's sp-mod.com listing - still known so Browse can leave it out of the
+    // mods it lists, and so the merge of a newer original release has something to compare with -
+    // and nothing here downloads or installs it.
+    //
+    public const string AppName = "Steamified SPT Mod Manager";
+
+    public const string ShortName = "SSPTMM";
+
+    public const string RepositoryUrl = "https://github.com/trappuss/SSPTMM";
+
+    public const string IssuesUrl = RepositoryUrl + "/issues";
+
+    // The original, credited on the About page. OriginalVersion is the release last merged in -
+    // bump it with each merge.
+    public const string OriginalAuthor = "TheCrimsonFckr";
+
+    public const string OriginalVersion = "1.19.0-beta";
+
     // Fallback only. The live Mod.DetailUrl from the API is preferred wherever one is available,
     // so a slug change on sp-mod.com doesn't leave the app pointing at a dead link.
     public const string ModPageUrl = "https://sp-mod.com/mod/2945/tcf-mod-manager";
 
     //
-    // True in the steam-workshop-ui fork. The listing above is the original app's: its download is
-    // the original build, so installing it over this one would replace the fork with the original
-    // and every change the fork makes would be gone. The update check still runs - a newer version
-    // of the original is worth knowing about, to merge - but the in-app installer does not.
+    // True for SSPTMM. The listing above is the original app's: its download is the original build,
+    // so installing it over this one would replace SSPTMM with the original. So the original's update
+    // check does not run at all (AppUpdateViewModel) and its installer is never offered; newer
+    // releases of the original are merged in by hand instead.
     //
     public const bool IsFork = true;
+
+    // Whether the original's sp-mod.com listing is checked for a newer version. A property rather
+    // than a const, so code behind it is not compiled as unreachable.
+    public static bool ChecksOriginalUpdates => !IsFork;
 }

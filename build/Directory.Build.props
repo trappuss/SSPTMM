@@ -4,24 +4,19 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
-    <Company>TheCrimsonFuckr</Company>
-    <Product>TCFModManager</Product>
+    <Company>trappuss</Company>
+    <Product>Steamified SPT Mod Manager</Product>
 
     <!--
-      The single place a release version is set. Bump this before running package-release.ps1, and
-      pass the same value to its -Version parameter.
+      The single place SSPTMM's version is set - its own numbering, separate from the TCF Mod Manager
+      release it is based on (SelfMod.OriginalVersion, bumped with each merge of the original).
 
-      This is no longer cosmetic. The app reads its own version back out of the assembly at runtime
-      (Core's AppVersion), shows it in the title bar, and compares it against what's published on
-      sp-mod.com to decide whether to offer a self-update. Left behind what was actually released,
-      the app offers an update it already has; run ahead of it, the app never offers one at all.
-
-      MSBuild copies this into AssemblyInformationalVersion verbatim - the only one of the three
-      generated version attributes that keeps a pre-release suffix. AssemblyVersion and
-      AssemblyFileVersion drop "-beta" and become 1.3.0.0, which is why AppVersion reads the
-      informational one.
+      The app reads it back out of the assembly at runtime (Core's AppVersion) for the title bar, the
+      About page, the logs and the user agent sp-mod.com sees. MSBuild copies it into
+      AssemblyInformationalVersion verbatim - the only one of the three generated version attributes
+      that keeps a pre-release suffix, which is why AppVersion reads that one.
     -->
-    <Version>1.19.0-beta</Version>
+    <Version>1.0.0</Version>
 
     <!--
       Stack traces embed the absolute path of every source file as it existed on the build machine,

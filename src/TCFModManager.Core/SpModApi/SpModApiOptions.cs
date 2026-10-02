@@ -11,5 +11,5 @@ public sealed class SpModApiOptions
     // here, which is what stops it going stale - it read "TCFModManager/0.1" while releases were at
     // 1.3.0-beta. Keeping it derived also means the release script only ever has one version to
     // write (build\Directory.Build.props), instead of rewriting a source file too.
-    public string UserAgent { get; init; } = $"TCFModManager/{AppVersion.Current}";
+    public string UserAgent { get; init; } = $"{SelfMod.ShortName}/{AppVersion.Current}";
 }

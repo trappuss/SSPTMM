@@ -30,7 +30,7 @@ public sealed class RemotePicture : Image
     private static HttpClient CreateClient()
     {
         var http = new HttpClient { Timeout = TimeSpan.FromSeconds(60) };
-        http.DefaultRequestHeaders.UserAgent.ParseAdd($"TCFModManager/{AppVersion.Current}");
+        http.DefaultRequestHeaders.UserAgent.ParseAdd($"{SelfMod.ShortName}/{AppVersion.Current}");
         http.DefaultRequestHeaders.Referrer = new Uri("https://sp-mod.com/");
         return http;
     }

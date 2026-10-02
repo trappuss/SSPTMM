@@ -16,7 +16,10 @@
     <UseWPF>true</UseWPF>
     <OutputType>WinExe</OutputType>
     <RootNamespace>TCFModManager.App</RootNamespace>
-    <AssemblyName>TCFModManager</AssemblyName>
+    <AssemblyName>SSPTMM</AssemblyName>
+    <!-- The exe's file description: what Windows calls the app in the taskbar, Task Manager and its
+         notification settings. -->
+    <AssemblyTitle>Steamified SPT Mod Manager</AssemblyTitle>
     <ApplicationIcon>Assets\AppIcon.ico</ApplicationIcon>
 
     <!--

@@ -1694,7 +1694,6 @@ internal static class Strings
     internal static string Favorites_Empty => LocalizationService.Get("Favorites_Empty");
     internal static string Favorites_Changed => LocalizationService.Get("Favorites_Changed");
     internal static string Favorites_CouldNotCheck => LocalizationService.Get("Favorites_CouldNotCheck");
-    internal static string AppUpdate_ForkNote => LocalizationService.Get("AppUpdate_ForkNote");
     internal static string App_DataProblemTitle => LocalizationService.Get("App_DataProblemTitle");
     internal static string App_DataDamagedFormat => LocalizationService.Get("App_DataDamagedFormat");
     internal static string App_DataNotKept => LocalizationService.Get("App_DataNotKept");
@@ -2414,4 +2413,11 @@ internal static class Strings
     internal static string Filter_HasConflictsToolTip => LocalizationService.Get("Filter_HasConflictsToolTip");
     internal static string Play_ConflictsHint => LocalizationService.Get("Play_ConflictsHint");
     internal static string Conflicts_KeepBlockedFormat => LocalizationService.Get("Conflicts_KeepBlockedFormat");
+    internal static string Nav_About => LocalizationService.Get("Nav_About");
+    internal static string About_Description => LocalizationService.Get("About_Description");
+    internal static string About_VersionFormat => LocalizationService.Get("About_VersionFormat");
+    internal static string About_BasedOnFormat => LocalizationService.Get("About_BasedOnFormat");
+    internal static string About_OriginalLink => LocalizationService.Get("About_OriginalLink");
+    internal static string About_SourceLink => LocalizationService.Get("About_SourceLink");
+    internal static string About_Updates => LocalizationService.Get("About_Updates");
 }
