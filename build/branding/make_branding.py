@@ -13,7 +13,7 @@ Everything below is generated from it, so a new mascot is one file swap and one 
     docs/images/ssptmm-social.png                   GitHub social preview (1280x640, set by hand
                                                     in the repository's Settings > General)
 
-The icon sits on a dark Steam-blue tile because the mascot is mostly white: on its own it would
+The icon sits on a square dark Steam-blue tile (boxed, like the mods' thumbnails beside it) because the mascot is mostly white: on its own it would
 vanish on a light taskbar or a light GitHub page. At 16-32 px the whole mascot is a smudge, so
 those sizes show its helmeted head instead.
 """
@@ -83,8 +83,8 @@ def paste_centred(base: Image.Image, image: Image.Image, centre: tuple[int, int]
     base.alpha_composite(image, (x, y))
 
 
-def tile(size: int, art: Image.Image, fill: float, radius_ratio: float = 0.18, border: bool = True) -> Image.Image:
-    """The art centred on a rounded Steam-blue tile."""
+def tile(size: int, art: Image.Image, fill: float, radius_ratio: float = 0.0, border: bool = False) -> Image.Image:
+    """The art centred on a square Steam-blue tile, boxed like a mod's thumbnail."""
     base = gradient((size, size))
     if border and size >= 48:
         ImageDraw.Draw(base).rounded_rectangle(
@@ -100,7 +100,7 @@ def icon(mascot: Image.Image, head: Image.Image) -> list[Image.Image]:
     frames = []
     for size in (16, 20, 24, 32, 40, 48, 64, 96, 128, 256):
         if size <= 32:
-            frames.append(tile(size * 4, head, 0.86, radius_ratio=0.16, border=False).resize((size, size), Image.LANCZOS))
+            frames.append(tile(size * 4, head, 0.86).resize((size, size), Image.LANCZOS))
         else:
             frames.append(tile(size, mascot, 0.86))
     return frames
