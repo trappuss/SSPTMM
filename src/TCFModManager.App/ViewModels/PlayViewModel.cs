@@ -240,9 +240,13 @@ public partial class PlayViewModel : LocalizedViewModel
     // Whether Start server runs it without its window (Options) - the card says which it does.
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ServerDescription))]
+    [NotifyPropertyChangedFor(nameof(ServerSummary))]
     private bool _hidesServerWindow;
 
     public string ServerDescription => HidesServerWindow ? Strings.Play_ServerDescriptionHidden : Strings.Play_ServerDescription;
+
+    // Fork (UI tidy-up 3): the one line on show; ServerDescription is behind the "?" beside it.
+    public string ServerSummary => HidesServerWindow ? Strings.Play_ServerSummaryHidden : Strings.Play_ServerSummary;
 
     // What Options has been told this machine is - see AppSettings.PlaysHere / RunsHeadlessClient.
     [ObservableProperty]

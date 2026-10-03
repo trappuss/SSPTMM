@@ -14,6 +14,7 @@
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:converters="clr-namespace:TCFModManager.App.Converters"
     xmlns:loc="clr-namespace:TCFModManager.App.Localization"
+    xmlns:views="clr-namespace:TCFModManager.App.Views"
     Title="{loc:Str Nav_ModLists}"
     Loaded="ModListsPage_Loaded"
     Unloaded="ModListsPage_Unloaded"
@@ -408,9 +409,15 @@
                 TextWrapping="Wrap"
                 MaxWidth="520"
                 HorizontalAlignment="Left"
+                FontSize="14"
                 Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                Visibility="{Binding HasSelection, Converter={StaticResource FalseToVisible}}"
-                Text="{loc:Str ModLists_EmptyState}" />
+                Visibility="{Binding HasSelection, Converter={StaticResource FalseToVisible}}">
+                <!-- Fork (UI tidy-up 3): what to do now on show; what a mod list is, behind the "?".
+                     FontSize is set because, measured under Wine, this line came out smaller once it
+                     held a Run and the "?" than it did as plain Text (14, as the line under it still
+                     is). Why is not known - the Play page's lines, inside cards, kept their size. -->
+                <Run Text="{loc:Str ModLists_EmptyStateShort}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str ModLists_AboutLists}" /></InlineUIContainer>
+            </TextBlock>
 
             <!-- Header: the name, then the two things you actually do, then the quieter rest. -->
             <StackPanel

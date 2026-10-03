@@ -2635,11 +2635,6 @@ La copie que vous ne gardez pas est déplacée dans un dossier caché .ssptmm-du
   <data name="ModLists_Dropped_other" xml:space="preserve">
     <value>{0} modifications non enregistrées abandonnées - elles n'ont jamais été écrites dans la liste.</value>
   </data>
-  <data name="ModLists_EmptyState" xml:space="preserve">
-    <value>Choisissez une liste à gauche, ou capturez ce que vous avez installé.
-
-Une liste de mods enregistre les mods à installer et à activer. En appliquer une télécharge ce qui manque depuis sp-mod.com et met de côté tout ce que la liste ne nomme pas - elle ne supprime jamais un mod.</value>
-  </data>
   <data name="ModLists_EntriesHeaderFilteredFormat" xml:space="preserve">
     <value>Mods de cette liste : {0} sur {1}</value>
   </data>
@@ -4363,9 +4358,6 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
   <data name="Options_InstallModeHeader" xml:space="preserve">
     <value>Mode d'installation</value>
   </data>
-  <data name="Options_InstallModeHint" xml:space="preserve">
-    <value>Installer les mods pour vous, ou seulement les télécharger. À côté de chaque bouton d'installation, un petit bouton fait l'inverse.</value>
-  </data>
   <data name="Options_MonitorFolderHint" xml:space="preserve">
     <value>L'endroit où les mods téléchargés sont enregistrés. Vide signifie votre dossier Téléchargements de Windows.</value>
   </data>
@@ -5575,9 +5567,6 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
   <data name="Options_RemovedModsHeader" xml:space="preserve">
     <value>Conserver les mods supprimés</value>
   </data>
-  <data name="Options_RemovedModsHint" xml:space="preserve">
-    <value>Supprimer un mod déplace ses fichiers dans un dossier caché de l'installation, afin de pouvoir annuler. Choisissez combien de temps ils y restent.</value>
-  </data>
   <data name="Options_RemovedModsDescription" xml:space="preserve">
     <value>Les mods supprimés sont conservés dans .ssptmm-removed dans votre dossier SPT, puis effacés au démarrage de l'application une fois leur délai écoulé. Les mises à jour y conservent aussi la version qu'elles ont remplacée.</value>
   </data>
@@ -5782,5 +5771,14 @@ Voir Dépendances et conflits.</value>
   </data>
   <data name="Conflicts_KeepBlockedFormat" xml:space="preserve">
     <value>{0} a aussi des fichiers qui ne sont pas en double, et il a été installé avec cette application : il ne peut être supprimé qu'en entier, et ces fichiers partiraient aussi. Supprimez-le plutôt depuis la page Installés, où Supprimer montre tout ce qu'il emporte.</value>
+  </data>
+  <data name="ModLists_EmptyStateShort" xml:space="preserve">
+    <value>Choisissez une liste à gauche, ou capturez ce que vous avez installé.</value>
+  </data>
+  <data name="ModLists_AboutLists" xml:space="preserve">
+    <value>Une liste de mods enregistre les mods à installer et à activer. En appliquer une télécharge ce qui manque depuis sp-mod.com et met de côté tout ce que la liste ne nomme pas - elle ne supprime jamais un mod.</value>
+  </data>
+  <data name="Options_InstallModeSummary" xml:space="preserve">
+    <value>Installer les mods pour vous, ou seulement les télécharger.</value>
   </data>
 </root>

@@ -449,12 +449,6 @@
   <data name="ModLists_UndoToolTip" xml:space="preserve">
     <value>Puts every mod back the way it was before that list was applied. Usually just moves mods - nothing to download.</value>
   </data>
-  <data name="ModLists_EmptyState" xml:space="preserve">
-    <value>Pick a list on the left, or capture what you have installed now.
-
-A mod list records which mods to install and enable. Applying one downloads whatever is missing from sp-mod.com and sets aside anything the list doesn't name - it never deletes a mod.</value>
-    <comment>Shown in the right pane when no list is selected. The blank line between the two paragraphs is deliberate.</comment>
-  </data>
   <data name="ModLists_Rename" xml:space="preserve">
     <value>Rename</value>
   </data>
@@ -7125,9 +7119,6 @@ Install the file as it is anyway?</value>
   <data name="Options_InstallModeHeader" xml:space="preserve">
     <value>Install mode</value>
   </data>
-  <data name="Options_InstallModeHint" xml:space="preserve">
-    <value>Install mods for you, or only download them. Every install button has a small button beside it that does the other.</value>
-  </data>
   <data name="Options_MonitorFolderHint" xml:space="preserve">
     <value>Where downloaded mods are saved. Empty means your Windows Downloads folder.</value>
   </data>
@@ -8751,10 +8742,6 @@ Install the file as it is anyway?</value>
     <value>Keep removed mods</value>
     <comment>Options setting title.</comment>
   </data>
-  <data name="Options_RemovedModsHint" xml:space="preserve">
-    <value>Removing a mod moves its files into a hidden folder in the install, so it can be undone. Choose how long they stay there.</value>
-    <comment>Options setting hint, under the title.</comment>
-  </data>
   <data name="Options_RemovedModsDescription" xml:space="preserve">
     <value>Removed mods are kept in .ssptmm-removed inside your SPT folder, and deleted when the app starts once their time is up. Updates keep the version they replaced there too.</value>
     <comment>Tooltip on the Keep removed mods setting. .tcfmm-removed is a folder name, not translated.</comment>
@@ -9139,5 +9126,69 @@ See Dependencies and Conflicts.</value>
   <data name="Help_Installed_DisableMany_Step3" xml:space="preserve">
     <value>Press {0} when you have finished.</value>
     <comment>Help step: leaving multi select. {0} is the Done button on the multi select bar.</comment>
+  </data>
+  <data name="Play_ServerSummary" xml:space="preserve">
+    <value>Starts the SPT server in its own window. It keeps running if you close this app.</value>
+    <comment>Play page, under SPT server: the line on show. The full explanation (Play_ServerDescription) is behind the "?" beside it.</comment>
+  </data>
+  <data name="Play_ServerSummaryHidden" xml:space="preserve">
+    <value>Starts the SPT server with no window - its log shows below. It keeps running if you close this app.</value>
+    <comment>Play page, under SPT server, when Options hides the server window: the line on show. The full explanation (Play_ServerDescriptionHidden) is behind the "?".</comment>
+  </data>
+  <data name="Play_LauncherSummary" xml:space="preserve">
+    <value>Pick a profile and start the game. Start the server first.</value>
+    <comment>Play page, under Game launcher: the line on show. The full explanation is behind the "?".</comment>
+  </data>
+  <data name="Play_HeadlessSummary" xml:space="preserve">
+    <value>Hosts raids for other players. Start the server first.</value>
+    <comment>Play page, under Fika headless client: the line on show. The full explanation is behind the "?".</comment>
+  </data>
+  <data name="Configs_DisclaimerShort" xml:space="preserve">
+    <value>A wrong setting can break the mod or your game, and the author isn't the one to put it right. Every file is backed up before it's saved.</value>
+    <comment>Configs page warning, the line on show. Hovering the warning shows the full text (Configs_DisclaimerMessage).</comment>
+  </data>
+  <data name="ModLists_EmptyStateShort" xml:space="preserve">
+    <value>Pick a list on the left, or capture what you have installed now.</value>
+    <comment>Collections page with no list picked. What a mod list is (ModLists_AboutLists) is behind the "?" beside it.</comment>
+  </data>
+  <data name="ModLists_AboutLists" xml:space="preserve">
+    <value>A mod list records which mods to install and enable. Applying one downloads whatever is missing from sp-mod.com and sets aside anything the list doesn't name - it never deletes a mod.</value>
+    <comment>Behind the "?" on the Collections page: what a mod list is.</comment>
+  </data>
+  <data name="Options_LaunchSummary" xml:space="preserve">
+    <value>Start server also opens the SPT launcher, once the server is up.</value>
+    <comment>Options, Starting the game: the line on show. The full explanation (Options_LaunchDescription) is behind the "?".</comment>
+  </data>
+  <data name="Options_TabsBackgroundSummary" xml:space="preserve">
+    <value>Hide the Subscribed items or Collections tab, or use a picture of your own.</value>
+    <comment>Options, Tabs and background: the line on show. The full explanation is behind the "?".</comment>
+  </data>
+  <data name="Options_ScrollingSummary" xml:space="preserve">
+    <value>Smooth scrolling glides the page, as a web browser does.</value>
+    <comment>Options, Scrolling: the line on show. The full explanation is behind the "?".</comment>
+  </data>
+  <data name="Options_InstallModeSummary" xml:space="preserve">
+    <value>Install mods for you, or only download them.</value>
+    <comment>Options, Install mode: the line on show. The full explanation (Options_MonitorDescription) is behind the "?".</comment>
+  </data>
+  <data name="Options_RemovedModsSummary" xml:space="preserve">
+    <value>How long unsubscribed mods are kept, so Undo can bring them back.</value>
+    <comment>Options, Keep removed mods: the line on show. Where they are kept (Options_RemovedModsDescription) is behind the "?".</comment>
+  </data>
+  <data name="Options_DownloadsSummary" xml:space="preserve">
+    <value>Up to three download at once, and downloaded files are kept for reinstalling.</value>
+    <comment>Options, Downloads: the line on show. The full explanation is behind the "?".</comment>
+  </data>
+  <data name="Options_UnsubscribeSummary" xml:space="preserve">
+    <value>Ask what will be deleted, and what to do with config files, before unsubscribing.</value>
+    <comment>Options, Unsubscribing: the line on show. The full explanation is behind the "?".</comment>
+  </data>
+  <data name="Options_ServerMapLanOnlySummary" xml:space="preserve">
+    <value>Players connecting over the internet can't see your list or the map.</value>
+    <comment>Options, Server Map, Only answer this network: the line on show. The full explanation is behind the "?".</comment>
+  </data>
+  <data name="Options_ServerMapReportSummary" xml:space="preserve">
+    <value>Shows this machine, its mods and whether it's playing to everyone with the server's key.</value>
+    <comment>Options, Server Map, Report this machine to the server: the line on show. The full explanation is behind the "?".</comment>
   </data>
 </root>

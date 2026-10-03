@@ -2797,11 +2797,6 @@
   <data name="ModLists_Dropped_one" xml:space="preserve">
     <value>Отброшено {0} несохранённое изменение - оно так и не было записано в список.</value>
   </data>
-  <data name="ModLists_EmptyState" xml:space="preserve">
-    <value>Выберите список слева или запишите то, что установлено у вас сейчас.
-
-Список модов задаёт, какие моды установить и включить. Применение списка скачивает недостающее с sp-mod.com и откладывает всё, что в списке не названо, - мод при этом никогда не удаляется.</value>
-  </data>
   <data name="ModLists_EntriesHeaderFilteredFormat" xml:space="preserve">
     <value>Моды в этом списке: {0} из {1}</value>
   </data>
@@ -4591,9 +4586,6 @@
   <data name="Options_InstallModeHeader" xml:space="preserve">
     <value>Режим установки</value>
   </data>
-  <data name="Options_InstallModeHint" xml:space="preserve">
-    <value>Устанавливать моды за вас или только скачивать их. Рядом с каждой кнопкой установки есть маленькая кнопка, которая делает обратное.</value>
-  </data>
   <data name="Options_MonitorFolderHint" xml:space="preserve">
     <value>Куда сохраняются скачанные моды. Пусто - папка «Загрузки» Windows.</value>
   </data>
@@ -5860,9 +5852,6 @@
   <data name="Options_RemovedModsHeader" xml:space="preserve">
     <value>Хранить удалённые моды</value>
   </data>
-  <data name="Options_RemovedModsHint" xml:space="preserve">
-    <value>При удалении мода его файлы переносятся в скрытую папку установки, чтобы это можно было отменить. Выберите, как долго они там хранятся.</value>
-  </data>
   <data name="Options_RemovedModsDescription" xml:space="preserve">
     <value>Удалённые моды хранятся в .ssptmm-removed в папке SPT и стираются при запуске приложения, когда их срок истёк. Обновления тоже оставляют там заменённую версию.</value>
   </data>
@@ -6094,5 +6083,14 @@
   </data>
   <data name="Conflicts_KeepBlockedFormat" xml:space="preserve">
     <value>У {0} есть и файлы, которые не дублируются, а установлен он этим приложением, поэтому удалить его можно только целиком - эти файлы тоже уйдут. Удалите его на странице «Установленные», где «Удалить» показывает всё, что будет удалено.</value>
+  </data>
+  <data name="ModLists_EmptyStateShort" xml:space="preserve">
+    <value>Выберите список слева или запишите то, что установлено у вас сейчас.</value>
+  </data>
+  <data name="ModLists_AboutLists" xml:space="preserve">
+    <value>Список модов задаёт, какие моды установить и включить. Применение списка скачивает недостающее с sp-mod.com и откладывает всё, что в списке не названо, - мод при этом никогда не удаляется.</value>
+  </data>
+  <data name="Options_InstallModeSummary" xml:space="preserve">
+    <value>Устанавливать моды за вас или только скачивать их.</value>
   </data>
 </root>

@@ -32,7 +32,10 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!-- Closable, but not remembered - see ShowDisclaimer on the view model. -->
+        <!-- Closable, but not remembered - see ShowDisclaimer on the view model.
+             Fork (UI tidy-up 3): one line on show; hovering the banner shows the whole of it.
+             WPF-UI's InfoBar template has a title and a message and nothing else - no room for
+             the "?" the other pages use. -->
         <ui:InfoBar
             Grid.Row="0"
             Margin="0,0,0,12"
@@ -40,7 +43,9 @@
             IsClosable="True"
             IsOpen="{Binding ShowDisclaimer, Mode=TwoWay}"
             Title="{loc:Str Configs_DisclaimerTitle}"
-            Message="{loc:Str Configs_DisclaimerMessage}" />
+            Message="{loc:Str Configs_DisclaimerShort}"
+            ToolTip="{loc:Str Configs_DisclaimerMessage}"
+            ToolTipService.ShowDuration="60000" />
 
         <DockPanel Grid.Row="1" Margin="0,0,0,12">
             <ui:Button

@@ -117,7 +117,6 @@ internal static class Strings
     internal static string ModLists_FollowingServerToolTip => LocalizationService.Get("ModLists_FollowingServerToolTip");
     internal static string ModLists_FollowingToolTip => LocalizationService.Get("ModLists_FollowingToolTip");
     internal static string ModLists_UndoToolTip => LocalizationService.Get("ModLists_UndoToolTip");
-    internal static string ModLists_EmptyState => LocalizationService.Get("ModLists_EmptyState");
     internal static string ModLists_Rename => LocalizationService.Get("ModLists_Rename");
     internal static string ModLists_RenameToolTip => LocalizationService.Get("ModLists_RenameToolTip");
     internal static string ModLists_Preview => LocalizationService.Get("ModLists_Preview");
@@ -1899,7 +1898,6 @@ internal static class Strings
     internal static string Options_AppearanceHint => LocalizationService.Get("Options_AppearanceHint");
     internal static string Options_WindowHint => LocalizationService.Get("Options_WindowHint");
     internal static string Options_InstallModeHeader => LocalizationService.Get("Options_InstallModeHeader");
-    internal static string Options_InstallModeHint => LocalizationService.Get("Options_InstallModeHint");
     internal static string Options_MonitorFolderHint => LocalizationService.Get("Options_MonitorFolderHint");
     internal static string Options_MonitorConfirmHint => LocalizationService.Get("Options_MonitorConfirmHint");
     internal static string Options_ModPagesTitle => LocalizationService.Get("Options_ModPagesTitle");
@@ -2348,7 +2346,6 @@ internal static class Strings
     internal static string Installed_RemoveUnstampedFormat => LocalizationService.Get("Installed_RemoveUnstampedFormat");
     internal static string Installed_RemoveUnstampedManyFormat => LocalizationService.Get("Installed_RemoveUnstampedManyFormat");
     internal static string Options_RemovedModsHeader => LocalizationService.Get("Options_RemovedModsHeader");
-    internal static string Options_RemovedModsHint => LocalizationService.Get("Options_RemovedModsHint");
     internal static string Options_RemovedModsDescription => LocalizationService.Get("Options_RemovedModsDescription");
     internal static string Options_RemovedModsDeleteStraightAway => LocalizationService.Get("Options_RemovedModsDeleteStraightAway");
     internal static string Options_RemovedModsOneDay => LocalizationService.Get("Options_RemovedModsOneDay");
@@ -2442,4 +2439,20 @@ internal static class Strings
     internal static string Installed_MoreDetails => LocalizationService.Get("Installed_MoreDetails");
     internal static string Installed_FewerDetails => LocalizationService.Get("Installed_FewerDetails");
     internal static string Help_Installed_DisableMany_Step3 => LocalizationService.Get("Help_Installed_DisableMany_Step3");
+    internal static string Play_ServerSummary => LocalizationService.Get("Play_ServerSummary");
+    internal static string Play_ServerSummaryHidden => LocalizationService.Get("Play_ServerSummaryHidden");
+    internal static string Play_LauncherSummary => LocalizationService.Get("Play_LauncherSummary");
+    internal static string Play_HeadlessSummary => LocalizationService.Get("Play_HeadlessSummary");
+    internal static string Configs_DisclaimerShort => LocalizationService.Get("Configs_DisclaimerShort");
+    internal static string ModLists_EmptyStateShort => LocalizationService.Get("ModLists_EmptyStateShort");
+    internal static string ModLists_AboutLists => LocalizationService.Get("ModLists_AboutLists");
+    internal static string Options_LaunchSummary => LocalizationService.Get("Options_LaunchSummary");
+    internal static string Options_TabsBackgroundSummary => LocalizationService.Get("Options_TabsBackgroundSummary");
+    internal static string Options_ScrollingSummary => LocalizationService.Get("Options_ScrollingSummary");
+    internal static string Options_InstallModeSummary => LocalizationService.Get("Options_InstallModeSummary");
+    internal static string Options_RemovedModsSummary => LocalizationService.Get("Options_RemovedModsSummary");
+    internal static string Options_DownloadsSummary => LocalizationService.Get("Options_DownloadsSummary");
+    internal static string Options_UnsubscribeSummary => LocalizationService.Get("Options_UnsubscribeSummary");
+    internal static string Options_ServerMapLanOnlySummary => LocalizationService.Get("Options_ServerMapLanOnlySummary");
+    internal static string Options_ServerMapReportSummary => LocalizationService.Get("Options_ServerMapReportSummary");
 }

@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:loc="clr-namespace:TCFModManager.App.Localization"
+    xmlns:views="clr-namespace:TCFModManager.App.Views"
     xmlns:controls="clr-namespace:System.Windows.Controls;assembly=PresentationFramework"
     xmlns:app="clr-namespace:TCFModManager.App"
     xmlns:converters="clr-namespace:TCFModManager.App.Converters"
@@ -118,8 +119,10 @@
                 <TextBlock
                     TextWrapping="Wrap"
                     Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                    Margin="0,0,0,8"
-                    Text="{Binding ServerDescription}" />
+                    Margin="0,0,0,8">
+                    <!-- Fork (UI tidy-up 3): one line on show, the rest behind the "?". -->
+                    <Run Text="{Binding ServerSummary, Mode=OneWay}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{Binding ServerDescription}" /></InlineUIContainer>
+                </TextBlock>
 
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                     <ui:Button
@@ -243,8 +246,9 @@
                 <TextBlock
                     TextWrapping="Wrap"
                     Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                    Margin="0,0,0,8"
-                    Text="{loc:Str Play_LauncherDescription}" />
+                    Margin="0,0,0,8">
+                    <Run Text="{loc:Str Play_LauncherSummary}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Play_LauncherDescription}" /></InlineUIContainer>
+                </TextBlock>
 
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                     <ui:Button
@@ -285,8 +289,9 @@
                 <TextBlock
                     TextWrapping="Wrap"
                     Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                    Margin="0,0,0,8"
-                    Text="{loc:Str Play_HeadlessDescription}" />
+                    Margin="0,0,0,8">
+                    <Run Text="{loc:Str Play_HeadlessSummary}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Play_HeadlessDescription}" /></InlineUIContainer>
+                </TextBlock>
 
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                     <ui:Button

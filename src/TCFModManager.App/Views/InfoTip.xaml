@@ -1,0 +1,42 @@
+<!--
+    Fork (SSPTMM, UI tidy-up 3): a small "?" at the end of a short line of explanation, holding the
+    rest of it. Pages used to say everything at once - four sentences under Start server, three
+    lines of warning over Configs - which is a lot to read before doing anything. Now the line on
+    show is the one you need, and the "?" says there is more, for whoever wants it.
+
+    Hover it (or tab to it) for the full text. Steam's own settings mark extra help the same way.
+
+    HUNCH: the look - a 15px ring in the Workshop's secondary grey, brightening under the pointer -
+    is chosen to sit with the Steam palette, not measured from Steam.
+-->
+<UserControl
+    x:Class="TCFModManager.App.Views.InfoTip"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Focusable="True"
+    IsTabStop="True"
+    Cursor="Help"
+    VerticalAlignment="Center"
+    ToolTipService.InitialShowDelay="150"
+    ToolTipService.ShowDuration="60000"
+    ToolTipService.ShowsToolTipOnKeyboardFocus="True">
+    <Border
+        x:Name="Ring"
+        Width="15"
+        Height="15"
+        Margin="6,0,0,0"
+        CornerRadius="8"
+        BorderThickness="1"
+        BorderBrush="#8F98A0"
+        Background="Transparent">
+        <TextBlock
+            x:Name="Mark"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Margin="0,-1,0,0"
+            FontSize="10"
+            FontWeight="Bold"
+            Foreground="#8F98A0"
+            Text="?" />
+    </Border>
+</UserControl>

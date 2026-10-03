@@ -1186,6 +1186,35 @@ Checked under Wine:
   Workshop. The mods were then put back.
 - Disabling a mod showed Undo, and Undo put it back and the line went away.
 
+## Round 27: one line of explanation, the rest behind a "?" (2026-10-02)
+
+The third tidy-up. Pages explained everything up front. There were four sentences under Start
+server, a three-line warning over Configs, a paragraph on Collections, and Options rows whose
+hint ran across the window. Now each says one line, and a small "?" at the end of it holds the
+rest. The "?" (InfoTip) shows the full text when hovered or tabbed to.
+
+- **Play:** the server, launcher and headless-client cards each have a one-line summary.
+- **Configs:** InfoBar's template has a title and a message and nothing else, so there is no room
+  for a "?". The message is one line, and hovering the warning shows the whole of it.
+- **Collections:** "Pick a list on the left..." on show; what a mod list is behind the "?". Both
+  halves were already translated as one string's two paragraphs, so the translations carry over.
+- **Options:** every hint is one line.
+  - Nine rows had put their whole explanation in the hint and now have a short one: Starting the
+    game, Tabs and background, Scrolling, Install mode, Keep removed mods, Downloads,
+    Unsubscribing, and Server Map's "Only answer this network" and "Report this machine".
+  - Every row that already kept its longer explanation in a hover-the-row tooltip also has the
+    "?", so that explanation can be found.
+  - Install mode's short line is the first sentence of its old hint, in all five languages.
+- Sixteen strings are new. Thirteen fall back to English until translated. The other three (the
+  Collections pair and Install mode) are made from the existing translations.
+- The Collections line came out smaller once it held a Run and the "?" than it had as plain
+  text, measured against a screenshot from before. Its size is now set (14). Why it happened
+  is not known. Play's lines, inside cards, kept their size.
+
+Found while checking, and left for its own round: 18 strings still name pages by their old
+names ("the Installed page", "the Mod lists page") or call Unsubscribe "Remove". One also places
+Save as default "beside Clear filters", where it no longer is.
+
 ## Values that could not be measured (marked HUNCH in the source)
 
 - The smooth-scroll distance and time (100px, 250ms) - chosen to feel like a browser, not measured.
@@ -1208,6 +1237,7 @@ Checked under Wine:
 - The downloads bar (40px on `#171A21`, its text sizes and greys) and the Options gear (36px,
   Steam's grey button colours): Steam draws both in its client, not on a web page, so they are
   chosen to match the Workshop palette, not measured.
+- The "?" (InfoTip): a 15px ring in the Workshop's secondary grey, brightening under the pointer.
 - Critical/error red (`#E05A5A`): no error state on the pages measured.
 - Outlined "View All" hover fill.
 - Whether Steam's file sizes count in 1000s or 1024s ("22.946 KB" reads as 1000s).

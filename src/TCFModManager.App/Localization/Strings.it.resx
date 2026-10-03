@@ -2635,11 +2635,6 @@ La copia che non conservi viene spostata in una cartella nascosta .ssptmm-duplic
   <data name="ModLists_Dropped_other" xml:space="preserve">
     <value>{0} modifiche non salvate sono state scartate - non erano mai state scritte nella lista.</value>
   </data>
-  <data name="ModLists_EmptyState" xml:space="preserve">
-    <value>Scegli una lista a sinistra, oppure cattura ciò che hai installato adesso.
-
-Una lista mod registra quali mod installare e attivare. Applicarne una scarica da sp-mod.com ciò che manca e mette da parte tutto quello che la lista non nomina - non elimina mai un mod.</value>
-  </data>
   <data name="ModLists_EntriesHeaderFilteredFormat" xml:space="preserve">
     <value>Mod in questa lista: {0} di {1}</value>
   </data>
@@ -4363,9 +4358,6 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
   <data name="Options_InstallModeHeader" xml:space="preserve">
     <value>Modalità di installazione</value>
   </data>
-  <data name="Options_InstallModeHint" xml:space="preserve">
-    <value>Installare i mod per te o solo scaricarli. Accanto a ogni pulsante di installazione c'è un piccolo pulsante che fa l'altra cosa.</value>
-  </data>
   <data name="Options_MonitorFolderHint" xml:space="preserve">
     <value>Dove vengono salvati i mod scaricati. Vuoto significa la cartella Download di Windows.</value>
   </data>
@@ -5575,9 +5567,6 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
   <data name="Options_RemovedModsHeader" xml:space="preserve">
     <value>Conserva le mod rimosse</value>
   </data>
-  <data name="Options_RemovedModsHint" xml:space="preserve">
-    <value>Rimuovere una mod sposta i suoi file in una cartella nascosta dell'installazione, così si può annullare. Scegli per quanto tempo restano lì.</value>
-  </data>
   <data name="Options_RemovedModsDescription" xml:space="preserve">
     <value>Le mod rimosse restano in .ssptmm-removed nella tua cartella di SPT e vengono eliminate all'avvio dell'app quando il loro tempo è scaduto. Anche gli aggiornamenti vi conservano la versione che hanno sostituito.</value>
   </data>
@@ -5782,5 +5771,14 @@ Vedi Dipendenze e conflitti.</value>
   </data>
   <data name="Conflicts_KeepBlockedFormat" xml:space="preserve">
     <value>{0} ha anche file che non sono duplicati, ed è stata installata con questa app, quindi si può rimuovere solo per intero - anche quei file andrebbero via. Rimuovila invece dalla pagina Installati, dove Rimuovi mostra tutto ciò che porta via.</value>
+  </data>
+  <data name="ModLists_EmptyStateShort" xml:space="preserve">
+    <value>Scegli una lista a sinistra, oppure cattura ciò che hai installato adesso.</value>
+  </data>
+  <data name="ModLists_AboutLists" xml:space="preserve">
+    <value>Una lista mod registra quali mod installare e attivare. Applicarne una scarica da sp-mod.com ciò che manca e mette da parte tutto quello che la lista non nomina - non elimina mai un mod.</value>
+  </data>
+  <data name="Options_InstallModeSummary" xml:space="preserve">
+    <value>Installare i mod per te o solo scaricarli.</value>
   </data>
 </root>

@@ -2635,11 +2635,6 @@ Die Kopie, die du nicht behältst, wird in einen versteckten Ordner .ssptmm-dupl
   <data name="ModLists_Dropped_other" xml:space="preserve">
     <value>{0} ungespeicherte Änderungen verworfen - sie wurden nie in die Liste geschrieben.</value>
   </data>
-  <data name="ModLists_EmptyState" xml:space="preserve">
-    <value>Wähl links eine Liste aus oder erfass, was du gerade installiert hast.
-
-Eine Modliste hält fest, welche Mods installiert und aktiviert werden sollen. Wendest du eine an, wird alles Fehlende von sp-mod.com heruntergeladen und alles beiseitegelegt, was die Liste nicht nennt - ein Mod wird nie gelöscht.</value>
-  </data>
   <data name="ModLists_EntriesHeaderFilteredFormat" xml:space="preserve">
     <value>Mods auf dieser Liste: {0} von {1}</value>
   </data>
@@ -4363,9 +4358,6 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   <data name="Options_InstallModeHeader" xml:space="preserve">
     <value>Installationsmodus</value>
   </data>
-  <data name="Options_InstallModeHint" xml:space="preserve">
-    <value>Mods für dich installieren oder nur herunterladen. Neben jeder Installieren-Schaltfläche tut eine kleine Schaltfläche das jeweils andere.</value>
-  </data>
   <data name="Options_MonitorFolderHint" xml:space="preserve">
     <value>Wohin heruntergeladene Mods gespeichert werden. Leer bedeutet dein Windows-Downloads-Ordner.</value>
   </data>
@@ -5575,9 +5567,6 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   <data name="Options_RemovedModsHeader" xml:space="preserve">
     <value>Entfernte Mods behalten</value>
   </data>
-  <data name="Options_RemovedModsHint" xml:space="preserve">
-    <value>Beim Entfernen eines Mods werden seine Dateien in einen versteckten Ordner der Installation verschoben, damit es sich rückgängig machen lässt. Wähle, wie lange sie dort bleiben.</value>
-  </data>
   <data name="Options_RemovedModsDescription" xml:space="preserve">
     <value>Entfernte Mods werden in .ssptmm-removed in deinem SPT-Ordner aufbewahrt und beim Start der App gelöscht, wenn ihre Zeit abgelaufen ist. Updates legen dort auch die Version ab, die sie ersetzt haben.</value>
   </data>
@@ -5782,5 +5771,14 @@ Siehe Abhängigkeiten und Konflikte.</value>
   </data>
   <data name="Conflicts_KeepBlockedFormat" xml:space="preserve">
     <value>{0} hat auch Dateien, die nicht doppelt sind, und wurde mit dieser App installiert, kann also nur als Ganzes entfernt werden - diese Dateien gingen mit. Entferne es stattdessen auf der Seite Installiert, wo Entfernen alles zeigt, was es mitnimmt.</value>
+  </data>
+  <data name="ModLists_EmptyStateShort" xml:space="preserve">
+    <value>Wähl links eine Liste aus oder erfass, was du gerade installiert hast.</value>
+  </data>
+  <data name="ModLists_AboutLists" xml:space="preserve">
+    <value>Eine Modliste hält fest, welche Mods installiert und aktiviert werden sollen. Wendest du eine an, wird alles Fehlende von sp-mod.com heruntergeladen und alles beiseitegelegt, was die Liste nicht nennt - ein Mod wird nie gelöscht.</value>
+  </data>
+  <data name="Options_InstallModeSummary" xml:space="preserve">
+    <value>Mods für dich installieren oder nur herunterladen.</value>
   </data>
 </root>

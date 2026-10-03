@@ -7,12 +7,17 @@
     xmlns:controls="clr-namespace:System.Windows.Controls;assembly=PresentationFramework"
     xmlns:converters="clr-namespace:TCFModManager.App.Converters"
     xmlns:loc="clr-namespace:TCFModManager.App.Localization"
+    xmlns:views="clr-namespace:TCFModManager.App.Views"
     Title="{loc:Str Nav_Options}">
     <!--
         Laid out like Windows Settings: a heading per section, one row per setting with its name and
         a one-line hint on the left and the control on the right. A setting with more than one part is
         a CardExpander whose header still carries the main control, so the page reads complete with
         every expander closed. The longer explanation of each setting is the row's tooltip.
+
+        Fork (SSPTMM, UI tidy-up 3): every hint is one line, and a "?" at its end (InfoTip) holds
+        the longer explanation - so it can be found without knowing to hover the row. Several
+        fork-added rows had put the whole explanation in the hint; those now have a short one.
     -->
     <Page.Resources>
         <controls:BooleanToVisibilityConverter x:Key="BoolToVisibility" />
@@ -83,7 +88,7 @@
                 <StackPanel>
                     <StackPanel ToolTip="{loc:Str Options_InstallFolderDescription}" ToolTipService.ShowDuration="30000">
                         <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_InstallFolderHeader}" />
-                        <TextBlock Style="{StaticResource SettingHint}" Text="{loc:Str Options_InstallFolderHint}" />
+                        <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_InstallFolderHint}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_InstallFolderDescription}" /></InlineUIContainer></TextBlock>
                     </StackPanel>
 
                     <Grid Margin="0,10,0,0">
@@ -123,7 +128,7 @@
             <ui:CardControl.Header>
                 <StackPanel>
                     <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_Language_Header}" />
-                    <TextBlock Style="{StaticResource SettingHint}" Text="{loc:Str Options_LanguageHint}" />
+                    <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_LanguageHint}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_Language_Description}" /></InlineUIContainer></TextBlock>
                     <!-- Collapsed while the credit is empty, which is English. -->
                     <TextBlock
                         Style="{StaticResource SettingNote}"
@@ -150,7 +155,7 @@
             <ui:CardControl.Header>
                 <StackPanel>
                     <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_AppearanceHeader}" />
-                    <TextBlock Style="{StaticResource SettingHint}" Text="{loc:Str Options_AppearanceHint}" />
+                    <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_AppearanceHint}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_AppearanceDescription}" /></InlineUIContainer></TextBlock>
                 </StackPanel>
             </ui:CardControl.Header>
             <ComboBox
@@ -166,7 +171,7 @@
                 <StackPanel>
                     <StackPanel ToolTip="{loc:Str Options_WindowDescription}" ToolTipService.ShowDuration="30000">
                         <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_WindowHeader}" />
-                        <TextBlock Style="{StaticResource SettingHint}" Text="{loc:Str Options_WindowHint}" />
+                        <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_WindowHint}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_WindowDescription}" /></InlineUIContainer></TextBlock>
                     </StackPanel>
 
                     <!-- Only for the one mode that reads them. -->
@@ -225,7 +230,7 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel VerticalAlignment="Center">
                         <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_LaunchHeader}" />
-                        <TextBlock Style="{StaticResource SettingHint}" Text="{loc:Str Options_LaunchDescription}" />
+                        <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_LaunchSummary}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_LaunchDescription}" /></InlineUIContainer></TextBlock>
                     </StackPanel>
                     <ui:ToggleSwitch
                         Grid.Column="1"
@@ -257,7 +262,7 @@
             <ui:CardExpander.Header>
                 <StackPanel>
                     <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_TabsBackgroundHeader}" />
-                    <TextBlock Style="{StaticResource SettingHint}" Text="{loc:Str Options_TabsBackgroundDescription}" />
+                    <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_TabsBackgroundSummary}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_TabsBackgroundDescription}" /></InlineUIContainer></TextBlock>
                 </StackPanel>
             </ui:CardExpander.Header>
 
@@ -315,7 +320,7 @@
             <ui:CardControl.Header>
                 <StackPanel>
                     <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_ScrollingHeader}" />
-                    <TextBlock Style="{StaticResource SettingHint}" Text="{loc:Str Options_ScrollingDescription}" />
+                    <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_ScrollingSummary}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_ScrollingDescription}" /></InlineUIContainer></TextBlock>
                 </StackPanel>
             </ui:CardControl.Header>
             <ui:ToggleSwitch Style="{StaticResource RowSwitch}" IsChecked="{Binding SmoothScrolling}" />
@@ -340,7 +345,7 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel VerticalAlignment="Center">
                         <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_InstallModeHeader}" />
-                        <TextBlock Style="{StaticResource SettingHint}" Text="{loc:Str Options_InstallModeHint}" />
+                        <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_InstallModeSummary}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_MonitorDescription}" /></InlineUIContainer></TextBlock>
                     </StackPanel>
                     <ComboBox
                         Grid.Column="1"
@@ -358,7 +363,7 @@
                         Style="{StaticResource SettingTitle}"
                         Text="{loc:Str Options_MonitorFolderHeader}"
                         ToolTip="{loc:Str Options_MonitorFolderDescription}" />
-                    <TextBlock Style="{StaticResource SettingHint}" Text="{loc:Str Options_MonitorFolderHint}" />
+                    <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_MonitorFolderHint}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_MonitorFolderDescription}" /></InlineUIContainer></TextBlock>
                     <Grid Margin="0,8,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
@@ -399,7 +404,7 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_MonitorConfirmHeader}" />
-                            <TextBlock Style="{StaticResource SettingHint}" Text="{loc:Str Options_MonitorConfirmHint}" />
+                            <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_MonitorConfirmHint}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_MonitorConfirmDescription}" /></InlineUIContainer></TextBlock>
                         </StackPanel>
                         <ComboBox
                             Grid.Column="1"
@@ -420,7 +425,7 @@
             <ui:CardControl.Header>
                 <StackPanel>
                     <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_ModPagesTitle}" />
-                    <TextBlock Style="{StaticResource SettingHint}" Text="{loc:Str Options_ModPagesHint}" />
+                    <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_ModPagesHint}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_ModPagesDescription}" /></InlineUIContainer></TextBlock>
                 </StackPanel>
             </ui:CardControl.Header>
             <!-- On = ask first, so it writes the opposite of SkipModPageConfirmation. -->
@@ -438,7 +443,7 @@
             <ui:CardControl.Header>
                 <StackPanel>
                     <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_RemovedModsHeader}" />
-                    <TextBlock Style="{StaticResource SettingHint}" Text="{loc:Str Options_RemovedModsHint}" />
+                    <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_RemovedModsSummary}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_RemovedModsDescription}" /></InlineUIContainer></TextBlock>
                     <TextBlock
                         Style="{StaticResource SettingHint}"
                         Text="{Binding RemovedModsStatus}"
@@ -464,7 +469,7 @@
             <ui:CardControl.Header>
                 <StackPanel>
                     <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_DownloadsHeader}" />
-                    <TextBlock Style="{StaticResource SettingHint}" Text="{loc:Str Options_DownloadsDescription}" />
+                    <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_DownloadsSummary}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_DownloadsDescription}" /></InlineUIContainer></TextBlock>
                     <StackPanel Margin="0,10,0,0" Orientation="Horizontal">
                         <ui:Button Content="{loc:Str Options_DownloadsClear}" Command="{Binding ClearKeptDownloadsCommand}" />
                         <TextBlock
@@ -488,7 +493,7 @@
             <ui:CardControl.Header>
                 <StackPanel>
                     <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_UnsubscribeHeader}" />
-                    <TextBlock Style="{StaticResource SettingHint}" Text="{loc:Str Options_UnsubscribeDescription}" />
+                    <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_UnsubscribeSummary}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_UnsubscribeDescription}" /></InlineUIContainer></TextBlock>
                 </StackPanel>
             </ui:CardControl.Header>
             <ui:ToggleSwitch Style="{StaticResource RowSwitch}" IsChecked="{Binding ConfirmUnsubscribe}" />
@@ -509,7 +514,7 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel VerticalAlignment="Center">
                         <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_UpdateNotificationsHeader}" />
-                        <TextBlock Style="{StaticResource SettingHint}" Text="{loc:Str Options_UpdateNotificationsHint}" />
+                        <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_UpdateNotificationsHint}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_UpdateNotificationsDescription}" /></InlineUIContainer></TextBlock>
                     </StackPanel>
                     <ui:ToggleSwitch
                         Grid.Column="1"
@@ -587,7 +592,7 @@
             <ui:CardControl.Header>
                 <StackPanel>
                     <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_FootprintHeader}" />
-                    <TextBlock Style="{StaticResource SettingHint}" Text="{loc:Str Options_FootprintHint}" />
+                    <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_FootprintHint}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_FootprintDescription}" /></InlineUIContainer></TextBlock>
                 </StackPanel>
             </ui:CardControl.Header>
             <ui:ToggleSwitch
@@ -603,7 +608,7 @@
             <ui:CardControl.Header>
                 <StackPanel>
                     <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_ServerMapHeader}" />
-                    <TextBlock Style="{StaticResource SettingHint}" Text="{loc:Str Options_ServerMapPageHint}" />
+                    <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_ServerMapPageHint}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_ServerMapDescription}" /></InlineUIContainer></TextBlock>
                 </StackPanel>
             </ui:CardControl.Header>
             <ui:ToggleSwitch
@@ -618,7 +623,7 @@
             <ui:CardExpander.Header>
                 <StackPanel ToolTip="{loc:Str Options_PageDefaultsDescription}" ToolTipService.ShowDuration="30000">
                     <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_PageDefaultsHeader}" />
-                    <TextBlock Style="{StaticResource SettingHint}" Text="{loc:Str Options_PageDefaultsHint}" />
+                    <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_PageDefaultsHint}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_PageDefaultsDescription}" /></InlineUIContainer></TextBlock>
                 </StackPanel>
             </ui:CardExpander.Header>
 
@@ -672,7 +677,7 @@
             <ui:CardExpander.Header>
                 <StackPanel ToolTip="{loc:Str Options_MachineRoleDescription}" ToolTipService.ShowDuration="30000">
                     <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_MachineRoleHeader}" />
-                    <TextBlock Style="{StaticResource SettingHint}" Text="{Binding InstallRoleSummary}" />
+                    <TextBlock Style="{StaticResource SettingHint}"><Run Text="{Binding InstallRoleSummary, Mode=OneWay}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_MachineRoleDescription}" /></InlineUIContainer></TextBlock>
                 </StackPanel>
             </ui:CardExpander.Header>
 
@@ -710,7 +715,7 @@
                             Text="{loc:Str Options_HeadlessLauncherHeader}"
                             ToolTip="{loc:Str Options_HeadlessLauncherDescription}"
                             ToolTipService.ShowDuration="30000" />
-                        <TextBlock Style="{StaticResource SettingHint}" Text="{loc:Str Options_HeadlessLauncherHint}" />
+                        <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_HeadlessLauncherHint}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_HeadlessLauncherDescription}" /></InlineUIContainer></TextBlock>
                         <Grid Margin="0,8,0,0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
@@ -854,7 +859,7 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel>
                                 <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_ServerMapLanOnly}" />
-                                <TextBlock Style="{StaticResource SettingHint}" Text="{loc:Str Options_ServerMapLanOnlyHint}" />
+                                <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_ServerMapLanOnlySummary}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_ServerMapLanOnlyHint}" /></InlineUIContainer></TextBlock>
                             </StackPanel>
                             <ui:ToggleSwitch
                                 Grid.Column="1"
@@ -924,7 +929,7 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel>
                                 <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_ServerMapReport}" />
-                                <TextBlock Style="{StaticResource SettingHint}" Text="{loc:Str Options_ServerMapReportHint}" />
+                                <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_ServerMapReportSummary}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_ServerMapReportHint}" /></InlineUIContainer></TextBlock>
                             </StackPanel>
                             <ui:ToggleSwitch
                                 Grid.Column="1"
