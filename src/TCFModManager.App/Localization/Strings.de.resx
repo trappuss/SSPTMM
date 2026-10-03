@@ -393,9 +393,6 @@ Das wurde hier hingeschrieben:
   <data name="Browse_RefreshCache" xml:space="preserve">
     <value>Cache neu laden</value>
   </data>
-  <data name="Browse_SaveAsDefaultToolTip" xml:space="preserve">
-    <value>Öffnet diese Seite mit den Filtern, der Sortierung und der Anzahl pro Seite, die gerade eingestellt sind, samt der SPT-Versionshaken. Das Suchfeld gehört nicht dazu. Unter Optionen lässt sich das wieder zurücksetzen.</value>
-  </data>
   <data name="Browse_SavedAsDefault" xml:space="preserve">
     <value>Gespeichert. Die Seite Durchsuchen öffnet ab jetzt so - über Optionen kannst du das zurücksetzen.</value>
   </data>
@@ -1938,9 +1935,6 @@ Die Kopie, die du nicht behältst, wird in einen versteckten Ordner .ssptmm-dupl
   </data>
   <data name="Installed_RemoveNoRecordFormat" xml:space="preserve">
     <value>Kein Installationseintrag für {0} gefunden - er wurde vielleicht schon entfernt.</value>
-  </data>
-  <data name="Installed_SaveAsDefaultToolTip" xml:space="preserve">
-    <value>Öffnet diese Seite mit den Filtern, der Sortierung, der Ansicht und der Anzahl pro Seite, die gerade eingestellt sind. Das Suchfeld gehört nicht dazu. Unter Optionen lässt sich das wieder zurücksetzen.</value>
   </data>
   <data name="Installed_SelectAllFormat" xml:space="preserve">
     <value>Alle {0} auswählen</value>

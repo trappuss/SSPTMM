@@ -181,7 +181,7 @@
     <value>Nothing installed declares a dependency.</value>
   </data>
   <data name="Browse_SaveAsDefaultToolTip" xml:space="preserve">
-    <value>Opens this page with the filters, sort and per-page it is set to right now, including the SPT version ticks. The search box is not included. Options can clear it again.</value>
+    <value>Opens this page with the filters and sort it is set to right now, including the SPT version ticks. The search box is not included, and Per page needs no saving - the page keeps the one last picked. Options can clear it again.</value>
   </data>
   <data name="Browse_RefreshCache" xml:space="preserve">
     <value>Refresh cache</value>
@@ -259,7 +259,7 @@
     <value>Show which mod lists each mod belongs to.</value>
   </data>
   <data name="Installed_SaveAsDefaultToolTip" xml:space="preserve">
-    <value>Opens this page with the filters, sort, view and per-page it is set to right now. The search box is not included. Options can clear it again.</value>
+    <value>Opens this page with the filters, sort and view it is set to right now. The search box is not included, and Per page needs no saving - the page keeps the one last picked. Options can clear it again.</value>
   </data>
   <data name="Installed_UpdateFilterToolTip" xml:space="preserve">
     <value>Filter by whether an update is available</value>
@@ -648,7 +648,7 @@
     <value>Page defaults</value>
   </data>
   <data name="Options_PageDefaultsDescription" xml:space="preserve">
-    <value>Subscribed items and Browse each have a Save as default button - in Subscribed items' Filters, and under the gear beside Browse's search box. It opens that page with the filters, sort, per-page - and in Subscribed items, the view - it is set to at the time, so a page you always narrow the same way arrives narrowed. What you have typed in the search box is never part of it. Clearing a default here puts the page back to the app's own.</value>
+    <value>Subscribed items and Browse each have a Save as default button - in Subscribed items' Filters, and under the gear beside Browse's search box. It opens that page with the filters and sort - and in Subscribed items, the view - it is set to at the time, so a page you always narrow the same way arrives narrowed. What you have typed in the search box is never part of it. Per page needs no saving: every page opens on Infinite until you pick a size there, then keeps the one you last picked. Clearing a default here puts the page back to the app's own.</value>
     <comment>Save as default and Clear filters are the two buttons named in Common_SaveAsDefault and Common_ClearFilters - translate them the same way here.</comment>
   </data>
   <data name="Options_ClearInstalledDefault" xml:space="preserve">

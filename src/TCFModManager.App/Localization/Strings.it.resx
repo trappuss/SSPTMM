@@ -393,9 +393,6 @@
   <data name="Browse_RefreshCache" xml:space="preserve">
     <value>Ricarica cache</value>
   </data>
-  <data name="Browse_SaveAsDefaultToolTip" xml:space="preserve">
-    <value>Apre questa pagina con i filtri, l'ordinamento e gli elementi per pagina impostati adesso, comprese le spunte della versione SPT. La casella di ricerca non è inclusa. Da Opzioni puoi azzerarlo.</value>
-  </data>
   <data name="Browse_SavedAsDefault" xml:space="preserve">
     <value>Salvato. D'ora in poi la pagina Sfoglia si aprirà così - da Opzioni puoi ripristinarla.</value>
   </data>
@@ -1938,9 +1935,6 @@ La copia che non conservi viene spostata in una cartella nascosta .ssptmm-duplic
   </data>
   <data name="Installed_RemoveNoRecordFormat" xml:space="preserve">
     <value>Nessun registro di installazione trovato per {0} - potrebbe essere già stato rimosso.</value>
-  </data>
-  <data name="Installed_SaveAsDefaultToolTip" xml:space="preserve">
-    <value>Apre questa pagina con i filtri, l'ordinamento, la vista e gli elementi per pagina impostati adesso. La casella di ricerca non è inclusa. Da Opzioni puoi azzerarlo.</value>
   </data>
   <data name="Installed_SelectAllFormat" xml:space="preserve">
     <value>Seleziona tutti ({0})</value>

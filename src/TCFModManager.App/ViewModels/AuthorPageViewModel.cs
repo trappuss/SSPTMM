@@ -101,6 +101,7 @@ public sealed partial class AuthorPageViewModel : LocalizedViewModel
         _id = request.Id;
         _name = request.Name;
         _isFollowing = AppServices.Followed.IsFollowing(request.Id);
+        _pageSize = PageSizeMemory.Load(PageSizeMemory.AuthorItems, null, PageSizes);
         AppServices.Browse.InstalledIndexChanged += OnInstalledIndexChanged;
     }
 
@@ -325,11 +326,21 @@ public sealed partial class AuthorPageViewModel : LocalizedViewModel
 
     // ------------------------------------------------------------------ Workshop Items
 
-    // Steam's "Per page: 9 18 30" on an author's page.
-    public IReadOnlyList<int> PageSizes { get; } = [9, 18, 30];
+    // Steam's "Per page: 9 18 30" on an author's page, then Infinite as every other Per page in
+    // this app has it - and, as on them, what the page opens at until a size is picked here.
+    public IReadOnlyList<int> PageSizes { get; } = [9, 18, 30, PageSizeMemory.Infinite];
 
     [ObservableProperty]
-    private int _pageSize = 9;
+    [NotifyPropertyChangedFor(nameof(IsInfinite))]
+    private int _pageSize = PageSizeMemory.Infinite;
+
+    public bool IsInfinite => PageSize == PageSizeMemory.Infinite;
+
+    // How many more items the infinite list adds each time the page nears its bottom.
+    private const int InfiniteStep = 30;
+
+    // Items per page, or per load of the infinite list.
+    private int PageStep => IsInfinite ? InfiniteStep : PageSize;
 
     public ObservableCollection<AuthorItem> Items { get; } = [];
 
@@ -352,7 +363,7 @@ public sealed partial class AuthorPageViewModel : LocalizedViewModel
 
     private bool CanGoOn => CurrentPage < TotalPages;
 
-    public int TotalPages => Math.Max(1, (int)Math.Ceiling(_all.Count / (double)PageSize));
+    public int TotalPages => IsInfinite ? 1 : Math.Max(1, (int)Math.Ceiling(_all.Count / (double)PageSize));
 
     public bool HasPages => TotalPages > 1;
 
@@ -361,8 +372,8 @@ public sealed partial class AuthorPageViewModel : LocalizedViewModel
     {
         get
         {
-            var first = _all.Count == 0 ? 0 : (CurrentPage - 1) * PageSize + 1;
-            var last = Math.Min(_all.Count, CurrentPage * PageSize);
+            var first = _all.Count == 0 ? 0 : IsInfinite ? 1 : (CurrentPage - 1) * PageSize + 1;
+            var last = IsInfinite ? Items.Count : Math.Min(_all.Count, CurrentPage * PageSize);
             return LocalizationService.Text(Strings.Author_ShowingFormat, first.ToString("N0"), last.ToString("N0"), _all.Count.ToString("N0"));
         }
     }
@@ -372,7 +383,7 @@ public sealed partial class AuthorPageViewModel : LocalizedViewModel
         CurrentPage = Math.Clamp(page, 1, TotalPages);
 
         Items.Clear();
-        foreach (var item in _all.Skip((CurrentPage - 1) * PageSize).Take(PageSize)) Items.Add(item);
+        foreach (var item in _all.Skip((CurrentPage - 1) * PageStep).Take(PageStep)) Items.Add(item);
 
         PageLinks.Clear();
         foreach (var link in PageLink.For(CurrentPage, TotalPages)) PageLinks.Add(link);
@@ -391,15 +402,31 @@ public sealed partial class AuthorPageViewModel : LocalizedViewModel
     /// <summary>Raised when another page of items is shown - the view scrolls back up to them.</summary>
     public event EventHandler? PageChanged;
 
+    //
+    // The infinite list's next items, when the page nears its bottom (AuthorView's ScrollChanged).
+    // Added to what is there, so nothing moves and the view does not scroll. False when there is
+    // nothing more to add.
+    //
+    public bool LoadMore()
+    {
+        if (!IsInfinite || !CatalogRead || Items.Count >= _all.Count) return false;
+
+        foreach (var item in _all.Skip(Items.Count).Take(InfiniteStep)) Items.Add(item);
+        OnPropertyChanged(nameof(ShowingText));
+        return true;
+    }
+
     [RelayCommand]
     private void SetPageSize(int? requested)
     {
-        if (requested is not { } size || size <= 0 || size == PageSize) return;
+        if (requested is not { } size || size < 0 || size == PageSize) return;
 
-        // The first item on screen stays on screen.
-        var firstIndex = (CurrentPage - 1) * PageSize;
+        // The first item on screen stays on screen: the page it is on, or the top of the infinite
+        // list. From the infinite list a size starts at its first page.
+        var firstIndex = IsInfinite ? 0 : (CurrentPage - 1) * PageSize;
         PageSize = size;
-        ShowPage(firstIndex / size + 1);
+        PageSizeMemory.Save(PageSizeMemory.AuthorItems, size);
+        ShowPage(IsInfinite ? 1 : firstIndex / size + 1);
     }
 
     [RelayCommand]

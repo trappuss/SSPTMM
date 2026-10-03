@@ -26,6 +26,11 @@ public sealed class AppSettings
 
     public Dictionary<Guid, string> FollowedFiles { get; set; } = [];
 
+    // Fork (SSPTMM): the Per page last picked on each page that has one, by page name (see
+    // PageSizeMemory). Kept the moment it is picked, as a view choice rather than a filter, so it
+    // outlasts Clear filters and a restart. 0 is Infinite.
+    public Dictionary<string, int> PageSizes { get; set; } = [];
+
     // How long removed mods stay in the install's holding folder before they are deleted (R11, R15).
     public TCFModManager.Core.Services.RemovedModsRetention RemovedModsRetention { get; set; } =
         TCFModManager.Core.Services.RemovedModsRetention.FourteenDays;

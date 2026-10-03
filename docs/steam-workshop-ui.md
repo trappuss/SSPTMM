@@ -1352,6 +1352,36 @@ Checked under Wine:
 - The breadcrumb came back to the grid, and Manage opened "Manage collections" with the
   Collections tab lit.
 
+## Round 31: Per page opens on Infinite and remembers the last pick (2026-10-02)
+
+- **Every page with a Per page opens on Infinite** until a size is picked there. Those pages are
+  Browse, Subscribed items (it used to open on 12), Browse Collections and an author's Workshop
+  Items.
+- **The author page gains Infinite.** Its row now reads "Per page: 9 18 30 Infinite". The next 30
+  items are added as the page nears its bottom, and the line reads "Showing 1-30 of 37 entries"
+  until they are.
+- **The size picked is kept straight away**, per page (AppSettings.PageSizes, PageSizeMemory),
+  with no Save as default needed.
+  - It outlasts a restart and Clear filters, since it is how the page is shown rather than what it
+    shows.
+  - A size saved earlier with Save as default is still used on a page where nothing has been
+    picked since.
+- **Per page is also at the top while the list is infinite**, beside the sort on Browse and Browse
+  Collections, and in the author page's top bar. The one under the grid comes after every card,
+  so on the infinite list it was only reached once all 742 mods had been added.
+- The Save as default tooltips and the Options text now say that Per page is kept by itself. The
+  translations of those three lines fall back to English until translated.
+- **Tests:** 9 new (PageSizeMemory, and settings.json with and without the sizes). 1583 pass.
+
+Checked under Wine:
+
+- Subscribed items opened on Infinite. After picking 8, a restart opened it on 8.
+- Browse: the top Per page showed while infinite. Picking 15 hid it and paged the grid. After a
+  restart and Clear filters, Browse was still on 15.
+- Browse Collections: after picking 30, a restart and Clear filters, it was still 30 (11 pages).
+- An author with 37 items showed 30, and scrolling down added the rest. 9 paged them 1 2 3, and
+  Infinite from the bottom row went back.
+
 ## Values that could not be measured (marked HUNCH in the source)
 
 - The smooth-scroll distance and time (100px, 250ms) - chosen to feel like a browser, not measured.
@@ -1386,6 +1416,10 @@ Checked under Wine:
   - 152px cards with a 2x2 mosaic;
   - the chip colours: Update blue, Shared and Following grey, and From server;
   - the look of the clipboard and update notices.
+- Per page (round 31). Steam has no Infinite and no Per page at the top, so these were chosen,
+  not measured:
+  - "Infinite" placed last on the author page's row;
+  - the top Per page, which is shown only while the list is infinite.
 - That cloud-sync folders (Dropbox, OneDrive, Google Drive) deliver the shared file promptly and
   whole. Only a plain local folder was tested here. A file caught mid-sync reads as damaged and
   is ignored until the next check, but that was not seen happen.

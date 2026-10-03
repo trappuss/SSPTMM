@@ -393,9 +393,6 @@ Il a été écrit dans :
   <data name="Browse_RefreshCache" xml:space="preserve">
     <value>Actualiser le cache</value>
   </data>
-  <data name="Browse_SaveAsDefaultToolTip" xml:space="preserve">
-    <value>Ouvre cette page avec les filtres, le tri et le nombre par page tels qu'ils sont réglés en ce moment, cases de version SPT comprises. Le champ de recherche n'est pas inclus. Les Options permettent de le réinitialiser.</value>
-  </data>
   <data name="Browse_SavedAsDefault" xml:space="preserve">
     <value>Enregistré. La page Parcourir s'ouvrira ainsi désormais - Options permet de revenir en arrière.</value>
   </data>
@@ -1938,9 +1935,6 @@ La copie que vous ne gardez pas est déplacée dans un dossier caché .ssptmm-du
   </data>
   <data name="Installed_RemoveNoRecordFormat" xml:space="preserve">
     <value>Aucune trace d'installation trouvée pour {0} - il a peut-être déjà été supprimé.</value>
-  </data>
-  <data name="Installed_SaveAsDefaultToolTip" xml:space="preserve">
-    <value>Ouvre cette page avec les filtres, le tri, la vue et le nombre par page tels qu'ils sont réglés en ce moment. Le champ de recherche n'est pas inclus. Les Options permettent de le réinitialiser.</value>
   </data>
   <data name="Installed_SelectAllFormat" xml:space="preserve">
     <value>Tout sélectionner ({0})</value>

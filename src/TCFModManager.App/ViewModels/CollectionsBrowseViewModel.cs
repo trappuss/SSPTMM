@@ -200,6 +200,7 @@ public sealed partial class CollectionsBrowseViewModel : LocalizedViewModel
     {
         _selectedSpt = SptChoices[0];
         _selectedSortOption = SortOptions[0];
+        _pageSize = PageSizeMemory.Load(PageSizeMemory.CollectionsBrowse, null, PageSizeOptions); // Fork: Infinite, or the size last picked
     }
 
     /// <summary>Raised when a new page of cards is showing, so the page can scroll to them.</summary>
@@ -326,6 +327,7 @@ public sealed partial class CollectionsBrowseViewModel : LocalizedViewModel
     partial void OnPageSizeChanged(int value)
     {
         OnPropertyChanged(nameof(IsInfinite));
+        PageSizeMemory.Save(PageSizeMemory.CollectionsBrowse, value); // Fork
         if (!_suppress) Apply();
     }
 

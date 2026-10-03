@@ -190,7 +190,7 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
             : FeaturedFilterOptions[0];
 
     private int DefaultPageSize() =>
-        SavedFilterDefaults.PageSize(_defaults?.PageSize, PageSizeOptions, InfinitePageSize);
+        PageSizeMemory.Load(PageSizeMemory.Browse, _defaults?.PageSize, PageSizeOptions); // Fork: the size last picked
 
     // Described rather than looked up: the entry may not be in the list yet, or at all if The Forge
     // has stopped using that category. CategoryFilterItem.SameAs matches on the title.
@@ -231,6 +231,7 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
     partial void OnPageSizeChanged(int value)
     {
         OnPropertyChanged(nameof(IsInfinite));
+        PageSizeMemory.Save(PageSizeMemory.Browse, value); // Fork
         AutoApplyFilter();
     }
 

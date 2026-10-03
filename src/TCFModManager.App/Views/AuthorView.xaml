@@ -36,6 +36,7 @@
         <converters:UpdateAvailableToVisibilityConverter x:Key="TrueToVisible" />
         <converters:FalseToVisibilityConverter x:Key="FalseToVisible" />
         <converters:EqualityConverter x:Key="IsSameValue" />
+        <converters:PageSizeLabelConverter x:Key="PageSizeLabel" />
 
         <Style x:Key="Crumb" TargetType="Button" BasedOn="{StaticResource SteamLinkButton}">
             <Setter Property="Foreground" Value="{StaticResource SteamTextDim}" />
@@ -134,7 +135,7 @@
     <!-- Transparent: the Workshop's grid (or your own picture, Options) behind the window shows
          through, as on the other Workshop pages. MainWindow hides the page this was opened over. -->
     <Border Background="Transparent">
-        <ScrollViewer x:Name="Scroll" FocusVisualStyle="{x:Null}" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer x:Name="Scroll" FocusVisualStyle="{x:Null}" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" ScrollChanged="Scroll_ScrollChanged">
             <StackPanel MaxWidth="950" Margin="24,20,24,40">
 
                 <!-- Breadcrumbs: SPT > Workshop > <author>'s Workshop. -->
@@ -267,6 +268,41 @@
                                             <Path Width="6" Height="10" Data="M0,0 L5,5 L0,10" Stretch="Fill" Stroke="White" StrokeThickness="1.5" />
                                         </Button>
                                     </StackPanel>
+                                    <!-- Fork: Per page up here too while the list is infinite, as the one under
+                                         the items is only reached once every item has been added. -->
+                                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" Visibility="{Binding IsInfinite, Converter={StaticResource TrueToVisible}}">
+                                        <TextBlock Margin="0,0,4,0" VerticalAlignment="Center" FontSize="12" Foreground="#61686D" Text="{loc:Str Workshop_PerPage}" />
+                                        <ItemsControl Focusable="False" VerticalAlignment="Center" ItemsSource="{Binding PageSizes}">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <StackPanel Orientation="Horizontal" />
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Button
+                                                        x:Name="Size"
+                                                        Style="{StaticResource PageSizeLink}"
+                                                        Command="{Binding DataContext.SetPageSizeCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        CommandParameter="{Binding}">
+                                                        <TextBlock Text="{Binding Converter={StaticResource PageSizeLabel}}" />
+                                                    </Button>
+                                                    <DataTemplate.Triggers>
+                                                        <DataTrigger Value="True">
+                                                            <DataTrigger.Binding>
+                                                                <MultiBinding Converter="{StaticResource IsSameValue}">
+                                                                    <Binding />
+                                                                    <Binding Path="DataContext.PageSize" RelativeSource="{RelativeSource AncestorType=UserControl}" />
+                                                                </MultiBinding>
+                                                            </DataTrigger.Binding>
+                                                            <Setter TargetName="Size" Property="Foreground" Value="White" />
+                                                            <Setter TargetName="Size" Property="IsHitTestVisible" Value="False" />
+                                                        </DataTrigger>
+                                                    </DataTemplate.Triggers>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
                                     <TextBlock VerticalAlignment="Center" FontSize="12" Foreground="#61686D" Text="{Binding ShowingText}" />
                                 </DockPanel>
                             </Border>
@@ -376,7 +412,7 @@
                                                         Style="{StaticResource PageSizeLink}"
                                                         Command="{Binding DataContext.SetPageSizeCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                         CommandParameter="{Binding}">
-                                                        <TextBlock Text="{Binding}" />
+                                                        <TextBlock Text="{Binding Converter={StaticResource PageSizeLabel}}" />
                                                     </Button>
                                                     <DataTemplate.Triggers>
                                                         <DataTrigger Value="True">

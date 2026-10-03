@@ -399,9 +399,6 @@
   <data name="Browse_RefreshCache" xml:space="preserve">
     <value>Перезагрузить кэш</value>
   </data>
-  <data name="Browse_SaveAsDefaultToolTip" xml:space="preserve">
-    <value>Страница будет открываться с теми фильтрами, сортировкой и числом карточек на страницу, что выбраны сейчас, включая отметки версий SPT. Поле поиска в это не входит. Сбросить это можно на странице Параметры.</value>
-  </data>
   <data name="Browse_SavedAsDefault" xml:space="preserve">
     <value>Сохранено. Страница Обзор теперь будет открываться в этом виде - вернуть прежний вид можно в Параметрах.</value>
   </data>
@@ -2049,9 +2046,6 @@
   </data>
   <data name="Installed_RemoveNoRecordFormat" xml:space="preserve">
     <value>Не удалось найти запись об установке {0} - возможно, он уже удалён.</value>
-  </data>
-  <data name="Installed_SaveAsDefaultToolTip" xml:space="preserve">
-    <value>Страница будет открываться с теми фильтрами, сортировкой, видом и числом карточек на страницу, что выбраны сейчас. Поле поиска в это не входит. Сбросить это можно на странице Параметры.</value>
   </data>
   <data name="Installed_SelectAllFormat" xml:space="preserve">
     <value>Выбрать все {0}</value>

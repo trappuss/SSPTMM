@@ -69,6 +69,19 @@ public partial class AuthorView : UserControl
     // Another page of items: back up to the first of them, as a new Steam page opens at its top.
     private void OnPageChanged(object? sender, EventArgs e) => Scroll.ScrollToTop();
 
+    // How close to the bottom, in pixels, the infinite list adds its next items - as Browse does.
+    // ScrollChanged also fires when the list grows, so a window tall enough to show every item
+    // added keeps asking until the list is longer than the view.
+    private const double LoadMoreDistance = 800;
+
+    private void Scroll_ScrollChanged(object sender, ScrollChangedEventArgs e)
+    {
+        if (_viewModel is not { IsInfinite: true, Tab: AuthorTab.Items }) return;
+
+        var remaining = Scroll.ExtentHeight - Scroll.ViewportHeight - Scroll.VerticalOffset;
+        if (remaining <= LoadMoreDistance) _viewModel.LoadMore();
+    }
+
     /// <summary>Shows the open author again, as they were.</summary>
     public void Reveal()
     {

@@ -222,6 +222,31 @@
                     </Border>
                 </Popup>
 
+                <!-- Fork: Per page up here too while the list is infinite - the one under the grid
+                     is only reached once every card has been added. -->
+                <StackPanel
+                    Margin="0,0,16,0"
+                    DockPanel.Dock="Right"
+                    VerticalAlignment="Center"
+                    Orientation="Horizontal"
+                    Visibility="{Binding IsInfinite, Converter={StaticResource TrueToVisible}}">
+                    <TextBlock VerticalAlignment="Center" FontSize="14" Foreground="{StaticResource SteamTextDim}" Text="{loc:Str Workshop_PerPage}" />
+                    <ComboBox
+                        MinWidth="60"
+                        Margin="6,0,0,0"
+                        VerticalAlignment="Center"
+                        FontSize="12"
+                        ToolTip="{loc:Str Common_PageSizeToolTip}"
+                        ItemsSource="{Binding PageSizeOptions}"
+                        SelectedItem="{Binding PageSize}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Converter={StaticResource PageSizeLabel}}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </StackPanel>
+
                 <StackPanel Orientation="Horizontal">
                     <Border Width="420" Height="42" Padding="8" Background="{StaticResource SteamGray}">
                         <TextBox

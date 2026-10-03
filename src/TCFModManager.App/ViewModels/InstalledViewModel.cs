@@ -28,7 +28,8 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         LocalizationService.Text(format, values);
 
     // Fills the grid exactly at the 3- and 4-column width breakpoints (see UpdateLayoutForWidth).
-    // Only used when nothing has been saved as this page's default - see DefaultPageSize().
+    // Fork: one of the sizes on offer; the page opens on Infinite until a size is picked - see
+    // DefaultPageSize().
     private const int DefaultPageSizeValue = 12;
 
     // Below this a card can't show its summary line without truncating it to uselessness. Only
@@ -446,7 +447,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         SavedFilterDefaults.Parse<InstalledViewMode>(_defaults?.ViewMode) ?? InstalledViewMode.Cards;
 
     private int DefaultPageSize() =>
-        SavedFilterDefaults.PageSize(_defaults?.PageSize, PageSizeOptions, InstalledViewModel.DefaultPageSizeValue);
+        PageSizeMemory.Load(PageSizeMemory.SubscribedItems, _defaults?.PageSize, PageSizeOptions); // Fork: Infinite, or the size last picked
 
     //
     // Described rather than looked up, because the entry it describes may not exist: the category
@@ -657,7 +658,11 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
     partial void OnSelectedSortOptionChanged(ModSortItem value) => AutoApplyFilter();
 
-    partial void OnPageSizeChanged(int value) => AutoApplyFilter();
+    partial void OnPageSizeChanged(int value)
+    {
+        PageSizeMemory.Save(PageSizeMemory.SubscribedItems, value); // Fork
+        AutoApplyFilter();
+    }
 
     //
     // Deliberately not AutoApplyFilter: nothing about what is shown changes, only whether each row
