@@ -159,4 +159,5 @@ Everything TCF Mod Manager 1.19.0-beta does is still here, under Steam's names: 
 - Built on **TCF Mod Manager** by **TheCrimsonFckr**. Its mod handling, install and removal, and much of what sits under the Steam look are that app's work. Please report SSPTMM problems on SSPTMM's GitHub Issues, not to TCF Mod Manager.
 - Mods, collections, comments and author pages come from **sp-mod.com** and the people who publish there.
 - Uses the Noto Sans font (SIL Open Font License).
+- **Licence**: SSPTMM is under the MIT License, as TCF Mod Manager is, with both copyright notices in `LICENSE.txt` beside the exe. The `Licenses` folder holds the licences of everything the exe carries (the .NET runtime, WPF UI, SharpCompress and the rest), listed in `Licenses\THIRD-PARTY-NOTICES.md`.
 - Steam and the Steam Workshop are trademarks of Valve Corporation. SSPTMM is an independent fan project and is not affiliated with or endorsed by Valve, Battlestate Games, the SPT project or sp-mod.com.

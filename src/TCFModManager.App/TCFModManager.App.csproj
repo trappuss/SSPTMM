@@ -83,8 +83,12 @@
          SIL Open Font License 1.1; the licence travels with the build next to the exe. -->
     <Resource Include="Themes\Fonts\*.ttf" />
     <None Include="Themes\Fonts\OFL.txt" Link="Licenses\NotoSans-OFL.txt" CopyToOutputDirectory="PreserveNewest" />
-    <!-- The licences of the libraries the Steam fork added, shipped beside the exe as they ask. -->
+    <!-- The licences of the libraries and runtime the exe carries, shipped beside it as they ask,
+         with the list of what each file covers. -->
     <None Include="..\..\build\steam-ui\licenses\*.txt" Link="Licenses\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\THIRD-PARTY-NOTICES.md" Link="Licenses\THIRD-PARTY-NOTICES.md" CopyToOutputDirectory="PreserveNewest" />
+    <!-- SSPTMM's own licence (MIT, with TCF Mod Manager's notice), beside the exe. -->
+    <None Include="..\..\LICENSE" Link="LICENSE.txt" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <!--

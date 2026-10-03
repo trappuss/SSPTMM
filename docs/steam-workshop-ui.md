@@ -1745,3 +1745,16 @@ SSPTMM checks for no updates at all - neither its own nor TCF Mod Manager's (Sel
 original's check never runs since round 22, because installing the original's download would
 replace SSPTMM). New SSPTMM versions are published as GitHub releases. A newer TCF Mod Manager
 release is merged into SSPTMM by hand, and SelfMod.OriginalVersion bumped with it.
+
+## Licence
+
+SSPTMM is under the MIT License (`LICENSE`), with two copyright lines: TheCrimsonFckr for TCF Mod
+Manager, and trappuss for SSPTMM. MIT because TCF Mod Manager is MIT: sp-mod.com lists it under
+"MIT License", both on its page and in the API's `include=license` (checked 2026-10-03). Its GitHub
+repository has no LICENSE file of its own, so that listing is the only written grant.
+
+The release build carries the .NET and Windows Desktop runtimes (self-contained) and the NuGet
+libraries; each one's licence text ships in `Licenses\` beside the exe, taken from the package
+itself (SharpCompress's package has none, so its `LICENSE.txt` comes from the repository at tag
+0.50.4). `THIRD-PARTY-NOTICES.md` lists what each file covers. When a package is added or
+updated, add or refresh its licence file in `build/steam-ui/licenses/` and its row there.

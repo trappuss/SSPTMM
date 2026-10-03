@@ -80,6 +80,12 @@ starts it. `SSPTMM-test.bat` runs the tests on their own. See
 - [docs/sp-mod-guide.md](docs/sp-mod-guide.md), [docs/server-map-guide.md](docs/server-map-guide.md)
   - TCF Mod Manager's guides, still accurate for what lies under the Steam look.
 
+## License
+
+MIT - see [LICENSE](LICENSE). TCF Mod Manager is MIT-licensed too, and its copyright notice is kept
+there. The libraries and runtime in the release build are listed with their licences in
+[THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
+
 Steam and the Steam Workshop are trademarks of Valve Corporation. SSPTMM is an independent fan
 project, not affiliated with or endorsed by Valve, Battlestate Games, the SPT project or
 sp-mod.com.

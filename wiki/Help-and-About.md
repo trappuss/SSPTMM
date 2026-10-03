@@ -18,3 +18,7 @@ buttons to use, with a button that takes you there. Search with **How do I...?**
 
 The version, the TCF Mod Manager release SSPTMM is based on, and links. SSPTMM doesn't update
 itself: new versions are on [Releases](https://github.com/trappuss/SSPTMM/releases).
+
+SSPTMM is under the MIT License (`LICENSE.txt` beside the exe). The `Licenses` folder beside it holds
+the licences of the libraries and the .NET runtime built into the exe, with
+`THIRD-PARTY-NOTICES.md` saying which file covers what.
