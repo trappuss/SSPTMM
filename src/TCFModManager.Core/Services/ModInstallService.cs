@@ -497,6 +497,9 @@ public sealed class ModInstallService(
                 };
             }
 
+            // Fork: the empty folders the archive ships, inside a mod's own folder (SVM's Presets\).
+            CreateEmptyFolders(archivePath, extractDir, contentRoot, bareBepInEx, serverRoot, installPath, target, version);
+
             var record = SaveRecord(target, version, placedFiles, incomplete: false, installPath, overwrote, fingerprints: []);
 
             AppLog.Info("Install",
@@ -953,6 +956,9 @@ public sealed class ModInstallService(
         if (kind == RemovalKind.AppInstalled)
             restored = RestoreOriginals(installPath, record, session);
 
+        // Fork: the empty folders an install created (CreateEmptyFolders) go too, while still empty.
+        TidyEmptyModFolders(installPath, record, touchedDirectories);
+
         foreach (var dir in touchedDirectories.OrderByDescending(d => d.Length))
         {
             try
@@ -1065,6 +1071,35 @@ public sealed class ModInstallService(
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
+        }
+    }
+
+    // Fork (SSPTMM): every folder inside the record's mod folders, so the tidy below removes the ones
+    // left empty - including empty folders the install created that no file was ever removed from.
+    private static void TidyEmptyModFolders(string installPath, InstalledModRecord record, HashSet<string> touched)
+    {
+        foreach (var folder in record.Files.Select(InstallPathGuard.ModFolderOf).OfType<string>().Distinct(StringComparer.OrdinalIgnoreCase))
+        {
+            var full = Path.Combine(installPath, folder.Replace('/', Path.DirectorySeparatorChar));
+            if (!Directory.Exists(full) || !InstallPathGuard.MayRemoveEmptyFolder(installPath, full)) continue;
+
+            try
+            {
+                touched.Add(full);
+                foreach (var dir in Directory.EnumerateDirectories(full, "*", new EnumerationOptions
+                         {
+                             RecurseSubdirectories = true,
+                             AttributesToSkip = FileAttributes.ReparsePoint,
+                             IgnoreInaccessible = true,
+                         }))
+                {
+                    touched.Add(dir);
+                }
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                // Left as it is; an empty folder is untidy, not broken.
+            }
         }
     }
 
@@ -1609,6 +1644,102 @@ public sealed class ModInstallService(
         {
             return 0;
         }
+    }
+
+    //
+    // Fork (SSPTMM): creates the archive's empty folders where the install put its files - mapped the
+    // same way its files are - but only inside a mod's own folder or a server prepatch folder, never a
+    // container itself or anywhere protected. They are not recorded (a record lists files); a removal
+    // tidies them away if they are still empty (TidyEmptyModFolders), and leaves them if the mod's
+    // tool has since put something in them.
+    //
+    private static void CreateEmptyFolders(
+        string archivePath, string extractDir, string contentRoot, bool bareBepInEx, string serverRoot,
+        string installPath, InstallTarget target, ModVersion version)
+    {
+        var prefix = Path.GetRelativePath(extractDir, contentRoot).Replace('\\', '/');
+        if (prefix == ".") prefix = "";
+
+        var created = 0;
+        foreach (var folder in EmptyFoldersIn(archivePath))
+        {
+            var relative = folder;
+            if (prefix.Length > 0)
+            {
+                if (!folder.StartsWith(prefix + "/", StringComparison.OrdinalIgnoreCase)) continue;
+                relative = folder[(prefix.Length + 1)..];
+            }
+
+            relative = relative.Replace('/', Path.DirectorySeparatorChar);
+            if (bareBepInEx)
+            {
+                if (ArchiveLayout.MapBareBepInEx(relative) is not { } mapped) continue;
+                relative = mapped;
+            }
+
+            var forward = ArchiveLayout.RemapForServerRoot(relative, serverRoot).Replace('\\', '/');
+
+            if (InstallPathGuard.ModFolderOf(forward) is null && InstallPathGuard.PrepatchFolderOf(forward + "/x") is null) continue;
+            if (InstallPathGuard.CheckPlacedPath(installPath, forward, out var full) is not null) continue;
+
+            try
+            {
+                if (Directory.Exists(full)) continue;
+                Directory.CreateDirectory(full);
+                created++;
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                AppLog.Warn("Install", $"{target.Name} {version.Version}: couldn't create the archive's empty folder {forward}: {ex.Message}");
+            }
+        }
+
+        if (created > 0) AppLog.Info("Install", $"{target.Name} {version.Version}: created {created} empty folder(s) the archive has");
+    }
+
+    //
+    // Fork (SSPTMM): the folders an archive holds with nothing in them - SVM's Presets\, which its
+    // configuration app refuses to run without. Read from the archive's own folder entries, since
+    // neither extractor writes them. Forward slashes, no trailing one. Empty when it can't be read
+    // that way (a compressed tar): the install goes ahead as it always did.
+    //
+    internal static List<string> EmptyFoldersIn(string archivePath)
+    {
+        var folders = new List<string>();
+        var files = new List<string>();
+
+        try
+        {
+            if (ArchiveLayout.IsZipArchive(archivePath))
+            {
+                using var zip = ZipFile.OpenRead(archivePath);
+                foreach (var entry in zip.Entries)
+                    (string.IsNullOrEmpty(entry.Name) ? folders : files).Add(entry.FullName);
+            }
+            else
+            {
+                using var archive = ArchiveFactory.OpenArchive(archivePath);
+                foreach (var entry in archive.Entries)
+                {
+                    if (entry.Key is not { Length: > 0 } key) continue;
+                    (entry.IsDirectory ? folders : files).Add(key);
+                }
+            }
+        }
+        catch (Exception ex) when (ex is IOException or InvalidDataException or ArchiveOperationException or NotSupportedException or InvalidOperationException)
+        {
+            return [];
+        }
+
+        static string Clean(string key) => key.Replace('\\', '/').Trim('/');
+
+        var cleanFiles = files.Select(Clean).ToList();
+        var cleanFolders = folders.Select(Clean).Where(f => f.Length > 0).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+
+        // Empty: nothing in the archive below it - no file, and no other folder.
+        return [.. cleanFolders.Where(f =>
+            !cleanFiles.Any(x => x.StartsWith(f + "/", StringComparison.OrdinalIgnoreCase))
+            && !cleanFolders.Any(x => x.StartsWith(f + "/", StringComparison.OrdinalIgnoreCase)))];
     }
 
     // Resolves an archive entry's key to an absolute destination under

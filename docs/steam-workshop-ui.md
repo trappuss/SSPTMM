@@ -1535,6 +1535,22 @@ both tools:
 - Greed's folder button opened `[SVM] Server Value Modifier`.
 - Disabling TestSVM greyed Greed, with "TestSVM-2.2.3 is disabled, so this can't be opened."
 
+## Round 35: empty folders, Subscribed items, removal warnings, re-uploads, Diagnose logs (2026-10-03)
+
+### Empty folders an archive ships are created
+
+- **The cause of Greed's "couldn't find Preset folder":** SVM 2.2.3's archive (mod-236-14936,
+  checked on the user's PC) has one empty folder, `SPT_Runtime/user/mods/[SVM] Server Value
+  Modifier/Presets/`. The installer placed files only, so the folder never existed until Greed
+  made it.
+- **Now** (ModInstallService.EmptyFoldersIn / CreateEmptyFolders): every folder in the archive with
+  nothing below it is mapped like a file (content root, bare BepInEx, server root) and created,
+  but only inside a mod's own folder (ModFolderOf) or a prepatch's GUID folder, and only where the
+  placed-path check allows. A shipped `user/cache/` or bare `BepInEx/plugins/` is not created.
+- **Removal** (TidyEmptyModFolders) now also removes the empty subfolders left in the mod's own
+  folders, so the mod's folder goes with it. Shared folders such as `user/mods` stay.
+- **Tests:** 3 new (ForkEmptyFoldersTests). 1627 pass.
+
 ## Values that could not be measured (marked HUNCH in the source)
 
 - The smooth-scroll distance and time (100px, 250ms) - chosen to feel like a browser, not measured.
