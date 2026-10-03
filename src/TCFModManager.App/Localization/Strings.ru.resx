@@ -5039,9 +5039,6 @@
   <data name="Help_ModLists_Pin_Step1" xml:space="preserve">
     <value>На странице {0} щёлкните карточку мода, чтобы открыть её, и нажмите {1}.</value>
   </data>
-  <data name="Help_ModLists_Pin_Step2" xml:space="preserve">
-    <value>Закреплённый мод никакой список не отложит. Чтобы отменить, нажмите {0} там же.</value>
-  </data>
   <data name="Help_ModLists_Edit_Title" xml:space="preserve">
     <value>Изменить состав списка</value>
   </data>

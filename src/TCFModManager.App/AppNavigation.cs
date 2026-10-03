@@ -172,6 +172,26 @@ public static class AppNavigation
         return pending;
     }
 
+    // Fork: Subscribed items opened with its search set to one mod - Diagnose logs' "Show in
+    // Subscribed items". Taken by a page built by the navigation; an existing one hears the event.
+    private static string? _searchPending;
+
+    public static event EventHandler? SearchRequested;
+
+    public static void ShowInSubscribedItems(string search)
+    {
+        _searchPending = search;
+        SearchRequested?.Invoke(null, EventArgs.Empty);
+        Navigate(typeof(InstalledPage));
+    }
+
+    public static string? TakeSearch()
+    {
+        var pending = _searchPending;
+        _searchPending = null;
+        return pending;
+    }
+
     // Consumed by the Installed page: true once per request.
     public static bool TakeShowUpdates()
     {

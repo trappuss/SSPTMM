@@ -4748,9 +4748,6 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
   <data name="Help_ModLists_Pin_Step1" xml:space="preserve">
     <value>Dans {0}, cliquez sur la fiche du mod pour l'ouvrir, puis sur {1}.</value>
   </data>
-  <data name="Help_ModLists_Pin_Step2" xml:space="preserve">
-    <value>Un mod épinglé n'est jamais mis de côté par une liste. Cliquez sur {0} au même endroit pour l'annuler.</value>
-  </data>
   <data name="Help_ModLists_Edit_Title" xml:space="preserve">
     <value>Modifier le contenu d'une liste</value>
   </data>

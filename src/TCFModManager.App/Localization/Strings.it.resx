@@ -4748,9 +4748,6 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
   <data name="Help_ModLists_Pin_Step1" xml:space="preserve">
     <value>In {0}, fai clic sulla scheda del mod per aprirla e premi {1}.</value>
   </data>
-  <data name="Help_ModLists_Pin_Step2" xml:space="preserve">
-    <value>Un mod fissato non viene mai messa da parte da una lista. Premi {0} nello stesso punto per annullare.</value>
-  </data>
   <data name="Help_ModLists_Edit_Title" xml:space="preserve">
     <value>Cambiare cosa c'è in una lista</value>
   </data>

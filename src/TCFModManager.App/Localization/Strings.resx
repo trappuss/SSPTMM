@@ -7737,7 +7737,7 @@ Install the file as it is anyway?</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_ModLists_Pin_Step2" xml:space="preserve">
-    <value>A pinned mod is never set aside by a list. Press {0} in the same place to undo it.</value>
+    <value>A pinned mod is never turned off by applying a collection. It wears a PINNED tag and sits at the top of Subscribed items. Press {0} in the same place to undo it.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_ModLists_Edit_Title" xml:space="preserve">
@@ -9785,7 +9785,7 @@ Download them anyway? Once installed, SPT may refuse to load them. No downloads 
     <comment>Subscribed items Sort by entry: newest install first; mods with no recorded install date last.</comment>
   </data>
   <data name="Installed_GroupingInstallState" xml:space="preserve">
-    <value>Enabled / disabled</value>
+    <value>Grouped by enabled / disabled</value>
     <comment>Subscribed items grouping entry: one section for enabled mods, one for disabled.</comment>
   </data>
   <data name="Installed_SectionEnabled" xml:space="preserve">
@@ -9854,5 +9854,285 @@ Removing them - or turning them off - can leave a profile SPT won't load. If tha
   <data name="Installed_GetAgainNotInCatalogFormat" xml:space="preserve">
     <value>{0} isn't in the sp-mod.com catalog this app has, so it can't be fetched again from here.</value>
     <comment>{0} mod name.</comment>
+  </data>
+  <data name="Nav_Diagnose" xml:space="preserve">
+    <value>Diagnose logs</value>
+    <comment>Tools menu entry and page title.</comment>
+  </data>
+  <data name="Diagnose_Description" xml:space="preserve">
+    <value>Reads the server's last run, the last game session's BepInEx log and the game's errors log, and says what is wrong and which mod it comes from.</value>
+    <comment>Under the page title.</comment>
+  </data>
+  <data name="Diagnose_Refresh" xml:space="preserve">
+    <value>Read the logs again</value>
+    <comment>Button.</comment>
+  </data>
+  <data name="Diagnose_CopyReport" xml:space="preserve">
+    <value>Copy a report for help</value>
+    <comment>Button: copies the findings, with personal details taken out, to the clipboard.</comment>
+  </data>
+  <data name="Diagnose_CopyReportToolTip" xml:space="preserve">
+    <value>Copies what was found and the log lines behind it. Your Windows user name and folder, profile and item ids, and other players' addresses are taken out.</value>
+    <comment>Tooltip.</comment>
+  </data>
+  <data name="Diagnose_Copied" xml:space="preserve">
+    <value>Copied. Paste it where you are asking for help.</value>
+    <comment>Status after copying.</comment>
+  </data>
+  <data name="Diagnose_Reading" xml:space="preserve">
+    <value>Reading the logs...</value>
+    <comment>Status while working.</comment>
+  </data>
+  <data name="Diagnose_NoInstall" xml:space="preserve">
+    <value>Pick your SPT folder on the Play page first.</value>
+    <comment>Status when no SPT install is set.</comment>
+  </data>
+  <data name="Diagnose_NothingFound" xml:space="preserve">
+    <value>Nothing wrong found in these logs.</value>
+    <comment>Status when there are no findings.</comment>
+  </data>
+  <data name="Diagnose_Found_one" xml:space="preserve">
+    <value>{0} thing found.</value>
+    <comment>Status: count of findings.</comment>
+  </data>
+  <data name="Diagnose_Found_other" xml:space="preserve">
+    <value>{0} things found.</value>
+    <comment>Status: count of findings.</comment>
+  </data>
+  <data name="Diagnose_OtherErrors_one" xml:space="preserve">
+    <value>{0} other error in the logs isn't one this page knows - it is in the copied report.</value>
+    <comment>Under the findings.</comment>
+  </data>
+  <data name="Diagnose_OtherErrors_other" xml:space="preserve">
+    <value>{0} other errors in the logs aren't ones this page knows - they are in the copied report.</value>
+    <comment>Under the findings.</comment>
+  </data>
+  <data name="Diagnose_ServerRunFormat" xml:space="preserve">
+    <value>Server log: {0}, from its last start at {1}.</value>
+    <comment>{0} file name, {1} time.</comment>
+  </data>
+  <data name="Diagnose_ServerLogNone" xml:space="preserve">
+    <value>Server log: none found - the server hasn't been run yet.</value>
+    <comment>Line about which logs were read.</comment>
+  </data>
+  <data name="Diagnose_BepInExFormat" xml:space="preserve">
+    <value>Game: BepInEx\LogOutput.log, from the last time the game started.</value>
+    <comment>Line about which logs were read.</comment>
+  </data>
+  <data name="Diagnose_BepInExNone" xml:space="preserve">
+    <value>Game: no BepInEx log - the game hasn't been started with BepInEx yet.</value>
+    <comment>Line about which logs were read.</comment>
+  </data>
+  <data name="Diagnose_GameErrorsFormat" xml:space="preserve">
+    <value>Game errors: {0}.</value>
+    <comment>{0} the folder name under Logs.</comment>
+  </data>
+  <data name="Diagnose_LauncherClears" xml:space="preserve">
+    <value>The SPT launcher deletes the game's Logs folder each time it starts the game, so only the last session's game logs are here.</value>
+    <comment>Note.</comment>
+  </data>
+  <data name="Diagnose_CountFormat" xml:space="preserve">
+    <value>{0} times</value>
+    <comment>How often a finding was seen, when more than once.</comment>
+  </data>
+  <data name="Diagnose_LineFormat" xml:space="preserve">
+    <value>{0}, line {1}</value>
+    <comment>Where the sample line is: file name and line number.</comment>
+  </data>
+  <data name="Diagnose_ShowMod" xml:space="preserve">
+    <value>Show in Subscribed items</value>
+    <comment>Button on a finding.</comment>
+  </data>
+  <data name="Diagnose_OpenFolder" xml:space="preserve">
+    <value>Open its folder</value>
+    <comment>Button on a finding.</comment>
+  </data>
+  <data name="Diagnose_OpenLog" xml:space="preserve">
+    <value>Open the log</value>
+    <comment>Button on a finding.</comment>
+  </data>
+  <data name="Diagnose_GoToPlay" xml:space="preserve">
+    <value>Go to Play</value>
+    <comment>Button on the port-in-use finding.</comment>
+  </data>
+  <data name="Diagnose_ProfileBackups" xml:space="preserve">
+    <value>Profile backups</value>
+    <comment>Button on profile findings: opens Options at the SPT profile backups card.</comment>
+  </data>
+  <data name="Diagnose_ModFormat" xml:space="preserve">
+    <value>Mod: {0}</value>
+    <comment>The mod a finding was traced to.</comment>
+  </data>
+  <data name="Diagnose_ModsFormat" xml:space="preserve">
+    <value>Mods: {0}</value>
+    <comment>The mods a finding was traced to.</comment>
+  </data>
+  <data name="Diagnose_Title_ProfileInvalid" xml:space="preserve">
+    <value>A profile won't load</value>
+    <comment>Diagnose logs finding</comment>
+  </data>
+  <data name="Diagnose_Body_ProfileInvalid" xml:space="preserve">
+    <value>SPT marked profile {0} as invalid and won't load it. To get it back, put back the mod whose items or clothing it holds, or restore a profile backup.</value>
+    <comment>Diagnose logs finding. {0} profile id.</comment>
+  </data>
+  <data name="Diagnose_Title_ProfileClothingMissing" xml:space="preserve">
+    <value>A profile wears clothing from a missing mod</value>
+    <comment>Diagnose logs finding</comment>
+  </data>
+  <data name="Diagnose_Body_ProfileClothingMissing" xml:space="preserve">
+    <value>A profile has clothing (id {0}) that no installed mod adds. SPT says this happens after a clothing mod is removed. Put the clothing mod back, or restore a profile backup.</value>
+    <comment>Diagnose logs finding. {0} clothing id.</comment>
+  </data>
+  <data name="Diagnose_Title_RaidResultsLost" xml:space="preserve">
+    <value>Raid results weren't saved</value>
+    <comment>Diagnose logs finding</comment>
+  </data>
+  <data name="Diagnose_Body_RaidResultsLost" xml:space="preserve">
+    <value>At the end of a raid the game sent a {0} value the server doesn't know, so the server couldn't read the results and the raid wasn't saved. Most likely a mod that adds to {0} is loaded in the game but its server half is not - for example its prepatch in user\patchers is missing.</value>
+    <comment>Diagnose logs finding. {0} a type name, e.g. SkillTypes.</comment>
+  </data>
+  <data name="Diagnose_Title_PortInUse" xml:space="preserve">
+    <value>The server couldn't start</value>
+    <comment>Diagnose logs finding</comment>
+  </data>
+  <data name="Diagnose_Body_PortInUse" xml:space="preserve">
+    <value>Something is already using {0} - most often a server that is still running. Stop it from the Play page, or close the other program.</value>
+    <comment>Diagnose logs finding. {0} address:port.</comment>
+  </data>
+  <data name="Diagnose_Title_PluginMissingDependency" xml:space="preserve">
+    <value>A mod didn't load: something it needs is missing</value>
+    <comment>Diagnose logs finding</comment>
+  </data>
+  <data name="Diagnose_Body_PluginMissingDependency" xml:space="preserve">
+    <value>BepInEx didn't load {0}: it needs {1}, which isn't installed or is too old.</value>
+    <comment>Diagnose logs finding. {0} plugin name and version, {1} what it needs.</comment>
+  </data>
+  <data name="Diagnose_Title_PluginIncompatible" xml:space="preserve">
+    <value>A mod didn't load: it doesn't work with another</value>
+    <comment>Diagnose logs finding</comment>
+  </data>
+  <data name="Diagnose_Body_PluginIncompatible" xml:space="preserve">
+    <value>BepInEx didn't load {0} because {1} is installed. Turn one of the two off.</value>
+    <comment>Diagnose logs finding. {0} plugin, {1} the other plugin's id.</comment>
+  </data>
+  <data name="Diagnose_Title_PluginDependencyNotLoaded" xml:space="preserve">
+    <value>A mod didn't load: one it needs didn't</value>
+    <comment>Diagnose logs finding</comment>
+  </data>
+  <data name="Diagnose_Body_PluginDependencyNotLoaded" xml:space="preserve">
+    <value>BepInEx skipped {0} because a mod it needs didn't load. Fix that one first.</value>
+    <comment>Diagnose logs finding. {0} plugin.</comment>
+  </data>
+  <data name="Diagnose_Title_PluginDuplicate" xml:space="preserve">
+    <value>A mod is installed twice</value>
+    <comment>Diagnose logs finding</comment>
+  </data>
+  <data name="Diagnose_Body_PluginDuplicate" xml:space="preserve">
+    <value>BepInEx skipped {0} because a newer copy of it is installed. Remove the older copy.</value>
+    <comment>Diagnose logs finding. {0} plugin.</comment>
+  </data>
+  <data name="Diagnose_Title_PluginLoadError" xml:space="preserve">
+    <value>A mod failed to load</value>
+    <comment>Diagnose logs finding</comment>
+  </data>
+  <data name="Diagnose_Body_PluginLoadError" xml:space="preserve">
+    <value>BepInEx couldn't load {0}: {1}</value>
+    <comment>Diagnose logs finding. {0} plugin, {1} the reason as logged.</comment>
+  </data>
+  <data name="Diagnose_Title_ServerModNotLoaded" xml:space="preserve">
+    <value>A server mod isn't running</value>
+    <comment>Diagnose logs finding</comment>
+  </data>
+  <data name="Diagnose_Body_ServerModNotLoaded" xml:space="preserve">
+    <value>It is installed and turned on, but the server's last start didn't list it among the mods it loaded. The server log around that start may say why. If you added it since, start the server again.</value>
+    <comment>Diagnose logs finding</comment>
+  </data>
+  <data name="Diagnose_Title_ModLoaderProblem" xml:space="preserve">
+    <value>SPT's mod loader reported a problem</value>
+    <comment>Diagnose logs finding</comment>
+  </data>
+  <data name="Diagnose_Title_RequestFailed" xml:space="preserve">
+    <value>A server error while answering the game</value>
+    <comment>Diagnose logs finding</comment>
+  </data>
+  <data name="Diagnose_Body_RequestFailedFormat" xml:space="preserve">
+    <value>The server hit an error handling {0}: {1}</value>
+    <comment>Diagnose logs finding. {0} a server route, {1} the error message.</comment>
+  </data>
+  <data name="Diagnose_Title_ScheduledTaskFailed" xml:space="preserve">
+    <value>A server task keeps failing</value>
+    <comment>Diagnose logs finding</comment>
+  </data>
+  <data name="Diagnose_Body_ScheduledTaskFailedFormat" xml:space="preserve">
+    <value>{0} failed: {1}</value>
+    <comment>Diagnose logs finding. {0} task name, {1} the error message.</comment>
+  </data>
+  <data name="Diagnose_FromModCode" xml:space="preserve">
+    <value>The error came from this mod's code. Check for an update, or send its author the copied report.</value>
+    <comment>Diagnose logs finding</comment>
+  </data>
+  <data name="Diagnose_Title_ModReportedError" xml:space="preserve">
+    <value>A mod reported an error</value>
+    <comment>Diagnose logs finding</comment>
+  </data>
+  <data name="Diagnose_Title_BundleClash" xml:space="preserve">
+    <value>Two mods ship the same bundle</value>
+    <comment>Diagnose logs finding</comment>
+  </data>
+  <data name="Diagnose_Body_BundleClash" xml:space="preserve">
+    <value>More than one mod ships {0}, and SPT could only add one of them - the other mod's copy isn't used.</value>
+    <comment>Diagnose logs finding. {0} a bundle path.</comment>
+  </data>
+  <data name="Diagnose_Title_BundleMissingDependency" xml:space="preserve">
+    <value>A bundle needs files that aren't there</value>
+    <comment>Diagnose logs finding</comment>
+  </data>
+  <data name="Diagnose_Body_BundleMissingDependency" xml:space="preserve">
+    <value>The game couldn't fully load {0}: it depends on bundles that aren't installed. Reinstalling the mod may fix it; if not, tell its author.</value>
+    <comment>Diagnose logs finding. {0} a bundle path.</comment>
+  </data>
+  <data name="Diagnose_Title_PluginLoggedErrors" xml:space="preserve">
+    <value>A mod logged errors in the game</value>
+    <comment>Diagnose logs finding</comment>
+  </data>
+  <data name="Diagnose_ReportHeader" xml:space="preserve">
+    <value>Log report - {0}, SPT {1}</value>
+    <comment>First line of the copied report.</comment>
+  </data>
+  <data name="Help_Diagnose_Read_Title" xml:space="preserve">
+    <value>Find out why something isn't working</value>
+    <comment>Help topic title, diagnose.read.</comment>
+  </data>
+  <data name="Help_Diagnose_Read_Step1" xml:space="preserve">
+    <value>Under {0}, open {1}. It reads the server's last run and the last game session's logs by itself.</value>
+    <comment>Help, diagnose.read. {0} Nav_Tools, {1} Nav_Diagnose.</comment>
+  </data>
+  <data name="Help_Diagnose_Read_Step2" xml:space="preserve">
+    <value>Each card says what went wrong in plain words, which mod it came from when the log names it, and the log line it was read from. {0} takes you to that mod.</value>
+    <comment>Help, diagnose.read. {0} Diagnose_ShowMod.</comment>
+  </data>
+  <data name="Help_Diagnose_Read_Step3" xml:space="preserve">
+    <value>After changing something, start the server or the game again, then press {0}: the logs only say what happened in the last run.</value>
+    <comment>Help, diagnose.read. {0} Diagnose_Refresh.</comment>
+  </data>
+  <data name="Help_Diagnose_Read_Note" xml:space="preserve">
+    <value>{0} copies what was found for asking for help elsewhere, with your Windows user name, folders, ids and other players' addresses taken out. Nothing on this page changes any file.</value>
+    <comment>Help note, diagnose.read. {0} Diagnose_CopyReport.</comment>
+  </data>
+  <data name="Help_Diagnose_Read_Keywords" xml:space="preserve">
+    <value>log logs error errors crash broken not working diagnose problem bepinex server launcher report help</value>
+    <comment>Search keywords for the topic, space separated.</comment>
+  </data>
+  <data name="Diagnose_ReportServerFormat" xml:space="preserve">
+    <value>Server log: {0} (its last run started {1})</value>
+    <comment>Copied report line. {0} file name, {1} date and time.</comment>
+  </data>
+  <data name="Diagnose_ReportGameFormat" xml:space="preserve">
+    <value>BepInEx log: {0}; game errors: {1}</value>
+    <comment>Copied report line. {0} and {1} file or folder names, or -.</comment>
+  </data>
+  <data name="Diagnose_ReportOtherFormat" xml:space="preserve">
+    <value>Other errors ({0}):</value>
+    <comment>Copied report heading. {0} how many.</comment>
   </data>
 </root>

@@ -1551,7 +1551,115 @@ both tools:
   folders, so the mod's folder goes with it. Shared folders such as `user/mods` stay.
 - **Tests:** 3 new (ForkEmptyFoldersTests). 1627 pass.
 
+### Subscribed items
+
+- **Recently installed** in Sort by: newest first, mods with no date last. A card's install date is
+  now the install record's (the last install or update) when this app installed it; the folder's
+  creation time is only used for hand-installed mods. A loose DLL copied with its archive's dates
+  read as a year old.
+- **Grouped by enabled / disabled** in the grouping picker (Cards and List): an Enabled section,
+  then a Disabled one, each in the page's sort order, each folding. Nothing can be dropped on them.
+- **Pinned mods** (the pin was there, but said "Pin" and showed only a 12px icon):
+  - always sit at the top, whatever the sort; each run keeps the sort's order;
+  - wear a PINNED tag beside DISABLED on cards, List rows and grouped rows;
+  - the button says what it does: "Keep through collections" / "Stop keeping", with tooltips
+    saying applying a collection never disables a pinned mod.
+
+### Before removing a mod that changes the profile
+
+sp-mod.com marks some mods "may make permanent changes to your profile, and may not be removable
+without starting a new profile" (the item page's notice; `shows_profile_binding_notice`, true for
+293 of the 1,404 mods in the user's cached catalog, SVM and Skills Extended among them).
+
+- **Removing one** puts that warning first in the Unsubscribe question, in the caution colour, and
+  the question is asked even with "Don't ask again" ticked.
+- **Removing several** (Unsubscribe selected, a collection's Unsubscribe from all) names the marked
+  ones in a check of its own: **Keep these, remove the rest** (default), **Remove all**, or Cancel.
+- **The wording does not suggest turning the mod off instead.** A turned-off server mod isn't loaded
+  either, so for the profile it is the same as removing it. The warning says so, and points at Undo
+  removing and the profile backups.
+- **A hand-installed mod's removal now takes a profile backup first** too, as an app-installed one's
+  always did - the warning says one is kept.
+
+### Same-version re-uploads
+
+- **Checked against sp-mod.com's catalog, no extra requests:** the catalog fetch already carries each
+  version's size and creation time (`content_length`, `created_at` with include=versions); they are
+  now kept. A card gets a **RE-UPLOADED** tag, a line saying what changed, and **Get it again**, which
+  installs that exact entry over itself, when:
+  - a later entry has the same version number and a different size (ten mods in the catalog have a
+    second entry; every one whose sizes are listed has the same size twice - a double submit - so
+    none of those is flagged); or
+  - the size listed for the installed entry differs from the one listed when it was installed (HUNCH:
+    that sp-mod.com updates it when an author replaces a file; not seen yet). Installs now record the
+    archive's size and the listed size (InstalledModRecord.ArchiveBytes, ListedBytes).
+- **Not caught:** a file swapped where it is hosted with the listing left alone. Skills Extended 3.1.1
+  is like that: listed at 109,594,837 bytes, served from its GitHub release at 109,594,883 (measured
+  2026-10-03). Seeing that would mean asking the download link for the size, which may count as a
+  download on sp-mod.com - not done.
+- **Two bugs that measurement turned up, fixed:**
+  - Kept downloads were checked against the listed size, so Skills Extended 3.1.1's kept 110 MB
+    archive would be thrown away and fetched again on every reinstall. Each kept archive now has a note
+    of the size listed when it was downloaded (`<archive>.listed`); it stands while the listing is
+    unchanged, and goes when the listing changes.
+  - Trimming kept downloads stopped after deleting one file (a deleted FileInfo's Length throws, and
+    the whole tidy-up gave up). It now deletes as many as it takes.
+
+### Diagnose logs (Tools)
+
+Proposal A from the research doc. Reads, without changing anything:
+
+- **The server's newest log, its last run only** (from where SPT's mod loader starts). On SPT 4.1
+  that is `<server>\user\logs\spt\spt<date>.log`.
+- **BepInEx\LogOutput.log** (the last game session) and the **errors log in the newest
+  Logs\log_\*** folder. The page says when the launcher deletes the Logs folder each start
+  (Launcher.log's "Recursive Removal").
+
+**Checks**, each one a line seen in the user's own SPT 4.1.6 logs unless marked:
+
+| Finding | From |
+|---|---|
+| A profile won't load | "Failed to load profile with ID ... marked as invalid" |
+| A profile wears clothing from a missing mod | InvalidModdedClothingException |
+| Raid results weren't saved | an error on /client/match/local/end that can't read an enum (SkillTypes) |
+| The server couldn't start | "Failed to start the web server ... AddressAlreadyInUse" |
+| Plugins that didn't load: missing dependency, incompatible, skipped, duplicate, load error | BepInEx's Chainloader lines, in LogOutput.log or relayed into the server log (duplicate and load error: BepInEx source) |
+| A server mod isn't running | enabled 4.x server mod missing from the run's "Mod: ... loaded" list (not said for a mod added after that run) |
+| SPT's mod loader reported a problem | SPT source (locale strings), shown verbatim |
+| A server error answering the game / a task that keeps failing | "Error handling request" / "Scheduled event ... failed", traced to the mod in the stack trace |
+| A mod reported an error | an error whose logger is a mod's code, or a plugin's message relayed by SPT |
+| Two mods ship the same bundle | "Unable to add bundle" - on the user's install SPTBetterRearSights and WTT-ContentBackport both ship barrel_vpo215_600mm_366tkm.bundle |
+| A bundle needs files that aren't there | the game's errors log ("has dependency ... not found in manifest") |
+| A mod logged errors in the game | a plugin's own error lines in LogOutput.log |
+
+**Which mod:** read from the mods' own files (LogModLocator): [BepInPlugin] names and GUIDs from every
+plugin DLL, server mods' declared names and GUIDs, the namespaces each mod's DLLs define types in
+(matched to loggers and stack frames, longest wins, shared ones name nobody), and bundle files. A
+plugin name beats a server mod's name (SAIN's two halves share one).
+
+**Each card:** what it means in plain words, the mod, how often, the line it came from (file and line),
+and Show in Subscribed items / Open its folder / Open the log (plus Go to Play, Profile backups).
+
+**Copy a report for help:** the findings and their lines, then up to 50 errors no check knew. Taken out
+(LogRedactor): the user folder becomes %USERPROFILE%, the Windows user name <user>, 24-character ids
+id-<6 hex of their SHA-256> (the same each time), IPv4 addresses with a port <ip>:port (not
+127.0.0.1). No whole logs and no profile.
+
+Run against the user's real logs and mods (staged read-only, 2026-10-03): 157 mods located in under a
+second; the last run gave the bundle clash, two server mods installed after that run (since removed),
+Epic's All In One's bundle with missing dependencies, and AllQuestsCheckmarks' 13 in-game errors.
+Earlier days' logs gave the invalid profile, the missing clothing and LateToTheParty's Fika message.
+
+Checked under Wine with sample logs: every card kind drew, Show in Subscribed items filtered to the
+mod, and the copied report read as above. Help topic diagnose.read.
+
+- **Strings and tests:** about 90 new strings; 35 new tests (re-uploads 10, diagnosis 13, the rest
+  above). 1650 pass.
+
 ## Values that could not be measured (marked HUNCH in the source)
+
+- Round 35: that sp-mod.com updates a version's listed size when its file is replaced; and which of two
+  entries with one version number the download link serves (the link is by number).
 
 - The smooth-scroll distance and time (100px, 250ms) - chosen to feel like a browser, not measured.
 - Whether pointer churn during a scroll was a large part of the stutter: on this build machine the

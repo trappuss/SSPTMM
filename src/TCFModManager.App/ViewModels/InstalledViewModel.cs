@@ -589,6 +589,14 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
             if (AppNavigation.TakeShowUpdates()) SelectedUpdateFilter = UpdatesAvailableFilter();
         };
 
+        // Fork: Diagnose logs' "Show in Subscribed items".
+        if (AppNavigation.TakeSearch() is { } search) _searchText = search;
+        AppNavigation.SearchRequested += (_, _) =>
+        {
+            if (!ReferenceEquals(Current, this)) return;
+            if (AppNavigation.TakeSearch() is { } wanted) SearchText = wanted;
+        };
+
         //
         // The update watcher patched the catalog, so the arrows on screen are out of date. Only once
         // the page has scanned - before that, its first scan reads the patched catalog anyway.

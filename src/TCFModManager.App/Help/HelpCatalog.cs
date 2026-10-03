@@ -336,6 +336,17 @@ internal static class HelpCatalog
                 .WithKeywords(() => Strings.Help_Dependencies_Check_Keywords),
         ]),
 
+        // Fork (SSPTMM): Diagnose logs.
+        new("diagnose", () => Strings.Nav_Diagnose, SymbolRegular.DocumentSearch24, typeof(DiagnosePage),
+        [
+            Topic("diagnose.read", () => Strings.Help_Diagnose_Read_Title,
+                Step(() => Strings.Help_Diagnose_Read_Step1, () => Strings.Nav_Tools, () => Strings.Nav_Diagnose),
+                Step(() => Strings.Help_Diagnose_Read_Step2, () => Strings.Diagnose_ShowMod),
+                Step(() => Strings.Help_Diagnose_Read_Step3, () => Strings.Diagnose_Refresh))
+                .WithNote(() => Strings.Help_Diagnose_Read_Note, () => Strings.Diagnose_CopyReport)
+                .WithKeywords(() => Strings.Help_Diagnose_Read_Keywords),
+        ]),
+
         new("footprint", () => Strings.Nav_Footprint, SymbolRegular.Scales24, typeof(FootprintPage),
         [
             Topic("footprint.enable", () => Strings.Help_Footprint_Enable_Title,
@@ -582,6 +593,7 @@ internal static class HelpCatalog
         nameof(ModListsPage) => Strings.Nav_ModLists,
         nameof(ConfigsPage) => Strings.Nav_Configs,
         nameof(DependenciesPage) => Strings.Nav_Dependencies,
+        nameof(DiagnosePage) => Strings.Nav_Diagnose,
         nameof(FootprintPage) => Strings.Nav_Footprint,
         nameof(ServerMapPage) => Strings.Nav_ServerMap,
         nameof(DownloadsPage) => Strings.Nav_Downloads,

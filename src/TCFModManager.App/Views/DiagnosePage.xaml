@@ -1,0 +1,179 @@
+<!-- Fork (SSPTMM): Diagnose logs - see DiagnoseViewModel. Own ScrollViewer, as DependenciesPage. -->
+<Page
+    x:Class="TCFModManager.App.Views.DiagnosePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:controls="clr-namespace:System.Windows.Controls;assembly=PresentationFramework"
+    xmlns:converters="clr-namespace:TCFModManager.App.Converters"
+    xmlns:loc="clr-namespace:TCFModManager.App.Localization"
+    Title="{loc:Str Nav_Diagnose}"
+    Loaded="DiagnosePage_Loaded"
+    ScrollViewer.CanContentScroll="False">
+    <Page.Resources>
+        <controls:BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+        <converters:NullToVisibilityConverter x:Key="NullToCollapsed" />
+    </Page.Resources>
+
+    <Grid Margin="24,16,24,16" Background="Transparent">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <DockPanel Grid.Row="0" Margin="0,0,0,8">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Top">
+                <ui:Button
+                    Margin="0,0,8,0"
+                    Content="{loc:Str Diagnose_CopyReport}"
+                    Icon="{ui:SymbolIcon Copy24}"
+                    ToolTip="{loc:Str Diagnose_CopyReportToolTip}"
+                    Command="{Binding CopyReportCommand}"
+                    IsEnabled="{Binding IsNotBusy}" />
+                <ui:Button
+                    Content="{loc:Str Diagnose_Refresh}"
+                    Icon="{ui:SymbolIcon ArrowSync24}"
+                    Command="{Binding RefreshCommand}"
+                    IsEnabled="{Binding IsNotBusy}" />
+            </StackPanel>
+            <TextBlock
+                Margin="0,0,16,0"
+                VerticalAlignment="Center"
+                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                TextWrapping="Wrap"
+                Text="{loc:Str Diagnose_Description}" />
+        </DockPanel>
+
+        <!-- Which logs were read, and the status line. -->
+        <StackPanel Grid.Row="1" Margin="0,0,0,12">
+            <TextBlock FontWeight="SemiBold" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Text="{Binding StatusMessage}" Margin="0,0,0,4" />
+            <TextBlock FontSize="12" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorTertiaryBrush}" Text="{Binding ServerLine}" Visibility="{Binding ServerLine, Converter={StaticResource NullToCollapsed}}" />
+            <TextBlock FontSize="12" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorTertiaryBrush}" Text="{Binding GameLine}" Visibility="{Binding GameLine, Converter={StaticResource NullToCollapsed}}" />
+            <TextBlock FontSize="12" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorTertiaryBrush}" Text="{Binding GameErrorsLine}" Visibility="{Binding GameErrorsLine, Converter={StaticResource NullToCollapsed}}" />
+            <TextBlock FontSize="12" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorTertiaryBrush}" Text="{Binding LauncherNote}" Visibility="{Binding LauncherNote, Converter={StaticResource NullToCollapsed}}" />
+        </StackPanel>
+
+        <ScrollViewer
+            x:Name="FindingsScrollViewer"
+            Grid.Row="2"
+            FocusVisualStyle="{x:Null}"
+            VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <ItemsControl Focusable="False" ItemsSource="{Binding Findings}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <ui:Card Margin="0,0,0,8" Padding="16,12">
+                                <StackPanel>
+                                    <DockPanel>
+                                        <ui:SymbolIcon
+                                            x:Name="SeverityIcon"
+                                            Margin="0,0,10,0"
+                                            VerticalAlignment="Center"
+                                            FontSize="18"
+                                            Symbol="{Binding Glyph}" />
+                                        <TextBlock
+                                            DockPanel.Dock="Right"
+                                            Margin="12,0,0,0"
+                                            VerticalAlignment="Center"
+                                            Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                            Text="{Binding CountText}"
+                                            Visibility="{Binding CountText, Converter={StaticResource NullToCollapsed}}" />
+                                        <TextBlock VerticalAlignment="Center" FontWeight="SemiBold" TextWrapping="Wrap" Text="{Binding Title}" />
+                                    </DockPanel>
+
+                                    <TextBlock
+                                        Margin="28,4,0,0"
+                                        FontWeight="SemiBold"
+                                        TextWrapping="Wrap"
+                                        Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"
+                                        Text="{Binding ModText}"
+                                        Visibility="{Binding ModText, Converter={StaticResource NullToCollapsed}}" />
+
+                                    <TextBlock
+                                        Margin="28,4,0,0"
+                                        TextWrapping="Wrap"
+                                        Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                        Text="{Binding Body}" />
+
+                                    <!-- The log line it was read from. -->
+                                    <Border
+                                        Margin="28,8,0,0"
+                                        Padding="8,6"
+                                        CornerRadius="3"
+                                        Background="{DynamicResource ControlFillColorInputActiveBrush}">
+                                        <StackPanel>
+                                            <TextBlock
+                                                FontSize="11"
+                                                Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                                Text="{Binding WhereText}" />
+                                            <TextBlock
+                                                FontFamily="Consolas"
+                                                FontSize="11"
+                                                TextWrapping="Wrap"
+                                                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                                Text="{Binding SampleText}" />
+                                        </StackPanel>
+                                    </Border>
+
+                                    <WrapPanel Margin="28,8,0,0">
+                                        <ui:Button
+                                            Margin="0,0,8,0"
+                                            Content="{loc:Str Diagnose_ShowMod}"
+                                            Icon="{ui:SymbolIcon Apps24}"
+                                            Visibility="{Binding HasMod, Converter={StaticResource BoolToVisibility}}"
+                                            Command="{Binding DataContext.ShowModCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
+                                            CommandParameter="{Binding}" />
+                                        <ui:Button
+                                            Margin="0,0,8,0"
+                                            Content="{loc:Str Diagnose_OpenFolder}"
+                                            Icon="{ui:SymbolIcon Folder24}"
+                                            Visibility="{Binding HasMod, Converter={StaticResource BoolToVisibility}}"
+                                            Command="{Binding DataContext.OpenModFolderCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
+                                            CommandParameter="{Binding}" />
+                                        <ui:Button
+                                            Margin="0,0,8,0"
+                                            Content="{loc:Str Diagnose_GoToPlay}"
+                                            Icon="{ui:SymbolIcon Play24}"
+                                            Visibility="{Binding IsAboutPort, Converter={StaticResource BoolToVisibility}}"
+                                            Command="{Binding DataContext.GoToPlayCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}" />
+                                        <ui:Button
+                                            Margin="0,0,8,0"
+                                            Content="{loc:Str Diagnose_ProfileBackups}"
+                                            Icon="{ui:SymbolIcon History24}"
+                                            Visibility="{Binding IsAboutProfile, Converter={StaticResource BoolToVisibility}}"
+                                            Command="{Binding DataContext.OpenProfileBackupsCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}" />
+                                        <ui:Button
+                                            Appearance="Transparent"
+                                            Content="{loc:Str Diagnose_OpenLog}"
+                                            Icon="{ui:SymbolIcon DocumentText24}"
+                                            Command="{Binding DataContext.OpenLogCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
+                                            CommandParameter="{Binding}" />
+                                    </WrapPanel>
+                                </StackPanel>
+                            </ui:Card>
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding Finding.Severity}" Value="Critical">
+                                    <Setter TargetName="SeverityIcon" Property="Foreground" Value="{DynamicResource SystemFillColorCriticalBrush}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Finding.Severity}" Value="Warning">
+                                    <Setter TargetName="SeverityIcon" Property="Foreground" Value="{DynamicResource SystemFillColorCautionBrush}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Finding.Severity}" Value="Info">
+                                    <Setter TargetName="SeverityIcon" Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <TextBlock
+                    Margin="0,4,0,0"
+                    TextWrapping="Wrap"
+                    Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                    Text="{Binding OtherErrorsText}"
+                    Visibility="{Binding OtherErrorsText, Converter={StaticResource NullToCollapsed}}" />
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>

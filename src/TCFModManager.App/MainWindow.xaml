@@ -250,6 +250,7 @@
                                 <StackPanel>
                                     <Button Style="{StaticResource SteamYourItemsEntry}" Content="{loc:Str Nav_Configs}" Tag="{x:Type views:ConfigsPage}" Click="HubMenuEntry_Click" />
                                     <Button Style="{StaticResource SteamYourItemsEntry}" Content="{loc:Str Nav_Dependencies}" Tag="{x:Type views:DependenciesPage}" Click="HubMenuEntry_Click" />
+                                    <Button Style="{StaticResource SteamYourItemsEntry}" Content="{loc:Str Nav_Diagnose}" Tag="{x:Type views:DiagnosePage}" Click="HubMenuEntry_Click" />
                                     <!-- Each only while switched on in Options - see FootprintGate and ServerMapGateViewModel. -->
                                     <Button
                                         Style="{StaticResource SteamYourItemsEntry}"
@@ -368,6 +369,7 @@
                 <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:FavoriteCollectionsPage}" />
                 <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:ConfigsPage}" />
                 <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:DependenciesPage}" />
+                <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:DiagnosePage}" />
                 <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:FootprintPage}" />
                 <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:ServerMapPage}" />
                 <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:DownloadsPage}" />

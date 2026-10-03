@@ -4748,9 +4748,6 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   <data name="Help_ModLists_Pin_Step1" xml:space="preserve">
     <value>Klicke unter {0} auf die Karte des Mods, um sie zu öffnen, und dann auf {1}.</value>
   </data>
-  <data name="Help_ModLists_Pin_Step2" xml:space="preserve">
-    <value>Ein angehefteter Mod wird von keiner Liste beiseitegelegt. Klicke an derselben Stelle auf {0}, um das aufzuheben.</value>
-  </data>
   <data name="Help_ModLists_Edit_Title" xml:space="preserve">
     <value>Ändern, was auf einer Liste steht</value>
   </data>

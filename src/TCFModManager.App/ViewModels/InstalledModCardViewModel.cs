@@ -722,8 +722,7 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
             InstalledVersion = installedVersion,
             VersionDetail = detail,
             IsVersionManuallyConfirmed = !record.IsAppManaged,
-            InstalledAt = new[] { client?.InstalledAt, server?.InstalledAt }
-                .Where(d => d is not null).OrderBy(d => d).FirstOrDefault(),
+            InstalledAt = record.InstalledAt, // Fork: as above
             HasClient = client is not null,
             HasPlugin = plugin is not null,
             HasPatcher = patcher is not null,
@@ -1313,7 +1312,10 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
 
         var manuallyConfirmed = record is not null && !record.IsAppManaged;
 
-        var installedAt = new[] { client?.InstalledAt, server?.InstalledAt }
+        // Fork: when this app installed it, the record says exactly when (the last install or update);
+        // the folder's creation time is only a stand-in, and a file copied with its archive dates can
+        // read as years old.
+        var installedAt = record?.InstalledAt ?? new[] { client?.InstalledAt, server?.InstalledAt }
             .Where(d => d is not null)
             .OrderBy(d => d)
             .FirstOrDefault();

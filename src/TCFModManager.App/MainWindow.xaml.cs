@@ -282,7 +282,7 @@ public partial class MainWindow : FluentWindow
 
     // The pages under each hub menu tab. The tab is lit while any of them is on screen.
     private static readonly Type[] ToolsPages =
-        [typeof(ConfigsPage), typeof(DependenciesPage), typeof(FootprintPage), typeof(ServerMapPage)];
+        [typeof(ConfigsPage), typeof(DependenciesPage), typeof(DiagnosePage), typeof(FootprintPage), typeof(ServerMapPage)];
 
     private static readonly Type[] HelpPages = [typeof(HelpPage), typeof(AppUpdatePage)];
 

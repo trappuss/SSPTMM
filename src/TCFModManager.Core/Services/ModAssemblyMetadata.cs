@@ -102,6 +102,37 @@ public static class ModAssemblyMetadata
     }
 
     //
+    // Fork: the namespaces this DLL defines types in - what a stack trace or a server log's logger
+    // name starts with - for Diagnose logs to tell whose code a line came from. Empty for anything
+    // that isn't managed code.
+    //
+    public static IReadOnlySet<string> ReadNamespaces(string dllPath)
+    {
+        try
+        {
+            using var stream = File.OpenRead(dllPath);
+            using var peReader = new PEReader(stream);
+            if (!peReader.HasMetadata) return new HashSet<string>();
+
+            var reader = peReader.GetMetadataReader();
+            var found = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var typeHandle in reader.TypeDefinitions)
+            {
+                var typeDef = reader.GetTypeDefinition(typeHandle);
+                if (typeDef.Namespace.IsNil) continue;
+                var name = reader.GetString(typeDef.Namespace);
+                if (name.Length > 0) found.Add(name);
+            }
+
+            return found;
+        }
+        catch (Exception)
+        {
+            return new HashSet<string>();
+        }
+    }
+
+    //
     // The SPT 4.x server mod metadata record in this DLL, or null when there isn't one - a bundled
     // library, an SPT 3.x mod's helper DLL, or anything that isn't managed code.
     //
