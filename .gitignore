@@ -1,10 +1,11 @@
 # Build output
 bin/
 # Update-and-run script Claude hands over beside the repo rather than in it: it moves the branch,
-# and a script that git itself might replace mid-run would be cut off halfway. The push script
-# lives beside it. (steam-ui-*: their names before the app was SSPTMM.)
+# and a script that git itself might replace mid-run would be cut off halfway. The push and
+# release scripts live beside it. (steam-ui-*: their names before the app was SSPTMM.)
 SSPTMM-update-and-run.bat
 SSPTMM-push-to-github.bat
+SSPTMM-release-to-github.bat
 steam-ui-rebuild-and-run.bat
 steam-ui-push-to-github.bat
 # What the .bat files write about each run

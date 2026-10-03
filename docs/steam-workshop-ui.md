@@ -20,6 +20,12 @@ The scripts, in the repo root (each writes what it did to `logs\`):
   rename, in `dist\steam-ui\`, is moved to `dist\SSPTMM\` once.)
 - **`SSPTMM-push-to-github.bat`** - sends the branch to https://github.com/trappuss/SSPTMM. Also
   kept out of git.
+- **`SSPTMM-release-to-github.bat`** - publishes a release: builds the newest commit (bundle or
+  branch) in a folder under `%TEMP%`, runs the tests, zips `release\SSPTMM-<version>-win-x64.zip`,
+  then - after you type Y - pushes it as `main` and `steam-workshop-ui`, tags `v<version>` (from
+  `build\Directory.Build.props`), creates the GitHub release with `CHANGELOG.md` as its notes and
+  copies `wiki\` to the GitHub wiki. Fast-forward only, never forces; safe to run again. Needs the
+  GitHub CLI (offers to install it with winget). Also kept out of git.
 - **`tools\SSPTMM-measure-scrolling.bat`** - the scrolling measurement; writes
   `logs\perf-report.txt`.
 
