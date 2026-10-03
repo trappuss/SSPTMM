@@ -108,6 +108,8 @@
 
     <ScrollViewer FocusVisualStyle="{x:Null}" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="24,16,24,24">
+            <!-- Fork: the first-run checklist, until it is done or hidden. -->
+            <views:GettingStartedPanel />
             <views:WorkshopBanner />
             <views:WorkshopSubNav />
 

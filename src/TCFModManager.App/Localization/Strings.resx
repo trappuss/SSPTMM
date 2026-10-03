@@ -226,13 +226,6 @@
   <data name="Browse_FirstLaunchNote" xml:space="preserve">
     <value>The first launch downloads the mod catalog. After that it's read from disk and this is over in a moment.</value>
   </data>
-  <data name="Installed_MultiSelect" xml:space="preserve">
-    <value>Multi select</value>
-    <comment>Button label - turns the card grid into a tick list.</comment>
-  </data>
-  <data name="Installed_MultiSelectToolTip" xml:space="preserve">
-    <value>Tick several items to enable, disable, update or unsubscribe them together</value>
-  </data>
   <data name="Installed_ExpandAllToolTip" xml:space="preserve">
     <value>Open every mod the filters match</value>
   </data>
@@ -7624,7 +7617,7 @@ Install the file as it is anyway?</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_Installed_Update_Note" xml:space="preserve">
-    <value>To update several at once, choose {0} from the ... button at the right end of the toolbar, tick them and press {1}.</value>
+    <value>A mod with an update also has a blue {0} button on its card or row. To update several at once, Ctrl+click them and press {1} in the bar along the bottom.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_Installed_Views_Title" xml:space="preserve">
@@ -7661,14 +7654,14 @@ Install the file as it is anyway?</value>
     <comment>How-to title.</comment>
   </data>
   <data name="Help_Installed_Disable_Step1" xml:space="preserve">
-    <value>On {0}, press the on/off button on the mod's card or row.</value>
+    <value>On {0}, click the switch on the mod's card or row - blue is on, grey is off.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_Installed_Disable_Step2" xml:space="preserve">
     <value>If another mod depends on it, you're shown which, and can turn those off with it.</value>
   </data>
   <data name="Help_Installed_Disable_Step3" xml:space="preserve">
-    <value>Press the same button again to turn it back on.</value>
+    <value>Click the switch again to turn it back on.</value>
   </data>
   <data name="Help_Installed_Disable_Note" xml:space="preserve">
     <value>Nothing is deleted - the mod moves to a .disabled folder that SPT doesn't load, and its settings are kept.</value>
@@ -7679,11 +7672,11 @@ Install the file as it is anyway?</value>
     <comment>How-to title.</comment>
   </data>
   <data name="Help_Installed_DisableMany_Step1" xml:space="preserve">
-    <value>On {0}, press the ... button at the right end of the toolbar, choose {1} and tick the mods.</value>
+    <value>On {0}, hold Ctrl and click each mod, or tick the box that appears when you point at one. Shift+click picks every mod between two.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_Installed_DisableMany_Step2" xml:space="preserve">
-    <value>Press {0}.</value>
+    <value>Press {0} in the bar along the bottom.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_Installed_DisableMany_Note" xml:space="preserve">
@@ -8332,7 +8325,7 @@ Install the file as it is anyway?</value>
     <comment>How-to title, phrased as the problem the reader sees.</comment>
   </data>
   <data name="Help_Problems_Greyed_Step1" xml:space="preserve">
-    <value>The mod is turned off. On {0}, press the on/off button on its card to turn it back on.</value>
+    <value>The mod is turned off. On {0}, click the switch on its card to turn it back on.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_Problems_Greyed_Step2" xml:space="preserve">
@@ -9088,16 +9081,12 @@ See Dependencies and Conflicts.</value>
     <comment>Tooltip on the Filters button.</comment>
   </data>
   <data name="Installed_MoreToolTip" xml:space="preserve">
-    <value>More: install from a file, SPT upgrade check, rescan, multi select</value>
+    <value>More: install from a file, SPT upgrade check, rescan, open or close all</value>
     <comment>Tooltip on the "..." button at the right of the Subscribed items toolbar.</comment>
   </data>
   <data name="Installed_RescanToolTip" xml:space="preserve">
     <value>Look through the SPT folder again for mods added or removed outside this app</value>
     <comment>Tooltip on Rescan in the Subscribed items "..." menu.</comment>
-  </data>
-  <data name="Installed_SelectionDone" xml:space="preserve">
-    <value>Done</value>
-    <comment>Multi select bar: leaves multi select.</comment>
   </data>
   <data name="Installed_NothingMatches" xml:space="preserve">
     <value>No mods match the search and filters.</value>
@@ -9124,7 +9113,7 @@ See Dependencies and Conflicts.</value>
     <comment>The same link once the details are showing: hides them again.</comment>
   </data>
   <data name="Help_Installed_DisableMany_Step3" xml:space="preserve">
-    <value>Press {0} when you have finished.</value>
+    <value>Press {0} or Esc to drop the picks.</value>
     <comment>Help step: leaving multi select. {0} is the Done button on the multi select bar.</comment>
   </data>
   <data name="Play_ServerSummary" xml:space="preserve">
@@ -9194,5 +9183,73 @@ See Dependencies and Conflicts.</value>
   <data name="Profiles_SummaryFormat" xml:space="preserve">
     <value>Your SPT profiles are copied before mods change, so one that stops loading can be put back. The last {0} are kept.</value>
     <comment>Options, SPT profile backups: the line on show. {0} is how many copies are kept. The full explanation (Profiles_DescriptionFormat) is behind the "?".</comment>
+  </data>
+  <data name="Installed_SelectionBar_one" xml:space="preserve">
+    <value>1 ITEM SELECTED</value>
+    <comment>Subscribed items: the bar along the bottom while mods are picked. In capitals as Steam shows its own bar titles.</comment>
+  </data>
+  <data name="Installed_SelectionBar_other" xml:space="preserve">
+    <value>{0} ITEMS SELECTED</value>
+    <comment>Subscribed items: the bar along the bottom while mods are picked. {0} is how many. In capitals as Steam shows its own bar titles.</comment>
+  </data>
+  <data name="Installed_PickToolTip" xml:space="preserve">
+    <value>Pick this one. Ctrl+click picks several, Shift+click everything between two.</value>
+    <comment>Tooltip on the tick box that shows on a mod card or row under the pointer.</comment>
+  </data>
+  <data name="Installed_SelectionClearToolTip" xml:space="preserve">
+    <value>Drop every pick (Esc)</value>
+    <comment>Tooltip on Clear in the selection bar.</comment>
+  </data>
+  <data name="GettingStarted_Title" xml:space="preserve">
+    <value>Getting started</value>
+    <comment>Workshop Home, the first-run checklist: heading.</comment>
+  </data>
+  <data name="GettingStarted_Subtitle" xml:space="preserve">
+    <value>Three steps to playing SPT with mods.</value>
+    <comment>Workshop Home, the first-run checklist: the line under the heading.</comment>
+  </data>
+  <data name="GettingStarted_Hide" xml:space="preserve">
+    <value>Hide</value>
+    <comment>Workshop Home, the first-run checklist: hides it.</comment>
+  </data>
+  <data name="GettingStarted_HideToolTip" xml:space="preserve">
+    <value>Hide this list. It won't come back.</value>
+    <comment>Tooltip on Hide.</comment>
+  </data>
+  <data name="GettingStarted_Done" xml:space="preserve">
+    <value>Done</value>
+    <comment>Workshop Home, the first-run checklist: in place of a step's button once the step is done.</comment>
+  </data>
+  <data name="GettingStarted_FolderTitle" xml:space="preserve">
+    <value>Set your SPT folder</value>
+    <comment>First step of the checklist.</comment>
+  </data>
+  <data name="GettingStarted_FolderDetail" xml:space="preserve">
+    <value>Where SPT is installed, so mods go to the right place.</value>
+    <comment>First step of the checklist: what it is for.</comment>
+  </data>
+  <data name="GettingStarted_FolderAction" xml:space="preserve">
+    <value>Open Options</value>
+    <comment>First step of the checklist: its button.</comment>
+  </data>
+  <data name="GettingStarted_SubscribeTitle" xml:space="preserve">
+    <value>Subscribe to a mod</value>
+    <comment>Second step of the checklist.</comment>
+  </data>
+  <data name="GettingStarted_SubscribeDetail" xml:space="preserve">
+    <value>Find one in the Workshop and press Subscribe - it installs itself.</value>
+    <comment>Second step of the checklist: what to do.</comment>
+  </data>
+  <data name="GettingStarted_PlayTitle" xml:space="preserve">
+    <value>Start SPT</value>
+    <comment>Third step of the checklist. Done once the install has a profile.</comment>
+  </data>
+  <data name="GettingStarted_PlayDetail" xml:space="preserve">
+    <value>Start the server, then the launcher, and make your profile.</value>
+    <comment>Third step of the checklist: what to do.</comment>
+  </data>
+  <data name="GettingStarted_PlayAction" xml:space="preserve">
+    <value>Go to Play</value>
+    <comment>Third step of the checklist: its button, opening the Play page.</comment>
   </data>
 </root>

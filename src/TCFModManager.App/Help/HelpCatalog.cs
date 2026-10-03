@@ -128,7 +128,7 @@ internal static class HelpCatalog
                     () => Strings.ModUpdate_Update, () => Strings.ModUpdate_Redownload),
                 Step(() => Strings.Help_Installed_Update_Step3, () => Strings.Common_Continue))
                 .WithNote(() => Strings.Help_Installed_Update_Note,
-                    () => Strings.Installed_MultiSelect, () => Strings.Installed_UpdateSelected)
+                    () => Strings.ModUpdate_Update, () => Strings.Installed_UpdateSelected)
                 .WithKeywords(() => Strings.Help_Installed_Update_Keywords),
 
             Topic("installed.views", () => Strings.Help_Installed_Views_Title,
@@ -155,10 +155,9 @@ internal static class HelpCatalog
                 .WithKeywords(() => Strings.Help_Installed_Disable_Keywords),
 
             Topic("installed.disablemany", () => Strings.Help_Installed_DisableMany_Title,
-                Step(() => Strings.Help_Installed_DisableMany_Step1,
-                    () => Strings.Nav_Installed, () => Strings.Installed_MultiSelect),
+                Step(() => Strings.Help_Installed_DisableMany_Step1, () => Strings.Nav_Installed),
                 Step(() => Strings.Help_Installed_DisableMany_Step2, () => Strings.Installed_DisableSelected),
-                Step(() => Strings.Help_Installed_DisableMany_Step3, () => Strings.Installed_SelectionDone))
+                Step(() => Strings.Help_Installed_DisableMany_Step3, () => Strings.Installed_SelectionClear))
                 .WithNote(() => Strings.Help_Installed_DisableMany_Note, () => Strings.Installed_ViewGroups)
                 .WithKeywords(() => Strings.Help_Installed_DisableMany_Keywords),
 

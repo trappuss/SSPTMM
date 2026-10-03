@@ -51,8 +51,6 @@ internal static class Strings
     internal static string Browse_AddonBadgeToolTip => LocalizationService.Get("Browse_AddonBadgeToolTip");
     internal static string Browse_StartupProgressFormat => LocalizationService.Get("Browse_StartupProgressFormat");
     internal static string Browse_FirstLaunchNote => LocalizationService.Get("Browse_FirstLaunchNote");
-    internal static string Installed_MultiSelect => LocalizationService.Get("Installed_MultiSelect");
-    internal static string Installed_MultiSelectToolTip => LocalizationService.Get("Installed_MultiSelectToolTip");
     internal static string Installed_ExpandAllToolTip => LocalizationService.Get("Installed_ExpandAllToolTip");
     internal static string Installed_CollapseAllToolTip => LocalizationService.Get("Installed_CollapseAllToolTip");
     internal static string Installed_ViewCards => LocalizationService.Get("Installed_ViewCards");
@@ -2431,7 +2429,6 @@ internal static class Strings
     internal static string Installed_FiltersToolTip => LocalizationService.Get("Installed_FiltersToolTip");
     internal static string Installed_MoreToolTip => LocalizationService.Get("Installed_MoreToolTip");
     internal static string Installed_RescanToolTip => LocalizationService.Get("Installed_RescanToolTip");
-    internal static string Installed_SelectionDone => LocalizationService.Get("Installed_SelectionDone");
     internal static string Installed_NothingMatches => LocalizationService.Get("Installed_NothingMatches");
     internal static string Installed_EmptyTitle => LocalizationService.Get("Installed_EmptyTitle");
     internal static string Installed_EmptyBody => LocalizationService.Get("Installed_EmptyBody");
@@ -2456,4 +2453,21 @@ internal static class Strings
     internal static string Options_ServerMapLanOnlySummary => LocalizationService.Get("Options_ServerMapLanOnlySummary");
     internal static string Options_ServerMapReportSummary => LocalizationService.Get("Options_ServerMapReportSummary");
     internal static string Profiles_SummaryFormat => LocalizationService.Get("Profiles_SummaryFormat");
+    internal static string Installed_SelectionBar(int count, params object?[] values) =>
+        LocalizationService.Plural("Installed_SelectionBar", count, values);
+    internal static string Installed_PickToolTip => LocalizationService.Get("Installed_PickToolTip");
+    internal static string Installed_SelectionClearToolTip => LocalizationService.Get("Installed_SelectionClearToolTip");
+    internal static string GettingStarted_Title => LocalizationService.Get("GettingStarted_Title");
+    internal static string GettingStarted_Subtitle => LocalizationService.Get("GettingStarted_Subtitle");
+    internal static string GettingStarted_Hide => LocalizationService.Get("GettingStarted_Hide");
+    internal static string GettingStarted_HideToolTip => LocalizationService.Get("GettingStarted_HideToolTip");
+    internal static string GettingStarted_Done => LocalizationService.Get("GettingStarted_Done");
+    internal static string GettingStarted_FolderTitle => LocalizationService.Get("GettingStarted_FolderTitle");
+    internal static string GettingStarted_FolderDetail => LocalizationService.Get("GettingStarted_FolderDetail");
+    internal static string GettingStarted_FolderAction => LocalizationService.Get("GettingStarted_FolderAction");
+    internal static string GettingStarted_SubscribeTitle => LocalizationService.Get("GettingStarted_SubscribeTitle");
+    internal static string GettingStarted_SubscribeDetail => LocalizationService.Get("GettingStarted_SubscribeDetail");
+    internal static string GettingStarted_PlayTitle => LocalizationService.Get("GettingStarted_PlayTitle");
+    internal static string GettingStarted_PlayDetail => LocalizationService.Get("GettingStarted_PlayDetail");
+    internal static string GettingStarted_PlayAction => LocalizationService.Get("GettingStarted_PlayAction");
 }

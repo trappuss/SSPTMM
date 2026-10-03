@@ -1856,12 +1856,6 @@ Die Kopie, die du nicht behältst, wird in einen versteckten Ordner .ssptmm-dupl
   <data name="Installed_MoveFailedNamedFormat" xml:space="preserve">
     <value>{0} konnte nicht verschoben werden: {1}</value>
   </data>
-  <data name="Installed_MultiSelect" xml:space="preserve">
-    <value>Mehrfachauswahl</value>
-  </data>
-  <data name="Installed_MultiSelectToolTip" xml:space="preserve">
-    <value>Mehrere Mods anhaken, um sie zusammen zu aktivieren oder zu deaktivieren</value>
-  </data>
   <data name="Installed_NewGroupPlaceholder" xml:space="preserve">
     <value>Name der neuen Gruppe...</value>
   </data>
@@ -4733,23 +4727,14 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   <data name="Help_Installed_Disable_Title" xml:space="preserve">
     <value>Einen Mod ausschalten, ohne ihn zu löschen</value>
   </data>
-  <data name="Help_Installed_Disable_Step1" xml:space="preserve">
-    <value>Klicke unter {0} auf die Ein/Aus-Schaltfläche auf der Karte oder Zeile des Mods.</value>
-  </data>
   <data name="Help_Installed_Disable_Step2" xml:space="preserve">
     <value>Hängt ein anderer Mod davon ab, wird dir gezeigt, welcher, und du kannst ihn gleich mit ausschalten.</value>
-  </data>
-  <data name="Help_Installed_Disable_Step3" xml:space="preserve">
-    <value>Klicke noch einmal auf dieselbe Schaltfläche, um ihn wieder einzuschalten.</value>
   </data>
   <data name="Help_Installed_Disable_Note" xml:space="preserve">
     <value>Nichts wird gelöscht - der Mod kommt in einen .disabled-Ordner, den SPT nicht lädt, und seine Einstellungen bleiben erhalten.</value>
   </data>
   <data name="Help_Installed_DisableMany_Title" xml:space="preserve">
     <value>Mehrere Mods auf einmal ausschalten</value>
-  </data>
-  <data name="Help_Installed_DisableMany_Step2" xml:space="preserve">
-    <value>Klicke auf {0}.</value>
   </data>
   <data name="Help_Installed_DisableMany_Note" xml:space="preserve">
     <value>In der Ansicht {0} schalten die Schaltflächen jeder Gruppe die ganze Gruppe aus oder ein.</value>
@@ -5215,9 +5200,6 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   </data>
   <data name="Help_Options_Role_Note" xml:space="preserve">
     <value>Die Modliste eines Servers kommt dann ohne die Mods an, die nur ein Spieler braucht. Wird der Headless-Launcher nicht von selbst gefunden, zeig {0} darauf.</value>
-  </data>
-  <data name="Help_Problems_Greyed_Step1" xml:space="preserve">
-    <value>Der Mod ist ausgeschaltet. Klicke unter {0} auf die Ein/Aus-Schaltfläche seiner Karte, um ihn wieder einzuschalten.</value>
   </data>
   <data name="Help_Problems_CloseSpt_Title" xml:space="preserve">
     <value>Es heißt, ich soll zuerst das Spiel oder den Server schließen</value>

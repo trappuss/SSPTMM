@@ -1242,6 +1242,53 @@ Two Options rows round 27 missed:
 Every row tooltip on the page was then listed, to confirm none is left without a "?". The two
 others with no "?" are button tooltips, not row explanations.
 
+## Round 29: picking, switching and updating as Steam does; Getting started (2026-10-02)
+
+Ideas from the Modrinth App's installed-content page and onboarding (read in its GPL-3.0 source;
+only the ideas are borrowed), each done the way Steam would:
+
+- **Picking several mods**, as in Steam's library.
+  - Ctrl+click adds or drops one, and Shift+click takes everything between the last one picked
+    and this one, in the order on screen. Ctrl+A picks every mod the filters show; Esc drops
+    them all.
+  - A tick box shows on the card or row under the pointer, and on every one once anything is
+    picked. A picked card or row has the accent tint and edge; Groups rows have it now too.
+  - While anything is picked, a bar runs along the bottom of the page: "3 ITEMS SELECTED",
+    Select all, Update selected, Enable, Disable, Unsubscribe and Clear.
+  - The Multi select mode, its "..." entry and its Done button are gone.
+- **The plug icon is an on/off switch:** blue with the knob right while on, grey with it left while
+  off. It asks for the change through the same command and dependency warning. Because it is a
+  Button, not a ToggleButton, a cancelled warning leaves it showing the truth.
+- **Steam's blue Update** on a card or row whose mod has an update this page can apply. It is the
+  same test Update all uses (CanUpdateHere, set in MarkUpdatableCards). One click goes through the
+  same prompts and the download queue. Its tooltip is the version it installs.
+- **Getting started**, at the top of Workshop Home, where the app opens. It lists three steps,
+  each ticked from the install itself rather than from what was clicked:
+  - The SPT folder is found.
+  - This app has installed a mod.
+  - The install has a profile, which only exists once the server and launcher have been used.
+
+  Each step that isn't done has a button to the page that does it. The list is read again whenever
+  Workshop Home is shown. It goes for good once all three are done, or when hidden
+  (AppSettings.GettingStartedDone). An existing user, with all three done long ago, never sees it.
+- Help says Ctrl+click, the switch and the card's Update. Seventeen new strings, and eight Help or UI
+  lines changed. Their translations fall back to English until translated.
+
+Checked under Wine:
+
+- The switches.
+- The hover tick box.
+- Ctrl+click then Shift+click picked exactly the six between, and the bar counted them.
+- Update selected stayed off with no updatable mod picked.
+- Esc dropped the picks.
+- Groups rows tint when picked.
+- A switch turned a mod off, and Undo put it back.
+- The card's Update showed on a mod made to look out of date in the test data, and took that mod
+  through the "read its page first" prompt.
+- Getting started showed two steps done on the test install. Go to Play opened Play. With a profile
+  added in the install's own profiles folder, coming back ticked the third step and the list went
+  for good. Hide hid it for good.
+
 ## Values that could not be measured (marked HUNCH in the source)
 
 - The smooth-scroll distance and time (100px, 250ms) - chosen to feel like a browser, not measured.
@@ -1265,6 +1312,11 @@ others with no "?" are button tooltips, not row explanations.
   Steam's grey button colours): Steam draws both in its client, not on a web page, so they are
   chosen to match the Workshop palette, not measured.
 - The "?" (InfoTip): a 15px ring in the Workshop's secondary grey, brightening under the pointer.
+- The on/off switch (34x18, #1A9FFF on, #3D4450 off), the selection bar (#23262E with a blue top
+  line) and the Getting started tiles (Steam green #75B022 behind a tick): Steam draws switches
+  and bars in its client and has no checklist, so there was nothing to measure.
+- Ctrl+click and Shift+click picking as in Steam's library: from how Steam behaves, not checked
+  against a Steam client here.
 - Critical/error red (`#E05A5A`): no error state on the pages measured.
 - Outlined "View All" hover fill.
 - Whether Steam's file sizes count in 1000s or 1024s ("22.946 KB" reads as 1000s).

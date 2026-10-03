@@ -208,43 +208,79 @@ public partial class InstalledPage : Page
     }
 
     //
-    // In multi-select mode a click anywhere on a card ticks it, rather than only the small
-    // checkbox in its header - the same hit target the card grid had before it became expandable.
-    // Marked handled so the expander doesn't also open while you are picking mods.
-    //
-    // Outside select mode this does nothing and the click falls through to the expander, which is
-    // what opens the card. The versions dialog is reached from "Details and versions" inside the
-    // card, exactly as it already was in the List view.
+    // Fork (SSPTMM, UI tidy-up 4): picking as Steam's library does. Ctrl+click adds or drops this
+    // card, Shift+click takes the run from the last one picked to this one; either is marked
+    // handled so the card doesn't also open. A plain click falls through to the expander, which is
+    // what opens the card - and, in sections of your groups, may start a drag (Card_PreviewMouseMove).
+    // A button inside the card (the switch, Update, the tick box) still does its own job.
     //
     private void Card_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
         _dragCandidate = null;
         _dragStarted = false;
 
-        if (!ViewModel.SelectionMode)
-        {
-            // In sections of your groups a card or row can be dragged to another group, as a Groups
-            // view row can. Only noted here: the click still goes on to open or close it, and only a
-            // move past the drag distance (Card_PreviewMouseMove) makes it a drag.
-            if (ViewModel.SectionsTakeDrops && !IsInsideButton(e.OriginalSource, sender as DependencyObject)
-                && sender is FrameworkElement { DataContext: InstalledModCardViewModel candidate })
-            {
-                _dragStart = e.GetPosition(null);
-                _dragCandidate = candidate;
-            }
+        if (sender is not FrameworkElement { DataContext: InstalledModCardViewModel mod }) return;
+        if (IsInsideButton(e.OriginalSource, sender as DependencyObject)) return;
 
+        if (TryPick(mod))
+        {
+            e.Handled = true;
             return;
         }
 
-        if (sender is not FrameworkElement { DataContext: InstalledModCardViewModel mod }) return;
+        // In sections of your groups a card or row can be dragged to another group, as a Groups
+        // view row can. Only noted here: the click still goes on to open or close it, and only a
+        // move past the drag distance (Card_PreviewMouseMove) makes it a drag.
+        if (ViewModel.SectionsTakeDrops)
+        {
+            _dragStart = e.GetPosition(null);
+            _dragCandidate = mod;
+        }
+    }
 
-        // A button or the checkbox itself still does its own job; this claims the rest of the card -
-        // the header included, which WPF UI draws inside the expander's own toggle button: that one
-        // is not counted, so a click on the header ticks rather than opening the card.
-        if (IsInsideButton(e.OriginalSource, sender as DependencyObject)) return;
+    // Ctrl+click or Shift+click: picked, and true. Any other click: false, and nothing done.
+    private bool TryPick(InstalledModCardViewModel mod)
+    {
+        var keys = Keyboard.Modifiers;
+        if ((keys & ModifierKeys.Shift) != 0)
+        {
+            ViewModel.SelectRange(mod);
+            return true;
+        }
 
-        mod.IsSelected = !mod.IsSelected;
-        e.Handled = true;
+        if ((keys & ModifierKeys.Control) != 0)
+        {
+            ViewModel.ToggleSelected(mod);
+            return true;
+        }
+
+        return false;
+    }
+
+    // The tick box ticks through its own binding; this makes it the mod Shift+click counts from.
+    private void PickTick_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is FrameworkElement { DataContext: InstalledModCardViewModel mod }) ViewModel.NoteAnchor(mod);
+    }
+
+    //
+    // Esc drops every pick; Ctrl+A picks every mod the filters show. Neither while typing - in the
+    // search box or a group's name, Ctrl+A selects the text and Esc is the box's own.
+    //
+    private void Page_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        if (Keyboard.FocusedElement is TextBoxBase) return;
+
+        if (e.Key == Key.Escape && ViewModel.HasAnySelection)
+        {
+            ViewModel.ClearSelectionCommand.Execute(null);
+            e.Handled = true;
+        }
+        else if (e.Key == Key.A && (Keyboard.Modifiers & ModifierKeys.Control) != 0)
+        {
+            ViewModel.SelectAllCommand.Execute(null);
+            e.Handled = true;
+        }
     }
 
     private void Card_PreviewMouseMove(object sender, MouseEventArgs e)
@@ -281,8 +317,6 @@ public partial class InstalledPage : Page
     private void GroupsView_Click(object sender, RoutedEventArgs e) => ViewModel.ViewMode = InstalledViewMode.Groups;
 
     private void ListView_Click(object sender, RoutedEventArgs e) => ViewModel.ViewMode = InstalledViewMode.List;
-
-    private void SelectMode_Click(object sender, RoutedEventArgs e) => ViewModel.SelectionMode = !ViewModel.SelectionMode;
 
     //
     // Undo a removal: with one held it is undone straight away; with several, a menu of them (newest
@@ -348,15 +382,6 @@ public partial class InstalledPage : Page
         });
 
         menu.Items.Add(new Separator());
-
-        var multi = new MenuItem
-        {
-            Header = Strings.Installed_MultiSelect,
-            ToolTip = Strings.Installed_MultiSelectToolTip,
-            IsCheckable = true,
-        };
-        multi.SetBinding(MenuItem.IsCheckedProperty, new Binding(nameof(InstalledViewModel.SelectionMode)) { Mode = BindingMode.TwoWay });
-        menu.Items.Add(multi);
 
         if (vm.ShowExpanders)
         {
@@ -443,12 +468,11 @@ public partial class InstalledPage : Page
             return;
         }
 
-        // In Multi select a click ticks the row, as on the cards and in List view - no details, no drag.
-        if (ViewModel.SelectionMode)
+        // Fork: Ctrl+click and Shift+click pick, as on the cards - no details, no drag.
+        if (sender is FrameworkElement { DataContext: InstalledModCardViewModel picked } && TryPick(picked))
         {
             _dragCandidate = null;
             _dragStarted = false;
-            if (sender is FrameworkElement { DataContext: InstalledModCardViewModel ticked }) ticked.IsSelected = !ticked.IsSelected;
             e.Handled = true;
             return;
         }

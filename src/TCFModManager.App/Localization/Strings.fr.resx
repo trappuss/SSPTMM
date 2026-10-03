@@ -1856,12 +1856,6 @@ La copie que vous ne gardez pas est déplacée dans un dossier caché .ssptmm-du
   <data name="Installed_MoveFailedNamedFormat" xml:space="preserve">
     <value>{0} n'a pas pu être déplacé : {1}</value>
   </data>
-  <data name="Installed_MultiSelect" xml:space="preserve">
-    <value>Sélection multiple</value>
-  </data>
-  <data name="Installed_MultiSelectToolTip" xml:space="preserve">
-    <value>Cochez plusieurs mods pour les activer ou les désactiver ensemble</value>
-  </data>
   <data name="Installed_NewGroupPlaceholder" xml:space="preserve">
     <value>Nom du nouveau groupe...</value>
   </data>
@@ -4733,23 +4727,14 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
   <data name="Help_Installed_Disable_Title" xml:space="preserve">
     <value>Désactiver un mod sans le supprimer</value>
   </data>
-  <data name="Help_Installed_Disable_Step1" xml:space="preserve">
-    <value>Dans {0}, cliquez sur le bouton marche/arrêt de la fiche ou de la ligne du mod.</value>
-  </data>
   <data name="Help_Installed_Disable_Step2" xml:space="preserve">
     <value>Si un autre mod en dépend, on vous montre lequel, et vous pouvez le désactiver en même temps.</value>
-  </data>
-  <data name="Help_Installed_Disable_Step3" xml:space="preserve">
-    <value>Cliquez de nouveau sur le même bouton pour le réactiver.</value>
   </data>
   <data name="Help_Installed_Disable_Note" xml:space="preserve">
     <value>Rien n'est supprimé - le mod va dans un dossier .disabled que SPT ne charge pas, et ses réglages sont conservés.</value>
   </data>
   <data name="Help_Installed_DisableMany_Title" xml:space="preserve">
     <value>Désactiver plusieurs mods d'un coup</value>
-  </data>
-  <data name="Help_Installed_DisableMany_Step2" xml:space="preserve">
-    <value>Cliquez sur {0}.</value>
   </data>
   <data name="Help_Installed_DisableMany_Note" xml:space="preserve">
     <value>Dans l'affichage {0}, les boutons de chaque groupe activent ou désactivent tout le groupe.</value>
@@ -5215,9 +5200,6 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
   </data>
   <data name="Help_Options_Role_Note" xml:space="preserve">
     <value>La liste de mods d'un serveur arrive alors sans les mods dont seul un joueur a besoin. Si le launcher headless n'est pas trouvé tout seul, indiquez-le dans {0}.</value>
-  </data>
-  <data name="Help_Problems_Greyed_Step1" xml:space="preserve">
-    <value>Le mod est désactivé. Dans {0}, cliquez sur le bouton marche/arrêt de sa fiche pour le réactiver.</value>
   </data>
   <data name="Help_Problems_CloseSpt_Title" xml:space="preserve">
     <value>On me demande de fermer d'abord le jeu ou le serveur</value>

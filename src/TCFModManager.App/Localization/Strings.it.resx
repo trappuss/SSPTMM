@@ -1856,12 +1856,6 @@ La copia che non conservi viene spostata in una cartella nascosta .ssptmm-duplic
   <data name="Installed_MoveFailedNamedFormat" xml:space="preserve">
     <value>Impossibile spostare {0}: {1}</value>
   </data>
-  <data name="Installed_MultiSelect" xml:space="preserve">
-    <value>Selezione multipla</value>
-  </data>
-  <data name="Installed_MultiSelectToolTip" xml:space="preserve">
-    <value>Spunta più mod per attivarli o disattivarli insieme</value>
-  </data>
   <data name="Installed_NewGroupPlaceholder" xml:space="preserve">
     <value>Nome del nuovo gruppo...</value>
   </data>
@@ -4733,23 +4727,14 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
   <data name="Help_Installed_Disable_Title" xml:space="preserve">
     <value>Disattivare un mod senza eliminarlo</value>
   </data>
-  <data name="Help_Installed_Disable_Step1" xml:space="preserve">
-    <value>In {0}, premi il pulsante di accensione sulla scheda o sulla riga del mod.</value>
-  </data>
   <data name="Help_Installed_Disable_Step2" xml:space="preserve">
     <value>Se un altro mod ne dipende, ti viene mostrato quale, e puoi disattivarlo insieme.</value>
-  </data>
-  <data name="Help_Installed_Disable_Step3" xml:space="preserve">
-    <value>Premi di nuovo lo stesso pulsante per riattivarlo.</value>
   </data>
   <data name="Help_Installed_Disable_Note" xml:space="preserve">
     <value>Non si elimina nulla - il mod va in una cartella .disabled che SPT non carica, e le sue impostazioni restano.</value>
   </data>
   <data name="Help_Installed_DisableMany_Title" xml:space="preserve">
     <value>Disattivare più mod insieme</value>
-  </data>
-  <data name="Help_Installed_DisableMany_Step2" xml:space="preserve">
-    <value>Premi {0}.</value>
   </data>
   <data name="Help_Installed_DisableMany_Note" xml:space="preserve">
     <value>Nella vista {0}, i pulsanti di ogni gruppo attivano o disattivano l'intero gruppo.</value>
@@ -5215,9 +5200,6 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
   </data>
   <data name="Help_Options_Role_Note" xml:space="preserve">
     <value>La lista mod di un server arriva poi senza i mod che servono solo a chi gioca. Se il launcher headless non viene trovato da solo, indicalo in {0}.</value>
-  </data>
-  <data name="Help_Problems_Greyed_Step1" xml:space="preserve">
-    <value>Il mod è disattivato. In {0}, premi il pulsante di accensione sulla sua scheda per riattivarlo.</value>
   </data>
   <data name="Help_Problems_CloseSpt_Title" xml:space="preserve">
     <value>Mi dice di chiudere prima il gioco o il server</value>

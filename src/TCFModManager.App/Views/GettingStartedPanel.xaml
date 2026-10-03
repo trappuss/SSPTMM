@@ -1,0 +1,191 @@
+<!--
+    Fork (SSPTMM, UI tidy-up 4): "Getting started", at the top of Workshop Home - the three steps
+    between installing this app and playing SPT with mods, each ticked off as the install shows it
+    done (GettingStartedViewModel). Gone for good once all three are done, or when hidden.
+
+    Laid out as the Workshop's own panels are: rgba(0,0,0,.4) with a 7px radius and 16px padding, a
+    20px heading over a 15px line, Steam-blue buttons. HUNCH: the step tiles (a darker inset, a ring
+    with the step's number, Steam's green #75B022 behind the tick and #A4D007 for "Done") are chosen
+    to sit with that palette - Steam has no checklist of its own to measure.
+-->
+<UserControl
+    x:Class="TCFModManager.App.Views.GettingStartedPanel"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:converters="clr-namespace:TCFModManager.App.Converters"
+    xmlns:loc="clr-namespace:TCFModManager.App.Localization"
+    Loaded="Panel_Loaded"
+    IsVisibleChanged="Panel_IsVisibleChanged">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+        <converters:FalseToVisibilityConverter x:Key="FalseToVisible" />
+        <Style x:Key="StepTile" TargetType="Border">
+            <Setter Property="Padding" Value="14,12" />
+            <Setter Property="Background" Value="#4D000000" />
+            <Setter Property="CornerRadius" Value="4" />
+        </Style>
+        <Style x:Key="StepNumber" TargetType="Border">
+            <Setter Property="Width" Value="28" />
+            <Setter Property="Height" Value="28" />
+            <Setter Property="CornerRadius" Value="14" />
+            <Setter Property="BorderThickness" Value="1.5" />
+            <Setter Property="BorderBrush" Value="#67707B" />
+        </Style>
+        <Style x:Key="StepCheck" TargetType="Border">
+            <Setter Property="Width" Value="28" />
+            <Setter Property="Height" Value="28" />
+            <Setter Property="CornerRadius" Value="14" />
+            <Setter Property="Background" Value="#75B022" />
+        </Style>
+    </UserControl.Resources>
+
+    <Border
+        Margin="0,0,0,16"
+        Padding="16"
+        Background="#66000000"
+        CornerRadius="7"
+        Visibility="{Binding IsShown, Converter={StaticResource BoolToVis}}">
+        <StackPanel>
+            <DockPanel>
+                <Button
+                    DockPanel.Dock="Right"
+                    VerticalAlignment="Top"
+                    Style="{StaticResource SteamGeneralButton}"
+                    Content="{loc:Str GettingStarted_Hide}"
+                    ToolTip="{loc:Str GettingStarted_HideToolTip}"
+                    Command="{Binding HideCommand}" />
+                <StackPanel>
+                    <TextBlock FontFamily="{StaticResource SteamFontMedium}" FontWeight="Medium" FontSize="20" Foreground="{StaticResource SteamWhite}" Text="{loc:Str GettingStarted_Title}" />
+                    <TextBlock FontSize="15" Foreground="{StaticResource SteamText}" Text="{loc:Str GettingStarted_Subtitle}" />
+                </StackPanel>
+            </DockPanel>
+
+            <UniformGrid Margin="0,14,0,0" Columns="3">
+            <Border Style="{StaticResource StepTile}" Margin="0,0,8,0">
+                <DockPanel>
+                    <Grid DockPanel.Dock="Left" Margin="0,0,12,0" VerticalAlignment="Top">
+                        <Border Style="{StaticResource StepNumber}" Visibility="{Binding FolderDone, Converter={StaticResource FalseToVisible}}">
+                            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="13" FontWeight="SemiBold" Foreground="#DCDEDF" Text="1" />
+                        </Border>
+                        <Border Style="{StaticResource StepCheck}" Visibility="{Binding FolderDone, Converter={StaticResource BoolToVis}}">
+                            <ui:SymbolIcon HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16" Foreground="White" Symbol="Checkmark24" />
+                        </Border>
+                    </Grid>
+                    <StackPanel>
+                        <TextBlock FontSize="15" Foreground="{StaticResource SteamWhite}" Text="{loc:Str GettingStarted_FolderTitle}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding FolderDone}" Value="True">
+                                            <Setter Property="TextDecorations" Value="Strikethrough" />
+                                            <Setter Property="Opacity" Value="0.6" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <TextBlock Margin="0,2,0,10" FontSize="12" TextWrapping="Wrap" Foreground="{StaticResource SteamText}" Text="{loc:Str GettingStarted_FolderDetail}" />
+                        <Button
+                            HorizontalAlignment="Left"
+                            MinHeight="30"
+                            Padding="14,0"
+                            Style="{StaticResource SteamBlueButton}"
+                            Content="{loc:Str GettingStarted_FolderAction}"
+                            Command="{Binding OpenOptionsCommand}"
+                            Visibility="{Binding FolderDone, Converter={StaticResource FalseToVisible}}" />
+                        <TextBlock
+                            MinHeight="30"
+                            FontSize="13"
+                            Foreground="#A4D007"
+                            Text="{loc:Str GettingStarted_Done}"
+                            Visibility="{Binding FolderDone, Converter={StaticResource BoolToVis}}" />
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+            <Border Style="{StaticResource StepTile}" Margin="4,0,4,0">
+                <DockPanel>
+                    <Grid DockPanel.Dock="Left" Margin="0,0,12,0" VerticalAlignment="Top">
+                        <Border Style="{StaticResource StepNumber}" Visibility="{Binding SubscribedDone, Converter={StaticResource FalseToVisible}}">
+                            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="13" FontWeight="SemiBold" Foreground="#DCDEDF" Text="2" />
+                        </Border>
+                        <Border Style="{StaticResource StepCheck}" Visibility="{Binding SubscribedDone, Converter={StaticResource BoolToVis}}">
+                            <ui:SymbolIcon HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16" Foreground="White" Symbol="Checkmark24" />
+                        </Border>
+                    </Grid>
+                    <StackPanel>
+                        <TextBlock FontSize="15" Foreground="{StaticResource SteamWhite}" Text="{loc:Str GettingStarted_SubscribeTitle}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SubscribedDone}" Value="True">
+                                            <Setter Property="TextDecorations" Value="Strikethrough" />
+                                            <Setter Property="Opacity" Value="0.6" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <TextBlock Margin="0,2,0,10" FontSize="12" TextWrapping="Wrap" Foreground="{StaticResource SteamText}" Text="{loc:Str GettingStarted_SubscribeDetail}" />
+                        <Button
+                            HorizontalAlignment="Left"
+                            MinHeight="30"
+                            Padding="14,0"
+                            Style="{StaticResource SteamBlueButton}"
+                            Content="{loc:Str Installed_EmptyBrowse}"
+                            Command="{Binding BrowseCommand}"
+                            Visibility="{Binding SubscribedDone, Converter={StaticResource FalseToVisible}}" />
+                        <TextBlock
+                            MinHeight="30"
+                            FontSize="13"
+                            Foreground="#A4D007"
+                            Text="{loc:Str GettingStarted_Done}"
+                            Visibility="{Binding SubscribedDone, Converter={StaticResource BoolToVis}}" />
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+            <Border Style="{StaticResource StepTile}" Margin="8,0,0,0">
+                <DockPanel>
+                    <Grid DockPanel.Dock="Left" Margin="0,0,12,0" VerticalAlignment="Top">
+                        <Border Style="{StaticResource StepNumber}" Visibility="{Binding PlayedDone, Converter={StaticResource FalseToVisible}}">
+                            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="13" FontWeight="SemiBold" Foreground="#DCDEDF" Text="3" />
+                        </Border>
+                        <Border Style="{StaticResource StepCheck}" Visibility="{Binding PlayedDone, Converter={StaticResource BoolToVis}}">
+                            <ui:SymbolIcon HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16" Foreground="White" Symbol="Checkmark24" />
+                        </Border>
+                    </Grid>
+                    <StackPanel>
+                        <TextBlock FontSize="15" Foreground="{StaticResource SteamWhite}" Text="{loc:Str GettingStarted_PlayTitle}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding PlayedDone}" Value="True">
+                                            <Setter Property="TextDecorations" Value="Strikethrough" />
+                                            <Setter Property="Opacity" Value="0.6" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <TextBlock Margin="0,2,0,10" FontSize="12" TextWrapping="Wrap" Foreground="{StaticResource SteamText}" Text="{loc:Str GettingStarted_PlayDetail}" />
+                        <Button
+                            HorizontalAlignment="Left"
+                            MinHeight="30"
+                            Padding="14,0"
+                            Style="{StaticResource SteamBlueButton}"
+                            Content="{loc:Str GettingStarted_PlayAction}"
+                            Command="{Binding PlayCommand}"
+                            Visibility="{Binding PlayedDone, Converter={StaticResource FalseToVisible}}" />
+                        <TextBlock
+                            MinHeight="30"
+                            FontSize="13"
+                            Foreground="#A4D007"
+                            Text="{loc:Str GettingStarted_Done}"
+                            Visibility="{Binding PlayedDone, Converter={StaticResource BoolToVis}}" />
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+            </UniformGrid>
+        </StackPanel>
+    </Border>
+</UserControl>

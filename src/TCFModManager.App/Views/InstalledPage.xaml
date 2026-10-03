@@ -13,6 +13,7 @@
      wheel-swallowing issue) work as expected. -->
 <Page
     x:Class="TCFModManager.App.Views.InstalledPage"
+    PreviewKeyDown="Page_PreviewKeyDown"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
@@ -462,6 +463,97 @@
             </Grid>
         </DataTemplate>
 
+        <!--
+            Fork (SSPTMM, UI tidy-up 4): a mod's on/off switch, in place of the plug icon - blue with
+            the knob to the right while the mod is on, grey with it to the left while it is off, as
+            Steam's own settings switches read. A Button rather than a ToggleButton: it shows the
+            mod's state and asks for the change (ToggleDisableCommand, with its dependency warning),
+            so a cancelled warning leaves it showing the truth rather than a flipped switch.
+
+            HUNCH: 34x18, #1A9FFF on, #3D4450 off - Steam's client draws these, no page to measure.
+        -->
+        <Style x:Key="ModSwitch" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Track" Width="34" Height="18" CornerRadius="9" Background="#1A9FFF">
+                            <Ellipse x:Name="Knob" Width="12" Height="12" Margin="3,0" HorizontalAlignment="Right" Fill="White" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <DataTrigger Binding="{Binding IsDisabled}" Value="True">
+                                <Setter TargetName="Track" Property="Background" Value="#3D4450" />
+                                <Setter TargetName="Knob" Property="HorizontalAlignment" Value="Left" />
+                                <Setter TargetName="Knob" Property="Fill" Value="#8F98A0" />
+                            </DataTrigger>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}" Value="True" />
+                                    <Condition Binding="{Binding IsDisabled}" Value="False" />
+                                </MultiDataTrigger.Conditions>
+                                <Setter TargetName="Track" Property="Background" Value="#47B2FF" />
+                            </MultiDataTrigger>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}" Value="True" />
+                                    <Condition Binding="{Binding IsDisabled}" Value="True" />
+                                </MultiDataTrigger.Conditions>
+                                <Setter TargetName="Track" Property="Background" Value="#4A5361" />
+                            </MultiDataTrigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!--
+            Fork: the tick box on a card or row, as Steam's library shows one on the game under the
+            pointer. Its space is kept while hidden, so nothing shifts when it appears. Shown under
+            the pointer (Tag, bound in each template to that card's or row's IsMouseOver), on a
+            ticked mod, and on every mod once anything is ticked, so adding the next is one click.
+        -->
+        <Style x:Key="PickTick" TargetType="CheckBox">
+            <Setter Property="Visibility" Value="Hidden" />
+            <Setter Property="Margin" Value="0,0,8,0" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="ToolTip" Value="{Binding [Installed_PickToolTip], Source={x:Static loc:LocalizationService.Instance}}" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource Self}}" Value="True">
+                    <Setter Property="Visibility" Value="Visible" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                    <Setter Property="Visibility" Value="Visible" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding DataContext.HasAnySelection, RelativeSource={RelativeSource AncestorType={x:Type Page}}}" Value="True">
+                    <Setter Property="Visibility" Value="Visible" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Fork: Steam's blue Update, on a card or row with an update this page can apply. -->
+        <Style x:Key="CardUpdateButton" TargetType="Button" BasedOn="{StaticResource SteamBlueButton}">
+            <Setter Property="MinHeight" Value="26" />
+            <Setter Property="Padding" Value="12,0" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Content" Value="{Binding [ModUpdate_Update], Source={x:Static loc:LocalizationService.Instance}}" />
+            <Setter Property="Command" Value="{Binding DataContext.UpdateOneCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}" />
+            <Setter Property="CommandParameter" Value="{Binding}" />
+            <Setter Property="ToolTip" Value="{Binding UpdateVersion}" />
+            <Setter Property="ToolTipService.ShowDuration" Value="20000" />
+            <Setter Property="Visibility" Value="Collapsed" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding CanUpdateHere}" Value="True">
+                    <Setter Property="Visibility" Value="Visible" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
         <DataTemplate x:Key="ModCardTemplate" DataType="{x:Type viewmodels:InstalledModCardViewModel}">
             <!-- Opacity is the whole-card cue for a disabled mod (CardOpacity is 1.0
                  when enabled); the DISABLED chip and the status icon carry the same
@@ -491,17 +583,20 @@
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
-                        <!-- Only shown in multi-select mode; a click anywhere on the
-                             card ticks it too, rather than only this small target -
-                             see Card_PreviewMouseLeftButtonDown. -->
+                        <!-- Fork: Steam's blue Update, when this page can apply one. -->
+                        <Button Grid.Column="3" Margin="8,0,0,0" Style="{StaticResource CardUpdateButton}" />
+
+                        <!-- Fork: the tick box (PickTick). Ctrl+click and Shift+click on the card
+                             pick too - see Card_PreviewMouseLeftButtonDown. -->
                         <CheckBox
                             Grid.Column="0"
-                            Margin="0,0,8,0"
-                            VerticalAlignment="Center"
+                            Style="{StaticResource PickTick}"
+                            Tag="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType={x:Type ui:CardExpander}}}"
                             IsChecked="{Binding IsSelected}"
-                            Visibility="{Binding DataContext.SelectionMode, RelativeSource={RelativeSource AncestorType={x:Type Page}}, Converter={StaticResource BoolToVis}}" />
+                            Click="PickTick_Click" />
 
                         <!-- Status above the enable/disable toggle, both top-aligned
                              with the title block beside them so the icon reads as
@@ -528,20 +623,14 @@
                                  was 32px beside an 18px status icon, which is what made
                                  it read as oversized.
                             -->
-                            <ui:Button
-                                Margin="0,4,10,0"
-                                Padding="0"
-                                MinWidth="0"
-                                MinHeight="0"
-                                Width="30"
-                                Height="30"
+                            <!-- Fork: the on/off switch (ModSwitch), in place of the plug icon. -->
+                            <Button
+                                Margin="0,8,10,0"
                                 HorizontalAlignment="Center"
-                                Appearance="Transparent"
+                                Style="{StaticResource ModSwitch}"
                                 Command="{Binding DataContext.ToggleDisableCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
                                 CommandParameter="{Binding}"
-                                ToolTip="{Binding DisableToggleTooltip}">
-                                <ui:SymbolIcon Symbol="{Binding DisableToggleGlyph}" FontSize="16" />
-                            </ui:Button>
+                                ToolTip="{Binding DisableToggleTooltip}" />
 
                             <ui:SymbolIcon
                                 Symbol="Pin24"
@@ -657,13 +746,13 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
-                        <!-- Multi select only, as on the cards. -->
+                        <!-- Fork: the tick box, as on the cards. -->
                         <CheckBox
                             Grid.Column="0"
-                            Margin="0,0,8,0"
-                            VerticalAlignment="Center"
+                            Style="{StaticResource PickTick}"
+                            Tag="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType={x:Type ui:CardExpander}}}"
                             IsChecked="{Binding IsSelected}"
-                            Visibility="{Binding DataContext.SelectionMode, RelativeSource={RelativeSource AncestorType={x:Type Page}}, Converter={StaticResource BoolToVis}}" />
+                            Click="PickTick_Click" />
 
                         <ui:SymbolIcon
                             Grid.Column="1"
@@ -741,15 +830,15 @@
 
                         <!-- Only the non-destructive actions live in the header; Remove
                              and Sort out are inside the row, which has to be opened first. -->
-                        <StackPanel Grid.Column="4" VerticalAlignment="Center">
-                            <ui:Button
-                                Padding="6"
-                                Appearance="Transparent"
+                        <StackPanel Grid.Column="4" VerticalAlignment="Center" Orientation="Horizontal">
+                            <!-- Fork: Update when there is one, then the on/off switch. -->
+                            <Button Margin="0,0,12,0" Style="{StaticResource CardUpdateButton}" />
+                            <Button
+                                Margin="0,0,6,0"
+                                Style="{StaticResource ModSwitch}"
                                 Command="{Binding DataContext.ToggleDisableCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
                                 CommandParameter="{Binding}"
-                                ToolTip="{Binding DisableToggleTooltip}">
-                                <ui:SymbolIcon Symbol="{Binding DisableToggleGlyph}" FontSize="16" />
-                            </ui:Button>
+                                ToolTip="{Binding DisableToggleTooltip}" />
 
                             <ui:SymbolIcon
                                 Symbol="Pin24"
@@ -798,6 +887,8 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <!-- Fork: the selection bar, while anything is picked. -->
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
@@ -1052,76 +1143,8 @@
                 Click="UndoRemoval_Click" />
         </WrapPanel>
 
-        <!-- Multi-select bar. Shares row 3 with the group management bar below, which steps
-             aside while selecting (InstalledViewModel.ShowGroupBar) - the two never show together. -->
-        <DockPanel
-            Grid.Row="3"
-            Margin="0,0,0,8"
-            Visibility="{Binding SelectionMode, Converter={StaticResource BoolToVis}}">
-            <!-- Fork: Multi select is switched on from the "..." menu now, so the bar it opens is
-                 also where it is switched off again. -->
-            <ui:Button
-                DockPanel.Dock="Right"
-                Margin="8,0,0,0"
-                Appearance="Primary"
-                Content="{loc:Str Installed_SelectionDone}"
-                Click="SelectMode_Click" />
-            <ui:Button
-                DockPanel.Dock="Right"
-                Content="{loc:Str Installed_SelectionClear}"
-                Command="{Binding ClearSelectionCommand}" />
-            <ui:Button
-                DockPanel.Dock="Right"
-                Margin="0,0,8,0"
-                Content="{Binding SelectAllLabel}"
-                Icon="{ui:SymbolIcon SelectAllOn24}"
-                ToolTip="{loc:Str Installed_SelectAllToolTip}"
-                Appearance="{Binding AllSelected, Converter={StaticResource BoolToAppearance}}"
-                Command="{Binding SelectAllCommand}" />
-            <ui:Button
-                DockPanel.Dock="Right"
-                Margin="0,0,8,0"
-                Appearance="Primary"
-                Content="{loc:Str Installed_UpdateSelected}"
-                Icon="{ui:SymbolIcon ArrowDownload24}"
-                ToolTip="{loc:Str Installed_UpdateSelectedToolTip}"
-                Command="{Binding UpdateSelectedCommand}" />
-            <ui:Button
-                DockPanel.Dock="Right"
-                Margin="0,0,8,0"
-                Content="{loc:Str Installed_EnableSelected}"
-                Icon="{ui:SymbolIcon PlugConnected24}"
-                Command="{Binding EnableSelectedCommand}" />
-            <ui:Button
-                DockPanel.Dock="Right"
-                Margin="0,0,8,0"
-                Content="{loc:Str Installed_DisableSelected}"
-                Icon="{ui:SymbolIcon PlugDisconnected24}"
-                Command="{Binding DisableSelectedCommand}" />
-            <!-- Red like each card's own Unsubscribe - while there is something ticked; greyed
-                 out like its neighbours otherwise. -->
-            <ui:Button
-                DockPanel.Dock="Right"
-                Margin="0,0,8,0"
-                Content="{loc:Str Installed_UnsubscribeSelected}"
-                Icon="{ui:SymbolIcon Delete24}"
-                Command="{Binding UnsubscribeSelectedCommand}">
-                <ui:Button.Style>
-                    <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
-                        <Style.Triggers>
-                            <Trigger Property="IsEnabled" Value="True">
-                                <Setter Property="Foreground" Value="{DynamicResource SystemFillColorCriticalBrush}" />
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
-                </ui:Button.Style>
-            </ui:Button>
-            <TextBlock
-                VerticalAlignment="Center"
-                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                Text="{Binding SelectedCountLabel}" />
-        </DockPanel>
-
+        <!-- Fork (UI tidy-up 4): the Multi select bar that sat here is gone - see the selection bar
+             along the bottom of the page (row 6). -->
         <!-- Group management bar - only meaningful, so only shown, in group view, and not while
              selecting, when the selection bar has this row. -->
         <DockPanel
@@ -1316,7 +1339,14 @@
                                                     <Border.Style>
                                                         <Style TargetType="Border" BasedOn="{StaticResource ClickableCardRow}">
                                                             <Setter Property="ToolTip" Value="{Binding [Installed_GroupRowToolTip], Source={x:Static loc:LocalizationService.Instance}}" />
+                                                            <Setter Property="BorderThickness" Value="1" />
+                                                            <Setter Property="BorderBrush" Value="Transparent" />
                                                             <Style.Triggers>
+                                                                <!-- Fork: a ticked row reads as picked, as a ticked card does. -->
+                                                                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                                    <Setter Property="Background" Value="{StaticResource RowSelectedBrush}" />
+                                                                    <Setter Property="BorderBrush" Value="{StaticResource SelectedRowStroke}" />
+                                                                </DataTrigger>
                                                                 <DataTrigger Binding="{Binding DataContext.GroupsByCategory, RelativeSource={RelativeSource AncestorType={x:Type Page}}}" Value="True">
                                                                     <Setter Property="ToolTip" Value="{Binding [Installed_CategoryRowToolTip], Source={x:Static loc:LocalizationService.Instance}}" />
                                                                 </DataTrigger>
@@ -1332,14 +1362,15 @@
                                                             <ColumnDefinition Width="Auto" />
                                                         </Grid.ColumnDefinitions>
 
-                                                        <!-- Multi select only; a click on the row ticks it then
+                                                        <!-- Fork: the tick box, as on the cards; Ctrl+click and
+                                                             Shift+click on the row pick too
                                                              (ModRow_PreviewMouseLeftButtonDown). -->
                                                         <CheckBox
                                                             Grid.Column="0"
-                                                            Margin="0,0,8,0"
-                                                            VerticalAlignment="Center"
+                                                            Style="{StaticResource PickTick}"
+                                                            Tag="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType={x:Type Border}}}"
                                                             IsChecked="{Binding IsSelected}"
-                                                            Visibility="{Binding DataContext.SelectionMode, RelativeSource={RelativeSource AncestorType={x:Type Page}}, Converter={StaticResource BoolToVis}}" />
+                                                            Click="PickTick_Click" />
 
                                                         <ui:SymbolIcon
                                                             Grid.Column="1"
@@ -1419,15 +1450,15 @@
                                                         <!-- Per-row disable toggle. ModRow_PreviewMouseLeftButtonDown
                                                              steps aside for anything inside a button, so this click
                                                              isn't swallowed by the row's own click/drag gesture. -->
-                                                        <StackPanel Grid.Column="4" VerticalAlignment="Center">
-                                                            <ui:Button
-                                                                Padding="4"
-                                                                Appearance="Transparent"
+                                                        <StackPanel Grid.Column="4" VerticalAlignment="Center" Orientation="Horizontal">
+                                                            <!-- Fork: Update when there is one, then the on/off switch. -->
+                                                            <Button Margin="0,0,12,0" Style="{StaticResource CardUpdateButton}" />
+                                                            <Button
+                                                                Margin="0,0,4,0"
+                                                                Style="{StaticResource ModSwitch}"
                                                                 Command="{Binding DataContext.ToggleDisableCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
                                                                 CommandParameter="{Binding}"
-                                                                ToolTip="{Binding DisableToggleTooltip}">
-                                                                <ui:SymbolIcon Symbol="{Binding DisableToggleGlyph}" FontSize="16" />
-                                                            </ui:Button>
+                                                                ToolTip="{Binding DisableToggleTooltip}" />
 
                                                             <ui:SymbolIcon
                                                                 Symbol="Pin24"
@@ -1634,5 +1665,80 @@
                 </ComboBox.ItemTemplate>
             </ComboBox>
         </Grid>
+
+        <!--
+            Fork (SSPTMM, UI tidy-up 4): what can be done to the picked mods, along the bottom of the
+            page while any are picked - the way Steam's downloads bar sits under its library. Ctrl+
+            click, Shift+click or a card's tick box picks; Clear or Esc drops them all, and the bar
+            goes with them. Ctrl+A picks every mod the filters show.
+
+            HUNCH: the look - #23262E with a 1px Steam-blue line along the top, the count in small
+            capitals - is chosen to sit above the Downloads bar and read as a different thing from it,
+            not measured from Steam.
+        -->
+        <Border
+            Grid.Row="6"
+            Margin="-24,10,-24,-16"
+            Padding="24,10"
+            Background="#23262E"
+            BorderBrush="{StaticResource SteamBlue}"
+            BorderThickness="0,1,0,0"
+            Visibility="{Binding HasAnySelection, Converter={StaticResource BoolToVis}}">
+            <DockPanel>
+                <!-- Rightmost: drop them all. -->
+                <Button
+                    DockPanel.Dock="Right"
+                    Margin="8,0,0,0"
+                    Style="{StaticResource SteamButton}"
+                    Content="{loc:Str Installed_SelectionClear}"
+                    ToolTip="{loc:Str Installed_SelectionClearToolTip}"
+                    Command="{Binding ClearSelectionCommand}" />
+                <!-- Red like each card's own Unsubscribe. -->
+                <Button
+                    DockPanel.Dock="Right"
+                    Margin="8,0,0,0"
+                    Style="{StaticResource SteamButton}"
+                    Foreground="#E05A5A"
+                    Content="{loc:Str Installed_UnsubscribeSelected}"
+                    Command="{Binding UnsubscribeSelectedCommand}" />
+                <Button
+                    DockPanel.Dock="Right"
+                    Margin="8,0,0,0"
+                    Style="{StaticResource SteamButton}"
+                    Content="{loc:Str Installed_DisableSelected}"
+                    Command="{Binding DisableSelectedCommand}" />
+                <Button
+                    DockPanel.Dock="Right"
+                    Margin="8,0,0,0"
+                    Style="{StaticResource SteamButton}"
+                    Content="{loc:Str Installed_EnableSelected}"
+                    Command="{Binding EnableSelectedCommand}" />
+                <Button
+                    DockPanel.Dock="Right"
+                    Margin="8,0,0,0"
+                    Style="{StaticResource SteamBlueButton}"
+                    Content="{loc:Str Installed_UpdateSelected}"
+                    ToolTip="{loc:Str Installed_UpdateSelectedToolTip}"
+                    Command="{Binding UpdateSelectedCommand}" />
+
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock
+                        VerticalAlignment="Center"
+                        FontSize="12"
+                        FontWeight="SemiBold"
+                        Foreground="#DCDEDF"
+                        Text="{Binding SelectionBarLabel}" />
+                    <!-- Every mod the filters show - the number says how many that is. -->
+                    <ui:Button
+                        Margin="12,0,0,0"
+                        Padding="8,4"
+                        Appearance="Transparent"
+                        Foreground="{StaticResource SteamBlue}"
+                        Content="{Binding SelectAllLabel}"
+                        ToolTip="{loc:Str Installed_SelectAllToolTip}"
+                        Command="{Binding SelectAllCommand}" />
+                </StackPanel>
+            </DockPanel>
+        </Border>
     </Grid>
 </Page>

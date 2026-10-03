@@ -8,6 +8,10 @@ public sealed class AppSettings
 {
     public string? SptInstallPath { get; set; }
 
+    // Fork (SSPTMM): Workshop Home's "Getting started" list is finished with - all three steps done,
+    // or hidden by hand. It does not come back either way.
+    public bool GettingStartedDone { get; set; }
+
     // How long removed mods stay in the install's holding folder before they are deleted (R11, R15).
     public TCFModManager.Core.Services.RemovedModsRetention RemovedModsRetention { get; set; } =
         TCFModManager.Core.Services.RemovedModsRetention.FourteenDays;

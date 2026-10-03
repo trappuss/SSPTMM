@@ -2057,6 +2057,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
     private void AnnounceUpdates()
     {
+        MarkUpdatableCards(); // Fork: each card's own Update (InstalledViewModel.Toolbar.cs)
         OnPropertyChanged(nameof(UpdatableCount));
         OnPropertyChanged(nameof(HasUpdates));
         OnPropertyChanged(nameof(UpdateAllLabel));
@@ -2478,6 +2479,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         OnPropertyChanged(nameof(SelectedCount));
         OnPropertyChanged(nameof(SelectedCountLabel));
         OnPropertyChanged(nameof(AllSelected));
+        AnnounceSelection(); // Fork: the selection bar (InstalledViewModel.Toolbar.cs)
         DisableSelectedCommand.NotifyCanExecuteChanged();
         EnableSelectedCommand.NotifyCanExecuteChanged();
         UnsubscribeSelectedCommand.NotifyCanExecuteChanged();

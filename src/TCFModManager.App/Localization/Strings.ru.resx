@@ -1955,12 +1955,6 @@
   <data name="Installed_MoveFailedNamedFormat" xml:space="preserve">
     <value>{0} не удалось переместить: {1}</value>
   </data>
-  <data name="Installed_MultiSelect" xml:space="preserve">
-    <value>Выбор нескольких</value>
-  </data>
-  <data name="Installed_MultiSelectToolTip" xml:space="preserve">
-    <value>Отметьте несколько модов, чтобы включить или отключить их вместе</value>
-  </data>
   <data name="Installed_NewGroupPlaceholder" xml:space="preserve">
     <value>Название новой группы...</value>
   </data>
@@ -5024,23 +5018,14 @@
   <data name="Help_Installed_Disable_Title" xml:space="preserve">
     <value>Отключить мод, не удаляя его</value>
   </data>
-  <data name="Help_Installed_Disable_Step1" xml:space="preserve">
-    <value>На странице {0} нажмите кнопку включения на карточке или в строке мода.</value>
-  </data>
   <data name="Help_Installed_Disable_Step2" xml:space="preserve">
     <value>Если от него зависит другой мод, вам покажут какой, и его можно отключить вместе с ним.</value>
-  </data>
-  <data name="Help_Installed_Disable_Step3" xml:space="preserve">
-    <value>Нажмите ту же кнопку ещё раз, чтобы снова его включить.</value>
   </data>
   <data name="Help_Installed_Disable_Note" xml:space="preserve">
     <value>Ничего не удаляется - мод переносится в папку .disabled, которую SPT не загружает, и его настройки сохраняются.</value>
   </data>
   <data name="Help_Installed_DisableMany_Title" xml:space="preserve">
     <value>Отключить несколько модов сразу</value>
-  </data>
-  <data name="Help_Installed_DisableMany_Step2" xml:space="preserve">
-    <value>Нажмите {0}.</value>
   </data>
   <data name="Help_Installed_DisableMany_Note" xml:space="preserve">
     <value>В виде {0} кнопки каждой группы включают или отключают её целиком.</value>
@@ -5506,9 +5491,6 @@
   </data>
   <data name="Help_Options_Role_Note" xml:space="preserve">
     <value>Тогда список модов сервера приходит без модов, нужных только игроку. Если headless-лаунчер не находится сам, укажите его в пункте {0}.</value>
-  </data>
-  <data name="Help_Problems_Greyed_Step1" xml:space="preserve">
-    <value>Мод отключён. На странице {0} нажмите кнопку включения на его карточке, чтобы снова его включить.</value>
   </data>
   <data name="Help_Problems_CloseSpt_Title" xml:space="preserve">
     <value>Просит сначала закрыть игру или сервер</value>
