@@ -2899,7 +2899,6 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
                 || string.Equals(m.CategoryTag, category, StringComparison.OrdinalIgnoreCase))
             .Where(m => !IsOn(ModAttributeFilter.FikaCompatible) || m.IsFikaCompatible)
             .Where(m => !IsOn(ModAttributeFilter.HideAds) || !m.ContainsAds)
-            .Where(m => !IsOn(ModAttributeFilter.HideAiContent) || !m.ContainsAiContent)
             .Where(m => !IsOn(ModAttributeFilter.HasDependencies) || m.HasDependencies)
             .Where(m => !IsOn(ModAttributeFilter.HasAddons) || m.HasAddons)
             .Where(m => !IsOn(ModAttributeFilter.DownloadedNotConfirmed) || m.HasPendingDownload)

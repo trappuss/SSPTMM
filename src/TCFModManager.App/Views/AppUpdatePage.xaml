@@ -34,7 +34,53 @@
                     <TextBlock Margin="0,12,0,0" TextWrapping="Wrap" Text="{loc:Str About_Description}" />
                     <TextBlock Margin="0,12,0,0" TextWrapping="Wrap" Text="{Binding BasedOnLine, Mode=OneWay}" />
                     <TextBlock Margin="0,4,0,0" Foreground="{DynamicResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" Text="{loc:Str About_Updates}" />
+
+                    <!-- Fork: a newer release on GitHub. Told, never installed: the button opens the
+                         release page in the browser. -->
+                    <Border
+                        Margin="0,12,0,0"
+                        Padding="12"
+                        CornerRadius="4"
+                        Background="#66000000"
+                        Visibility="{Binding UpdateAvailable, Converter={StaticResource BoolToVis}}">
+                        <StackPanel>
+                            <TextBlock FontWeight="SemiBold" TextWrapping="Wrap" Text="{Binding ReleaseTitle, Mode=OneWay}" />
+                            <TextBlock
+                                Margin="0,2,0,0"
+                                FontSize="12"
+                                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                Text="{Binding ReleaseDetails, Mode=OneWay}"
+                                Visibility="{Binding ReleaseDetails, Converter={StaticResource NullToCollapsed}}" />
+                            <TextBlock Margin="0,6,0,0" TextWrapping="Wrap" Text="{loc:Str About_UpdateBody}" />
+                            <ui:Button
+                                Margin="0,10,0,0"
+                                Appearance="Primary"
+                                Content="{loc:Str About_OpenRelease}"
+                                Icon="{ui:SymbolIcon Open24}"
+                                Command="{Binding OpenModPageCommand}" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- ShowNewestRelease, not !UpdateAvailable: a check that hasn't run, failed, or
+                         found nothing to compare with must not claim this is the newest release. -->
+                    <TextBlock
+                        Margin="0,8,0,0"
+                        Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                        TextWrapping="Wrap"
+                        Text="{loc:Str About_UpToDate}"
+                        Visibility="{Binding ShowNewestRelease, Converter={StaticResource BoolToVis}}" />
+                    <TextBlock
+                        Margin="0,8,0,0"
+                        Foreground="{DynamicResource SystemFillColorCautionBrush}"
+                        TextWrapping="Wrap"
+                        Text="{Binding CheckError, Mode=OneWay}"
+                        Visibility="{Binding CheckError, Converter={StaticResource NullToCollapsed}}" />
                     <StackPanel Margin="0,12,0,0" Orientation="Horizontal">
+                        <ui:Button
+                            Margin="0,0,8,0"
+                            Content="{loc:Str AppUpdate_CheckNow}"
+                            Icon="{ui:SymbolIcon ArrowSync24}"
+                            Command="{Binding CheckForUpdatesCommand}" />
                         <ui:Button
                             Content="{loc:Str About_SourceLink}"
                             Icon="{ui:SymbolIcon Open24}"
@@ -45,6 +91,13 @@
                             Content="{loc:Str About_OriginalLink}"
                             Icon="{ui:SymbolIcon Open24}"
                             Command="{Binding OpenOriginalCommand}" />
+                        <ui:ProgressRing
+                            Width="20"
+                            Height="20"
+                            Margin="12,0,0,0"
+                            VerticalAlignment="Center"
+                            IsIndeterminate="True"
+                            Visibility="{Binding IsChecking, Converter={StaticResource BoolToVis}}" />
                     </StackPanel>
                 </StackPanel>
             </ui:Card>
@@ -204,7 +257,10 @@
             <!-- Everything below only exists when there's actually something newer. -->
             <StackPanel Visibility="{Binding UpdateAvailable, Converter={StaticResource BoolToVis}}">
 
-                <ui:Card Padding="16" Margin="0,16,0,0">
+                <ui:Card
+                    Padding="16"
+                    Margin="0,16,0,0"
+                    Visibility="{Binding ShowOriginalUpdateCard, Converter={StaticResource BoolToVis}}">
                     <StackPanel>
                         <TextBlock
                             Text="{Binding ChangeTitle}"

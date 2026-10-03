@@ -538,13 +538,14 @@ public sealed class ModInstallService(
             // Fork: every archive file checked on disk against the archive's copy. Left out: what this
             // install deliberately did not place as the archive has it - SPT's own files it refused
             // (named on their own), the user's settings and documents it kept, and server configs the
-            // config handling merged or kept.
+            // config handling merged or kept. A server config that was placed as the archive has it
+            // (IsArchivesCopy) is still checked like any other file.
             //
             var deliberate = new HashSet<string>(skippedProtected, StringComparer.OrdinalIgnoreCase);
             deliberate.UnionWith(keptSettings);
             deliberate.UnionWith(pending.Untouchable);
             deliberate.UnionWith(pending.Preserved);
-            deliberate.UnionWith(report.Files.Select(f => f.Path));
+            deliberate.UnionWith(report.Files.Where(f => !f.IsArchivesCopy).Select(f => f.Path));
 
             var notAsInArchive = InstallVerification.Check(
                 archivePrints,

@@ -132,6 +132,46 @@ public class ForkPrepatchInstallTests : IDisposable
         Assert.Empty(update.NotAsInArchive);
     }
 
+    // Server configs placed as the archive has them are now checked too (they used to be skipped
+    // with the merged ones). A first install (Added) and an update over an untouched config
+    // (DefaultsUpdated) both leave the archive's copy, so neither is reported.
+    [Fact]
+    public async Task Server_configs_placed_as_the_archive_has_them_are_checked_and_pass()
+    {
+        const string Config = "SPT_Runtime/user/mods/SkillsExtended/config/config.json";
+        var target = NewTarget();
+
+        var first = await Service([.. Archive("3.0.0", OldPatch), (Config, "{ \"a\": 1 }")]).InstallAsync(
+            target, new ModVersion { Id = 1, Version = "3.0.0", Link = "https://example.test/a" }, _install);
+
+        Assert.Contains(first.Configs!.Files, f => f.Path == Config && f.Kind == ConfigOutcomeKind.Added);
+        Assert.Empty(first.NotAsInArchive);
+
+        var update = await Service([.. Archive("3.1.1", NewPatch), (Config, "{ \"a\": 2 }")]).InstallAsync(
+            target, new ModVersion { Id = 1, Version = "3.1.1", Link = "https://example.test/a" }, _install);
+
+        Assert.Contains(update.Configs!.Files, f => f.Path == Config && f.Kind == ConfigOutcomeKind.DefaultsUpdated);
+        Assert.Equal("{ \"a\": 2 }", File.ReadAllText(Full(Config)));
+        Assert.Empty(update.NotAsInArchive);
+    }
+
+    [Theory]
+    [InlineData(ConfigOutcomeKind.Added, true)]
+    [InlineData(ConfigOutcomeKind.Unchanged, true)]
+    [InlineData(ConfigOutcomeKind.DefaultsUpdated, true)]
+    [InlineData(ConfigOutcomeKind.Replaced, true)]
+    [InlineData(ConfigOutcomeKind.Merged, false)]
+    [InlineData(ConfigOutcomeKind.KeptMine, false)]
+    [InlineData(ConfigOutcomeKind.NotUpdated, false)]
+    [InlineData(ConfigOutcomeKind.Preserved, false)]
+    [InlineData(ConfigOutcomeKind.Removed, false)]
+    public void Only_outcomes_that_leave_the_archives_copy_are_checked_after_install(ConfigOutcomeKind kind, bool checkedAfter) =>
+        Assert.Equal(checkedAfter, new ConfigFileOutcome { Path = "x/config.json", Kind = kind }.IsArchivesCopy);
+
+    [Fact]
+    public void Every_config_outcome_is_classified() =>
+        Assert.Equal(9, Enum.GetValues<ConfigOutcomeKind>().Length);
+
     [Fact]
     public async Task An_update_replaces_the_server_prepatch_with_the_new_one()
     {

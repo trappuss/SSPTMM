@@ -492,9 +492,6 @@
   <data name="Collection_Breadcrumb" xml:space="preserve">
     <value>Ваши коллекции</value>
   </data>
-  <data name="Common_AttributeFilterToolTip" xml:space="preserve">
-    <value>Фильтр по поддержке Fika, рекламе, ИИ-контенту, зависимостям и аддонам</value>
-  </data>
   <data name="Common_Cancel" xml:space="preserve">
     <value>Отмена</value>
   </data>
@@ -1337,9 +1334,6 @@
   </data>
   <data name="Filter_HideAds" xml:space="preserve">
     <value>Скрыть моды с рекламой</value>
-  </data>
-  <data name="Filter_HideAiContent" xml:space="preserve">
-    <value>Скрыть моды с ИИ-контентом</value>
   </data>
   <data name="Filter_HideInstalled" xml:space="preserve">
     <value>Скрыть установленные моды</value>

@@ -1,3 +1,21 @@
+# SSPTMM 1.1.0
+
+## Updating from 1.0.0
+
+Close SSPTMM, then unzip `SSPTMM-1.1.0-win-x64.zip` over your SSPTMM folder. Your settings in the `Data` folder stay as they are.
+
+## New
+
+- **Newer releases are pointed out.** When it starts, SSPTMM asks GitHub whether a newer release is out. If one is, a dot appears beside **Help** and **About**, and About names the version, its date and download size, shows its release notes and has a button to the release page. SSPTMM never downloads or installs anything by itself. **Check now** on About asks again.
+
+## Changed
+
+- **"Hide mods with AI content" is gone** from the Browse and Subscribed items filters. sp-mod.com has no such flag: its API sends no such field and refuses it as a filter, so the option never hid anything. A saved filter default that had it ticked is ignored.
+
+## Fixed
+
+- **The check after an install now covers server configs too.** Every file is compared with the archive's copy after an install, but server configs were all skipped, so one that went missing or came out different was never reported. Now only the configs that are meant to differ are skipped: those merged with your changes, kept as yours, or left alone.
+
 # SSPTMM 1.0.0
 
 SSPTMM (Steamified SPT Mod Manager) is a Windows app for finding, installing and keeping track of SPT (Single Player Tarkov) mods from sp-mod.com. It looks and works like Steam's Workshop. It is built on TCF Mod Manager 1.19.0-beta by TheCrimsonFckr, but it is a separate app with its own name, version numbers and settings folder. It does not touch an existing TCF Mod Manager install.

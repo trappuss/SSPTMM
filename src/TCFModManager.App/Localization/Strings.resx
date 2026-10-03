@@ -142,7 +142,7 @@
     <value>Puts every filter back to what this page opens with.</value>
   </data>
   <data name="Common_AttributeFilterToolTip" xml:space="preserve">
-    <value>Filter by Fika support, ads, AI content, dependencies and addons</value>
+    <value>Filter by Fika support, ads, dependencies and addons</value>
     <comment>Fika is a mod's name and stays as it is.</comment>
   </data>
   <data name="Common_SortToolTip" xml:space="preserve">
@@ -2223,9 +2223,6 @@ That happens legitimately if the server was rebuilt or you're reaching it throug
   </data>
   <data name="Filter_HideAds" xml:space="preserve">
     <value>Hide mods with ads</value>
-  </data>
-  <data name="Filter_HideAiContent" xml:space="preserve">
-    <value>Hide mods with AI content</value>
   </data>
   <data name="Filter_HasDependencies" xml:space="preserve">
     <value>Has dependencies</value>
@@ -9037,7 +9034,7 @@ See Dependencies and Conflicts.</value>
     <comment>About page: link to this app's GitHub repository.</comment>
   </data>
   <data name="About_Updates" xml:space="preserve">
-    <value>This app doesn't update itself. New versions come from its GitHub repository.</value>
+    <value>SSPTMM looks for a newer release on GitHub each time it starts. It never downloads or installs anything by itself.</value>
     <comment>About page, under the version.</comment>
   </data>
   <data name="Nav_Tools" xml:space="preserve">
@@ -10134,5 +10131,37 @@ Removing them - or turning them off - can leave a profile SPT won't load. If tha
   <data name="Diagnose_ReportOtherFormat" xml:space="preserve">
     <value>Other errors ({0}):</value>
     <comment>Copied report heading. {0} how many.</comment>
+  </data>
+  <data name="About_UpdateTitleFormat" xml:space="preserve">
+    <value>{0}: SSPTMM {1} is out</value>
+    <comment>About page, when GitHub has a newer release. {0} is the kind of update (Bug fix update, Feature update, Major update), {1} its version number.</comment>
+  </data>
+  <data name="About_UpdateBody" xml:space="preserve">
+    <value>Get it from the release page. Close SSPTMM, then unzip the new release over this folder - your settings in the Data folder stay as they are.</value>
+    <comment>About page, under the newer-release title. SSPTMM never downloads or installs itself.</comment>
+  </data>
+  <data name="About_OpenRelease" xml:space="preserve">
+    <value>Open the release page</value>
+    <comment>About page button: opens the newer release's page on GitHub in the browser.</comment>
+  </data>
+  <data name="About_UpToDate" xml:space="preserve">
+    <value>You have the newest release.</value>
+    <comment>About page, after a check of GitHub found nothing newer.</comment>
+  </data>
+  <data name="About_CheckRateLimited" xml:space="preserve">
+    <value>GitHub has had too many requests from this connection in the last hour. Try again later.</value>
+    <comment>About page, when GitHub's rate limit refused the check.</comment>
+  </data>
+  <data name="About_CheckUnreachableFormat" xml:space="preserve">
+    <value>Couldn't reach GitHub: {0}</value>
+    <comment>About page. {0} is the underlying network error, which arrives in English.</comment>
+  </data>
+  <data name="About_CheckTimedOut" xml:space="preserve">
+    <value>Timed out reaching GitHub - check your connection and try again.</value>
+    <comment>About page.</comment>
+  </data>
+  <data name="About_CheckRefusedFormat" xml:space="preserve">
+    <value>GitHub answered with error {0}. Try again later.</value>
+    <comment>About page. {0} is the HTTP status code, for example 503.</comment>
   </data>
 </root>

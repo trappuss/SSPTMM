@@ -486,9 +486,6 @@ Das wurde hier hingeschrieben:
   <data name="Collection_Breadcrumb" xml:space="preserve">
     <value>Ihre Kollektionen</value>
   </data>
-  <data name="Common_AttributeFilterToolTip" xml:space="preserve">
-    <value>Nach Fika-Unterstützung, Werbung, KI-Inhalten, Abhängigkeiten und Addons filtern</value>
-  </data>
   <data name="Common_Cancel" xml:space="preserve">
     <value>Abbrechen</value>
   </data>
@@ -1304,9 +1301,6 @@ Was du auch wählst: Die Version, die gerade auf der Festplatte liegt, wird zuer
   </data>
   <data name="Filter_HideAds" xml:space="preserve">
     <value>Mods mit Werbung ausblenden</value>
-  </data>
-  <data name="Filter_HideAiContent" xml:space="preserve">
-    <value>Mods mit KI-Inhalten ausblenden</value>
   </data>
   <data name="Filter_HideInstalled" xml:space="preserve">
     <value>Installierte Mods ausblenden</value>

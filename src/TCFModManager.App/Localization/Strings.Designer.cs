@@ -640,7 +640,6 @@ internal static class Strings
     internal static string Filter_SelectedCountFormat => LocalizationService.Get("Filter_SelectedCountFormat");
     internal static string Filter_FikaOnly => LocalizationService.Get("Filter_FikaOnly");
     internal static string Filter_HideAds => LocalizationService.Get("Filter_HideAds");
-    internal static string Filter_HideAiContent => LocalizationService.Get("Filter_HideAiContent");
     internal static string Filter_HasDependencies => LocalizationService.Get("Filter_HasDependencies");
     internal static string Filter_HasDependenciesInstalledToolTip => LocalizationService.Get("Filter_HasDependenciesInstalledToolTip");
     internal static string Filter_HasDependenciesBrowseToolTip => LocalizationService.Get("Filter_HasDependenciesBrowseToolTip");
@@ -2686,4 +2685,12 @@ internal static class Strings
     internal static string Diagnose_ReportServerFormat => LocalizationService.Get("Diagnose_ReportServerFormat");
     internal static string Diagnose_ReportGameFormat => LocalizationService.Get("Diagnose_ReportGameFormat");
     internal static string Diagnose_ReportOtherFormat => LocalizationService.Get("Diagnose_ReportOtherFormat");
+    internal static string About_UpdateTitleFormat => LocalizationService.Get("About_UpdateTitleFormat");
+    internal static string About_UpdateBody => LocalizationService.Get("About_UpdateBody");
+    internal static string About_OpenRelease => LocalizationService.Get("About_OpenRelease");
+    internal static string About_UpToDate => LocalizationService.Get("About_UpToDate");
+    internal static string About_CheckRateLimited => LocalizationService.Get("About_CheckRateLimited");
+    internal static string About_CheckUnreachableFormat => LocalizationService.Get("About_CheckUnreachableFormat");
+    internal static string About_CheckTimedOut => LocalizationService.Get("About_CheckTimedOut");
+    internal static string About_CheckRefusedFormat => LocalizationService.Get("About_CheckRefusedFormat");
 }

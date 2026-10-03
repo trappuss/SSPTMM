@@ -6,7 +6,7 @@ namespace TCFModManager.App.ViewModels;
 
 //
 // The tick-box filters that describe a mod itself rather than its relationship to this install.
-// Shared by Browse and Installed so the same five options mean the same thing on both pages.
+// Shared by Browse and Installed so the same four options mean the same thing on both pages.
 //
 public enum ModAttributeFilter
 {
@@ -16,8 +16,9 @@ public enum ModAttributeFilter
     // Mods flagged as containing ads are hidden.
     HideAds,
 
-    // Mods flagged as containing AI-generated content are hidden.
-    HideAiContent,
+    // (Fork: HideAiContent was here. sp-mod.com sends no AI flag and refuses it as a filter, so it
+    // could never hide anything - removed in round 36. A saved default naming it no longer parses
+    // and is ignored, see SavedFilterDefaults.)
 
     // Only mods that pull in other mods.
     HasDependencies,
@@ -39,7 +40,7 @@ public enum ModAttributeFilter
 //
 // One tickable line in an attribute filter dropdown.
 //
-// Three of these hide things and two of them require things, which reads oddly as a list until you
+// One of these hides things and three require things, which reads oddly as a list until you
 // notice every one of them narrows what you see - that is the whole contract of the dropdown, and
 // why "Hide ads" sits happily beside "Has addons".
 //
@@ -58,8 +59,8 @@ public partial class ModAttributeOption(ModAttributeFilter value, string key, st
     private bool _isSelected;
 
     //
-    // The five options both pages carry, in the order both pages show them. Declared here rather
-    // than twice, so adding a sixth is one edit and the two dropdowns cannot drift apart.
+    // The four options both pages carry, in the order both pages show them. Declared here rather
+    // than twice, so adding a fifth is one edit and the two dropdowns cannot drift apart.
     //
     // A NEW collection every call, never a shared instance: each page ticks its own.
     //
@@ -72,7 +73,6 @@ public partial class ModAttributeOption(ModAttributeFilter value, string key, st
     [
         new(ModAttributeFilter.FikaCompatible, nameof(Strings.Filter_FikaOnly)),
         new(ModAttributeFilter.HideAds, nameof(Strings.Filter_HideAds)),
-        new(ModAttributeFilter.HideAiContent, nameof(Strings.Filter_HideAiContent)),
         new(ModAttributeFilter.HasDependencies, nameof(Strings.Filter_HasDependencies), dependenciesToolTipKey),
         new(ModAttributeFilter.HasAddons, nameof(Strings.Filter_HasAddons), nameof(Strings.Filter_HasAddonsToolTip)),
     ];

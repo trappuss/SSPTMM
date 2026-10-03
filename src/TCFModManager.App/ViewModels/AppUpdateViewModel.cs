@@ -33,6 +33,9 @@ public partial class AppUpdateViewModel : LocalizedViewModel
     private readonly AppUpdateInstaller _installer = new(AppServices.Downloads);
     private readonly SettingsService _settings = new();
 
+    // Fork: SSPTMM's own releases, on GitHub - see GitHubReleaseCheck. Tells, never installs.
+    private readonly GitHubReleaseCheck _github = new();
+
     private CancellationTokenSource? _installCts;
 
     public string CurrentVersion => AppVersion.Current;
@@ -50,6 +53,10 @@ public partial class AppUpdateViewModel : LocalizedViewModel
     [NotifyPropertyChangedFor(nameof(BadgeSeverity))]
     [NotifyPropertyChangedFor(nameof(DownloadSizeText))]
     [NotifyPropertyChangedFor(nameof(PublishedText))]
+    [NotifyPropertyChangedFor(nameof(ReleaseTitle))]
+    [NotifyPropertyChangedFor(nameof(ReleaseDetails))]
+    [NotifyPropertyChangedFor(nameof(ShowOriginalUpdateCard))]
+    [NotifyPropertyChangedFor(nameof(ShowNewestRelease))]
     [NotifyCanExecuteChangedFor(nameof(InstallUpdateCommand))]
     [NotifyCanExecuteChangedFor(nameof(OpenModPageCommand))]
     private AppUpdateInfo? _update;
@@ -61,11 +68,13 @@ public partial class AppUpdateViewModel : LocalizedViewModel
     // True once a check has run, so the page can tell "not checked yet" apart from "nothing new".
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ShowUpToDate))]
+    [NotifyPropertyChangedFor(nameof(ShowNewestRelease))]
     private bool _hasChecked;
 
     // Why the last check couldn't complete. Null when it did.
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ShowUpToDate))]
+    [NotifyPropertyChangedFor(nameof(ShowNewestRelease))]
     private string? _checkError;
 
     [ObservableProperty]
@@ -189,12 +198,18 @@ public partial class AppUpdateViewModel : LocalizedViewModel
     private async Task RunCheckAsync(bool announce)
     {
         // SSPTMM: the original app's listing is not asked about at all - its releases are merged in,
-        // never installed or announced here. Only the Server Map mod is checked.
+        // never installed or announced here. SSPTMM's own releases are asked of GitHub instead, and
+        // only ever shown: the dot beside Help and About, and the About page. No banner - a newer
+        // release is something to pick up when convenient, not to interrupt with.
         if (!SelfMod.ChecksOriginalUpdates)
         {
+            // Check now pressed during the startup check's delay: one check at a time.
+            if (IsChecking) return;
+
             IsChecking = true;
             try
             {
+                await CheckGitHubAsync().ConfigureAwait(true);
                 await CheckServerMapModAsync().ConfigureAwait(true);
             }
             finally
@@ -251,6 +266,60 @@ public partial class AppUpdateViewModel : LocalizedViewModel
         await CheckServerMapModAsync().ConfigureAwait(true);
     }
 
+    // Fork: the newest SSPTMM release on GitHub. A failure is said on the About page and logged,
+    // never raised - not reaching GitHub is no reason to bother someone who just opened the app.
+    private async Task CheckGitHubAsync()
+    {
+        CheckError = null;
+
+        try
+        {
+            Update = await _github.CheckAsync(AppVersion.Current).ConfigureAwait(true);
+            HasChecked = true;
+        }
+        catch (GitHubReleaseCheckException ex)
+        {
+            CheckError = ex.RateLimited
+                ? Strings.About_CheckRateLimited
+                : Text(Strings.About_CheckRefusedFormat, (int)ex.Status);
+        }
+        catch (HttpRequestException ex)
+        {
+            CheckError = Text(Strings.About_CheckUnreachableFormat, ex.Message);
+        }
+        catch (OperationCanceledException)
+        {
+            // HttpClient surfaces its own timeout as this rather than HttpRequestException.
+            CheckError = Strings.About_CheckTimedOut;
+        }
+        catch (Exception ex)
+        {
+            CheckError = Text(Strings.AppUpdate_CheckUnexpectedFormat, ex.Message);
+            AppLog.Error("AppUpdate", "GitHub release check failed", ex);
+        }
+        finally
+        {
+            if (CheckError is not null) AppLog.Warn("AppUpdate", CheckError);
+        }
+    }
+
+    // Fork: said only when a release was found and compared - not after a 404 (no release, or the
+    // repository gone), a tag that isn't a version, or a running version that won't parse.
+    public bool ShowNewestRelease => HasChecked && CheckError is null && Update?.ChangeKind == VersionChangeKind.None;
+
+    // "Feature update: SSPTMM 1.1.0 is out".
+    public string ReleaseTitle => Text(Strings.About_UpdateTitleFormat, ChangeTitle, LatestVersion);
+
+    // "Published 3 October 2026 · 64 MB download", whichever of the two GitHub gave.
+    public string? ReleaseDetails =>
+        string.Join("  ·  ", new[] { PublishedText, DownloadSizeText }.Where(t => t is not null)) is { Length: > 0 } line
+            ? line
+            : null;
+
+    // The original's update card - version guide, its mod page, Download and install. SSPTMM shows
+    // its own lines in the About card instead; the What's new card below is shared.
+    public bool ShowOriginalUpdateCard => UpdateAvailable && !IsFork;
+
     // ---- Acting on it ---------------------------------------------------------------------------
 
     private bool CanOpenModPage() => !string.IsNullOrWhiteSpace(Update?.ModPageUrl);
@@ -260,7 +329,8 @@ public partial class AppUpdateViewModel : LocalizedViewModel
     {
         if (Update?.ModPageUrl is not { } url) return;
 
-        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true });
+        // Through OpenUrl, so a PC with no browser set logs it rather than crashing.
+        OpenUrl(url);
     }
 
     // Never in the fork: the listing's download is the original app - see SelfMod.IsFork.

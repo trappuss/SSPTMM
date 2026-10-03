@@ -16,8 +16,15 @@ buttons to use, with a button that takes you there. Search with **How do I...?**
 
 ![About](https://raw.githubusercontent.com/trappuss/SSPTMM/main/docs/images/15-about.png)
 
-The version, the TCF Mod Manager release SSPTMM is based on, and links. SSPTMM doesn't update
-itself: new versions are on [Releases](https://github.com/trappuss/SSPTMM/releases).
+The version, the TCF Mod Manager release SSPTMM is based on, and links.
+
+**Newer releases.** Each time it starts, SSPTMM asks GitHub whether a newer release is out. If one
+is, a dot appears beside **Help** and **About**, and About shows the version, its date and size, its
+release notes and an **Open the release page** button. **Check now** asks again. SSPTMM never
+downloads or installs anything by itself - see [Installing](Installing#updating) for how to update.
+If GitHub can't be reached, About says why and nothing else changes.
+
+![About with a newer release](https://raw.githubusercontent.com/trappuss/SSPTMM/main/docs/images/15b-about-new-release.png)
 
 SSPTMM is under the MIT License (`LICENSE.txt` beside the exe). The `Licenses` folder beside it holds
 the licences of the libraries and the .NET runtime built into the exe, with

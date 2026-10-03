@@ -1665,6 +1665,53 @@ mod, and the copied report read as above. Help topic diagnose.read.
 - **Strings and tests (whole round):** 88 new strings, 8 rewritten; 26 new tests (empty folders 3,
   re-uploads and kept downloads 10, diagnosis 13). 1650 pass.
 
+## Round 36: 1.1.0 - newer releases pointed out, AI filter removed, the after-install check (2026-10-03)
+
+### Newer releases (About)
+
+At start (after the catalog's first requests, as before) SSPTMM asks GitHub's REST API for
+`/repos/trappuss/SSPTMM/releases/latest` (GitHubReleaseCheck): no sign-in, a User-Agent of
+`SSPTMM/<version>`, and the html media type so the notes arrive as `body_html` and render with the
+same HtmlText behaviour as a mod's changelog. The answer was measured from the user's PC on
+2026-10-03 against the published v1.0.0: `tag_name` "v1.0.0", `html_url`, `published_at`, one asset
+`SSPTMM-1.0.0-win-x64.zip` of 67,467,802 bytes, 22,350 characters of `body_html`.
+
+- Shown only as the existing dot beside Help and About, and on About: "Feature update: SSPTMM 1.1.0
+  is out", its date and zip size, how to update, **Open the release page**, and What's new. No
+  banner. **Check now** asks again. SSPTMM never downloads or installs anything.
+- 404 (no release yet) and a tag that isn't a version are "nothing newer", but "You have the newest
+  release" is said only after a release was found and compared (ShowNewestRelease); a spent rate limit (403 or
+  429 with `x-ratelimit-remaining: 0` or `retry-after`), another refusal, no connection and a timeout
+  each get their own line on About and in the log.
+- Checked under Wine: with a canned 1.1.0 answer against a 1.0.0 build (the dot, the About block,
+  What's new); a canned 1.1.0 against 1.1.0 ("You have the newest release"); and the real request,
+  which this build machine's proxy refuses with 403, shown as "GitHub answered with error 403"
+  (Check now repeats it). The canned answer was a temporary code change, removed before commit.
+
+### "Hide mods with AI content" removed
+
+sp-mod.com has no AI flag: on 2026-10-03 `/api/v0/mods` and `/api/v0/mod/2945` carried no
+`contains_ai_content` field, `filter[contains_ai_content]` was refused (400), and the site's own
+filters offer nothing like it. The option is gone from the filter list on Browse and Subscribed
+items; a saved default naming it no longer parses and is ignored (SavedFilterDefaults). The model
+field and the "Contains AI content" tag stay, so the tag would show if sp-mod.com ever sends it.
+
+### The check after install covers server configs
+
+The check that compares every placed file with the archive skipped every server config in the
+config report. It now skips only the outcomes that leave something other than the archive's copy
+on purpose (Merged, KeptMine, NotUpdated, Preserved, Removed - ConfigFileOutcome.IsArchivesCopy);
+Added, Unchanged, DefaultsUpdated and Replaced are checked like any file.
+
+### Also
+
+- The stray file `e -i HEAD~3` (a `git log` printout committed in TCF Mod Manager's history) is
+  removed from the repo. TCF Mod Manager's own repo still has it; a later merge keeps it deleted
+  unless upstream changes it.
+- SSPTMM-release-to-github.bat takes the release notes from the version's own CHANGELOG.md section
+  (`# SSPTMM <version>` up to the next one) rather than the whole file, and stops if there is none.
+- Version 1.1.0. 8 new strings, 2 rewritten, 1 removed; 24 new tests. 1676 pass.
+
 ## Values that could not be measured (marked HUNCH in the source)
 
 - Round 35: that sp-mod.com updates a version's listed size when its file is replaced; and which of two
@@ -1741,9 +1788,10 @@ translators.
 
 ## Upstream updates
 
-SSPTMM checks for no updates at all - neither its own nor TCF Mod Manager's (SelfMod.IsFork; the
-original's check never runs since round 22, because installing the original's download would
-replace SSPTMM). New SSPTMM versions are published as GitHub releases. A newer TCF Mod Manager
+TCF Mod Manager's own update check never runs (SelfMod.IsFork, since round 22), because installing
+the original's download would replace SSPTMM. New SSPTMM versions are published as GitHub releases,
+and since round 36 SSPTMM asks GitHub for the newest one at start (GitHubReleaseCheck) - telling
+only, never installing. A newer TCF Mod Manager
 release is merged into SSPTMM by hand, and SelfMod.OriginalVersion bumped with it.
 
 ## Licence

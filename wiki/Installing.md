@@ -32,7 +32,8 @@ Inside your SPT folder it uses a few hidden working folders with TCF Mod Manager
 
 ## Updating
 
-SSPTMM doesn't update itself. To update, download the new release and unzip it **over** the old
+SSPTMM tells you when a newer release is out (a dot beside **Help** and **About**), but it doesn't
+update itself. To update, close SSPTMM, download the new release and unzip it **over** the old
 folder (or into a new folder and copy your old `Data` folder across). Your settings stay.
 
 ## Uninstalling

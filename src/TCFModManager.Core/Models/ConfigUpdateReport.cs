@@ -49,6 +49,13 @@ public sealed record ConfigFileOutcome
     public List<string> Dropped { get; init; } = [];
 
     public List<string> UserAdded { get; init; } = [];
+
+    // Fork: true when the file on disk is now the archive's own copy - placed as it came (Added,
+    // Replaced, DefaultsUpdated) or already the same bytes (Unchanged). The other outcomes leave
+    // something else there on purpose: the user's merge, their file kept, a file that couldn't be
+    // copied aside, a preset left alone, or a file the new version no longer ships.
+    public bool IsArchivesCopy => Kind is ConfigOutcomeKind.Added or ConfigOutcomeKind.Unchanged
+        or ConfigOutcomeKind.DefaultsUpdated or ConfigOutcomeKind.Replaced;
 }
 
 public enum ConfigOutcomeKind
