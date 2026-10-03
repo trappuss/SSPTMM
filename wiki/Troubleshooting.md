@@ -38,7 +38,7 @@ tab offers to open them in your browser.
 
 ## Reporting a problem
 
-1. Help > **Report a problem** (GitHub Issues).
+1. **Help ▾ > Help**, then **Report a problem** (GitHub Issues).
 2. Say what you did and what happened.
 3. Attach today's log from `Data\logs` beside `SSPTMM.exe` - the file named `ssptmm-` and the date -
    and, for problems in the game, a [Diagnose logs](Diagnose-Logs) report.

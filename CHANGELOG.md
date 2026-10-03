@@ -29,7 +29,7 @@ Everything TCF Mod Manager 1.19.0-beta does is still here, under Steam's names: 
 ### Workshop
 - **Workshop Home**: a banner, the past week's most downloaded new mods, From Followed Authors, list tabs (Top Rated, Most Subscribed, Last Updated, New) and content types with counts.
 - **Browse** with Steam's sidebar: SPT version tick rows, Content Type, Special Filters (Featured, Created by Followed) and tag boxes (Fika compatible, Has dependencies, Has addons, hide Contains ads, hide Subscribed).
-- Steam's sort orders, mapped to what sp-mod.com counts: Top Rated (endorsements), Most Recent, Last Updated, Total Unique Subscribers (downloads) and Most favourited.
+- Steam's sort orders, mapped to what sp-mod.com counts: Top Rated All Time (endorsements), Most Recent, Last Updated, Total Unique Subscribers (downloads) and Most Favorited.
 - Search options (Title & Description, Title Only, Description Only) and **Filter by Date** (posted or last updated between two dates).
 - Each active filter shows as a chip on the results line. Click a chip to remove that filter.
 - **Per page** offers 10, 15, 30, 50 or **Infinite**, where more items load as you scroll. Pages open on Infinite. Whatever you pick is remembered for each page.

@@ -2,7 +2,7 @@
 
 Collections are lists of mods: public ones from sp-mod.com, and your own.
 
-## Public collections (Workshop > Browse > Collections)
+## Public collections (Workshop > Browse ▾ > Collections: Most Recent)
 
 ![Collections](https://raw.githubusercontent.com/trappuss/SSPTMM/main/docs/images/05-collections-browse.png)
 

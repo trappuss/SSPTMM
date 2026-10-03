@@ -12,11 +12,11 @@ the other Workshop pages.
 
 ![Browse](https://raw.githubusercontent.com/trappuss/SSPTMM/main/docs/images/03-browse.png)
 
-- **Filters** in Steam's sidebar: SPT version (+ to include, - to leave out), Content Type, Special
-  Filters (Featured, Created by followed authors), tags (Fika compatible, Has dependencies, Has
-  addons, hide Contains ads, hide Subscribed) and **Filter by Date**.
-- **Sort** like Steam: Top Rated (sp-mod.com endorsements), Most Recent, Last Updated, Total Unique
-  Subscribers (downloads), Most favourited.
+- **Filters** in Steam's sidebar: SPT version (tick **+** to show mods for that release), Content
+  Type, Special Filters (Featured, Created by Followed), tags (**+** to include, **-** to leave out:
+  Fika compatible, Has dependencies, Has addons, Contains ads, Subscribed) and **Filter by Date**.
+- **Sort** like Steam: Top Rated All Time (sp-mod.com endorsements), Most Recent, Last Updated,
+  Total Unique Subscribers (downloads), Most Favorited.
 - **Search** the title, the description or both (the gear beside the search box); **@name**
   searches by author.
 - Every active filter is a chip on the results line - click one to remove it.

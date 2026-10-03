@@ -9884,7 +9884,7 @@ Removing them - or turning them off - can leave a profile SPT won't load. If tha
     <comment>Status while working.</comment>
   </data>
   <data name="Diagnose_NoInstall" xml:space="preserve">
-    <value>Pick your SPT folder on the Play page first.</value>
+    <value>Set your SPT folder in Options (the gear, top right) first.</value>
     <comment>Status when no SPT install is set.</comment>
   </data>
   <data name="Diagnose_NothingFound" xml:space="preserve">

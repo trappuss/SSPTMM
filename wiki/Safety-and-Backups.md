@@ -24,8 +24,9 @@ off - a turned-off server mod isn't loaded either) can leave a profile SPT won't
 - **Your BepInEx settings.** A mod's `BepInEx\config` file is only placed where none exists yet, or
   over the app's own untouched copy.
 - **Your config changes** carry into updates (see [Tools > Configs](Tools#configs)).
-- **SPT's own files.** Files a mod tries to put in SPT's own folders (outside `user\mods` and
-  `user\patchers`) are not placed, and the download card names each one.
+- **SPT's own files.** Files a mod tries to put in SPT's `user` folder outside `user\mods` and
+  `user\patchers`, or over SPT's, BepInEx's or the game's own files, are not placed, and the
+  download card names each one.
 - **Other mods' files.** A file that belongs to another mod, or to nothing the app installed, waits
   for **Install Anyway**, and files this mod replaced are kept and put back when it is removed.
 

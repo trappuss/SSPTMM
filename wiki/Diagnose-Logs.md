@@ -28,10 +28,14 @@ press **Read the logs again**.
 | A profile wears clothing from a missing mod | A clothing mod was removed while a character wore its clothes. |
 | Raid results weren't saved | The game sent a value the server doesn't know (for example a skill) - usually a mod's game half is loaded but its server half (such as its prepatch in `user\patchers`) is not. |
 | The server couldn't start | Its port is in use - most often a server that is still running. |
-| A mod didn't load | BepInEx skipped a plugin: something it needs is missing or too old, it doesn't work with another mod, a mod it needs didn't load, a newer copy is installed, or it failed to load. |
+| A mod didn't load: something it needs is missing | BepInEx skipped a plugin: a mod it needs isn't installed or is too old. |
+| A mod didn't load: it doesn't work with another | BepInEx skipped a plugin because another installed one is incompatible with it. |
+| A mod didn't load: one it needs didn't | A knock-on: fix the mod it needs first. |
+| A mod is installed twice | BepInEx skipped a plugin because a newer copy of it is installed. |
+| A mod failed to load | BepInEx couldn't load a plugin - often one built for another version. |
 | A server mod isn't running | Installed and enabled, but the server's last start didn't list it. |
 | SPT's mod loader reported a problem | SPT's own message, shown as it is. |
-| A server error answering the game / A server task keeps failing | Traced to the mod whose code the error came from, when it did. |
+| A server error while answering the game / A server task keeps failing | Traced to the mod whose code the error came from, when it did. |
 | A mod reported an error | A mod's own error line in the server log. |
 | Two mods ship the same bundle | SPT could only use one of them. |
 | A bundle needs files that aren't there | The game couldn't fully load a mod's bundle. |

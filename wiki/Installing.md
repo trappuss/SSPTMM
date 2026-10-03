@@ -20,7 +20,8 @@ The download is **self-contained**: you don't need to install .NET.
 ## Where it keeps its files
 
 Everything SSPTMM writes about itself - settings, the sp-mod.com catalog cache, kept downloads,
-profile backups and logs - is in a `Data` folder **beside `SSPTMM.exe`**. So:
+profile backups and logs - is in a `Data` folder **beside `SSPTMM.exe`** (plus a `Staging` folder
+there for archives fetched by hand on the Downloads page). So:
 
 - it never touches TCF Mod Manager or another copy of SSPTMM;
 - moving the folder moves everything with it;

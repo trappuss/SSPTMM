@@ -25,8 +25,8 @@ the same details; click a card or row to open it.
   update first).
 - **Search** by name, or **@name** for the author.
 - **Filters**: update status (updates available, up to date, not on sp-mod.com, recently
-  installed), enabled/disabled, category, group, and Fika compatible, hide ads, hide AI content,
-  has dependencies, has addons, downloaded but not confirmed, has conflicts. **Save as default**
+  installed), enabled/disabled, category, group, and Fika compatible, hide ads, has dependencies,
+  has addons, downloaded but not confirmed, has conflicts. **Save as default**
   makes the page open that way.
 
 ## On each mod
