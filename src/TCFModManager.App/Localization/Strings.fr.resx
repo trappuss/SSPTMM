@@ -5009,12 +5009,6 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
   <data name="Help_Monitor_Enable_Note" xml:space="preserve">
     <value>La navigation, les mises à jour, les dépendances et les listes de mods continuent de fonctionner. Rien n'est touché dans votre dossier SPT, vous pouvez donc télécharger pendant que SPT tourne.</value>
   </data>
-  <data name="Help_Monitor_Other_Title" xml:space="preserve">
-    <value>Faire l'inverse pour un seul mod</value>
-  </data>
-  <data name="Help_Monitor_Other_Step2" xml:space="preserve">
-    <value>Survolez-le pour voir dans quel sens il agit, puis cliquez dessus.</value>
-  </data>
   <data name="Help_Monitor_Confirm_Title" xml:space="preserve">
     <value>Dire à l'application que j'ai installé un mod téléchargé</value>
   </data>
@@ -5386,9 +5380,6 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
   </data>
   <data name="Help_Monitor_Enable_Keywords" xml:space="preserve">
     <value>téléchargement seul, installation manuelle, moi-même, à la main</value>
-  </data>
-  <data name="Help_Monitor_Other_Keywords" xml:space="preserve">
-    <value>un mod, inverse, exception</value>
   </data>
   <data name="Help_Monitor_Confirm_Keywords" xml:space="preserve">
     <value>confirmer, marquer installé, installé à la main</value>

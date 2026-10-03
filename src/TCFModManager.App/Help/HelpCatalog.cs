@@ -409,8 +409,9 @@ internal static class HelpCatalog
                 .WithPage(typeof(OptionsPage)),
 
             Topic("monitor.other", () => Strings.Help_Monitor_Other_Title,
-                Step(() => Strings.Help_Monitor_Other_Step1, () => Strings.Item_Subscribe, () => Strings.Nav_Dependencies),
-                Step(() => Strings.Help_Monitor_Other_Step2))
+                Step(() => Strings.Help_Monitor_Other_Step1, () => Strings.Item_DownloadOnly),
+                Step(() => Strings.Help_Monitor_Other_Step2, () => Strings.Item_Subscribe, () => Strings.Nav_Dependencies),
+                Step(() => Strings.Help_Monitor_Other_Step3))
                 .WithKeywords(() => Strings.Help_Monitor_Other_Keywords)
                 .WithPage(typeof(BrowsePage)),
 

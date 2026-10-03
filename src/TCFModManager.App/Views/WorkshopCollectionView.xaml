@@ -490,6 +490,9 @@
                         <ItemsControl Focusable="False" ItemsSource="{Binding Items}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
+                                    <!-- Fork: a mod the catalog has gets Browse's popup instead (CardHover.Card) - picture,
+                                         dates, SPT version and tags, as on the mod pages. What follows is kept for an
+                                         addon or an entry the catalog doesn't have. -->
                                     <!-- Steam's hover popup on a collection's item, measured on the live page
                                          (2026-09-26): a plain box, not Browse's - #417A9B, 300px, no radius,
                                          border or shadow, 14 10 inside; the title 15px white 10px above the
@@ -500,6 +503,7 @@
                                         Margin="0,0,0,2"
                                         Background="#335485B7"
                                         behaviors:ModContextMenu.Mod="{Binding Mod}"
+                                        behaviors:CardHover.Card="{Binding HoverCard}"
                                         ToolTipService.InitialShowDelay="150"
                                         ToolTipService.ShowDuration="60000"
                                         ToolTipService.Placement="Right"

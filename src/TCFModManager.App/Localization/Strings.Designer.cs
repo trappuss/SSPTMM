@@ -2549,4 +2549,21 @@ internal static class Strings
     internal static string Help_ModLists_Follow_Note => LocalizationService.Get("Help_ModLists_Follow_Note");
     internal static string Help_ModLists_Follow_Keywords => LocalizationService.Get("Help_ModLists_Follow_Keywords");
     internal static string Collections_ManageTitle => LocalizationService.Get("Collections_ManageTitle");
+    internal static string Play_CloseGame => LocalizationService.Get("Play_CloseGame");
+    internal static string Play_CloseGameToolTip => LocalizationService.Get("Play_CloseGameToolTip");
+    internal static string Play_CloseGameWarning => LocalizationService.Get("Play_CloseGameWarning");
+    internal static string Play_CloseGameConfirm => LocalizationService.Get("Play_CloseGameConfirm");
+    internal static string Play_CloseGameWithServer => LocalizationService.Get("Play_CloseGameWithServer");
+    internal static string Play_CloseGameWithServerToolTip => LocalizationService.Get("Play_CloseGameWithServerToolTip");
+    internal static string Play_GameClosed => LocalizationService.Get("Play_GameClosed");
+    internal static string Play_GameNotRunning => LocalizationService.Get("Play_GameNotRunning");
+    internal static string Play_GameClosedWithServer => LocalizationService.Get("Play_GameClosedWithServer");
+    internal static string Downloads_FikaIncompatibleDownloadFormat => LocalizationService.Get("Downloads_FikaIncompatibleDownloadFormat");
+    internal static string Downloads_DepProblemsDownloadFormat => LocalizationService.Get("Downloads_DepProblemsDownloadFormat");
+    internal static string Item_DownloadOnly => LocalizationService.Get("Item_DownloadOnly");
+    internal static string Item_DownloadOnlyToolTip => LocalizationService.Get("Item_DownloadOnlyToolTip");
+    internal static string Help_Monitor_Other_Step3 => LocalizationService.Get("Help_Monitor_Other_Step3");
+    internal static string Install_IncompatibleOneDownloadFormat => LocalizationService.Get("Install_IncompatibleOneDownloadFormat");
+    internal static string Install_IncompatibleBatchDownloadFormat => LocalizationService.Get("Install_IncompatibleBatchDownloadFormat");
+    internal static string Install_IncompatibleNotDownloadedFormat => LocalizationService.Get("Install_IncompatibleNotDownloadedFormat");
 }

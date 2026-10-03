@@ -94,6 +94,11 @@ public static class ModContextMenu
             menu.Items.Add(Item(Strings.Item_Subscribe, async () => Report(await ModActions.SubscribeAsync(mod))));
         }
 
+        // Fork: save the file without installing it - unless Monitor mode already only downloads,
+        // when Subscribe above does exactly that.
+        if (!AppServices.ModPageGate.IsDownloadOnly)
+            menu.Items.Add(Item(Strings.Item_DownloadOnly, async () => Report(await ModActions.DownloadOnlyAsync(mod))));
+
         menu.Items.Add(Item(Strings.Menu_AddToCollection, () => Report(ModActions.AddToCollection(mod))));
 
         if (ModActions.HasPage(mod))

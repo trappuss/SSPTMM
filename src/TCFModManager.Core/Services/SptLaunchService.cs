@@ -91,7 +91,7 @@ public sealed record SptLaunchResult
 // dropped in) - the alternative was hunting a console window. Every stop is scoped to ONE target of
 // THIS install and is asked for explicitly.
 //
-public static class SptLaunchService
+public static partial class SptLaunchService // Fork: partial - see SptLaunchService.Fork.cs
 {
     // Beside the server exe, in whichever folder that turned out to be.
     private static readonly string[] ClientLauncherCandidates =
@@ -357,11 +357,13 @@ public static class SptLaunchService
     // NOT the process tree. Killing the tree would take a headless manager's game client with it,
     // which is a decision this method has not been asked to make.
     //
-    private static int Stop(SptLaunchTargetInfo info)
+    private static int Stop(SptLaunchTargetInfo info) => StopAll(ProcessesFor(info)); // Fork: the loop is shared with CloseGame
+
+    private static int StopAll(IEnumerable<Process> processes)
     {
         var stopped = 0;
 
-        foreach (var process in ProcessesFor(info))
+        foreach (var process in processes)
         {
             try
             {

@@ -31,6 +31,10 @@ public sealed class AppSettings
     // outlasts Clear filters and a restart. 0 is Infinite.
     public Dictionary<string, int> PageSizes { get; set; } = [];
 
+    // Fork (SSPTMM): close the game when the SPT server stops - by Stop server, from its own window,
+    // or a crash (the App's GameCloser). Off unless ticked on the Play page.
+    public bool CloseGameWithServer { get; set; }
+
     // How long removed mods stay in the install's holding folder before they are deleted (R11, R15).
     public TCFModManager.Core.Services.RemovedModsRetention RemovedModsRetention { get; set; } =
         TCFModManager.Core.Services.RemovedModsRetention.FourteenDays;

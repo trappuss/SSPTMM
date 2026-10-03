@@ -310,6 +310,8 @@ public partial class PlayViewModel : LocalizedViewModel
         RunsHeadlessClient = roles.HasFlag(InstallRoles.Headless);
 
         if (ShowServerLog && FollowServerLog) UpdateServerLog(installPath);
+
+        RefreshGame(installPath, settings); // Fork: the game, and Close game
     }
 
     [RelayCommand]
@@ -529,6 +531,10 @@ public partial class PlayViewModel : LocalizedViewModel
             var headless = HeadlessOverride();
 
             hidden = new SettingsService().Load().HideServerWindow;
+
+            // Fork: the server being down for a restart is not it stopping (GameCloser).
+            if (target == SptLaunchTarget.Server) GameCloser.HoldOff(TimeSpan.FromMinutes(1));
+
             var result = await Task.Run(() => SptLaunchService.Restart(installPath, target, headless, hidden));
 
             HasError = !result.Started;
@@ -547,6 +553,7 @@ public partial class PlayViewModel : LocalizedViewModel
         finally
         {
             IsRestarting = false;
+            GameCloser.EndHold(); // Fork
             Refresh();
             _poll.Start();
         }

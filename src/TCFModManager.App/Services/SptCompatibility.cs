@@ -29,12 +29,20 @@ public static class SptCompatibility
     // Asks whether to install versions that don't support the installed SPT anyway. Nothing to ask
     // returns true. For a batch, No means "everything else, without these".
     //
-    public static bool ConfirmAnyway(IReadOnlyList<string> lines, bool batch)
+    // Fork: downloadOnly asks about a download rather than an install ("Download it anyway?").
+    //
+    public static bool ConfirmAnyway(IReadOnlyList<string> lines, bool batch, bool downloadOnly = false)
     {
         if (lines.Count == 0) return true;
 
         var body = LocalizationService.Text(
-            batch ? Strings.Install_IncompatibleBatchFormat : Strings.Install_IncompatibleOneFormat,
+            (batch, downloadOnly) switch
+            {
+                (true, false) => Strings.Install_IncompatibleBatchFormat,
+                (false, false) => Strings.Install_IncompatibleOneFormat,
+                (true, true) => Strings.Install_IncompatibleBatchDownloadFormat,
+                (false, true) => Strings.Install_IncompatibleOneDownloadFormat,
+            },
             AppServices.SptEnvironment.InstalledVersion,
             string.Join("\n", lines));
 

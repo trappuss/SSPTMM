@@ -18,7 +18,13 @@ public static class ProtectedInstallPaths
 
     // The only folders under <server>/user that hold mods; everything else there is SPT's or the
     // player's (profiles, certs, credentials, settings, registry, app data).
-    private static readonly string[] UserModFolders = ["mods", "mods" + DisabledModPaths.DisabledSuffix];
+    //
+    // Fork (SSPTMM): user/patchers too - SPT 4.1's server enum prepatches, one folder per mod named
+    // after its ModGuid (user/patchers/<GUID>/<one>.json; sp-tarkov wiki, SPT_41/modding/
+    // EnumExtensions.md). SPT ships nothing there. Treated as SPT's before, so a mod's prepatch was
+    // never placed, updated or removed: Skills Extended 3.1.1 kept a stale prepatch, the server
+    // could not read the new skill at raid end, and every raid's results were lost.
+    private static readonly string[] UserModFolders = ["mods", "mods" + DisabledModPaths.DisabledSuffix, "patchers"];
 
     private static readonly string[] SptPatchers = ["spt-prepatch.dll", "aki-prepatch.dll"];
 
@@ -88,8 +94,8 @@ public static class ProtectedInstallPaths
 
         if (Is(s[0], "user"))
         {
-            // user/mods/<anything> is mod territory; user itself, user/mods itself, and everything
-            // else under user is not.
+            // user/mods/<anything> and user/patchers/<anything> are mod territory; user itself, those
+            // folders themselves, and everything else under user is not.
             return !(s.Length >= 3 && UserModFolders.Any(f => Is(s[1], f)));
         }
 

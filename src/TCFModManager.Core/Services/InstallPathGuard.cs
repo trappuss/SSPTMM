@@ -200,10 +200,25 @@ public static class InstallPathGuard
 
         if (ProtectedInstallPaths.Segments(Path.GetRelativePath(root, full)) is not { } segments) return false;
 
-        if (!ModContainers.Any(c => segments.Length > c.Length && StartsWith(segments, c))) return false;
+        if (!ModContainers.Any(c => segments.Length > c.Length && StartsWith(segments, c))
+            && !PrepatchContainers.Any(c => segments.Length > c.Length && StartsWith(segments, c))) return false;
 
         return !IsLink(full) && !PassesThroughLink(root, full);
     }
+
+    //
+    // Fork (SSPTMM): the server's enum prepatch folders (user/patchers/<GUID>, see
+    // ProtectedInstallPaths), for MayRemoveEmptyFolder alone - a mod's <GUID> folder there is tidied
+    // away once its removal empties it, and user/patchers itself is left. Not added to ModContainers:
+    // those also name a record's mod folders, which a prepatch folder is not (the scanner never lists
+    // one, so it would read as missing).
+    //
+    private static readonly string[][] PrepatchContainers =
+    [
+        ["user", "patchers"],
+        ["SPT", "user", "patchers"],
+        ["SPT_Runtime", "user", "patchers"],
+    ];
 
     //
     // Whether anything below a folder is a link. Stops at the first one found, so a link is reported

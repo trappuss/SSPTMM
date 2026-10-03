@@ -10,4 +10,19 @@ public partial class BrowseViewModel
     //
     public Task EnsureInstalledIndexAsync() =>
         _installedByGuid.Count == 0 && _installedByName.Count == 0 ? RefreshInstalledIndexAsync() : Task.CompletedTask;
+
+    //
+    // Download only: the mod's file saved to the download folder and not installed, whatever Monitor
+    // mode is set to - the item page's button and the right-click menu. The same queue, gate and
+    // checks as Subscribe; a mod already subscribed to is saved again at the version on its card.
+    // pageSeen: asked from the mod's own page, so its "read the page first" gate is already met.
+    //
+    public Task DownloadOnlyAsync(Core.Models.Mod mod, bool pageSeen = false)
+    {
+        var card = BuildCard(mod);
+        var alternate = !AppServices.ModPageGate.IsDownloadOnly; // DownloadOnlyFor(alternate) is then true
+
+        return QueueForDownloadAsync(
+            card, card.IsInstalled ? DownloadAction.Redownload : DownloadAction.Install, pinned: null, pageSeen, alternate);
+    }
 }

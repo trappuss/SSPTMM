@@ -5300,12 +5300,6 @@
   <data name="Help_Monitor_Enable_Note" xml:space="preserve">
     <value>Обзор, обновления, зависимости и списки модов продолжают работать. В папке SPT ничего не трогается, так что скачивать можно при запущенном SPT.</value>
   </data>
-  <data name="Help_Monitor_Other_Title" xml:space="preserve">
-    <value>Сделать наоборот для одного мода</value>
-  </data>
-  <data name="Help_Monitor_Other_Step2" xml:space="preserve">
-    <value>Наведите на неё, чтобы увидеть, что она делает, и нажмите.</value>
-  </data>
   <data name="Help_Monitor_Confirm_Title" xml:space="preserve">
     <value>Сообщить приложению, что я установил скачанный мод</value>
   </data>
@@ -5677,9 +5671,6 @@
   </data>
   <data name="Help_Monitor_Enable_Keywords" xml:space="preserve">
     <value>только скачивать, ручная установка, сам, вручную</value>
-  </data>
-  <data name="Help_Monitor_Other_Keywords" xml:space="preserve">
-    <value>один мод, наоборот, исключение</value>
   </data>
   <data name="Help_Monitor_Confirm_Keywords" xml:space="preserve">
     <value>подтвердить, отметить установленным, установлен вручную</value>

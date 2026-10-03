@@ -31,9 +31,45 @@ public static class CardHover
 
     public static bool GetEnabled(DependencyObject element) => (bool)element.GetValue(EnabledProperty);
 
+    //
+    // Fork (SSPTMM): the same popup on an element whose DataContext is not a card - a collection's
+    // item row - for the card given here. Takes the place of any tooltip the element already has; a
+    // null card (an item the catalog doesn't have) leaves that tooltip as it is.
+    //
+    public static readonly DependencyProperty CardProperty = DependencyProperty.RegisterAttached(
+        "Card", typeof(ModCardViewModel), typeof(CardHover), new PropertyMetadata(null, OnCardChanged));
+
+    public static void SetCard(DependencyObject element, ModCardViewModel? value) => element.SetValue(CardProperty, value);
+
+    public static ModCardViewModel? GetCard(DependencyObject element) => (ModCardViewModel?)element.GetValue(CardProperty);
+
+    private static void OnCardChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is not FrameworkElement element || e.NewValue is not ModCardViewModel card) return;
+
+        if (element.ToolTip is not ToolTip { Tag: CardHoverTag })
+        {
+            element.ToolTip = null;
+            Attach(element);
+        }
+
+        ((ToolTip)element.ToolTip!).DataContext = card;
+    }
+
+    // Marks a popup this class made, so OnCardChanged can tell it from a tooltip set in XAML.
+    private sealed class CardHoverTag;
+
+    private static readonly CardHoverTag OwnTag = new();
+
     private static void OnEnabledChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         if (d is not FrameworkElement card || e.NewValue is not true || card.ToolTip is ToolTip) return;
+
+        Attach(card);
+    }
+
+    private static void Attach(FrameworkElement card)
+    {
 
         // Steam's popup: #344352, a 4px 4px 10px shadow, 5 8 inside, to the right of the card.
         // No MaxWidth: WPF UI's tooltip style caps it narrower than Steam's 270px, which cut the
@@ -43,6 +79,7 @@ public static class CardHover
             Padding = new Thickness(8, 5, 8, 5),
             HasDropShadow = true,
             MaxWidth = double.PositiveInfinity,
+            Tag = OwnTag, // Fork
         };
         popup.SetResourceReference(Control.BackgroundProperty, "SteamPopupBackground");
         popup.Opened += Popup_Opened;

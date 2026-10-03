@@ -1382,6 +1382,61 @@ Checked under Wine:
 - An author with 37 items showed 30, and scrolling down added the rest. 9 paged them 1 2 3, and
   Infinite from the bottom row went back.
 
+## Round 32: server prepatches fixed, Close game, collection hovers, Download only (2026-10-03)
+
+- **Bug fixed: `SPT_Runtime\user\patchers\` was never placed, updated or removed.**
+  - The report: Skills Extended 3.1.1 kept a stale server enum prepatch. The server then rejected
+    every end-of-raid payload ("could not be converted to ...SkillTypes"), and raid results were
+    lost.
+  - The cause: ProtectedInstallPaths treated everything under `<server>\user\` except `user\mods\`
+    as SPT's own, so the prepatch was skipped and only mentioned on the download card as one of
+    "SPT's own files".
+  - The fix: `user\patchers\<GUID>\` is now mod territory. SPT ships nothing there (sp-tarkov wiki,
+    SPT_41/modding/EnumExtensions.md).
+  - A removal tidies the emptied `<GUID>` folder and leaves `user\patchers` itself
+    (InstallPathGuard.PrepatchContainers). It is kept out of the shared container list, which also
+    names a record's mod folders.
+  - Disabling a mod leaves its prepatch in place, so a profile that uses the mod's values still
+    loads.
+  - 12 tests (ForkPrepatchInstallTests) reproduce the report on an SPT 4.1 layout. Without the fix,
+    7 of them fail.
+- **Close game** on the Play page's launcher card, while the game runs.
+  - It asks on the card first, like Stop server, because a raid in progress is lost.
+  - It asks the game window to close, and kills it only if it is still open 5 seconds later.
+  - Only a game running from this install is touched. On a machine that runs a Fika headless
+    client, a windowless EscapeFromTarkov is left alone.
+- **"Close the game when the server stops"** tick box, off by default (AppSettings.CloseGameWithServer).
+  - App-wide (GameCloser), so it doesn't depend on the Play page being open.
+  - The server counts as stopped once it has been seen running and then seen down twice, 3 seconds
+    apart.
+  - A restart from the Play page holds it off.
+- **Collection pages:** a row whose mod the catalog has gets Browse's hover popup (picture slideshow,
+  posted and updated dates, SPT version, tags) through CardHover.Card. Addons and unknown entries
+  keep the plain box.
+- **Download only, easy to find.**
+  - A labelled button beside Subscribe on a mod's page, shown whether or not the mod is subscribed
+    to, and a right-click entry everywhere (BrowseViewModel.DownloadOnlyAsync).
+  - It saves the file to the download folder and changes nothing in SPT.
+  - 1.19's unlabelled icon stays only in Monitor mode's download-only setting, where it installs.
+  - The "anyway?" questions (no version for this SPT, Fika, requirements) now say "Download it
+    anyway?" for a download.
+  - Help's monitor.other topic is rewritten for this.
+- **Research** (log diagnostics, SVM-style mods) is in the SPT project doc
+  `claude/ssptmm-research-logs-and-svm.md`, with proposals that are not built yet.
+- **Strings and tests:** 17 new strings and 4 changed. 1595 tests pass.
+
+Checked under Wine:
+
+- The game was run from a stand-in SPT 4.1 folder (a windowed EscapeFromTarkov.exe and an
+  SPT.Server.exe that listens on 6969).
+- Close game asked on the card, the game window closed itself, and the page said so.
+- With the box ticked, a restart from the page left the game open. Killing the server closed the
+  game about 10 seconds later, and the launcher stayed open.
+- The DeltaMOD collection's BigBrain row showed the full popup.
+- Download only from the right-click menu saved VisitAPI-1.3.5.zip after a "Download it anyway?"
+  question. From the page of a subscribed mod (Quick Sell) it saved QuickSell-v4.2.0.zip, and its
+  installed files were unchanged.
+
 ## Values that could not be measured (marked HUNCH in the source)
 
 - The smooth-scroll distance and time (100px, 250ms) - chosen to feel like a browser, not measured.
@@ -1420,6 +1475,13 @@ Checked under Wine:
   not measured:
   - "Infinite" placed last on the author page's row;
   - the top Per page, which is shown only while the list is infinite.
+- Close game (round 32). None of this was checked against the real game:
+  - **How long a server must be down before it counts as stopped** (two checks 3 seconds apart):
+    chosen, not measured.
+  - **That a Fika headless client from the same install has no window:** a headless client is
+    started without graphics, but this was not checked against a real one.
+  - **Whether real Tarkov closes within 5 seconds when asked:** only a stand-in was closed here. A
+    game that is still open after that is killed.
 - That cloud-sync folders (Dropbox, OneDrive, Google Drive) deliver the shared file promptly and
   whole. Only a plain local folder was tested here. A file caught mid-sync reads as damaged and
   is ignored until the next check, but that was not seen happen.

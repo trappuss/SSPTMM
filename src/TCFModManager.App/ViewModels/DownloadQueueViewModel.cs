@@ -395,7 +395,7 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
             // said before it is downloaded, and it can stop here.
             if (string.Equals(version.FikaCompatibility, "incompatible", StringComparison.OrdinalIgnoreCase)
                 && await RunsFikaAsync(item.InstallPath)
-                && !ConfirmFikaIncompatible(item.ModName, askAgain: item.IsRetry))
+                && !ConfirmFikaIncompatible(item.ModName, askAgain: item.IsRetry, downloadOnly: item.DownloadOnly))
             {
                 item.CancelCommand.Execute(null);
                 token.ThrowIfCancellationRequested();
@@ -791,7 +791,7 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
 
         // What is installed but will not do (disabled, too new, the wrong version, nothing for this
         // SPT): said before anything is downloaded, and the install can be stopped here.
-        if (check.Problems.Count > 0 && !ConfirmDespite(item.ModName, check.Problems, askAgain: item.IsRetry))
+        if (check.Problems.Count > 0 && !ConfirmDespite(item.ModName, check.Problems, askAgain: item.IsRetry, downloadOnly: item.DownloadOnly))
         {
             item.CancelCommand.Execute(null);
             token.ThrowIfCancellationRequested();
@@ -889,13 +889,14 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
         && name.StartsWith("fika", StringComparison.OrdinalIgnoreCase)
         && name.Contains("server", StringComparison.OrdinalIgnoreCase);
 
-    private bool ConfirmFikaIncompatible(string modName, bool askAgain = false)
+    // Fork: downloadOnly words it as a download rather than an install ("Download it anyway?").
+    private bool ConfirmFikaIncompatible(string modName, bool askAgain = false, bool downloadOnly = false)
     {
         var key = "fika:" + modName;
         if (!askAgain && _problemAnswers.TryGetValue(key, out var answer) && StillStands(answer, DateTime.UtcNow)) return answer.Install;
 
         var install = System.Windows.MessageBox.Show(
-            Text(Strings.Downloads_FikaIncompatibleFormat, modName),
+            Text(downloadOnly ? Strings.Downloads_FikaIncompatibleDownloadFormat : Strings.Downloads_FikaIncompatibleFormat, modName),
             Strings.Downloads_FikaIncompatibleTitle,
             System.Windows.MessageBoxButton.YesNo,
             System.Windows.MessageBoxImage.Warning) == System.Windows.MessageBoxResult.Yes;
@@ -907,7 +908,7 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
     /// <summary>Says what will not do and asks whether to install anyway. Problems already answered
     /// in the last few minutes are not asked about again (unless <paramref name="askAgain"/>): a
     /// "no" to any of them is a no, and only new ones are asked.</summary>
-    public bool ConfirmDespite(string modName, IReadOnlyList<DependencyProblem> problems, bool askAgain = false)
+    public bool ConfirmDespite(string modName, IReadOnlyList<DependencyProblem> problems, bool askAgain = false, bool downloadOnly = false)
     {
         var now = DateTime.UtcNow;
         foreach (var stale in _problemAnswers.Where(a => !StillStands(a.Value, now)).Select(a => a.Key).ToList())
@@ -923,7 +924,7 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
         if (unanswered.Count == 0) return true;
 
         var install = System.Windows.MessageBox.Show(
-            Text(Strings.Downloads_DepProblemsFormat, modName, string.Join("\n", unanswered.Select(p => "\u2022 " + Describe(p)))),
+            Text(downloadOnly ? Strings.Downloads_DepProblemsDownloadFormat : Strings.Downloads_DepProblemsFormat, modName, string.Join("\n", unanswered.Select(p => "\u2022 " + Describe(p)))),
             Strings.Downloads_DepProblemsTitle,
             System.Windows.MessageBoxButton.YesNo,
             System.Windows.MessageBoxImage.Warning) == System.Windows.MessageBoxResult.Yes;

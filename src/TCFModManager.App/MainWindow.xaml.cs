@@ -78,6 +78,8 @@ public partial class MainWindow : FluentWindow
             // worth holding the window open for.
             _ = AppServices.ServerMap.ConnectOnStartupAsync();
 
+            Services.GameCloser.Start(); // Fork: close the game when the server stops, if ticked
+
             // A data file found damaged while the app was starting: said now the window is up.
             Dispatcher.BeginInvoke(App.ReportDataProblems, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
         };

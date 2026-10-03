@@ -42,6 +42,14 @@ public static class ModActions
         return AppServices.Browse.StatusMessage;
     }
 
+    // Fork (SSPTMM): the mod's file saved to the download folder, not installed - see
+    // BrowseViewModel.DownloadOnlyAsync.
+    public static async Task<string?> DownloadOnlyAsync(Mod mod)
+    {
+        await AppServices.Browse.DownloadOnlyAsync(mod);
+        return AppServices.Browse.StatusMessage;
+    }
+
     // Through the Subscribed items page's own removal, confirmations and all, answering with what
     // the removal said (null when it was cancelled).
     public static async Task<string?> UnsubscribeAsync(Mod mod)

@@ -8103,14 +8103,14 @@ Install the file as it is anyway?</value>
     <value>Browsing, updates, dependencies and mod lists keep working. Nothing in your SPT folder is touched, so you can download while SPT is running.</value>
   </data>
   <data name="Help_Monitor_Other_Title" xml:space="preserve">
-    <value>Do one mod the other way round</value>
+    <value>Download a mod without installing it, or the other way round</value>
     <comment>How-to title.</comment>
   </data>
   <data name="Help_Monitor_Other_Step1" xml:space="preserve">
-    <value>On a mod's page, the small button beside {0} does the opposite for that one mod. Its update dialog, its addons and {1} have one beside their install buttons too.</value>
+    <value>On a mod's page, {0} saves its file to your download folder without installing it, whether you're subscribed to it or not. Right-click any mod for the same.</value>
   </data>
   <data name="Help_Monitor_Other_Step2" xml:space="preserve">
-    <value>Hover it to see which way round it is, then press it.</value>
+    <value>With Options set to only download, the small button beside {0} installs that one mod instead. Its update dialog, its addons and {1} have a button beside their install buttons that does the opposite too.</value>
   </data>
   <data name="Help_Monitor_Confirm_Title" xml:space="preserve">
     <value>Tell the app I've installed a downloaded mod</value>
@@ -8634,7 +8634,7 @@ Install the file as it is anyway?</value>
     <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
   </data>
   <data name="Help_Monitor_Other_Keywords" xml:space="preserve">
-    <value>one mod, opposite, other way, exception</value>
+    <value>download only, save the file, without installing, manual download, one mod, opposite, other way, exception</value>
     <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
   </data>
   <data name="Help_Monitor_Confirm_Keywords" xml:space="preserve">
@@ -9569,5 +9569,87 @@ Sync your game to it now?</value>
   <data name="Collections_ManageTitle" xml:space="preserve">
     <value>Manage collections</value>
     <comment>Title of the page that edits, previews and applies collections (reached with Manage in Collections).</comment>
+  </data>
+  <data name="Play_CloseGame" xml:space="preserve">
+    <value>Close game</value>
+    <comment>Play page, launcher card: closes Escape From Tarkov while it runs. Red, confirmed on the card.</comment>
+  </data>
+  <data name="Play_CloseGameToolTip" xml:space="preserve">
+    <value>Close Escape From Tarkov from here</value>
+    <comment>Tooltip on Play_CloseGame.</comment>
+  </data>
+  <data name="Play_CloseGameWarning" xml:space="preserve">
+    <value>Anything in a raid that's still going is lost. Close the game?</value>
+    <comment>Asked on the card before Play_CloseGame closes the game, as Play_StopServerWarning is.</comment>
+  </data>
+  <data name="Play_CloseGameConfirm" xml:space="preserve">
+    <value>Close it</value>
+    <comment>Confirms Play_CloseGameWarning, as Play_StopServerConfirm does.</comment>
+  </data>
+  <data name="Play_CloseGameWithServer" xml:space="preserve">
+    <value>Close the game when the server stops</value>
+    <comment>Tick box on the Play page's launcher card. Off by default.</comment>
+  </data>
+  <data name="Play_CloseGameWithServerToolTip" xml:space="preserve">
+    <value>When this install's server stops - Stop server, its own window closed, or a crash - the game is closed too, since it can't save anything without the server. A restart from this page doesn't count.</value>
+    <comment>Tooltip on Play_CloseGameWithServer.</comment>
+  </data>
+  <data name="Play_GameClosed" xml:space="preserve">
+    <value>The game was closed.</value>
+    <comment>Play page message after Close game.</comment>
+  </data>
+  <data name="Play_GameNotRunning" xml:space="preserve">
+    <value>The game isn't running.</value>
+    <comment>Play page message when Close game finds no game to close.</comment>
+  </data>
+  <data name="Play_GameClosedWithServer" xml:space="preserve">
+    <value>The server stopped, so the game was closed.</value>
+    <comment>Play page message when the game was closed because the server stopped (Play_CloseGameWithServer).</comment>
+  </data>
+  <data name="Downloads_FikaIncompatibleDownloadFormat" xml:space="preserve">
+    <value>Fika is installed here, and sp-mod.com marks this version of {0} as not working with Fika. Once installed, it may break co-op raids or stop Fika from loading.
+
+Download it anyway?</value>
+    <comment>{0} the mod. As Downloads_FikaIncompatibleFormat, for a mod being downloaded only (saved, not installed).</comment>
+  </data>
+  <data name="Downloads_DepProblemsDownloadFormat" xml:space="preserve">
+    <value>{0} needs these, and as they are it may not load:
+
+{1}
+
+Download it anyway?</value>
+    <comment>{0} the mod being downloaded, {1} one line per problem. As Downloads_DepProblemsFormat, for a mod being downloaded only (saved, not installed).</comment>
+  </data>
+  <data name="Item_DownloadOnly" xml:space="preserve">
+    <value>Download only</value>
+    <comment>Item page button beside Subscribe, and right-click menu entry: saves the mod's file to the download folder without installing it.</comment>
+  </data>
+  <data name="Item_DownloadOnlyToolTip" xml:space="preserve">
+    <value>Save this mod's file to your download folder without installing it.</value>
+    <comment>Tooltip on Item_DownloadOnly.</comment>
+  </data>
+  <data name="Help_Monitor_Other_Step3" xml:space="preserve">
+    <value>Hover it to see which way round it is, then press it.</value>
+    <comment>Help, monitor.other: the last step, about the small button in Help_Monitor_Other_Step2.</comment>
+  </data>
+  <data name="Install_IncompatibleOneDownloadFormat" xml:space="preserve">
+    <value>No version of this mod on sp-mod.com supports SPT {0}. The newest is:
+
+{1}
+
+Download it anyway? Once installed, SPT may refuse to load it.</value>
+    <comment>As Install_IncompatibleOneFormat, for a mod being downloaded only (saved, not installed). {0} is the installed SPT version, {1} one Install_IncompatibleLineFormat line.</comment>
+  </data>
+  <data name="Install_IncompatibleBatchDownloadFormat" xml:space="preserve">
+    <value>These don't support SPT {0}:
+
+{1}
+
+Download them anyway? Once installed, SPT may refuse to load them. No downloads the rest without them.</value>
+    <comment>As Install_IncompatibleBatchFormat, for mods being downloaded only. {0} is the installed SPT version, {1} one Install_IncompatibleLineFormat line per mod.</comment>
+  </data>
+  <data name="Install_IncompatibleNotDownloadedFormat" xml:space="preserve">
+    <value>{0} wasn't downloaded - no version of it supports SPT {1}.</value>
+    <comment>As Install_IncompatibleNotInstalledFormat, after answering No to a download. {0} mod name, {1} installed SPT version.</comment>
   </data>
 </root>

@@ -58,7 +58,8 @@ public static class ModUpdates
         var leftOut = string.Empty;
         if (incompatible.Count > 0 && !SptCompatibility.ConfirmAnyway(
                 [.. incompatible.Select(t => SptCompatibility.Line(t.Target.Title, t.Version!.Version, t.Version.SptVersionConstraint))],
-                batch: true))
+                batch: true,
+                downloadOnly)) // Fork: worded for a download
         {
             var dropped = incompatible.Select(t => t.Target).ToHashSet();
             queue.RemoveAll(dropped.Contains);

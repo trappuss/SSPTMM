@@ -1399,9 +1399,12 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
             if (SptCompatibility.IsIncompatible(chosen.SptVersionConstraint)
                 && !SptCompatibility.ConfirmAnyway(
                     [SptCompatibility.Line(mod.Name ?? Strings.Browse_ThisMod, chosen.Version, chosen.SptVersionConstraint)],
-                    batch: false))
+                    batch: false,
+                    downloadOnly)) // Fork: worded for a download
             {
-                StatusMessage = Text(Strings.Install_IncompatibleNotInstalledFormat, mod.Name, AppServices.SptEnvironment.InstalledVersion);
+                StatusMessage = Text(
+                    downloadOnly ? Strings.Install_IncompatibleNotDownloadedFormat : Strings.Install_IncompatibleNotInstalledFormat,
+                    mod.Name, AppServices.SptEnvironment.InstalledVersion);
                 return;
             }
 
@@ -1429,7 +1432,7 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
             // What is there but will not do - disabled, too new, not an accepted version, or nothing
             // for this SPT - said first, and the install can stop here.
             if (check is { Problems.Count: > 0 }
-                && !AppServices.DownloadQueue.ConfirmDespite(mod.Name ?? Strings.Browse_ThisMod, check.Problems, askAgain: true))
+                && !AppServices.DownloadQueue.ConfirmDespite(mod.Name ?? Strings.Browse_ThisMod, check.Problems, askAgain: true, downloadOnly: downloadOnly))
             {
                 StatusMessage = Cancelled();
                 return;

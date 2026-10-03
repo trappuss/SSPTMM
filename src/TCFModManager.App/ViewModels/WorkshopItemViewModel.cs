@@ -296,6 +296,7 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel, IModActi
     private void AnnounceQueue()
     {
         OnPropertyChanged(nameof(IsInQueue));
+        OnPropertyChanged(nameof(ShowDownloadOnly)); // Fork
         OnPropertyChanged(nameof(QueueProgress));
         OnPropertyChanged(nameof(IsQueueIndeterminate));
         OnPropertyChanged(nameof(QueueStatus));

@@ -257,6 +257,16 @@
                         Icon="{ui:SymbolIcon Play24}"
                         IsEnabled="{Binding CanStartClient}"
                         Command="{Binding StartClientCommand}" />
+                    <!-- Fork: while the game runs, close it - asked about on the card first, as Stop server is. -->
+                    <ui:Button
+                        Margin="8,0,0,0"
+                        Appearance="Danger"
+                        Content="{loc:Str Play_CloseGame}"
+                        Icon="{ui:SymbolIcon Dismiss24}"
+                        ToolTip="{loc:Str Play_CloseGameToolTip}"
+                        IsEnabled="{Binding CanCloseGame}"
+                        Command="{Binding AskCloseGameCommand}"
+                        Visibility="{Binding IsGameRunning, Converter={StaticResource BoolToVisibility}}" />
                     <TextBlock
                         VerticalAlignment="Center"
                         Margin="12,0,0,0"
@@ -264,6 +274,34 @@
                         Foreground="{DynamicResource TextFillColorSecondaryBrush}"
                         Text="{Binding ClientState}" />
                 </StackPanel>
+
+                <StackPanel
+                    Margin="0,0,0,8"
+                    Visibility="{Binding ConfirmingCloseGame, Converter={StaticResource BoolToVisibility}}">
+                    <TextBlock
+                        TextWrapping="Wrap"
+                        Margin="0,0,0,8"
+                        Foreground="{DynamicResource SystemFillColorCautionBrush}"
+                        Text="{loc:Str Play_CloseGameWarning}" />
+                    <StackPanel Orientation="Horizontal">
+                        <ui:Button
+                            Appearance="Danger"
+                            Content="{loc:Str Play_CloseGameConfirm}"
+                            Icon="{ui:SymbolIcon Dismiss24}"
+                            Command="{Binding ConfirmCloseGameCommand}" />
+                        <ui:Button
+                            Margin="8,0,0,0"
+                            Appearance="Transparent"
+                            Content="{loc:Str Common_Cancel}"
+                            Command="{Binding CancelCloseGameCommand}" />
+                    </StackPanel>
+                </StackPanel>
+
+                <CheckBox
+                    Margin="0,0,0,8"
+                    Content="{loc:Str Play_CloseGameWithServer}"
+                    ToolTip="{loc:Str Play_CloseGameWithServerToolTip}"
+                    IsChecked="{Binding CloseGameWithServer}" />
 
                 <TextBlock
                     TextWrapping="Wrap"

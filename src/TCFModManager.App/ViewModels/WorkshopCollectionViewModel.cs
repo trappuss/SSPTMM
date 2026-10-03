@@ -88,6 +88,15 @@ public sealed partial class WorkshopCollectionItem : ObservableObject
 
     public string? Teaser => Mod?.Teaser;
 
+    //
+    // Fork (SSPTMM): Browse's card for the mod, for the same hover popup Browse and the item pages
+    // show - picture, dates, SPT version and tags (CardHover.Card). Null for an addon or an entry the
+    // catalog doesn't have, which keep the plain box with the name and teaser. Built when the row is.
+    //
+    public ModCardViewModel? HoverCard => _hoverCard ??= Mod is { } mod && !IsAddon ? AppServices.Browse.BuildCard(mod) : null;
+
+    private ModCardViewModel? _hoverCard;
+
     public string? Thumbnail => Mod?.Thumbnail ?? _thumbnail;
 
     public bool IsAddon { get; }

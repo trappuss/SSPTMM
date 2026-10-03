@@ -535,6 +535,23 @@
                                         <!-- 1.19's small button beside Install: the other way round from
                                              Monitor mode's setting, for this one mod - save the archive
                                              instead of installing it, or install it in Monitor mode. -->
+                                        <!-- Fork: Download only, labelled, subscribed or not (WorkshopItemViewModel.Fork). -->
+                                        <Button
+                                            Margin="0,0,8,0"
+                                            VerticalAlignment="Top"
+                                            MinHeight="34"
+                                            Style="{StaticResource SteamButton}"
+                                            Command="{Binding DownloadOnlyCommand}"
+                                            ToolTip="{loc:Str Item_DownloadOnlyToolTip}"
+                                            Visibility="{Binding ShowDownloadOnly, Converter={StaticResource TrueToVisible}}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <ui:SymbolIcon Margin="0,0,8,0" FontSize="16" Symbol="DocumentSave24" />
+                                                <TextBlock Text="{loc:Str Item_DownloadOnly}" />
+                                            </StackPanel>
+                                        </Button>
+
+                                        <!-- Fork: 1.19's icon below now only in Monitor mode's download-only setting, where it installs. -->
+                                        <Border Visibility="{Binding IsDownloadOnly, Source={x:Static app:AppServices.ModPageGate}, Converter={StaticResource TrueToVisible}}">
                                         <Border Visibility="{Binding IsSubscribed, Converter={StaticResource FalseToVisible}}">
                                             <Button
                                                 Width="34"
@@ -547,6 +564,7 @@
                                                 Visibility="{Binding IsInQueue, Converter={StaticResource FalseToVisible}}">
                                                 <ui:SymbolIcon FontSize="16" Symbol="{Binding AlternateSymbol, Source={x:Static app:AppServices.ModPageGate}}" />
                                             </Button>
+                                        </Border>
                                         </Border>
 
                                         <!-- Subscribe, or - once installed - Subscribed, which
