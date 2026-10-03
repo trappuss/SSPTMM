@@ -86,6 +86,7 @@ public static class AppNavigation
         || pageType == typeof(CollectionsBrowsePage)
         || pageType == typeof(InstalledPage)
         || pageType == typeof(ModListsPage)
+        || pageType == typeof(YourCollectionsPage) // Fork
         || pageType == typeof(FollowedAuthorsPage)
         || pageType == typeof(FavoriteCollectionsPage);
 

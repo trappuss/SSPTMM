@@ -7703,7 +7703,7 @@ Install the file as it is anyway?</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_ModLists_Capture_Step2" xml:space="preserve">
-    <value>Under {0}, type a name and press {1}.</value>
+    <value>Press {0} and give it a name.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_ModLists_Capture_Note" xml:space="preserve">
@@ -7714,11 +7714,11 @@ Install the file as it is anyway?</value>
     <comment>How-to title.</comment>
   </data>
   <data name="Help_ModLists_Apply_Step1" xml:space="preserve">
-    <value>On {0}, pick the list under {1}.</value>
+    <value>On {0}, open the collection and press {1}.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_ModLists_Apply_Step2" xml:space="preserve">
-    <value>Press {0} to see what would change. Nothing moves yet.</value>
+    <value>Choose {0} to keep your other mods, or {1} to match the collection exactly. A preview shows what would change - nothing moves yet.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_ModLists_Apply_Step3" xml:space="preserve">
@@ -7745,7 +7745,7 @@ Install the file as it is anyway?</value>
     <comment>How-to title.</comment>
   </data>
   <data name="Help_ModLists_Edit_Step1" xml:space="preserve">
-    <value>Pick the list on {0}. Press {1} to put mods on it, or the X on a row to take one off.</value>
+    <value>Open the collection on {0} and press {1}. Press {2} to put mods on it, or the X on a row to take one off.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it. The X is the remove button's glyph.</comment>
   </data>
   <data name="Help_ModLists_Edit_Step2" xml:space="preserve">
@@ -7761,23 +7761,23 @@ Install the file as it is anyway?</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_ModLists_Share_Title" xml:space="preserve">
-    <value>Share a list with a friend</value>
+    <value>Share a collection with friends</value>
     <comment>How-to title.</comment>
   </data>
   <data name="Help_ModLists_Share_Step1" xml:space="preserve">
-    <value>Pick the list on {0}, press {1} and save the file.</value>
+    <value>Open the collection on {0} and press {1}.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_ModLists_Share_Step2" xml:space="preserve">
-    <value>Send the file however you like. Your friend presses {0} on {1} and picks it.</value>
+    <value>Press {0} and paste it to your friends - in a Discord message, say. They press {1} on {2}, or just open {2}: a code they have copied is offered to them.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_ModLists_Share_Step3" xml:space="preserve">
-    <value>They press {0}, then {1}. Their app downloads each mod from sp-mod.com itself.</value>
+    <value>They open it and press {0}. Their app downloads each mod from sp-mod.com itself.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_ModLists_Share_Note" xml:space="preserve">
-    <value>The file names mods and versions, never the mod files, so it's tiny.</value>
+    <value>Changed the collection? Send the code again - their copy is updated and they are shown what changed. A file from Export works too.</value>
   </data>
   <data name="Help_ModLists_Server_Title" xml:space="preserve">
     <value>Get the mods a server runs</value>
@@ -7807,7 +7807,7 @@ Install the file as it is anyway?</value>
     <comment>How-to title.</comment>
   </data>
   <data name="Help_ModLists_Undo_Step1" xml:space="preserve">
-    <value>On {0}, press {1}.</value>
+    <value>Open any collection on {0}, press {1}, then {2} under the saved lists.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_ModLists_Undo_Step2" xml:space="preserve">
@@ -8501,7 +8501,7 @@ Install the file as it is anyway?</value>
     <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
   </data>
   <data name="Help_ModLists_Share_Keywords" xml:space="preserve">
-    <value>share, export, import, send, friend, file</value>
+    <value>share, code, discord, friend, send, export, import, file, modpack, pack</value>
     <comment>Hidden search words for this how-to: other words people type when they mean it, comma separated. Never shown. Use the words speakers of your language would actually type - they needn't translate the English ones.</comment>
   </data>
   <data name="Help_ModLists_Server_Keywords" xml:space="preserve">
@@ -9251,5 +9251,323 @@ See Dependencies and Conflicts.</value>
   <data name="GettingStarted_PlayAction" xml:space="preserve">
     <value>Go to Play</value>
     <comment>Third step of the checklist: its button, opening the Play page.</comment>
+  </data>
+  <data name="Collections_ByYou" xml:space="preserve">
+    <value>By you</value>
+    <comment>Your collections: under the name of a collection made here.</comment>
+  </data>
+  <data name="Collections_FromServerFormat" xml:space="preserve">
+    <value>From server {0}</value>
+    <comment>Your collections: under the name of a collection a server handed you. {0} is the server.</comment>
+  </data>
+  <data name="Collections_InstalledFormat" xml:space="preserve">
+    <value>{0} of {1} installed</value>
+    <comment>Your collections: how much of a collection your game has. {0} installed, {1} mods in it.</comment>
+  </data>
+  <data name="Collections_AllInstalled" xml:space="preserve">
+    <value>All installed</value>
+    <comment>Your collections: every mod of the collection is installed.</comment>
+  </data>
+  <data name="Collections_Create" xml:space="preserve">
+    <value>Create from installed mods</value>
+    <comment>Your collections: Steam's Create Collection - a new collection of the mods installed now, at their versions.</comment>
+  </data>
+  <data name="Collections_CreateToolTip" xml:space="preserve">
+    <value>A new collection of the mods installed and turned on now, at the versions you have.</value>
+    <comment>Tooltip on Create from installed mods.</comment>
+  </data>
+  <data name="Collections_CreateTitle" xml:space="preserve">
+    <value>Create collection</value>
+    <comment>Dialog title for naming a new collection.</comment>
+  </data>
+  <data name="Collections_CreatePrompt" xml:space="preserve">
+    <value>Name the new collection. It holds the mods installed and turned on now, at the versions you have.</value>
+    <comment>Prompt in the Create collection dialog.</comment>
+  </data>
+  <data name="Collections_EmptyTitle" xml:space="preserve">
+    <value>No collections yet</value>
+    <comment>Your collections with none: heading.</comment>
+  </data>
+  <data name="Collections_EmptyBody" xml:space="preserve">
+    <value>A collection is a set of mods at exact versions - yours, a friend's, or one from sp-mod.com. Create one from what you have installed, or add one a friend shared.</value>
+    <comment>Your collections with none: what a collection is and how to get one.</comment>
+  </data>
+  <data name="Collections_ChipUpdate" xml:space="preserve">
+    <value>Update</value>
+    <comment>Chip on a collection card: a friend has changed it since your copy.</comment>
+  </data>
+  <data name="Collections_ChipShared" xml:space="preserve">
+    <value>Shared</value>
+    <comment>Chip on a collection card: you keep it in a shared folder for friends.</comment>
+  </data>
+  <data name="Collections_ChipSharedToolTip" xml:space="preserve">
+    <value>Kept in a shared folder - friends who follow it get your changes.</value>
+    <comment>Tooltip on the Shared chip.</comment>
+  </data>
+  <data name="Collections_ChipFollowed" xml:space="preserve">
+    <value>Following</value>
+    <comment>Chip on a collection card: a friend's collection you follow in a shared folder.</comment>
+  </data>
+  <data name="Collections_ChipFollowedToolTip" xml:space="preserve">
+    <value>A friend's collection you follow - you are told here when they change it.</value>
+    <comment>Tooltip on the Following chip.</comment>
+  </data>
+  <data name="Sharing_ShareWithFriends" xml:space="preserve">
+    <value>Share with friends</value>
+    <comment>Collection page button: send this collection to friends at its exact versions.</comment>
+  </data>
+  <data name="Sharing_ShareWithFriendsToolTip" xml:space="preserve">
+    <value>Send this collection to friends - the same mods at the same versions - as a code to paste, or through a folder you share.</value>
+    <comment>Tooltip on Share with friends.</comment>
+  </data>
+  <data name="Sharing_TitleFormat" xml:space="preserve">
+    <value>Share "{0}"</value>
+    <comment>Share dialog title. {0} is the collection.</comment>
+  </data>
+  <data name="Sharing_DialogIntro" xml:space="preserve">
+    <value>Friends get the same mods at the same versions. Only the list travels - every mod still downloads from sp-mod.com.</value>
+    <comment>Share dialog: the opening line.</comment>
+  </data>
+  <data name="Sharing_CodeHeading" xml:space="preserve">
+    <value>Share code</value>
+    <comment>Share dialog: heading of the share code part.</comment>
+  </data>
+  <data name="Sharing_NamePrompt" xml:space="preserve">
+    <value>Your name, shown to friends as who shared it:</value>
+    <comment>Share dialog: above the name box.</comment>
+  </data>
+  <data name="Sharing_CopyCode" xml:space="preserve">
+    <value>Copy share code</value>
+    <comment>Share dialog: copies the collection as a code to paste.</comment>
+  </data>
+  <data name="Sharing_CopiedFormat" xml:space="preserve">
+    <value>Copied ({0} characters). Paste it to your friends - they add it with Add from code. Send it again after you change the collection.</value>
+    <comment>Share dialog after copying. {0} is how long the code is.</comment>
+  </data>
+  <data name="Sharing_CopyFailedFormat" xml:space="preserve">
+    <value>Couldn't copy it: {0}</value>
+    <comment>Share dialog when the clipboard refused. {0} is why.</comment>
+  </data>
+  <data name="Sharing_FolderHeading" xml:space="preserve">
+    <value>Shared folder</value>
+    <comment>Share dialog: heading of the shared folder part.</comment>
+  </data>
+  <data name="Sharing_FolderIntro" xml:space="preserve">
+    <value>Keep this collection in a folder you share with friends (Dropbox, OneDrive, Google Drive...). It is rewritten there whenever you change it, and friends who follow it are told.</value>
+    <comment>Share dialog: what the shared folder does.</comment>
+  </data>
+  <data name="Sharing_NotInFolder" xml:space="preserve">
+    <value>Not in a shared folder.</value>
+    <comment>Share dialog: the collection is not kept in a shared folder.</comment>
+  </data>
+  <data name="Sharing_KeptInFormat" xml:space="preserve">
+    <value>Kept in {0}</value>
+    <comment>Share dialog: where the collection is kept. {0} is the file.</comment>
+  </data>
+  <data name="Sharing_ChooseFolder" xml:space="preserve">
+    <value>Choose folder...</value>
+    <comment>Share dialog: picks the shared folder.</comment>
+  </data>
+  <data name="Sharing_ChooseFolderTitle" xml:space="preserve">
+    <value>Choose a folder you share with friends</value>
+    <comment>Folder picker title.</comment>
+  </data>
+  <data name="Sharing_StopSharing" xml:space="preserve">
+    <value>Stop keeping it there</value>
+    <comment>Share dialog: stops writing the collection to the shared folder. The file already there is left.</comment>
+  </data>
+  <data name="Sharing_FolderDone" xml:space="preserve">
+    <value>Saved there. Tell your friends to follow that file with Follow a shared file.</value>
+    <comment>Share dialog after choosing a folder.</comment>
+  </data>
+  <data name="Sharing_FolderFailedFormat" xml:space="preserve">
+    <value>Couldn't write it there: {0}</value>
+    <comment>Share dialog when the folder couldn't be written. {0} is why.</comment>
+  </data>
+  <data name="Sharing_FolderStopped" xml:space="preserve">
+    <value>No longer kept there. The file already in the folder is left as it is.</value>
+    <comment>Share dialog after stopping.</comment>
+  </data>
+  <data name="Sharing_FollowingHeading" xml:space="preserve">
+    <value>Following</value>
+    <comment>Share dialog for a friend's collection you follow: heading.</comment>
+  </data>
+  <data name="Sharing_FollowingFormat" xml:space="preserve">
+    <value>You follow this collection in {0}.</value>
+    <comment>Share dialog: which file you follow. {0} is the file.</comment>
+  </data>
+  <data name="Sharing_StopFollowing" xml:space="preserve">
+    <value>Stop following</value>
+    <comment>Share dialog: stops checking the friend's file for changes.</comment>
+  </data>
+  <data name="Sharing_Unfollowed" xml:space="preserve">
+    <value>No longer followed. Your copy stays.</value>
+    <comment>Share dialog after Stop following.</comment>
+  </data>
+  <data name="Sharing_Done" xml:space="preserve">
+    <value>Done</value>
+    <comment>Share dialog: closes it.</comment>
+  </data>
+  <data name="Sharing_AddFromCode" xml:space="preserve">
+    <value>Add from code</value>
+    <comment>Your collections: adds a collection from a share code a friend sent.</comment>
+  </data>
+  <data name="Sharing_AddFromCodeToolTip" xml:space="preserve">
+    <value>Paste a share code a friend sent you.</value>
+    <comment>Tooltip on Add from code.</comment>
+  </data>
+  <data name="Sharing_AddFromFile" xml:space="preserve">
+    <value>Add from file</value>
+    <comment>Your collections: adds a collection from a .tcfmodlist file.</comment>
+  </data>
+  <data name="Sharing_AddFromFileToolTip" xml:space="preserve">
+    <value>Open a collection file a friend sent you.</value>
+    <comment>Tooltip on Add from file.</comment>
+  </data>
+  <data name="Sharing_Follow" xml:space="preserve">
+    <value>Follow a shared file</value>
+    <comment>Your collections: follows a friend's collection file in a folder you both share.</comment>
+  </data>
+  <data name="Sharing_FollowToolTip" xml:space="preserve">
+    <value>Pick a friend's collection file in a folder you share. You are told here whenever they change it.</value>
+    <comment>Tooltip on Follow a shared file.</comment>
+  </data>
+  <data name="Sharing_FollowDialogTitle" xml:space="preserve">
+    <value>Follow a friend's collection file</value>
+    <comment>File picker title for following.</comment>
+  </data>
+  <data name="Sharing_PasteCode" xml:space="preserve">
+    <value>Paste the share code your friend sent:</value>
+    <comment>Add from code dialog prompt.</comment>
+  </data>
+  <data name="Sharing_Add" xml:space="preserve">
+    <value>Add</value>
+    <comment>Adds the collection from a code.</comment>
+  </data>
+  <data name="Sharing_Dismiss" xml:space="preserve">
+    <value>Not now</value>
+    <comment>Puts off the clipboard offer for this code.</comment>
+  </data>
+  <data name="Sharing_CodeUnreadableFormat" xml:space="preserve">
+    <value>That code couldn't be read: {0}.</value>
+    <comment>When a share code is damaged or from a newer app. {0} is why.</comment>
+  </data>
+  <data name="Sharing_ArrivedTitle" xml:space="preserve">
+    <value>Collection received</value>
+    <comment>Title of the dialogs after a collection arrives.</comment>
+  </data>
+  <data name="Sharing_AddedFormat" xml:space="preserve">
+    <value>Added "{0}" from {1} - {2} mods. Open it to subscribe to them.</value>
+    <comment>After a new collection arrives. {0} name, {1} who shared it, {2} how many mods.</comment>
+  </data>
+  <data name="Sharing_AlreadyHaveFormat" xml:space="preserve">
+    <value>You already have this version of "{0}".</value>
+    <comment>When the collection that arrived is the copy already here.</comment>
+  </data>
+  <data name="Sharing_YourOwnFormat" xml:space="preserve">
+    <value>"{0}" is your own collection. Add this as a separate copy?</value>
+    <comment>When a code or file of your own collection comes back to you.</comment>
+  </data>
+  <data name="Sharing_AddAsCopy" xml:space="preserve">
+    <value>Add as a copy</value>
+    <comment>Adds your own collection again under a new name.</comment>
+  </data>
+  <data name="Sharing_OlderFormat" xml:space="preserve">
+    <value>This is an older copy of "{0}" (revision {1}) than the one you have (revision {2}). Keep yours?</value>
+    <comment>When an older copy arrives. {0} name, {1} arriving revision, {2} yours.</comment>
+  </data>
+  <data name="Sharing_KeepMine" xml:space="preserve">
+    <value>Keep mine</value>
+    <comment>Keeps the newer copy you have.</comment>
+  </data>
+  <data name="Sharing_UseOlder" xml:space="preserve">
+    <value>Use the older one</value>
+    <comment>Replaces yours with the older copy that arrived.</comment>
+  </data>
+  <data name="Sharing_UpdatedTitle" xml:space="preserve">
+    <value>Collection updated</value>
+    <comment>Title when a friend's collection arrives changed.</comment>
+  </data>
+  <data name="Sharing_UpdatedFormat" xml:space="preserve">
+    <value>"{0}" was updated by {1}: {2}.
+
+Sync your game to it now?</value>
+    <comment>When a newer copy arrives. {0} name, {1} who shared it, {2} what changed.</comment>
+  </data>
+  <data name="Sharing_SyncNow" xml:space="preserve">
+    <value>Sync</value>
+    <comment>Applies the friend's collection: the Collections preview, matching it exactly.</comment>
+  </data>
+  <data name="Sharing_SyncToolTip" xml:space="preserve">
+    <value>Shows what will be installed, updated and set aside first - nothing changes until you press Apply.</value>
+    <comment>Tooltip on Sync.</comment>
+  </data>
+  <data name="Sharing_Later" xml:space="preserve">
+    <value>Later</value>
+    <comment>Puts off a friend's update.</comment>
+  </data>
+  <data name="Sharing_Open" xml:space="preserve">
+    <value>Open it</value>
+    <comment>Opens the collection that arrived.</comment>
+  </data>
+  <data name="Sharing_Someone" xml:space="preserve">
+    <value>someone</value>
+    <comment>Who shared a collection, when it doesn't say.</comment>
+  </data>
+  <data name="Sharing_FollowedUpdateFormat" xml:space="preserve">
+    <value>"{0}" has an update from {1}: {2}.</value>
+    <comment>Your collections: a followed collection has changed. {0} name, {1} who, {2} what changed.</comment>
+  </data>
+  <data name="Sharing_ClipboardNewFormat" xml:space="preserve">
+    <value>A collection is on your clipboard: "{0}" from {1}, {2} mods.</value>
+    <comment>Your collections: a share code was copied. {0} name, {1} who shared it, {2} how many mods.</comment>
+  </data>
+  <data name="Sharing_ClipboardUpdateFormat" xml:space="preserve">
+    <value>An update to "{0}" from {1} is on your clipboard.</value>
+    <comment>Your collections: a newer code of a collection you have was copied.</comment>
+  </data>
+  <data name="Sharing_NoModChanges" xml:space="preserve">
+    <value>no mod changes</value>
+    <comment>What changed, when only the name or numbering did.</comment>
+  </data>
+  <data name="Sharing_DiffAddedFormat" xml:space="preserve">
+    <value>{0} added ({1})</value>
+    <comment>What changed. {0} how many, {1} their names.</comment>
+  </data>
+  <data name="Sharing_DiffRemovedFormat" xml:space="preserve">
+    <value>{0} removed ({1})</value>
+    <comment>What changed. {0} how many, {1} their names.</comment>
+  </data>
+  <data name="Sharing_DiffChangedFormat" xml:space="preserve">
+    <value>{0} updated ({1})</value>
+    <comment>What changed: a different version or machine. {0} how many, {1} their names.</comment>
+  </data>
+  <data name="Help_ModLists_Follow_Title" xml:space="preserve">
+    <value>Keep friends in sync automatically</value>
+    <comment>Help topic title: a collection kept in a shared folder that friends follow.</comment>
+  </data>
+  <data name="Help_ModLists_Follow_Step1" xml:space="preserve">
+    <value>Open the collection on {0}, press {1}, then {2} and pick a folder you share with friends - Dropbox, OneDrive, Google Drive or the like.</value>
+    <comment>Help step. {0} Collections, {1} Share with friends, {2} Choose folder.</comment>
+  </data>
+  <data name="Help_ModLists_Follow_Step2" xml:space="preserve">
+    <value>Your friends press {0} on {1} and pick the file in their copy of that folder.</value>
+    <comment>Help step. {0} Follow a shared file, {1} Collections.</comment>
+  </data>
+  <data name="Help_ModLists_Follow_Step3" xml:space="preserve">
+    <value>When you change the collection the file is rewritten. Their {0} page says what changed, and {1} brings their game in line.</value>
+    <comment>Help step. {0} Collections, {1} Sync.</comment>
+  </data>
+  <data name="Help_ModLists_Follow_Note" xml:space="preserve">
+    <value>Sync shows what will be installed and set aside first - nothing changes until they press Apply.</value>
+    <comment>Help note on following.</comment>
+  </data>
+  <data name="Help_ModLists_Follow_Keywords" xml:space="preserve">
+    <value>sync, follow, shared folder, dropbox, onedrive, google drive, friends, modpack, update</value>
+    <comment>Help search words for following, never shown.</comment>
+  </data>
+  <data name="Collections_ManageTitle" xml:space="preserve">
+    <value>Manage collections</value>
+    <comment>Title of the page that edits, previews and applies collections (reached with Manage in Collections).</comment>
   </data>
 </root>

@@ -293,13 +293,16 @@ public partial class MainWindow : FluentWindow
         // A page with a tab of its own lights that tab; every other Workshop page lights Workshop -
         // Subscribed items and Your collections too, when their own tab is switched off.
         var appearance = AppServices.Appearance;
+        // Fork: the Collections tab opens Your collections; the Manage page under it keeps it lit.
+        var collections = pageType == typeof(YourCollectionsPage) || pageType == typeof(ModListsPage);
         var ownTab = (pageType == typeof(InstalledPage) && appearance.ShowSubscribedItemsTab)
-            || (pageType == typeof(ModListsPage) && appearance.ShowCollectionsTab);
+            || (collections && appearance.ShowCollectionsTab);
 
         foreach (var tab in HubTabs.Children.OfType<ToggleButton>())
         {
             if (tab.Tag is not Type target) continue;
             tab.IsChecked = target == pageType
+                || (target == typeof(YourCollectionsPage) && collections)
                 || (target == typeof(WorkshopHomePage) && AppNavigation.IsWorkshopPage(pageType) && !ownTab);
         }
 
@@ -307,7 +310,7 @@ public partial class MainWindow : FluentWindow
         HelpTab.IsChecked = HelpPages.Contains(pageType);
         OptionsGear.IsChecked = pageType == typeof(OptionsPage);
 
-        _stripWanted = pageType == typeof(InstalledPage) || pageType == typeof(ModListsPage)
+        _stripWanted = pageType == typeof(InstalledPage) || pageType == typeof(ModListsPage) || pageType == typeof(YourCollectionsPage)
             || pageType == typeof(FollowedAuthorsPage) || pageType == typeof(FavoriteCollectionsPage);
         SyncWorkshopStrip();
     }

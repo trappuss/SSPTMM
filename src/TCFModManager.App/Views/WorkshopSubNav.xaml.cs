@@ -62,7 +62,7 @@ public partial class WorkshopSubNav : UserControl
     {
         HomeTab.IsChecked = pageType == typeof(WorkshopHomePage);
         BrowseTab.IsChecked = pageType == typeof(BrowsePage) || pageType == typeof(CollectionsBrowsePage);
-        YourItemsTab.IsChecked = pageType == typeof(InstalledPage) || pageType == typeof(ModListsPage)
+        YourItemsTab.IsChecked = pageType == typeof(InstalledPage) || pageType == typeof(ModListsPage) || pageType == typeof(YourCollectionsPage)
             || pageType == typeof(FollowedAuthorsPage) || pageType == typeof(FavoriteCollectionsPage);
     }
 
@@ -162,7 +162,8 @@ public partial class WorkshopSubNav : UserControl
     private void YourCollections_Click(object sender, RoutedEventArgs e)
     {
         CloseMenus();
-        Go(typeof(ModListsPage));
+        // Fork: your collections as Steam lists them; the form that edits one is its Manage.
+        Go(typeof(YourCollectionsPage));
     }
 
     private void FollowedAuthors_Click(object sender, RoutedEventArgs e)

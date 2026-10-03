@@ -847,11 +847,17 @@ public sealed partial class WorkshopCollectionViewModel : LocalizedViewModel, IM
             return;
         }
 
+        //
+        // Fork (SSPTMM): for a collection a friend shared - one that came from someone else, not a
+        // public one - matching it exactly is the green default, so a group ends up on the same set;
+        // Add Only stays one click away. Steam's own order otherwise.
+        //
+        var friends = !IsPublic && List is { IsEditable: false };
         var answer = SteamDialog.Show(
             Strings.Collection_SubscribeAllTitle,
             QuestionBody(Strings.Collection_SubscribeAllBody, resolution?.Skipped ?? []),
-            new SteamDialogChoice(Strings.Collection_AddOnly, SteamDialogButton.Green, IsDefault: true),
-            new SteamDialogChoice(Strings.Collection_Overwrite, SteamDialogButton.Blue),
+            new SteamDialogChoice(Strings.Collection_AddOnly, friends ? SteamDialogButton.Blue : SteamDialogButton.Green, IsDefault: !friends),
+            new SteamDialogChoice(Strings.Collection_Overwrite, friends ? SteamDialogButton.Green : SteamDialogButton.Blue, IsDefault: friends),
             new SteamDialogChoice(Strings.Common_Cancel, SteamDialogButton.Grey));
 
         ModListPolicy policy;

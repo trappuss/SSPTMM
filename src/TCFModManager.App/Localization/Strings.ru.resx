@@ -5045,20 +5045,11 @@
   <data name="Help_ModLists_Capture_Step1" xml:space="preserve">
     <value>Откройте {0}.</value>
   </data>
-  <data name="Help_ModLists_Capture_Step2" xml:space="preserve">
-    <value>В разделе {0} введите название и нажмите {1}.</value>
-  </data>
   <data name="Help_ModLists_Capture_Note" xml:space="preserve">
     <value>Список записывает каждый включённый мод с той версией, что у вас стоит. На диске ничего не меняется.</value>
   </data>
   <data name="Help_ModLists_Apply_Title" xml:space="preserve">
     <value>Перейти на другой список</value>
-  </data>
-  <data name="Help_ModLists_Apply_Step1" xml:space="preserve">
-    <value>На странице {0} выберите список в разделе {1}.</value>
-  </data>
-  <data name="Help_ModLists_Apply_Step2" xml:space="preserve">
-    <value>Нажмите {0}, чтобы увидеть, что изменится. Пока ничего не переносится.</value>
   </data>
   <data name="Help_ModLists_Apply_Step3" xml:space="preserve">
     <value>Закройте игру и сервер, затем нажмите {0}.</value>
@@ -5078,9 +5069,6 @@
   <data name="Help_ModLists_Edit_Title" xml:space="preserve">
     <value>Изменить состав списка</value>
   </data>
-  <data name="Help_ModLists_Edit_Step1" xml:space="preserve">
-    <value>Выберите список на странице {0}. Нажмите {1}, чтобы добавить моды, или X в строке, чтобы убрать мод.</value>
-  </data>
   <data name="Help_ModLists_Edit_Step2" xml:space="preserve">
     <value>Нажмите {0}. Меняется только список - ничего не устанавливается и не переносится.</value>
   </data>
@@ -5089,21 +5077,6 @@
   </data>
   <data name="Help_ModLists_Edit_Note" xml:space="preserve">
     <value>Импортированный список или присланный сервером доступен только для чтения - нажмите {0}, чтобы получить свой, который можно менять.</value>
-  </data>
-  <data name="Help_ModLists_Share_Title" xml:space="preserve">
-    <value>Поделиться списком с другом</value>
-  </data>
-  <data name="Help_ModLists_Share_Step1" xml:space="preserve">
-    <value>Выберите список на странице {0}, нажмите {1} и сохраните файл.</value>
-  </data>
-  <data name="Help_ModLists_Share_Step2" xml:space="preserve">
-    <value>Отправьте файл как угодно. Друг нажимает {0} на странице {1} и выбирает его.</value>
-  </data>
-  <data name="Help_ModLists_Share_Step3" xml:space="preserve">
-    <value>Затем он нажимает {0}, а потом {1}. Его приложение само скачивает каждый мод с sp-mod.com.</value>
-  </data>
-  <data name="Help_ModLists_Share_Note" xml:space="preserve">
-    <value>В файле названы моды и версии, но не сами файлы модов, поэтому он крошечный.</value>
   </data>
   <data name="Help_ModLists_Server_Title" xml:space="preserve">
     <value>Получить моды, которые стоят на сервере</value>
@@ -5125,9 +5098,6 @@
   </data>
   <data name="Help_ModLists_Undo_Title" xml:space="preserve">
     <value>Вернуть всё как было после применения списка</value>
-  </data>
-  <data name="Help_ModLists_Undo_Step1" xml:space="preserve">
-    <value>На странице {0} нажмите {1}.</value>
   </data>
   <data name="Help_ModLists_Undo_Step2" xml:space="preserve">
     <value>Каждый мод возвращается в состояние до последнего применения. Применение другого списка заменяет эту отмену.</value>
@@ -5611,9 +5581,6 @@
   </data>
   <data name="Help_ModLists_Edit_Keywords" xml:space="preserve">
     <value>редактировать, изменить, добавить моды, убрать из списка</value>
-  </data>
-  <data name="Help_ModLists_Share_Keywords" xml:space="preserve">
-    <value>поделиться, экспорт, импорт, отправить, друг, файл</value>
   </data>
   <data name="Help_ModLists_Server_Keywords" xml:space="preserve">
     <value>сервер, синхронизировать, те же моды, друзья, мультиплеер</value>

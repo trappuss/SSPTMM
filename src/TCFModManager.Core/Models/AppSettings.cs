@@ -12,6 +12,20 @@ public sealed class AppSettings
     // or hidden by hand. It does not come back either way.
     public bool GettingStartedDone { get; set; }
 
+    //
+    // Fork (SSPTMM): sharing collections with friends (see the App's CollectionSharing).
+    //
+    // ShareName is the name a shared collection says it is from - asked for once, in the Share
+    // dialog. SharedFiles maps one of your own collections to the file this app keeps it in, inside
+    // a folder you share (Dropbox, OneDrive, Google Drive...); FollowedFiles maps a friend's
+    // collection to the file of theirs you follow, so you are told when they change it.
+    //
+    public string? ShareName { get; set; }
+
+    public Dictionary<Guid, string> SharedFiles { get; set; } = [];
+
+    public Dictionary<Guid, string> FollowedFiles { get; set; } = [];
+
     // How long removed mods stay in the install's holding folder before they are deleted (R11, R15).
     public TCFModManager.Core.Services.RemovedModsRetention RemovedModsRetention { get; set; } =
         TCFModManager.Core.Services.RemovedModsRetention.FourteenDays;

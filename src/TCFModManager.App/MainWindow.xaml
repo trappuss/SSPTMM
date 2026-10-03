@@ -214,7 +214,7 @@
                     </ToggleButton>
                     <ToggleButton
                         Style="{StaticResource SteamHubTab}"
-                        Tag="{x:Type views:ModListsPage}"
+                        Tag="{x:Type views:YourCollectionsPage}"
                         Click="HubTab_Click"
                         DataContext="{x:Static app:AppServices.Appearance}"
                         Visibility="{Binding ShowCollectionsTab, Converter={StaticResource BoolToVis}}">
@@ -363,6 +363,7 @@
                 <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:CollectionsBrowsePage}" />
                 <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:InstalledPage}" />
                 <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:ModListsPage}" />
+                <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:YourCollectionsPage}" />
                 <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:FollowedAuthorsPage}" />
                 <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:FavoriteCollectionsPage}" />
                 <ui:NavigationViewItem NavigationCacheMode="Required" TargetPageType="{x:Type views:ConfigsPage}" />

@@ -4754,20 +4754,11 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
   <data name="Help_ModLists_Capture_Step1" xml:space="preserve">
     <value>Apri {0}.</value>
   </data>
-  <data name="Help_ModLists_Capture_Step2" xml:space="preserve">
-    <value>Sotto {0}, scrivi un nome e premi {1}.</value>
-  </data>
   <data name="Help_ModLists_Capture_Note" xml:space="preserve">
     <value>La lista registra ogni mod attivato nella versione che hai. Sul disco non cambia nulla.</value>
   </data>
   <data name="Help_ModLists_Apply_Title" xml:space="preserve">
     <value>Passare a un'altra lista</value>
-  </data>
-  <data name="Help_ModLists_Apply_Step1" xml:space="preserve">
-    <value>In {0}, scegli la lista sotto {1}.</value>
-  </data>
-  <data name="Help_ModLists_Apply_Step2" xml:space="preserve">
-    <value>Premi {0} per vedere cosa cambierebbe. Non si sposta ancora nulla.</value>
   </data>
   <data name="Help_ModLists_Apply_Step3" xml:space="preserve">
     <value>Chiudi il gioco e il server, poi premi {0}.</value>
@@ -4787,9 +4778,6 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
   <data name="Help_ModLists_Edit_Title" xml:space="preserve">
     <value>Cambiare cosa c'è in una lista</value>
   </data>
-  <data name="Help_ModLists_Edit_Step1" xml:space="preserve">
-    <value>Scegli la lista in {0}. Premi {1} per aggiungere mod, o la X su una riga per toglierne una.</value>
-  </data>
   <data name="Help_ModLists_Edit_Step2" xml:space="preserve">
     <value>Premi {0}. Cambia solo la lista - non si installa né si sposta nulla.</value>
   </data>
@@ -4798,21 +4786,6 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
   </data>
   <data name="Help_ModLists_Edit_Note" xml:space="preserve">
     <value>Una lista importata, o inviata da un server, è di sola lettura - premi {0} per averne una modificabile.</value>
-  </data>
-  <data name="Help_ModLists_Share_Title" xml:space="preserve">
-    <value>Condividere una lista con un amico</value>
-  </data>
-  <data name="Help_ModLists_Share_Step1" xml:space="preserve">
-    <value>Scegli la lista in {0}, premi {1} e salva il file.</value>
-  </data>
-  <data name="Help_ModLists_Share_Step2" xml:space="preserve">
-    <value>Invia il file come preferisci. Il tuo amico preme {0} in {1} e lo sceglie.</value>
-  </data>
-  <data name="Help_ModLists_Share_Step3" xml:space="preserve">
-    <value>Poi preme {0} e infine {1}. La sua app scarica ogni mod da sp-mod.com da sola.</value>
-  </data>
-  <data name="Help_ModLists_Share_Note" xml:space="preserve">
-    <value>Il file nomina mod e versioni, mai i file dei mod, quindi è minuscolo.</value>
   </data>
   <data name="Help_ModLists_Server_Title" xml:space="preserve">
     <value>Ottenere i mod che usa un server</value>
@@ -4834,9 +4807,6 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
   </data>
   <data name="Help_ModLists_Undo_Title" xml:space="preserve">
     <value>Rimettere tutto com'era dopo aver applicato una lista</value>
-  </data>
-  <data name="Help_ModLists_Undo_Step1" xml:space="preserve">
-    <value>In {0}, premi {1}.</value>
   </data>
   <data name="Help_ModLists_Undo_Step2" xml:space="preserve">
     <value>Ogni mod torna com'era prima dell'ultima applicazione. Applicare un'altra lista sostituisce questo annullamento.</value>
@@ -5320,9 +5290,6 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
   </data>
   <data name="Help_ModLists_Edit_Keywords" xml:space="preserve">
     <value>modificare, cambiare, aggiungere mod, togliere dalla lista</value>
-  </data>
-  <data name="Help_ModLists_Share_Keywords" xml:space="preserve">
-    <value>condividere, esportare, importare, inviare, amico, file</value>
   </data>
   <data name="Help_ModLists_Server_Keywords" xml:space="preserve">
     <value>server, sincronizzare, stessi mod, amici, multigiocatore</value>

@@ -211,7 +211,8 @@
                         <TextBlock Text="{loc:Str Nav_Workshop}" />
                     </Button>
                     <Path Width="4" Height="7" Margin="6,1,6,0" VerticalAlignment="Center" Data="M0,0 L4,3.5 L0,7" Stretch="Fill" Stroke="{StaticResource SteamTextDim}" StrokeThickness="1" />
-                    <Button Style="{StaticResource Crumb}" Command="{Binding ManageCommand}" Visibility="{Binding IsPublic, Converter={StaticResource FalseToVisible}}">
+                    <!-- Fork: Your collections is the grid of them now; Manage is the button below. -->
+                    <Button Style="{StaticResource Crumb}" Command="{Binding OpenYourCollectionsCommand}" Visibility="{Binding IsPublic, Converter={StaticResource FalseToVisible}}">
                         <TextBlock Text="{loc:Str Collection_Breadcrumb}" />
                     </Button>
                     <Button Style="{StaticResource Crumb}" Command="{Binding BrowseCollectionsCommand}" Visibility="{Binding IsPublic, Converter={StaticResource TrueToVisible}}">
@@ -316,6 +317,13 @@
                         </Button>
                         <Button Margin="0,0,5,0" Style="{StaticResource SteamGeneralButton}" Command="{Binding CopyLinkCommand}" Visibility="{Binding IsPublic, Converter={StaticResource TrueToVisible}}" ToolTip="{loc:Str Collection_ShareToolTip}">
                             <TextBlock Text="{loc:Str Collection_Share}" />
+                        </Button>
+                        <!-- Fork: the collection to friends, at its exact versions - a share code or a shared folder. -->
+                        <Button Margin="0,0,5,0" Style="{StaticResource SteamGeneralButton}" Command="{Binding ShareWithFriendsCommand}" Visibility="{Binding CanManage, Converter={StaticResource TrueToVisible}}" ToolTip="{loc:Str Sharing_ShareWithFriendsToolTip}">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Margin="0,0,6,0" FontSize="14" Symbol="PeopleTeam16" />
+                                <TextBlock Text="{loc:Str Sharing_ShareWithFriends}" />
+                            </StackPanel>
                         </Button>
                         <Button Margin="0" Style="{StaticResource SteamGeneralButton}" Command="{Binding OpenOnSiteCommand}" Visibility="{Binding IsPublic, Converter={StaticResource TrueToVisible}}" ToolTip="{loc:Str Collection_ViewOnSiteToolTip}">
                             <StackPanel Orientation="Horizontal">

@@ -907,6 +907,9 @@ public partial class ModListsViewModel : LocalizedViewModel
     [RelayCommand]
     public void Refresh(Guid? select = null)
     {
+        // Fork: a collection kept in a shared folder is rewritten there when it changes.
+        Services.CollectionSharing.WriteSharedFolders();
+
         var data = AppServices.ModLists.Load();
         var keep = select ?? Selected?.Id;
 

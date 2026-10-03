@@ -1289,6 +1289,69 @@ Checked under Wine:
   added in the install's own profiles folder, coming back ticked the third step and the list went
   for good. Hide hid it for good.
 
+## Round 30: Your collections, and sharing them with friends (2026-10-02)
+
+- **Collections opens on a grid**, like Steam's Your Collections (YourCollectionsPage).
+  - Each card shows:
+    - a 2x2 mosaic of the first four mods' pictures;
+    - the name, who made it, how many items it has, and its SPT version;
+    - how much of it is installed ("5 of 7 installed", or green "All installed");
+    - chips for Update, Shared, Following and From server.
+  - Buttons across the top: Add from code, Add from file, Follow a shared file, and Create from
+    installed mods (blue).
+  - A card opens the collection page. The old page is now titled "Manage collections" and opens
+    from "Manage in Collections". The collection page's "Your collections" breadcrumb comes back
+    to the grid.
+- **Share with friends**, on the collection page.
+  - **A share code**: one line of text to paste in Discord or anywhere else
+    (ModListShareCode, "SSPTMM1." followed by deflated JSON).
+    - It carries the list's id, revision, policy, SPT version and, for each mod, its sp-mod.com
+      id, version and scope.
+    - Names are looked up again when the code arrives. A 97-mod list fits in a Discord message,
+      and a test checks that it stays under 2000 characters.
+    - A mod installed by hand travels by name alone.
+    - The sharer's name is asked once and kept (AppSettings.ShareName).
+  - **A shared folder**, such as a Dropbox, OneDrive or Google Drive folder, or a network share.
+    - The owner picks a folder, and the list's file is kept up to date there from then on. It is
+      rewritten whenever the list changes, and the revision goes up only when the mods change.
+    - The friend picks that file with "Follow a shared file" (AppSettings.SharedFiles and
+      FollowedFiles).
+- **Seeing what changed.** When a newer code is pasted, or a followed file has changed, a notice
+  says exactly what changed, for example "1 added (Amands' Sense - Updated) · 1 removed (All
+  Quests Checkmarks)". It offers Sync or Later.
+  - Sync opens the preview with "Match the pack exactly" (Exclusive), so nothing is applied until
+    Apply is pressed.
+  - What counts as news is one rule, ModListDiff.IsNews: a higher revision, or the same revision
+    with different mods.
+  - Names, GUIDs and folders are not counted as changes.
+- **A code on the clipboard** is noticed when the window gets focus. It is offered once, with Add
+  or Not now, and is not offered again once dismissed.
+- **Arrivals that clash** are asked about:
+  - Your own list arriving back is added as a copy.
+  - An older revision than the one already held gives "Keep mine" or "Use the older one".
+- **Subscribe to all on a friend's pack** makes Overwrite the green default, matching the choice
+  "Match the pack exactly".
+- **Strings and Help:** 79 new strings. Help has a new topic, "Follow a friend's collection", and 11
+  Help lines were changed. Their translations fall back to English until translated.
+- **Tests:** 12 new (share code round trip, a cut-off or newer code, a code found inside a chat
+  message, the size limit, and the diff rules). 1574 pass.
+
+Checked under Wine:
+
+- The grid's statuses and chips.
+- Copying a code from the Share dialog. The code decodes outside the app.
+- The clipboard notice and Add.
+- An updated code showed the change line above. Sync opened the preview ("3 missing · 7 to
+  disable", revision 2).
+- The shared folder file was written with the sharer's name. An edit by the owner raised it to
+  revision 2.
+- Following that file through the file dialog read revision 3. The owner's revision 4 brought up
+  the update notice and the Update and Following chips, and Sync stored revision 4.
+- Create from installed mods showed "All installed".
+- Add from code was prefilled from the clipboard. An older code gave the "Keep mine" choice.
+- The breadcrumb came back to the grid, and Manage opened "Manage collections" with the
+  Collections tab lit.
+
 ## Values that could not be measured (marked HUNCH in the source)
 
 - The smooth-scroll distance and time (100px, 250ms) - chosen to feel like a browser, not measured.
@@ -1317,6 +1380,15 @@ Checked under Wine:
   and bars in its client and has no checklist, so there was nothing to measure.
 - Ctrl+click and Shift+click picking as in Steam's library: from how Steam behaves, not checked
   against a Steam client here.
+- Your collections (round 30). Steam's own page needs a login, so the grid was not measured
+  against it. These values were chosen, not measured:
+  - two columns;
+  - 152px cards with a 2x2 mosaic;
+  - the chip colours: Update blue, Shared and Following grey, and From server;
+  - the look of the clipboard and update notices.
+- That cloud-sync folders (Dropbox, OneDrive, Google Drive) deliver the shared file promptly and
+  whole. Only a plain local folder was tested here. A file caught mid-sync reads as damaged and
+  is ignored until the next check, but that was not seen happen.
 - Critical/error red (`#E05A5A`): no error state on the pages measured.
 - Outlined "View All" hover fill.
 - Whether Steam's file sizes count in 1000s or 1024s ("22.946 KB" reads as 1000s).

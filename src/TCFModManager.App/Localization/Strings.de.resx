@@ -4754,20 +4754,11 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   <data name="Help_ModLists_Capture_Step1" xml:space="preserve">
     <value>Öffne {0}.</value>
   </data>
-  <data name="Help_ModLists_Capture_Step2" xml:space="preserve">
-    <value>Gib unter {0} einen Namen ein und klicke auf {1}.</value>
-  </data>
   <data name="Help_ModLists_Capture_Note" xml:space="preserve">
     <value>Die Liste hält jeden aktivierten Mod in der Version fest, die du hast. Auf der Festplatte ändert sich nichts.</value>
   </data>
   <data name="Help_ModLists_Apply_Title" xml:space="preserve">
     <value>Zu einer anderen Liste wechseln</value>
-  </data>
-  <data name="Help_ModLists_Apply_Step1" xml:space="preserve">
-    <value>Wähle unter {0} die Liste unter {1}.</value>
-  </data>
-  <data name="Help_ModLists_Apply_Step2" xml:space="preserve">
-    <value>Klicke auf {0}, um zu sehen, was sich ändern würde. Noch wird nichts verschoben.</value>
   </data>
   <data name="Help_ModLists_Apply_Step3" xml:space="preserve">
     <value>Schließ das Spiel und den Server und klicke dann auf {0}.</value>
@@ -4787,9 +4778,6 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   <data name="Help_ModLists_Edit_Title" xml:space="preserve">
     <value>Ändern, was auf einer Liste steht</value>
   </data>
-  <data name="Help_ModLists_Edit_Step1" xml:space="preserve">
-    <value>Wähle die Liste unter {0}. Klicke auf {1}, um Mods hinzuzufügen, oder auf das X einer Zeile, um einen zu entfernen.</value>
-  </data>
   <data name="Help_ModLists_Edit_Step2" xml:space="preserve">
     <value>Klicke auf {0}. Nur die Liste ändert sich - nichts wird installiert oder verschoben.</value>
   </data>
@@ -4798,21 +4786,6 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   </data>
   <data name="Help_ModLists_Edit_Note" xml:space="preserve">
     <value>Eine importierte Liste oder eine, die dir ein Server geschickt hat, ist schreibgeschützt - klicke auf {0}, um eine änderbare zu bekommen.</value>
-  </data>
-  <data name="Help_ModLists_Share_Title" xml:space="preserve">
-    <value>Eine Liste mit einem Freund teilen</value>
-  </data>
-  <data name="Help_ModLists_Share_Step1" xml:space="preserve">
-    <value>Wähle die Liste unter {0}, klicke auf {1} und speichere die Datei.</value>
-  </data>
-  <data name="Help_ModLists_Share_Step2" xml:space="preserve">
-    <value>Schick die Datei, wie du willst. Dein Freund klickt unter {1} auf {0} und wählt sie aus.</value>
-  </data>
-  <data name="Help_ModLists_Share_Step3" xml:space="preserve">
-    <value>Er klickt auf {0} und dann auf {1}. Seine App lädt jeden Mod selbst von sp-mod.com herunter.</value>
-  </data>
-  <data name="Help_ModLists_Share_Note" xml:space="preserve">
-    <value>Die Datei nennt Mods und Versionen, nie die Moddateien selbst, und ist daher winzig.</value>
   </data>
   <data name="Help_ModLists_Server_Title" xml:space="preserve">
     <value>Die Mods bekommen, die ein Server nutzt</value>
@@ -4834,9 +4807,6 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   </data>
   <data name="Help_ModLists_Undo_Title" xml:space="preserve">
     <value>Nach dem Anwenden einer Liste alles zurücksetzen</value>
-  </data>
-  <data name="Help_ModLists_Undo_Step1" xml:space="preserve">
-    <value>Klicke unter {0} auf {1}.</value>
   </data>
   <data name="Help_ModLists_Undo_Step2" xml:space="preserve">
     <value>Jeder Mod kommt zurück in den Zustand vor dem letzten Anwenden. Wendest du eine andere Liste an, ersetzt das dieses Rückgängig.</value>
@@ -5320,9 +5290,6 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   </data>
   <data name="Help_ModLists_Edit_Keywords" xml:space="preserve">
     <value>bearbeiten, ändern, Mods hinzufügen, von Liste entfernen</value>
-  </data>
-  <data name="Help_ModLists_Share_Keywords" xml:space="preserve">
-    <value>teilen, exportieren, importieren, schicken, Freund, Datei</value>
   </data>
   <data name="Help_ModLists_Server_Keywords" xml:space="preserve">
     <value>Server, abgleichen, gleiche Mods, Freunde, Mehrspieler</value>

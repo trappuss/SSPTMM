@@ -4754,20 +4754,11 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
   <data name="Help_ModLists_Capture_Step1" xml:space="preserve">
     <value>Ouvrez {0}.</value>
   </data>
-  <data name="Help_ModLists_Capture_Step2" xml:space="preserve">
-    <value>Sous {0}, tapez un nom et cliquez sur {1}.</value>
-  </data>
   <data name="Help_ModLists_Capture_Note" xml:space="preserve">
     <value>La liste enregistre chaque mod activé dans la version que vous avez. Rien ne change sur le disque.</value>
   </data>
   <data name="Help_ModLists_Apply_Title" xml:space="preserve">
     <value>Passer à une autre liste</value>
-  </data>
-  <data name="Help_ModLists_Apply_Step1" xml:space="preserve">
-    <value>Dans {0}, choisissez la liste sous {1}.</value>
-  </data>
-  <data name="Help_ModLists_Apply_Step2" xml:space="preserve">
-    <value>Cliquez sur {0} pour voir ce qui changerait. Rien ne bouge encore.</value>
   </data>
   <data name="Help_ModLists_Apply_Step3" xml:space="preserve">
     <value>Fermez le jeu et le serveur, puis cliquez sur {0}.</value>
@@ -4787,9 +4778,6 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
   <data name="Help_ModLists_Edit_Title" xml:space="preserve">
     <value>Modifier le contenu d'une liste</value>
   </data>
-  <data name="Help_ModLists_Edit_Step1" xml:space="preserve">
-    <value>Choisissez la liste dans {0}. Cliquez sur {1} pour ajouter des mods, ou sur le X d'une ligne pour en retirer un.</value>
-  </data>
   <data name="Help_ModLists_Edit_Step2" xml:space="preserve">
     <value>Cliquez sur {0}. Seule la liste change - rien n'est installé ni déplacé.</value>
   </data>
@@ -4798,21 +4786,6 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
   </data>
   <data name="Help_ModLists_Edit_Note" xml:space="preserve">
     <value>Une liste importée, ou envoyée par un serveur, est en lecture seule - cliquez sur {0} pour en avoir une modifiable.</value>
-  </data>
-  <data name="Help_ModLists_Share_Title" xml:space="preserve">
-    <value>Partager une liste avec un ami</value>
-  </data>
-  <data name="Help_ModLists_Share_Step1" xml:space="preserve">
-    <value>Choisissez la liste dans {0}, cliquez sur {1} et enregistrez le fichier.</value>
-  </data>
-  <data name="Help_ModLists_Share_Step2" xml:space="preserve">
-    <value>Envoyez le fichier comme vous voulez. Votre ami clique sur {0} dans {1} et le sélectionne.</value>
-  </data>
-  <data name="Help_ModLists_Share_Step3" xml:space="preserve">
-    <value>Il clique sur {0}, puis sur {1}. Son application télécharge elle-même chaque mod depuis sp-mod.com.</value>
-  </data>
-  <data name="Help_ModLists_Share_Note" xml:space="preserve">
-    <value>Le fichier nomme des mods et des versions, jamais les fichiers des mods, il est donc minuscule.</value>
   </data>
   <data name="Help_ModLists_Server_Title" xml:space="preserve">
     <value>Récupérer les mods d'un serveur</value>
@@ -4834,9 +4807,6 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
   </data>
   <data name="Help_ModLists_Undo_Title" xml:space="preserve">
     <value>Tout remettre après avoir appliqué une liste</value>
-  </data>
-  <data name="Help_ModLists_Undo_Step1" xml:space="preserve">
-    <value>Dans {0}, cliquez sur {1}.</value>
   </data>
   <data name="Help_ModLists_Undo_Step2" xml:space="preserve">
     <value>Chaque mod revient à son état d'avant la dernière application. Appliquer une autre liste remplace cette annulation.</value>
@@ -5320,9 +5290,6 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
   </data>
   <data name="Help_ModLists_Edit_Keywords" xml:space="preserve">
     <value>modifier, changer, ajouter des mods, retirer de la liste</value>
-  </data>
-  <data name="Help_ModLists_Share_Keywords" xml:space="preserve">
-    <value>partager, exporter, importer, envoyer, ami, fichier</value>
   </data>
   <data name="Help_ModLists_Server_Keywords" xml:space="preserve">
     <value>serveur, synchroniser, mêmes mods, amis, multijoueur</value>

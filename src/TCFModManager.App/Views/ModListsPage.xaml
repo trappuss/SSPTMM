@@ -186,7 +186,7 @@
             Margin="0,0,0,16"
             FontSize="18"
             Foreground="{StaticResource SteamTextBright}"
-            Text="{loc:Str Workshop_YourCollections}" />
+            Text="{loc:Str Collections_ManageTitle}" />
 
         <Grid Grid.Row="1" Grid.Column="0">
             <Grid.RowDefinitions>

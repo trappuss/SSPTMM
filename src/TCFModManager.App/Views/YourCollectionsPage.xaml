@@ -1,0 +1,223 @@
+<!--
+    Fork (SSPTMM, UI tidy-up 5): the Collections tab's front page - your collections as Steam's
+    "Your Collections" lists them, each a card that opens its Steam collection page. Making, adding
+    and following collections are along the top; what your friends have changed shows above the
+    grid until synced or put off.
+
+    The cards are Browse > Collections' (283px wide, 152px tall, Steam's radial card face, the lift
+    and glow under the pointer), so a collection of yours and one from sp-mod.com read as one kind of
+    thing. HUNCH: the 2x2 mosaic standing in for a cover (a collection of yours has none) and the
+    chips under it - Steam's collection list has no such state to measure.
+-->
+<Page
+    x:Class="TCFModManager.App.Views.YourCollectionsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:converters="clr-namespace:TCFModManager.App.Converters"
+    xmlns:behaviors="clr-namespace:TCFModManager.App.Behaviors"
+    xmlns:loc="clr-namespace:TCFModManager.App.Localization"
+    Title="{loc:Str Workshop_YourCollections}"
+    ScrollViewer.CanContentScroll="False"
+    Loaded="Page_Loaded"
+    Unloaded="Page_Unloaded">
+    <Page.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+        <converters:FalseToVisibilityConverter x:Key="FalseToVisible" />
+        <converters:NullToVisibilityConverter x:Key="NullToCollapsed" />
+
+        <RadialGradientBrush x:Key="CardFace" Center="0.17,0.35" GradientOrigin="0.17,0.35" RadiusX="0.62" RadiusY="0.99">
+            <GradientStop Offset="0" Color="#3C4149" />
+            <GradientStop Offset="1" Color="#1B1D21" />
+        </RadialGradientBrush>
+
+        <!-- A small chip under a card: shared, followed, an update waiting. -->
+        <Style x:Key="TileChip" TargetType="Border">
+            <Setter Property="Margin" Value="0,0,6,0" />
+            <Setter Property="Padding" Value="6,1" />
+            <Setter Property="CornerRadius" Value="2" />
+            <Setter Property="Background" Value="#3D4450" />
+        </Style>
+
+        <!-- A notice above the grid: a code on the clipboard, a friend's update. -->
+        <Style x:Key="Notice" TargetType="Border">
+            <Setter Property="Margin" Value="0,0,0,10" />
+            <Setter Property="Padding" Value="14,10" />
+            <Setter Property="Background" Value="#66000000" />
+            <Setter Property="BorderBrush" Value="{StaticResource SteamBlue}" />
+            <Setter Property="BorderThickness" Value="3,0,0,0" />
+            <Setter Property="CornerRadius" Value="2" />
+        </Style>
+    </Page.Resources>
+
+    <ScrollViewer FocusVisualStyle="{x:Null}" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="24,16,24,24">
+            <!-- Title, and what can be done from here: Steam's Create Collection, and ways in. -->
+            <DockPanel Margin="0,0,0,16">
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Top">
+                    <Button Margin="8,0,0,0" Style="{StaticResource SteamButton}" Content="{loc:Str Sharing_AddFromCode}" ToolTip="{loc:Str Sharing_AddFromCodeToolTip}" Command="{Binding AddFromCodeCommand}" />
+                    <Button Margin="8,0,0,0" Style="{StaticResource SteamButton}" Content="{loc:Str Sharing_AddFromFile}" ToolTip="{loc:Str Sharing_AddFromFileToolTip}" Command="{Binding AddFromFileCommand}" />
+                    <Button Margin="8,0,0,0" Style="{StaticResource SteamButton}" Content="{loc:Str Sharing_Follow}" ToolTip="{loc:Str Sharing_FollowToolTip}" Command="{Binding FollowCommand}" />
+                    <Button Margin="8,0,0,0" Style="{StaticResource SteamBlueButton}" Content="{loc:Str Collections_Create}" ToolTip="{loc:Str Collections_CreateToolTip}" Command="{Binding CreateCommand}" />
+                </StackPanel>
+                <StackPanel>
+                    <TextBlock FontSize="18" Foreground="{StaticResource SteamTextBright}" Text="{loc:Str Workshop_YourCollections}" />
+                    <TextBlock Margin="0,2,0,0" FontSize="14" TextWrapping="Wrap" Foreground="{StaticResource SteamText}" Text="{Binding Message}" Visibility="{Binding Message, Converter={StaticResource NullToCollapsed}}" />
+                </StackPanel>
+            </DockPanel>
+
+            <!-- A share code on the clipboard, copied from a chat a moment ago. -->
+            <Border Style="{StaticResource Notice}" Visibility="{Binding Offer, Converter={StaticResource NullToCollapsed}}">
+                <DockPanel>
+                    <Button DockPanel.Dock="Right" Margin="8,0,0,0" Style="{StaticResource SteamButton}" Content="{loc:Str Sharing_Dismiss}" Command="{Binding DismissClipboardCommand}" />
+                    <Button DockPanel.Dock="Right" Margin="8,0,0,0" Style="{StaticResource SteamGreenButton}" Content="{loc:Str Sharing_Add}" Command="{Binding AcceptClipboardCommand}" />
+                    <TextBlock VerticalAlignment="Center" FontSize="14" TextWrapping="Wrap" Foreground="#DCDEDF" Text="{Binding Offer.Text}" />
+                </DockPanel>
+            </Border>
+
+            <!-- A followed collection a friend has changed. -->
+            <ItemsControl Focusable="False" ItemsSource="{Binding Updates}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource Notice}">
+                            <DockPanel>
+                                <Button DockPanel.Dock="Right" Margin="8,0,0,0" Style="{StaticResource SteamButton}" Content="{loc:Str Sharing_Later}" Command="{Binding DataContext.LaterCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}" CommandParameter="{Binding}" />
+                                <Button DockPanel.Dock="Right" Margin="8,0,0,0" Style="{StaticResource SteamGreenButton}" Content="{loc:Str Sharing_SyncNow}" ToolTip="{loc:Str Sharing_SyncToolTip}" Command="{Binding DataContext.SyncUpdateCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}" CommandParameter="{Binding}" />
+                                <TextBlock VerticalAlignment="Center" FontSize="14" TextWrapping="Wrap" Foreground="#DCDEDF" Text="{Binding Text}" />
+                            </DockPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <!-- None yet. -->
+            <StackPanel Margin="0,40,0,0" MaxWidth="560" HorizontalAlignment="Center" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVis}}">
+                <TextBlock HorizontalAlignment="Center" FontSize="20" Foreground="{StaticResource SteamTextBright}" Text="{loc:Str Collections_EmptyTitle}" />
+                <TextBlock Margin="0,10,0,0" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" FontSize="14" Foreground="{StaticResource SteamText}" Text="{loc:Str Collections_EmptyBody}" />
+            </StackPanel>
+
+            <!-- The collections: Browse > Collections' cards. -->
+            <ItemsControl Focusable="False" ItemsSource="{Binding Collections}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Columns="2" VerticalAlignment="Top" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid
+                            x:Name="CardRoot"
+                            Height="152"
+                            Margin="0,0,16,16"
+                            VerticalAlignment="Top"
+                            Background="Transparent"
+                            Cursor="Hand"
+                            MouseLeftButtonUp="Card_MouseLeftButtonUp">
+                            <Grid.RenderTransform>
+                                <TranslateTransform Y="0" />
+                            </Grid.RenderTransform>
+
+                            <Border x:Name="Shadow" Background="#1B1D21">
+                                <Border.Effect>
+                                    <DropShadowEffect BlurRadius="10" Direction="315" Opacity="0.58" ShadowDepth="1.4" Color="Black" />
+                                </Border.Effect>
+                            </Border>
+                            <Border x:Name="Glow" Background="#1B1D21" Visibility="Hidden">
+                                <Border.Effect>
+                                    <DropShadowEffect BlurRadius="10" Direction="315" Opacity="0.25" ShadowDepth="1.4" Color="White" />
+                                </Border.Effect>
+                            </Border>
+
+                            <Grid Background="{StaticResource CardFace}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="152" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Up to four of its mods' pictures, or the list glyph. -->
+                                <Grid Grid.Column="0" Background="#030712">
+                                    <ui:SymbolIcon HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="40" Foreground="#4B5563" Symbol="TextBulletListLtr24" Visibility="{Binding HasPictures, Converter={StaticResource FalseToVisible}}" />
+                                    <ItemsControl Focusable="False" ItemsSource="{Binding Pictures}" Visibility="{Binding HasPictures, Converter={StaticResource BoolToVis}}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <UniformGrid Columns="2" Rows="2" />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid ClipToBounds="True">
+                                                    <Image Stretch="UniformToFill" behaviors:ThumbnailLoader.DecodeWidth="76" behaviors:ThumbnailLoader.Source="{Binding}" />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </Grid>
+
+                                <DockPanel Grid.Column="1" Margin="10">
+                                    <DockPanel DockPanel.Dock="Top">
+                                        <!-- Where Steam's stars are: the SPT version it was made for. -->
+                                        <Border x:Name="Spt" Margin="8,2,0,0" Padding="6,1" VerticalAlignment="Top" Background="#3D4450" CornerRadius="2" DockPanel.Dock="Right" Visibility="{Binding SptVersion, Converter={StaticResource NullToCollapsed}}">
+                                            <TextBlock x:Name="SptText" FontSize="12" Foreground="#ACB2B8" Text="{Binding SptVersion}" />
+                                        </Border>
+                                        <TextBlock FontSize="16.7" Foreground="White" TextTrimming="CharacterEllipsis" Text="{Binding Title}" ToolTip="{Binding Title}" />
+                                    </DockPanel>
+                                    <TextBlock DockPanel.Dock="Top" FontSize="12" Foreground="#A2FFFFFF" TextTrimming="CharacterEllipsis" Text="{Binding ByText}" Visibility="{Binding ByText, Converter={StaticResource NullToCollapsed}}" />
+
+                                    <DockPanel DockPanel.Dock="Bottom">
+                                        <TextBlock FontSize="12" Foreground="#636B74" Text="{Binding ItemsText}" />
+                                    </DockPanel>
+
+                                    <StackPanel Margin="0,8,0,0">
+                                        <!-- How much of it your game has. -->
+                                        <TextBlock x:Name="Status" FontSize="13" Foreground="#ACB2B8" Text="{Binding StatusText}" />
+                                        <WrapPanel Margin="0,6,0,0">
+                                            <Border Style="{StaticResource TileChip}" Background="#5C7E10" Visibility="{Binding HasUpdate, Converter={StaticResource BoolToVis}}">
+                                                <TextBlock FontSize="11" Foreground="#D2E885" Text="{loc:Str Collections_ChipUpdate}" />
+                                            </Border>
+                                            <Border Style="{StaticResource TileChip}" Visibility="{Binding IsShared, Converter={StaticResource BoolToVis}}" ToolTip="{loc:Str Collections_ChipSharedToolTip}">
+                                                <TextBlock FontSize="11" Foreground="#66C0F4" Text="{loc:Str Collections_ChipShared}" />
+                                            </Border>
+                                            <Border Style="{StaticResource TileChip}" Visibility="{Binding IsFollowed, Converter={StaticResource BoolToVis}}" ToolTip="{loc:Str Collections_ChipFollowedToolTip}">
+                                                <TextBlock FontSize="11" Foreground="#66C0F4" Text="{loc:Str Collections_ChipFollowed}" />
+                                            </Border>
+                                            <Border Style="{StaticResource TileChip}" Visibility="{Binding IsFromServer, Converter={StaticResource BoolToVis}}">
+                                                <TextBlock FontSize="11" Foreground="#ACB2B8" Text="{loc:Str ModLists_FromServerBadge}" />
+                                            </Border>
+                                        </WrapPanel>
+                                    </StackPanel>
+                                </DockPanel>
+                            </Grid>
+                        </Grid>
+                        <DataTemplate.Triggers>
+                            <Trigger SourceName="CardRoot" Property="IsMouseOver" Value="True">
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="CardRoot" Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)" To="-5" Duration="0:0:0.15" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="CardRoot" Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)" To="0" Duration="0:0:0.15" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                                <Setter TargetName="Shadow" Property="Visibility" Value="Hidden" />
+                                <Setter TargetName="Glow" Property="Visibility" Value="Visible" />
+                            </Trigger>
+                            <DataTrigger Binding="{Binding IsForInstalledSpt}" Value="True">
+                                <Setter TargetName="Spt" Property="Background" Value="{StaticResource SteamGreenInner}" />
+                                <Setter TargetName="SptText" Property="Foreground" Value="#D2E885" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsComplete}" Value="True">
+                                <Setter TargetName="Status" Property="Foreground" Value="#A4D007" />
+                            </DataTrigger>
+                        </DataTemplate.Triggers>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

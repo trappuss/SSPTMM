@@ -189,19 +189,20 @@ internal static class HelpCatalog
                 .WithKeywords(() => Strings.Help_Installed_SortOut_Keywords),
         ]),
 
-        new("modlists", () => Strings.Nav_ModLists, SymbolRegular.AppsList24, typeof(ModListsPage),
+        // Fork: Collections opens Your collections; the Manage page under it is the same section (SectionIdFor).
+        new("modlists", () => Strings.Nav_ModLists, SymbolRegular.AppsList24, typeof(YourCollectionsPage),
         [
             Topic("modlists.capture", () => Strings.Help_ModLists_Capture_Title,
                 Step(() => Strings.Help_ModLists_Capture_Step1, () => Strings.Nav_ModLists),
-                Step(() => Strings.Help_ModLists_Capture_Step2,
-                    () => Strings.ModLists_CaptureHeader, () => Strings.ModLists_Capture))
+                Step(() => Strings.Help_ModLists_Capture_Step2, () => Strings.Collections_Create))
                 .WithNote(() => Strings.Help_ModLists_Capture_Note)
                 .WithKeywords(() => Strings.Help_ModLists_Capture_Keywords),
 
             Topic("modlists.apply", () => Strings.Help_ModLists_Apply_Title,
                 Step(() => Strings.Help_ModLists_Apply_Step1,
-                    () => Strings.Nav_ModLists, () => Strings.ModLists_SavedHeader),
-                Step(() => Strings.Help_ModLists_Apply_Step2, () => Strings.ModLists_Preview),
+                    () => Strings.Nav_ModLists, () => Strings.Collection_SubscribeAll),
+                Step(() => Strings.Help_ModLists_Apply_Step2,
+                    () => Strings.Collection_AddOnly, () => Strings.Collection_Overwrite),
                 Step(() => Strings.Help_ModLists_Apply_Step3, () => Strings.ModLists_Apply))
                 .WithNote(ByMode(() => Strings.Help_ModLists_Apply_Note, () => Strings.Help_ModLists_Apply_Note_Monitor))
                 .WithKeywords(() => Strings.Help_ModLists_Apply_Keywords),
@@ -215,7 +216,7 @@ internal static class HelpCatalog
 
             Topic("modlists.edit", () => Strings.Help_ModLists_Edit_Title,
                 Step(() => Strings.Help_ModLists_Edit_Step1,
-                    () => Strings.Nav_ModLists, () => Strings.ModLists_AddMods),
+                    () => Strings.Nav_ModLists, () => Strings.Collection_Manage, () => Strings.ModLists_AddMods),
                 Step(() => Strings.Help_ModLists_Edit_Step2, () => Strings.Common_Save),
                 Step(() => Strings.Help_ModLists_Edit_Step3, () => Strings.ModLists_Apply))
                 .WithNote(() => Strings.Help_ModLists_Edit_Note, () => Strings.ModLists_MakeCopy)
@@ -223,13 +224,20 @@ internal static class HelpCatalog
 
             Topic("modlists.share", () => Strings.Help_ModLists_Share_Title,
                 Step(() => Strings.Help_ModLists_Share_Step1,
-                    () => Strings.Nav_ModLists, () => Strings.ModLists_Export),
+                    () => Strings.Nav_ModLists, () => Strings.Sharing_ShareWithFriends),
                 Step(() => Strings.Help_ModLists_Share_Step2,
-                    () => Strings.ModLists_Import, () => Strings.Nav_ModLists),
-                Step(() => Strings.Help_ModLists_Share_Step3,
-                    () => Strings.ModLists_Preview, () => Strings.ModLists_Apply))
+                    () => Strings.Sharing_CopyCode, () => Strings.Sharing_AddFromCode, () => Strings.Nav_ModLists),
+                Step(() => Strings.Help_ModLists_Share_Step3, () => Strings.Collection_SubscribeAll))
                 .WithNote(() => Strings.Help_ModLists_Share_Note)
                 .WithKeywords(() => Strings.Help_ModLists_Share_Keywords),
+
+            Topic("modlists.follow", () => Strings.Help_ModLists_Follow_Title,
+                Step(() => Strings.Help_ModLists_Follow_Step1,
+                    () => Strings.Nav_ModLists, () => Strings.Sharing_ShareWithFriends, () => Strings.Sharing_ChooseFolder),
+                Step(() => Strings.Help_ModLists_Follow_Step2, () => Strings.Sharing_Follow, () => Strings.Nav_ModLists),
+                Step(() => Strings.Help_ModLists_Follow_Step3, () => Strings.Nav_ModLists, () => Strings.Sharing_SyncNow))
+                .WithNote(() => Strings.Help_ModLists_Follow_Note)
+                .WithKeywords(() => Strings.Help_ModLists_Follow_Keywords),
 
             Topic("modlists.server", () => Strings.Help_ModLists_Server_Title,
                 Step(() => Strings.Help_ModLists_Server_Step1,
@@ -247,6 +255,7 @@ internal static class HelpCatalog
             Topic("modlists.undo", () => Strings.Help_ModLists_Undo_Title,
                 Step(() => Strings.Help_ModLists_Undo_Step1,
                     () => Strings.Nav_ModLists,
+                    () => Strings.Collection_Manage,
                     () => LocalizationService.Text(Strings.ModLists_UndoLabelFormat, "…")),
                 Step(() => Strings.Help_ModLists_Undo_Step2))
                 .WithKeywords(() => Strings.Help_ModLists_Undo_Keywords),
@@ -540,8 +549,12 @@ internal static class HelpCatalog
     public static string IssuesUrl => SelfMod.IssuesUrl;
 
     // The section the "?" opens for a page: its own, or Getting started for a page that has none.
-    public static string SectionIdFor(Type? pageType) =>
-        Sections.FirstOrDefault(s => pageType is not null && s.PageType == pageType)?.Id ?? StartSectionId;
+    public static string SectionIdFor(Type? pageType)
+    {
+        // Fork: a collection's Manage page is Collections' too.
+        if (pageType == typeof(ModListsPage)) pageType = typeof(YourCollectionsPage);
+        return Sections.FirstOrDefault(s => pageType is not null && s.PageType == pageType)?.Id ?? StartSectionId;
+    }
 
     //
     // A string that reads differently in Monitor mode (R6), so an install step describes the buttons
