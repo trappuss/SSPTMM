@@ -35,6 +35,10 @@ public sealed class AppSettings
     // or a crash (the App's GameCloser). Off unless ticked on the Play page.
     public bool CloseGameWithServer { get; set; }
 
+    // Fork (SSPTMM): mod tools hidden from the Play page, by ModTool.Key (the .exe's install-relative
+    // path, lowercased). See ModTools.
+    public List<string> HiddenModTools { get; set; } = [];
+
     // How long removed mods stay in the install's holding folder before they are deleted (R11, R15).
     public TCFModManager.Core.Services.RemovedModsRetention RemovedModsRetention { get; set; } =
         TCFModManager.Core.Services.RemovedModsRetention.FourteenDays;

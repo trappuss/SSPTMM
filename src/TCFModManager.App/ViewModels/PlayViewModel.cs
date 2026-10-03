@@ -285,6 +285,7 @@ public partial class PlayViewModel : LocalizedViewModel
     {
         Refresh();
         _poll.Start();
+        _ = RefreshToolsAsync(); // Fork: the Mod tools card
     }
 
     public void StopPolling() => _poll.Stop();

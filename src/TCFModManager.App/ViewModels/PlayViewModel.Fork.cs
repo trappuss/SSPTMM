@@ -55,6 +55,8 @@ public partial class PlayViewModel
         _readingCloseGameSetting = true;
         CloseGameWithServer = settings.CloseGameWithServer;
         _readingCloseGameSetting = false;
+
+        UpdateToolStates(); // the Mod tools' notes follow the server
     }
 
     partial void OnCloseGameWithServerChanged(bool value)

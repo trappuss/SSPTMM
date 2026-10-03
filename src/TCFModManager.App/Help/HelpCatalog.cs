@@ -74,6 +74,14 @@ internal static class HelpCatalog
                     () => Strings.Common_ReviewAndInstall, () => Strings.ModLists_Apply))
                 .WithNote(() => Strings.Help_Play_Check_Note)
                 .WithKeywords(() => Strings.Help_Play_Check_Keywords),
+
+            // Fork (SSPTMM): the Mod tools card.
+            Topic("play.tools", () => Strings.Help_Play_Tools_Title,
+                Step(() => Strings.Help_Play_Tools_Step1, () => Strings.Nav_Play, () => Strings.Play_ToolsHeader),
+                Step(() => Strings.Help_Play_Tools_Step2, () => Strings.Play_ToolOpen),
+                Step(() => Strings.Help_Play_Tools_Step3, () => Strings.Play_StartServer))
+                .WithNote(() => Strings.Help_Play_Tools_Note, () => Strings.Play_ToolHide)
+                .WithKeywords(() => Strings.Help_Play_Tools_Keywords),
         ]),
 
         new("browse", () => Strings.Nav_Browse, SymbolRegular.Apps24, typeof(BrowsePage),

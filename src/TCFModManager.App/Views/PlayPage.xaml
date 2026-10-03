@@ -310,6 +310,126 @@
             </StackPanel>
         </ui:Card>
 
+        <!-- Fork: Mod tools - every .exe an installed mod put in the SPT folder, found by itself
+             (ModTools). Shown while there is anything to list, hidden tools included. -->
+        <ui:Card
+            Padding="16"
+            VerticalAlignment="Top"
+            Margin="0,16,0,0"
+            Visibility="{Binding HasTools, Converter={StaticResource BoolToVisibility}}">
+            <StackPanel>
+                <TextBlock
+                    Text="{loc:Str Play_ToolsHeader}"
+                    FontWeight="SemiBold"
+                    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                    Margin="0,0,0,4" />
+                <TextBlock
+                    TextWrapping="Wrap"
+                    Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                    Margin="0,0,0,8">
+                    <Run Text="{loc:Str Play_ToolsSummary}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Play_ToolsDescription}" /></InlineUIContainer>
+                </TextBlock>
+
+                <ItemsControl Focusable="False" ItemsSource="{Binding Tools}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border
+                                x:Name="ToolRow"
+                                Margin="0,0,0,6"
+                                Padding="10,8"
+                                CornerRadius="4"
+                                Background="{DynamicResource ControlFillColorDefaultBrush}">
+                                <DockPanel>
+                                    <!-- Open, the folder, and Hide (or Show on Play while it is hidden). -->
+                                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <ui:Button
+                                            Margin="0,0,6,0"
+                                            Content="{loc:Str Play_StartServer}"
+                                            Icon="{ui:SymbolIcon Play24}"
+                                            Command="{Binding DataContext.StartServerCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                            Visibility="{Binding ShowStartServer, Converter={StaticResource BoolToVisibility}}" />
+                                        <ui:Button
+                                            Appearance="Primary"
+                                            Content="{loc:Str Play_ToolOpen}"
+                                            Icon="{ui:SymbolIcon Open24}"
+                                            ToolTip="{loc:Str Play_ToolOpenToolTip}"
+                                            IsEnabled="{Binding CanOpen}"
+                                            Command="{Binding DataContext.OpenToolCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                            CommandParameter="{Binding}" />
+                                        <ui:Button
+                                            Margin="6,0,0,0"
+                                            Padding="8,6"
+                                            Icon="{ui:SymbolIcon Folder24}"
+                                            ToolTip="{loc:Str Play_ToolFolderToolTip}"
+                                            Command="{Binding DataContext.OpenToolFolderCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                            CommandParameter="{Binding}" />
+                                        <ui:Button
+                                            Margin="6,0,0,0"
+                                            Appearance="Transparent"
+                                            Content="{loc:Str Play_ToolHide}"
+                                            ToolTip="{loc:Str Play_ToolHideToolTip}"
+                                            Command="{Binding DataContext.HideToolCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                            CommandParameter="{Binding}"
+                                            Visibility="{Binding IsHidden, Converter={StaticResource InverseBoolToVisibility}}" />
+                                        <ui:Button
+                                            Margin="6,0,0,0"
+                                            Appearance="Transparent"
+                                            Content="{loc:Str Play_ToolUnhide}"
+                                            Command="{Binding DataContext.UnhideToolCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                            CommandParameter="{Binding}"
+                                            Visibility="{Binding IsHidden, Converter={StaticResource BoolToVisibility}}" />
+                                    </StackPanel>
+
+                                    <!-- The tool's own icon, or a plain tool symbol when it has none. -->
+                                    <Grid Width="32" Height="32" Margin="0,0,10,0" VerticalAlignment="Center">
+                                        <Image Source="{Binding Icon}" Width="32" Height="32" Visibility="{Binding HasIcon, Converter={StaticResource BoolToVisibility}}" />
+                                        <ui:SymbolIcon FontSize="24" Symbol="Wrench24" Visibility="{Binding HasIcon, Converter={StaticResource InverseBoolToVisibility}}" />
+                                    </Grid>
+
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock FontWeight="SemiBold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Text="{Binding Name}" />
+                                        <TextBlock FontSize="12" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="{Binding FromText}" />
+                                        <TextBlock
+                                            x:Name="Note"
+                                            FontSize="12"
+                                            TextWrapping="Wrap"
+                                            Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                            Text="{Binding Note}"
+                                            Visibility="{Binding HasNote, Converter={StaticResource BoolToVisibility}}" />
+                                        <TextBlock
+                                            FontSize="12"
+                                            TextWrapping="Wrap"
+                                            Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                            Text="{Binding DisabledText}"
+                                            Visibility="{Binding DisabledText, Converter={StaticResource NullToCollapsed}}" />
+                                    </StackPanel>
+                                </DockPanel>
+                            </Border>
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding NoteIsCaution}" Value="True">
+                                    <Setter TargetName="Note" Property="Foreground" Value="{DynamicResource SystemFillColorCautionBrush}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding CanOpen}" Value="False">
+                                    <Setter TargetName="ToolRow" Property="Opacity" Value="0.6" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsHidden}" Value="True">
+                                    <Setter TargetName="ToolRow" Property="Opacity" Value="0.6" />
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- Show the hidden ones, or hide them again. -->
+                <ui:Button
+                    Appearance="Transparent"
+                    HorizontalAlignment="Left"
+                    Content="{Binding ShowHiddenToolsText}"
+                    Command="{Binding ToggleHiddenToolsCommand}"
+                    Visibility="{Binding HasHiddenTools, Converter={StaticResource BoolToVisibility}}" />
+            </StackPanel>
+        </ui:Card>
+
         <!-- Only an install running a headless client has this launcher - or has been told in
              Options that it is one - so the card is off the page entirely on every other one
              rather than showing a dead button. -->

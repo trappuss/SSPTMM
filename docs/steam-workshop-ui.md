@@ -1496,6 +1496,45 @@ Later the same day:
   same refusal, and the log now reads "... failed: Close SPT.Server.exe before installing a mod ...
   (ModInstallException: InstallInUse)".
 
+## Round 34: Mod tools on the Play page (2026-10-03)
+
+- **A "Mod tools" card fills itself** with every .exe an installed mod put in the SPT folder
+  (Core's ModTools):
+  - from this app's install records, which covers SVM's Greed.exe in the game folder and give-ui's
+    app inside its server mod;
+  - for a mod installed by hand, from the .exe files inside its own mod folder.
+- **Each row** shows:
+  - the exe's own icon (the shell's, through SHGetFileInfo), its name and "from <mod>";
+  - **Open**, which starts it from its own folder through the shell;
+  - a folder button for the mod's server folder when it has one (SVM's presets), else the exe's
+    folder;
+  - **Hide**.
+- **Server notes for the tools this app knows** (ModTools.Known):
+  - give-ui says "Needs the server running", with Start server beside it while the server is down;
+  - Greed says to use it with the server stopped, in the caution colour while the server is up.
+  - The notes follow the Play page's poll.
+- **A disabled mod's tool is greyed** and can't be opened. That includes Greed.exe, which stays in
+  the game folder: the mod counts as disabled when its files in mod containers are all in the
+  ".disabled" ones.
+- **Hidden tools** are kept by their enabled install-relative path (AppSettings.HiddenModTools). A
+  "Show N hidden tools" link lists them dimmed, with Show on Play.
+- **When the card refreshes:** whenever the Play page is shown, and whenever the installed index
+  changes (installs, removals, moves).
+- **Help:** a new topic, play.tools.
+- **Strings and tests:** 26 new strings; 10 new tests. 1624 pass.
+
+Checked under Wine. The test used two installs from file, shaped like SVM 2.2.3 (Greed.exe at the
+root) and give-ui 5.0.0 (the exe in its server mod folder), with Wine's notepad.exe standing in for
+both tools:
+
+- Both rows appeared with their icons and notes.
+- Open on Greed started it, and the page said "Opened Greed."
+- A stand-in server running inside the install switched the notes over.
+- Hide wrote the key and showed the "Show 1 hidden tool" link. The link showed the tool dimmed with
+  Show on Play, which brought it back.
+- Greed's folder button opened `[SVM] Server Value Modifier`.
+- Disabling TestSVM greyed Greed, with "TestSVM-2.2.3 is disabled, so this can't be opened."
+
 ## Values that could not be measured (marked HUNCH in the source)
 
 - The smooth-scroll distance and time (100px, 250ms) - chosen to feel like a browser, not measured.
@@ -1541,6 +1580,12 @@ Later the same day:
     started without graphics, but this was not checked against a real one.
   - **Whether real Tarkov closes within 5 seconds when asked:** only a stand-in was closed here. A
     game that is still open after that is killed.
+- Mod tools (round 34):
+  - **Greed (SVM) wants the server stopped:** taken from its built-in help as read in the
+    2026-10-03 research, not run here.
+  - **give-ui wants it running:** from its sp-mod.com page.
+  - **The real tools:** neither real tool was launched here; Wine's notepad stood in.
+  - **The card's look** (row tint, 32px icon, button order): chosen, since Steam has no such card.
 - That cloud-sync folders (Dropbox, OneDrive, Google Drive) deliver the shared file promptly and
   whole. Only a plain local folder was tested here. A file caught mid-sync reads as damaged and
   is ignored until the next check, but that was not seen happen.

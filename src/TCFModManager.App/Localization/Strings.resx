@@ -9676,4 +9676,108 @@ Download them anyway? Once installed, SPT may refuse to load them. No downloads 
     <value>The archive also has files for SPT's user folder outside user\mods and user\patchers. Only SPT should change those, so they weren't installed - if the mod needs them, read its page:</value>
     <comment>Warning on a finished install's download card, followed by one file path per line.</comment>
   </data>
+  <data name="Play_ToolsHeader" xml:space="preserve">
+    <value>Mod tools</value>
+    <comment>Play page card listing the programs (.exe) installed mods put in the SPT folder.</comment>
+  </data>
+  <data name="Play_ToolsSummary" xml:space="preserve">
+    <value>Programs your mods installed - open them from here.</value>
+    <comment>One-line summary under Play_ToolsHeader.</comment>
+  </data>
+  <data name="Play_ToolsDescription" xml:space="preserve">
+    <value>Every .exe a mod put in the SPT folder is listed here by itself - from what this app installed, and from the folders of mods you installed by hand. A tool whose mod is disabled is greyed out. Hide anything that isn't meant to be opened; it can always be shown again.</value>
+    <comment>Behind the ? beside Play_ToolsSummary.</comment>
+  </data>
+  <data name="Play_ToolFromFormat" xml:space="preserve">
+    <value>from {0}</value>
+    <comment>{0} the mod's name, under a tool's name on the Play page.</comment>
+  </data>
+  <data name="Play_ToolOpen" xml:space="preserve">
+    <value>Open</value>
+    <comment>Button on a mod tool's row: starts the tool.</comment>
+  </data>
+  <data name="Play_ToolOpenToolTip" xml:space="preserve">
+    <value>Start this tool from its own folder</value>
+    <comment>Tooltip on Play_ToolOpen.</comment>
+  </data>
+  <data name="Play_ToolFolderToolTip" xml:space="preserve">
+    <value>Open the mod's folder</value>
+    <comment>Tooltip on the folder button of a mod tool's row.</comment>
+  </data>
+  <data name="Play_ToolHide" xml:space="preserve">
+    <value>Hide</value>
+    <comment>Button on a mod tool's row: takes it off the Play page.</comment>
+  </data>
+  <data name="Play_ToolHideToolTip" xml:space="preserve">
+    <value>Take this off the Play page. It can be shown again from the link under the list.</value>
+    <comment>Tooltip on Play_ToolHide.</comment>
+  </data>
+  <data name="Play_ToolUnhide" xml:space="preserve">
+    <value>Show on Play</value>
+    <comment>Button on a hidden mod tool's row, while hidden tools are shown: puts it back.</comment>
+  </data>
+  <data name="Play_ToolsShowHidden_one" xml:space="preserve">
+    <value>Show {0} hidden tool</value>
+    <comment>Link under the Mod tools list. {0} the count.</comment>
+  </data>
+  <data name="Play_ToolsShowHidden_other" xml:space="preserve">
+    <value>Show {0} hidden tools</value>
+    <comment>Link under the Mod tools list. {0} the count.</comment>
+  </data>
+  <data name="Play_ToolsHideHidden" xml:space="preserve">
+    <value>Hide them again</value>
+    <comment>Link under the Mod tools list while hidden tools are shown.</comment>
+  </data>
+  <data name="Play_ToolNeedsServerRunning" xml:space="preserve">
+    <value>Needs the server running.</value>
+    <comment>Note on a tool that talks to the running SPT server (give-ui), while it is running.</comment>
+  </data>
+  <data name="Play_ToolNeedsServerRunningDown" xml:space="preserve">
+    <value>Needs the server running - it isn't.</value>
+    <comment>As Play_ToolNeedsServerRunning, while the server is down. A Start server button follows.</comment>
+  </data>
+  <data name="Play_ToolNeedsServerStopped" xml:space="preserve">
+    <value>Use it with the server stopped - changes apply when it next starts.</value>
+    <comment>Note on a tool that changes what the server reads at start (SVM's Greed), while the server is down.</comment>
+  </data>
+  <data name="Play_ToolNeedsServerStoppedUp" xml:space="preserve">
+    <value>The server is running - stop it first. Changes apply when it next starts.</value>
+    <comment>As Play_ToolNeedsServerStopped, while the server is running.</comment>
+  </data>
+  <data name="Play_ToolModDisabledFormat" xml:space="preserve">
+    <value>{0} is disabled, so this can't be opened.</value>
+    <comment>{0} the mod's name. On a disabled mod's tool row.</comment>
+  </data>
+  <data name="Play_ToolOpenedFormat" xml:space="preserve">
+    <value>Opened {0}.</value>
+    <comment>{0} the tool's name. Play page message.</comment>
+  </data>
+  <data name="Play_ToolOpenFailedFormat" xml:space="preserve">
+    <value>Couldn't open {0}: {1}</value>
+    <comment>{0} a tool or folder, {1} the reason Windows gave. Play page message.</comment>
+  </data>
+  <data name="Help_Play_Tools_Title" xml:space="preserve">
+    <value>Open a program a mod installed</value>
+    <comment>Help, play.tools: title.</comment>
+  </data>
+  <data name="Help_Play_Tools_Step1" xml:space="preserve">
+    <value>On {0}, the {1} card lists every program a mod put in the SPT folder - SVM's Greed, give-ui and the like - by itself, each with the mod it came from.</value>
+    <comment>Help, play.tools. {0} Nav_Play, {1} Play_ToolsHeader.</comment>
+  </data>
+  <data name="Help_Play_Tools_Step2" xml:space="preserve">
+    <value>Press {0} to start one. The folder button beside it opens the mod's folder, where tools like SVM keep their files.</value>
+    <comment>Help, play.tools. {0} Play_ToolOpen.</comment>
+  </data>
+  <data name="Help_Play_Tools_Step3" xml:space="preserve">
+    <value>A tool this app knows says whether it needs the server running (give-ui) or stopped (SVM's Greed), and offers {0} when it needs the server and it isn't up.</value>
+    <comment>Help, play.tools. {0} Play_StartServer.</comment>
+  </data>
+  <data name="Help_Play_Tools_Note" xml:space="preserve">
+    <value>Every program is listed, so one that isn't meant to be opened can be hidden with {0}; the link under the list shows hidden ones again. A disabled mod's tool is greyed out.</value>
+    <comment>Help, play.tools: note. {0} Play_ToolHide.</comment>
+  </data>
+  <data name="Help_Play_Tools_Keywords" xml:space="preserve">
+    <value>tools, exe, program, Greed, SVM, give-ui, configurator, app, open</value>
+    <comment>Help search keywords for play.tools.</comment>
+  </data>
 </root>

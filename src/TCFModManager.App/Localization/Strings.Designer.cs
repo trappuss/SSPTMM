@@ -2572,4 +2572,30 @@ internal static class Strings
     internal static string Downloads_MismatchContentsFormat => LocalizationService.Get("Downloads_MismatchContentsFormat");
     internal static string Downloads_MismatchUnreadableFormat => LocalizationService.Get("Downloads_MismatchUnreadableFormat");
     internal static string Downloads_SkippedUserFilesHeader => LocalizationService.Get("Downloads_SkippedUserFilesHeader");
+    internal static string Play_ToolsHeader => LocalizationService.Get("Play_ToolsHeader");
+    internal static string Play_ToolsSummary => LocalizationService.Get("Play_ToolsSummary");
+    internal static string Play_ToolsDescription => LocalizationService.Get("Play_ToolsDescription");
+    internal static string Play_ToolFromFormat => LocalizationService.Get("Play_ToolFromFormat");
+    internal static string Play_ToolOpen => LocalizationService.Get("Play_ToolOpen");
+    internal static string Play_ToolOpenToolTip => LocalizationService.Get("Play_ToolOpenToolTip");
+    internal static string Play_ToolFolderToolTip => LocalizationService.Get("Play_ToolFolderToolTip");
+    internal static string Play_ToolHide => LocalizationService.Get("Play_ToolHide");
+    internal static string Play_ToolHideToolTip => LocalizationService.Get("Play_ToolHideToolTip");
+    internal static string Play_ToolUnhide => LocalizationService.Get("Play_ToolUnhide");
+    internal static string Play_ToolsShowHidden(int count, params object?[] values) =>
+        LocalizationService.Plural("Play_ToolsShowHidden", count, values);
+    internal static string Play_ToolsHideHidden => LocalizationService.Get("Play_ToolsHideHidden");
+    internal static string Play_ToolNeedsServerRunning => LocalizationService.Get("Play_ToolNeedsServerRunning");
+    internal static string Play_ToolNeedsServerRunningDown => LocalizationService.Get("Play_ToolNeedsServerRunningDown");
+    internal static string Play_ToolNeedsServerStopped => LocalizationService.Get("Play_ToolNeedsServerStopped");
+    internal static string Play_ToolNeedsServerStoppedUp => LocalizationService.Get("Play_ToolNeedsServerStoppedUp");
+    internal static string Play_ToolModDisabledFormat => LocalizationService.Get("Play_ToolModDisabledFormat");
+    internal static string Play_ToolOpenedFormat => LocalizationService.Get("Play_ToolOpenedFormat");
+    internal static string Play_ToolOpenFailedFormat => LocalizationService.Get("Play_ToolOpenFailedFormat");
+    internal static string Help_Play_Tools_Title => LocalizationService.Get("Help_Play_Tools_Title");
+    internal static string Help_Play_Tools_Step1 => LocalizationService.Get("Help_Play_Tools_Step1");
+    internal static string Help_Play_Tools_Step2 => LocalizationService.Get("Help_Play_Tools_Step2");
+    internal static string Help_Play_Tools_Step3 => LocalizationService.Get("Help_Play_Tools_Step3");
+    internal static string Help_Play_Tools_Note => LocalizationService.Get("Help_Play_Tools_Note");
+    internal static string Help_Play_Tools_Keywords => LocalizationService.Get("Help_Play_Tools_Keywords");
 }
