@@ -1482,6 +1482,20 @@ user's install. All of it was read only. Times are local.
 Checked under Wine: installing a hand-made archive with a file in `user\cache\` showed the warning
 on its card, naming `user/cache/zz-test.json`, and the file was not placed.
 
+Later the same day:
+
+- **What happened:** an SVM 2.2.3 install failed on the user's PC. The log stopped at "using the
+  archive kept from before", with no install line and no reason.
+- **Why the log was silent:** the download queue's Settle put a failure's reason on the card only,
+  so no failed download or install was ever logged. It now logs a line naming the mod, the card's
+  reason and the exception.
+- **The likely cause:** SPT's server log shows the server still running two minutes before the
+  attempt. The refusal to install while SPT runs happens before the install's first log line,
+  which matches the log. This is likely, not confirmed.
+- **Checked under Wine:** a stand-in SPT.Server.exe running inside the test install produced the
+  same refusal, and the log now reads "... failed: Close SPT.Server.exe before installing a mod ...
+  (ModInstallException: InstallInUse)".
+
 ## Values that could not be measured (marked HUNCH in the source)
 
 - The smooth-scroll distance and time (100px, 250ms) - chosen to feel like a browser, not measured.

@@ -712,6 +712,11 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
         }
 
         item.Status = DownloadQueueItemStatus.Failed;
+
+        // Fork (SSPTMM): the reason was only ever on the card, so a failure left no line in the log -
+        // a refused SVM install showed nothing after "using the archive kept from before".
+        AppLog.Warn("Downloads",
+            $"{item.ModName} {item.VersionLabel} failed: {item.StatusMessage} ({exception.GetType().Name}: {exception.Message})");
     }
 
     // Fork: Download only, in a download slot. Failures settle the card here - nothing awaits this.
