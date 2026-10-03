@@ -66,11 +66,12 @@ public class ForkPrepatchInstallTests : IDisposable
         File.WriteAllText(full, content);
     }
 
-    private InstallTarget NewTarget()
+    // The catalog's GUID for Skills Extended, which is also its prepatch folder's name.
+    private InstallTarget NewTarget(string? guid = "com.cj.skillsextended")
     {
         var id = Interlocked.Add(ref _nextId, 1);
         _ids.Add(id);
-        return new InstallTarget(id, false, $"Skills Extended {id}", null, null, null);
+        return new InstallTarget(id, false, $"Skills Extended {id}", guid, null, null);
     }
 
     private sealed class ArchiveHandler(byte[] body) : HttpMessageHandler
@@ -107,6 +108,28 @@ public class ForkPrepatchInstallTests : IDisposable
         Assert.Equal(NewPatch, File.ReadAllText(Full(Prepatch)));
         Assert.Contains(Prepatch, result.Record.Files);
         Assert.Empty(result.SkippedProtected!);
+        Assert.Empty(result.NotAsInArchive);
+    }
+
+    // The check after install, on real installs: an update over a config the user changed merges it
+    // on purpose and is not reported; an archive file that a protected path keeps out is named on its
+    // own (SkippedProtected), not again as a mismatch.
+    [Fact]
+    public async Task The_check_after_install_reports_nothing_for_merged_configs_or_refused_files()
+    {
+        const string Config = "SPT_Runtime/user/mods/SkillsExtended/config/config.json";
+        var target = NewTarget();
+
+        await Service([.. Archive("3.0.0", OldPatch), (Config, "{ \"a\": 1, \"b\": 1 }")]).InstallAsync(
+            target, new ModVersion { Id = 1, Version = "3.0.0", Link = "https://example.test/a" }, _install);
+        Write(Config, "{ \"a\": 5, \"b\": 1 }");
+
+        var update = await Service([.. Archive("3.1.1", NewPatch), (Config, "{ \"a\": 1, \"b\": 2, \"c\": 3 }"), ("SPT_Runtime/user/profiles/x.json", "not a mod's")]).InstallAsync(
+            target, new ModVersion { Id = 1, Version = "3.1.1", Link = "https://example.test/a" }, _install);
+
+        Assert.Contains("\"a\": 5", File.ReadAllText(Full(Config)));
+        Assert.Contains("SPT_Runtime/user/profiles/x.json", update.SkippedProtected!);
+        Assert.Empty(update.NotAsInArchive);
     }
 
     [Fact]
@@ -134,6 +157,49 @@ public class ForkPrepatchInstallTests : IDisposable
         Assert.Equal(NewPatch, File.ReadAllText(Full(Prepatch)));
         Assert.Contains(Prepatch, result.Record.Files);
     }
+
+    // The user's install after the bug: the right prepatch on disk (written by hand), owned by no
+    // record. Installing over it keeps it aside as usual - but as an earlier copy of the same mod,
+    // proven by its folder being named after the mod's GUID, so removing the mod takes the prepatch
+    // out instead of putting the kept copy back.
+    [Fact]
+    public async Task A_prepatch_nothing_owned_in_the_mods_own_GUID_folder_is_not_put_back_on_removal()
+    {
+        Write(Prepatch, OldPatch);
+        var target = NewTarget();
+        var installed = await Install(target, "3.1.1", NewPatch);
+
+        Assert.True(installed.Record.Overwrote.Single(o => o.Path == Prepatch).SameMod);
+
+        var removed = await Service().UninstallAsync(_install, RecordOf(target), ConfigAction.Delete);
+
+        Assert.False(File.Exists(Full(Prepatch)));
+        Assert.Equal(0, removed.OriginalsRestored);
+    }
+
+    // Without a GUID to compare there is no proof it was the same mod's, so the original rule stands:
+    // what the install replaced is put back.
+    [Fact]
+    public async Task Without_a_GUID_a_replaced_prepatch_is_put_back_on_removal_as_before()
+    {
+        Write(Prepatch, OldPatch);
+        var target = NewTarget(guid: null);
+        await Install(target, "3.1.1", NewPatch);
+
+        var removed = await Service().UninstallAsync(_install, RecordOf(target), ConfigAction.Delete);
+
+        Assert.Equal(OldPatch, File.ReadAllText(Full(Prepatch)));
+        Assert.Equal(1, removed.OriginalsRestored);
+    }
+
+    [Theory]
+    [InlineData("SPT_Runtime/user/patchers/com.cj.skillsextended/EnumExtensions.json", "com.cj.skillsextended")]
+    [InlineData("user/patchers/com.mod/x.json", "com.mod")]
+    [InlineData("SPT_Runtime/user/patchers/loose.json", null)]
+    [InlineData("SPT_Runtime/user/mods/SkillsExtended/x.json", null)]
+    [InlineData("BepInEx/patchers/SkillsExtended.Client.Prepatch.dll", null)]
+    public void The_prepatch_folder_is_read_from_the_path(string path, string? expected) =>
+        Assert.Equal(expected, InstallPathGuard.PrepatchFolderOf(path));
 
     [Fact]
     public async Task A_removal_takes_the_prepatch_and_its_folder_and_leaves_user_patchers_and_the_profiles()

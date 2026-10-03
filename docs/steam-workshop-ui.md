@@ -1437,6 +1437,51 @@ Checked under Wine:
   question. From the page of a subscribed mod (Quick Sell) it saved QuickSell-v4.2.0.zip, and its
   installed files were unchanged.
 
+## Round 33: the user\patchers bug traced on the real install; a check after every install (2026-10-03)
+
+### The trace
+From the manager's own log, its install records, the holding folders and the cached archives on the
+user's install. All of it was read only. Times are local.
+
+- **09-29 20:14:31:** Skills Extended 3.0.3 was installed by a build from before the upstream
+  "Resilience, stage 1" merge (1075f6e). That build had no protected-path rule, so it placed and
+  recorded the 132-byte prepatch. The file's timestamp matches to the second.
+- **10-02 19:45:58:** the update to 3.1.1, on a build with the rule:
+  - the install logged "kept the install's own …EnumExtensions.json; the archive's copy was not
+    placed";
+  - the removal half logged "Refused (Protected)";
+  - the new record dropped the file.
+- **10-02 23:04 (uninstall):** the prepatch was no longer in the record, so it was never touched.
+- **10-02 23:06 (reinstall):** "kept the install's own" again. The old file had never left. Neither
+  `.tcfmm-removed` nor `.tcfmm-work` held a copy, and nothing restored one.
+- **The archives were right:** the cached 3.1.1 archive's prepatch is 285 bytes, includes
+  SignalsIntelligence, and is byte-identical to the user's hand-written fix. The stale file is
+  byte-identical to the 3.0.3 archive's copy.
+
+### Fixes, on top of round 32's
+- **A. A prepatch's owner is read from its folder.** In `user\patchers\<GUID>\`, the GUID names the
+  mod (InstallPathGuard.PrepatchFolderOf). A file there that no record owned now counts as an
+  earlier copy of the same mod when the GUID matches, and a removal holds it rather than putting it
+  back. Without this, the user's own install, whose correct prepatch belongs to no record after the
+  bug, would have kept the prepatch through an uninstall.
+- **B. A check after every install and update (InstallVerification).**
+  - Every archive file is fingerprinted before placing, then compared with what is on disk
+    afterwards (size and SHA-256).
+  - Each file is reported as missing, a different size, different contents or unreadable. The
+    download card names every such file in a warning, and the log has one line for each.
+  - Left out are the files kept on purpose: refused protected files, the user's kept settings and
+    documents, and configs that were merged or kept.
+  - In the test suite's 155 real installs it reported nothing.
+- **C. Refused files aimed at SPT's user folder are named.** These are files outside user\mods and
+  user\patchers (ProtectedInstallPaths.IsUnderServerUser). They are now named in a warning on the
+  card, instead of being counted with SPT's and the game's own files.
+- **SSPTMM-test.bat** builds the app, runs the prepatch and install-check tests on their own, then
+  the whole suite, and writes logs\test.log.
+- **Strings and tests:** 6 new strings; 19 new tests. 1614 pass.
+
+Checked under Wine: installing a hand-made archive with a file in `user\cache\` showed the warning
+on its card, naming `user/cache/zz-test.json`, and the file was not placed.
+
 ## Values that could not be measured (marked HUNCH in the source)
 
 - The smooth-scroll distance and time (100px, 250ms) - chosen to feel like a browser, not measured.

@@ -606,7 +606,12 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
             // alone - named one per line in the tooltip - and originals it kept to put back later (D22).
             //
             var skipped = result.SkippedProtected ?? [];
-            var keptSpt = skipped.Count > 0 ? Strings.Downloads_KeptSptFiles(skipped.Count, skipped.Count) : null;
+
+            // Fork: a refused file aimed at SPT's user folder is a warning of its own, named, rather
+            // than counted with SPT's and the game's own files (the user\patchers bug).
+            var userSkips = skipped.Where(ProtectedInstallPaths.IsUnderServerUser).ToList();
+            var quietSkips = skipped.Except(userSkips).ToList();
+            var keptSpt = quietSkips.Count > 0 ? Strings.Downloads_KeptSptFiles(quietSkips.Count, quietSkips.Count) : null;
             var keptOriginals = result.OriginalsKept > 0
                 ? Strings.Downloads_KeptOriginals(result.OriginalsKept, result.OriginalsKept)
                 : null;
@@ -619,10 +624,11 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
             item.StatusMessage = string.Join(
                 Strings.Common_SentenceSeparator,
                 new[] { installed, configs, keptSpt, keptSettings, keptOriginals }.Where(s => !string.IsNullOrEmpty(s)));
-            var named = skipped.Concat(result.KeptSettings).ToList();
+            var named = quietSkips.Concat(result.KeptSettings).ToList();
             item.StatusDetail = named.Count > 0
                 ? string.Join(Environment.NewLine, new[] { item.StatusMessage, "" }.Concat(named))
                 : null;
+            item.WarningText = InstallWarning(result.NotAsInArchive, userSkips); // Fork
             ItemInstalled?.Invoke(this, EventArgs.Empty);
         }
         catch (Exception ex)
@@ -888,6 +894,40 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
         name is not null
         && name.StartsWith("fika", StringComparison.OrdinalIgnoreCase)
         && name.Contains("server", StringComparison.OrdinalIgnoreCase);
+
+    //
+    // Fork (SSPTMM): the warning under a finished install's status line - files that didn't land as
+    // the archive has them (InstallVerification), then archive files aimed at SPT's user folder that
+    // were refused. One per line, so each can be looked for. Null when there is neither.
+    //
+    private static string? InstallWarning(IReadOnlyList<InstallMismatch> mismatches, IReadOnlyList<string> userSkips)
+    {
+        var lines = new List<string>();
+
+        if (mismatches.Count > 0)
+        {
+            lines.Add(Strings.Downloads_NotAsInArchiveHeader);
+            foreach (var m in mismatches)
+            {
+                lines.Add("\u2022 " + (m.Kind switch
+                {
+                    InstallMismatchKind.Missing => Text(Strings.Downloads_MismatchMissingFormat, m.Path),
+                    InstallMismatchKind.DifferentSize => Text(Strings.Downloads_MismatchSizeFormat, m.Path, (m.DiskSize ?? 0).ToString("N0"), m.ArchiveSize.ToString("N0")),
+                    InstallMismatchKind.DifferentContents => Text(Strings.Downloads_MismatchContentsFormat, m.Path),
+                    _ => Text(Strings.Downloads_MismatchUnreadableFormat, m.Path),
+                }));
+            }
+        }
+
+        if (userSkips.Count > 0)
+        {
+            if (lines.Count > 0) lines.Add("");
+            lines.Add(Strings.Downloads_SkippedUserFilesHeader);
+            lines.AddRange(userSkips.Select(p => "\u2022 " + p));
+        }
+
+        return lines.Count > 0 ? string.Join(Environment.NewLine, lines) : null;
+    }
 
     // Fork: downloadOnly words it as a download rather than an install ("Download it anyway?").
     private bool ConfirmFikaIncompatible(string modName, bool askAgain = false, bool downloadOnly = false)

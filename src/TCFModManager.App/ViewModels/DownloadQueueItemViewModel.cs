@@ -258,6 +258,15 @@ public sealed partial class DownloadQueueItemViewModel : LocalizedViewModel
     [ObservableProperty]
     private string? _statusDetail;
 
+    // Fork (SSPTMM): what a finished install has to warn about - archive files that didn't land as
+    // the archive has them, and ones aimed at SPT's user folder that weren't installed. Shown under
+    // the status line in the caution colour; null when there is nothing to say.
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasWarning))]
+    private string? _warningText;
+
+    public bool HasWarning => !string.IsNullOrEmpty(WarningText);
+
     // True while installing, since that stage has no byte count to report fractional progress for.
     public bool IsIndeterminateProgress => Status == DownloadQueueItemStatus.Installing;
 

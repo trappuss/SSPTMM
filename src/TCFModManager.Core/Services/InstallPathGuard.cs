@@ -221,6 +221,24 @@ public static class InstallPathGuard
     ];
 
     //
+    // Fork (SSPTMM): the folder a server enum prepatch sits in - "com.cj.skillsextended" for
+    // "SPT_Runtime/user/patchers/com.cj.skillsextended/EnumExtensions.json" - or null for any other
+    // path. SPT names that folder after the mod's ModGuid, so it says whose prepatch a file is.
+    //
+    public static string? PrepatchFolderOf(string installRelative)
+    {
+        if (ProtectedInstallPaths.Segments(installRelative) is not { } segments) return null;
+
+        foreach (var container in PrepatchContainers.OrderByDescending(c => c.Length))
+        {
+            if (segments.Length >= container.Length + 2 && StartsWith(segments, container))
+                return segments[container.Length];
+        }
+
+        return null;
+    }
+
+    //
     // Whether anything below a folder is a link. Stops at the first one found, so a link is reported
     // rather than walked into.
     //

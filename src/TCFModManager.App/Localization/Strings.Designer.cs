@@ -2566,4 +2566,10 @@ internal static class Strings
     internal static string Install_IncompatibleOneDownloadFormat => LocalizationService.Get("Install_IncompatibleOneDownloadFormat");
     internal static string Install_IncompatibleBatchDownloadFormat => LocalizationService.Get("Install_IncompatibleBatchDownloadFormat");
     internal static string Install_IncompatibleNotDownloadedFormat => LocalizationService.Get("Install_IncompatibleNotDownloadedFormat");
+    internal static string Downloads_NotAsInArchiveHeader => LocalizationService.Get("Downloads_NotAsInArchiveHeader");
+    internal static string Downloads_MismatchMissingFormat => LocalizationService.Get("Downloads_MismatchMissingFormat");
+    internal static string Downloads_MismatchSizeFormat => LocalizationService.Get("Downloads_MismatchSizeFormat");
+    internal static string Downloads_MismatchContentsFormat => LocalizationService.Get("Downloads_MismatchContentsFormat");
+    internal static string Downloads_MismatchUnreadableFormat => LocalizationService.Get("Downloads_MismatchUnreadableFormat");
+    internal static string Downloads_SkippedUserFilesHeader => LocalizationService.Get("Downloads_SkippedUserFilesHeader");
 }

@@ -196,6 +196,15 @@
                                         ToolTip="{Binding StatusDetail}"
                                         Text="{Binding StatusMessage}" />
 
+                                    <!-- Fork: what a finished install has to warn about, named file by file. -->
+                                    <TextBlock
+                                        Margin="0,6,0,0"
+                                        FontSize="11"
+                                        TextWrapping="Wrap"
+                                        Foreground="{DynamicResource SystemFillColorCautionBrush}"
+                                        Text="{Binding WarningText}"
+                                        Visibility="{Binding HasWarning, Converter={StaticResource BoolToVisibility}}" />
+
                                     <!-- One box per figure - see StatBox above for why they aren't
                                          a single line. Speed and time read as a dash until the
                                          download has run long enough to measure honestly. -->

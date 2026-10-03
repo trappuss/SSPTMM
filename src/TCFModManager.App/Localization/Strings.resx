@@ -9652,4 +9652,28 @@ Download them anyway? Once installed, SPT may refuse to load them. No downloads 
     <value>{0} wasn't downloaded - no version of it supports SPT {1}.</value>
     <comment>As Install_IncompatibleNotInstalledFormat, after answering No to a download. {0} mod name, {1} installed SPT version.</comment>
   </data>
+  <data name="Downloads_NotAsInArchiveHeader" xml:space="preserve">
+    <value>Some files didn't land as the archive has them, so the mod may not work. Reinstall it, or check these by hand:</value>
+    <comment>Warning on a finished install's download card, followed by one Downloads_Mismatch* line per file.</comment>
+  </data>
+  <data name="Downloads_MismatchMissingFormat" xml:space="preserve">
+    <value>{0} - missing</value>
+    <comment>{0} an install-relative file path. One line under Downloads_NotAsInArchiveHeader.</comment>
+  </data>
+  <data name="Downloads_MismatchSizeFormat" xml:space="preserve">
+    <value>{0} - {1} bytes on disk, {2} in the archive</value>
+    <comment>{0} file path, {1} and {2} sizes in bytes. One line under Downloads_NotAsInArchiveHeader.</comment>
+  </data>
+  <data name="Downloads_MismatchContentsFormat" xml:space="preserve">
+    <value>{0} - different from the archive's copy</value>
+    <comment>{0} file path. Same size, different contents. One line under Downloads_NotAsInArchiveHeader.</comment>
+  </data>
+  <data name="Downloads_MismatchUnreadableFormat" xml:space="preserve">
+    <value>{0} - couldn't be read to check</value>
+    <comment>{0} file path. One line under Downloads_NotAsInArchiveHeader.</comment>
+  </data>
+  <data name="Downloads_SkippedUserFilesHeader" xml:space="preserve">
+    <value>The archive also has files for SPT's user folder outside user\mods and user\patchers. Only SPT should change those, so they weren't installed - if the mod needs them, read its page:</value>
+    <comment>Warning on a finished install's download card, followed by one file path per line.</comment>
+  </data>
 </root>

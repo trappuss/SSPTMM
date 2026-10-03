@@ -408,6 +408,14 @@ public sealed class ModInstallService(
 
             status?.Report(new ModInstallProgress(
                 ModInstallStage.Installing, Total: placements.Count));
+            // Fork: the archive's own copy of every file about to be placed, read before placing moves
+            // them, so what landed can be checked against it afterwards (InstallVerification).
+            var archivePrints = new Dictionary<string, FileFingerprint>(StringComparer.OrdinalIgnoreCase);
+            foreach (var placement in placements)
+            {
+                if (FileFingerprint.Compute(placement.File, placement.Forward) is { } print) archivePrints[placement.Forward] = print;
+            }
+
             var placedFiles = new List<string>(placements.Count);
             var keptSettings = new List<string>();
             var reportClock = Stopwatch.StartNew();
@@ -519,10 +527,37 @@ public sealed class ModInstallService(
             if (keptSettings.Count > 0)
                 AppLog.Info("Install", $"{target.Name} {version.Version}: kept the settings already in {string.Join(", ", keptSettings)}");
 
+            //
+            // Fork: every archive file checked on disk against the archive's copy. Left out: what this
+            // install deliberately did not place as the archive has it - SPT's own files it refused
+            // (named on their own), the user's settings and documents it kept, and server configs the
+            // config handling merged or kept.
+            //
+            var deliberate = new HashSet<string>(skippedProtected, StringComparer.OrdinalIgnoreCase);
+            deliberate.UnionWith(keptSettings);
+            deliberate.UnionWith(pending.Untouchable);
+            deliberate.UnionWith(pending.Preserved);
+            deliberate.UnionWith(report.Files.Select(f => f.Path));
+
+            var notAsInArchive = InstallVerification.Check(
+                archivePrints,
+                record.Fingerprints,
+                deliberate,
+                path => File.Exists(Path.Combine(installPath, path.Replace('/', Path.DirectorySeparatorChar)))
+                    ? new FileInfo(Path.Combine(installPath, path.Replace('/', Path.DirectorySeparatorChar))).Length
+                    : null);
+
+            foreach (var mismatch in notAsInArchive)
+            {
+                AppLog.Warn("Install",
+                    $"{target.Name} {version.Version}: {mismatch.Path} is not as the archive has it ({mismatch.Kind}; archive {mismatch.ArchiveSize:N0} bytes, disk {(mismatch.DiskSize is { } d ? d.ToString("N0") : "none")})");
+            }
+
             return new ModInstallResult(record, report.Files.Count > 0 ? report : null, skippedProtected)
             {
                 OriginalsKept = overwrote.Count - (existing?.Overwrote.Count ?? 0),
                 KeptSettings = keptSettings,
+                NotAsInArchive = notAsInArchive,
             };
         }
         catch (OperationCanceledException)
@@ -706,6 +741,14 @@ public sealed class ModInstallService(
         string installPath, InstallTarget target, string forward, Dictionary<string, IReadOnlySet<string>> declared)
     {
         if (target.IsAddon || string.IsNullOrWhiteSpace(target.Guid)) return false;
+
+        // Fork: a server enum prepatch's folder is named after its mod's GUID by SPT's own rule, which
+        // is the proof here - there are no DLLs in it to read. Without this, an earlier copy of the
+        // same mod's prepatch that no record owned (Skills Extended's, after the user\patchers bug)
+        // was put back by the removal, leaving the mod's prepatch behind again.
+        if (InstallPathGuard.PrepatchFolderOf(forward) is { } prepatchFolder)
+            return string.Equals(prepatchFolder, target.Guid, StringComparison.OrdinalIgnoreCase);
+
         if (InstallPathGuard.ModFolderOf(forward) is not { } folder) return false;
 
         if (!declared.TryGetValue(folder, out var guids))
@@ -1608,6 +1651,10 @@ public sealed record ModInstallResult(
     // Fork: BepInEx\config files the archive ships that were already there, left as they are - the
     // user's plugin settings (see ConfigCarryOver.Prepare).
     public IReadOnlyList<string> KeptSettings { get; init; } = [];
+
+    // Fork: archive files that are not on disk as the archive has them once the install finished -
+    // see InstallVerification. Empty when everything landed.
+    public IReadOnlyList<InstallMismatch> NotAsInArchive { get; init; } = [];
 }
 
 // Result of ModInstallService.UninstallAsync. FailedFiles lists files that couldn't be

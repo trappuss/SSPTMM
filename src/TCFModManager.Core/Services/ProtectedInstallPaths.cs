@@ -74,6 +74,22 @@ public static class ProtectedInstallPaths
         return s.Length >= 3 && Is(s[0], "EscapeFromTarkov_Data") && Is(s[1], "Managed");
     }
 
+    //
+    // Fork (SSPTMM): whether a path is under SPT's user folder (<server>/user/... or a standalone
+    // server's user/...). An archive file there that the install refused is not a stray copy of SPT
+    // or the game, as one under BepInEx\core or beside EscapeFromTarkov.exe usually is: it is aimed
+    // at the folder SPT reads mods' data from, and the mod may not work without it - so the download
+    // card names it as a warning rather than counting it with SPT's own files (the user\patchers bug).
+    //
+    public static bool IsUnderServerUser(string? installRelative)
+    {
+        if (Segments(installRelative) is not { } s || s.Length < 2) return false;
+
+        if (Is(s[0], "user")) return true;
+
+        return s.Length >= 3 && ServerRootNames.Any(name => Is(s[0], name)) && Is(s[1], "user");
+    }
+
     private static bool IsProtectedInBepInEx(string[] s)
     {
         if (Is(s[1], "core")) return true;
