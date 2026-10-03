@@ -23,6 +23,10 @@ public static class GameCloser
     private const int DownChecksToCount = 2;
 
     private static bool _serverWasUp;
+
+    // The install the watch is about: switching installs starts it again, so one install's server
+    // stopping never closes another's game, and another's server being down doesn't read as a stop.
+    private static string? _watchedInstall;
     private static int _downChecks;
     private static DateTime _holdUntil = DateTime.MinValue;
     private static bool _closing;
@@ -75,6 +79,13 @@ public static class GameCloser
         if (_closing) return;
 
         var installPath = AppServices.SptEnvironment.InstallPath;
+        if (!string.Equals(installPath, _watchedInstall, StringComparison.OrdinalIgnoreCase))
+        {
+            _watchedInstall = installPath;
+            _serverWasUp = false;
+            _downChecks = 0;
+        }
+
         var up = SptLaunchService.Describe(installPath, SptLaunchTarget.Server).IsRunning;
 
         if (up)
