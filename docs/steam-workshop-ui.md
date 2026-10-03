@@ -1814,6 +1814,11 @@ SptLauncherApi and SptDirectLaunch follow it, with the files cited in their comm
   wipe or delete no longer goes ahead when the profile copy fails; file and config errors stop Play
   with a message instead of the crash dialog; Cancel reaches the profile actions; containment
   checks for written files fail closed (SptDirectLaunch.IsSafelyInside).
+- Closing the game when the server stops: on the user's PC the watch fired each time and the game
+  began quitting (its own logs show the quit), but the user saw the game stay open. What the close
+  did next was never logged (a failed kill went to Debug), so every step of a stop or close is now
+  logged at Info - asked, closed, killed, or still running - a failure as a warning, and a failed
+  close shows as an error on the Play page. The cause is still open until a run with this logging.
 - 86 new strings; 40 new tests. 1716 pass.
 
 ## Values that could not be measured (marked HUNCH in the source)

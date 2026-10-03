@@ -41,10 +41,10 @@ public partial class PlayViewModel
         if (!_gameCloserHooked)
         {
             _gameCloserHooked = true;
-            GameCloser.Closed += (_, message) =>
+            GameCloser.Closed += (_, e) =>
             {
-                HasError = false;
-                Message = message;
+                HasError = e.IsError;
+                Message = e.Message;
                 Refresh();
             };
         }

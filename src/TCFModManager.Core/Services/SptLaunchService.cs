@@ -365,18 +365,32 @@ public static partial class SptLaunchService // Fork: partial - see SptLaunchSer
 
         foreach (var process in processes)
         {
+            var name = "a process";
             try
             {
                 if (process.HasExited) continue;
+                name = $"{process.ProcessName} (pid {process.Id})";
 
                 // A window to close when it has one; with none (started hidden, or hosted in Windows
                 // Terminal), Ctrl+C - which SPT answers by shutting down properly. Killed only when
                 // neither worked in time.
-                var asked = process.MainWindowHandle != IntPtr.Zero ? process.CloseMainWindow() : Interrupt(process);
-                if (!asked || !process.WaitForExit((int)CloseGrace.TotalMilliseconds))
+                // Fork: every step is logged at Info, so a stop that "did nothing" can be told apart
+                // afterwards - asked and gone, killed, or still there.
+                var hasWindow = process.MainWindowHandle != IntPtr.Zero;
+                var asked = hasWindow ? process.CloseMainWindow() : Interrupt(process);
+                AppLog.Info("Launch", $"{name}: {(asked ? (hasWindow ? "asked its window to close" : "sent Ctrl+C") : "couldn't be asked to close")}");
+
+                if (asked && process.WaitForExit((int)CloseGrace.TotalMilliseconds))
                 {
+                    AppLog.Info("Launch", $"{name} closed");
+                }
+                else
+                {
+                    AppLog.Info("Launch", asked ? $"{name} still running after {CloseGrace.TotalSeconds:0} s; killing it" : $"killing {name}");
                     process.Kill();
-                    process.WaitForExit((int)CloseGrace.TotalMilliseconds);
+                    AppLog.Info("Launch", process.WaitForExit((int)CloseGrace.TotalMilliseconds)
+                        ? $"{name} killed"
+                        : $"{name} still running {CloseGrace.TotalSeconds:0} s after being killed");
                 }
 
                 if (!process.HasExited) continue;
@@ -388,7 +402,8 @@ public static partial class SptLaunchService // Fork: partial - see SptLaunchSer
                 // A process this app may not touch, or one that exited while being asked. Neither is
                 // a reason to abandon the others; a stop that took nothing down is reported by the
                 // count, and the caller turns that into StopFailed.
-                AppLog.Debug("Launch", $"could not stop {process.ProcessName}: {ex.Message}");
+                // Fork: a warning, not Debug - it is the one line that says why something stayed up.
+                AppLog.Warn("Launch", $"could not stop {name}: {ex.GetType().Name}: {ex.Message}");
             }
             finally
             {

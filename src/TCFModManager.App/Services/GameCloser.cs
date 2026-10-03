@@ -32,7 +32,7 @@ public static class GameCloser
     private static bool _closing;
 
     /// <summary>Raised on the UI thread with what happened, for the Play page to show.</summary>
-    public static event EventHandler<string>? Closed;
+    public static event EventHandler<GameClosedEventArgs>? Closed;
 
     public static bool IsEnabled => new SettingsService().Load().CloseGameWithServer;
 
@@ -123,9 +123,15 @@ public static class GameCloser
             AppLog.Info("Launch", "the server stopped; closing the game, as ticked on the Play page");
             var result = await Task.Run(() => SptLaunchService.CloseGame(installPath, spares));
 
-            Closed?.Invoke(null, result.Problem == SptLaunchProblem.None
-                ? Localization.Strings.Play_GameClosedWithServer
-                : SptLaunchProblems.Describe(result));
+            var closed = result.Problem is SptLaunchProblem.None or SptLaunchProblem.NotRunning;
+            if (closed)
+                AppLog.Info("Launch", result.Problem == SptLaunchProblem.None ? $"the game is closed ({result.Stopped})" : "the game had already gone");
+            else
+                AppLog.Warn("Launch", $"the game could not be closed: {result.Problem}{(result.Error is null ? "" : " - " + result.Error.Message)}");
+
+            Closed?.Invoke(null, new GameClosedEventArgs(
+                closed ? Localization.Strings.Play_GameClosedWithServer : SptLaunchProblems.Describe(result),
+                IsError: !closed));
         }
         finally
         {
@@ -133,3 +139,6 @@ public static class GameCloser
         }
     }
 }
+
+/// <summary>What GameCloser did: the line for the Play page, and whether it is a problem.</summary>
+public sealed record GameClosedEventArgs(string Message, bool IsError);
