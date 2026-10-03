@@ -366,9 +366,6 @@
   <data name="Browse_DetailsUnexpectedFormat" xml:space="preserve">
     <value>Непредвиденная ошибка при загрузке сведений о {0}: {1}</value>
   </data>
-  <data name="Browse_DisabledFormat" xml:space="preserve">
-    <value>{0} отключён - включите его на странице Установленные перед повторной установкой.</value>
-  </data>
   <data name="Browse_Endorsements_one" xml:space="preserve">
     <value>{0:N0} одобрение</value>
   </data>
@@ -2062,9 +2059,6 @@
   <data name="Installed_SaveAsDefaultToolTip" xml:space="preserve">
     <value>Страница будет открываться с теми фильтрами, сортировкой, видом и числом карточек на страницу, что выбраны сейчас. Поле поиска в это не входит. Сбросить это можно на странице Параметры.</value>
   </data>
-  <data name="Installed_SavedAsDefault" xml:space="preserve">
-    <value>Сохранено. Страница Установленные теперь будет открываться в этом виде - вернуть прежний вид можно в Параметрах.</value>
-  </data>
   <data name="Installed_SelectAllFormat" xml:space="preserve">
     <value>Выбрать все {0}</value>
   </data>
@@ -2947,9 +2941,6 @@
   <data name="ModLists_PinnedFormat" xml:space="preserve">
     <value>«{0}» закреплён - ни один список его не отложит.</value>
   </data>
-  <data name="ModLists_PinToolTip" xml:space="preserve">
-    <value>Закрепить этот мод, чтобы ни один применяемый список никогда его не откладывал. Для HUD-модов и мелких удобств, которые нужны вам при любом списке. Открепить можно здесь или у самого мода на странице Установленные.</value>
-  </data>
   <data name="ModLists_PlanNoOp" xml:space="preserve">
     <value>Эта установка уже соответствует списку - делать нечего.</value>
   </data>
@@ -3437,17 +3428,11 @@
   <data name="Options_ClearHeadlessLauncherToolTip" xml:space="preserve">
     <value>Вернуться к поиску в папке установки.</value>
   </data>
-  <data name="Options_ClearInstalledDefault" xml:space="preserve">
-    <value>Сбросить умолчания страницы Установленные</value>
-  </data>
   <data name="Options_Connect" xml:space="preserve">
     <value>Подключиться</value>
   </data>
   <data name="Options_DataFiles" xml:space="preserve">
     <value>Файлы данных...</value>
-  </data>
-  <data name="Options_DataFilesDescription" xml:space="preserve">
-    <value>Просмотр или ручная правка JSON-файлов, которые приложение хранит в Data\, включая installed-mods.json - полезно, когда средств управления версиями на странице Установленные не хватает.</value>
   </data>
   <data name="Options_DataFilesHeader" xml:space="preserve">
     <value>Файлы данных</value>
@@ -3512,12 +3497,6 @@
   <data name="Options_HeightPlaceholder" xml:space="preserve">
     <value>Высота</value>
   </data>
-  <data name="Options_InstalledHasDefault" xml:space="preserve">
-    <value>Установленные: настройки по умолчанию сохранены. Их сброс подействует при следующем запуске приложения.</value>
-  </data>
-  <data name="Options_InstalledNoDefault" xml:space="preserve">
-    <value>Установленные: настройки по умолчанию не сохранены - страница открывается в виде «Карточки», без фильтров, с сортировкой по имени.</value>
-  </data>
   <data name="Options_InstallFolderDescription" xml:space="preserve">
     <value>Укажите здесь папку игры SPT - ту, в которой лежит EscapeFromTarkov.exe, а не папку сервера SPT внутри неё. После этого установленная версия SPT используется как значение по умолчанию для фильтра версий на странице Обзор и для пометки модов, которые под неё не собраны.</value>
   </data>
@@ -3553,9 +3532,6 @@
   </data>
   <data name="Options_NoHeadlessLauncherNotice" xml:space="preserve">
     <value>Headless-лаунчер Fika в папке установки не найден, поэтому отсюда он не запускается - укажите его ниже или оставьте как есть: переключатель выше всё равно определяет, какие моды принесёт переданный сервером список.</value>
-  </data>
-  <data name="Options_PageDefaultsDescription" xml:space="preserve">
-    <value>На страницах Установленные и Обзор рядом с кнопкой «Сбросить фильтры» есть кнопка «Сохранить по умолчанию». Она задаёт открытие страницы с теми фильтрами, сортировкой и числом карточек на страницу - а на странице Установленные ещё и видом, - которые выбраны в тот момент, так что страница, которую вы всегда сужаете одинаково, сразу открывается суженной. Набранное в поле поиска в это никогда не входит. Сброс умолчания здесь возвращает странице то, что заложено в самом приложении.</value>
   </data>
   <data name="Options_PageDefaultsHeader" xml:space="preserve">
     <value>Умолчания страниц</value>
@@ -3759,9 +3735,6 @@
   <data name="PreLaunch_Checking" xml:space="preserve">
     <value>Проверка сервера...</value>
   </data>
-  <data name="PreLaunch_ComparedFormat" xml:space="preserve">
-    <value>Сравнение со списком «{0}»: {1}. Примените список на странице Списки модов, чтобы всё исправить, или подключайтесь так - ничто вас не останавливает.</value>
-  </data>
   <data name="PreLaunch_ListMoved" xml:space="preserve">
     <value>Список модов этого сервера изменился</value>
   </data>
@@ -3941,9 +3914,6 @@
   <data name="ServerMap_ListSaved_many" xml:space="preserve">
     <value>Список «{0}» (ревизия {1}, {2} модов) сохранён в ваших списках модов. Применяется он на странице Списки модов, которая сначала показывает, что изменится.</value>
   </data>
-  <data name="ServerMap_ListSaved_one" xml:space="preserve">
-    <value>Список «{0}» (ревизия {1}, {2} мод) сохранён в ваших списках модов. Применяется он на странице Списки модов, которая сначала показывает, что изменится.</value>
-  </data>
   <data name="ServerMap_ListSummary_few" xml:space="preserve">
     <value>{0} - ревизия {1}, {2} мода</value>
   </data>
@@ -3967,9 +3937,6 @@
   </data>
   <data name="ServerMap_NoAddress" xml:space="preserve">
     <value>Адрес сервера не задан - введите тот же адрес, что и в лаунчере SPT.</value>
-  </data>
-  <data name="ServerMap_NoList" xml:space="preserve">
-    <value>Этот сервер не публикует список модов. Его оператор публикует список кнопкой «Опубликовать на этом сервере» на странице Списки модов, из приложения на машине, где работает сервер.</value>
   </data>
   <data name="ServerMap_NoListHeldFormat" xml:space="preserve">
     <value>Этот сервер не публикует список модов. «{0}» по-прежнему есть в ваших списках модов в том виде, в каком вы его получили в прошлый раз - но если вы ожидали увидеть его здесь, проверьте, что адрес указывает на тот сервер, куда вы его публиковали, и что файл попал в папку конфигурации этого сервера.</value>
@@ -4039,9 +4006,6 @@
   </data>
   <data name="ServerMap_ServingOwnList_many" xml:space="preserve">
     <value>Этот сервер раздаёт ваш собственный список «{0}» (ревизия {1}, {2} модов). Он остаётся вашим - править его можно на странице Списки модов, а чтобы обновить то, что раздаёт сервер, опубликуйте список заново после изменений.</value>
-  </data>
-  <data name="ServerMap_ServingOwnList_one" xml:space="preserve">
-    <value>Этот сервер раздаёт ваш собственный список «{0}» (ревизия {1}, {2} мод). Он остаётся вашим - править его можно на странице Списки модов, а чтобы обновить то, что раздаёт сервер, опубликуйте список заново после изменений.</value>
   </data>
   <data name="ServerMap_UnreachableFormat" xml:space="preserve">
     <value>По адресу {0}:{1} никто не ответил. Возможно, сервер не запущен либо адрес или порт указаны неверно - они те же, что и в лаунчере SPT.</value>
@@ -4364,9 +4328,6 @@
   <data name="Options_MonitorConfirmHeader" xml:space="preserve">
     <value>Когда скачанный мод оказывается установлен</value>
   </data>
-  <data name="Options_MonitorConfirmDescription" xml:space="preserve">
-    <value>Когда вы сами устанавливаете скачанный мод, следующее сканирование страницы «Установленные» его находит. Приложение может тогда попросить подтвердить это или просто отметить на карточке мода, чтобы вы подтвердили там. Подтверждение сообщает приложению, какая у вас версия, чтобы проверка обновлений оставалась верной.</value>
-  </data>
   <data name="Options_MonitorConfirmAsk" xml:space="preserve">
     <value>Спрашивать после сканирования</value>
   </data>
@@ -4414,9 +4375,6 @@
   </data>
   <data name="Options_UpdateNotificationsHeader" xml:space="preserve">
     <value>Уведомления об обновлениях</value>
-  </data>
-  <data name="Options_UpdateNotificationsDescription" xml:space="preserve">
-    <value>Пока приложение открыто, оно время от времени спрашивает The Forge об установленных у вас модах и показывает уведомление Windows, когда у одного из них выходит новая версия. Проверяются только установленные моды. О каждой версии сообщается один раз, а об обновлениях, которые страница «Установленные» уже показывает в момент включения, не сообщается.</value>
   </data>
   <data name="Options_UpdateIntervalHeader" xml:space="preserve">
     <value>Проверять каждые</value>
@@ -4613,9 +4571,6 @@
   <data name="Options_ServerMapConnectionHint" xml:space="preserve">
     <value>Адрес и порт из вашего лаунчера SPT, а также ключ, если он есть у сервера.</value>
   </data>
-  <data name="Options_PageDefaultsHint" xml:space="preserve">
-    <value>Задаются кнопкой «Сохранить по умолчанию» на страницах Установленные и Обзор.</value>
-  </data>
   <data name="Options_HeadlessLauncherHint" xml:space="preserve">
     <value>Нужен, только если он лежит не прямо в папке установки.</value>
   </data>
@@ -4786,9 +4741,6 @@
   </data>
   <data name="Common_ReviewAndInstall" xml:space="preserve">
     <value>Просмотреть и установить</value>
-  </data>
-  <data name="Common_ReviewAndInstallToolTip" xml:space="preserve">
-    <value>Открывает «Списки модов» с выбранным списком сервера и уже готовым предпросмотром. Ничего не устанавливается, пока вы не нажмёте «Применить».</value>
   </data>
   <data name="ModLists_ApplyInstall_one" xml:space="preserve">
     <value>Установить {0} мод</value>
@@ -6050,9 +6002,6 @@
   <data name="Conflicts_KeepThis" xml:space="preserve">
     <value>Оставить этот</value>
   </data>
-  <data name="Conflicts_KeepThisToolTip" xml:space="preserve">
-    <value>Оставить эту копию и удалить остальные. Они попадут туда же, куда удалённые моды, и «Отменить» на странице «Установленные» сможет их вернуть.</value>
-  </data>
   <data name="Conflicts_KeepConfirmTitle" xml:space="preserve">
     <value>Оставить одну копию</value>
   </data>
@@ -6066,9 +6015,6 @@
   <data name="Conflicts_KeepLineFormat" xml:space="preserve">
     <value>{0} - {1}</value>
   </data>
-  <data name="Conflicts_KeptFormat" xml:space="preserve">
-    <value>{0} оставлен. {1} удалён - «Отменить» на странице «Установленные» вернёт его.</value>
-  </data>
   <data name="Conflicts_KeepFailedFormat" xml:space="preserve">
     <value>Не удалось удалить {0}: {1}</value>
   </data>
@@ -6080,9 +6026,6 @@
   </data>
   <data name="Play_ConflictsHint" xml:space="preserve">
     <value>Некоторые моды могут не загрузиться. Запустить всё равно можно.</value>
-  </data>
-  <data name="Conflicts_KeepBlockedFormat" xml:space="preserve">
-    <value>У {0} есть и файлы, которые не дублируются, а установлен он этим приложением, поэтому удалить его можно только целиком - эти файлы тоже уйдут. Удалите его на странице «Установленные», где «Удалить» показывает всё, что будет удалено.</value>
   </data>
   <data name="ModLists_EmptyStateShort" xml:space="preserve">
     <value>Выберите список слева или запишите то, что установлено у вас сейчас.</value>

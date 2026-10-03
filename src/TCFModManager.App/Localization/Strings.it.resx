@@ -360,9 +360,6 @@
   <data name="Browse_DetailsUnexpectedFormat" xml:space="preserve">
     <value>Errore imprevisto nel caricare i dettagli di {0}: {1}</value>
   </data>
-  <data name="Browse_DisabledFormat" xml:space="preserve">
-    <value>{0} è disattivato - attivalo nella pagina Installati prima di reinstallarlo.</value>
-  </data>
   <data name="Browse_Endorsements_one" xml:space="preserve">
     <value>{0:N0} consenso</value>
   </data>
@@ -1951,9 +1948,6 @@ La copia che non conservi viene spostata in una cartella nascosta .ssptmm-duplic
   <data name="Installed_SaveAsDefaultToolTip" xml:space="preserve">
     <value>Apre questa pagina con i filtri, l'ordinamento, la vista e gli elementi per pagina impostati adesso. La casella di ricerca non è inclusa. Da Opzioni puoi azzerarlo.</value>
   </data>
-  <data name="Installed_SavedAsDefault" xml:space="preserve">
-    <value>Salvato. D'ora in poi la pagina Installati si aprirà così - da Opzioni puoi ripristinarla.</value>
-  </data>
   <data name="Installed_SelectAllFormat" xml:space="preserve">
     <value>Seleziona tutti ({0})</value>
   </data>
@@ -2785,9 +2779,6 @@ La copia che non conservi viene spostata in una cartella nascosta .ssptmm-duplic
   <data name="ModLists_PinnedFormat" xml:space="preserve">
     <value>"{0}" fissato - nessuna lista lo metterà da parte.</value>
   </data>
-  <data name="ModLists_PinToolTip" xml:space="preserve">
-    <value>Fissa questo mod così nessuna lista che applichi lo metterà mai da parte. Per i mod dell'HUD e di comodità che vuoi tenere qualunque lista scegli. Puoi rimuovere il fissaggio qui o dal mod nella pagina Installati.</value>
-  </data>
   <data name="ModLists_PlanNoOp" xml:space="preserve">
     <value>Questa installazione corrisponde già alla lista - non c'è nulla da fare.</value>
   </data>
@@ -3260,17 +3251,11 @@ Fai un backup del profilo prima di continuare, se ci tieni.</value>
   <data name="Options_ClearHeadlessLauncherToolTip" xml:space="preserve">
     <value>Torna a cercarlo nella cartella di installazione.</value>
   </data>
-  <data name="Options_ClearInstalledDefault" xml:space="preserve">
-    <value>Azzera il predefinito di Installati</value>
-  </data>
   <data name="Options_Connect" xml:space="preserve">
     <value>Connetti</value>
   </data>
   <data name="Options_DataFiles" xml:space="preserve">
     <value>File di dati...</value>
-  </data>
-  <data name="Options_DataFilesDescription" xml:space="preserve">
-    <value>Visualizza o modifica a mano i file JSON che questa app tiene in Data\, compreso installed-mods.json - utile quando i controlli delle versioni della pagina Installati non bastano.</value>
   </data>
   <data name="Options_DataFilesHeader" xml:space="preserve">
     <value>File di dati</value>
@@ -3335,12 +3320,6 @@ Fai un backup del profilo prima di continuare, se ci tieni.</value>
   <data name="Options_HeightPlaceholder" xml:space="preserve">
     <value>Altezza</value>
   </data>
-  <data name="Options_InstalledHasDefault" xml:space="preserve">
-    <value>Installati: è salvato un valore predefinito. Se lo cancelli, l'effetto si vede al prossimo avvio dell'app.</value>
-  </data>
-  <data name="Options_InstalledNoDefault" xml:space="preserve">
-    <value>Installati: nessun valore predefinito salvato - si apre su Schede, senza filtri, ordinato per nome.</value>
-  </data>
   <data name="Options_InstallFolderDescription" xml:space="preserve">
     <value>Indica qui la cartella di gioco di SPT - quella che contiene EscapeFromTarkov.exe, non la cartella del server SPT al suo interno. Una volta impostata, la versione di SPT installata viene usata come predefinita per il filtro versione in Sfoglia e per segnalare i mod che non sono creati per essa.</value>
   </data>
@@ -3376,9 +3355,6 @@ Fai un backup del profilo prima di continuare, se ci tieni.</value>
   </data>
   <data name="Options_NoHeadlessLauncherNotice" xml:space="preserve">
     <value>Nella cartella di installazione non è stato trovato nessun launcher headless Fika, quindi da qui non se ne avvia nessuno - indicalo qui sotto, oppure lascia stare: l'interruttore qui sopra decide comunque quali mod porta una lista distribuita.</value>
-  </data>
-  <data name="Options_PageDefaultsDescription" xml:space="preserve">
-    <value>Le pagine Installati e Sfoglia hanno ciascuna un pulsante Salva come predefinito accanto ad Azzera filtri. Apre quella pagina con i filtri, l'ordinamento, gli elementi per pagina - e su Installati, la vista - impostati in quel momento, così una pagina che restringi sempre allo stesso modo arriva già ristretta. Quello che hai scritto nella casella di ricerca non ne fa mai parte. Azzerare qui un valore predefinito riporta la pagina a quello dell'app.</value>
   </data>
   <data name="Options_PageDefaultsHeader" xml:space="preserve">
     <value>Valori predefiniti delle pagine</value>
@@ -3579,9 +3555,6 @@ Puoi riattivarla quando vuoi.</value>
   <data name="PreLaunch_Checking" xml:space="preserve">
     <value>Controllo del server...</value>
   </data>
-  <data name="PreLaunch_ComparedFormat" xml:space="preserve">
-    <value>Confronto con "{0}": {1}. Applica la lista nella pagina Liste mod per sistemare tutto, oppure entra comunque - niente qui te lo impedisce.</value>
-  </data>
   <data name="PreLaunch_ListMoved" xml:space="preserve">
     <value>La lista mod di questo server è cambiata</value>
   </data>
@@ -3743,12 +3716,6 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
   <data name="ServerMap_ListFailedReasonFormat" xml:space="preserve">
     <value>Non è stato possibile scaricare la lista: {0}.</value>
   </data>
-  <data name="ServerMap_ListSaved_one" xml:space="preserve">
-    <value>"{0}" (revisione {1}, 1 mod) è salvata nelle tue liste mod. Si applica dalla pagina Liste mod, che prima mostra cosa cambierebbe.</value>
-  </data>
-  <data name="ServerMap_ListSaved_other" xml:space="preserve">
-    <value>"{0}" (revisione {1}, {2} mod) è salvata nelle tue liste mod. Si applica dalla pagina Liste mod, che prima mostra cosa cambierebbe.</value>
-  </data>
   <data name="ServerMap_ListSummary_one" xml:space="preserve">
     <value>{0} - revisione {1}, un mod</value>
   </data>
@@ -3769,9 +3736,6 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
   </data>
   <data name="ServerMap_NoAddress" xml:space="preserve">
     <value>Nessun indirizzo del server impostato - inserisci lo stesso indirizzo che hai messo nel launcher SPT.</value>
-  </data>
-  <data name="ServerMap_NoList" xml:space="preserve">
-    <value>Questo server non pubblica una lista mod. Chi lo gestisce ne pubblica una con "Pubblica su questo server" nella pagina Liste mod, dall'app sulla macchina che esegue il server.</value>
   </data>
   <data name="ServerMap_NoListHeldFormat" xml:space="preserve">
     <value>Questo server non sta pubblicando una lista mod. "{0}" è ancora nelle tue liste mod come l'hai scaricata l'ultima volta - però, se ti aspettavi di vederla qui, controlla che l'indirizzo sia quello del server su cui l'hai pubblicata e che il file sia arrivato nella cartella di configurazione di quel server.</value>
@@ -3829,12 +3793,6 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
   </data>
   <data name="ServerMap_Reconnect" xml:space="preserve">
     <value>Riconnetti</value>
-  </data>
-  <data name="ServerMap_ServingOwnList_one" xml:space="preserve">
-    <value>Questo server sta servendo la tua lista "{0}" (revisione {1}, 1 mod). Resta tua da modificare nella pagina Liste mod - ripubblicala dopo una modifica per aggiornare ciò che il server distribuisce.</value>
-  </data>
-  <data name="ServerMap_ServingOwnList_other" xml:space="preserve">
-    <value>Questo server sta servendo la tua lista "{0}" (revisione {1}, {2} mod). Resta tua da modificare nella pagina Liste mod - ripubblicala dopo una modifica per aggiornare ciò che il server distribuisce.</value>
   </data>
   <data name="ServerMap_UnreachableFormat" xml:space="preserve">
     <value>Nessuna risposta da {0}:{1}. Il server potrebbe non essere in esecuzione, oppure l'indirizzo o la porta potrebbero essere sbagliati - sono gli stessi che usi nel launcher SPT.</value>
@@ -4157,9 +4115,6 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
   <data name="Options_MonitorConfirmHeader" xml:space="preserve">
     <value>Quando un mod scaricato risulta installato</value>
   </data>
-  <data name="Options_MonitorConfirmDescription" xml:space="preserve">
-    <value>Quando installi da solo un mod scaricato, la successiva scansione della pagina Installati lo trova. Questa app può chiederti di confermarlo allora, oppure segnalarlo sulla scheda del mod perché tu lo confermi lì. Confermare dice all'app quale versione hai, così i controlli degli aggiornamenti restano corretti.</value>
-  </data>
   <data name="Options_MonitorConfirmAsk" xml:space="preserve">
     <value>Chiedimelo dopo la scansione</value>
   </data>
@@ -4198,9 +4153,6 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
   </data>
   <data name="Options_UpdateNotificationsHeader" xml:space="preserve">
     <value>Notifiche di aggiornamento</value>
-  </data>
-  <data name="Options_UpdateNotificationsDescription" xml:space="preserve">
-    <value>Finché l'app è aperta, chiede ogni tanto a The Forge dei mod che hai installato e mostra una notifica di Windows quando uno di loro ha una nuova versione. Vengono controllati solo i mod installati. Ogni versione viene annunciata una volta sola, e gli aggiornamenti che la pagina Installati mostra già quando attivi questa opzione non vengono annunciati.</value>
   </data>
   <data name="Options_UpdateIntervalHeader" xml:space="preserve">
     <value>Controlla ogni</value>
@@ -4385,9 +4337,6 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
   <data name="Options_ServerMapConnectionHint" xml:space="preserve">
     <value>L'indirizzo e la porta del tuo launcher SPT, più la chiave se il server ne ha una.</value>
   </data>
-  <data name="Options_PageDefaultsHint" xml:space="preserve">
-    <value>Impostato con "Salva come predefinito" nelle pagine Installati e Sfoglia.</value>
-  </data>
   <data name="Options_HeadlessLauncherHint" xml:space="preserve">
     <value>Serve solo se non si trova direttamente nella cartella di installazione.</value>
   </data>
@@ -4534,9 +4483,6 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
   </data>
   <data name="Common_ReviewAndInstall" xml:space="preserve">
     <value>Controlla e installa</value>
-  </data>
-  <data name="Common_ReviewAndInstallToolTip" xml:space="preserve">
-    <value>Apre Liste mod con la lista del server selezionata e la sua Anteprima già pronta. Non viene installato nulla finché non premi Applica.</value>
   </data>
   <data name="ModLists_ApplyInstall_one" xml:space="preserve">
     <value>Installa un mod</value>
@@ -5738,9 +5684,6 @@ Vedi Dipendenze e conflitti.</value>
   <data name="Conflicts_KeepThis" xml:space="preserve">
     <value>Tieni questa</value>
   </data>
-  <data name="Conflicts_KeepThisToolTip" xml:space="preserve">
-    <value>Tieni questa copia e rimuovi le altre. Finiscono dove vanno le mod rimosse, quindi Annulla nella pagina Installati può rimetterle.</value>
-  </data>
   <data name="Conflicts_KeepConfirmTitle" xml:space="preserve">
     <value>Tieni una copia</value>
   </data>
@@ -5754,9 +5697,6 @@ Vedi Dipendenze e conflitti.</value>
   <data name="Conflicts_KeepLineFormat" xml:space="preserve">
     <value>{0} - {1}</value>
   </data>
-  <data name="Conflicts_KeptFormat" xml:space="preserve">
-    <value>Tenuta {0}. Rimossa {1} - Annulla nella pagina Installati la rimette.</value>
-  </data>
   <data name="Conflicts_KeepFailedFormat" xml:space="preserve">
     <value>Impossibile rimuovere {0}: {1}</value>
   </data>
@@ -5768,9 +5708,6 @@ Vedi Dipendenze e conflitti.</value>
   </data>
   <data name="Play_ConflictsHint" xml:space="preserve">
     <value>Alcune mod potrebbero non caricarsi. Puoi comunque avviare.</value>
-  </data>
-  <data name="Conflicts_KeepBlockedFormat" xml:space="preserve">
-    <value>{0} ha anche file che non sono duplicati, ed è stata installata con questa app, quindi si può rimuovere solo per intero - anche quei file andrebbero via. Rimuovila invece dalla pagina Installati, dove Rimuovi mostra tutto ciò che porta via.</value>
   </data>
   <data name="ModLists_EmptyStateShort" xml:space="preserve">
     <value>Scegli una lista a sinistra, oppure cattura ciò che hai installato adesso.</value>

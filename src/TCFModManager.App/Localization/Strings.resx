@@ -558,7 +558,7 @@
     <value>Take this mod off the list. It stays installed - nothing on disk changes.</value>
   </data>
   <data name="ModLists_PinToolTip" xml:space="preserve">
-    <value>Pin this mod so no list you apply ever sets it aside. For the HUD and quality-of-life mods you want kept whatever list you switch to. Unpin it here or from the mod on the Installed page.</value>
+    <value>Pin this mod so no list you apply ever sets it aside. For the HUD and quality-of-life mods you want kept whatever list you switch to. Unpin it here or from the mod in Subscribed items.</value>
   </data>
   <data name="ModLists_UnpinToolTip" xml:space="preserve">
     <value>Unpin this mod. Lists will be able to set it aside again, and this one would.</value>
@@ -655,11 +655,11 @@
     <value>Page defaults</value>
   </data>
   <data name="Options_PageDefaultsDescription" xml:space="preserve">
-    <value>The Installed and Browse pages each have a Save as default button beside Clear filters. It opens that page with the filters, sort, per-page - and on Installed, the view - it is set to at the time, so a page you always narrow the same way arrives narrowed. What you have typed in the search box is never part of it. Clearing a default here puts the page back to the app's own.</value>
+    <value>Subscribed items and Browse each have a Save as default button - in Subscribed items' Filters, and under the gear beside Browse's search box. It opens that page with the filters, sort, per-page - and in Subscribed items, the view - it is set to at the time, so a page you always narrow the same way arrives narrowed. What you have typed in the search box is never part of it. Clearing a default here puts the page back to the app's own.</value>
     <comment>Save as default and Clear filters are the two buttons named in Common_SaveAsDefault and Common_ClearFilters - translate them the same way here.</comment>
   </data>
   <data name="Options_ClearInstalledDefault" xml:space="preserve">
-    <value>Clear the Installed default</value>
+    <value>Clear the Subscribed items default</value>
     <comment>Installed is the page name, as in the sidebar.</comment>
   </data>
   <data name="Options_ClearBrowseDefault" xml:space="preserve">
@@ -726,7 +726,7 @@
     <value>Data files</value>
   </data>
   <data name="Options_DataFilesDescription" xml:space="preserve">
-    <value>View or hand-edit the JSON files this app keeps under Data\, including installed-mods.json - useful when the Installed page's own version controls aren't enough.</value>
+    <value>View or hand-edit the JSON files this app keeps under Data\, including installed-mods.json - useful when Subscribed items' own version controls aren't enough.</value>
     <comment>Data\ and installed-mods.json are a folder and a file name - leave both exactly as they are.</comment>
   </data>
   <data name="Options_DataFiles" xml:space="preserve">
@@ -1634,25 +1634,25 @@ That happens legitimately if the server was rebuilt or you're reaching it throug
     <value>Not connected yet.</value>
   </data>
   <data name="ServerMap_ServingOwnList_one" xml:space="preserve">
-    <value>This server is serving your own list "{0}" (revision {1}, 1 mod). It stays yours to edit on the Mod lists page - publish it again after a change to update what the server hands out.</value>
+    <value>This server is serving your own list "{0}" (revision {1}, 1 mod). It stays yours to edit on the Collections page - publish it again after a change to update what the server hands out.</value>
     <comment>{0} is a list name the user typed. Mod lists is the page name, as in the sidebar. The one-mod case; see the Many form.</comment>
   </data>
   <data name="ServerMap_ServingOwnList_other" xml:space="preserve">
-    <value>This server is serving your own list "{0}" (revision {1}, {2} mods). It stays yours to edit on the Mod lists page - publish it again after a change to update what the server hands out.</value>
+    <value>This server is serving your own list "{0}" (revision {1}, {2} mods). It stays yours to edit on the Collections page - publish it again after a change to update what the server hands out.</value>
     <comment>{2} is two or more. These two become one plural key in S5.</comment>
   </data>
   <data name="ServerMap_ListSaved_one" xml:space="preserve">
-    <value>"{0}" (revision {1}, 1 mod) is saved in your mod lists. Applying it is done from the Mod lists page, which shows what would change first.</value>
+    <value>"{0}" (revision {1}, 1 mod) is saved in your mod lists. Applying it is done from the Collections page, which shows what would change first.</value>
   </data>
   <data name="ServerMap_ListSaved_other" xml:space="preserve">
-    <value>"{0}" (revision {1}, {2} mods) is saved in your mod lists. Applying it is done from the Mod lists page, which shows what would change first.</value>
+    <value>"{0}" (revision {1}, {2} mods) is saved in your mod lists. Applying it is done from the Collections page, which shows what would change first.</value>
   </data>
   <data name="ServerMap_NoListHeldFormat" xml:space="preserve">
     <value>This server isn't publishing a mod list. "{0}" is still in your mod lists as you last fetched it - though if you were expecting to see it here, check the address is the server you published it to, and that the file reached that server's config folder.</value>
     <comment>{0} is a list name.</comment>
   </data>
   <data name="ServerMap_NoList" xml:space="preserve">
-    <value>This server doesn't publish a mod list. Its operator publishes one with "Publish to this server" on the Mod lists page, from the app on the machine running the server.</value>
+    <value>This server doesn't publish a mod list. Its operator publishes one with "Publish to this server" on the Collections page, from the app on the machine running the server.</value>
     <comment>"Publish to this server" is the button named in ModLists_Publish - translate it the same way.</comment>
   </data>
   <data name="ServerMap_KeyRequired" xml:space="preserve">
@@ -2400,7 +2400,7 @@ That happens legitimately if the server was rebuilt or you're reaching it throug
     <comment>{0} is a mod name that was in both an enabled and a disabled folder.</comment>
   </data>
   <data name="Installed_SavedAsDefault" xml:space="preserve">
-    <value>Saved. The Installed page will open like this from now on - Options can put it back.</value>
+    <value>Saved. Subscribed items will open like this from now on - Options can put it back.</value>
   </data>
   <data name="Installed_PinnedFormat" xml:space="preserve">
     <value>Pinned {0} - no mod list will set it aside.</value>
@@ -3030,7 +3030,7 @@ The copy you don't keep is moved into a hidden .ssptmm-duplicates folder in your
     <comment>Stands in for a mod whose name the catalog did not give. It appears where a mod name would, in the read-the-mod-page prompt.</comment>
   </data>
   <data name="Browse_DisabledFormat" xml:space="preserve">
-    <value>{0} is disabled - enable it on the Installed page before reinstalling it.</value>
+    <value>{0} is disabled - enable it in Subscribed items before reinstalling it.</value>
     <comment>{0} is a mod name. Installed is the page name - translate it as in Nav_Installed.</comment>
   </data>
   <data name="Browse_InstallCancelledFormat" xml:space="preserve">
@@ -3487,11 +3487,11 @@ You can turn it back on at any time.</value>
     <comment>Shown when Use current size is pressed while the window is maximised or full screen.</comment>
   </data>
   <data name="Options_InstalledNoDefault" xml:space="preserve">
-    <value>Installed: no default saved - it opens on Cards, unfiltered, sorted by name.</value>
+    <value>Subscribed items: no default saved - it opens on Cards, unfiltered, sorted by name.</value>
     <comment>Installed is the page name - translate it as in Nav_Installed. Cards is the view named by Installed_ViewCards.</comment>
   </data>
   <data name="Options_InstalledHasDefault" xml:space="preserve">
-    <value>Installed: a default is saved. Clearing it takes effect the next time the app starts.</value>
+    <value>Subscribed items: a default is saved. Clearing it takes effect the next time the app starts.</value>
     <comment>Installed is the page name - translate it as in Nav_Installed.</comment>
   </data>
   <data name="Options_BrowseNoDefault" xml:space="preserve">
@@ -3931,7 +3931,7 @@ You can turn it back on at any time.</value>
     <comment>One part of the outstanding-work sentence.</comment>
   </data>
   <data name="PreLaunch_ComparedFormat" xml:space="preserve">
-    <value>Compared against "{0}": {1}. Apply the list on the Mod lists page to sort it, or join anyway - nothing here stops you.</value>
+    <value>Compared against "{0}": {1}. Apply the list on the Collections page to sort it, or join anyway - nothing here stops you.</value>
     <comment>{0} is the list's name, {1} one or two parts joined by Common_ListPairFormat. Mod lists is the page named by Nav_ModLists.</comment>
   </data>
   <data name="Browse_AddonBadge_one" xml:space="preserve">
@@ -6888,7 +6888,7 @@ Install the file as it is anyway?</value>
     <value>When a downloaded mod shows up installed</value>
   </data>
   <data name="Options_MonitorConfirmDescription" xml:space="preserve">
-    <value>Once you install a downloaded mod yourself, the next scan of the Installed page finds it. This app can ask you to confirm it then, or just note it on the mod's card for you to confirm there. Confirming tells the app which version you have, so update checks stay right.</value>
+    <value>Once you install a downloaded mod yourself, the next scan of Subscribed items finds it. This app can ask you to confirm it then, or just note it on the mod's card for you to confirm there. Confirming tells the app which version you have, so update checks stay right.</value>
   </data>
   <data name="Options_MonitorConfirmAsk" xml:space="preserve">
     <value>Ask me after the scan</value>
@@ -6940,7 +6940,7 @@ Install the file as it is anyway?</value>
     <value>Update notifications</value>
   </data>
   <data name="Options_UpdateNotificationsDescription" xml:space="preserve">
-    <value>While the app is open, it asks The Forge every so often about the mods you have installed, and shows a Windows notification when one of them has a new release. Only your installed mods are asked about. Each release is announced once, and the updates the Installed page already shows when you switch this on are not announced.</value>
+    <value>While the app is open, it asks The Forge every so often about the mods you have installed, and shows a Windows notification when one of them has a new release. Only your installed mods are asked about. Each release is announced once, and the updates Subscribed items already shows when you switch this on are not announced.</value>
   </data>
   <data name="Options_UpdateIntervalHeader" xml:space="preserve">
     <value>Check every</value>
@@ -7147,7 +7147,7 @@ Install the file as it is anyway?</value>
     <value>The address and port from your SPT launcher, and the key if the server has one.</value>
   </data>
   <data name="Options_PageDefaultsHint" xml:space="preserve">
-    <value>Set with Save as default on the Installed and Browse pages.</value>
+    <value>Set with Save as default in Subscribed items and Browse.</value>
   </data>
   <data name="Options_HeadlessLauncherHint" xml:space="preserve">
     <value>Only needed if it isn't at the top of the install folder.</value>
@@ -7306,7 +7306,7 @@ Install the file as it is anyway?</value>
     <value>Review and install</value>
   </data>
   <data name="Common_ReviewAndInstallToolTip" xml:space="preserve">
-    <value>Opens Mod lists with the server's list selected and its Preview already worked out. Nothing is installed until you press Apply there.</value>
+    <value>Opens Collections with the server's list selected and its Preview already worked out. Nothing is installed until you press Apply there.</value>
   </data>
   <data name="ModLists_ApplyInstall_one" xml:space="preserve">
     <value>Install 1 mod</value>
@@ -8976,7 +8976,7 @@ See Dependencies and Conflicts.</value>
     <comment>Button on one copy in a conflict.</comment>
   </data>
   <data name="Conflicts_KeepThisToolTip" xml:space="preserve">
-    <value>Keep this copy and remove the others. They go where removed mods go, so Undo on the Installed page can put them back.</value>
+    <value>Keep this copy and remove the others. They go where removed mods go, so Undo in Subscribed items can put them back.</value>
     <comment>Tooltip on Keep this one.</comment>
   </data>
   <data name="Conflicts_KeepConfirmTitle" xml:space="preserve">
@@ -8996,7 +8996,7 @@ See Dependencies and Conflicts.</value>
     <comment>One mod in the Keep one copy question. {0} mod name, {1} folder.</comment>
   </data>
   <data name="Conflicts_KeptFormat" xml:space="preserve">
-    <value>Kept {0}. Removed {1} - Undo on the Installed page puts it back.</value>
+    <value>Kept {0}. Removed {1} - Undo in Subscribed items puts it back.</value>
     <comment>Status after keeping one copy. {0} the kept mod, {1} the removed ones.</comment>
   </data>
   <data name="Conflicts_KeepFailedFormat" xml:space="preserve">
@@ -9016,7 +9016,7 @@ See Dependencies and Conflicts.</value>
     <comment>Under the conflict count on the Play page.</comment>
   </data>
   <data name="Conflicts_KeepBlockedFormat" xml:space="preserve">
-    <value>{0} also has files that aren't duplicated, and it was installed with this app, so it can only be removed whole - those files would go too. Remove it from the Installed page instead, where Remove shows everything it takes.</value>
+    <value>{0} also has files that aren't duplicated, and it was installed with this app, so it can only be removed whole - those files would go too. Unsubscribe from it in Subscribed items instead, where Unsubscribe shows everything it takes.</value>
     <comment>Tooltip on a disabled Keep this one. {0} the other mod.</comment>
   </data>
   <data name="Nav_About" xml:space="preserve">
@@ -9190,5 +9190,9 @@ See Dependencies and Conflicts.</value>
   <data name="Options_ServerMapReportSummary" xml:space="preserve">
     <value>Shows this machine, its mods and whether it's playing to everyone with the server's key.</value>
     <comment>Options, Server Map, Report this machine to the server: the line on show. The full explanation is behind the "?".</comment>
+  </data>
+  <data name="Profiles_SummaryFormat" xml:space="preserve">
+    <value>Your SPT profiles are copied before mods change, so one that stops loading can be put back. The last {0} are kept.</value>
+    <comment>Options, SPT profile backups: the line on show. {0} is how many copies are kept. The full explanation (Profiles_DescriptionFormat) is behind the "?".</comment>
   </data>
 </root>

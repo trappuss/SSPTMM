@@ -2455,4 +2455,5 @@ internal static class Strings
     internal static string Options_UnsubscribeSummary => LocalizationService.Get("Options_UnsubscribeSummary");
     internal static string Options_ServerMapLanOnlySummary => LocalizationService.Get("Options_ServerMapLanOnlySummary");
     internal static string Options_ServerMapReportSummary => LocalizationService.Get("Options_ServerMapReportSummary");
+    internal static string Profiles_SummaryFormat => LocalizationService.Get("Profiles_SummaryFormat");
 }

@@ -1211,9 +1211,36 @@ rest. The "?" (InfoTip) shows the full text when hovered or tabbed to.
   text, measured against a screenshot from before. Its size is now set (14). Why it happened
   is not known. Play's lines, inside cards, kept their size.
 
-Found while checking, and left for its own round: 18 strings still name pages by their old
+Found while checking, and left for its own round (round 28): 18 strings still name pages by their old
 names ("the Installed page", "the Mod lists page") or call Unsubscribe "Remove". One also places
 Save as default "beside Clear filters", where it no longer is.
+
+## Round 28: pages called by their names (2026-10-02)
+
+The 18 strings found in round 27, and three more a wider search turned up (21 in all), now use
+the names on screen:
+
+- "the Installed page" is now **Subscribed items**.
+- "the Mod lists page" (and "Opens Mod lists") is now the **Collections** page. "Mod list" stays
+  as the word for the thing itself, as the Collections page still uses it.
+- "Remove it ... where Remove shows" is now **Unsubscribe**.
+- Save as default is placed where it now is: in Subscribed items' Filters, and under the gear
+  beside Browse's search box.
+- Options' page-default lines say "Subscribed items:" rather than "Installed:".
+
+Their German, French, Italian and Russian text was dropped and falls back to English until
+translated. Left as it was, it pointed to pages that no longer go by those names. Two Russian
+strings had not been translated anyway.
+
+Two Options rows round 27 missed:
+
+- SPT profile backups' text comes from a binding, not a fixed string, so it was not found then.
+  It now has a one-line summary and a "?".
+- Data files kept its explanation as a tooltip on the whole card rather than its header, and now
+  has the "?" too.
+
+Every row tooltip on the page was then listed, to confirm none is left without a "?". The two
+others with no "?" are button tooltips, not row explanations.
 
 ## Values that could not be measured (marked HUNCH in the source)
 

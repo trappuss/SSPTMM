@@ -972,7 +972,7 @@
             <ui:CardExpander.Header>
                 <StackPanel DataContext="{Binding Profiles}">
                     <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Profiles_Header}" />
-                    <TextBlock Style="{StaticResource SettingHint}" Text="{Binding KeepText}" />
+                    <TextBlock Style="{StaticResource SettingHint}"><Run Text="{Binding KeepSummary, Mode=OneWay}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{Binding KeepText}" /></InlineUIContainer></TextBlock>
                 </StackPanel>
             </ui:CardExpander.Header>
 
@@ -1035,7 +1035,7 @@
             <ui:CardControl.Header>
                 <StackPanel>
                     <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_DataFilesHeader}" />
-                    <TextBlock Style="{StaticResource SettingHint}" Text="{loc:Str Options_DataFilesHint}" />
+                    <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_DataFilesHint}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_DataFilesDescription}" /></InlineUIContainer></TextBlock>
                 </StackPanel>
             </ui:CardControl.Header>
             <ui:Button

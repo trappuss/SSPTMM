@@ -360,9 +360,6 @@ Il a été écrit dans :
   <data name="Browse_DetailsUnexpectedFormat" xml:space="preserve">
     <value>Erreur inattendue lors du chargement des détails de {0} : {1}</value>
   </data>
-  <data name="Browse_DisabledFormat" xml:space="preserve">
-    <value>{0} est désactivé - activez-le sur la page Installés avant de le réinstaller.</value>
-  </data>
   <data name="Browse_Endorsements_one" xml:space="preserve">
     <value>{0:N0} recommandation</value>
   </data>
@@ -1951,9 +1948,6 @@ La copie que vous ne gardez pas est déplacée dans un dossier caché .ssptmm-du
   <data name="Installed_SaveAsDefaultToolTip" xml:space="preserve">
     <value>Ouvre cette page avec les filtres, le tri, la vue et le nombre par page tels qu'ils sont réglés en ce moment. Le champ de recherche n'est pas inclus. Les Options permettent de le réinitialiser.</value>
   </data>
-  <data name="Installed_SavedAsDefault" xml:space="preserve">
-    <value>Enregistré. La page Installés s'ouvrira ainsi désormais - Options permet de revenir en arrière.</value>
-  </data>
   <data name="Installed_SelectAllFormat" xml:space="preserve">
     <value>Tout sélectionner ({0})</value>
   </data>
@@ -2785,9 +2779,6 @@ La copie que vous ne gardez pas est déplacée dans un dossier caché .ssptmm-du
   <data name="ModLists_PinnedFormat" xml:space="preserve">
     <value>« {0} » épinglé - aucune liste ne le mettra de côté.</value>
   </data>
-  <data name="ModLists_PinToolTip" xml:space="preserve">
-    <value>Épinglez ce mod pour qu'aucune liste que vous appliquez ne le mette jamais de côté. Pour les mods de HUD et de confort que vous voulez garder quelle que soit la liste vers laquelle vous basculez. Désépinglez-le ici ou depuis le mod sur la page Installés.</value>
-  </data>
   <data name="ModLists_PlanNoOp" xml:space="preserve">
     <value>Cette installation correspond déjà à la liste - rien à faire.</value>
   </data>
@@ -3260,17 +3251,11 @@ Sauvegardez votre profil avant de continuer si vous y tenez.</value>
   <data name="Options_ClearHeadlessLauncherToolTip" xml:space="preserve">
     <value>Revenir à la recherche dans le dossier d'installation.</value>
   </data>
-  <data name="Options_ClearInstalledDefault" xml:space="preserve">
-    <value>Effacer le réglage par défaut d'Installés</value>
-  </data>
   <data name="Options_Connect" xml:space="preserve">
     <value>Se connecter</value>
   </data>
   <data name="Options_DataFiles" xml:space="preserve">
     <value>Fichiers de données...</value>
-  </data>
-  <data name="Options_DataFilesDescription" xml:space="preserve">
-    <value>Consultez ou modifiez à la main les fichiers JSON que cette application conserve dans Data\, dont installed-mods.json - utile quand les contrôles de version de la page Installés ne suffisent pas.</value>
   </data>
   <data name="Options_DataFilesHeader" xml:space="preserve">
     <value>Fichiers de données</value>
@@ -3335,12 +3320,6 @@ Sauvegardez votre profil avant de continuer si vous y tenez.</value>
   <data name="Options_HeightPlaceholder" xml:space="preserve">
     <value>Hauteur</value>
   </data>
-  <data name="Options_InstalledHasDefault" xml:space="preserve">
-    <value>Installés : un réglage par défaut est enregistré. Le réinitialiser prend effet au prochain démarrage de l'app.</value>
-  </data>
-  <data name="Options_InstalledNoDefault" xml:space="preserve">
-    <value>Installés : aucun réglage par défaut enregistré - la page s'ouvre en vue Cartes, sans filtre, triée par nom.</value>
-  </data>
   <data name="Options_InstallFolderDescription" xml:space="preserve">
     <value>Indiquez ici le dossier de jeu SPT - celui qui contient EscapeFromTarkov.exe, pas le dossier du serveur SPT qu'il contient. Une fois défini, la version de SPT installée sert à préremplir le filtre de version de la page Parcourir et à signaler les mods qui ne sont pas prévus pour elle.</value>
   </data>
@@ -3376,9 +3355,6 @@ Sauvegardez votre profil avant de continuer si vous y tenez.</value>
   </data>
   <data name="Options_NoHeadlessLauncherNotice" xml:space="preserve">
     <value>Aucun launcher headless Fika n'a été trouvé dans le dossier d'installation, rien ici n'en démarre donc un - indiquez-le ci-dessous, ou laissez ainsi : le bouton ci-dessus décide toujours des mods qu'une liste diffusée apporte.</value>
-  </data>
-  <data name="Options_PageDefaultsDescription" xml:space="preserve">
-    <value>Les pages Installés et Parcourir ont chacune un bouton Enregistrer par défaut à côté de Réinitialiser les filtres. Il ouvre cette page avec les filtres, le tri, le nombre par page - et, sur Installés, la vue - tels qu'ils sont réglés à ce moment-là, si bien qu'une page que vous restreignez toujours de la même façon arrive déjà restreinte. Ce que vous avez tapé dans le champ de recherche n'en fait jamais partie. Effacer ici un réglage par défaut rend à la page celui de l'application.</value>
   </data>
   <data name="Options_PageDefaultsHeader" xml:space="preserve">
     <value>Réglages par défaut des pages</value>
@@ -3579,9 +3555,6 @@ Vous pouvez le réactiver à tout moment.</value>
   <data name="PreLaunch_Checking" xml:space="preserve">
     <value>Vérification du serveur...</value>
   </data>
-  <data name="PreLaunch_ComparedFormat" xml:space="preserve">
-    <value>Comparé à « {0} » : {1}. Appliquez la liste sur la page Listes de mods pour y remédier, ou rejoignez quand même - rien ici ne vous en empêche.</value>
-  </data>
   <data name="PreLaunch_ListMoved" xml:space="preserve">
     <value>La liste de mods de ce serveur a changé</value>
   </data>
@@ -3743,12 +3716,6 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
   <data name="ServerMap_ListFailedReasonFormat" xml:space="preserve">
     <value>La liste n'a pas pu être récupérée : {0}.</value>
   </data>
-  <data name="ServerMap_ListSaved_one" xml:space="preserve">
-    <value>« {0} » (révision {1}, {2} mod) est enregistrée dans vos listes de mods. Son application se fait depuis la page Listes de mods, qui montre d'abord ce qui changerait.</value>
-  </data>
-  <data name="ServerMap_ListSaved_other" xml:space="preserve">
-    <value>« {0} » (révision {1}, {2} mods) est enregistrée dans vos listes de mods. Son application se fait depuis la page Listes de mods, qui montre d'abord ce qui changerait.</value>
-  </data>
   <data name="ServerMap_ListSummary_one" xml:space="preserve">
     <value>{0} - révision {1}, {2} mod</value>
   </data>
@@ -3769,9 +3736,6 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
   </data>
   <data name="ServerMap_NoAddress" xml:space="preserve">
     <value>Aucune adresse de serveur définie - saisissez la même adresse que dans le launcher SPT.</value>
-  </data>
-  <data name="ServerMap_NoList" xml:space="preserve">
-    <value>Ce serveur ne publie pas de liste de mods. Son opérateur en publie une avec « Publier sur ce serveur » sur la page Listes de mods, depuis l'app installée sur la machine qui fait tourner le serveur.</value>
   </data>
   <data name="ServerMap_NoListHeldFormat" xml:space="preserve">
     <value>Ce serveur ne publie pas de liste de mods. « {0} » reste dans vos listes de mods telle que vous l'avez récupérée la dernière fois - mais si vous vous attendiez à la voir ici, vérifiez que l'adresse est bien celle du serveur où vous l'avez publiée, et que le fichier est bien arrivé dans le dossier de configuration de ce serveur.</value>
@@ -3829,12 +3793,6 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
   </data>
   <data name="ServerMap_Reconnect" xml:space="preserve">
     <value>Se reconnecter</value>
-  </data>
-  <data name="ServerMap_ServingOwnList_one" xml:space="preserve">
-    <value>Ce serveur sert votre propre liste « {0} » (révision {1}, {2} mod). Elle reste la vôtre : modifiez-la sur la page Listes de mods - republiez-la après un changement pour mettre à jour ce que le serveur distribue.</value>
-  </data>
-  <data name="ServerMap_ServingOwnList_other" xml:space="preserve">
-    <value>Ce serveur sert votre propre liste « {0} » (révision {1}, {2} mods). Elle reste la vôtre : modifiez-la sur la page Listes de mods - republiez-la après un changement pour mettre à jour ce que le serveur distribue.</value>
   </data>
   <data name="ServerMap_UnreachableFormat" xml:space="preserve">
     <value>Rien n'a répondu à {0}:{1}. Le serveur n'est peut-être pas démarré, ou l'adresse ou le port sont erronés - c'est la même adresse que dans le launcher SPT.</value>
@@ -4157,9 +4115,6 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
   <data name="Options_MonitorConfirmHeader" xml:space="preserve">
     <value>Quand un mod téléchargé apparaît installé</value>
   </data>
-  <data name="Options_MonitorConfirmDescription" xml:space="preserve">
-    <value>Une fois que vous installez vous-même un mod téléchargé, la prochaine analyse de la page Installés le trouve. Cette application peut alors vous demander de le confirmer, ou simplement le signaler sur la carte du mod pour que vous le confirmiez là. Confirmer indique à l'application quelle version vous avez, pour que les vérifications de mise à jour restent justes.</value>
-  </data>
   <data name="Options_MonitorConfirmAsk" xml:space="preserve">
     <value>Me demander après l'analyse</value>
   </data>
@@ -4198,9 +4153,6 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
   </data>
   <data name="Options_UpdateNotificationsHeader" xml:space="preserve">
     <value>Notifications de mise à jour</value>
-  </data>
-  <data name="Options_UpdateNotificationsDescription" xml:space="preserve">
-    <value>Tant que l'application est ouverte, elle interroge régulièrement The Forge sur les mods que vous avez installés et affiche une notification Windows quand l'un d'eux a une nouvelle version. Seuls vos mods installés sont concernés. Chaque version n'est annoncée qu'une fois, et les mises à jour que la page Installés affiche déjà quand vous activez cette option ne sont pas annoncées.</value>
   </data>
   <data name="Options_UpdateIntervalHeader" xml:space="preserve">
     <value>Vérifier toutes les</value>
@@ -4385,9 +4337,6 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
   <data name="Options_ServerMapConnectionHint" xml:space="preserve">
     <value>L'adresse et le port de votre launcher SPT, et la clé si le serveur en a une.</value>
   </data>
-  <data name="Options_PageDefaultsHint" xml:space="preserve">
-    <value>Défini avec « Enregistrer par défaut » sur les pages Installés et Parcourir.</value>
-  </data>
   <data name="Options_HeadlessLauncherHint" xml:space="preserve">
     <value>Nécessaire seulement s'il n'est pas directement dans le dossier d'installation.</value>
   </data>
@@ -4534,9 +4483,6 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
   </data>
   <data name="Common_ReviewAndInstall" xml:space="preserve">
     <value>Vérifier et installer</value>
-  </data>
-  <data name="Common_ReviewAndInstallToolTip" xml:space="preserve">
-    <value>Ouvre Listes de mods avec la liste du serveur sélectionnée et son Aperçu déjà calculé. Rien n'est installé tant que vous n'appuyez pas sur Appliquer.</value>
   </data>
   <data name="ModLists_ApplyInstall_one" xml:space="preserve">
     <value>Installer {0} mod</value>
@@ -5738,9 +5684,6 @@ Voir Dépendances et conflits.</value>
   <data name="Conflicts_KeepThis" xml:space="preserve">
     <value>Garder celui-ci</value>
   </data>
-  <data name="Conflicts_KeepThisToolTip" xml:space="preserve">
-    <value>Garder cette copie et supprimer les autres. Elles vont là où vont les mods supprimés : Annuler sur la page Installés peut les remettre.</value>
-  </data>
   <data name="Conflicts_KeepConfirmTitle" xml:space="preserve">
     <value>Garder une copie</value>
   </data>
@@ -5754,9 +5697,6 @@ Voir Dépendances et conflits.</value>
   <data name="Conflicts_KeepLineFormat" xml:space="preserve">
     <value>{0} - {1}</value>
   </data>
-  <data name="Conflicts_KeptFormat" xml:space="preserve">
-    <value>{0} gardé. {1} supprimé - Annuler sur la page Installés le remet.</value>
-  </data>
   <data name="Conflicts_KeepFailedFormat" xml:space="preserve">
     <value>Impossible de supprimer {0} : {1}</value>
   </data>
@@ -5768,9 +5708,6 @@ Voir Dépendances et conflits.</value>
   </data>
   <data name="Play_ConflictsHint" xml:space="preserve">
     <value>Certains mods risquent de ne pas se charger. Vous pouvez quand même lancer.</value>
-  </data>
-  <data name="Conflicts_KeepBlockedFormat" xml:space="preserve">
-    <value>{0} a aussi des fichiers qui ne sont pas en double, et il a été installé avec cette application : il ne peut être supprimé qu'en entier, et ces fichiers partiraient aussi. Supprimez-le plutôt depuis la page Installés, où Supprimer montre tout ce qu'il emporte.</value>
   </data>
   <data name="ModLists_EmptyStateShort" xml:space="preserve">
     <value>Choisissez une liste à gauche, ou capturez ce que vous avez installé.</value>

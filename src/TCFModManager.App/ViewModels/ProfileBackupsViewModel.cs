@@ -35,6 +35,9 @@ public sealed partial class ProfileBackupsViewModel : LocalizedViewModel
 
     public string KeepText => LocalizationService.Text(Strings.Profiles_DescriptionFormat, AppServices.ProfileBackups.Keep);
 
+    // Fork (UI tidy-up 3): the one line on show in Options; KeepText is behind the "?" beside it.
+    public string KeepSummary => LocalizationService.Text(Strings.Profiles_SummaryFormat, AppServices.ProfileBackups.Keep);
+
     [ObservableProperty]
     private string? _statusMessage;
 
