@@ -1,3 +1,5 @@
+![SSPTMM - Steamified SPT Mod Manager](docs/images/ssptmm-banner.png)
+
 # SSPTMM - Steamified SPT Mod Manager
 
 A Windows app for finding, installing and keeping track of [SPT](https://sp-tarkov.com) (Single

@@ -1703,6 +1703,24 @@ config report. It now skips only the outcomes that leave something other than th
 on purpose (Merged, KeptMine, NotUpdated, Preserved, Removed - ConfigFileOutcome.IsArchivesCopy);
 Added, Unchanged, DefaultsUpdated and Replaced are checked like any file.
 
+### Icon and mascot
+
+The user's mascot (assets/ssptmm-mascot.png, transparent) replaces both placeholders. Everything is
+generated from it by build/branding/make_branding.py, so a new mascot is one file and one run:
+
+- **AppIcon.ico** (16-256 px): the mascot on a rounded Steam-blue tile (#171A21 to #2A475E, a faint
+  #66C0F4 rim), because the mostly white mascot vanishes on a light taskbar. 16-32 px show only the
+  helmeted head - the whole mascot is a smudge that small. The exe, window, title bar and tray all
+  take it from this one file.
+- **WorkshopBanner.png** (512 px, shown at 203): the same tile with the mascot over "SSPTMM" and
+  "Steamified SPT Mod Manager" in Noto Sans.
+- **docs/images**: ssptmm-banner.png (README and wiki header), ssptmm-social.png (1280x640, for the
+  repository's social preview - set by hand in Settings > General) and ssptmm-icon-256.png.
+- The screenshots keep their content: only the title-bar icon and the banner art were replaced, with
+  pixels from the new build rendered at the same window positions (checked: the old and new captures
+  differ only inside those two boxes; in the dimmed 16-read-page-first the dim is exactly x0.2, so the
+  new pixels were dimmed the same way).
+
 ### Also
 
 - The stray file `e -i HEAD~3` (a `git log` printout committed in TCF Mod Manager's history) is

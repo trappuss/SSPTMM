@@ -1,3 +1,5 @@
+![SSPTMM - Steamified SPT Mod Manager](https://raw.githubusercontent.com/trappuss/SSPTMM/main/docs/images/ssptmm-banner.png)
+
 # SSPTMM - Steamified SPT Mod Manager
 
 SSPTMM is a Windows app for finding, installing and keeping track of

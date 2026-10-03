@@ -8,6 +8,8 @@ Close SSPTMM, then unzip `SSPTMM-1.1.0-win-x64.zip` over your SSPTMM folder. You
 
 - **Newer releases are pointed out.** When it starts, SSPTMM asks GitHub whether a newer release is out. If one is, a dot appears beside **Help** and **About**, and About names the version, its date and download size, shows its release notes and has a button to the release page. SSPTMM never downloads or installs anything by itself. **Check now** on About asks again.
 
+- **SSPTMM has its own icon and mascot.** The window, taskbar, tray and exe icon and the art at the left of the Workshop banner now show SSPTMM's mascot in place of the placeholder.
+
 ## Changed
 
 - **"Hide mods with AI content" is gone** from the Browse and Subscribed items filters. sp-mod.com has no such flag: its API sends no such field and refuses it as a filter, so the option never hid anything. A saved filter default that had it ticked is ignored.

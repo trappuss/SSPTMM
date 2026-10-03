@@ -73,10 +73,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- The icon and the banner art are both made from the mascot (assets\ssptmm-mascot.png) by
+         build\branding\make_branding.py - change the mascot there and run it, not these files. -->
     <Resource Include="Assets\AppIcon.ico" />
 
-    <!-- The app's own artwork (assets\TCFModMgr.png), in the spot where Steam's Workshop banner shows
-         the game's art. -->
+    <!-- The mascot, in the spot where Steam's Workshop banner shows the game's art. -->
     <Resource Include="Assets\WorkshopBanner.png" />
 
     <!-- Noto Sans, the next face in Steam's own font stack after Valve's licensed Motiva Sans.
