@@ -3152,14 +3152,14 @@ The copy you don't keep is moved into a hidden .ssptmm-duplicates folder in your
     <value>Unpin this mod, so a mod list you apply can set it aside again when the list leaves it out.</value>
   </data>
   <data name="Installed_SourceAppManaged" xml:space="preserve">
-    <value>Installed by this app - Remove deletes exactly the files it placed</value>
+    <value>Installed by this app - Unsubscribe deletes exactly the files it placed</value>
     <comment>Remove is the button named by Installed_Remove - translate both the same way.</comment>
   </data>
   <data name="Installed_SourceManualConfirmed" xml:space="preserve">
     <value>Installed by hand, with its version manually confirmed here</value>
   </data>
   <data name="Installed_SourceManual" xml:space="preserve">
-    <value>Installed by hand - Remove deletes its whole folder</value>
+    <value>Installed by hand - Unsubscribe deletes its whole folder</value>
     <comment>Remove is the button named by Installed_Remove - translate both the same way.</comment>
   </data>
   <data name="Installed_CardEnableToolTip" xml:space="preserve">
@@ -7613,7 +7613,7 @@ Install the file as it is anyway?</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_Installed_Updates_Step2" xml:space="preserve">
-    <value>To list only those, change the dropdown that reads {0} to {1}.</value>
+    <value>To list only those, press {0} and change {1} to {2}.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_Installed_Update_Title" xml:space="preserve">
@@ -7633,7 +7633,7 @@ Install the file as it is anyway?</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_Installed_Update_Note" xml:space="preserve">
-    <value>To update several at once, press {0}, tick them and press {1}.</value>
+    <value>To update several at once, choose {0} from the ... button at the right end of the toolbar, tick them and press {1}.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_Installed_Views_Title" xml:space="preserve">
@@ -7641,7 +7641,7 @@ Install the file as it is anyway?</value>
     <comment>How-to title. 'Installed' is the page name, Nav_Installed.</comment>
   </data>
   <data name="Help_Installed_Views_Step1" xml:space="preserve">
-    <value>At the top of {0}, press {1}, {2} or {3}.</value>
+    <value>On {0}, press one of the three icons at the right end of the toolbar: {1}, {3} or {2}. Hover an icon to see its name.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_Installed_Views_Step2" xml:space="preserve">
@@ -7652,7 +7652,7 @@ Install the file as it is anyway?</value>
     <comment>How-to title.</comment>
   </data>
   <data name="Help_Installed_Groups_Step1" xml:space="preserve">
-    <value>On {0}, press {1}.</value>
+    <value>On {0}, press the {1} icon at the right end of the toolbar.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_Installed_Groups_Step2" xml:space="preserve">
@@ -7688,7 +7688,7 @@ Install the file as it is anyway?</value>
     <comment>How-to title.</comment>
   </data>
   <data name="Help_Installed_DisableMany_Step1" xml:space="preserve">
-    <value>On {0}, press {1} and tick the mods.</value>
+    <value>On {0}, press the ... button at the right end of the toolbar, choose {1} and tick the mods.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_Installed_DisableMany_Step2" xml:space="preserve">
@@ -8591,7 +8591,7 @@ Install the file as it is anyway?</value>
     <value>On {0}, a mod in a conflict has a warning on its card - hover it to see which mods it clashes with. The conflict count above the list opens {1}.</value>
   </data>
   <data name="Help_Dependencies_Spot_Step2" xml:space="preserve">
-    <value>To show only those mods, choose {0} in the filters.</value>
+    <value>To show only those mods, press {0} and tick {1}.</value>
   </data>
   <data name="Help_Dependencies_Spot_Step3" xml:space="preserve">
     <value>{0} warns about conflicts too, before you launch. It never stops you playing.</value>
@@ -9087,5 +9087,57 @@ See Dependencies and Conflicts.</value>
   <data name="Downloads_BarToolTip" xml:space="preserve">
     <value>Open Downloads: every queued mod, its progress, and Retry or Cancel.</value>
     <comment>Tooltip on the downloads bar.</comment>
+  </data>
+  <data name="Installed_Filters" xml:space="preserve">
+    <value>Filters</value>
+    <comment>Subscribed items toolbar: button opening every filter, none of them on.</comment>
+  </data>
+  <data name="Installed_FiltersCountFormat" xml:space="preserve">
+    <value>Filters ({0})</value>
+    <comment>Subscribed items toolbar: the same button while filters are on. {0} is how many.</comment>
+  </data>
+  <data name="Installed_FiltersToolTip" xml:space="preserve">
+    <value>Narrow the list by update status, enabled or disabled, category, group and more</value>
+    <comment>Tooltip on the Filters button.</comment>
+  </data>
+  <data name="Installed_MoreToolTip" xml:space="preserve">
+    <value>More: install from a file, SPT upgrade check, rescan, multi select</value>
+    <comment>Tooltip on the "..." button at the right of the Subscribed items toolbar.</comment>
+  </data>
+  <data name="Installed_RescanToolTip" xml:space="preserve">
+    <value>Look through the SPT folder again for mods added or removed outside this app</value>
+    <comment>Tooltip on Rescan in the Subscribed items "..." menu.</comment>
+  </data>
+  <data name="Installed_SelectionDone" xml:space="preserve">
+    <value>Done</value>
+    <comment>Multi select bar: leaves multi select.</comment>
+  </data>
+  <data name="Installed_NothingMatches" xml:space="preserve">
+    <value>No mods match the search and filters.</value>
+    <comment>Subscribed items, when mods are installed but the search and filters hide all of them. A Clear filters button follows.</comment>
+  </data>
+  <data name="Installed_EmptyTitle" xml:space="preserve">
+    <value>No mods yet</value>
+    <comment>Subscribed items with nothing installed in the SPT folder: the heading.</comment>
+  </data>
+  <data name="Installed_EmptyBody" xml:space="preserve">
+    <value>Mods you subscribe to in the Workshop are installed into your SPT folder and listed here, where you can update, disable or unsubscribe from them. Mods already in the folder show up here too.</value>
+    <comment>Subscribed items with nothing installed: what the page is for, under the heading.</comment>
+  </data>
+  <data name="Installed_EmptyBrowse" xml:space="preserve">
+    <value>Browse the Workshop</value>
+    <comment>Subscribed items with nothing installed: button opening the Workshop.</comment>
+  </data>
+  <data name="Installed_MoreDetails" xml:space="preserve">
+    <value>More details</value>
+    <comment>Link on an opened mod card: shows its GUID, folder, dates, who installed it and its folders.</comment>
+  </data>
+  <data name="Installed_FewerDetails" xml:space="preserve">
+    <value>Fewer details</value>
+    <comment>The same link once the details are showing: hides them again.</comment>
+  </data>
+  <data name="Help_Installed_DisableMany_Step3" xml:space="preserve">
+    <value>Press {0} when you have finished.</value>
+    <comment>Help step: leaving multi select. {0} is the Done button on the multi select bar.</comment>
   </data>
 </root>

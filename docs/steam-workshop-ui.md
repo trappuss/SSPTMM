@@ -1141,6 +1141,51 @@ Checked under Wine: each menu opens and its entries go to their pages; the gear 
 a download-only of a mod showed the bar's progress line and then returned it to idle. Seven strings
 (Tools and six for the bar) are new and fall back to English, as do the reworded Help steps.
 
+## Round 26: Subscribed items, tidied (2026-10-02)
+
+The second tidy-up, of the whole Subscribed items page. Before, 21 controls sat above the first
+mod, over three rows, with up to four more appearing and shifting the row.
+
+- **One toolbar row:** search, sort, **Filters**, the three views as icons, and **⋯**.
+  - Filters opens one popup with update status, enabled/disabled, category and group. The five
+    tick boxes that had their own dropdown are plain tick boxes in the same popup. Below them are
+    "show in sections", Save as default and Clear filters. The button reads "Filters (2)" and has
+    a blue edge while two filters are narrowing the list. Sort and sections are not counted.
+  - ⋯ holds Install from file, SPT upgrade check, Rescan, Multi select, open/close every mod
+    (Cards and List only) and List badges. Each entry's explanation opens to the left of the menu.
+    Under Wine the first entry's tooltip came up with the menu and covered the rest.
+  - Cards, List and Groups are icons at the right, as Steam switches its library between grid and
+    list. Each names itself, and what it is for, on hover.
+  - Per page moved beside the pager.
+- **Only when there is something to act on:** the conflict count, and Undo for the last disable,
+  enable or removal, on a line under the toolbar.
+- **Multi select** has a Done button on its bar, since it is switched on from the ⋯ menu.
+- **An opened card** shows the installed version, the newest one and any warning. The GUID,
+  folder name, dates, Fika/ads/AI flags, who installed it and the folder buttons are behind
+  "More details". Its old minimum height, which made every opened card as tall as a ten-line one,
+  went too.
+- **Nothing installed:** in place of the toolbar over "No mods found", the page says what it is
+  for, with "Browse the Workshop" and "Install from file...". When the search and filters hide
+  everything, it says so and offers Clear filters. That message is not shown in the Groups view,
+  whose group headers already say "0 mods".
+- The "installed by" line said Remove for the button labelled Unsubscribe. It now names
+  Unsubscribe in all five languages, using each language's existing name for that button.
+- Six Help steps name the new places: the Filters button, the ⋯ button and the view icons. A
+  seventh says to press Done. Their German, French, Italian and Russian text falls back to
+  English until translated, as do the twelve new strings.
+
+Checked under Wine:
+
+- A dropdown inside the Filters popup chooses without closing it, and the count and edge follow.
+- Clear filters brings every mod back.
+- Every ⋯ entry tried does what it says. The log shows Rescan's scan.
+- Multi select and Done work.
+- More details and Fewer details work, and a warning shows without opening More details.
+- List and Groups views work.
+- With the test install's mods moved aside, the empty page shows and its button opens the
+  Workshop. The mods were then put back.
+- Disabling a mod showed Undo, and Undo put it back and the line went away.
+
 ## Values that could not be measured (marked HUNCH in the source)
 
 - The smooth-scroll distance and time (100px, 250ms) - chosen to feel like a browser, not measured.

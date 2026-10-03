@@ -2129,10 +2129,10 @@
     <value>Этот мод лежит и во включённой, и в отключённой папке - выберите, какую копию оставить</value>
   </data>
   <data name="Installed_SourceAppManaged" xml:space="preserve">
-    <value>Установлен этим приложением - «Удалить» сотрёт ровно те файлы, которые оно разместило</value>
+    <value>Установлен этим приложением - «Отписаться» сотрёт ровно те файлы, которые оно разместило</value>
   </data>
   <data name="Installed_SourceManual" xml:space="preserve">
-    <value>Установлен вручную - «Удалить» сотрёт всю его папку</value>
+    <value>Установлен вручную - «Отписаться» сотрёт всю его папку</value>
   </data>
   <data name="Installed_SourceManualConfirmed" xml:space="preserve">
     <value>Установлен вручную, версия подтверждена здесь вручную</value>
@@ -5050,9 +5050,6 @@
   <data name="Help_Installed_Updates_Step1" xml:space="preserve">
     <value>Откройте {0}. У мода с обновлением значок состояния - стрелка вверх.</value>
   </data>
-  <data name="Help_Installed_Updates_Step2" xml:space="preserve">
-    <value>Чтобы показать только их, переключите список с надписью {0} на {1}.</value>
-  </data>
   <data name="Help_Installed_Update_Title" xml:space="preserve">
     <value>Обновить или заново скачать мод</value>
   </data>
@@ -5065,20 +5062,11 @@
   <data name="Help_Installed_Update_Step3" xml:space="preserve">
     <value>Когда попросят, прочитайте страницу мода, затем нажмите {0}.</value>
   </data>
-  <data name="Help_Installed_Update_Note" xml:space="preserve">
-    <value>Чтобы обновить несколько сразу, нажмите {0}, отметьте их и нажмите {1}.</value>
-  </data>
-  <data name="Help_Installed_Views_Step1" xml:space="preserve">
-    <value>Вверху страницы {0} нажмите {1}, {2} или {3}.</value>
-  </data>
   <data name="Help_Installed_Views_Step2" xml:space="preserve">
     <value>Все три показывают одни и те же моды с теми же фильтрами и сортировкой - меняется только раскладка.</value>
   </data>
   <data name="Help_Installed_Groups_Title" xml:space="preserve">
     <value>Разложить моды по своим группам</value>
-  </data>
-  <data name="Help_Installed_Groups_Step1" xml:space="preserve">
-    <value>На странице {0} нажмите {1}.</value>
   </data>
   <data name="Help_Installed_Groups_Step2" xml:space="preserve">
     <value>Введите название в поле с надписью {0} и нажмите {1}.</value>
@@ -5106,9 +5094,6 @@
   </data>
   <data name="Help_Installed_DisableMany_Title" xml:space="preserve">
     <value>Отключить несколько модов сразу</value>
-  </data>
-  <data name="Help_Installed_DisableMany_Step1" xml:space="preserve">
-    <value>На странице {0} нажмите {1} и отметьте моды.</value>
   </data>
   <data name="Help_Installed_DisableMany_Step2" xml:space="preserve">
     <value>Нажмите {0}.</value>
@@ -5760,9 +5745,6 @@
   </data>
   <data name="Help_Dependencies_Spot_Step1" xml:space="preserve">
     <value>На странице {0} у мода в конфликте на карточке есть предупреждение - наведите на него, чтобы увидеть, с какими модами он конфликтует. Число конфликтов над списком открывает {1}.</value>
-  </data>
-  <data name="Help_Dependencies_Spot_Step2" xml:space="preserve">
-    <value>Чтобы показать только эти моды, выберите в фильтрах {0}.</value>
   </data>
   <data name="Help_Dependencies_Spot_Step3" xml:space="preserve">
     <value>Страница {0} тоже предупреждает о конфликтах перед запуском. Играть она никогда не мешает.</value>

@@ -200,6 +200,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     [NotifyPropertyChangedFor(nameof(ShowCardSections))]
     [NotifyPropertyChangedFor(nameof(ShowListSections))]
     [NotifyPropertyChangedFor(nameof(GroupChipsRedundant))]
+    [NotifyPropertyChangedFor(nameof(NothingMatches))] // Fork: InstalledViewModel.Toolbar.cs
     private InstalledViewMode _viewMode = InstalledViewMode.Cards;
 
     public bool ShowCards => ViewMode == InstalledViewMode.Cards;
@@ -2898,6 +2899,9 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         // Keeps the status line up to date as soon as a filter/search control changes; skipped when
         // _all is empty since ScanAsync's own "No mods found under ..." message is more useful there.
         if (_all.Count > 0) StatusMessage = DescribeCounts();
+
+        // Fork: the Filters button's count and the empty states (InstalledViewModel.Toolbar.cs).
+        UpdateToolbarState();
     }
 
     // How many mods are shown out of how many are installed, plus how many of them are disabled.

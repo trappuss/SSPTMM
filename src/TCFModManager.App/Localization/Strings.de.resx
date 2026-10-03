@@ -2006,10 +2006,10 @@ Die Kopie, die du nicht behältst, wird in einen versteckten Ordner .ssptmm-dupl
     <value>Dieser Mod liegt sowohl in einem aktivierten als auch in einem deaktivierten Ordner - wähl, welche Kopie bleiben soll</value>
   </data>
   <data name="Installed_SourceAppManaged" xml:space="preserve">
-    <value>Von dieser App installiert - Entfernen löscht genau die Dateien, die sie abgelegt hat</value>
+    <value>Von dieser App installiert - „Abbestellen“ löscht genau die Dateien, die sie abgelegt hat</value>
   </data>
   <data name="Installed_SourceManual" xml:space="preserve">
-    <value>Von Hand installiert - Entfernen löscht den ganzen Ordner</value>
+    <value>Von Hand installiert - „Abbestellen“ löscht den ganzen Ordner</value>
   </data>
   <data name="Installed_SourceManualConfirmed" xml:space="preserve">
     <value>Von Hand installiert, Version hier manuell bestätigt</value>
@@ -4765,9 +4765,6 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   <data name="Help_Installed_Updates_Step1" xml:space="preserve">
     <value>Öffne {0}. Ein Mod mit Update zeigt einen Pfeil nach oben als Statussymbol.</value>
   </data>
-  <data name="Help_Installed_Updates_Step2" xml:space="preserve">
-    <value>Um nur diese zu sehen, stell das Auswahlfeld, in dem {0} steht, auf {1}.</value>
-  </data>
   <data name="Help_Installed_Update_Title" xml:space="preserve">
     <value>Einen Mod aktualisieren oder neu herunterladen</value>
   </data>
@@ -4780,20 +4777,11 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   <data name="Help_Installed_Update_Step3" xml:space="preserve">
     <value>Lies die Seite des Mods, wenn du gefragt wirst, und klicke dann auf {0}.</value>
   </data>
-  <data name="Help_Installed_Update_Note" xml:space="preserve">
-    <value>Um mehrere auf einmal zu aktualisieren, klicke auf {0}, hake sie an und klicke auf {1}.</value>
-  </data>
-  <data name="Help_Installed_Views_Step1" xml:space="preserve">
-    <value>Klicke oben unter {0} auf {1}, {2} oder {3}.</value>
-  </data>
   <data name="Help_Installed_Views_Step2" xml:space="preserve">
     <value>Alle drei zeigen dieselben Mods mit denselben Filtern und derselben Sortierung - nur die Anordnung ändert sich.</value>
   </data>
   <data name="Help_Installed_Groups_Title" xml:space="preserve">
     <value>Meine Mods in eigene Gruppen sortieren</value>
-  </data>
-  <data name="Help_Installed_Groups_Step1" xml:space="preserve">
-    <value>Klicke unter {0} auf {1}.</value>
   </data>
   <data name="Help_Installed_Groups_Step2" xml:space="preserve">
     <value>Gib einen Namen in das Feld ein, in dem {0} steht, und klicke auf {1}.</value>
@@ -4821,9 +4809,6 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   </data>
   <data name="Help_Installed_DisableMany_Title" xml:space="preserve">
     <value>Mehrere Mods auf einmal ausschalten</value>
-  </data>
-  <data name="Help_Installed_DisableMany_Step1" xml:space="preserve">
-    <value>Klicke unter {0} auf {1} und hake die Mods an.</value>
   </data>
   <data name="Help_Installed_DisableMany_Step2" xml:space="preserve">
     <value>Klicke auf {0}.</value>
@@ -5475,9 +5460,6 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   </data>
   <data name="Help_Dependencies_Spot_Step1" xml:space="preserve">
     <value>Unter {0} hat ein Mod in einem Konflikt eine Warnung auf seiner Karte - fahre mit der Maus darüber, um zu sehen, mit welchen Mods er kollidiert. Die Konfliktanzahl über der Liste öffnet {1}.</value>
-  </data>
-  <data name="Help_Dependencies_Spot_Step2" xml:space="preserve">
-    <value>Um nur diese Mods zu zeigen, wähle in den Filtern {0}.</value>
   </data>
   <data name="Help_Dependencies_Spot_Step3" xml:space="preserve">
     <value>{0} warnt vor dem Start ebenfalls vor Konflikten. Am Spielen hindert es dich nie.</value>

@@ -118,7 +118,7 @@ internal static class HelpCatalog
             Topic("installed.updates", () => Strings.Help_Installed_Updates_Title,
                 Step(() => Strings.Help_Installed_Updates_Step1, () => Strings.Nav_Installed),
                 Step(() => Strings.Help_Installed_Updates_Step2,
-                    () => Strings.Filter_UpdateAny, () => Strings.Filter_UpdateNeeded))
+                    () => Strings.Installed_Filters, () => Strings.Filter_UpdateAny, () => Strings.Filter_UpdateNeeded))
                 .WithKeywords(() => Strings.Help_Installed_Updates_Keywords),
 
             Topic("installed.update", () => Strings.Help_Installed_Update_Title,
@@ -157,7 +157,8 @@ internal static class HelpCatalog
             Topic("installed.disablemany", () => Strings.Help_Installed_DisableMany_Title,
                 Step(() => Strings.Help_Installed_DisableMany_Step1,
                     () => Strings.Nav_Installed, () => Strings.Installed_MultiSelect),
-                Step(() => Strings.Help_Installed_DisableMany_Step2, () => Strings.Installed_DisableSelected))
+                Step(() => Strings.Help_Installed_DisableMany_Step2, () => Strings.Installed_DisableSelected),
+                Step(() => Strings.Help_Installed_DisableMany_Step3, () => Strings.Installed_SelectionDone))
                 .WithNote(() => Strings.Help_Installed_DisableMany_Note, () => Strings.Installed_ViewGroups)
                 .WithKeywords(() => Strings.Help_Installed_DisableMany_Keywords),
 
@@ -306,7 +307,7 @@ internal static class HelpCatalog
             Topic("dependencies.spot", () => Strings.Help_Dependencies_Spot_Title,
                 Step(() => Strings.Help_Dependencies_Spot_Step1,
                     () => Strings.Nav_Installed, () => Strings.Nav_Dependencies),
-                Step(() => Strings.Help_Dependencies_Spot_Step2, () => Strings.Filter_HasConflicts),
+                Step(() => Strings.Help_Dependencies_Spot_Step2, () => Strings.Installed_Filters, () => Strings.Filter_HasConflicts),
                 Step(() => Strings.Help_Dependencies_Spot_Step3, () => Strings.Nav_Play))
                 .WithKeywords(() => Strings.Help_Dependencies_Spot_Keywords)
                 .WithPage(typeof(InstalledPage)),

@@ -1,10 +1,12 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Threading;
+using TCFModManager.App.Localization;
 using TCFModManager.App.ViewModels;
 
 namespace TCFModManager.App.Views;
@@ -309,6 +311,81 @@ public partial class InstalledPage : Page
 
         menu.IsOpen = true;
     }
+
+    //
+    // Fork (SSPTMM, UI tidy-up 2): the toolbar's "..." menu - the page actions used now and then
+    // rather than every visit, which each had a button of their own on the toolbar before. Built on
+    // each click, so every entry reads the page as it is right now (Multi select and List badges
+    // show a tick when on; open/close all only in the two views they work in).
+    //
+    private void More_Click(object sender, RoutedEventArgs e)
+    {
+        var vm = ViewModel;
+        var menu = new ContextMenu
+        {
+            PlacementTarget = (UIElement)sender,
+            Placement = PlacementMode.Bottom,
+            DataContext = vm,
+        };
+
+        menu.Items.Add(new MenuItem
+        {
+            Header = Strings.Installed_InstallFromFile,
+            ToolTip = Strings.Installed_InstallFromFileToolTip,
+            Command = vm.InstallFromFileCommand,
+        });
+        menu.Items.Add(new MenuItem
+        {
+            Header = Strings.Upgrade_Button,
+            ToolTip = Strings.Upgrade_ButtonToolTip,
+            Command = vm.CheckSptUpgradeCommand,
+        });
+        menu.Items.Add(new MenuItem
+        {
+            Header = Strings.Common_Rescan,
+            ToolTip = Strings.Installed_RescanToolTip,
+            Command = vm.ScanCommand,
+        });
+
+        menu.Items.Add(new Separator());
+
+        var multi = new MenuItem
+        {
+            Header = Strings.Installed_MultiSelect,
+            ToolTip = Strings.Installed_MultiSelectToolTip,
+            IsCheckable = true,
+        };
+        multi.SetBinding(MenuItem.IsCheckedProperty, new Binding(nameof(InstalledViewModel.SelectionMode)) { Mode = BindingMode.TwoWay });
+        menu.Items.Add(multi);
+
+        if (vm.ShowExpanders)
+        {
+            menu.Items.Add(new MenuItem { Header = Strings.Installed_ExpandAllToolTip, Command = vm.ExpandAllCommand });
+            menu.Items.Add(new MenuItem { Header = Strings.Installed_CollapseAllToolTip, Command = vm.CollapseAllCommand });
+        }
+
+        menu.Items.Add(new Separator());
+
+        var badges = new MenuItem
+        {
+            Header = Strings.Installed_ListBadges,
+            ToolTip = Strings.Installed_ListBadgesToolTip,
+            IsCheckable = true,
+        };
+        badges.SetBinding(MenuItem.IsCheckedProperty, new Binding(nameof(InstalledViewModel.ShowListBadges)) { Mode = BindingMode.TwoWay });
+        menu.Items.Add(badges);
+
+        // Each entry's explanation opens to the left of the menu, never over it: seen under Wine,
+        // the first entry's tooltip came up as the menu opened and stayed, covering the entries
+        // under it.
+        foreach (var entry in menu.Items.OfType<MenuItem>())
+            ToolTipService.SetPlacement(entry, PlacementMode.Left);
+
+        menu.IsOpen = true;
+    }
+
+    // Fork: the empty state's way on - the Workshop, where mods are subscribed to.
+    private void BrowseWorkshop_Click(object sender, RoutedEventArgs e) => AppNavigation.Navigate(typeof(WorkshopHomePage));
 
     // Lets the wheel scroll whichever of the two scrolling views is showing from anywhere on the
     // page - search box, filter row, group-management bar, directly over the list, all of it - by

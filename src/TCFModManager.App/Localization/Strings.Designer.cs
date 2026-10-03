@@ -2429,4 +2429,17 @@ internal static class Strings
     internal static string Downloads_BarInstalling => LocalizationService.Get("Downloads_BarInstalling");
     internal static string Downloads_BarDetailFormat => LocalizationService.Get("Downloads_BarDetailFormat");
     internal static string Downloads_BarToolTip => LocalizationService.Get("Downloads_BarToolTip");
+    internal static string Installed_Filters => LocalizationService.Get("Installed_Filters");
+    internal static string Installed_FiltersCountFormat => LocalizationService.Get("Installed_FiltersCountFormat");
+    internal static string Installed_FiltersToolTip => LocalizationService.Get("Installed_FiltersToolTip");
+    internal static string Installed_MoreToolTip => LocalizationService.Get("Installed_MoreToolTip");
+    internal static string Installed_RescanToolTip => LocalizationService.Get("Installed_RescanToolTip");
+    internal static string Installed_SelectionDone => LocalizationService.Get("Installed_SelectionDone");
+    internal static string Installed_NothingMatches => LocalizationService.Get("Installed_NothingMatches");
+    internal static string Installed_EmptyTitle => LocalizationService.Get("Installed_EmptyTitle");
+    internal static string Installed_EmptyBody => LocalizationService.Get("Installed_EmptyBody");
+    internal static string Installed_EmptyBrowse => LocalizationService.Get("Installed_EmptyBrowse");
+    internal static string Installed_MoreDetails => LocalizationService.Get("Installed_MoreDetails");
+    internal static string Installed_FewerDetails => LocalizationService.Get("Installed_FewerDetails");
+    internal static string Help_Installed_DisableMany_Step3 => LocalizationService.Get("Help_Installed_DisableMany_Step3");
 }

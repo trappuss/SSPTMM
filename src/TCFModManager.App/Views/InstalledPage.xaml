@@ -66,6 +66,34 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </DataTemplate>
+        <!-- Fork: "More details" / "Fewer details" on an opened card - a link, not a button. -->
+        <Style x:Key="DetailsLinkToggle" TargetType="ToggleButton">
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Foreground" Value="{DynamicResource AccentTextFillColorPrimaryBrush}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border Background="Transparent" Padding="0,2">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock x:Name="Label" VerticalAlignment="Center" Text="{loc:Str Installed_MoreDetails}" />
+                                <ui:SymbolIcon x:Name="Chevron" Margin="4,0,0,0" VerticalAlignment="Center" FontSize="12" Symbol="ChevronDown24" />
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Label" Property="Text" Value="{loc:Str Installed_FewerDetails}" />
+                                <Setter TargetName="Chevron" Property="Symbol" Value="ChevronUp24" />
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Label" Property="TextDecorations" Value="Underline" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <!--
              Everything the app knows about one installed mod, shown when a row or a card is
              opened. Shared by the List and Cards views so the two cannot drift apart - they
@@ -76,13 +104,16 @@
         -->
         <DataTemplate x:Key="ModDetailBody">
             <!--
-                 MinHeight rather than Height, so every opened card is the same size as the one
-                 Chris measured against ("Air Filter Only Drains In Raid": ten detail lines, the
-                 folder row and the action row) while anything genuinely longer - an addon subtitle,
-                 a duplicate-folder warning - still grows instead of being clipped or given its own
-                 scrollbar. One number to tune if the standard card gains or loses a line.
+                 Fork (SSPTMM, UI tidy-up 2): what you need to decide something - which version you
+                 have, the newest one, and any warning - is on show; the reference lines (GUID, the
+                 folder it is in, dates, who installed it, the folders themselves) are behind More
+                 details. An opened card was up to fourteen lines before its buttons.
+
+                 MinHeight went with it: it made every opened card as tall as the old ten-line one.
+                 Cards now open to what they have to say, and in a row of cards the WrapPanel's
+                 top alignment keeps a short one from stretching to a tall neighbour.
             -->
-            <Grid Margin="0,4,0,0" MinHeight="300">
+            <Grid Margin="0,4,0,0">
                 <Grid.RowDefinitions>
                     <!-- The detail takes the slack, so the action row sits on the card's
                          bottom edge whether the mod has ten lines to say or four. -->
@@ -100,34 +131,12 @@
                     <TextBlock
                         Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                         TextWrapping="Wrap"
-                        Text="{Binding FolderNameIfDifferent, Mode=OneWay, StringFormat={loc:Str Installed_DetailInstalledAsFormat}}"
-                        Visibility="{Binding FolderNameIfDifferent, Converter={StaticResource NullToCollapsed}}" />
-
-                    <TextBlock
-                        Foreground="{DynamicResource TextFillColorTertiaryBrush}"
-                        TextWrapping="Wrap"
-                        Text="{Binding Guid, Mode=OneWay, StringFormat={loc:Str Installed_DetailGuidFormat}}"
-                        Visibility="{Binding Guid, Converter={StaticResource NullToCollapsed}}" />
-
-                    <TextBlock
-                        Foreground="{DynamicResource TextFillColorTertiaryBrush}"
-                        TextWrapping="Wrap"
                         Text="{Binding InstalledVersion, Mode=OneWay, TargetNullValue={loc:Str Common_Unknown}, StringFormat={loc:Str Installed_DetailInstalledVersionFormat}}" />
 
                     <TextBlock
                         Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                         TextWrapping="Wrap"
                         Text="{Binding LatestPublishedText, Mode=OneWay, StringFormat={loc:Str Installed_DetailLatestPublishedFormat}}" />
-
-                    <TextBlock
-                        Foreground="{DynamicResource TextFillColorTertiaryBrush}"
-                        Text="{Binding LatestUpdatedAt, Mode=OneWay, StringFormat={loc:Str Installed_DetailLastUpdatedFormat}}"
-                        Visibility="{Binding LatestUpdatedAt, Converter={StaticResource NullToCollapsed}}" />
-
-                    <TextBlock
-                        Foreground="{DynamicResource TextFillColorTertiaryBrush}"
-                        Text="{Binding InstalledAt, Mode=OneWay, StringFormat={loc:Str Installed_DetailInstalledOnFormat}}"
-                        Visibility="{Binding InstalledAt, Converter={StaticResource NullToCollapsed}}" />
 
                     <!-- What the files on disk claim, shown only when they disagree with each other or
                          with the manifest. Sits under the dates because it qualifies the installed
@@ -176,46 +185,78 @@
                         Text="{Binding DownloadSummary}"
                         Visibility="{Binding DownloadSummary, Converter={StaticResource NullToCollapsed}}" />
 
-                    <TextBlock
-                        Foreground="{DynamicResource TextFillColorTertiaryBrush}"
-                        TextWrapping="Wrap"
-                        Text="{Binding FlagsSummary}"
-                        Visibility="{Binding FlagsSummary, Converter={StaticResource NullToCollapsed}}" />
+                    <ToggleButton
+                        x:Name="MoreDetailsToggle"
+                        Margin="0,6,0,0"
+                        HorizontalAlignment="Left"
+                        Style="{StaticResource DetailsLinkToggle}" />
 
-                    <TextBlock
-                        Foreground="{DynamicResource TextFillColorTertiaryBrush}"
-                        TextWrapping="Wrap"
-                        Margin="0,4,0,0"
-                        Text="{Binding SourceLabel}" />
+                    <StackPanel
+                        Margin="0,2,0,0"
+                        Visibility="{Binding IsChecked, ElementName=MoreDetailsToggle, Converter={StaticResource BoolToVis}}">
+                        <TextBlock
+                            Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                            TextWrapping="Wrap"
+                            Text="{Binding FolderNameIfDifferent, Mode=OneWay, StringFormat={loc:Str Installed_DetailInstalledAsFormat}}"
+                            Visibility="{Binding FolderNameIfDifferent, Converter={StaticResource NullToCollapsed}}" />
 
-                    <!-- The folders themselves, one row, each opening in Explorer. The full path is
-                         the tooltip rather than the label: a mod path is far too long to sit inside a
-                         card, and what you want from it is to get there. -->
-                    <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                        <ui:Button
-                            Padding="8,4"
-                            Appearance="Transparent"
-                            Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"
-                            Icon="{ui:SymbolIcon FolderOpen24}"
-                            Content="{loc:Str Installed_ClientFolder}"
-                            Visibility="{Binding ClientFolderLink, Converter={StaticResource NullToCollapsed}}"
-                            Command="{Binding DataContext.OpenModFolderCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
-                            CommandParameter="{Binding ClientFolderLink}"
-                            ToolTip="{Binding ClientFolderLink}"
-                            ToolTipService.ShowDuration="20000" />
+                        <TextBlock
+                            Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                            TextWrapping="Wrap"
+                            Text="{Binding Guid, Mode=OneWay, StringFormat={loc:Str Installed_DetailGuidFormat}}"
+                            Visibility="{Binding Guid, Converter={StaticResource NullToCollapsed}}" />
 
-                        <ui:Button
-                            Margin="8,0,0,0"
-                            Padding="8,4"
-                            Appearance="Transparent"
-                            Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"
-                            Icon="{ui:SymbolIcon FolderOpen24}"
-                            Content="{loc:Str Installed_ServerFolder}"
-                            Visibility="{Binding ServerFolderLink, Converter={StaticResource NullToCollapsed}}"
-                            Command="{Binding DataContext.OpenModFolderCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
-                            CommandParameter="{Binding ServerFolderLink}"
-                            ToolTip="{Binding ServerFolderLink}"
-                            ToolTipService.ShowDuration="20000" />
+                        <TextBlock
+                            Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                            Text="{Binding LatestUpdatedAt, Mode=OneWay, StringFormat={loc:Str Installed_DetailLastUpdatedFormat}}"
+                            Visibility="{Binding LatestUpdatedAt, Converter={StaticResource NullToCollapsed}}" />
+
+                        <TextBlock
+                            Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                            Text="{Binding InstalledAt, Mode=OneWay, StringFormat={loc:Str Installed_DetailInstalledOnFormat}}"
+                            Visibility="{Binding InstalledAt, Converter={StaticResource NullToCollapsed}}" />
+
+                        <TextBlock
+                            Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                            TextWrapping="Wrap"
+                            Text="{Binding FlagsSummary}"
+                            Visibility="{Binding FlagsSummary, Converter={StaticResource NullToCollapsed}}" />
+
+                        <TextBlock
+                            Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                            TextWrapping="Wrap"
+                            Margin="0,4,0,0"
+                            Text="{Binding SourceLabel}" />
+
+                        <!-- The folders themselves, one row, each opening in Explorer. The full path is
+                             the tooltip rather than the label: a mod path is far too long to sit inside a
+                             card, and what you want from it is to get there. -->
+                        <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                            <ui:Button
+                                Padding="8,4"
+                                Appearance="Transparent"
+                                Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"
+                                Icon="{ui:SymbolIcon FolderOpen24}"
+                                Content="{loc:Str Installed_ClientFolder}"
+                                Visibility="{Binding ClientFolderLink, Converter={StaticResource NullToCollapsed}}"
+                                Command="{Binding DataContext.OpenModFolderCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
+                                CommandParameter="{Binding ClientFolderLink}"
+                                ToolTip="{Binding ClientFolderLink}"
+                                ToolTipService.ShowDuration="20000" />
+
+                            <ui:Button
+                                Margin="8,0,0,0"
+                                Padding="8,4"
+                                Appearance="Transparent"
+                                Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"
+                                Icon="{ui:SymbolIcon FolderOpen24}"
+                                Content="{loc:Str Installed_ServerFolder}"
+                                Visibility="{Binding ServerFolderLink, Converter={StaticResource NullToCollapsed}}"
+                                Command="{Binding DataContext.OpenModFolderCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
+                                CommandParameter="{Binding ServerFolderLink}"
+                                ToolTip="{Binding ServerFolderLink}"
+                                ToolTipService.ShowDuration="20000" />
+                        </StackPanel>
                     </StackPanel>
                 </StackPanel>
 
@@ -760,22 +801,20 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
+        <!-- The page's title on a line of its own, as a Steam page has it, with what the scan found
+             under it, and every waiting update in one go when there is any. -->
         <DockPanel Grid.Row="0" Margin="0,0,0,12">
-            <!-- The page's title on a line of its own, as a Steam page has it, with what the scan
-                 found under it. Docked first so it spans the row above the toolbar. -->
-            <DockPanel DockPanel.Dock="Top" Margin="0,0,0,12">
-                <!-- Every waiting update in one go, when there is any. -->
-                <Button
-                    DockPanel.Dock="Right"
-                    VerticalAlignment="Top"
-                    Style="{StaticResource SteamBlueButton}"
-                    Command="{Binding UpdateAllCommand}"
-                    Visibility="{Binding HasUpdates, Converter={StaticResource BoolToVis}}">
-                    <StackPanel Orientation="Horizontal">
-                        <ui:SymbolIcon Margin="0,0,8,0" FontSize="16" Symbol="ArrowSync16" />
-                        <TextBlock Text="{Binding UpdateAllLabel}" />
-                    </StackPanel>
-                </Button>
+            <Button
+                DockPanel.Dock="Right"
+                VerticalAlignment="Top"
+                Style="{StaticResource SteamBlueButton}"
+                Command="{Binding UpdateAllCommand}"
+                Visibility="{Binding HasUpdates, Converter={StaticResource BoolToVis}}">
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Margin="0,0,8,0" FontSize="16" Symbol="ArrowSync16" />
+                    <TextBlock Text="{Binding UpdateAllLabel}" />
+                </StackPanel>
+            </Button>
             <StackPanel>
                 <TextBlock FontSize="18" Foreground="{StaticResource SteamTextBright}" Text="{loc:Str Workshop_SubscribedItems}" />
                 <TextBlock
@@ -785,256 +824,163 @@
                     Foreground="{StaticResource SteamText}"
                     Text="{Binding StatusMessage}" />
             </StackPanel>
-            </DockPanel>
-
-            <ui:Button
-                DockPanel.Dock="Right"
-                Content="{loc:Str Common_Rescan}"
-                Command="{Binding ScanCommand}" />
-
-            <!-- Which mods would come along to a later SPT release. -->
-            <ui:Button
-                DockPanel.Dock="Right"
-                Margin="0,0,8,0"
-                Content="{loc:Str Upgrade_Button}"
-                ToolTip="{loc:Str Upgrade_ButtonToolTip}"
-                Command="{Binding CheckSptUpgradeCommand}" />
-
-            <!-- An archive already on this PC, installed the same way as a download. -->
-            <ui:Button
-                DockPanel.Dock="Right"
-                Margin="0,0,8,0"
-                Content="{loc:Str Installed_InstallFromFile}"
-                ToolTip="{loc:Str Installed_InstallFromFileToolTip}"
-                Command="{Binding InstallFromFileCommand}" />
-
-            <!-- Puts the last disable/enable back. A disable only moves folders, so undoing one is
-                 just moving them back - shown only while there's something to put back. -->
-            <ui:Button
-                DockPanel.Dock="Right"
-                Margin="0,0,8,0"
-                Content="{Binding UndoLabel}"
-                Icon="{ui:SymbolIcon ArrowUndo20}"
-                Command="{Binding UndoCommand}"
-                Visibility="{Binding CanUndo, Converter={StaticResource BoolToVis}}" />
-
-            <!-- Undo a removal (D28) - shown while one is held. With several held, it opens a menu
-                of them to pick from (UndoRemoval_Click). Default padding, like Rescan and Undo beside it. -->
-            <ui:Button
-                DockPanel.Dock="Right"
-                Margin="0,0,8,0"
-                Icon="{ui:SymbolIcon ArrowUndo20}"
-                Content="{Binding UndoRemovalLabel}"
-                ToolTip="{loc:Str Installed_UndoRemovalToolTip}"
-                Visibility="{Binding UndoRemovalLabel, Converter={StaticResource NullToCollapsed}}"
-                Click="UndoRemoval_Click" />
-
-            <!-- "N conflicts - see Dependencies and Conflicts" (OPEN-11), shown only when there are any. -->
-            <ui:Button
-                DockPanel.Dock="Right"
-                Margin="0,0,8,0"
-                Appearance="Transparent"
-                Foreground="{DynamicResource SystemFillColorCriticalBrush}"
-                Icon="{ui:SymbolIcon ErrorCircle20}"
-                Content="{Binding ConflictCountLabel}"
-                Command="{Binding ShowConflictsCommand}"
-                Visibility="{Binding ConflictCountLabel, Converter={StaticResource NullToCollapsed}}" />
-
-            <!-- Turns the cards, or List's and Groups' rows, into a tick-list for acting on several
-                 items at once. -->
-            <ui:Button
-                DockPanel.Dock="Right"
-                Margin="0,0,8,0"
-                Content="{loc:Str Installed_MultiSelect}"
-                Icon="{ui:SymbolIcon SelectAllOn24}"
-                ToolTip="{loc:Str Installed_MultiSelectToolTip}"
-                Appearance="{Binding SelectionMode, Converter={StaticResource BoolToAppearance}}"
-                Click="SelectMode_Click" />
-
-            <!-- Open/close everything the filters match, in whichever of the two expandable views
-                 is on screen. Group view has its own per-section collapse, so these hide there
-                 rather than sitting dead.
-
-                 Wrapped in a StackPanel rather than docked individually: in a DockPanel the
-                 first-declared Right element lands furthest right, so a pair docked separately
-                 would read collapse-then-expand. -->
-            <StackPanel
-                DockPanel.Dock="Right"
-                Orientation="Horizontal"
-                Margin="0,0,8,0"
-                VerticalAlignment="Center"
-                Visibility="{Binding ShowExpanders, Converter={StaticResource BoolToVis}}">
-                <ui:Button
-                    Padding="10,7"
-                    Icon="{ui:SymbolIcon ChevronDoubleDown20}"
-                    ToolTip="{loc:Str Installed_ExpandAllToolTip}"
-                    Appearance="{Binding AllExpanded, Converter={StaticResource BoolToAppearance}}"
-                    Command="{Binding ExpandAllCommand}" />
-                <ui:Button
-                    Margin="8,0,0,0"
-                    Padding="10,7"
-                    Icon="{ui:SymbolIcon ChevronDoubleUp20}"
-                    ToolTip="{loc:Str Installed_CollapseAllToolTip}"
-                    Appearance="{Binding AllCollapsed, Converter={StaticResource BoolToAppearance}}"
-                    Command="{Binding CollapseAllCommand}" />
-            </StackPanel>
-
-            <!-- Cards/Groups view switcher - deliberately the first, most prominent thing on the
-                 page rather than a small toggle buried among the filter row's other switches.
-                 Whichever mode is active shows tinted with the theme accent (Appearance="Primary"
-                 via BoolToAppearance); the other stays Secondary. -->
-            <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,20,0">
-                <ui:Button
-                    Padding="12,7"
-                    FontWeight="SemiBold"
-                    Content="{loc:Str Installed_ViewCards}"
-                    Icon="{ui:SymbolIcon Apps24}"
-                    Appearance="{Binding ShowCards, Converter={StaticResource BoolToAppearance}}"
-                    Click="CardsView_Click" />
-                <ui:Button
-                    Margin="8,0,0,0"
-                    Padding="12,7"
-                    FontWeight="SemiBold"
-                    Content="{loc:Str Installed_ViewGroups}"
-                    Icon="{ui:SymbolIcon Folder24}"
-                    Appearance="{Binding ShowGroups, Converter={StaticResource BoolToAppearance}}"
-                    ToolTip="{loc:Str Installed_ViewGroupsToolTip}"
-                    Click="GroupsView_Click" />
-                <ui:Button
-                    Margin="8,0,0,0"
-                    Padding="12,7"
-                    FontWeight="SemiBold"
-                    Content="{loc:Str Installed_ViewList}"
-                    Icon="{ui:SymbolIcon TextBulletListSquare24}"
-                    Appearance="{Binding ShowList, Converter={StaticResource BoolToAppearance}}"
-                    ToolTip="{loc:Str Installed_ViewListToolTip}"
-                    Click="ListView_Click" />
-            </StackPanel>
-
         </DockPanel>
 
-        <!-- Search box and filter toggles. -->
-        <DockPanel Grid.Row="1" Margin="0,0,0,8">
+        <!--
+            Fork (SSPTMM, UI tidy-up 2): the toolbar, on one row - search, sort, Filters, the three
+            views and a "..." menu. It used to be 21 controls over three rows: every filter as its own
+            dropdown, and every page action as its own button whether it is used daily or once a
+            season. The filters are now one button that says how many are on; the rarely used actions
+            (Install from file, SPT upgrade check, Rescan, Multi select, open/close all, list badges)
+            are in the "..." menu, built in InstalledPage.xaml.cs. Per page moved beside the pager it
+            belongs to. Hidden while nothing is installed - there is nothing for it to act on.
+        -->
+        <DockPanel
+            Grid.Row="1"
+            Margin="0,0,0,8"
+            Visibility="{Binding HasNoMods, Converter={StaticResource FalseToVisible}}">
+            <!-- Rightmost: everything else this page can do. -->
+            <ui:Button
+                x:Name="MoreButton"
+                DockPanel.Dock="Right"
+                Margin="8,0,0,0"
+                Padding="10,7"
+                VerticalAlignment="Center"
+                Icon="{ui:SymbolIcon MoreHorizontal24}"
+                ToolTip="{loc:Str Installed_MoreToolTip}"
+                Click="More_Click" />
+
+            <!-- The three views as icons, as Steam switches its library between grid and list. The
+                 one on screen is tinted, as before. Each names itself, and what it is for, on hover. -->
             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
-                <!-- The Fika / ads / AI toggles that used to sit along this row are now three of
-                     the five tick boxes in the "Show" dropdown below, next to the other filters.
-                     This one stays here because it is a display preference rather than a filter:
-                     it changes what each row draws, not which rows are shown, so Clear filters
-                     leaves it alone and it is remembered between sessions. -->
-                <ui:ToggleSwitch
-                    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                    ToolTip="{loc:Str Installed_ListBadgesToolTip}"
-                    IsChecked="{Binding ShowListBadges}"
-                    OnContent="{loc:Str Installed_ListBadges}"
-                    OffContent="{loc:Str Installed_ListBadges}" />
+                <ui:Button
+                    Padding="10,7"
+                    Icon="{ui:SymbolIcon Apps24}"
+                    Appearance="{Binding ShowCards, Converter={StaticResource BoolToAppearance}}"
+                    ToolTip="{loc:Str Installed_ViewCards}"
+                    Click="CardsView_Click" />
+                <ui:Button
+                    Margin="4,0,0,0"
+                    Padding="10,7"
+                    Icon="{ui:SymbolIcon TextBulletListSquare24}"
+                    Appearance="{Binding ShowList, Converter={StaticResource BoolToAppearance}}"
+                    Click="ListView_Click">
+                    <ui:Button.ToolTip>
+                        <StackPanel MaxWidth="320">
+                            <TextBlock FontWeight="SemiBold" Text="{loc:Str Installed_ViewList}" />
+                            <TextBlock TextWrapping="Wrap" Text="{loc:Str Installed_ViewListToolTip}" />
+                        </StackPanel>
+                    </ui:Button.ToolTip>
+                </ui:Button>
+                <ui:Button
+                    Margin="4,0,0,0"
+                    Padding="10,7"
+                    Icon="{ui:SymbolIcon Folder24}"
+                    Appearance="{Binding ShowGroups, Converter={StaticResource BoolToAppearance}}"
+                    Click="GroupsView_Click">
+                    <ui:Button.ToolTip>
+                        <StackPanel MaxWidth="320">
+                            <TextBlock FontWeight="SemiBold" Text="{loc:Str Installed_ViewGroups}" />
+                            <TextBlock TextWrapping="Wrap" Text="{loc:Str Installed_ViewGroupsToolTip}" />
+                        </StackPanel>
+                    </ui:Button.ToolTip>
+                </ui:Button>
             </StackPanel>
 
             <ui:TextBox
-                MinWidth="320"
-                HorizontalAlignment="Left"
+                Width="320"
+                VerticalAlignment="Center"
                 PlaceholderText="{loc:Str Common_SearchPlaceholder}"
                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
-        </DockPanel>
 
-        <DockPanel Grid.Row="2" Margin="0,0,0,8">
-            <ui:Button
-                DockPanel.Dock="Right"
-                HorizontalAlignment="Right"
+            <ComboBox
+                MinWidth="175"
+                Margin="8,0,0,0"
                 VerticalAlignment="Center"
-                Content="{loc:Str Common_ClearFilters}"
-                ToolTip="{loc:Str Common_ClearFiltersToolTip}"
-                Command="{Binding ClearFiltersCommand}" />
+                ToolTip="{loc:Str Common_SortToolTip}"
+                ItemsSource="{Binding SortOptions}"
+                SelectedItem="{Binding SelectedSortOption}" />
 
-            <!-- Saving the defaults from the page itself, rather than as a second set of dropdowns
-                 in Options: these controls already exist, you can see what they do as you set them,
-                 and a filter added to this page later is covered without Options knowing about it.
-                 Declared after Clear filters because in a DockPanel the first-declared Right
-                 element lands furthest right. -->
-            <ui:Button
-                DockPanel.Dock="Right"
-                Margin="0,0,8,0"
-                HorizontalAlignment="Right"
+            <!--
+                Every filter in one popup. The button says "Filters (2)" when two are narrowing the
+                list, and is tinted then, so a list that looks short says why. The five tick boxes
+                that had a dropdown of their own are plain tick boxes here: a dropdown inside a popup
+                is one click too many, and a popup inside a popup closes the wrong way.
+            -->
+            <ToggleButton
+                x:Name="FiltersToggle"
+                Margin="8,0,0,0"
+                MinWidth="0"
                 VerticalAlignment="Center"
-                Content="{loc:Str Common_SaveAsDefault}"
-                ToolTip="{loc:Str Installed_SaveAsDefaultToolTip}"
-                Command="{Binding SaveAsDefaultCommand}" />
+                HorizontalAlignment="Left"
+                ToolTip="{loc:Str Installed_FiltersToolTip}">
+                <ToggleButton.Style>
+                    <Style TargetType="ToggleButton" BasedOn="{StaticResource FilterDropDownToggle}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding HasActiveFilters}" Value="True">
+                                <Setter Property="BorderBrush" Value="{StaticResource SteamBlue}" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ToggleButton.Style>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon VerticalAlignment="Center" FontSize="16" Symbol="Filter24" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                    <TextBlock
+                        Margin="8,0,0,0"
+                        VerticalAlignment="Center"
+                        Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                        Text="{Binding FiltersLabel}" />
+                    <ui:SymbolIcon
+                        Margin="10,0,0,0"
+                        VerticalAlignment="Center"
+                        FontSize="11"
+                        Foreground="{DynamicResource ComboBoxDropDownGlyphForeground}"
+                        Symbol="ChevronDown24" />
+                </StackPanel>
+            </ToggleButton>
+            <Popup
+                IsOpen="{Binding IsChecked, ElementName=FiltersToggle, Mode=TwoWay}"
+                PlacementTarget="{Binding ElementName=FiltersToggle}"
+                Placement="Bottom"
+                StaysOpen="False"
+                AllowsTransparency="True">
+                <Border Style="{StaticResource FilterDropDownPopup}" Width="300">
+                    <StackPanel Margin="12,6,12,4">
+                        <!-- No labels: each dropdown's neutral option names what it filters
+                             ("Any update status", "All categories"), as on the row they came from. -->
+                        <ComboBox
+                            Margin="0,0,0,6"
+                            HorizontalAlignment="Stretch"
+                            ToolTip="{loc:Str Installed_UpdateFilterToolTip}"
+                            ItemsSource="{Binding UpdateFilterOptions}"
+                            SelectedItem="{Binding SelectedUpdateFilter}" />
+                        <ComboBox
+                            Margin="0,0,0,6"
+                            HorizontalAlignment="Stretch"
+                            ToolTip="{loc:Str Installed_EnabledFilterToolTip}"
+                            ItemsSource="{Binding EnabledFilterOptions}"
+                            SelectedItem="{Binding SelectedEnabledFilter}" />
+                        <!-- Built from the categories actually present in this install. -->
+                        <ComboBox
+                            Margin="0,0,0,6"
+                            HorizontalAlignment="Stretch"
+                            ToolTip="{loc:Str Installed_CategoryFilterToolTip}"
+                            ItemsSource="{Binding CategoryOptions}"
+                            SelectedItem="{Binding SelectedCategory}" />
+                        <!-- Rebuilt from the group store whenever groups change. -->
+                        <ComboBox
+                            Margin="0,0,0,6"
+                            HorizontalAlignment="Stretch"
+                            ToolTip="{loc:Str Installed_GroupFilterToolTip}"
+                            ItemsSource="{Binding GroupFilterOptions}"
+                            SelectedItem="{Binding SelectedGroupFilter}" />
 
-            <!-- A WrapPanel: seven filters don't fit on one line at every window width, and a
-                 filter that has run off the edge of the page may as well not exist. -->
-            <WrapPanel>
-                <!--
-                     No inline labels on the five filters: each one's neutral option names what it
-                     filters ("Any update status" rather than a bare "All"), which is the only
-                     reason the labels could go - three of these used to read plain "All" and would
-                     have been indistinguishable side by side.
-
-                     Width is fixed on the three whose contents change - Category and Group,
-                     whose lists are rebuilt after a scan or a rename, and the attribute dropdown,
-                     whose summary is rewritten as you tick. Sizing those to their contents is what
-                     used to shuffle the whole row sideways mid-use. The rest have fixed item sets,
-                     so they size to a constant widest item and MinWidth cannot move anything; they
-                     carry MinWidth instead, which is the headroom a longer language needs. The
-                     numbers are what each dropdown's longest English option needs - "Not found on
-                     sp-mod.com" sets this one.
-                -->
-                <ComboBox
-                    MinWidth="205"
-                    Margin="0,0,16,4"
-                    VerticalAlignment="Center"
-                    ToolTip="{loc:Str Installed_UpdateFilterToolTip}"
-                    ItemsSource="{Binding UpdateFilterOptions}"
-                    SelectedItem="{Binding SelectedUpdateFilter}" />
-
-                <ComboBox
-                    MinWidth="170"
-                    Margin="0,0,16,4"
-                    VerticalAlignment="Center"
-                    ToolTip="{loc:Str Installed_EnabledFilterToolTip}"
-                    ItemsSource="{Binding EnabledFilterOptions}"
-                    SelectedItem="{Binding SelectedEnabledFilter}" />
-
-                <!-- The same five tick boxes Browse carries. "Has dependencies" is answered from
-                     the dependency graph built off the scan, so unlike Browse's it covers
-                     everything installed rather than what has been looked up so far. -->
-                <ToggleButton
-                    x:Name="AttributeToggle"
-                    Width="220"
-                    Margin="0,0,16,4"
-                    VerticalAlignment="Center"
-                    ToolTip="{loc:Str Common_AttributeFilterToolTip}"
-                    Style="{StaticResource FilterDropDownToggle}">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock
-                                Grid.Column="0"
-                                VerticalAlignment="Center"
-                                TextTrimming="CharacterEllipsis"
-                                Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                                Text="{Binding AttributeFilterSummary}" />
-                            <ui:SymbolIcon
-                                Grid.Column="1"
-                                Margin="8,0,0,0"
-                                VerticalAlignment="Center"
-                                FontSize="11"
-                                Foreground="{DynamicResource ComboBoxDropDownGlyphForeground}"
-                                Symbol="ChevronDown24" />
-                        </Grid>
-                </ToggleButton>
-                <Popup
-                    IsOpen="{Binding IsChecked, ElementName=AttributeToggle, Mode=TwoWay}"
-                    PlacementTarget="{Binding ElementName=AttributeToggle}"
-                    Placement="Bottom"
-                    StaysOpen="False"
-                    AllowsTransparency="True">
-                    <Border Style="{StaticResource FilterDropDownPopup}" MinWidth="{Binding ActualWidth, ElementName=AttributeToggle}">
-                        <ItemsControl Focusable="False" Margin="8,4" ItemsSource="{Binding AttributeOptions}">
+                        <!-- The same tick boxes Browse carries, plus Installed's own two. -->
+                        <ItemsControl Focusable="False" Margin="0,2,0,4" ItemsSource="{Binding AttributeOptions}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <CheckBox
-                                        Margin="2"
+                                        Margin="0,1"
                                         Foreground="{DynamicResource TextFillColorPrimaryBrush}"
                                         IsChecked="{Binding IsSelected, Mode=TwoWay}"
                                         Content="{Binding Label}"
@@ -1042,85 +988,69 @@
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
-                    </Border>
-                </Popup>
 
-                <!-- Built from the categories actually present in this install, not the whole
-                     catalog - a category none of your mods are in would only ever show nothing. -->
-                <!-- Wider than any category currently installed: this list is rebuilt from the
-                     catalog after every scan, so a longer name arriving must not move the row. -->
-                <ComboBox
-                    Width="165"
-                    Margin="0,0,16,4"
-                    VerticalAlignment="Center"
-                    ToolTip="{loc:Str Installed_CategoryFilterToolTip}"
-                    ItemsSource="{Binding CategoryOptions}"
-                    SelectedItem="{Binding SelectedCategory}" />
+                        <!-- Not a filter - how the list is laid out - but set with them and saved
+                             with them, as it was on the old row. Cards and List only. -->
+                        <ComboBox
+                            Margin="0,4,0,8"
+                            HorizontalAlignment="Stretch"
+                            ToolTip="{loc:Str Installed_GroupingToolTip}"
+                            ItemsSource="{Binding GroupingOptions}"
+                            SelectedItem="{Binding SelectedGrouping}"
+                            Visibility="{Binding ShowGroupingPicker, Converter={StaticResource BoolToVis}}" />
 
-                <!-- Rebuilt from the group store whenever groups change, so it always lists exactly
-                     the groups that exist. Applies to all three views, like every other filter here. -->
-                <!-- Group names are typed by the user, so this one has no bounded longest option -
-                     sized for a comfortably long name and left to trim beyond that, rather than
-                     resizing itself every time a group is renamed. -->
-                <ComboBox
-                    Width="180"
-                    Margin="0,0,16,4"
-                    VerticalAlignment="Center"
-                    ToolTip="{loc:Str Installed_GroupFilterToolTip}"
-                    ItemsSource="{Binding GroupFilterOptions}"
-                    SelectedItem="{Binding SelectedGroupFilter}" />
-
-                <ComboBox
-                    MinWidth="175"
-                    Margin="0,0,16,4"
-                    VerticalAlignment="Center"
-                    ToolTip="{loc:Str Common_SortToolTip}"
-                    ItemsSource="{Binding SortOptions}"
-                    SelectedItem="{Binding SelectedSortOption}" />
-
-                <!-- Cards and List in sections, as the Groups view is (which has its own choice). -->
-                <ComboBox
-                    MinWidth="200"
-                    Margin="0,0,16,4"
-                    VerticalAlignment="Center"
-                    ToolTip="{loc:Str Installed_GroupingToolTip}"
-                    ItemsSource="{Binding GroupingOptions}"
-                    SelectedItem="{Binding SelectedGrouping}"
-                    Visibility="{Binding ShowGroupingPicker, Converter={StaticResource BoolToVis}}" />
-
-                <!-- Pagination is hidden in group view (see the pagination StackPanel's own
-                     Visibility below), so "Per page" would have nothing to affect there. -->
-                <!-- The item template is what lets this one lose its label: the options are plain
-                     ints, and "12" on its own says nothing. SelectedItem stays an int, so none of
-                     the paging arithmetic changes. -->
-                <ComboBox
-                    MinWidth="130"
-                    Margin="0,0,16,4"
-                    VerticalAlignment="Center"
-                    ToolTip="{loc:Str Common_PageSizeToolTip}"
-                    ItemsSource="{Binding PageSizeOptions}"
-                    SelectedItem="{Binding PageSize}"
-                    Visibility="{Binding ShowPageSize, Converter={StaticResource BoolToVis}}">
-                    <ComboBox.ItemTemplate>
-                        <DataTemplate>
-                            <!-- 0 is Infinite, as in Browse. -->
-                            <TextBlock>
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Text" Value="{Binding StringFormat={loc:Str Common_PageSizeFormat}}" />
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding}" Value="0">
-                                                <Setter Property="Text" Value="{Binding [Workshop_PerPageInfinite], Source={x:Static loc:LocalizationService.Instance}}" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                        </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                </ComboBox>
-            </WrapPanel>
+                        <DockPanel LastChildFill="False">
+                            <ui:Button
+                                DockPanel.Dock="Right"
+                                Content="{loc:Str Common_ClearFilters}"
+                                ToolTip="{loc:Str Common_ClearFiltersToolTip}"
+                                Command="{Binding ClearFiltersCommand}" />
+                            <ui:Button
+                                DockPanel.Dock="Left"
+                                Content="{loc:Str Common_SaveAsDefault}"
+                                ToolTip="{loc:Str Installed_SaveAsDefaultToolTip}"
+                                Command="{Binding SaveAsDefaultCommand}" />
+                        </DockPanel>
+                    </StackPanel>
+                </Border>
+            </Popup>
         </DockPanel>
+
+        <!--
+            Things to act on now, only while there are any: a conflict between installed mods, and
+            putting back the last disable/enable or removal. Each sat in the toolbar before, so the
+            row grew and shifted whenever one appeared.
+        -->
+        <WrapPanel Grid.Row="2" Orientation="Horizontal">
+            <!-- "N conflicts - see Dependencies and Conflicts" (OPEN-11). -->
+            <ui:Button
+                Margin="0,0,8,8"
+                Appearance="Transparent"
+                Foreground="{DynamicResource SystemFillColorCriticalBrush}"
+                Icon="{ui:SymbolIcon ErrorCircle20}"
+                Content="{Binding ConflictCountLabel}"
+                Command="{Binding ShowConflictsCommand}"
+                Visibility="{Binding ConflictCountLabel, Converter={StaticResource NullToCollapsed}}" />
+
+            <!-- Puts the last disable/enable back. A disable only moves folders, so undoing one is
+                 just moving them back. -->
+            <ui:Button
+                Margin="0,0,8,8"
+                Content="{Binding UndoLabel}"
+                Icon="{ui:SymbolIcon ArrowUndo20}"
+                Command="{Binding UndoCommand}"
+                Visibility="{Binding CanUndo, Converter={StaticResource BoolToVis}}" />
+
+            <!-- Undo a removal (D28) - shown while one is held. With several held, it opens a menu
+                 of them to pick from (UndoRemoval_Click). -->
+            <ui:Button
+                Margin="0,0,8,8"
+                Icon="{ui:SymbolIcon ArrowUndo20}"
+                Content="{Binding UndoRemovalLabel}"
+                ToolTip="{loc:Str Installed_UndoRemovalToolTip}"
+                Visibility="{Binding UndoRemovalLabel, Converter={StaticResource NullToCollapsed}}"
+                Click="UndoRemoval_Click" />
+        </WrapPanel>
 
         <!-- Multi-select bar. Shares row 3 with the group management bar below, which steps
              aside while selecting (InstalledViewModel.ShowGroupBar) - the two never show together. -->
@@ -1128,6 +1058,14 @@
             Grid.Row="3"
             Margin="0,0,0,8"
             Visibility="{Binding SelectionMode, Converter={StaticResource BoolToVis}}">
+            <!-- Fork: Multi select is switched on from the "..." menu now, so the bar it opens is
+                 also where it is switched off again. -->
+            <ui:Button
+                DockPanel.Dock="Right"
+                Margin="8,0,0,0"
+                Appearance="Primary"
+                Content="{loc:Str Installed_SelectionDone}"
+                Click="SelectMode_Click" />
             <ui:Button
                 DockPanel.Dock="Right"
                 Content="{loc:Str Installed_SelectionClear}"
@@ -1220,6 +1158,12 @@
                 Visibility="{Binding GroupsByCategory, Converter={StaticResource FalseToVisible}}" />
         </DockPanel>
 
+        <!--
+            Fork: the three views share one cell, which steps aside for the empty state below when
+            nothing is installed. (Their markup is left at its old indent, to keep merges with the
+            original readable.)
+        -->
+        <Grid Grid.Row="4" Visibility="{Binding HasNoMods, Converter={StaticResource FalseToVisible}}">
         <!-- Installed mods grid; column count is set from code-behind based on width. Hidden in
              group view (see Sections below, occupying the same cell). -->
 <!--
@@ -1238,7 +1182,6 @@
             Background="Transparent"
             FocusVisualStyle="{x:Null}"
             ScrollChanged="CardsScrollViewer_ScrollChanged"
-            Grid.Row="4"
             Focusable="False"
             Padding="4"
             VerticalScrollBarVisibility="Auto"
@@ -1330,7 +1273,6 @@
         <ScrollViewer
             x:Name="GroupsScrollViewer"
             FocusVisualStyle="{x:Null}"
-            Grid.Row="4"
             AllowDrop="True"
             Background="Transparent"
             Focusable="False"
@@ -1519,7 +1461,6 @@
             AllowDrop="True"
             Background="Transparent"
             FocusVisualStyle="{x:Null}"
-            Grid.Row="4"
             Focusable="False"
             VerticalScrollBarVisibility="Auto"
             Visibility="{Binding ShowList, Converter={StaticResource BoolToVis}}">
@@ -1569,34 +1510,129 @@
             </StackPanel>
         </ScrollViewer>
 
-        <!-- Only shown in Cards view - the two scrolling views have no use for pages, nor has
-             the infinite list. -->
+        <!-- Fork: mods are installed, but the search and filters hide all of them. -->
         <StackPanel
-            Grid.Row="5"
-            Orientation="Horizontal"
+            Margin="0,48,0,0"
             HorizontalAlignment="Center"
-            Margin="0,8,0,0"
-            Visibility="{Binding ShowPager, Converter={StaticResource BoolToVis}}">
-            <ui:Button
-                Content="{loc:Str Common_Previous}"
-                Command="{Binding PreviousPageCommand}" />
-
-            <!-- One TextBlock rather than "Page 3" beside "of 10" - see BrowsePage's pager. -->
+            VerticalAlignment="Top"
+            Visibility="{Binding NothingMatches, Converter={StaticResource BoolToVis}}">
             <TextBlock
-                Margin="12,0,12,0"
-                VerticalAlignment="Center"
-                Foreground="{DynamicResource TextFillColorPrimaryBrush}">
-                <TextBlock.Text>
-                    <MultiBinding StringFormat="{loc:Str Common_PagerFormat}">
-                        <Binding Path="CurrentPage" Mode="OneWay" />
-                        <Binding Path="TotalPages" Mode="OneWay" />
-                    </MultiBinding>
-                </TextBlock.Text>
-            </TextBlock>
+                HorizontalAlignment="Center"
+                FontSize="15"
+                Foreground="{StaticResource SteamText}"
+                Text="{loc:Str Installed_NothingMatches}" />
             <ui:Button
-                Margin="12,0,0,0"
-                Content="{loc:Str Common_Next}"
-                Command="{Binding NextPageCommand}" />
+                Margin="0,12,0,0"
+                HorizontalAlignment="Center"
+                Content="{loc:Str Common_ClearFilters}"
+                ToolTip="{loc:Str Common_ClearFiltersToolTip}"
+                Command="{Binding ClearFiltersCommand}" />
         </StackPanel>
+        </Grid>
+
+        <!--
+            Fork: nothing installed yet - most likely someone who has just set the app up. Rather
+            than the whole toolbar over an empty list, what this page is for and where to go next.
+        -->
+        <StackPanel
+            Grid.Row="4"
+            MaxWidth="560"
+            Margin="0,48,0,0"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Top"
+            Visibility="{Binding HasNoMods, Converter={StaticResource BoolToVis}}">
+            <TextBlock
+                HorizontalAlignment="Center"
+                FontSize="20"
+                Foreground="{StaticResource SteamTextBright}"
+                Text="{loc:Str Installed_EmptyTitle}" />
+            <TextBlock
+                Margin="0,10,0,0"
+                HorizontalAlignment="Center"
+                TextAlignment="Center"
+                TextWrapping="Wrap"
+                FontSize="14"
+                Foreground="{StaticResource SteamText}"
+                Text="{loc:Str Installed_EmptyBody}" />
+            <Button
+                Margin="0,20,0,0"
+                HorizontalAlignment="Center"
+                Padding="20,8"
+                Style="{StaticResource SteamBlueButton}"
+                Content="{loc:Str Installed_EmptyBrowse}"
+                Click="BrowseWorkshop_Click" />
+            <!-- An archive already on this PC is the other way a mod arrives. -->
+            <ui:Button
+                Margin="0,10,0,0"
+                HorizontalAlignment="Center"
+                Appearance="Transparent"
+                Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"
+                Content="{loc:Str Installed_InstallFromFile}"
+                ToolTip="{loc:Str Installed_InstallFromFileToolTip}"
+                Command="{Binding InstallFromFileCommand}" />
+        </StackPanel>
+
+        <!-- Fork: the pager and, beside it, how many cards make a page - which moved here from the
+             toolbar, next to the pages it counts. Per page also shows on the infinite list, where
+             the pager does not, so there is a way back to pages from it. -->
+        <Grid Grid.Row="5" Margin="0,8,0,0">
+            <!-- Only shown in Cards view - the two scrolling views have no use for pages, nor has
+                 the infinite list. -->
+            <StackPanel
+                Orientation="Horizontal"
+                HorizontalAlignment="Center"
+                Visibility="{Binding ShowPager, Converter={StaticResource BoolToVis}}">
+                <ui:Button
+                    Content="{loc:Str Common_Previous}"
+                    Command="{Binding PreviousPageCommand}" />
+
+                <!-- One TextBlock rather than "Page 3" beside "of 10" - see BrowsePage's pager. -->
+                <TextBlock
+                    Margin="12,0,12,0"
+                    VerticalAlignment="Center"
+                    Foreground="{DynamicResource TextFillColorPrimaryBrush}">
+                    <TextBlock.Text>
+                        <MultiBinding StringFormat="{loc:Str Common_PagerFormat}">
+                            <Binding Path="CurrentPage" Mode="OneWay" />
+                            <Binding Path="TotalPages" Mode="OneWay" />
+                        </MultiBinding>
+                    </TextBlock.Text>
+                </TextBlock>
+                <ui:Button
+                    Margin="12,0,0,0"
+                    Content="{loc:Str Common_Next}"
+                    Command="{Binding NextPageCommand}" />
+            </StackPanel>
+
+            <!-- The item template is what lets this one go without a label: the options are plain
+                 ints, and "12" on its own says nothing. SelectedItem stays an int, so none of the
+                 paging arithmetic changes. -->
+            <ComboBox
+                MinWidth="130"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Center"
+                ToolTip="{loc:Str Common_PageSizeToolTip}"
+                ItemsSource="{Binding PageSizeOptions}"
+                SelectedItem="{Binding PageSize}"
+                Visibility="{Binding ShowPageSize, Converter={StaticResource BoolToVis}}">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <!-- 0 is Infinite, as in Browse. -->
+                        <TextBlock>
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Text" Value="{Binding StringFormat={loc:Str Common_PageSizeFormat}}" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding}" Value="0">
+                                            <Setter Property="Text" Value="{Binding [Workshop_PerPageInfinite], Source={x:Static loc:LocalizationService.Instance}}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+        </Grid>
     </Grid>
 </Page>

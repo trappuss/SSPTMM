@@ -2006,10 +2006,10 @@ La copie que vous ne gardez pas est déplacée dans un dossier caché .ssptmm-du
     <value>Ce mod se trouve à la fois dans un dossier activé et dans un dossier désactivé - choisissez la copie à conserver</value>
   </data>
   <data name="Installed_SourceAppManaged" xml:space="preserve">
-    <value>Installé par cette app - Supprimer efface exactement les fichiers qu'elle a placés</value>
+    <value>Installé par cette app - « Se désabonner » efface exactement les fichiers qu'elle a placés</value>
   </data>
   <data name="Installed_SourceManual" xml:space="preserve">
-    <value>Installé à la main - Supprimer efface tout son dossier</value>
+    <value>Installé à la main - « Se désabonner » efface tout son dossier</value>
   </data>
   <data name="Installed_SourceManualConfirmed" xml:space="preserve">
     <value>Installé à la main, avec sa version confirmée manuellement ici</value>
@@ -4765,9 +4765,6 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
   <data name="Help_Installed_Updates_Step1" xml:space="preserve">
     <value>Ouvrez {0}. Un mod qui a une mise à jour affiche une flèche vers le haut comme icône d'état.</value>
   </data>
-  <data name="Help_Installed_Updates_Step2" xml:space="preserve">
-    <value>Pour n'afficher que ceux-là, passez la liste qui affiche {0} sur {1}.</value>
-  </data>
   <data name="Help_Installed_Update_Title" xml:space="preserve">
     <value>Mettre à jour ou retélécharger un mod</value>
   </data>
@@ -4780,20 +4777,11 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
   <data name="Help_Installed_Update_Step3" xml:space="preserve">
     <value>Lisez la page du mod quand on vous le demande, puis cliquez sur {0}.</value>
   </data>
-  <data name="Help_Installed_Update_Note" xml:space="preserve">
-    <value>Pour en mettre plusieurs à jour d'un coup, cliquez sur {0}, cochez-les et cliquez sur {1}.</value>
-  </data>
-  <data name="Help_Installed_Views_Step1" xml:space="preserve">
-    <value>En haut de {0}, cliquez sur {1}, {2} ou {3}.</value>
-  </data>
   <data name="Help_Installed_Views_Step2" xml:space="preserve">
     <value>Les trois montrent les mêmes mods avec les mêmes filtres et le même tri - seule la disposition change.</value>
   </data>
   <data name="Help_Installed_Groups_Title" xml:space="preserve">
     <value>Ranger mes mods dans mes propres groupes</value>
-  </data>
-  <data name="Help_Installed_Groups_Step1" xml:space="preserve">
-    <value>Dans {0}, cliquez sur {1}.</value>
   </data>
   <data name="Help_Installed_Groups_Step2" xml:space="preserve">
     <value>Tapez un nom dans la zone qui affiche {0} et cliquez sur {1}.</value>
@@ -4821,9 +4809,6 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
   </data>
   <data name="Help_Installed_DisableMany_Title" xml:space="preserve">
     <value>Désactiver plusieurs mods d'un coup</value>
-  </data>
-  <data name="Help_Installed_DisableMany_Step1" xml:space="preserve">
-    <value>Dans {0}, cliquez sur {1} et cochez les mods.</value>
   </data>
   <data name="Help_Installed_DisableMany_Step2" xml:space="preserve">
     <value>Cliquez sur {0}.</value>
@@ -5475,9 +5460,6 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
   </data>
   <data name="Help_Dependencies_Spot_Step1" xml:space="preserve">
     <value>Dans {0}, un mod en conflit a un avertissement sur sa fiche - survolez-le pour voir avec quels mods il entre en conflit. Le nombre de conflits au-dessus de la liste ouvre {1}.</value>
-  </data>
-  <data name="Help_Dependencies_Spot_Step2" xml:space="preserve">
-    <value>Pour n'afficher que ces mods, choisissez {0} dans les filtres.</value>
   </data>
   <data name="Help_Dependencies_Spot_Step3" xml:space="preserve">
     <value>{0} signale aussi les conflits avant le lancement. Cela ne vous empêche jamais de jouer.</value>
