@@ -1653,8 +1653,8 @@ Earlier days' logs gave the invalid profile, the missing clothing and LateToTheP
 Checked under Wine with sample logs: every card kind drew, Show in Subscribed items filtered to the
 mod, and the copied report read as above. Help topic diagnose.read.
 
-- **Strings and tests:** about 90 new strings; 35 new tests (re-uploads 10, diagnosis 13, the rest
-  above). 1650 pass.
+- **Strings and tests (whole round):** 88 new strings, 8 rewritten; 26 new tests (empty folders 3,
+  re-uploads and kept downloads 10, diagnosis 13). 1650 pass.
 
 ## Values that could not be measured (marked HUNCH in the source)
 
