@@ -1735,7 +1735,7 @@ translators.
 
 ## Upstream updates
 
-The app's self-updater points at the upstream TCFModManager listing on sp-mod.com. Since round 14
-this build only says when a newer upstream version is out; it never installs it, because that
-would replace this fork with the upstream app. A newer upstream version is worth merging into the
-fork instead.
+SSPTMM checks for no updates at all - neither its own nor TCF Mod Manager's (SelfMod.IsFork; the
+original's check never runs since round 22, because installing the original's download would
+replace SSPTMM). New SSPTMM versions are published as GitHub releases. A newer TCF Mod Manager
+release is merged into SSPTMM by hand, and SelfMod.OriginalVersion bumped with it.

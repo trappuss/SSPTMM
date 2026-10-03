@@ -1728,13 +1728,13 @@ Oui  -  garder la copie activée
 Non  -  garder la copie désactivée, et l'activer
 Annuler  -  laisser tel quel
 
-La copie que vous ne gardez pas est déplacée dans un dossier caché .ssptmm-duplicates de votre installation SPT, elle n'est pas supprimée.</value>
+La copie que vous ne gardez pas est déplacée dans un dossier caché .tcfmm-duplicates de votre installation SPT, elle n'est pas supprimée.</value>
   </data>
   <data name="Installed_DuplicateKeptDisabledFormat" xml:space="preserve">
-    <value>Doublon de {0} réglé - la copie désactivée a été conservée, l'autre est dans .ssptmm-duplicates de votre installation SPT.</value>
+    <value>Doublon de {0} réglé - la copie désactivée a été conservée, l'autre est dans .tcfmm-duplicates de votre installation SPT.</value>
   </data>
   <data name="Installed_DuplicateKeptEnabledFormat" xml:space="preserve">
-    <value>Doublon de {0} réglé - la copie activée a été conservée, l'autre est dans .ssptmm-duplicates de votre installation SPT.</value>
+    <value>Doublon de {0} réglé - la copie activée a été conservée, l'autre est dans .tcfmm-duplicates de votre installation SPT.</value>
   </data>
   <data name="Installed_DuplicateTitleFormat" xml:space="preserve">
     <value>Régler le doublon de {0} ?</value>
@@ -5427,7 +5427,7 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
     <value>Conserver les mods supprimés</value>
   </data>
   <data name="Options_RemovedModsDescription" xml:space="preserve">
-    <value>Les mods supprimés sont conservés dans .ssptmm-removed dans votre dossier SPT, puis effacés au démarrage de l'application une fois leur délai écoulé. Les mises à jour y conservent aussi la version qu'elles ont remplacée.</value>
+    <value>Les mods supprimés sont conservés dans .tcfmm-removed dans votre dossier SPT, puis effacés au démarrage de l'application une fois leur délai écoulé. Les mises à jour y conservent aussi la version qu'elles ont remplacée.</value>
   </data>
   <data name="Options_RemovedModsDeleteStraightAway" xml:space="preserve">
     <value>Effacer immédiatement</value>

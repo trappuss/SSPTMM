@@ -1728,13 +1728,13 @@ Ja  -  die aktivierte Kopie behalten
 Nein  -  die deaktivierte Kopie behalten und aktivieren
 Abbrechen  -  alles so lassen
 
-Die Kopie, die du nicht behältst, wird in einen versteckten Ordner .ssptmm-duplicates in deiner SPT-Installation verschoben, nicht gelöscht.</value>
+Die Kopie, die du nicht behältst, wird in einen versteckten Ordner .tcfmm-duplicates in deiner SPT-Installation verschoben, nicht gelöscht.</value>
   </data>
   <data name="Installed_DuplicateKeptDisabledFormat" xml:space="preserve">
-    <value>{0} bereinigt - die deaktivierte Kopie wurde behalten, die andere liegt in .ssptmm-duplicates in deiner SPT-Installation.</value>
+    <value>{0} bereinigt - die deaktivierte Kopie wurde behalten, die andere liegt in .tcfmm-duplicates in deiner SPT-Installation.</value>
   </data>
   <data name="Installed_DuplicateKeptEnabledFormat" xml:space="preserve">
-    <value>{0} bereinigt - die aktivierte Kopie wurde behalten, die andere liegt in .ssptmm-duplicates in deiner SPT-Installation.</value>
+    <value>{0} bereinigt - die aktivierte Kopie wurde behalten, die andere liegt in .tcfmm-duplicates in deiner SPT-Installation.</value>
   </data>
   <data name="Installed_DuplicateTitleFormat" xml:space="preserve">
     <value>{0} bereinigen?</value>
@@ -5427,7 +5427,7 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
     <value>Entfernte Mods behalten</value>
   </data>
   <data name="Options_RemovedModsDescription" xml:space="preserve">
-    <value>Entfernte Mods werden in .ssptmm-removed in deinem SPT-Ordner aufbewahrt und beim Start der App gelöscht, wenn ihre Zeit abgelaufen ist. Updates legen dort auch die Version ab, die sie ersetzt haben.</value>
+    <value>Entfernte Mods werden in .tcfmm-removed in deinem SPT-Ordner aufbewahrt und beim Start der App gelöscht, wenn ihre Zeit abgelaufen ist. Updates legen dort auch die Version ab, die sie ersetzt haben.</value>
   </data>
   <data name="Options_RemovedModsDeleteStraightAway" xml:space="preserve">
     <value>Sofort löschen</value>

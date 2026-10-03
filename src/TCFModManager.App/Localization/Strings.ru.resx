@@ -1818,13 +1818,13 @@
 Нет  -  оставить отключённую копию и включить её
 Отмена  -  оставить как есть
 
-Копия, которую вы не оставите, будет перемещена в скрытую папку .ssptmm-duplicates в вашей установке SPT, а не удалена.</value>
+Копия, которую вы не оставите, будет перемещена в скрытую папку .tcfmm-duplicates в вашей установке SPT, а не удалена.</value>
   </data>
   <data name="Installed_DuplicateKeptDisabledFormat" xml:space="preserve">
-    <value>Дубликат {0} разобран - оставлена отключённая копия, вторая лежит в .ssptmm-duplicates в вашей установке SPT.</value>
+    <value>Дубликат {0} разобран - оставлена отключённая копия, вторая лежит в .tcfmm-duplicates в вашей установке SPT.</value>
   </data>
   <data name="Installed_DuplicateKeptEnabledFormat" xml:space="preserve">
-    <value>Дубликат {0} разобран - оставлена включённая копия, вторая лежит в .ssptmm-duplicates в вашей установке SPT.</value>
+    <value>Дубликат {0} разобран - оставлена включённая копия, вторая лежит в .tcfmm-duplicates в вашей установке SPT.</value>
   </data>
   <data name="Installed_DuplicateTitleFormat" xml:space="preserve">
     <value>Разобрать дубликат {0}?</value>
@@ -5718,7 +5718,7 @@
     <value>Хранить удалённые моды</value>
   </data>
   <data name="Options_RemovedModsDescription" xml:space="preserve">
-    <value>Удалённые моды хранятся в .ssptmm-removed в папке SPT и стираются при запуске приложения, когда их срок истёк. Обновления тоже оставляют там заменённую версию.</value>
+    <value>Удалённые моды хранятся в .tcfmm-removed в папке SPT и стираются при запуске приложения, когда их срок истёк. Обновления тоже оставляют там заменённую версию.</value>
   </data>
   <data name="Options_RemovedModsDeleteStraightAway" xml:space="preserve">
     <value>Удалять сразу</value>

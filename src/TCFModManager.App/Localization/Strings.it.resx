@@ -1728,13 +1728,13 @@ Sì  -  conserva la copia attivata
 No  -  conserva la copia disattivata e la attiva
 Annulla  -  lascia tutto com'è
 
-La copia che non conservi viene spostata in una cartella nascosta .ssptmm-duplicates nella tua installazione SPT, non eliminata.</value>
+La copia che non conservi viene spostata in una cartella nascosta .tcfmm-duplicates nella tua installazione SPT, non eliminata.</value>
   </data>
   <data name="Installed_DuplicateKeptDisabledFormat" xml:space="preserve">
-    <value>{0} sistemato - è stata conservata la copia disattivata, l'altra è in .ssptmm-duplicates nella tua installazione SPT.</value>
+    <value>{0} sistemato - è stata conservata la copia disattivata, l'altra è in .tcfmm-duplicates nella tua installazione SPT.</value>
   </data>
   <data name="Installed_DuplicateKeptEnabledFormat" xml:space="preserve">
-    <value>{0} sistemato - è stata conservata la copia attivata, l'altra è in .ssptmm-duplicates nella tua installazione SPT.</value>
+    <value>{0} sistemato - è stata conservata la copia attivata, l'altra è in .tcfmm-duplicates nella tua installazione SPT.</value>
   </data>
   <data name="Installed_DuplicateTitleFormat" xml:space="preserve">
     <value>Vuoi sistemare {0}?</value>
@@ -5427,7 +5427,7 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
     <value>Conserva le mod rimosse</value>
   </data>
   <data name="Options_RemovedModsDescription" xml:space="preserve">
-    <value>Le mod rimosse restano in .ssptmm-removed nella tua cartella di SPT e vengono eliminate all'avvio dell'app quando il loro tempo è scaduto. Anche gli aggiornamenti vi conservano la versione che hanno sostituito.</value>
+    <value>Le mod rimosse restano in .tcfmm-removed nella tua cartella di SPT e vengono eliminate all'avvio dell'app quando il loro tempo è scaduto. Anche gli aggiornamenti vi conservano la versione che hanno sostituito.</value>
   </data>
   <data name="Options_RemovedModsDeleteStraightAway" xml:space="preserve">
     <value>Elimina subito</value>

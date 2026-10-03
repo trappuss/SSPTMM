@@ -2498,7 +2498,7 @@ Yes  -  keep the enabled copy
 No  -  keep the disabled copy, and enable it
 Cancel  -  leave it as it is
 
-The copy you don't keep is moved into a hidden .ssptmm-duplicates folder in your SPT install, not deleted.</value>
+The copy you don't keep is moved into a hidden .tcfmm-duplicates folder in your SPT install, not deleted.</value>
     <comment>{0} is a mod name, {1} the folder paths one per line. Yes/No/Cancel are the Windows button captions and follow the operating system's language, so keep them as they appear there. .tcfmm-duplicates is a folder name and stays as it is.</comment>
   </data>
   <data name="Installed_DuplicateTitleFormat" xml:space="preserve">
@@ -2506,11 +2506,11 @@ The copy you don't keep is moved into a hidden .ssptmm-duplicates folder in your
     <comment>{0} is a mod name. Dialog title.</comment>
   </data>
   <data name="Installed_DuplicateKeptEnabledFormat" xml:space="preserve">
-    <value>Sorted out {0} - kept the enabled copy, the other is in .ssptmm-duplicates in your SPT install.</value>
+    <value>Sorted out {0} - kept the enabled copy, the other is in .tcfmm-duplicates in your SPT install.</value>
     <comment>{0} is a mod name. One whole sentence per outcome rather than "enabled"/"disabled" dropped into one.</comment>
   </data>
   <data name="Installed_DuplicateKeptDisabledFormat" xml:space="preserve">
-    <value>Sorted out {0} - kept the disabled copy, the other is in .ssptmm-duplicates in your SPT install.</value>
+    <value>Sorted out {0} - kept the disabled copy, the other is in .tcfmm-duplicates in your SPT install.</value>
     <comment>{0} is a mod name.</comment>
   </data>
   <data name="Installed_UpdateNotInCatalogFormat" xml:space="preserve">
@@ -8399,7 +8399,7 @@ Install the file as it is anyway?</value>
   </data>
   <data name="Help_Problems_Report_Step2" xml:space="preserve">
     <value>Say what you did and what happened, and attach today's log from Data\logs - the file named ssptmm- and the date.</value>
-    <comment>Data\logs and tcfmm- are literal.</comment>
+    <comment>Data\logs and ssptmm- are literal.</comment>
   </data>
   <data name="Help_Problems_Report_Step3" xml:space="preserve">
     <value>For more detail, put an empty file named verbose, with no extension, next to SSPTMM.exe, do it again and send the new log.</value>
@@ -8736,7 +8736,7 @@ Install the file as it is anyway?</value>
     <comment>Options setting title.</comment>
   </data>
   <data name="Options_RemovedModsDescription" xml:space="preserve">
-    <value>Removed mods are kept in .ssptmm-removed inside your SPT folder, and deleted when the app starts once their time is up. Updates keep the version they replaced there too.</value>
+    <value>Removed mods are kept in .tcfmm-removed inside your SPT folder, and deleted when the app starts once their time is up. Updates keep the version they replaced there too.</value>
     <comment>Tooltip on the Keep removed mods setting. .tcfmm-removed is a folder name, not translated.</comment>
   </data>
   <data name="Options_RemovedModsDeleteStraightAway" xml:space="preserve">
