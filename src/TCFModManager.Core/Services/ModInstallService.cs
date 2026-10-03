@@ -410,6 +410,10 @@ public sealed class ModInstallService(
                 ModInstallStage.Installing, Total: placements.Count));
             // Fork: the archive's own copy of every file about to be placed, read before placing moves
             // them, so what landed can be checked against it afterwards (InstallVerification).
+            // Fork: the archive's size and sp-mod.com's listed size for it, kept in the record so a later
+            // re-upload of the same version can be told apart (ReuploadCheck).
+            var placedArchiveBytes = SafeLength(archivePath);
+
             var archivePrints = new Dictionary<string, FileFingerprint>(StringComparer.OrdinalIgnoreCase);
             foreach (var placement in placements)
             {
@@ -483,7 +487,7 @@ public sealed class ModInstallService(
                 // interrupted update leaves the old version deleted and the new one untracked. The
                 // originals kept so far are recorded too - they are owed back whatever happens next.
                 SaveRecord(target, version, placedFiles, incomplete: true, installPath, overwrote,
-                    KeepSettingsPrints(Fingerprint(installPath, placedFiles), pending, existing));
+                    KeepSettingsPrints(Fingerprint(installPath, placedFiles), pending, existing), placedArchiveBytes);
 
                 AppLog.Error("Install",
                     $"{target.Name} {version.Version} incomplete after {placedFiles.Count}/{placements.Count} file(s)", ex);
@@ -500,7 +504,7 @@ public sealed class ModInstallService(
             // Fork: the empty folders the archive ships, inside a mod's own folder (SVM's Presets\).
             CreateEmptyFolders(archivePath, extractDir, contentRoot, bareBepInEx, serverRoot, installPath, target, version);
 
-            var record = SaveRecord(target, version, placedFiles, incomplete: false, installPath, overwrote, fingerprints: []);
+            var record = SaveRecord(target, version, placedFiles, incomplete: false, installPath, overwrote, fingerprints: [], placedArchiveBytes);
 
             AppLog.Info("Install",
                 $"{target.Name} {version.Version} placed {placedFiles.Count} file(s) in folders [{string.Join(", ", record.Folders)}]"
@@ -523,7 +527,7 @@ public sealed class ModInstallService(
             //
             var fingerprintClock = Stopwatch.StartNew();
             record = SaveRecord(target, version, placedFiles, incomplete: false, installPath, overwrote,
-                KeepSettingsPrints(Fingerprint(installPath, placedFiles), pending, existing));
+                KeepSettingsPrints(Fingerprint(installPath, placedFiles), pending, existing), placedArchiveBytes);
             AppLog.Debug("Install", $"fingerprinted {record.Fingerprints.Count} file(s) in {fingerprintClock.ElapsedMilliseconds}ms");
 
             status?.Report(new ModInstallProgress(ModInstallStage.Done));
@@ -582,6 +586,19 @@ public sealed class ModInstallService(
     // Writes the record for what an install placed, replacing any previous record for the same mod.
     // The manifest is reloaded rather than reusing an earlier copy, since UninstallAsync may have
     // saved a removal of the old record in between.
+    private static long? SafeLength(string path)
+    {
+        try
+        {
+            var file = new FileInfo(path);
+            return file.Exists ? file.Length : null;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            return null;
+        }
+    }
+
     private InstalledModRecord SaveRecord(
         InstallTarget target,
         ModVersion version,
@@ -589,7 +606,8 @@ public sealed class ModInstallService(
         bool incomplete,
         string installPath,
         List<OverwrittenFile> overwrote,
-        List<FileFingerprint> fingerprints)
+        List<FileFingerprint> fingerprints,
+        long? archiveBytes)
     {
         var record = new InstalledModRecord
         {
@@ -606,6 +624,8 @@ public sealed class ModInstallService(
             Fingerprints = fingerprints,
             InstallPath = InstallStamp.Of(installPath),
             Overwrote = overwrote,
+            ArchiveBytes = archiveBytes,
+            ListedBytes = version.ContentLength is > 0 ? version.ContentLength : null,
         };
 
         var current = manifestService.Load();

@@ -109,7 +109,7 @@
     <comment>Pager button, on both Browse and Installed.</comment>
   </data>
   <data name="Common_PinnedToolTip" xml:space="preserve">
-    <value>Pinned - no mod list you apply will set this mod aside</value>
+    <value>Pinned - applying a collection never disables this mod</value>
     <comment>On the pin icon. Five copies: Browse, Installed's three views, and a Mod lists entry.</comment>
   </data>
   <data name="Common_DownloadsFormat" xml:space="preserve">
@@ -2396,7 +2396,7 @@ That happens legitimately if the server was rebuilt or you're reaching it throug
     <value>Saved. Subscribed items will open like this from now on - Options can put it back.</value>
   </data>
   <data name="Installed_PinnedFormat" xml:space="preserve">
-    <value>Pinned {0} - no mod list will set it aside.</value>
+    <value>Pinned {0} - applying a collection won't disable it. Pinned mods sit at the top.</value>
     <comment>{0} is a mod name.</comment>
   </data>
   <data name="Installed_UnpinnedFormat" xml:space="preserve">
@@ -3125,18 +3125,18 @@ The copy you don't keep is moved into a hidden .ssptmm-duplicates folder in your
     <comment>Details and versions is the button named by Installed_DetailsAndVersions - translate both the same way.</comment>
   </data>
   <data name="Installed_Pin" xml:space="preserve">
-    <value>Pin</value>
+    <value>Keep through collections</value>
     <comment>Menu item on a mod card.</comment>
   </data>
   <data name="Installed_Unpin" xml:space="preserve">
-    <value>Unpin</value>
+    <value>Stop keeping</value>
     <comment>Menu item on a mod card.</comment>
   </data>
   <data name="Installed_PinToolTip" xml:space="preserve">
-    <value>Pin this mod so no mod list you apply ever sets it aside. For the HUD and quality-of-life mods you want kept whatever list you switch to.</value>
+    <value>Pin this mod: applying one of your collections never disables it, even when the collection leaves it out. Pinned mods sit at the top of Subscribed items. For the HUD and quality-of-life mods you want whatever collection you switch to.</value>
   </data>
   <data name="Installed_UnpinToolTip" xml:space="preserve">
-    <value>Unpin this mod, so a mod list you apply can set it aside again when the list leaves it out.</value>
+    <value>Unpin this mod, so applying a collection that leaves it out can disable it again.</value>
   </data>
   <data name="Installed_SourceAppManaged" xml:space="preserve">
     <value>Installed by this app - Unsubscribe deletes exactly the files it placed</value>
@@ -9779,5 +9779,80 @@ Download them anyway? Once installed, SPT may refuse to load them. No downloads 
   <data name="Help_Play_Tools_Keywords" xml:space="preserve">
     <value>tools, exe, program, Greed, SVM, give-ui, configurator, app, open</value>
     <comment>Help search keywords for play.tools.</comment>
+  </data>
+  <data name="Sort_RecentlyInstalled" xml:space="preserve">
+    <value>Recently installed</value>
+    <comment>Subscribed items Sort by entry: newest install first; mods with no recorded install date last.</comment>
+  </data>
+  <data name="Installed_GroupingInstallState" xml:space="preserve">
+    <value>Enabled / disabled</value>
+    <comment>Subscribed items grouping entry: one section for enabled mods, one for disabled.</comment>
+  </data>
+  <data name="Installed_SectionEnabled" xml:space="preserve">
+    <value>Enabled</value>
+    <comment>Section header when Subscribed items is grouped by enabled / disabled.</comment>
+  </data>
+  <data name="Installed_SectionDisabled" xml:space="preserve">
+    <value>Disabled</value>
+    <comment>Section header when Subscribed items is grouped by enabled / disabled.</comment>
+  </data>
+  <data name="Installed_PinnedTag" xml:space="preserve">
+    <value>PINNED</value>
+    <comment>Chip on a pinned mod card/row, beside DISABLED. Upper case like Installed_DisabledTag.</comment>
+  </data>
+  <data name="Installed_RemoveProfileWarningFormat" xml:space="preserve">
+    <value>sp-mod.com marks {0} as a mod that may make permanent changes to your profile, and may not be removable without starting a new profile. Removing it - or turning it off - can leave a profile SPT won't load. If that happens, put it back with Undo removing, or install it again. A copy of your profiles is kept from just before it goes (Options &gt; SPT profile backups).</value>
+    <comment>First paragraph of the Remove prompt for a mod whose sp-mod.com page shows the profile notice. {0} is the mod name. The first sentence follows Item_ProfileNotice, sp-mod.com's own notice.</comment>
+  </data>
+  <data name="Installed_RemoveProfileManyTitle" xml:space="preserve">
+    <value>These may have changed your profile</value>
+    <comment>Title of the check before removing several mods, when some show sp-mod.com's profile notice.</comment>
+  </data>
+  <data name="Installed_RemoveProfileManyFormat" xml:space="preserve">
+    <value>sp-mod.com marks these as mods that may make permanent changes to your profile, and may not be removable without starting a new profile:
+{0}
+
+Removing them - or turning them off - can leave a profile SPT won't load. If that happens, put them back with Undo removing, or install them again. A copy of your profiles is kept from just before they go (Options &gt; SPT profile backups).</value>
+    <comment>{0} is the mods, one per line.</comment>
+  </data>
+  <data name="Installed_RemoveProfileKeepThese" xml:space="preserve">
+    <value>Keep these, remove the rest</value>
+    <comment>Button: removes the other selected mods and leaves the profile-changing ones installed.</comment>
+  </data>
+  <data name="Installed_RemoveProfileRemoveAll" xml:space="preserve">
+    <value>Remove all</value>
+    <comment>Button: removes every selected mod, the profile-changing ones included.</comment>
+  </data>
+  <data name="Installed_RemoveProfileRemove" xml:space="preserve">
+    <value>Remove</value>
+    <comment>Button: removes them when every selected mod is a profile-changing one.</comment>
+  </data>
+  <data name="Installed_ReuploadedTag" xml:space="preserve">
+    <value>RE-UPLOADED</value>
+    <comment>Chip on a mod card/row whose installed version was uploaded again under the same number. Upper case like Installed_DisabledTag.</comment>
+  </data>
+  <data name="Installed_ReuploadNewEntryFormat" xml:space="preserve">
+    <value>{0} {1} was uploaded again on sp-mod.com under the same version number: the new upload is listed at {2} bytes, the one you have at {3} bytes. Get it again to install the new upload.</value>
+    <comment>{0} mod name, {1} version, {2} and {3} byte counts already formatted with digit grouping.</comment>
+  </data>
+  <data name="Installed_ReuploadListingChangedFormat" xml:space="preserve">
+    <value>The file for {0} {1} on sp-mod.com is listed at {2} bytes now, and was listed at {3} bytes when you installed it, so it has most likely been replaced. Get it again to install the new file.</value>
+    <comment>{0} mod name, {1} version, {2} and {3} byte counts already formatted with digit grouping.</comment>
+  </data>
+  <data name="Installed_GetAgain" xml:space="preserve">
+    <value>Get it again</value>
+    <comment>Button on a re-uploaded mod: downloads the same version again and installs it over what is there.</comment>
+  </data>
+  <data name="Installed_GetAgainToolTip" xml:space="preserve">
+    <value>Download this version again from sp-mod.com and install it over what you have. Your settings are handled as in any update.</value>
+    <comment>Tooltip for Installed_GetAgain.</comment>
+  </data>
+  <data name="Installed_GetAgainQueuedFormat" xml:space="preserve">
+    <value>Getting {0} {1} again - see Downloads.</value>
+    <comment>{0} mod name, {1} version.</comment>
+  </data>
+  <data name="Installed_GetAgainNotInCatalogFormat" xml:space="preserve">
+    <value>{0} isn't in the sp-mod.com catalog this app has, so it can't be fetched again from here.</value>
+    <comment>{0} mod name.</comment>
   </data>
 </root>

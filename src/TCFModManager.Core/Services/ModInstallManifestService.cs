@@ -71,6 +71,10 @@ public sealed class ModInstallManifestService
             Fingerprints = existing?.Fingerprints ?? [],
             InstallPath = existing?.InstallPath,
             Overwrote = existing?.Overwrote ?? [],
+
+            // Fork: the archive sizes describe the version that was installed - kept while it still is.
+            ArchiveBytes = SameVersion(existing, version, versionId) ? existing!.ArchiveBytes : null,
+            ListedBytes = SameVersion(existing, version, versionId) ? existing!.ListedBytes : null,
         };
 
         manifest.Mods.RemoveAll(m => m.ModId == modId && m.IsAddon == isAddon);
@@ -94,6 +98,11 @@ public sealed class ModInstallManifestService
     // tell later whether it was changed (D21), and the record is stamped with that install (D17).
     // SPT's own files are never part of the record (D4).
     //
+    private static bool SameVersion(InstalledModRecord? existing, string version, int? versionId) =>
+        existing is not null
+        && string.Equals(existing.Version, version, StringComparison.Ordinal)
+        && (versionId is null || existing.VersionId == versionId);
+
     public InstalledModRecord ConfirmDownload(DownloadedModRecord download, string? installPath = null)
     {
         var manifest = Load();

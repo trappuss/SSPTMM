@@ -549,9 +549,6 @@
   <data name="Common_PageSizeToolTip" xml:space="preserve">
     <value>Quante schede compongono una pagina</value>
   </data>
-  <data name="Common_PinnedToolTip" xml:space="preserve">
-    <value>Fissato: nessuna lista mod che applichi metterà da parte questo mod</value>
-  </data>
   <data name="Common_Previous" xml:space="preserve">
     <value>Precedente</value>
   </data>
@@ -1874,15 +1871,6 @@ La copia che non conservi viene spostata in una cartella nascosta .ssptmm-duplic
   <data name="Installed_NoUpdatesReasonsFormat" xml:space="preserve">
     <value>Nessuno dei mod selezionati può essere aggiornato qui: {0}.</value>
   </data>
-  <data name="Installed_Pin" xml:space="preserve">
-    <value>Fissa</value>
-  </data>
-  <data name="Installed_PinnedFormat" xml:space="preserve">
-    <value>{0} fissato - nessuna lista mod lo metterà da parte.</value>
-  </data>
-  <data name="Installed_PinToolTip" xml:space="preserve">
-    <value>Fissa questo mod, così nessuna lista mod che applichi potrà metterlo da parte. Per i mod HUD e di comodità che vuoi tenere qualunque lista tu scelga.</value>
-  </data>
   <data name="Installed_ReasonAddon_one" xml:space="preserve">
     <value>1 addon, che si aggiorna dal suo mod principale</value>
   </data>
@@ -2056,14 +2044,8 @@ La copia che non conservi viene spostata in una cartella nascosta .ssptmm-duplic
   <data name="Installed_UndoSortOutFormat" xml:space="preserve">
     <value>Ripristina la sistemazione di {0}</value>
   </data>
-  <data name="Installed_Unpin" xml:space="preserve">
-    <value>Rimuovi fissaggio</value>
-  </data>
   <data name="Installed_UnpinnedFormat" xml:space="preserve">
     <value>{0} non è più fissato.</value>
-  </data>
-  <data name="Installed_UnpinToolTip" xml:space="preserve">
-    <value>Togli il fissaggio a questo mod, così una lista mod che applichi può di nuovo metterlo da parte quando la lista non lo include.</value>
   </data>
   <data name="Installed_UpdateCancelled" xml:space="preserve">
     <value>Aggiornamento annullato.</value>

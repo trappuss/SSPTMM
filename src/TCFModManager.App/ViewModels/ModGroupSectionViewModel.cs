@@ -28,8 +28,12 @@ public partial class ModGroupSectionViewModel : LocalizedViewModel
 
     public bool IsCategory => CategoryKey is not null;
 
+    // Fork: "enabled" or "disabled" when Subscribed items is grouped by install state; null otherwise.
+    // Like a category, nothing is assigned to it or dropped on it.
+    public string? StateKey { get; init; }
+
     // A category's section folds too, for as long as the app is open (it is not stored anywhere).
-    public bool CanCollapse => IsRealGroup || IsCategory;
+    public bool CanCollapse => IsRealGroup || IsCategory || StateKey is not null;
 
     [ObservableProperty]
     private string _name = string.Empty;
@@ -56,6 +60,7 @@ public partial class ModGroupSectionViewModel : LocalizedViewModel
     // Empty when nothing in the group is disabled, so an untouched group stays uncluttered.
     public string StateLabel => DisabledCount switch
     {
+        _ when StateKey is not null => string.Empty, // Fork: the section's name already says it
         0 => string.Empty,
         var n when n == Items.Count => Strings.Installed_GroupAllDisabled,
         var n => Text(Strings.Installed_GroupSomeDisabledFormat, n),
@@ -90,6 +95,14 @@ public partial class ModGroupSectionViewModel : LocalizedViewModel
     {
         CategoryKey = category ?? string.Empty,
         Name = category ?? Strings.Installed_NoCategory,
+        IsCollapsed = collapsed,
+    };
+
+    // Fork: Subscribed items grouped by install state.
+    public static ModGroupSectionViewModel ForState(bool enabled, bool collapsed) => new()
+    {
+        StateKey = enabled ? "enabled" : "disabled",
+        Name = enabled ? Strings.Installed_SectionEnabled : Strings.Installed_SectionDisabled,
         IsCollapsed = collapsed,
     };
 

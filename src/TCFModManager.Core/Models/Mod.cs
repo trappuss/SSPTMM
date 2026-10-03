@@ -57,4 +57,8 @@ public sealed class ModVersionSummary
     public string? SptVersionConstraint { get; set; }
     public int? Downloads { get; set; }
     public DateTimeOffset? PublishedAt { get; set; }
+
+    // Fork: also sent with include=versions, kept for ReuploadCheck. Null in a catalog cached before.
+    public long? ContentLength { get; set; }
+    public DateTimeOffset? CreatedAt { get; set; }
 }

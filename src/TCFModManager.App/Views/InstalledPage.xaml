@@ -171,6 +171,13 @@
                         Text="{Binding HeldBackNote}"
                         Visibility="{Binding HeldBackNote, Converter={StaticResource NullToCollapsed}}" />
 
+                    <!-- Fork: the installed version was uploaded again under the same number. -->
+                    <TextBlock
+                        Foreground="{DynamicResource SystemFillColorCautionBrush}"
+                        TextWrapping="Wrap"
+                        Text="{Binding ReuploadNote}"
+                        Visibility="{Binding ReuploadNote, Converter={StaticResource NullToCollapsed}}" />
+
                     <!-- What a removal left behind because it holds files the mod didn't install. -->
                     <TextBlock
                         Foreground="{DynamicResource SystemFillColorCautionBrush}"
@@ -299,6 +306,16 @@
                             Command="{Binding DataContext.ConfirmDownloadCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
                             CommandParameter="{Binding}"
                             ToolTip="{loc:Str Installed_ConfirmDownloadToolTip}" />
+
+                        <!-- Fork: installs a re-uploaded version over itself. -->
+                        <ui:Button
+                            Margin="0,4,8,0"
+                            Content="{loc:Str Installed_GetAgain}"
+                            Icon="{ui:SymbolIcon ArrowDownload24}"
+                            Visibility="{Binding HasReupload, Converter={StaticResource BoolToVis}}"
+                            Command="{Binding DataContext.GetAgainCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
+                            CommandParameter="{Binding}"
+                            ToolTip="{loc:Str Installed_GetAgainToolTip}" />
 
                         <ui:Button
                             Margin="0,4,8,0"
@@ -631,15 +648,6 @@
                                 Command="{Binding DataContext.ToggleDisableCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
                                 CommandParameter="{Binding}"
                                 ToolTip="{Binding DisableToggleTooltip}" />
-
-                            <ui:SymbolIcon
-                                Symbol="Pin24"
-                                FontSize="14"
-                                Margin="0,2,10,0"
-                                HorizontalAlignment="Center"
-                                Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"
-                                ToolTip="{loc:Str Common_PinnedToolTip}"
-                                Visibility="{Binding IsPinned, Converter={StaticResource BoolToVis}}" />
                         </StackPanel>
 
                         <StackPanel Grid.Column="2" VerticalAlignment="Top">
@@ -712,6 +720,31 @@
                                     Background="{DynamicResource ControlFillColorSecondaryBrush}"
                                     Visibility="{Binding IsDisabled, Converter={StaticResource BoolToVis}}">
                                     <TextBlock Text="{loc:Str Installed_DisabledTag}" FontSize="10" FontWeight="SemiBold" />
+                                </Border>
+
+                                <!-- Fork: pinned - applying a collection never disables it. -->
+                                <Border
+                                    Margin="6,0,0,0"
+                                    Padding="6,2"
+                                    CornerRadius="3"
+                                    Background="{DynamicResource AccentFillColorDefaultBrush}"
+                                    ToolTip="{loc:Str Common_PinnedToolTip}"
+                                    Visibility="{Binding IsPinned, Converter={StaticResource BoolToVis}}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <ui:SymbolIcon Symbol="Pin24" FontSize="11" Margin="0,0,4,0" VerticalAlignment="Center" Foreground="{DynamicResource TextOnAccentFillColorPrimaryBrush}" />
+                                        <TextBlock Text="{loc:Str Installed_PinnedTag}" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="{DynamicResource TextOnAccentFillColorPrimaryBrush}" />
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Fork: uploaded again under the same version number. -->
+                                <Border
+                                    Margin="6,0,0,0"
+                                    Padding="6,2"
+                                    CornerRadius="3"
+                                    Background="{DynamicResource SystemFillColorCautionBackgroundBrush}"
+                                    ToolTip="{Binding ReuploadNote}"
+                                    Visibility="{Binding HasReupload, Converter={StaticResource BoolToVis}}">
+                                    <TextBlock Text="{loc:Str Installed_ReuploadedTag}" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource SystemFillColorCautionBrush}" />
                                 </Border>
                             </StackPanel>
                         </StackPanel>
@@ -826,6 +859,31 @@
                                 Visibility="{Binding IsDisabled, Converter={StaticResource BoolToVis}}">
                                 <TextBlock Text="{loc:Str Installed_DisabledTag}" FontSize="10" FontWeight="SemiBold" />
                             </Border>
+
+                            <!-- Fork: pinned - applying a collection never disables it. -->
+                            <Border
+                                Margin="6,0,0,0"
+                                Padding="6,2"
+                                CornerRadius="3"
+                                Background="{DynamicResource AccentFillColorDefaultBrush}"
+                                ToolTip="{loc:Str Common_PinnedToolTip}"
+                                Visibility="{Binding IsPinned, Converter={StaticResource BoolToVis}}">
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon Symbol="Pin24" FontSize="11" Margin="0,0,4,0" VerticalAlignment="Center" Foreground="{DynamicResource TextOnAccentFillColorPrimaryBrush}" />
+                                    <TextBlock Text="{loc:Str Installed_PinnedTag}" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="{DynamicResource TextOnAccentFillColorPrimaryBrush}" />
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Fork: uploaded again under the same version number. -->
+                            <Border
+                                Margin="6,0,0,0"
+                                Padding="6,2"
+                                CornerRadius="3"
+                                Background="{DynamicResource SystemFillColorCautionBackgroundBrush}"
+                                ToolTip="{Binding ReuploadNote}"
+                                Visibility="{Binding HasReupload, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Text="{loc:Str Installed_ReuploadedTag}" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource SystemFillColorCautionBrush}" />
+                            </Border>
                         </StackPanel>
 
                         <!-- Only the non-destructive actions live in the header; Remove
@@ -839,15 +897,6 @@
                                 Command="{Binding DataContext.ToggleDisableCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
                                 CommandParameter="{Binding}"
                                 ToolTip="{Binding DisableToggleTooltip}" />
-
-                            <ui:SymbolIcon
-                                Symbol="Pin24"
-                                FontSize="12"
-                                Margin="0,1,0,0"
-                                HorizontalAlignment="Center"
-                                Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"
-                                ToolTip="{loc:Str Common_PinnedToolTip}"
-                                Visibility="{Binding IsPinned, Converter={StaticResource BoolToVis}}" />
                         </StackPanel>
                     </Grid>
                 </ui:CardExpander.Header>
@@ -1445,6 +1494,31 @@
                                                                 Visibility="{Binding IsDisabled, Converter={StaticResource BoolToVis}}">
                                                                 <TextBlock Text="{loc:Str Installed_DisabledTag}" FontSize="10" FontWeight="SemiBold" />
                                                             </Border>
+
+                                                            <!-- Fork: pinned - applying a collection never disables it. -->
+                                                            <Border
+                                                                Margin="6,0,0,0"
+                                                                Padding="6,2"
+                                                                CornerRadius="3"
+                                                                Background="{DynamicResource AccentFillColorDefaultBrush}"
+                                                                ToolTip="{loc:Str Common_PinnedToolTip}"
+                                                                Visibility="{Binding IsPinned, Converter={StaticResource BoolToVis}}">
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <ui:SymbolIcon Symbol="Pin24" FontSize="11" Margin="0,0,4,0" VerticalAlignment="Center" Foreground="{DynamicResource TextOnAccentFillColorPrimaryBrush}" />
+                                                                    <TextBlock Text="{loc:Str Installed_PinnedTag}" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="{DynamicResource TextOnAccentFillColorPrimaryBrush}" />
+                                                                </StackPanel>
+                                                            </Border>
+
+                                                            <!-- Fork: uploaded again under the same version number. -->
+                                                            <Border
+                                                                Margin="6,0,0,0"
+                                                                Padding="6,2"
+                                                                CornerRadius="3"
+                                                                Background="{DynamicResource SystemFillColorCautionBackgroundBrush}"
+                                                                ToolTip="{Binding ReuploadNote}"
+                                                                Visibility="{Binding HasReupload, Converter={StaticResource BoolToVis}}">
+                                                                <TextBlock Text="{loc:Str Installed_ReuploadedTag}" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource SystemFillColorCautionBrush}" />
+                                                            </Border>
                                                         </StackPanel>
 
                                                         <!-- Per-row disable toggle. ModRow_PreviewMouseLeftButtonDown
@@ -1459,15 +1533,6 @@
                                                                 Command="{Binding DataContext.ToggleDisableCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
                                                                 CommandParameter="{Binding}"
                                                                 ToolTip="{Binding DisableToggleTooltip}" />
-
-                                                            <ui:SymbolIcon
-                                                                Symbol="Pin24"
-                                                                FontSize="12"
-                                                                Margin="0,1,0,0"
-                                                                HorizontalAlignment="Center"
-                                                                Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"
-                                                                ToolTip="{loc:Str Common_PinnedToolTip}"
-                                                                Visibility="{Binding IsPinned, Converter={StaticResource BoolToVis}}" />
                                                         </StackPanel>
                                                     </Grid>
                                                 </Border>

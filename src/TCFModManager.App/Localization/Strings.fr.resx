@@ -549,9 +549,6 @@ Il a été écrit dans :
   <data name="Common_PageSizeToolTip" xml:space="preserve">
     <value>Combien de cartes composent une page</value>
   </data>
-  <data name="Common_PinnedToolTip" xml:space="preserve">
-    <value>Épinglé - aucune liste de mods que vous appliquez ne mettra ce mod de côté</value>
-  </data>
   <data name="Common_Previous" xml:space="preserve">
     <value>Précédent</value>
   </data>
@@ -1874,15 +1871,6 @@ La copie que vous ne gardez pas est déplacée dans un dossier caché .ssptmm-du
   <data name="Installed_NoUpdatesReasonsFormat" xml:space="preserve">
     <value>Aucun des mods sélectionnés ne peut être mis à jour ici : {0}.</value>
   </data>
-  <data name="Installed_Pin" xml:space="preserve">
-    <value>Épingler</value>
-  </data>
-  <data name="Installed_PinnedFormat" xml:space="preserve">
-    <value>{0} épinglé - aucune liste de mods ne le mettra de côté.</value>
-  </data>
-  <data name="Installed_PinToolTip" xml:space="preserve">
-    <value>Épinglez ce mod pour qu'aucune liste de mods que vous appliquez ne le mette de côté. Pour les mods d'interface et de confort que vous voulez garder quelle que soit la liste choisie.</value>
-  </data>
   <data name="Installed_ReasonAddon_one" xml:space="preserve">
     <value>{0} addon, qui se met à jour depuis son mod parent</value>
   </data>
@@ -2056,14 +2044,8 @@ La copie que vous ne gardez pas est déplacée dans un dossier caché .ssptmm-du
   <data name="Installed_UndoSortOutFormat" xml:space="preserve">
     <value>Restaurer le doublon de {0}</value>
   </data>
-  <data name="Installed_Unpin" xml:space="preserve">
-    <value>Désépingler</value>
-  </data>
   <data name="Installed_UnpinnedFormat" xml:space="preserve">
     <value>{0} désépinglé.</value>
-  </data>
-  <data name="Installed_UnpinToolTip" xml:space="preserve">
-    <value>Désépinglez ce mod, pour qu'une liste de mods que vous appliquez puisse de nouveau le mettre de côté quand elle ne le contient pas.</value>
   </data>
   <data name="Installed_UpdateCancelled" xml:space="preserve">
     <value>Mise à jour annulée.</value>

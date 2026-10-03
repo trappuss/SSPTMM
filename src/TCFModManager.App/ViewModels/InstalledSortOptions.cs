@@ -14,6 +14,9 @@ public enum ModSortOption
     // By the user-defined group a mod is in; ungrouped mods sort last in both directions.
     GroupAscending,
     GroupDescending,
+
+    // Fork: newest install first (InstalledMod.InstalledAt); mods with no recorded date last.
+    RecentlyInstalled,
 }
 
 // One entry in the "Sort by" dropdown. Overrides ToString() so the label shows instead of the enum name.
@@ -62,6 +65,9 @@ public enum InstalledGrouping
     None,
     Groups,
     Category,
+
+    // Fork: two sections, Enabled then Disabled.
+    InstallState,
 }
 
 public sealed class GroupingItem(string key, InstalledGrouping value) : LocalizedViewModel

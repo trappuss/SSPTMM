@@ -74,6 +74,13 @@ public sealed class InstalledModRecord
     // Files this install placed over that no record owned, with where the originals were kept (D22).
     public List<OverwrittenFile> Overwrote { get; init; } = [];
 
+    // Fork: the archive's size in bytes, and the size sp-mod.com listed for the version (its
+    // content_length) when it was installed. Null on records made before they were kept. Together they
+    // let ReuploadCheck tell when the same version was uploaded again.
+    public long? ArchiveBytes { get; init; }
+
+    public long? ListedBytes { get; init; }
+
     public FileFingerprint? FingerprintFor(string path) =>
         Fingerprints.FirstOrDefault(f => string.Equals(f.Path, path, StringComparison.OrdinalIgnoreCase));
 }

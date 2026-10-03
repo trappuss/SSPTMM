@@ -549,9 +549,6 @@ Das wurde hier hingeschrieben:
   <data name="Common_PageSizeToolTip" xml:space="preserve">
     <value>Wie viele Karten eine Seite ergeben</value>
   </data>
-  <data name="Common_PinnedToolTip" xml:space="preserve">
-    <value>Angeheftet - keine Modliste, die du anwendest, legt diesen Mod beiseite</value>
-  </data>
   <data name="Common_Previous" xml:space="preserve">
     <value>Zurück</value>
   </data>
@@ -1874,15 +1871,6 @@ Die Kopie, die du nicht behältst, wird in einen versteckten Ordner .ssptmm-dupl
   <data name="Installed_NoUpdatesReasonsFormat" xml:space="preserve">
     <value>Keiner der ausgewählten Mods kann hier aktualisiert werden: {0}.</value>
   </data>
-  <data name="Installed_Pin" xml:space="preserve">
-    <value>Anheften</value>
-  </data>
-  <data name="Installed_PinnedFormat" xml:space="preserve">
-    <value>{0} angeheftet - keine Modliste legt ihn beiseite.</value>
-  </data>
-  <data name="Installed_PinToolTip" xml:space="preserve">
-    <value>Heft diesen Mod an, damit keine Modliste, die du anwendest, ihn je beiseitelegt. Für HUD- und Komfort-Mods, die du behalten willst, egal auf welche Liste du wechselst.</value>
-  </data>
   <data name="Installed_ReasonAddon_one" xml:space="preserve">
     <value>1 Addon, das über seinen übergeordneten Mod aktualisiert wird</value>
   </data>
@@ -2056,14 +2044,8 @@ Die Kopie, die du nicht behältst, wird in einen versteckten Ordner .ssptmm-dupl
   <data name="Installed_UndoSortOutFormat" xml:space="preserve">
     <value>Bereinigen von {0} rückgängig machen</value>
   </data>
-  <data name="Installed_Unpin" xml:space="preserve">
-    <value>Nicht mehr anheften</value>
-  </data>
   <data name="Installed_UnpinnedFormat" xml:space="preserve">
     <value>{0} ist nicht mehr angeheftet.</value>
-  </data>
-  <data name="Installed_UnpinToolTip" xml:space="preserve">
-    <value>Löst die Anheftung, damit eine Modliste, die du anwendest, diesen Mod wieder beiseitelegen kann, wenn die Liste ihn auslässt.</value>
   </data>
   <data name="Installed_UpdateCancelled" xml:space="preserve">
     <value>Aktualisierung abgebrochen.</value>

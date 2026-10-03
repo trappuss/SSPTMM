@@ -131,6 +131,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         new(nameof(Strings.Sort_AuthorDescending), ModSortOption.AuthorDescending),
         new(nameof(Strings.Sort_GroupAscending), ModSortOption.GroupAscending),
         new(nameof(Strings.Sort_GroupDescending), ModSortOption.GroupDescending),
+        new(nameof(Strings.Sort_RecentlyInstalled), ModSortOption.RecentlyInstalled), // Fork
     ];
 
     [ObservableProperty]
@@ -229,6 +230,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         new(nameof(Strings.Installed_GroupingNone), InstalledGrouping.None),
         new(nameof(Strings.Installed_GroupingGroups), InstalledGrouping.Groups),
         new(nameof(Strings.Installed_GroupingCategory), InstalledGrouping.Category),
+        new(nameof(Strings.Installed_GroupingInstallState), InstalledGrouping.InstallState), // Fork
     ];
 
     [ObservableProperty]
@@ -885,6 +887,10 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         AppServices.ModLists.SetPinned(ModListPlanner.PinKeys(ModListCandidates.From(mod)), pin);
         mod.IsPinned = pin;
 
+        // Fork: pinned mods sit at the top, so the order changes with the pin.
+        ApplyFilter();
+        RefreshActiveView(CurrentPage);
+
         StatusMessage = Text(
             pin ? Strings.Installed_PinnedFormat : Strings.Installed_UnpinnedFormat,
             mod.DisplayTitle);
@@ -1032,6 +1038,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
             ApplyListMembership(cards);
             ApplyPins(cards);
+            ApplyReuploads(cards); // Fork
             ApplyPendingDownloads(cards, downloads);
             ApplyLeftovers(cards);
             ModConflicts.Apply(cards, conflicts);
@@ -1456,7 +1463,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
             // Asked even with the question switched off: nothing else says which install it goes from.
             var unstamped = record.InstallPath is null && !InstallStamp.AppIsInside(installPath);
 
-            if (ConfirmRemoval(mod.DisplayTitle, body, configs.Count, needed, mustAsk: unstamped)
+            if (ConfirmRemoval(mod.DisplayTitle, body, configs.Count, needed, mustAsk: unstamped, changesProfile: ChangesProfile(mod))
                 is not { } answer)
             {
                 return null;
@@ -1484,7 +1491,8 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
                     mod.DisplayTitle,
                     Text(Strings.Installed_RemoveLegacyBodyFormat, string.Join("\n", paths)),
                     configs.Count,
-                    needed) is not { } answer)
+                    needed,
+                    changesProfile: ChangesProfile(mod)) is not { } answer)
             {
                 return null;
             }
@@ -1593,6 +1601,9 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         // Checked before the configs move, so SPT running can't leave them moved out of a mod whose
         // folder then stays put.
         ModInstallService.EnsureInstallNotInUse(ModInstallAction.Remove, installPath);
+
+        // Fork: the profiles as they were, as an app-installed mod's removal keeps them.
+        AppServices.ProfileBackups.BackupIfChanged(installPath, ProfileBackups.BeforeRemove);
 
         var configs = ModInstallService.FindLegacyConfigs(installPath, paths);
         var kept = configAction == ConfigAction.Keep && configs.Count > 0
@@ -1706,6 +1717,10 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         var disabled = cards.Where(c => c.IsDisabled).ToList();
 
         var targets = cards.Except(disabled).ToList();
+
+        // Fork: what sp-mod.com says may change the profile is named first, and can be left installed.
+        if (CheckProfileMods(targets) is not { } kept) return null;
+        targets = kept;
 
         if (!CheckBeforeRemoving(targets)) return null;
 
@@ -2510,12 +2525,15 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     //
     private static ConfigAction? ConfirmRemoval(
         string modName, string message, int configCount, IReadOnlyList<(string Name, string Detail)> needed,
-        bool mustAsk = false)
+        bool mustAsk = false, bool changesProfile = false)
     {
         var settingsService = new SettingsService();
-        if (!mustAsk && !settingsService.Load().ConfirmUnsubscribe) return ConfigAction.Keep;
+
+        // Fork: a mod sp-mod.com says may change the profile is asked about whatever the setting.
+        if (!mustAsk && !changesProfile && !settingsService.Load().ConfirmUnsubscribe) return ConfigAction.Keep;
 
         var body = new System.Windows.Controls.StackPanel { MaxWidth = 640 };
+        if (changesProfile) body.Children.Add(ProfileWarning(Text(Strings.Installed_RemoveProfileWarningFormat, modName)));
         body.Children.Add(Paragraph(message));
 
         // What may stop working - what a removal of several checks for, named here too.
@@ -2886,6 +2904,9 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
                 .ToList()
             : SortMods(matched, SelectedSortOption.Value).ToList();
 
+        // Fork: pinned mods first, each run in the order above (OrderBy is stable).
+        _filtered = PinnedFirst(_filtered);
+
         // Every view now disagrees with _filtered, including the two that aren't on screen - they
         // catch up when switched to.
         _cardsDirty = _listDirty = _sectionsDirty = _viewSectionsDirty = true;
@@ -2949,6 +2970,10 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
             ModSortOption.GroupDescending => mods
                 .OrderBy(m => m.GroupName is null)
                 .ThenByDescending(m => m.GroupName, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(m => m.DisplayTitle, StringComparer.OrdinalIgnoreCase),
+            ModSortOption.RecentlyInstalled => mods
+                .OrderBy(m => m.InstalledAt is null)
+                .ThenByDescending(m => m.InstalledAt)
                 .ThenBy(m => m.DisplayTitle, StringComparer.OrdinalIgnoreCase),
             _ => mods,
         };
@@ -3035,7 +3060,8 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         var order = SelectedGroupSortOption.Value == GroupSortOption.Category ? GroupSortOption.Manual : SelectedGroupSortOption.Value;
         // Every group shows, empty ones too, as in the Groups view: an empty group is where a mod is
         // dragged to. (Categories are only ever made from the mods in them.)
-        BuildSections(ViewSections, SelectedGrouping.Value == InstalledGrouping.Category, order);
+        if (SelectedGrouping.Value == InstalledGrouping.InstallState) BuildStateSections(ViewSections); // Fork
+        else BuildSections(ViewSections, SelectedGrouping.Value == InstalledGrouping.Category, order);
         _viewSectionsDirty = false;
     }
 
@@ -3132,7 +3158,8 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     private static string CategorySectionKey(string category) => "c:" + category;
 
     private static string SectionKey(ModGroupSectionViewModel section) =>
-        section.GroupId is { } id ? GroupSectionKey(id)
+        section.StateKey is { } state ? StateSectionKey(state)
+        : section.GroupId is { } id ? GroupSectionKey(id)
         : section.CategoryKey is { } category ? CategorySectionKey(category)
         : UngroupedSectionKey;
 
@@ -3214,9 +3241,15 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         // The same section in the other views' sections folds with it - it is the same group or
         // category, and coming back to that view should not find it the other way.
         foreach (var twin in Sections.Concat(ViewSections).Where(s => !ReferenceEquals(s, section)
-                     && s.GroupId == section.GroupId && s.CategoryKey == section.CategoryKey))
+                     && s.GroupId == section.GroupId && s.CategoryKey == section.CategoryKey && s.StateKey == section.StateKey))
         {
             twin.IsCollapsed = section.IsCollapsed;
+        }
+
+        if (section.StateKey is not null) // Fork: Enabled / Disabled sections
+        {
+            RememberStateFold(section);
+            return;
         }
 
         if (section.CategoryKey is { } category)

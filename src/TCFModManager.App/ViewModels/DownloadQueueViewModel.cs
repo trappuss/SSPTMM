@@ -498,6 +498,9 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
                     await AppServices.Downloads.DownloadAsync(version.Link!, part, progress, token,
                         resume: attempt > 0, resumable: true);
                     File.Move(part, path, overwrite: true);
+
+                    // Fork: what sp-mod.com listed for it, so the kept file is judged by that later.
+                    if (path == keptPath) ModArchiveCache.NoteListed(path, version.ContentLength);
                     break;
                 }
                 catch (Exception ex) when (attempt < RetryDelays.Length && IsPassing(ex, token))

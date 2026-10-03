@@ -2598,4 +2598,22 @@ internal static class Strings
     internal static string Help_Play_Tools_Step3 => LocalizationService.Get("Help_Play_Tools_Step3");
     internal static string Help_Play_Tools_Note => LocalizationService.Get("Help_Play_Tools_Note");
     internal static string Help_Play_Tools_Keywords => LocalizationService.Get("Help_Play_Tools_Keywords");
+    internal static string Sort_RecentlyInstalled => LocalizationService.Get("Sort_RecentlyInstalled");
+    internal static string Installed_GroupingInstallState => LocalizationService.Get("Installed_GroupingInstallState");
+    internal static string Installed_SectionEnabled => LocalizationService.Get("Installed_SectionEnabled");
+    internal static string Installed_SectionDisabled => LocalizationService.Get("Installed_SectionDisabled");
+    internal static string Installed_PinnedTag => LocalizationService.Get("Installed_PinnedTag");
+    internal static string Installed_RemoveProfileWarningFormat => LocalizationService.Get("Installed_RemoveProfileWarningFormat");
+    internal static string Installed_RemoveProfileManyTitle => LocalizationService.Get("Installed_RemoveProfileManyTitle");
+    internal static string Installed_RemoveProfileManyFormat => LocalizationService.Get("Installed_RemoveProfileManyFormat");
+    internal static string Installed_RemoveProfileKeepThese => LocalizationService.Get("Installed_RemoveProfileKeepThese");
+    internal static string Installed_RemoveProfileRemoveAll => LocalizationService.Get("Installed_RemoveProfileRemoveAll");
+    internal static string Installed_RemoveProfileRemove => LocalizationService.Get("Installed_RemoveProfileRemove");
+    internal static string Installed_ReuploadedTag => LocalizationService.Get("Installed_ReuploadedTag");
+    internal static string Installed_ReuploadNewEntryFormat => LocalizationService.Get("Installed_ReuploadNewEntryFormat");
+    internal static string Installed_ReuploadListingChangedFormat => LocalizationService.Get("Installed_ReuploadListingChangedFormat");
+    internal static string Installed_GetAgain => LocalizationService.Get("Installed_GetAgain");
+    internal static string Installed_GetAgainToolTip => LocalizationService.Get("Installed_GetAgainToolTip");
+    internal static string Installed_GetAgainQueuedFormat => LocalizationService.Get("Installed_GetAgainQueuedFormat");
+    internal static string Installed_GetAgainNotInCatalogFormat => LocalizationService.Get("Installed_GetAgainNotInCatalogFormat");
 }

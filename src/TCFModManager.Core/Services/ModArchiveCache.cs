@@ -12,6 +12,12 @@ namespace TCFModManager.Core.Services;
 // each upload. A kept file whose size no longer matches the size sp-mod.com gives for that version
 // is not used, and is deleted.
 //
+// Fork: beside each kept file, the size sp-mod.com listed when it was downloaded (<file>.listed).
+// The listing can be out of step with the file its link serves - Skills Extended 3.1.1 is listed at
+// 109,594,837 bytes and served at 109,594,883 - and compared with the file, such a download was
+// thrown away and fetched again every time. With the note, a kept file stands while the listing is
+// what it was; a listing that has changed since means the version was uploaded again.
+//
 // Kept to a budget: past it, the files used longest ago go first. Files being written are named
 // .part until they are complete, so a download cut short is never taken for a kept one.
 //
@@ -49,12 +55,17 @@ public sealed class ModArchiveCache(string directory, long budgetBytes)
             var file = new FileInfo(path);
             if (!file.Exists || file.Length == 0) return false;
 
-            if (version.ContentLength is > 0 and var expected && file.Length != expected)
+            var listedThen = ReadListed(path);
+            if (version.ContentLength is > 0 and var expected
+                && (listedThen is { } then ? then != expected : file.Length != expected))
             {
                 if (inUse?.Contains(file.FullName) == true) return false;
 
-                AppLog.Info("Downloads", $"kept {file.Name} is {file.Length:N0} bytes, sp-mod.com says {expected:N0} - downloading it again");
+                AppLog.Info("Downloads", listedThen is { } was
+                    ? $"kept {file.Name} was listed at {was:N0} bytes, sp-mod.com now says {expected:N0} - downloading it again"
+                    : $"kept {file.Name} is {file.Length:N0} bytes, sp-mod.com says {expected:N0} - downloading it again");
                 file.Delete();
+                TryDelete(new FileInfo(ListedPathFor(path)));
                 return false;
             }
 
@@ -65,6 +76,41 @@ public sealed class ModArchiveCache(string directory, long budgetBytes)
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
             return false;
+        }
+    }
+
+    private const string ListedExtension = ".listed";
+
+    private static string ListedPathFor(string path) => path + ListedExtension;
+
+    /// <summary>Notes beside a kept archive the size sp-mod.com listed for it when it was downloaded.</summary>
+    public static void NoteListed(string path, long? listed)
+    {
+        try
+        {
+            if (listed is > 0) File.WriteAllText(ListedPathFor(path), listed.Value.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            else if (File.Exists(ListedPathFor(path))) File.Delete(ListedPathFor(path));
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            AppLog.Warn("Downloads", $"couldn't note the listed size beside {Path.GetFileName(path)}: {ex.Message}");
+        }
+    }
+
+    private static long? ReadListed(string path)
+    {
+        try
+        {
+            var note = ListedPathFor(path);
+            return File.Exists(note)
+                   && long.TryParse(File.ReadAllText(note).Trim(), System.Globalization.NumberStyles.None,
+                       System.Globalization.CultureInfo.InvariantCulture, out var listed)
+                ? listed
+                : null;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            return null;
         }
     }
 
@@ -153,7 +199,17 @@ public sealed class ModArchiveCache(string directory, long budgetBytes)
             foreach (var file in kept)
             {
                 if (total <= budget) break;
-                if (TryDelete(file)) total -= file.Length;
+
+                // Fork: the size read before the delete - a deleted FileInfo's Length throws, which
+                // ended the whole tidy after its first file.
+                var length = file.Length;
+                if (TryDelete(file)) total -= length;
+            }
+
+            // Fork: a listed-size note whose archive has gone.
+            foreach (var note in new DirectoryInfo(Directory).EnumerateFiles("*" + Extension + ListedExtension))
+            {
+                if (!File.Exists(note.FullName[..^ListedExtension.Length])) TryDelete(note);
             }
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)

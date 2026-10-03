@@ -555,9 +555,6 @@
   <data name="Common_PageSizeToolTip" xml:space="preserve">
     <value>Сколько карточек помещается на страницу</value>
   </data>
-  <data name="Common_PinnedToolTip" xml:space="preserve">
-    <value>Закреплён - ни один применённый список модов не отложит этот мод</value>
-  </data>
   <data name="Common_Previous" xml:space="preserve">
     <value>Назад</value>
   </data>
@@ -1973,15 +1970,6 @@
   <data name="Installed_NoUpdatesReasonsFormat" xml:space="preserve">
     <value>Ни один из выбранных модов нельзя обновить здесь: {0}.</value>
   </data>
-  <data name="Installed_Pin" xml:space="preserve">
-    <value>Закрепить</value>
-  </data>
-  <data name="Installed_PinnedFormat" xml:space="preserve">
-    <value>{0} закреплён - ни один список модов его не отложит.</value>
-  </data>
-  <data name="Installed_PinToolTip" xml:space="preserve">
-    <value>Закрепите этот мод, чтобы ни один применённый список модов его не отложил. Для HUD и модов для удобства, которые нужны вам при любом списке.</value>
-  </data>
   <data name="Installed_ReasonAddon_few" xml:space="preserve">
     <value>{0} аддона, которые обновляются из родительского мода</value>
   </data>
@@ -2182,14 +2170,8 @@
   <data name="Installed_UndoSortOutFormat" xml:space="preserve">
     <value>Вернуть разбор дубликата {0}</value>
   </data>
-  <data name="Installed_Unpin" xml:space="preserve">
-    <value>Открепить</value>
-  </data>
   <data name="Installed_UnpinnedFormat" xml:space="preserve">
     <value>{0} откреплён.</value>
-  </data>
-  <data name="Installed_UnpinToolTip" xml:space="preserve">
-    <value>Открепить этот мод, чтобы применённый список модов снова мог отложить его, когда мод в этот список не входит.</value>
   </data>
   <data name="Installed_UpdateCancelled" xml:space="preserve">
     <value>Обновление отменено.</value>
