@@ -110,8 +110,9 @@ public class ModConfigDiscoveryTests : IDisposable
             FolderPath = ServerModFolder("BlackDivServer"),
         };
 
-        var entry = Assert.Single(ModConfigDiscovery.Find(_installRoot, [server, Client("BlackDiv", "com.blackdiv.tacticaltoaster")])
-            .Where(e => e.Format == ModConfigFormat.BepInExCfg));
+        var entry = Assert.Single(
+            ModConfigDiscovery.Find(_installRoot, [server, Client("BlackDiv", "com.blackdiv.tacticaltoaster")]),
+            e => e.Format == ModConfigFormat.BepInExCfg);
 
         Assert.Equal(ModConfigSource.Client, entry.Source);
         Assert.Equal("BlackDiv", entry.ModName);

@@ -1548,7 +1548,10 @@ both tools:
   but only inside a mod's own folder (ModFolderOf) or a prepatch's GUID folder, and only where the
   placed-path check allows. A shipped `user/cache/` or bare `BepInEx/plugins/` is not created.
 - **Removal** (TidyEmptyModFolders) now also removes the empty subfolders left in the mod's own
-  folders, so the mod's folder goes with it. Shared folders such as `user/mods` stay.
+  folders, so the mod's folder goes with it. Shared folders such as `user/mods` stay. Only on a real
+  removal (not an update), and never in a mod folder another record also has files in - an addon's
+  removal from its parent's folder used to take the parent's empty Presets\ with it (found in the
+  release audit; test added).
 - **Tests:** 3 new (ForkEmptyFoldersTests). 1627 pass.
 
 ### Subscribed items

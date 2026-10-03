@@ -549,8 +549,7 @@ public sealed partial class ConfigsViewModel : LocalizedViewModel
     private void RefreshBackups(ConfigEntryViewModel? entry)
     {
         Backups.Clear();
-        _selectedBackup = null;
-        OnPropertyChanged(nameof(SelectedBackup));
+        SelectedBackup = null; // its change hook does nothing for null
 
         if (entry is not null && AppServices.SptEnvironment.InstallPath is { Length: > 0 } installPath)
         {

@@ -160,9 +160,10 @@ public sealed partial class DiagnoseViewModel : LocalizedViewModel
 
             Show(_last);
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        catch (Exception ex)
         {
-            AppLog.Warn("Diagnose", $"couldn't read the logs: {ex.Message}");
+            // Never out of the page's Loaded handler: a log this page can't make sense of says so.
+            AppLog.Warn("Diagnose", $"couldn't read the logs: {ex}");
             StatusMessage = ex.Message;
         }
         finally

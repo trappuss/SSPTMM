@@ -297,4 +297,14 @@ public sealed class ForkLogDiagnosisTests : IDisposable
         Assert.EndsWith(" errors.log", files.GameErrors);
         Assert.True(files.LauncherClearsGameLogs);
     }
+
+    [Fact]
+    public void A_bare_at_line_under_a_failure_is_not_a_crash()
+    {
+        var found = Find(ServerLog(
+            "[2026-09-29 04:17:15.327][Critical][SPTarkov.Server.Middleware.SptLoggerMiddleware] Error handling request: /x",
+            "   at "));
+
+        Assert.Equal(LogFindingKind.RequestFailed, Assert.Single(found).Kind);
+    }
 }

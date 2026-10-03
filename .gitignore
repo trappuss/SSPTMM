@@ -9,6 +9,11 @@ steam-ui-rebuild-and-run.bat
 steam-ui-push-to-github.bat
 # What the .bat files write about each run
 logs/
+# What Claude hands over (bundles, staged files), and shortcuts made beside the repo
+Claude outputs/
+*.lnk
+# The release script's working files
+release/
 # The .NET SDK SSPTMM-build-and-run.bat installs locally when a PC has none
 .dotnet/
 obj/

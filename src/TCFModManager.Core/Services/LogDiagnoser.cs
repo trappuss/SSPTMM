@@ -392,7 +392,8 @@ public static partial class LogDiagnoser
 
     private static string FrameName(string line)
     {
-        var frame = line.Trim()[3..];
+        var trimmed = line.Trim();
+        var frame = trimmed.Length > 3 ? trimmed[3..] : string.Empty;
         var paren = frame.IndexOf('(');
         return paren > 0 ? frame[..paren] : frame;
     }

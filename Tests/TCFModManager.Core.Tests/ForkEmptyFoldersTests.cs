@@ -127,4 +127,23 @@ public class ForkEmptyFoldersTests : IDisposable
         Assert.False(Directory.Exists(Full(Svm)));
         Assert.True(Directory.Exists(Full("SPT_Runtime/user/mods")));
     }
+
+    [Fact]
+    public async Task Removing_an_addon_that_shares_the_mods_folder_leaves_the_mods_empty_folders()
+    {
+        var svm = NewTarget();
+        await Service(SvmArchive()).InstallAsync(
+            svm, new ModVersion { Id = 1, Version = "2.2.3", Link = "https://example.test/a" }, _install);
+
+        var addon = new InstallTarget(Interlocked.Add(ref _nextId, 1), true, "SVM extra", null, null, null);
+        _ids.Add(addon.Id);
+        await Service(Zip([], (Svm + "/Loader/extra.json", "{}"))).InstallAsync(
+            addon, new ModVersion { Id = 2, Version = "1.0.0", Link = "https://example.test/b" }, _install);
+
+        var record = _manifest.Load().Mods.Single(addon.Matches);
+        await Service([]).UninstallAsync(_install, record, ConfigAction.Delete);
+
+        Assert.True(Directory.Exists(Full(Svm + "/Presets")));
+        Assert.False(File.Exists(Full(Svm + "/Loader/extra.json")));
+    }
 }

@@ -976,8 +976,11 @@ public sealed class ModInstallService(
         if (kind == RemovalKind.AppInstalled)
             restored = RestoreOriginals(installPath, record, session);
 
-        // Fork: the empty folders an install created (CreateEmptyFolders) go too, while still empty.
-        TidyEmptyModFolders(installPath, record, touchedDirectories);
+        // Fork: the empty folders an install created (CreateEmptyFolders) go too, while still empty -
+        // on a real removal only (an update's new files go back into them), and never inside a mod
+        // folder another record also has files in (an addon removed from its parent's folder).
+        if (kind == RemovalKind.AppInstalled)
+            TidyEmptyModFolders(installPath, record, owned, touchedDirectories);
 
         foreach (var dir in touchedDirectories.OrderByDescending(d => d.Length))
         {
@@ -1096,10 +1099,14 @@ public sealed class ModInstallService(
 
     // Fork (SSPTMM): every folder inside the record's mod folders, so the tidy below removes the ones
     // left empty - including empty folders the install created that no file was ever removed from.
-    private static void TidyEmptyModFolders(string installPath, InstalledModRecord record, HashSet<string> touched)
+    private static void TidyEmptyModFolders(
+        string installPath, InstalledModRecord record, IReadOnlySet<string> otherRecordsFiles, HashSet<string> touched)
     {
         foreach (var folder in record.Files.Select(InstallPathGuard.ModFolderOf).OfType<string>().Distinct(StringComparer.OrdinalIgnoreCase))
         {
+            var prefix = folder.TrimEnd('/') + "/";
+            if (otherRecordsFiles.Any(f => f.Replace('\\', '/').StartsWith(prefix, StringComparison.OrdinalIgnoreCase))) continue;
+
             var full = Path.Combine(installPath, folder.Replace('/', Path.DirectorySeparatorChar));
             if (!Directory.Exists(full) || !InstallPathGuard.MayRemoveEmptyFolder(installPath, full)) continue;
 
