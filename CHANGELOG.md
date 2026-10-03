@@ -8,6 +8,11 @@ Close SSPTMM, then unzip `SSPTMM-1.1.0-win-x64.zip` over your SSPTMM folder. You
 
 - **Newer releases are pointed out.** When it starts, SSPTMM asks GitHub whether a newer release is out. If one is, a dot appears beside **Help** and **About**, and About names the version, its date and download size, shows its release notes and has a button to the release page. SSPTMM never downloads or installs anything by itself. **Check now** on About asks again.
 
+- **Play straight from SSPTMM (experimental, off by default).** Switch on **Options > Start the game from SSPTMM** and the Play page gets a profile list and a big **PLAY** button. Play starts the server if it isn't running, waits for it, then does what SPT's launcher does before a raid (removes the files SPT's launcher removes, applies SPT's game patches, fetches mod bundles) and starts the game with that profile. No SPT launcher window. The **...** button beside Play has the rest: wipe the profile on the next start, make a new profile, delete one, clear the game's cache, or open the SPT launcher instead. A copy of your profiles is kept before a wipe or delete.
+  - It works with SPT 4.1.3 to 4.1.6. A newer 4.1 is tried, with a warning. Any other version (4.0 included) keeps the SPT launcher button.
+  - It copies how SPT's 4.1 launcher works, from its source code. The SPT team didn't make it and doesn't support it. If the game won't start or acts strangely, switch it off and use the SPT launcher. When you ask for help, say the game was started from SSPTMM.
+  - Different from SPT's launcher: it stops when the server and the game files are different SPT versions, where SPT's launcher only notes it in its log and starts anyway. It keeps the last three game logs, so **Diagnose logs** can still read them after the next start clears them.
+
 - **SSPTMM has its own icon and mascot.** The window, taskbar, tray and exe icon and the art at the left of the Workshop banner now show SSPTMM's mascot in place of the placeholder.
 
 ## Changed

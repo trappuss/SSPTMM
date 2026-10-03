@@ -1732,7 +1732,96 @@ generated from it by build/branding/make_branding.py, so a new mascot is one fil
   (`# SSPTMM <version>` up to the next one) rather than the whole file, and stops if there is none.
 - Version 1.1.0. 8 new strings, 2 rewritten, 1 removed; 24 new tests. 1676 pass.
 
+## Round 37: experimental - Play starts the game itself (2026-10-03)
+
+Options > **Start the game from SSPTMM** (off by default, an EXPERIMENTAL pill and a warning box on
+the card) turns the Play page's launcher card into a profile list, a big green **PLAY** and a
+**...** menu. Play starts the server if needed, then does what SPT's 4.1 launcher does and starts
+the game. Steam's own library page is the model: one big Play, everything else behind a small
+button beside it.
+
+### Source
+
+SPT's launcher for 4.1, github.com/SP-Tushonka/launcher at 21225a2 (2026-09-18), read file by file;
+SptLauncherApi and SptDirectLaunch follow it, with the files cited in their comments.
+
+- The server speaks HTTPS with a self-signed certificate at http.json's ip and port (127.0.0.1:6969
+  by default). Bodies go both ways as zlib; answers are `{"Response": ...}`; a request with a body
+  is a PUT. Routes used: `/launcher/v2/` ping, types, login, register, remove, version, profiles,
+  profile, wipe; `/singleplayer/bundles`; `/files/bundle/<name>`.
+- Before the game starts: version check; cleanup (BattlEye, Logs, ConsistencyInfo,
+  EscapeFromTarkov_BE.exe, Uninstall.exe, UnityCrashHandler64.exe, WinPixEventRuntime.dll unless
+  LauncherSettings.json's ExcludeFromCleanup names them; hwecho.dll always); wipe if asked; clear
+  `user/sptappdata` if ClearCacheOnLaunch; restore every `*.spt-bak`, then apply each
+  `SPT_Data/Launcher/Patches/<patch>/**/*.delta` (HDiffPatch) from the backup; fetch bundles not
+  already right (size and time, or CRC32); start
+  `EscapeFromTarkov.exe -force-gfx-jobs native -token=<profileId> -config={'BackendUrl':'https://<ip:port>','Version':'live','MatchingVersion':'live'}`.
+- The connection is only ever made to this PC (loopback or one of its own addresses, checked in
+  ConnectCallback, never through a proxy); that is why the server's self-signed certificate is
+  accepted.
+- 4.0 is not offered: its launcher checks game ownership, and SSPTMM does not touch that.
+
+### Deviations from SPT's launcher
+
+- A server and game-files version mismatch stops Play with both versions named; SPT's launcher
+  logs it and starts anyway (GameHelper.cs: it sets an error message but returns "no mismatch").
+- The last three game logs are copied to `Data/GameLogs/<install>` before cleanup deletes `Logs`,
+  and Diagnose logs falls back to them.
+- A copy of the profiles (ProfileBackups, reasons "wipe" and "profile-delete") is taken before a
+  wipe or a delete.
+- Patched files are written to `*.spt-new` and moved into place; a failed patch deletes its
+  half-written file and stops (files patched before it stay patched - the next start restores every
+  backup first, as SPT's launcher does).
+- Before a wipe or a delete, Play stops if the copy of the profiles can't be taken
+  (ProfileBackups.EnsureBackupBefore).
+
+### UI
+
+- Play page: the profile ComboBox (name, then level, side and edition), PLAY (SteamGreenButton,
+  stretched to the ComboBox's height, as is the ... button), status line (red on a problem) with a
+  progress bar, Close game while it runs. The ... menu: wipe on the next Play (warned in caution
+  colour under the row), New profile... (name and edition inline), Delete this profile...
+  (confirm inline), Clear the game's cache, Open the SPT launcher instead, Settings....
+- SSPTMM minimises when the game starts (Leave SSPTMM open when the game starts turns that off) and
+  comes back to its earlier state when the game closes.
+- While it is on, Options > Starting the game's "open the SPT launcher" switch is greyed with a
+  note, because Play no longer uses it.
+- A version it doesn't support (anything but 4.1.x) keeps the classic card with a note; 4.1 later
+  than 4.1.6 works with a note that it is untested.
+
+### Tested
+
+- 34 unit tests against a fake server (ForkDirectLaunchTests).
+- A Linux harness against a fake HTTPS 4.1.6 server: real TLS through the local-only connect,
+  profiles, types, cleanup with ExcludeFromCleanup, kept logs, a real SPT delta applied to a copy of
+  the user's own backup (result's SHA-256 equal to the user's patched Assembly-CSharp.dll), a
+  bundle fetched into `user/cache/bundles/<CRC>/`, and the exact game arguments.
+- Under Wine, the app itself against the same server: PLAY from a stopped server through to the
+  game started (args checked), wipe (backup first), new profile, delete (backup first), clear cache,
+  Close game, and switching the option off and on. The copies of the user's game files used here
+  were deleted afterwards.
+- Not tested: the real SPT server and game. That needs the user's PC.
+
+### Also
+
+- SharpHDiffPatch.Core 2.3.0 (MIT) applies the patches; it brings ZstdSharp.Port (MIT) and
+  Hi3Helper.ZstdNet (BSD-3). Its native libzstd.dll is not in the publish output, and SharpHDiffPatch
+  then uses ZstdSharp (CompressionStreamHelper.CreateZstdStream). Licence texts for those, HDiffPatch
+  and Zstandard added to `Licenses\` and THIRD-PARTY-NOTICES.md.
+- Help topic "Play straight from SSPTMM (experimental)"; wiki Play, Options and Safety pages; a new
+  screenshot, 01b-play-direct.png.
+- An independent review of the change found no high-severity problem; its findings were fixed: a
+  wipe or delete no longer goes ahead when the profile copy fails; file and config errors stop Play
+  with a message instead of the crash dialog; Cancel reaches the profile actions; containment
+  checks for written files fail closed (SptDirectLaunch.IsSafelyInside).
+- 86 new strings; 40 new tests. 1716 pass.
+
 ## Values that could not be measured (marked HUNCH in the source)
+
+- Round 37: everything about the real SPT 4.1 server and game under direct launch - only a fake
+  server was used here. Also whether 4.1 releases after 4.1.6 start the game the same way. And the
+  bundle cache: SPT's launcher puts it under `<game>\SPT_Runtime`, SSPTMM under the server exe's
+  folder - the same place in a standard 4.1 install, not checked for others.
 
 - Round 35: that sp-mod.com updates a version's listed size when its file is replaced; and which of two
   entries with one version number the download link serves (the link is by number).

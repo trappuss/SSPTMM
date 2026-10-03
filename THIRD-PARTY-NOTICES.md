@@ -14,6 +14,11 @@ in this repository they are in `build/steam-ui/licenses/` (and the font licence 
 | Microsoft.Toolkit.Uwp.Notifications 7.1.3 | MIT | .NET Foundation and Contributors | `Microsoft.Toolkit.Uwp.Notifications-LICENSE.txt` |
 | SharpCompress 0.50.4 | MIT | Adam Hathcock | `SharpCompress-LICENSE.txt` |
 | HtmlAgilityPack 1.13.0 | MIT | ZZZ Projects Inc. | `HtmlAgilityPack-LICENSE.txt` |
+| SharpHDiffPatch.Core 2.3.0 (applies SPT's game patches for the experimental Play) | MIT | Kemal Setya Adhi (neon-nyan), Collapse Project Team | `SharpHDiffPatch-LICENSE.txt` |
+| HDiffPatch, which SharpHDiffPatch ports (includes libdivsufsort's notice) | MIT | housisong; Yuta Mori | `HDiffPatch-LICENSE.txt` |
+| ZstdSharp.Port 0.8.5, a C# port of Zstandard | MIT | Oleg Stepanischev | `ZstdSharp-LICENSE.txt` |
+| Zstandard, which ZstdSharp ports | BSD | Meta Platforms, Inc. and affiliates | `Zstandard-LICENSE.txt` |
+| Hi3Helper.ZstdNet 1.6.4 (managed part only; its native `libzstd.dll` is not shipped) | BSD 3-Clause | SKB Kontur, Collapse Project Team | `ZstdNet-LICENSE.txt` |
 | XamlAnimatedGif 2.3.2 | Apache 2.0 | Thomas Levesque | `XamlAnimatedGif-LICENSE.txt` |
 | Microsoft Edge WebView2 SDK 1.0.4191.47 | Microsoft's WebView2 licence (BSD-style) | Microsoft Corporation | `WebView2-LICENSE.txt` |
 | Noto Sans (the app's font) | SIL Open Font License 1.1 | The Noto Project Authors | `NotoSans-OFL.txt` |

@@ -41,20 +41,10 @@ public static class LogFiles
 
         var bepInEx = Path.Combine(installPath, "BepInEx", "LogOutput.log");
 
-        string? gameErrors = null;
-        var gameLogs = Path.Combine(installPath, "Logs");
-        try
-        {
-            if (Directory.Exists(gameLogs)
-                && new DirectoryInfo(gameLogs).EnumerateDirectories("log_*").OrderByDescending(d => d.LastWriteTimeUtc).FirstOrDefault() is { } newest)
-            {
-                gameErrors = newest.EnumerateFiles("*errors.log").FirstOrDefault()?.FullName;
-            }
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-        {
-            AppLog.Warn("Diagnose", $"couldn't look in {gameLogs}: {ex.Message}");
-        }
+        // Fork: with no Logs folder (the clean-up before a start deleted it, and the game has not
+        // written a new one yet), the copy SSPTMM kept when it started the game itself.
+        var gameErrors = NewestGameErrors(Path.Combine(installPath, "Logs"))
+            ?? NewestGameErrors(KeptGameLogsFolder(installPath));
 
         var clears = launcher is not null
             && LogEntries.ReadLines(launcher).Any(l =>
@@ -62,6 +52,31 @@ public static class LogFiles
                 && l.TrimEnd().EndsWith("\\Logs", StringComparison.OrdinalIgnoreCase)); // written on Windows
 
         return new LogFileSet(server, File.Exists(bepInEx) ? bepInEx : null, gameErrors, launcher, clears);
+    }
+
+    private static string? NewestGameErrors(string folder)
+    {
+        try
+        {
+            return Directory.Exists(folder)
+                && new DirectoryInfo(folder).EnumerateDirectories("log_*").OrderByDescending(d => d.LastWriteTimeUtc).FirstOrDefault() is { } newest
+                ? newest.EnumerateFiles("*errors.log").FirstOrDefault()?.FullName
+                : null;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            AppLog.Warn("Diagnose", $"couldn't look in {folder}: {ex.Message}");
+            return null;
+        }
+    }
+
+    /// <summary>Fork: where SSPTMM keeps the last game sessions' Logs\log_* folders of this install
+    /// when it starts the game itself (SptDirectLaunch) - Data\GameLogs\(a short hash of the folder).</summary>
+    public static string KeptGameLogsFolder(string gameRoot)
+    {
+        var key = Path.TrimEndingDirectorySeparator(Path.GetFullPath(gameRoot)).ToLowerInvariant();
+        var hash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(key)))[..12];
+        return Path.Combine(AppPaths.DataDirectory, "GameLogs", hash);
     }
 
     private static string? Newest(string folder, string pattern, Func<string, bool>? skip = null)

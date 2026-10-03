@@ -457,6 +457,8 @@ public partial class OptionsViewModel : LocalizedViewModel
         _showModFootprintPage = settings.ShowModFootprintPage;
         _startLauncherAfterServer = settings.StartLauncherAfterServer;
         _hideServerWindow = settings.HideServerWindow;
+        _directLaunch = settings.DirectLaunch; // Fork: OptionsViewModel.DirectLaunch.cs
+        _minimizeWhilePlaying = settings.MinimizeWhilePlaying;
         _smoothScrolling = settings.SmoothScrolling;
         _confirmUnsubscribe = settings.ConfirmUnsubscribe;
         _keepDownloads = settings.KeepDownloads;
@@ -491,6 +493,7 @@ public partial class OptionsViewModel : LocalizedViewModel
         RefreshPageDefaultDescriptions(settings);
         RefreshInstallRole(settings);
 
+        HookDirectLaunch(); // Fork
         _loaded = true;
     }
 

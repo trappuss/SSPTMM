@@ -189,6 +189,8 @@ public partial class PlayViewModel : LocalizedViewModel
     partial void OnServerChanged(SptLaunchTargetInfo? value)
     {
         if (value?.IsRunning != true) ConfirmingServerStop = false;
+        OnPropertyChanged(nameof(CanPlay)); // Fork
+        PlayCommand.NotifyCanExecuteChanged();
     }
 
     // The wait for the launcher, called off by Stop server.
@@ -313,6 +315,7 @@ public partial class PlayViewModel : LocalizedViewModel
         if (ShowServerLog && FollowServerLog) UpdateServerLog(installPath);
 
         RefreshGame(installPath, settings); // Fork: the game, and Close game
+        RefreshDirect(installPath, settings); // Fork: Play from SSPTMM (experimental)
     }
 
     [RelayCommand]
@@ -329,7 +332,8 @@ public partial class PlayViewModel : LocalizedViewModel
 
         if (HasError) return;
 
-        var openLauncher = settings.StartLauncherAfterServer && Client is { CanLaunch: true };
+        // Fork: not when Play starts the game itself - the SPT launcher is what that replaces.
+        var openLauncher = settings.StartLauncherAfterServer && !IsDirectLaunchOn && Client is { CanLaunch: true };
 
         // Watched for without the launcher too when it has no window: otherwise a server that gives
         // up on starting would just be gone, with nothing said.

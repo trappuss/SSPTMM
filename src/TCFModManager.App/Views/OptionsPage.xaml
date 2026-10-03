@@ -231,12 +231,18 @@
                     <StackPanel VerticalAlignment="Center">
                         <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_LaunchHeader}" />
                         <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_LaunchSummary}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_LaunchDescription}" /></InlineUIContainer></TextBlock>
+                        <TextBlock
+                            Style="{StaticResource SettingHint}"
+                            Foreground="{DynamicResource SystemFillColorCautionBrush}"
+                            Text="{loc:Str Options_LaunchReplacedByDirect}"
+                            Visibility="{Binding DirectLaunchReplacesLauncher, Converter={StaticResource BoolToVisibility}}" />
                     </StackPanel>
                     <ui:ToggleSwitch
                         Grid.Column="1"
                         Margin="14,0,12,0"
                         VerticalAlignment="Center"
                         Style="{StaticResource RowSwitch}"
+                        IsEnabled="{Binding DirectLaunchReplacesLauncher, Converter={StaticResource Inverse}}"
                         IsChecked="{Binding StartLauncherAfterServer}" />
                 </Grid>
             </ui:CardExpander.Header>
@@ -251,6 +257,69 @@
                     Style="{StaticResource SettingNote}"
                     Margin="0,6,0,0"
                     Text="{loc:Str Options_HideServerNote}" />
+            </StackPanel>
+        </ui:CardExpander>
+
+        <!-- Fork (experimental): Play starts the game itself instead of opening SPT's launcher
+             (SptDirectLaunch). Warned about on the card, and off unless switched on. -->
+        <ui:CardExpander
+            Style="{StaticResource SettingExpander}"
+            Icon="{ui:SymbolIcon Rocket24}">
+            <ui:CardExpander.Header>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_DirectLaunchHeader}" />
+                            <Border
+                                Margin="8,0,0,0"
+                                Padding="6,1"
+                                VerticalAlignment="Center"
+                                CornerRadius="3"
+                                Background="{DynamicResource SystemFillColorCautionBrush}"
+                                ToolTip="{loc:Str Options_DirectLaunchExperimentalToolTip}">
+                                <TextBlock Text="{loc:Str Common_Experimental}" FontSize="10" FontWeight="SemiBold" Foreground="#171A21" />
+                            </Border>
+                        </StackPanel>
+                        <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_DirectLaunchSummary}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_DirectLaunchDescription}" /></InlineUIContainer></TextBlock>
+                    </StackPanel>
+                    <ui:ToggleSwitch
+                        Grid.Column="1"
+                        Margin="14,0,12,0"
+                        VerticalAlignment="Center"
+                        Style="{StaticResource RowSwitch}"
+                        IsChecked="{Binding DirectLaunch}" />
+                </Grid>
+            </ui:CardExpander.Header>
+
+            <StackPanel>
+                <ui:InfoBar
+                    IsOpen="True"
+                    IsClosable="False"
+                    Severity="Warning"
+                    Title="{loc:Str Options_DirectLaunchWarningTitle}"
+                    Message="{loc:Str Options_DirectLaunchWarning}" />
+                <TextBlock Margin="0,8,0,0" Text="{Binding DirectLaunchSupportText}">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource SettingNote}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding DirectLaunchSupportIsCaution}" Value="True">
+                                    <Setter Property="Foreground" Value="{DynamicResource SystemFillColorCautionBrush}" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                <ui:ToggleSwitch
+                    Margin="0,12,0,0"
+                    HorizontalAlignment="Left"
+                    IsEnabled="{Binding DirectLaunch}"
+                    IsChecked="{Binding MinimizeWhilePlaying}"
+                    OnContent="{loc:Str Options_MinimizeWhilePlayingOn}"
+                    OffContent="{loc:Str Options_MinimizeWhilePlayingOff}" />
             </StackPanel>
         </ui:CardExpander>
 

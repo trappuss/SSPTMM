@@ -67,6 +67,14 @@ internal static class HelpCatalog
                 .WithNote(() => Strings.Help_Play_Start_Note)
                 .WithKeywords(() => Strings.Help_Play_Start_Keywords),
 
+            // Fork (experimental): Play starts the game itself (Options > Start the game from SSPTMM).
+            Topic("play.direct", () => Strings.Help_Play_Direct_Title,
+                Step(() => Strings.Help_Play_Direct_Step1, () => Strings.Nav_Options, () => Strings.Options_DirectLaunchHeader),
+                Step(() => Strings.Help_Play_Direct_Step2, () => Strings.Nav_Play, () => Strings.Play_DirectPlay),
+                Step(() => Strings.Help_Play_Direct_Step3))
+                .WithNote(() => Strings.Help_Play_Direct_Note, () => Strings.Play_OpenLauncher)
+                .WithKeywords(() => Strings.Help_Play_Direct_Keywords),
+
             Topic("play.check", () => Strings.Help_Play_Check_Title,
                 Step(() => Strings.Help_Play_Check_Step1, () => Strings.Nav_Play),
                 Step(() => Strings.Help_Play_Check_Step2, () => Strings.Play_CheckAgain),

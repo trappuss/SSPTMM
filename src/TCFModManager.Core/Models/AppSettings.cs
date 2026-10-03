@@ -95,6 +95,20 @@ public sealed class AppSettings
     public bool HideServerWindow { get; set; }
 
     //
+    // Fork (SSPTMM, experimental): Play on the Play page starts the game itself - server, profile,
+    // the launcher's checks, patches and bundles - instead of opening SPT's launcher
+    // (SptDirectLaunch). Off by default; only on SPT 4.1.3 and later in 4.1.
+    //
+    public bool DirectLaunch { get; set; }
+
+    // The profile Play starts (its profile id), picked on the Play page. Null: the one SPT's launcher
+    // last started, else the first.
+    public string? DirectLaunchProfileId { get; set; }
+
+    // Minimise SSPTMM once the game has started from it, as SPT's launcher does by default.
+    public bool MinimizeWhilePlaying { get; set; } = true;
+
+    //
     // Whether a turn of the mouse wheel glides the page to where it takes it, as a browser does,
     // or jumps there at once. On by default; the distance per turn is the same either way.
     //

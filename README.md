@@ -27,7 +27,8 @@ Player Tarkov) mods, laid out and styled like Steam's Workshop. Mods and collect
 - **Collections** - public collections from sp-mod.com, your own collections, and sharing them with
   friends by code or shared folder.
 - **Play** - start the server and the game, read the server log, close the game, and open the tools
-  your mods installed (SVM's Greed, give-ui...).
+  your mods installed (SVM's Greed, give-ui...). Experimental, off by default: pick a profile and
+  press PLAY - server and game start with no SPT launcher window.
 - **Tools** - Configs, Dependencies and Conflicts, and **Diagnose logs**, which reads SPT's logs and
   says what went wrong and which mod it came from.
 - **Safety** - a copy of your SPT profiles before anything changes the install, your BepInEx

@@ -9,6 +9,10 @@
     <PackageReference Include="SharpCompress" Version="0.50.4" />
     <!-- MIT. Reads the HTML sp-mod.com renders its markdown to - see Markup/SpModMarkup.cs. -->
     <PackageReference Include="HtmlAgilityPack" Version="1.13.0" />
+    <!-- MIT. Applies SPT's game patches (SPT_Data\Launcher\Patches\*.delta, HDiffPatch) for
+         starting the game without SPT's launcher - the same library and version that launcher
+         uses (SptDirectLaunch). Brings ZstdSharp.Port (MIT) and Hi3Helper.ZstdNet (BSD-3). -->
+    <PackageReference Include="SharpHDiffPatch.Core" Version="2.3.0" />
   </ItemGroup>
 
   <ItemGroup>

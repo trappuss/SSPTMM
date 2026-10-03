@@ -12,6 +12,7 @@ The gear at the top right. Each setting has a one-line explanation and a **?** w
 | Language | The app's own text. Mod descriptions stay in their author's language. |
 | Window | How the window opens: remember the last size and position (default), or other choices. F11 switches full screen at any time. |
 | Starting the game | Start server also opens the SPT launcher once the server is up; run the server without its window. |
+| Start the game from SSPTMM (experimental) | Off by default. Play on the Play page starts the server and the game itself, with no SPT launcher window. See [Play](Play#play-experimental). Also: leave SSPTMM open when the game starts. While it is on, Start server no longer opens the SPT launcher. |
 | Tabs and background | Hide the Subscribed items or Collections tab (both stay under Workshop > Your Items), or put a picture of your own behind the window. |
 | Scrolling | Smooth scrolling, as a web browser does, or jump at once. |
 

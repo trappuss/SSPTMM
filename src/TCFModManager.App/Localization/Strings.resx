@@ -10164,4 +10164,348 @@ Removing them - or turning them off - can leave a profile SPT won't load. If tha
     <value>GitHub answered with error {0}. Try again later.</value>
     <comment>About page. {0} is the HTTP status code, for example 503.</comment>
   </data>
+  <data name="Common_Experimental" xml:space="preserve">
+    <value>EXPERIMENTAL</value>
+    <comment>A small tag on something that is new and may not work everywhere yet.</comment>
+  </data>
+  <data name="Options_DirectLaunchHeader" xml:space="preserve">
+    <value>Start the game from SSPTMM</value>
+    <comment>Options card title. SSPTMM is this app's name.</comment>
+  </data>
+  <data name="Options_DirectLaunchExperimentalToolTip" xml:space="preserve">
+    <value>New, and only tried on SPT 4.1.3 to 4.1.6. The SPT launcher is still there if anything goes wrong.</value>
+    <comment>Tooltip of the EXPERIMENTAL tag.</comment>
+  </data>
+  <data name="Options_DirectLaunchSummary" xml:space="preserve">
+    <value>Play on the Play page starts the server and the game itself - no SPT launcher window.</value>
+    <comment>Options card, one line.</comment>
+  </data>
+  <data name="Options_DirectLaunchDescription" xml:space="preserve">
+    <value>Play does what the SPT launcher does when you press its Start: starts the server if it isn't running and waits for it, checks the server and spt-core.dll are the same SPT version, cleans up the same files, applies SPT's game patch, fetches any missing mod bundles, and starts the game with the profile you picked. Profiles can be made, wiped and deleted from the Play card's ... menu. The SPT launcher's own settings (files it leaves alone, Clear cache on launch) are followed. The last game session's logs are kept for Diagnose logs.</value>
+    <comment>Options card, behind the ?.</comment>
+  </data>
+  <data name="Options_DirectLaunchWarningTitle" xml:space="preserve">
+    <value>Experimental</value>
+    <comment>Title of the warning on the Options card.</comment>
+  </data>
+  <data name="Options_DirectLaunchWarning" xml:space="preserve">
+    <value>This copies what SPT 4.1's launcher does, read from its source code - it is not made or supported by the SPT team. A future SPT update can change how the game has to be started; SSPTMM then goes back to opening the SPT launcher for versions it doesn't know. If the game won't start or acts strangely, switch this off and use the SPT launcher, and say it was started from SSPTMM when asking for help. For everything to run in the background, also turn on starting the server without its window, above.</value>
+    <comment>Warning on the Options card.</comment>
+  </data>
+  <data name="Options_DirectLaunchSupportedFormat" xml:space="preserve">
+    <value>This install is SPT {0}: Play starts the game from here.</value>
+    <comment>{0} is the SPT version.</comment>
+  </data>
+  <data name="Options_DirectLaunchUntestedFormat" xml:space="preserve">
+    <value>This install is SPT {0}, newer than the {1} this was checked against. Play still starts the game from here, but if it fails, use the SPT launcher.</value>
+    <comment>{0} is the install's SPT version, {1} the newest version checked.</comment>
+  </data>
+  <data name="Options_DirectLaunchUnsupportedFormat" xml:space="preserve">
+    <value>This install is SPT {0}: only SPT 4.1.3 and later in 4.1 can be started from here, so Play opens the SPT launcher.</value>
+    <comment>{0} is the SPT version.</comment>
+  </data>
+  <data name="Options_DirectLaunchNoInstall" xml:space="preserve">
+    <value>Set your SPT folder first.</value>
+    <comment>Shown when no SPT install is set.</comment>
+  </data>
+  <data name="Options_MinimizeWhilePlayingOn" xml:space="preserve">
+    <value>Minimise SSPTMM once the game is up</value>
+    <comment>Switch label, on.</comment>
+  </data>
+  <data name="Options_MinimizeWhilePlayingOff" xml:space="preserve">
+    <value>Leave SSPTMM open when the game starts</value>
+    <comment>Switch label, off.</comment>
+  </data>
+  <data name="Profiles_ReasonWipe" xml:space="preserve">
+    <value>Before wiping a profile</value>
+    <comment>Why a copy of the profiles was taken.</comment>
+  </data>
+  <data name="Profiles_ReasonProfileDelete" xml:space="preserve">
+    <value>Before deleting a profile</value>
+    <comment>Why a copy of the profiles was taken.</comment>
+  </data>
+  <data name="Play_DirectHeader" xml:space="preserve">
+    <value>Escape from Tarkov</value>
+    <comment>Play page card title when the game is started from this app.</comment>
+  </data>
+  <data name="Play_DirectSummary" xml:space="preserve">
+    <value>Pick a profile and press Play - the server starts by itself if it isn't running.</value>
+    <comment>Play card, one line.</comment>
+  </data>
+  <data name="Play_DirectDescription" xml:space="preserve">
+    <value>Play starts the server if needed, waits for it, does the SPT launcher's checks, patch and bundles, then starts the game with this profile. The SPT launcher never opens. Wipe, New profile, Delete and Clear cache are under ... beside Play. Switch it off in Options to use the SPT launcher again.</value>
+    <comment>Play card, behind the ?.</comment>
+  </data>
+  <data name="Play_DirectProfileToolTip" xml:space="preserve">
+    <value>The profile the game starts with. Profiles are read from your SPT folder, so they show before the server is running.</value>
+    <comment>Tooltip on the profile picker.</comment>
+  </data>
+  <data name="Play_ProfileDetailFormat" xml:space="preserve">
+    <value>Level {0} · {1} · {2}</value>
+    <comment>Profile picker line. {0} level, {1} side (USEC/BEAR), {2} edition.</comment>
+  </data>
+  <data name="Play_ProfileNewFormat" xml:space="preserve">
+    <value>{0} · new character · {1}</value>
+    <comment>Profile picker line for a profile with no character yet. {0} the profile's name, {1} its edition.</comment>
+  </data>
+  <data name="Play_DirectPlay" xml:space="preserve">
+    <value>PLAY</value>
+    <comment>The big button that starts the game, as Steam's.</comment>
+  </data>
+  <data name="Play_DirectPlayToolTip" xml:space="preserve">
+    <value>Start the server if needed, then the game with this profile.</value>
+    <comment>Tooltip of PLAY.</comment>
+  </data>
+  <data name="Play_DirectMoreToolTip" xml:space="preserve">
+    <value>Wipe, new profile, delete, clear cache, SPT launcher</value>
+    <comment>Tooltip of the ... button.</comment>
+  </data>
+  <data name="Play_DirectNoProfiles" xml:space="preserve">
+    <value>No profiles yet - make one with New profile under ...</value>
+    <comment>Shown when the install has no profiles.</comment>
+  </data>
+  <data name="Play_WipeArmedFormat" xml:space="preserve">
+    <value>The next Play starts {0} over with a new character - its progress is wiped. A copy of your profiles is kept first.</value>
+    <comment>{0} is the profile's nickname.</comment>
+  </data>
+  <data name="Play_DirectUnavailableFormat" xml:space="preserve">
+    <value>Starting the game from SSPTMM is on in Options, but this install is SPT {0} - only 4.1.3 and later in 4.1 can be. Use the SPT launcher.</value>
+    <comment>{0} is the SPT version.</comment>
+  </data>
+  <data name="Play_DirectUntestedFormat" xml:space="preserve">
+    <value>SPT {0} is newer than the {1} this was checked against. If the game doesn't start, use the SPT launcher (under ...).</value>
+    <comment>{0} the install's SPT version, {1} the newest checked.</comment>
+  </data>
+  <data name="Play_DirectStartingServer" xml:space="preserve">
+    <value>Starting the server...</value>
+    <comment>Play progress.</comment>
+  </data>
+  <data name="Play_DirectWaitingForServerFormat" xml:space="preserve">
+    <value>Waiting for the server to load... {0}s</value>
+    <comment>Play progress. {0} is seconds waited.</comment>
+  </data>
+  <data name="Play_DirectServerStopped" xml:space="preserve">
+    <value>The server stopped before it was ready - its log below says why.</value>
+    <comment>Play error.</comment>
+  </data>
+  <data name="Play_DirectServerTimeoutFormat" xml:space="preserve">
+    <value>The server at {0} didn't answer within 3 minutes. Its log below may say why.</value>
+    <comment>Play error. {0} is the server's address.</comment>
+  </data>
+  <data name="Play_DirectStageChecking" xml:space="preserve">
+    <value>Checking the server and spt-core.dll are the same SPT version...</value>
+    <comment>Play progress.</comment>
+  </data>
+  <data name="Play_DirectStageCleaning" xml:space="preserve">
+    <value>Cleaning up the game folder...</value>
+    <comment>Play progress.</comment>
+  </data>
+  <data name="Play_DirectStageWiping" xml:space="preserve">
+    <value>Wiping the profile...</value>
+    <comment>Play progress.</comment>
+  </data>
+  <data name="Play_DirectStageCache" xml:space="preserve">
+    <value>Clearing the game's cache...</value>
+    <comment>Play progress.</comment>
+  </data>
+  <data name="Play_DirectStagePatching" xml:space="preserve">
+    <value>Applying SPT's game patch...</value>
+    <comment>Play progress.</comment>
+  </data>
+  <data name="Play_DirectStageBundlesFormat" xml:space="preserve">
+    <value>Fetching mod bundles: {0} of {1} ({2:N0} of {3:N0} MB)...</value>
+    <comment>Play progress. {0} done, {1} total, {2} MB fetched, {3} MB to fetch.</comment>
+  </data>
+  <data name="Play_DirectStageStarting" xml:space="preserve">
+    <value>Starting the game...</value>
+    <comment>Play progress.</comment>
+  </data>
+  <data name="Play_DirectStartingGameFormat" xml:space="preserve">
+    <value>Starting the game as {0}...</value>
+    <comment>Play progress. {0} the profile's nickname.</comment>
+  </data>
+  <data name="Play_DirectPlayingFormat" xml:space="preserve">
+    <value>Playing as {0}.</value>
+    <comment>{0} the profile's nickname.</comment>
+  </data>
+  <data name="Play_DirectGameNotSeen" xml:space="preserve">
+    <value>The game was started, but hasn't shown up yet. If nothing appears, look in BepInEx\LogOutput.log or try the SPT launcher.</value>
+    <comment>Shown when the game process is not seen within 90 seconds.</comment>
+  </data>
+  <data name="Play_DirectCancelled" xml:space="preserve">
+    <value>Stopped.</value>
+    <comment>Play was cancelled.</comment>
+  </data>
+  <data name="Play_DirectNoGame" xml:space="preserve">
+    <value>EscapeFromTarkov.exe isn't in your SPT folder.</value>
+    <comment>Play error.</comment>
+  </data>
+  <data name="Play_DirectServerUnreachableFormat" xml:space="preserve">
+    <value>The server didn't answer: {0}</value>
+    <comment>Play error. {0} the underlying error, in English.</comment>
+  </data>
+  <data name="Play_DirectNoCoreDll" xml:space="preserve">
+    <value>BepInEx\plugins\spt\spt-core.dll is missing - SPT's client files aren't all there. Reinstall SPT.</value>
+    <comment>Play error.</comment>
+  </data>
+  <data name="Play_DirectVersionMismatchFormat" xml:space="preserve">
+    <value>The server is SPT {0} but spt-core.dll is {1}, so the game wouldn't work with it. Reinstall SPT so the two match. (The SPT launcher starts the game anyway.)</value>
+    <comment>Play error. {0} server version, {1} spt-core.dll version.</comment>
+  </data>
+  <data name="Play_DirectNoSuchProfile" xml:space="preserve">
+    <value>The server doesn't have this profile any more. Pick another.</value>
+    <comment>Play error.</comment>
+  </data>
+  <data name="Play_DirectWipeRefused" xml:space="preserve">
+    <value>The server refused the wipe - its config doesn't allow wiping profiles. Nothing was started.</value>
+    <comment>Play error.</comment>
+  </data>
+  <data name="Play_DirectPatchFailedFormat" xml:space="preserve">
+    <value>SPT's game patch couldn't be applied ({0}): {1}. Nothing was started; the SPT launcher would hit the same problem - reinstalling SPT usually fixes it.</value>
+    <comment>Play error. {0} the file, {1} the error.</comment>
+  </data>
+  <data name="Play_DirectBundlesFailedFormat" xml:space="preserve">
+    <value>{0} mod bundle(s) wouldn't download from the server, for example {1}. Nothing was started.</value>
+    <comment>Play error. {0} how many, {1} one file name.</comment>
+  </data>
+  <data name="Play_DirectStartFailedFormat" xml:space="preserve">
+    <value>The game couldn't be started: {0}</value>
+    <comment>Play error. {0} the error, in English.</comment>
+  </data>
+  <data name="Play_DirectFailed" xml:space="preserve">
+    <value>The game couldn't be started.</value>
+    <comment>Play error, general.</comment>
+  </data>
+  <data name="Play_DirectWipe" xml:space="preserve">
+    <value>Wipe this profile on the next Play</value>
+    <comment>Menu item.</comment>
+  </data>
+  <data name="Play_DirectWipeCancel" xml:space="preserve">
+    <value>Don't wipe on the next Play</value>
+    <comment>Menu item, when a wipe is set.</comment>
+  </data>
+  <data name="Play_DirectWipeToolTip" xml:space="preserve">
+    <value>The next Play starts this profile over with a new character, as the SPT launcher's wipe does. A copy of your profiles is kept first.</value>
+    <comment>Menu tooltip.</comment>
+  </data>
+  <data name="Play_DirectNewProfile" xml:space="preserve">
+    <value>New profile...</value>
+    <comment>Menu item.</comment>
+  </data>
+  <data name="Play_DirectNewProfileToolTip" xml:space="preserve">
+    <value>Make a profile on the server - a name and a starting edition. Starts the server if it isn't running.</value>
+    <comment>Menu tooltip.</comment>
+  </data>
+  <data name="Play_DirectNewProfileHeader" xml:space="preserve">
+    <value>New profile</value>
+    <comment>Heading of the new-profile form.</comment>
+  </data>
+  <data name="Play_DirectNewProfileName" xml:space="preserve">
+    <value>Profile name</value>
+    <comment>Placeholder of the name box.</comment>
+  </data>
+  <data name="Play_DirectCreateProfile" xml:space="preserve">
+    <value>Create</value>
+    <comment>Button.</comment>
+  </data>
+  <data name="Play_DirectProfileCreatedFormat" xml:space="preserve">
+    <value>Profile {0} made. The game makes its character the first time you play it.</value>
+    <comment>{0} the profile name.</comment>
+  </data>
+  <data name="Play_DirectProfileNotCreatedFormat" xml:space="preserve">
+    <value>The server didn't make {0} - that name may be taken.</value>
+    <comment>{0} the profile name.</comment>
+  </data>
+  <data name="Play_DirectDeleteProfile" xml:space="preserve">
+    <value>Delete this profile...</value>
+    <comment>Menu item.</comment>
+  </data>
+  <data name="Play_DirectDeleteProfileToolTip" xml:space="preserve">
+    <value>Remove the profile from the server. A copy of your profiles is kept first (Options, SPT profile backups).</value>
+    <comment>Menu tooltip.</comment>
+  </data>
+  <data name="Play_DirectDeleteWarningFormat" xml:space="preserve">
+    <value>Delete {0}? Its character and progress go from the server. A copy of your profiles is kept first, and can be put back in Options.</value>
+    <comment>{0} the profile's nickname.</comment>
+  </data>
+  <data name="Play_DirectDeleteConfirm" xml:space="preserve">
+    <value>Delete profile</value>
+    <comment>Button.</comment>
+  </data>
+  <data name="Play_DirectDeleteWhileRunning" xml:space="preserve">
+    <value>Close the game before deleting a profile.</value>
+    <comment>Error.</comment>
+  </data>
+  <data name="Play_DirectProfileDeletedFormat" xml:space="preserve">
+    <value>{0} was deleted. A copy of your profiles is in Options, SPT profile backups.</value>
+    <comment>{0} the profile's nickname.</comment>
+  </data>
+  <data name="Play_DirectProfileNotDeletedFormat" xml:space="preserve">
+    <value>The server didn't delete {0}.</value>
+    <comment>{0} the profile's nickname.</comment>
+  </data>
+  <data name="Play_DirectClearCache" xml:space="preserve">
+    <value>Clear the game's cache</value>
+    <comment>Menu item.</comment>
+  </data>
+  <data name="Play_DirectClearCacheToolTip" xml:space="preserve">
+    <value>Delete the server's user\sptappdata folder, as the SPT launcher's Clear cache does. It is rebuilt on the next start.</value>
+    <comment>Menu tooltip.</comment>
+  </data>
+  <data name="Play_DirectCacheCleared" xml:space="preserve">
+    <value>The game's cache was cleared.</value>
+    <comment>Result.</comment>
+  </data>
+  <data name="Play_DirectCacheWhileRunning" xml:space="preserve">
+    <value>Close the game before clearing its cache.</value>
+    <comment>Error.</comment>
+  </data>
+  <data name="Play_DirectOpenLauncher" xml:space="preserve">
+    <value>Open the SPT launcher instead</value>
+    <comment>Menu item.</comment>
+  </data>
+  <data name="Play_DirectOpenLauncherToolTip" xml:space="preserve">
+    <value>Start the game the usual way, from SPT's own launcher.</value>
+    <comment>Menu tooltip.</comment>
+  </data>
+  <data name="Play_DirectSettings" xml:space="preserve">
+    <value>Settings...</value>
+    <comment>Menu item: opens Options.</comment>
+  </data>
+  <data name="Options_LaunchReplacedByDirect" xml:space="preserve">
+    <value>Not used while "Start the game from SSPTMM" is on - Play starts the game itself.</value>
+    <comment>Options, Starting the game: shown under the line, with the switch greyed, while the experimental direct launch (Options_DirectLaunchHeader) is on.</comment>
+  </data>
+  <data name="Help_Play_Direct_Title" xml:space="preserve">
+    <value>Play straight from SSPTMM (experimental)</value>
+    <comment>Help topic title. The direct launch: Play starts the server and the game with no SPT launcher window.</comment>
+  </data>
+  <data name="Help_Play_Direct_Step1" xml:space="preserve">
+    <value>Open {0} and switch on {1}. Read the warning on it first.</value>
+    <comment>Help step. {0} = Options, {1} = the "Start the game from SSPTMM" setting.</comment>
+  </data>
+  <data name="Help_Play_Direct_Step2" xml:space="preserve">
+    <value>Open {0}, pick a profile and press {1}. The server starts by itself if it isn't running.</value>
+    <comment>Help step. {0} = Play page, {1} = the PLAY button.</comment>
+  </data>
+  <data name="Help_Play_Direct_Step3" xml:space="preserve">
+    <value>The ... button beside it can wipe the profile on the next start, make a new profile, delete one, or clear the game's cache. A copy of your profiles is kept before a wipe or delete.</value>
+    <comment>Help step about the "..." (More) button beside PLAY. Keep the three dots.</comment>
+  </data>
+  <data name="Help_Play_Direct_Note" xml:space="preserve">
+    <value>It works with SPT 4.1.3 to 4.1.6, and is not made or supported by the SPT team. If the game won't start or acts strangely, switch it off and use {0}.</value>
+    <comment>Help note. {0} = the Open launcher button.</comment>
+  </data>
+  <data name="Help_Play_Direct_Keywords" xml:space="preserve">
+    <value>play, start game, launcher, profile, wipe, new profile, delete profile, cache, experimental</value>
+    <comment>Search words for the Help topic, comma-separated.</comment>
+  </data>
+  <data name="Play_DirectBackupFailed" xml:space="preserve">
+    <value>A copy of your profiles couldn't be taken, so nothing was changed. The app's log says why.</value>
+    <comment>Play page status (error), when the profile backup before a wipe or a profile delete fails; the wipe or delete is not done.</comment>
+  </data>
+  <data name="Play_DirectErrorFormat" xml:space="preserve">
+    <value>Play stopped: {0}</value>
+    <comment>Play page status (error) for an unexpected file or config problem. {0} = the system message.</comment>
+  </data>
 </root>

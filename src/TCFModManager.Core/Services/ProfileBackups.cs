@@ -38,6 +38,9 @@ public sealed class ProfileBackups(string? root = null, int keep = 10)
     public const string BeforeDisable = "disable";
     public const string BeforeRestore = "restore";
     public const string ByHand = "manual";
+    // Fork: before a profile is wiped or deleted from the Play page (SptDirectLaunch).
+    public const string BeforeWipe = "wipe";
+    public const string BeforeProfileDelete = "profile-delete";
 
     public string Root { get; } = root ?? System.IO.Path.Combine(AppPaths.DataDirectory, "ProfileBackups");
 
@@ -130,6 +133,23 @@ public sealed class ProfileBackups(string? root = null, int keep = 10)
         {
             AppLog.Warn("Profiles", $"couldn't back up the SPT profiles before this change: {ex.Message}");
             return null;
+        }
+    }
+
+    /// <summary>For changes that can't be undone otherwise (a wipe, a deleted profile): makes sure a
+    /// copy of the profiles as they are now exists - a new one when they changed since the last.
+    /// False when it could not be taken, and the change should not go ahead.</summary>
+    public bool EnsureBackupBefore(string installPath, string reason)
+    {
+        try
+        {
+            lock (_gate) Take(installPath, reason, force: false);
+            return true;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidDataException)
+        {
+            AppLog.Warn("Profiles", $"couldn't back up the SPT profiles, so the {reason} was not done: {ex.Message}");
+            return false;
         }
     }
 

@@ -66,6 +66,29 @@ public class ProfileBackupsTests : IDisposable
     }
 
     [Fact]
+    public void BeforeAWipeOrDelete_ACopyIsMade_OrTheLastStillHolds()
+    {
+        Profile("a.json", "1");
+
+        Assert.True(_backups.EnsureBackupBefore(_install, ProfileBackups.BeforeWipe));
+        Assert.True(_backups.EnsureBackupBefore(_install, ProfileBackups.BeforeProfileDelete));
+
+        var only = Assert.Single(_backups.List(_install));
+        Assert.Equal(ProfileBackups.BeforeWipe, only.Reason);
+    }
+
+    [Fact]
+    public void BeforeAWipeOrDelete_ACopyThatCantBeMade_SaysSo()
+    {
+        Profile("a.json", "1");
+        // The backups' folder is a file, so no copy can be written there.
+        var blocked = Path.Combine(_root, "blocked");
+        File.WriteAllText(blocked, "");
+
+        Assert.False(new ProfileBackups(blocked).EnsureBackupBefore(_install, ProfileBackups.BeforeWipe));
+    }
+
+    [Fact]
     public void NoCopy_WhenThereAreNoProfiles()
     {
         Assert.Null(_backups.BackupIfChanged(_install, ProfileBackups.BeforeInstall));
