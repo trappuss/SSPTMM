@@ -38,7 +38,8 @@ public enum PathRefusal
     // SPT's, BepInEx's or the game's - see ProtectedInstallPaths.
     Protected,
 
-    // Inside this app's own folder, which sits in the install on a normal setup.
+    // One of this app's own files or folders - its exe, Data, Staging or update folder - or, when the
+    // app has a folder of its own, anything in that folder.
     AppFolder,
 
     // Not a mod folder directly inside BepInEx\plugins, BepInEx\patchers or user\mods.
@@ -127,7 +128,7 @@ public static class InstallPathGuard
             return PathRefusal.OutsideInstall;
         }
 
-        if (IsInAppFolder(full)) return PathRefusal.AppFolder;
+        if (IsInAppFolder(full, root)) return PathRefusal.AppFolder;
 
         var relative = Path.GetRelativePath(root, full);
         if (ProtectedInstallPaths.IsProtected(relative)
@@ -154,7 +155,7 @@ public static class InstallPathGuard
         if (!TryFullPath(path, out var full) || !TryFullPath(installPath, out var root) || !IsStrictlyInside(full, root))
             return PathRefusal.OutsideInstall;
 
-        if (IsInAppFolder(full)) return PathRefusal.AppFolder;
+        if (IsInAppFolder(full, root)) return PathRefusal.AppFolder;
 
         var relative = Path.GetRelativePath(root, full);
         if (ProtectedInstallPaths.Segments(relative) is not { } segments) return PathRefusal.OutsideInstall;
@@ -196,7 +197,7 @@ public static class InstallPathGuard
         if (!TryFullPath(directory, out var full) || !TryFullPath(installPath, out var root) || !IsStrictlyInside(full, root))
             return false;
 
-        if (IsInAppFolder(full)) return false;
+        if (IsInAppFolder(full, root)) return false;
 
         if (ProtectedInstallPaths.Segments(Path.GetRelativePath(root, full)) is not { } segments) return false;
 
@@ -300,9 +301,70 @@ public static class InstallPathGuard
         return false;
     }
 
-    private static bool IsInAppFolder(string full) =>
-        TryFullPath(AppContext.BaseDirectory, out var app)
-        && (IsStrictlyInside(full, app) || PathsEqual(full, app));
+    //
+    // The folder the running exe is in. Tests point it elsewhere per test (an AsyncLocal, so tests
+    // running side by side don't see each other's value); the app never sets it.
+    //
+    internal static readonly AsyncLocal<string?> AppDirectoryForTests = new();
+
+    private static string AppDirectory => AppDirectoryForTests.Value ?? AppContext.BaseDirectory;
+
+    //
+    // What the app keeps beside its exe: the exe and its pdbs, the Data and Staging folders
+    // (AppPaths), the self-update folder (AppUpdateInstaller), the pre-v1.5.0 LegacyConfigs folder
+    // and the "verbose" log switch (AppLog).
+    //
+    // Fork (SSPTMM 1.2.0, from TCF Mod Manager 1.19.1-beta): SSPTMM's exe and pdb, and the Licenses
+    // folder its release ships beside the exe. The original's names stay, so a TCF Mod Manager in
+    // the same folder is not written over either.
+    //
+    private static readonly string[] AppOwnedNames =
+    [
+        "SSPTMM.exe",
+        "SSPTMM.pdb",
+        "TCFModManager.exe",
+        "TCFModManager.pdb",
+        "TCFModManager.Core.pdb",
+        "Data",
+        "Staging",
+        "Licenses",
+        "LegacyConfigs",
+        ".tcfmm-update",
+        "verbose",
+    ];
+
+    //
+    // When the app has a folder of its own - a folder inside the install, or anywhere outside it -
+    // everything in that folder is the app's. When its folder is the install
+    // root, a folder above the install, or one that holds a mod container (BepInEx, SPT\, ...), most
+    // of what is in it belongs to SPT and its mods, so only the app's own items are. Treating the
+    // whole folder as the app's there refused every file of every install, update and removal
+    // (v1.19.0, an exe run from the SPT root).
+    //
+    private static bool IsInAppFolder(string full, string root)
+    {
+        if (!TryFullPath(AppDirectory, out var app)) return false;
+
+        if (AppFolderIsDedicated(app, root)) return IsStrictlyInside(full, app) || PathsEqual(full, app);
+
+        var exeName = Path.GetFileName(Environment.ProcessPath);
+
+        return AppOwnedNames
+            .Append(string.IsNullOrEmpty(exeName) ? AppOwnedNames[0] : exeName)
+            .Select(name => Path.Combine(app, name))
+            .Any(owned => PathsEqual(full, owned) || IsStrictlyInside(full, owned));
+    }
+
+    private static bool AppFolderIsDedicated(string app, string root)
+    {
+        if (PathsEqual(app, root) || IsStrictlyInside(root, app)) return false;
+
+        return !ModContainers.Any(c =>
+        {
+            var container = Path.Combine([root, .. c]);
+            return PathsEqual(container, app) || IsStrictlyInside(container, app);
+        });
+    }
 
     private static bool StartsWith(string[] segments, string[] prefix) =>
         prefix.Select((p, i) => string.Equals(segments[i], p, StringComparison.OrdinalIgnoreCase)).All(x => x);

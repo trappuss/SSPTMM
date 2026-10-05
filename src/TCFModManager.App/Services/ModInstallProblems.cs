@@ -94,6 +94,14 @@ public static class ModInstallProblems
             problem.Folder,
             problem.InnerException?.Message),
 
+        ModInstallFailure.NothingToPlace => string.Format(
+            CultureInfo.CurrentCulture,
+            Strings.ModInstall_NothingToPlaceFormat,
+            problem.ModName,
+            problem.Version,
+            problem.TotalFiles,
+            problem.ArchiveEntry),
+
         _ => string.Format(CultureInfo.CurrentCulture, Strings.ModInstall_UnexpectedFormat, problem.Reason),
     };
 

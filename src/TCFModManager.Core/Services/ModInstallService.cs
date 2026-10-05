@@ -323,6 +323,7 @@ public sealed class ModInstallService(
             // would write into whatever the link points at, so the whole install is refused instead.
             //
             var skippedProtected = new List<string>();
+            var skippedAppFolder = new List<string>();
             var placements = new List<(string File, string Relative, string Forward)>(allPlacements.Count);
 
             foreach (var placement in allPlacements)
@@ -348,9 +349,14 @@ public sealed class ModInstallService(
                         placements.Add(placement);
                         break;
 
-                    case PathRefusal.Protected or PathRefusal.AppFolder:
+                    case PathRefusal.Protected:
                         skippedProtected.Add(placement.Forward);
                         AppLog.Warn("Install", $"{target.Name} {version.Version}: kept the install's own {placement.Forward}; the archive's copy was not placed");
+                        break;
+
+                    case PathRefusal.AppFolder:
+                        skippedAppFolder.Add(placement.Forward);
+                        AppLog.Warn("Install", $"{target.Name} {version.Version}: {placement.Forward} is part of this app; the archive's copy was not placed");
                         break;
 
                     case PathRefusal.Link:
@@ -364,6 +370,24 @@ public sealed class ModInstallService(
                     default:
                         throw new ModInstallException(ModInstallFailure.UnsafeArchiveEntry) { ArchiveEntry = placement.Forward };
                 }
+            }
+
+            //
+            // Every file in the archive was refused. Going on would record an install of nothing and,
+            // on an update, swap the previous version's record for an empty one - leaving its files
+            // on disk with nothing tracking them - so it stops here, before anything is touched.
+            //
+            if (placements.Count == 0 && skippedProtected.Count + skippedAppFolder.Count > 0)
+            {
+                AppLog.Warn("Install", $"{target.Name} {version.Version}: every file in the archive was refused; nothing placed, nothing changed");
+
+                throw new ModInstallException(ModInstallFailure.NothingToPlace)
+                {
+                    ModName = target.Name,
+                    Version = version.Version,
+                    TotalFiles = skippedProtected.Count + skippedAppFolder.Count,
+                    ArchiveEntry = skippedProtected.Concat(skippedAppFolder).First(),
+                };
             }
 
             // Fork: a copy of the SPT profiles from before the change, when they changed since the
@@ -509,6 +533,7 @@ public sealed class ModInstallService(
             AppLog.Info("Install",
                 $"{target.Name} {version.Version} placed {placedFiles.Count} file(s) in folders [{string.Join(", ", record.Folders)}]"
                 + (skippedProtected.Count > 0 ? $"; kept {skippedProtected.Count} of the install's own file(s)" : "")
+                + (skippedAppFolder.Count > 0 ? $"; left out {skippedAppFolder.Count} file(s) that are part of this app" : "")
                 + (overwrote.Count > 0 ? $"; kept {overwrote.Count} original(s) it replaced" : ""));
 
             var report = _configs.Settle(pending, installPath, target, existing, record, timestamp);
@@ -542,6 +567,7 @@ public sealed class ModInstallService(
             // (IsArchivesCopy) is still checked like any other file.
             //
             var deliberate = new HashSet<string>(skippedProtected, StringComparer.OrdinalIgnoreCase);
+            deliberate.UnionWith(skippedAppFolder);
             deliberate.UnionWith(keptSettings);
             deliberate.UnionWith(pending.Untouchable);
             deliberate.UnionWith(pending.Preserved);
@@ -561,7 +587,7 @@ public sealed class ModInstallService(
                     $"{target.Name} {version.Version}: {mismatch.Path} is not as the archive has it ({mismatch.Kind}; archive {mismatch.ArchiveSize:N0} bytes, disk {(mismatch.DiskSize is { } d ? d.ToString("N0") : "none")})");
             }
 
-            return new ModInstallResult(record, report.Files.Count > 0 ? report : null, skippedProtected)
+            return new ModInstallResult(record, report.Files.Count > 0 ? report : null, skippedProtected, skippedAppFolder)
             {
                 OriginalsKept = overwrote.Count - (existing?.Overwrote.Count ?? 0),
                 KeptSettings = keptSettings,
@@ -1796,12 +1822,14 @@ public sealed class ModInstallService(
 //
 //
 // SkippedProtected lists the archive's files that were not placed because the install's own copy is
-// SPT's, BepInEx's or the game's (D3-D5).
+// SPT's, BepInEx's or the game's (D3-D5). SkippedAppFolder lists the ones that would have landed on
+// this app's own files or folders.
 //
 public sealed record ModInstallResult(
     InstalledModRecord Record,
     ConfigUpdateReport? Configs,
-    IReadOnlyList<string>? SkippedProtected = null)
+    IReadOnlyList<string>? SkippedProtected = null,
+    IReadOnlyList<string>? SkippedAppFolder = null)
 {
     // Files no record owned that this install replaced, kept in Data to put back on removal (D22).
     // Only the ones this install kept - originals an earlier version kept aren't counted again.

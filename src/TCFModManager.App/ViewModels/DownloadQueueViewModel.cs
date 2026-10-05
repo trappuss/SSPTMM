@@ -606,15 +606,18 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
 
             //
             // What the install deliberately didn't do is said on the card (D5): SPT's own files it left
-            // alone - named one per line in the tooltip - and originals it kept to put back later (D22).
+            // alone and any that would have landed on this app's own files - named one per line in the
+            // tooltip - and originals it kept to put back later (D22).
             //
             var skipped = result.SkippedProtected ?? [];
+            var skippedApp = result.SkippedAppFolder ?? [];
 
             // Fork: a refused file aimed at SPT's user folder is a warning of its own, named, rather
             // than counted with SPT's and the game's own files (the user\patchers bug).
             var userSkips = skipped.Where(ProtectedInstallPaths.IsUnderServerUser).ToList();
             var quietSkips = skipped.Except(userSkips).ToList();
             var keptSpt = quietSkips.Count > 0 ? Strings.Downloads_KeptSptFiles(quietSkips.Count, quietSkips.Count) : null;
+            var keptApp = skippedApp.Count > 0 ? Strings.Downloads_KeptAppFiles(skippedApp.Count, skippedApp.Count) : null;
             var keptOriginals = result.OriginalsKept > 0
                 ? Strings.Downloads_KeptOriginals(result.OriginalsKept, result.OriginalsKept)
                 : null;
@@ -626,8 +629,8 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
 
             item.StatusMessage = string.Join(
                 Strings.Common_SentenceSeparator,
-                new[] { installed, configs, keptSpt, keptSettings, keptOriginals }.Where(s => !string.IsNullOrEmpty(s)));
-            var named = quietSkips.Concat(result.KeptSettings).ToList();
+                new[] { installed, configs, keptSpt, keptApp, keptSettings, keptOriginals }.Where(s => !string.IsNullOrEmpty(s)));
+            var named = quietSkips.Concat(skippedApp).Concat(result.KeptSettings).ToList();
             item.StatusDetail = named.Count > 0
                 ? string.Join(Environment.NewLine, new[] { item.StatusMessage, "" }.Concat(named))
                 : null;

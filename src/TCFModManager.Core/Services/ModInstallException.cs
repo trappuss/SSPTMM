@@ -85,6 +85,12 @@ public enum ModInstallFailure
     // The record being removed or updated was made in a different SPT install (D17). Refused before
     // anything is touched. Carries ModName and Folder (the install the record belongs to).
     RecordFromAnotherInstall,
+
+    // Every file in the archive was refused - each would have replaced SPT's, BepInEx's or the game's
+    // own copy, or landed on this app's own files - so nothing was placed and nothing changed.
+    // Carries ModName, Version, TotalFiles (how many were refused) and ArchiveEntry (the first of
+    // them, install-relative).
+    NothingToPlace,
 }
 
 //

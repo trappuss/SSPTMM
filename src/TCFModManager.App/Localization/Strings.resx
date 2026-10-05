@@ -10779,4 +10779,16 @@ Removing them - or turning them off - can leave a profile SPT won't load. If tha
     <value>Nothing to change, except {0} mods that are in the install twice - on, and in their .disabled folder. Sort them out on their cards first.</value>
     <comment>Subscribed items, Presets: status. {0} = how many.</comment>
   </data>
+  <data name="ModInstall_NothingToPlaceFormat" xml:space="preserve">
+    <value>{0} {1} wasn't installed: every file in it ({2} in all) would have replaced one that belongs to SPT, BepInEx, the game or SSPTMM, such as {3}. Nothing was changed.</value>
+    <comment>{0} is a mod name, {1} its version, {2} a count of files, {3} a path inside the SPT folder. SSPTMM is the app name, not translated.</comment>
+  </data>
+  <data name="Downloads_KeptAppFiles_one" xml:space="preserve">
+    <value>1 file in this archive would have landed on SSPTMM's own files and was left out.</value>
+    <comment>{0} is a count. Added to a finished install's status line. SSPTMM is the app name, not translated.</comment>
+  </data>
+  <data name="Downloads_KeptAppFiles_other" xml:space="preserve">
+    <value>{0} files in this archive would have landed on SSPTMM's own files and were left out.</value>
+    <comment>{0} is a count. Added to a finished install's status line. SSPTMM is the app name, not translated.</comment>
+  </data>
 </root>

@@ -2846,4 +2846,7 @@ internal static class Strings
         LocalizationService.Plural("Presets_InTwoPlaces", count, values);
     internal static string Presets_OnlyInTwoPlaces(int count, params object?[] values) =>
         LocalizationService.Plural("Presets_OnlyInTwoPlaces", count, values);
+    internal static string ModInstall_NothingToPlaceFormat => LocalizationService.Get("ModInstall_NothingToPlaceFormat");
+    internal static string Downloads_KeptAppFiles(int count, params object?[] values) =>
+        LocalizationService.Plural("Downloads_KeptAppFiles", count, values);
 }
