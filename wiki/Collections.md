@@ -37,6 +37,8 @@ Open one for its page: **Manage in Collections** and **Share with friends**.
 
 ### Sharing
 
+![Share with friends](https://raw.githubusercontent.com/trappuss/SSPTMM/main/docs/images/18-share-collection.png)
+
 - **Share code** - one line of text that fits in a Discord message.
 - **Shared folder** - a file in a folder you both sync; your friends' copies follow it.
 

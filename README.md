@@ -43,6 +43,71 @@ Player Tarkov) mods, laid out and styled like Steam's Workshop. Mods and collect
 
 More screenshots of every page are in the [wiki](https://github.com/trappuss/SSPTMM/wiki).
 
+## What SSPTMM adds over TCF Mod Manager
+
+SSPTMM began as a fork of TCF Mod Manager, and everything it does is still here. On top of it:
+
+### Your mods' tools, one click away
+
+Some mods ship a program of their own, like **SVM's Greed** (the Server Value Modifier's editor) or
+**give-ui**. After you subscribe, the **Play** page lists every program your mods put in the SPT
+folder. **Open** starts it in the right folder, and the folder button opens the mod's own folder
+(for SVM, its presets). SSPTMM also knows when a tool wants the server stopped (Greed) or running
+(give-ui), and says so. If you disable the mod, its tool is greyed out.
+
+![Mod tools on the Play page, with SVM's Greed](docs/images/17-play-mod-tools.png)
+
+### Collections you can share
+
+- **Browse sp-mod.com's public collections** inside the app.
+- **Subscribe to all** of a collection, at the versions for your SPT or the collection's.
+- **Make your own** from the mods you have installed.
+- **Share with friends in two ways:**
+  - a **share code**: one line of text that fits in a Discord message;
+  - a **shared folder** (Dropbox, OneDrive, Google Drive), which keeps everyone's copy up to date.
+- **When a friend's collection changes,** SSPTMM says exactly what was added or removed and offers
+  **Sync**. Only the list travels; every mod still downloads from sp-mod.com.
+
+![Sharing a collection by code or shared folder](docs/images/18-share-collection.png)
+
+### Diagnose logs
+
+Reads SPT's server log, BepInEx's log and the game's error log, and says in plain words what went
+wrong. When the log shows it, it also says which mod caused it. Examples:
+
+- a mod that didn't load, and what it was missing;
+- two mods that don't work together;
+- raid results that weren't saved;
+- a profile that won't load.
+
+**Copy a report for help** takes out your user name, user folder, profile ids and players' IP
+addresses.
+
+### A Steam Workshop to browse
+
+- **Browsing:** hover previews with each mod's pictures, Quick View, authors' pages, and following
+  authors.
+- **Item pages:** sp-mod.com's comments, change notes for every version, and YouTube videos, all
+  inside the app.
+- **Badges:** every card shows whether you have the mod, it needs an update, or it's disabled.
+
+### Safer installs
+
+- **Profile backups:** a copy of your SPT profiles before anything changes your install.
+- **Held-back updates:** an update that would break another installed mod is held back.
+- **Re-upload detection:** spots a mod re-uploaded under the same version number.
+- **SPT upgrade check:** shows which of your mods are ready for a newer SPT.
+- **Install from file:** installs an archive you already have.
+
+### More control from the Play page
+
+- **Server:** stop it, run it without its window, and read its log live.
+- **Game:** close it, optionally whenever the server stops.
+- **Experimental:** start the game straight from SSPTMM with no SPT launcher window.
+
+Everything that differs, item by item, is in the wiki:
+[Changes from TCF Mod Manager](https://github.com/trappuss/SSPTMM/wiki/Changes-from-TCF-Mod-Manager).
+
 ## Install
 
 1. Download `SSPTMM-<version>-win-x64.zip` from

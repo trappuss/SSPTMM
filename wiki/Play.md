@@ -71,6 +71,8 @@ launcher:
 
 ## Mod tools
 
+![Mod tools, with SVM's Greed](https://raw.githubusercontent.com/trappuss/SSPTMM/main/docs/images/17-play-mod-tools.png)
+
 Some mods ship a program of their own - SVM's **Greed** configurator, give-ui's app. The
 **Mod tools** card lists every `.exe` an installed mod put in your SPT folder, by itself, each with:
 
