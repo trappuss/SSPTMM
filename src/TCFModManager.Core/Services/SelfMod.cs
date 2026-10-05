@@ -1,12 +1,14 @@
 namespace TCFModManager.Core.Services;
 
 //
-// This app's own listing on sp-mod.com. It is a real, published mod page like any other - the
-// self-updater downloads from it through the same public API and the same download link a person
-// clicking "Download" on that page would get, and Browse hides it purely so the manager doesn't
-// list itself among the mods it manages.
+// Who this app is, and the app it was built from.
 //
-// Kept as one set of constants so the updater and the Browse filter can never drift apart.
+// SSPTMM (Steamified SPT Mod Manager) is its own tool. It began as a fork of TCF Mod Manager by
+// TheCrimsonFckr (MIT), whose copyright notice stays in LICENSE and who is credited on the About
+// page; since 1.2.0 it no longer follows the original's releases. The constants for the original's
+// sp-mod.com listing remain because Browse and collections leave that listing out - a mod manager
+// is not one of the mods it manages - and because the original's own updater code, which never runs
+// here, reads them.
 //
 public static class SelfMod
 {
@@ -20,12 +22,6 @@ public static class SelfMod
     public const string Name = "TCF Mod Manager";
 
     // ---- this app ---------------------------------------------------------------------------------
-    //
-    // Steamified SPT Mod Manager (SSPTMM) is its own tool, built on TCF Mod Manager's code. Everything
-    // above is the ORIGINAL app's sp-mod.com listing - still known so Browse can leave it out of the
-    // mods it lists, and so the merge of a newer original release has something to compare with -
-    // and nothing here downloads or installs it.
-    //
     public const string AppName = "Steamified SPT Mod Manager";
 
     public const string ShortName = "SSPTMM";
@@ -34,11 +30,11 @@ public static class SelfMod
 
     public const string IssuesUrl = RepositoryUrl + "/issues";
 
-    // The original, credited on the About page. OriginalVersion is the release last merged in -
-    // bump it with each merge.
-    public const string OriginalAuthor = "TheCrimsonFckr";
+    // SSPTMM's own guide, opened from Help.
+    public const string WikiUrl = RepositoryUrl + "/wiki";
 
-    public const string OriginalVersion = "1.19.0-beta";
+    // The original, credited on the About page.
+    public const string OriginalAuthor = "TheCrimsonFckr";
 
     // Fallback only. The live Mod.DetailUrl from the API is preferred wherever one is available,
     // so a slug change on sp-mod.com doesn't leave the app pointing at a dead link.
@@ -47,8 +43,8 @@ public static class SelfMod
     //
     // True for SSPTMM. The listing above is the original app's: its download is the original build,
     // so installing it over this one would replace SSPTMM with the original. So the original's update
-    // check does not run at all (AppUpdateViewModel) and its installer is never offered; newer
-    // releases of the original are merged in by hand instead.
+    // check does not run at all (AppUpdateViewModel) and its installer is never offered. SSPTMM's own
+    // releases are found on GitHub (GitHubReleaseCheck).
     //
     public const bool IsFork = true;
 

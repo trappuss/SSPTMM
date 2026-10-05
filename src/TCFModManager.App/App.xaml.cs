@@ -257,6 +257,7 @@ public partial class App : Application
         AppServices.ServerMapReporter.Stop();
         AppTray.Dispose();
         UpdateToasts.RemoveMessages();
+        UpdateToasts.UnregisterIfOff(new SettingsService().Load().UpdateNotifications.Enabled); // Fork (1.2.0)
         DependencyBadgeLoader.Flush();
         AppLog.Info("App", "Shutting down");
         AppLog.Flush();

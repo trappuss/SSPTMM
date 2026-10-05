@@ -29,11 +29,12 @@ key.
 | [Help and About](Help-and-About) | The built-in Help (F1) and the About page. |
 
 Also: [Safety and backups](Safety-and-Backups) - what SSPTMM does to keep your install and profiles
-safe - and [Troubleshooting](Troubleshooting).
+safe - [Troubleshooting](Troubleshooting), and [Files and network](Files-and-Network) - every
+file SSPTMM writes and every server it talks to.
 
 ## Names you will see
 
-SSPTMM uses Steam's words for TCF Mod Manager's actions:
+SSPTMM uses Steam's words for what it does:
 
 | Steam's word | Means |
 |---|---|
@@ -42,12 +43,11 @@ SSPTMM uses Steam's words for TCF Mod Manager's actions:
 | **Subscribed items** | The mods installed in your SPT folder |
 | **Collections** | Mod lists |
 
-## Based on TCF Mod Manager
+## Credits
 
-SSPTMM is built on [TCF Mod Manager](https://sp-mod.com/mod/2945/tcf-mod-manager) by
-TheCrimsonFckr. It is a separate app with its own settings, names and version numbers. Report
-SSPTMM problems in [this repository's Issues](https://github.com/trappuss/SSPTMM/issues), not to
-TCF Mod Manager.
+SSPTMM began as a fork of [TCF Mod Manager](https://sp-mod.com/mod/2945/tcf-mod-manager) by
+TheCrimsonFckr (MIT), and is now developed on its own. Report SSPTMM problems in
+[this repository's Issues](https://github.com/trappuss/SSPTMM/issues).
 
 Steam and the Steam Workshop are trademarks of Valve Corporation. SSPTMM is an independent fan
 project, not affiliated with or endorsed by Valve, Battlestate Games, the SPT project or

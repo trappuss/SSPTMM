@@ -53,21 +53,18 @@ More screenshots of every page are in the [wiki](https://github.com/trappuss/SSP
    `EscapeFromTarkov.exe` in it, and press **Save**. The window title then shows your SPT version.
 
 Windows 10 or 11. The download is self-contained: no .NET install needed. Settings, caches and logs
-live in a `Data` folder beside the exe, so SSPTMM never touches TCF Mod Manager or another copy.
+live in a `Data` folder beside the exe, so SSPTMM never touches another mod manager or another copy of itself.
 Works with SPT 3.x and 4.x.
 
-## Based on TCF Mod Manager
+## Credits
 
-SSPTMM is built on **[TCF Mod Manager](https://sp-mod.com/mod/2945/tcf-mod-manager) by
-TheCrimsonFckr**: its mod handling, install and removal, and much of what is under the Steam look
-are that app's work. SSPTMM is a separate app with its own look, names and version numbers; newer
-TCF Mod Manager releases are merged in from time to time (Help > About says which one). TCF Mod
-Manager's own README is in [docs/tcf-mod-manager-readme.md](docs/tcf-mod-manager-readme.md).
+SSPTMM began as a fork of **[TCF Mod Manager](https://sp-mod.com/mod/2945/tcf-mod-manager) by
+TheCrimsonFckr** (MIT), whose mod handling, installing and removing it was built on. It is now
+developed on its own, with its own look, names, settings and version numbers.
 
 Problems with SSPTMM belong in this repository's
-[Issues](https://github.com/trappuss/SSPTMM/issues) - not with TCF Mod Manager. Diagnose logs'
-**Copy a report for help** gives you a report to paste there, with your user name, folders and ids
-taken out.
+[Issues](https://github.com/trappuss/SSPTMM/issues). Diagnose logs' **Copy a report for help** gives
+you a report to paste there, with your user name, folders and ids taken out.
 
 ## Building from source
 
@@ -81,13 +78,14 @@ starts it. `SSPTMM-test.bat` runs the tests on their own. See
 - [CHANGELOG.md](CHANGELOG.md) - what each release changed.
 - [docs/steam-workshop-ui.md](docs/steam-workshop-ui.md) - how each Steam page was matched, what was
   measured, and every change round by round.
-- [docs/sp-mod-guide.md](docs/sp-mod-guide.md), [docs/server-map-guide.md](docs/server-map-guide.md)
-  - TCF Mod Manager's guides, still accurate for what lies under the Steam look.
+- [docs/server-map-guide.md](docs/server-map-guide.md) - setting up the Server Map mod on a server.
+- [Files and network](https://github.com/trappuss/SSPTMM/wiki/Files-and-Network) - every file SSPTMM
+  keeps and every server it talks to.
 
 ## License
 
-MIT - see [LICENSE](LICENSE). TCF Mod Manager is MIT-licensed too, and its copyright notice is kept
-there. The libraries and runtime in the release build are listed with their licences in
+MIT - see [LICENSE](LICENSE), which also keeps TCF Mod Manager's MIT copyright notice. The libraries
+and runtime in the release build are listed with their licences in
 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
 
 Steam and the Steam Workshop are trademarks of Valve Corporation. SSPTMM is an independent fan

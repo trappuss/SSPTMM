@@ -1,7 +1,7 @@
 # Server Map how do I…?
 
-Server Map lets an SPT server publish the mod list it expects players to be running, so TCF Mod
-Manager can tell someone what they are missing **before** they launch instead of after a raid fails
+Server Map lets an SPT server publish the mod list it expects players to be running, so SSPTMM
+can tell someone what they are missing **before** they launch instead of after a raid fails
 to load. With the Server Map mod 0.2.0, it also shows **who is on the server**: every machine that
 agrees to report, whether it is in game, and whether it has what the list asks for.
 
@@ -9,7 +9,7 @@ Two halves, and they are separate installs:
 
 **The Server Map mod** > goes on the machine running the SPT server. Installed by the server operator.
 
-**The Server Map page** > lives in TCF Mod Manager. Installed by anyone joining that server.
+**The Server Map page** > lives in SSPTMM. Installed by anyone joining that server.
 
 
 #### Three things it does not do:
@@ -30,8 +30,9 @@ How Do I?...
 # {.tabset}
 ## Get the Server Map mod?
 
-It is **not bundled with TCF Mod Manager** it is a separate download, published as an addon on the
-app's mod page at sp-mod.com. That is deliberate: it is installed on a different machine from the
+It is **not bundled with SSPTMM** it is a separate download: the Server Map mod is made by
+TheCrimsonFckr for TCF Mod Manager, and published as an addon on TCF Mod Manager's page at
+sp-mod.com; SSPTMM speaks the same protocol. That is deliberate: it is installed on a different machine from the
 app, by a different person, and a player joining your server needs none of it.
 
 In the app: switch the Server map page on (**Options** → **Pages** → **Server map**), then
@@ -73,12 +74,12 @@ SPT 4.1.x
   \TCFModManager\Data\ServerMap\          <- key and published list
 ```
 
-If TCF Mod Manager is already installed on that machine, it lives in that same `TCFModManager`
-folder so `ServerMap\payload\` goes right next to the app.
+`TCFModManager\` is the Server Map mod's own folder name - SSPTMM itself can live anywhere and
+keeps its own settings beside `SSPTMM.exe`, not in there.
 
-**`Data\` is the folder to keep.** Your key and your published list live there, with the app's
-settings and install history. Replacing `TCFModManager\` wholesale when you deploy takes all of it
-with you lay a new build over the old one instead, the way the app's own updater does.
+**`TCFModManager\Data\ServerMap\` is the folder to keep.** Your key and your published list live
+there. Replacing `TCFModManager\` wholesale when you deploy takes them with it - lay a new build
+over the old one instead.
 
 ## Know when it is loaded?
 
@@ -117,7 +118,7 @@ The key is generated **once**, the first time the server starts without one. Aft
 alone restarting the server does not change it, and neither does updating the mod. The file is the
 key: whatever is in it is what the server expects.
 
-**If TCF Mod Manager is on the same machine as the server**, you never need to open this file: the
+**If SSPTMM is on the same machine as the server**, you never need to open this file: the
 app reads it and fills the key in on its own. See "How do I fill in my own server's details".
 
 ## Change my server's key?
@@ -270,21 +271,21 @@ hand does the same.
 The **Server map** page on any machine connected to your server - yours included - lists every
 machine that reports to it, with your server first. Needs the Server Map mod **0.2.0** or later.
 
-Your server's own row comes from **TCF Mod Manager on the server machine**: connect it to your own
+Your server's own row comes from **SSPTMM on the server machine**: connect it to your own
 server and press **Share** like anyone else. The mod never scans your install - the row shows what
 the app installed and keeps a record of.
 
 Each machine is asked once before it reports anything, so a player who says no simply is not on the
-map. Machines that do not run TCF Mod Manager never appear.
+map. Machines that run neither SSPTMM nor TCF Mod Manager never appear.
 
 The list lives in `TCFModManager\Data\ServerMap\clients.json`. A machine not heard from for 30 days
 is forgotten on its own.
 
 ## Update the mod?
 
-**TCF Mod Manager tells you when to.** Its **App update** page has a **Server Map mod** card on the
-machine that runs the server: the version installed, the newest on sp-mod.com, and a warning - with
-a coloured dot on the sidebar item - when a newer one is out. It also warns when the stub in
+**SSPTMM tells you when to.** **Help > About** has a **Server Map mod** card on the machine that
+runs the server: the version installed, the newest on sp-mod.com, and a warning when a newer one is
+out. It also warns when the stub in
 `user\mods` is older than the payload, which is easy to miss and stops LAN-only letting anyone in.
 Players connected to your server see the same card for your server's version, telling them to ask
 you.
@@ -440,7 +441,7 @@ mistaken for a short list.
 The first time you connect to a server with the Server Map mod 0.2.0 or later, the Server map page
 asks **Share this machine with the server?**
 
-- **Share** - from then on this machine reports once a minute while TCF Mod Manager is running,
+- **Share** - from then on this machine reports once a minute while SSPTMM is running,
   including when it is only in the tray.
 - **Don't share** - nothing is sent. The page remembers the answer.
 
@@ -560,7 +561,7 @@ Work outwards:
 
 Worth knowing so you are not looking for it:
 
-- **Machines that do not run TCF Mod Manager never appear on the map.** Someone who installs mods
+- **Machines that run neither SSPTMM nor TCF Mod Manager never appear on the map.** Someone who installs mods
   by hand is invisible to it.
 - **One server per install.** The app connects to one server at a time.
 - **Nothing is applied automatically.** A server can never change your install; every fetch, apply

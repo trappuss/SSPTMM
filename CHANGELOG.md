@@ -4,6 +4,8 @@
 
 Close SSPTMM, then unzip `SSPTMM-1.2.0-win-x64.zip` over your SSPTMM folder. Your settings in the `Data` folder stay as they are. SSPTMM 1.1.0 points this release out by itself (a dot beside Help and About); 1.0.0 has no such check.
 
+The first time 1.2.0 starts, it asks whether it may keep checking GitHub for new releases at start (see Changed).
+
 ## New
 
 - **Presets in Subscribed items.** A preset is a saved set of which mods are on and which are off, as Mod Organizer 2's profiles keep them - your Fika setup, everything off for troubleshooting, or anything else. **Presets** in the toolbar saves the current setup under a name, applies a preset, and has **Disable all mods** and **Enable all mods**.
@@ -19,9 +21,23 @@ Close SSPTMM, then unzip `SSPTMM-1.2.0-win-x64.zip` over your SSPTMM folder. You
 
 ## Changed
 
+- **SSPTMM asks before it checks for new releases.** The first time it starts, SSPTMM asks whether it may ask GitHub for a newer release each time it starts; until you say yes it doesn't. About has **Check for new releases when SSPTMM starts** to change your answer, and **Check now** works either way. The Server Map mod's version is checked with it, and only when the Server Map is in use on this PC.
+
+- **SSPTMM stands on its own.** It no longer follows TCF Mod Manager's releases. About and the README keep a credit to TCF Mod Manager by TheCrimsonFckr, which SSPTMM began as a fork of. Help's **Open the full guide** now opens SSPTMM's wiki on GitHub.
+
+- **Every connection and file is written down.** The wiki's new [Files and network](https://github.com/trappuss/SSPTMM/wiki/Files-and-Network) page lists every server SSPTMM talks to - when, what is sent, and how to stop it - and everything it writes. SSPTMM has no telemetry.
+
+- **Pictures tell only sp-mod.com where they are shown.** The `Referer` that sp-mod.com's picture server needs is now sent only to sp-mod.com, not to YouTube or other picture hosts.
+
+- **Closing SSPTMM with update notifications off removes its Windows notification registration**, so deleting SSPTMM's folder leaves nothing behind. Uninstalling in the wiki says so.
+
 - **Subscribed items opens the way you left it.** Its filters, sort, grouping and view are remembered by themselves, so the **Save as default** button there is gone, and so is its row in Options > Page defaults. A default you saved before is where it starts. The search box is not kept, and **Clear filters** puts the filters, sort and grouping back to the app's own. Browse keeps its Save as default.
 
 ## Fixed
+
+- **Installs work with SSPTMM in the SPT folder itself.** With SSPTMM.exe in the SPT root rather than a folder of its own, every install, update and removal was refused, because every file counted as SSPTMM's own. Now only SSPTMM's own files and folders (`Data`, `Staging`, `Licenses` and the exe) are kept out of reach. A folder of its own still keeps the whole folder out of reach. (Ported from TCF Mod Manager 1.19.1's fix.)
+
+- **An install that would place nothing now fails and changes nothing.** When every file in a mod's archive would land somewhere SSPTMM won't write (SPT's own files, or SSPTMM's), the install stops with a message saying so, and an update leaves the previous version and its record as they were.
 
 - **"Close the game when the server stops" now closes the game promptly.** With the server already gone, the game can't finish quitting - it waits for the server to answer - so it sat there for up to fifteen seconds before it was killed, and looked as if nothing happened. Now **Stop server** closes the game first, while the server can still answer it, and the game quits cleanly in seconds. When the server goes any other way, the game is closed within about two seconds of it going, and killed two seconds after that if it hasn't gone. Each step is written to the app's log, and a game that couldn't be closed is shown as an error on the Play page.
 

@@ -114,7 +114,7 @@ public partial class HelpViewModel : LocalizedViewModel
     private void ClearSearch() => SearchText = string.Empty;
 
     [RelayCommand]
-    private void OpenGuide() => OpenUrl(SelfMod.ModPageUrl);
+    private void OpenGuide() => OpenUrl(SelfMod.WikiUrl); // Fork: SSPTMM's own guide, on GitHub
 
     private static void OpenUrl(string url)
     {

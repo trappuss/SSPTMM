@@ -69,8 +69,9 @@ public partial class MainWindow : FluentWindow
             AppNavigation.Attach(RootNavigationView);
             AppNavigation.Navigate(AppNavigation.StartOnInstalled ? typeof(InstalledPage) : typeof(WorkshopHomePage));
 
-            // Fire-and-forget: whether a newer build of this app exists on sp-mod.com has no
-            // bearing on the window opening, and a failed check just leaves the banner down.
+            // Fire-and-forget: whether a newer SSPTMM is out on GitHub has no bearing on the window
+            // opening, and a failed check just leaves the dot off. It asks first (once), and checks
+            // only with the user's yes.
             _ = AppServices.AppUpdate.CheckOnStartupAsync();
 
             // Same arrangement, same reason: a server that is off, unreachable or simply not

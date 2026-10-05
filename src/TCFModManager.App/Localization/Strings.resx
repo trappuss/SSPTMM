@@ -7448,7 +7448,7 @@ Install the file as it is anyway?</value>
     <comment>Button opening the app's page on sp-mod.com.</comment>
   </data>
   <data name="Help_OpenGuideToolTip" xml:space="preserve">
-    <value>The original TCF Mod Manager's page on sp-mod.com, which this app is based on - most of it applies here too, with Steam's names for the pages. It is in English.</value>
+    <value>SSPTMM's guide - every page and option, step by step - in its wiki on GitHub. It is in English.</value>
     <comment>Tooltip on Help_OpenGuide. Keep saying the guide is in English.</comment>
   </data>
   <data name="Help_SearchPlaceholder" xml:space="preserve">
@@ -9004,8 +9004,8 @@ See Dependencies and Conflicts.</value>
     <comment>About page. {0} is the version number.</comment>
   </data>
   <data name="About_BasedOnFormat" xml:space="preserve">
-    <value>Based on TCF Mod Manager {0} by {1}.</value>
-    <comment>About page credit. {0} is the original app's version, {1} its author. TCF Mod Manager is a name, not translated.</comment>
+    <value>SSPTMM began as a fork of TCF Mod Manager by {0}, under the MIT License.</value>
+    <comment>The credit line on About. {0} is the original app's author (TheCrimsonFckr). TCF Mod Manager is the original app's name - not translated.</comment>
   </data>
   <data name="About_OriginalLink" xml:space="preserve">
     <value>TCF Mod Manager on sp-mod.com</value>
@@ -9016,7 +9016,7 @@ See Dependencies and Conflicts.</value>
     <comment>About page: link to this app's GitHub repository.</comment>
   </data>
   <data name="About_Updates" xml:space="preserve">
-    <value>SSPTMM looks for a newer release on GitHub each time it starts. It never downloads or installs anything by itself.</value>
+    <value>SSPTMM only tells you when a newer release is out on GitHub. It never downloads or installs anything by itself.</value>
     <comment>About page, under the version.</comment>
   </data>
   <data name="Nav_Tools" xml:space="preserve">
@@ -10790,5 +10790,33 @@ Removing them - or turning them off - can leave a profile SPT won't load. If tha
   <data name="Downloads_KeptAppFiles_other" xml:space="preserve">
     <value>{0} files in this archive would have landed on SSPTMM's own files and were left out.</value>
     <comment>{0} is a count. Added to a finished install's status line. SSPTMM is the app name, not translated.</comment>
+  </data>
+  <data name="AppUpdate_ConsentTitle" xml:space="preserve">
+    <value>Check for new SSPTMM releases?</value>
+    <comment>One-time question at first start (or after updating to 1.2.0).</comment>
+  </data>
+  <data name="AppUpdate_ConsentBody" xml:space="preserve">
+    <value>SSPTMM can ask GitHub each time it starts whether a newer release of SSPTMM is out, and show a dot beside Help and About when one is. It sends nothing but SSPTMM's version number, and never downloads or installs anything itself.
+
+If the Server Map is in use on this PC, the same check asks sp-mod.com whether a newer Server Map mod is out.
+
+You can change this any time in Help &gt; About, where Check now always works.</value>
+    <comment>Body of the one-time question. "Server Map" is a feature name; Help &gt; About is where the switch is.</comment>
+  </data>
+  <data name="AppUpdate_ConsentYes" xml:space="preserve">
+    <value>Check at start</value>
+    <comment>Button: yes, check each time SSPTMM starts.</comment>
+  </data>
+  <data name="AppUpdate_ConsentNo" xml:space="preserve">
+    <value>Don't check</value>
+    <comment>Button: no automatic checks.</comment>
+  </data>
+  <data name="AppUpdate_CheckAtStart" xml:space="preserve">
+    <value>Check for new releases when SSPTMM starts</value>
+    <comment>About page switch: the answer to the one-time question.</comment>
+  </data>
+  <data name="AppUpdate_CheckAtStartToolTip" xml:space="preserve">
+    <value>Asks GitHub (and sp-mod.com, for the Server Map mod where that is in use) whether a newer release is out. Only SSPTMM's version number is sent; nothing is downloaded.</value>
+    <comment>Tooltip on the switch above.</comment>
   </data>
 </root>

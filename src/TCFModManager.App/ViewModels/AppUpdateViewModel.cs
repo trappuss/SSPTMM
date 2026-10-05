@@ -173,8 +173,9 @@ public partial class AppUpdateViewModel : LocalizedViewModel
 
     //
     // The check MainWindow fires once on launch. Anything that goes wrong is logged and shown on
-    // the update page rather than interrupting startup - not being able to reach sp-mod.com is not
-    // a reason to put a dialog in front of someone who just opened the app.
+    // the About page rather than interrupting startup - not being able to reach GitHub is not a
+    // reason to put a dialog in front of someone who just opened the app. The one dialog it can
+    // show is the one-time question below, asked before anything is sent.
     //
     public async Task CheckOnStartupAsync()
     {
@@ -182,7 +183,75 @@ public partial class AppUpdateViewModel : LocalizedViewModel
         // rate limits at the edge, and the catalog is what the user is actually waiting to see.
         await Task.Delay(TimeSpan.FromSeconds(3)).ConfigureAwait(true);
 
+        // Fork (1.2.0): only with the user's yes - asked once (SPT's mod site requires consent for
+        // update checks). Check now on About is the user asking, so it always runs.
+        if (!SelfMod.ChecksOriginalUpdates && !StartupCheckAllowed()) return;
+
         await RunCheckAsync(announce: true).ConfigureAwait(true);
+    }
+
+    // ---- Fork (1.2.0): asking before checking ---------------------------------------------------
+
+    [ObservableProperty]
+    private bool _checkForNewReleases = new SettingsService().Load().CheckForNewReleases == true;
+
+    private bool _readingCheckSetting;
+
+    partial void OnCheckForNewReleasesChanged(bool value)
+    {
+        if (_readingCheckSetting) return;
+
+        var service = new SettingsService();
+        var settings = service.Load();
+        settings.CheckForNewReleases = value;
+        service.Save(settings);
+        AppLog.Info("AppUpdate", value ? "checks for new releases at start: on" : "checks for new releases at start: off");
+    }
+
+    //
+    // The saved answer, asking for one the first time. Shown over the window, which is up by now.
+    // Closing the question without answering (X, Esc) saves nothing and doesn't check: it is asked
+    // again next start. The answer is written over a fresh load of the settings, not the copy read
+    // before the dialog - other code (the Server Map's pin, its client id) can save while it is open.
+    //
+    private bool StartupCheckAllowed()
+    {
+        var service = new SettingsService();
+        var settings = service.Load();
+
+        if (settings.CheckForNewReleases is null)
+        {
+            var body = new System.Windows.Controls.TextBlock
+            {
+                Text = Strings.AppUpdate_ConsentBody,
+                TextWrapping = TextWrapping.Wrap,
+                LineHeight = 21,
+                MaxWidth = 560,
+            };
+
+            var answer = SteamDialog.Show(
+                Strings.AppUpdate_ConsentTitle,
+                body,
+                new SteamDialogChoice(Strings.AppUpdate_ConsentYes, SteamDialogButton.Green, IsDefault: true),
+                new SteamDialogChoice(Strings.AppUpdate_ConsentNo, SteamDialogButton.Grey));
+
+            if (answer < 0)
+            {
+                AppLog.Info("AppUpdate", "asked about checking for new releases at start: closed without an answer, asking again next start");
+                return false;
+            }
+
+            settings = service.Load();
+            settings.CheckForNewReleases = answer == 0;
+            service.Save(settings);
+            AppLog.Info("AppUpdate", $"asked about checking for new releases at start: {(answer == 0 ? "yes" : "no")}");
+        }
+
+        _readingCheckSetting = true;
+        CheckForNewReleases = settings.CheckForNewReleases == true;
+        _readingCheckSetting = false;
+
+        return CheckForNewReleases;
     }
 
     private bool CanCheckForUpdates() => !IsChecking && !IsInstalling;
@@ -344,7 +413,7 @@ public partial class AppUpdateViewModel : LocalizedViewModel
 
     public string VersionLine => Text(Strings.About_VersionFormat, AppVersion.Current);
 
-    public string BasedOnLine => Text(Strings.About_BasedOnFormat, SelfMod.OriginalVersion, SelfMod.OriginalAuthor);
+    public string BasedOnLine => Text(Strings.About_BasedOnFormat, SelfMod.OriginalAuthor);
 
     [RelayCommand]
     private static void OpenRepository() => OpenUrl(SelfMod.RepositoryUrl);

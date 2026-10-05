@@ -87,16 +87,14 @@ public static class ThumbnailLoader
     private static string KeyFor(string url, int width) => width + "|" + url;
 
     // files.sp-mod.com serves images only to requests carrying a Referer from sp-mod.com itself;
-    // anything else gets a 403.
-    private static readonly Uri Referrer = new("https://sp-mod.com/");
+    // anything else gets a 403. Only sp-mod.com's hosts are sent one (SpModRefererHandler).
 
     private static readonly HttpClient Http = CreateClient();
 
     private static HttpClient CreateClient()
     {
-        var http = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
+        var http = new HttpClient(new Services.SpModRefererHandler()) { Timeout = TimeSpan.FromSeconds(30) };
         http.DefaultRequestHeaders.UserAgent.ParseAdd($"{SelfMod.ShortName}/{AppVersion.Current}");
-        http.DefaultRequestHeaders.Referrer = Referrer;
         return http;
     }
 

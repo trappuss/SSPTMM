@@ -732,8 +732,14 @@ public partial class OptionsViewModel : LocalizedViewModel
 
         // Off keeps update_notifications.json, so switching back on doesn't announce the same
         // versions again (§8). On takes a fresh baseline (D6).
-        if (value) AppServices.UpdateWatcher.SwitchedOn();
-        else AppServices.UpdateWatcher.Stop();
+        if (value)
+        {
+            AppServices.UpdateWatcher.SwitchedOn();
+        }
+        else
+        {
+            AppServices.UpdateWatcher.Stop(); // the Windows registration goes on exit (UpdateToasts.UnregisterIfOff)
+        }
     }
 
     //

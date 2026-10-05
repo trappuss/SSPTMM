@@ -28,10 +28,10 @@ dotnet publish src\TCFModManager.App -c Release -r win-x64 --self-contained -p:P
 | `src\TCFModManager.Core` | Everything that isn't UI: sp-mod.com client, installing and removing, configs, logs, profiles. |
 | `src\TCFModManager.App` | The WPF app (WPF-UI), its Steam theme, pages and strings (`Localization\Strings*.resx`). |
 | `Tests\TCFModManager.Core.Tests` | xUnit tests for Core. |
-| `docs\` | The development log (`steam-workshop-ui.md`), TCF Mod Manager's own README and guides, screenshots. |
+| `docs\` | The development log (`steam-workshop-ui.md`), the Server Map guide, screenshots. |
 
-The project and namespace names are still TCF Mod Manager's, which keeps merging newer TCF Mod
-Manager releases simple. The version is set in one place: `build\Directory.Build.props`.
+The project and namespace names (`TCFModManager.*`) come from the app SSPTMM began as a fork of;
+they are internal only. The version is set in one place: `build\Directory.Build.props`.
 
 ## Translations
 

@@ -1061,7 +1061,7 @@ by TheCrimsonFckr and credited as such.
   `tcfmm-` logs age out as before). sp-mod.com sees the user agent `SSPTMM/<version>`. A mod list
   file says `SSPTMM` as the app that wrote it; either app reads the other's.
 - **Its own version:** 1.0.0. The TCF Mod Manager release it is based on is on the About page
-  (`SelfMod.OriginalVersion` - bump it with each merge of the original).
+  (`SelfMod.OriginalVersion` - bump it with each merge of the original; removed in round 39).
 - **About** replaces App update in the hub: the name, version, what it is, the credit and links to
   this app's GitHub repository and to TCF Mod Manager's page. The original's update check no longer
   runs at all, and Help leaves out its pages on updating the app. The Server Map mod is still
@@ -1071,8 +1071,8 @@ by TheCrimsonFckr and credited as such.
 - **Placeholder art:** `src\TCFModManager.App\Assets\AppIcon.ico` (the icon) and
   `Assets\WorkshopBanner.png` (512x512, the Workshop banner's picture) - plain originals in Steam's
   blues. Replace either file with your own art and rebuild.
-- **README** is SSPTMM's own; TCF Mod Manager's is kept in `docs\tcf-mod-manager-readme.md` for its
-  technical notes.
+- **README** is SSPTMM's own; TCF Mod Manager's was kept in `docs\tcf-mod-manager-readme.md` for its
+  technical notes (removed in round 39).
 - **Kept on purpose:** the code's names (`TCFModManager.*` projects and namespaces), so newer TCF
   Mod Manager releases still merge; and the folders this app makes inside an SPT install
   (`.tcfmm-removed`, `.tcfmm-work`, `.tcfmm-duplicates`) and the Server Map mod's files, so what is
@@ -1890,6 +1890,56 @@ added: the changelog lines for minimise-while-playing and the greyed launcher sw
 the 1809 target), a scrubbed account name in a test, the original app's unused screenshots removed
 from assets, and stale pointers to files not in the repository.
 
+## Round 39: 1.2.0 - on its own, asking first, every connection written down (2026-10-05)
+
+TCF Mod Manager 1.19.1 and its Server Map addon 4.0 came out. Read through for what applies here:
+
+- **Ported: the install guard (TCF 1.19.1's fix).** With the exe in the SPT root rather than a folder
+  of its own, every file below the exe's folder counted as the app's, so every install, update and
+  removal was refused. InstallPathGuard now claims only the app's own items there (`AppOwnedNames`,
+  with SSPTMM's exe, pdb and `Licenses` added) and the whole folder only when the app has one to
+  itself. An archive whose every file is refused now fails with NothingToPlace before anything is
+  touched, instead of saving an empty record over the previous version. Files left out because they
+  would land on the app's own items are reported apart from SPT's protected files. Tests:
+  AppFolderGuardTests.
+- **Already here:** the Server Map addon speaks the protocol SSPTMM already speaks; the
+  sort fix was covered by Subscribed items' own sort.
+- **Not taken:** sp-mod.com list import (unfinished in the original, and it adds AngleSharp); the
+  performance changes touch code SSPTMM replaced.
+
+**On its own.** SSPTMM no longer follows the original's releases. What a user sees says SSPTMM
+everywhere, with one credit line kept where the MIT licence and the original's author are owed it:
+About ("SSPTMM began as a fork of TCF Mod Manager by TheCrimsonFckr, under the MIT License"), the
+README's Credits, the wiki's Home and `LICENSE`. `SelfMod.OriginalVersion` is gone; Help's guide
+link opens SSPTMM's own wiki rather than the original's sp-mod.com page; `docs\sp-mod-guide.md` and
+`docs\tcf-mod-manager-readme.md` (the original's texts) are removed. The Server Map guide still says
+the mod is TheCrimsonFckr's. Code names and SPT-side folders are unchanged (see Upstream updates).
+
+**Asking first.** sp-mod.com's content guidelines ask that update checks have the user's consent
+and that every connection be documented:
+
+- The GitHub release check (and the Server Map mod's version check that rides with it) no longer
+  runs at start until the user answers a one-time question (`AppSettings.CheckForNewReleases`,
+  null = not asked yet). **Check at start** / **Don't check**; About has a checkbox to change it.
+  **Check now** always works. The Server Map mod is checked only when it is installed or its page is
+  on.
+- Pictures send `Referer: https://sp-mod.com/` only to sp-mod.com's own hosts
+  (SpModRefererHandler), not to YouTube or a description's picture host.
+- Closing SSPTMM with update notifications off now removes the Windows notification registration
+  (HKCU AppUserModelId and CLSID keys, the icon copy in %LocalAppData%) - UpdateToasts.UnregisterIfOff,
+  on exit only, because the toolkit registers once per process and can't register again after
+  Uninstall until a restart. `Data\notifications-registered` marks that the toolkit was touched, so
+  an install that never had notifications on never touches it.
+- The one-time question: X or Esc saves nothing and checks nothing; it is asked again next start.
+  The answer is saved over a fresh load of settings.json, since the Server Map can save while the
+  dialog is open (SettingsService has no merge).
+- `wiki\Files-and-Network.md` lists every server SSPTMM talks to, when, what is sent and how to
+  stop it, and every file and folder it writes. Uninstalling (wiki) now says to switch
+  notifications off first and to clear `%TEMP%\SSPTMM*`.
+
+HUNCH: whether sp-mod.com counts the Server Map's once-a-minute reporting (after its own consent
+dialog) as needing anything more than the documentation it now has.
+
 ## Values that could not be measured (marked HUNCH in the source)
 
 - Round 37: everything about the real SPT 4.1 server and game under direct launch - only a fake
@@ -1972,10 +2022,15 @@ translators.
 ## Upstream updates
 
 TCF Mod Manager's own update check never runs (SelfMod.IsFork, since round 22), because installing
-the original's download would replace SSPTMM. New SSPTMM versions are published as GitHub releases,
-and since round 36 SSPTMM asks GitHub for the newest one at start (GitHubReleaseCheck) - telling
-only, never installing. A newer TCF Mod Manager
-release is merged into SSPTMM by hand, and SelfMod.OriginalVersion bumped with it.
+the original's download would replace SSPTMM. New SSPTMM versions are published as GitHub releases;
+since round 36 SSPTMM can ask GitHub for the newest one at start (GitHubReleaseCheck) - telling
+only, never installing - and since round 39 only once the user has said yes.
+
+Since 1.2.0 SSPTMM no longer follows TCF Mod Manager's releases. A fix in the original that also
+applies here is ported by hand, as a commit of its own that says where it came from (round 39 did
+this for TCF Mod Manager 1.19.1's install guard). The code's internal names (`TCFModManager.*`) and
+the folders inside an SPT install (`.tcfmm-*`, `TCFModManager\ServerMap`) stay as they are, so an
+install shared with the original stays readable by both and the Server Map mod keeps working.
 
 ## Licence
 

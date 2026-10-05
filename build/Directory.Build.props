@@ -8,8 +8,8 @@
     <Product>Steamified SPT Mod Manager</Product>
 
     <!--
-      The single place SSPTMM's version is set - its own numbering, separate from the TCF Mod Manager
-      release it is based on (SelfMod.OriginalVersion, bumped with each merge of the original).
+      The single place SSPTMM's version is set - its own numbering. (Since 1.2.0 SSPTMM no longer
+      follows the releases of TCF Mod Manager, which it began as a fork of.)
 
       The app reads it back out of the assembly at runtime (Core's AppVersion) for the title bar, the
       About page, the logs and the user agent sp-mod.com sees. MSBuild copies it into

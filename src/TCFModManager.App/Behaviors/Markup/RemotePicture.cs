@@ -22,16 +22,15 @@ public sealed class RemotePicture : Image
     private const int MaxDecodeWidth = 1600;
 
     // Same limit and the same Referer rule as the thumbnails: files.sp-mod.com refuses requests
-    // that don't come from sp-mod.com, and the image hosts descriptions link to don't mind one.
+    // that don't come from sp-mod.com, and other hosts get no Referer (SpModRefererHandler).
     private static readonly SemaphoreSlim Gate = new(4, 4);
 
     private static readonly HttpClient Http = CreateClient();
 
     private static HttpClient CreateClient()
     {
-        var http = new HttpClient { Timeout = TimeSpan.FromSeconds(60) };
+        var http = new HttpClient(new Services.SpModRefererHandler()) { Timeout = TimeSpan.FromSeconds(60) };
         http.DefaultRequestHeaders.UserAgent.ParseAdd($"{SelfMod.ShortName}/{AppVersion.Current}");
-        http.DefaultRequestHeaders.Referrer = new Uri("https://sp-mod.com/");
         return http;
     }
 

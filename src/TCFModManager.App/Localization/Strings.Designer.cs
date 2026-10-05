@@ -2849,4 +2849,10 @@ internal static class Strings
     internal static string ModInstall_NothingToPlaceFormat => LocalizationService.Get("ModInstall_NothingToPlaceFormat");
     internal static string Downloads_KeptAppFiles(int count, params object?[] values) =>
         LocalizationService.Plural("Downloads_KeptAppFiles", count, values);
+    internal static string AppUpdate_ConsentTitle => LocalizationService.Get("AppUpdate_ConsentTitle");
+    internal static string AppUpdate_ConsentBody => LocalizationService.Get("AppUpdate_ConsentBody");
+    internal static string AppUpdate_ConsentYes => LocalizationService.Get("AppUpdate_ConsentYes");
+    internal static string AppUpdate_ConsentNo => LocalizationService.Get("AppUpdate_ConsentNo");
+    internal static string AppUpdate_CheckAtStart => LocalizationService.Get("AppUpdate_CheckAtStart");
+    internal static string AppUpdate_CheckAtStartToolTip => LocalizationService.Get("AppUpdate_CheckAtStartToolTip");
 }

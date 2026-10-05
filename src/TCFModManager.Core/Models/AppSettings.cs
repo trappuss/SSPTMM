@@ -95,6 +95,14 @@ public sealed class AppSettings
     public bool HideServerWindow { get; set; }
 
     //
+    // Fork (SSPTMM 1.2.0): whether SSPTMM may ask GitHub for a newer release of itself (and
+    // sp-mod.com for a newer Server Map mod, where that is in use) each time it starts. Null until
+    // the user has answered the one-time question - nothing is asked of either before that. Check now
+    // on About always works.
+    //
+    public bool? CheckForNewReleases { get; set; }
+
+    //
     // Fork (SSPTMM, experimental): Play on the Play page starts the game itself - server, profile,
     // the launcher's checks, patches and bundles - instead of opening SPT's launcher
     // (SptDirectLaunch). Off by default; only on SPT 4.1.3 and later in 4.1.

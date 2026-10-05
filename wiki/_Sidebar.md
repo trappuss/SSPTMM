@@ -18,5 +18,6 @@
 **More**
 - [Safety and backups](Safety-and-Backups)
 - [Troubleshooting](Troubleshooting)
+- [Files and network](Files-and-Network)
 - [Building from source](Building-from-Source)
 - [Changelog](https://github.com/trappuss/SSPTMM/blob/main/CHANGELOG.md)

@@ -1,3 +1,4 @@
+using System.IO;
 using System.Windows;
 using Microsoft.Toolkit.Uwp.Notifications;
 using TCFModManager.App.Localization;
@@ -61,6 +62,36 @@ internal static class UpdateToasts
         if (enabled || launchedByToast) Listen();
     }
 
+    //
+    // Fork (SSPTMM 1.2.0): nothing of SSPTMM is left outside its folder for a feature that is off.
+    // The toolkit's first use registers the app with Windows (HKCU: its AppUserModelId and COM
+    // keys, and an icon copy under %LocalAppData%\ToastNotificationManagerCompat). Uninstall takes
+    // that back - but the toolkit registers only once per process, in its static constructor, so
+    // taking it back while running would leave notifications switched on again this session going
+    // to an unregistered app. So it is done on exit, when notifications are off by then.
+    //
+    // A marker in Data says the toolkit has registered this app; it is written when it is first
+    // touched and removed once the registration is taken back, so an install that never had
+    // notifications on never touches the toolkit at all.
+    //
+    private static string RegisteredMarker => Path.Combine(AppPaths.DataDirectory, "notifications-registered");
+
+    public static void UnregisterIfOff(bool enabled)
+    {
+        if (enabled || !File.Exists(RegisteredMarker)) return;
+
+        try
+        {
+            ToastNotificationManagerCompat.Uninstall();
+            File.Delete(RegisteredMarker);
+            AppLog.Info("Updates", "notifications are off: removed the app's notification registration from Windows");
+        }
+        catch (Exception ex)
+        {
+            AppLog.Warn("Updates", $"couldn't remove the notification registration: {ex.Message}");
+        }
+    }
+
     // Also called when the feature is switched on, so a notification raised this session is heard.
     public static void Listen()
     {
@@ -76,6 +107,15 @@ internal static class UpdateToasts
             // An old Windows build or a locked-down registry. The watcher still runs and logs what it
             // finds; the Installed page shows the same updates.
             AppLog.Warn("Updates", $"couldn't register for notification clicks: {ex.Message}");
+        }
+
+        try
+        {
+            if (_listening && !File.Exists(RegisteredMarker)) File.WriteAllText(RegisteredMarker, "");
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            AppLog.Warn("Updates", $"couldn't note the notification registration: {ex.Message}");
         }
     }
 

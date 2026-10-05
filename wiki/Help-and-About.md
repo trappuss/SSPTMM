@@ -8,18 +8,20 @@ Step-by-step answers to the things people most often want to do, each naming the
 buttons to use, with a button that takes you there. Search with **How do I...?**. **F1**, or the
 **?** in the title bar, opens Help at the page you are on.
 
-- **Open the full guide** opens TCF Mod Manager's guide on sp-mod.com - most of it applies, with
-  Steam's names for the pages.
+- **Open the full guide** opens this wiki.
 - **Report a problem** opens SSPTMM's GitHub Issues.
 
 ## About
 
 ![About](https://raw.githubusercontent.com/trappuss/SSPTMM/main/docs/images/15-about.png)
 
-The version, the TCF Mod Manager release SSPTMM is based on, and links.
+The version, the credit to the app SSPTMM began as a fork of, and links.
 
-**Newer releases.** Each time it starts, SSPTMM asks GitHub whether a newer release is out. If one
-is, a dot appears beside **Help** and **About**, and About shows the version, its date and size, its
+**Newer releases.** The first time it starts, SSPTMM asks whether it may check GitHub for a newer
+release each time it starts. Answer **Check at start** or **Don't check** (closing the question checks nothing and asks again next
+start); you can change it later
+with **Check for new releases when SSPTMM starts** on About. Only SSPTMM's version number is sent.
+When a check finds one, a dot appears beside **Help** and **About**, and About shows the version, its date and size, its
 release notes and an **Open the release page** button. **Check now** asks again. SSPTMM never
 downloads or installs anything by itself - see [Installing](Installing#updating) for how to update.
 If GitHub can't be reached, About says why and nothing else changes.

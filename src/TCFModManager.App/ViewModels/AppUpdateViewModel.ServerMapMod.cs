@@ -102,8 +102,12 @@ public partial class AppUpdateViewModel
         if (!ReadServerMapInstall()) return;
         if (ServerMapRelease is null && !ServerMapCheckFailed) return;
 
+        // Fork (1.2.0): as the check itself - sp-mod.com is asked only while the Server Map is in
+        // use on this PC (the mod installed, or its page on).
         ServerMapRelease = null;
         ServerMapCheckFailed = false;
+        if (ServerMapInstalled is null && !new SettingsService().Load().ServerMap.ShowPage) return;
+
         _ = FetchServerMapReleaseAsync();
     }
 
@@ -124,9 +128,13 @@ public partial class AppUpdateViewModel
         return changed;
     }
 
+    // Fork (1.2.0): only where the Server Map is in use - the mod is in this install, or its page is
+    // on - so a machine that has nothing to do with it never asks sp-mod.com about it.
     private async Task CheckServerMapModAsync()
     {
         ReadServerMapInstall();
+        if (ServerMapInstalled is null && !new SettingsService().Load().ServerMap.ShowPage) return;
+
         await FetchServerMapReleaseAsync().ConfigureAwait(true);
     }
 

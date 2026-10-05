@@ -23,7 +23,7 @@ Everything SSPTMM writes about itself - settings, the sp-mod.com catalog cache, 
 profile backups and logs - is in a `Data` folder **beside `SSPTMM.exe`** (plus a `Staging` folder
 there for archives fetched by hand on the Downloads page). So:
 
-- it never touches TCF Mod Manager or another copy of SSPTMM;
+- it never touches another mod manager's settings or another copy of SSPTMM;
 - moving the folder moves everything with it;
 - deleting the folder removes it completely (your SPT install is not affected).
 
@@ -38,9 +38,13 @@ folder (or into a new folder and copy your old `Data` folder across). Your setti
 
 ## Uninstalling
 
-1. Close SSPTMM, and stop SPT's server if SSPTMM started it (Play > **Stop server**).
-2. Delete SSPTMM's folder - the exe and its `Data` folder. Nothing of SSPTMM is left anywhere else on
-   the PC.
+1. If you ever turned **Update notifications** on (Options > Updates), make sure it is off - switch it
+   on and off once if it was switched off in 1.1.0 or earlier. Closing SSPTMM with it off removes the
+   registration Windows keeps for SSPTMM's notifications.
+2. Close SSPTMM, and stop SPT's server if SSPTMM started it (Play > **Stop server**).
+3. Delete SSPTMM's folder - the exe and its `Data` folder. If they are there, also delete
+   `%TEMP%\SSPTMM` and `%TEMP%\SSPTMM-dropped` (short-lived working copies). Nothing else of SSPTMM is
+   left on the PC - [Files and network](Files-and-Network) lists everything it writes.
 
 Mods it installed stay in SPT and keep working. Two things inside your SPT folder are worth knowing:
 
