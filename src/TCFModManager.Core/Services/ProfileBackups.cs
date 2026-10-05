@@ -36,6 +36,7 @@ public sealed class ProfileBackups(string? root = null, int keep = 10)
     public const string BeforeRemove = "remove";
     public const string BeforeList = "list";
     public const string BeforeDisable = "disable";
+    public const string BeforePreset = "preset"; // Fork: applying a mod preset (ModPresets)
     public const string BeforeRestore = "restore";
     public const string ByHand = "manual";
     // Fork: before a profile is wiped or deleted from the Play page (SptDirectLaunch).

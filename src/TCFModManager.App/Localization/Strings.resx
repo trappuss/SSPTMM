@@ -258,9 +258,6 @@
   <data name="Installed_ListBadgesToolTip" xml:space="preserve">
     <value>Show which mod lists each mod belongs to.</value>
   </data>
-  <data name="Installed_SaveAsDefaultToolTip" xml:space="preserve">
-    <value>Opens this page with the filters, sort and view it is set to right now. The search box is not included, and Per page needs no saving - the page keeps the one last picked. Options can clear it again.</value>
-  </data>
   <data name="Installed_UpdateFilterToolTip" xml:space="preserve">
     <value>Filter by whether an update is available</value>
   </data>
@@ -648,12 +645,8 @@
     <value>Page defaults</value>
   </data>
   <data name="Options_PageDefaultsDescription" xml:space="preserve">
-    <value>Subscribed items and Browse each have a Save as default button - in Subscribed items' Filters, and under the gear beside Browse's search box. It opens that page with the filters and sort - and in Subscribed items, the view - it is set to at the time, so a page you always narrow the same way arrives narrowed. What you have typed in the search box is never part of it. Per page needs no saving: every page opens on Infinite until you pick a size there, then keeps the one you last picked. Clearing a default here puts the page back to the app's own.</value>
+    <value>Browse has a Save as default button under the gear beside its search box: it opens Browse with the filters and sort it is set to at the time. Subscribed items needs no button - it opens with the filters, sort and view you last left it on, and Clear filters there puts them back to the app's own. What you have typed in a search box is never kept. Per page needs no saving either: every page opens on Infinite until you pick a size there, then keeps the one you last picked.</value>
     <comment>Save as default and Clear filters are the two buttons named in Common_SaveAsDefault and Common_ClearFilters - translate them the same way here.</comment>
-  </data>
-  <data name="Options_ClearInstalledDefault" xml:space="preserve">
-    <value>Clear the Subscribed items default</value>
-    <comment>Installed is the page name, as in the sidebar.</comment>
   </data>
   <data name="Options_ClearBrowseDefault" xml:space="preserve">
     <value>Clear the Browse default</value>
@@ -2389,9 +2382,6 @@ That happens legitimately if the server was rebuilt or you're reaching it throug
     <value>Undo sorting out {0}</value>
     <comment>{0} is a mod name that was in both an enabled and a disabled folder.</comment>
   </data>
-  <data name="Installed_SavedAsDefault" xml:space="preserve">
-    <value>Saved. Subscribed items will open like this from now on - Options can put it back.</value>
-  </data>
   <data name="Installed_PinnedFormat" xml:space="preserve">
     <value>Pinned {0} - applying a collection won't disable it. Pinned mods sit at the top.</value>
     <comment>{0} is a mod name.</comment>
@@ -3475,14 +3465,6 @@ You can turn it back on at any time.</value>
   <data name="Options_WindowSizeRestoreFirst" xml:space="preserve">
     <value>Restore the window down from maximised or full screen first - there is no chosen size to read while it fills the screen.</value>
     <comment>Shown when Use current size is pressed while the window is maximised or full screen.</comment>
-  </data>
-  <data name="Options_InstalledNoDefault" xml:space="preserve">
-    <value>Subscribed items: no default saved - it opens on Cards, unfiltered, sorted by name.</value>
-    <comment>Installed is the page name - translate it as in Nav_Installed. Cards is the view named by Installed_ViewCards.</comment>
-  </data>
-  <data name="Options_InstalledHasDefault" xml:space="preserve">
-    <value>Subscribed items: a default is saved. Clearing it takes effect the next time the app starts.</value>
-    <comment>Installed is the page name - translate it as in Nav_Installed.</comment>
   </data>
   <data name="Options_BrowseNoDefault" xml:space="preserve">
     <value>Browse: no default saved - it opens sorted by newest, filtered to your installed SPT version.</value>
@@ -7137,7 +7119,7 @@ Install the file as it is anyway?</value>
     <value>The address and port from your SPT launcher, and the key if the server has one.</value>
   </data>
   <data name="Options_PageDefaultsHint" xml:space="preserve">
-    <value>Set with Save as default in Subscribed items and Browse.</value>
+    <value>Browse opens the way Save as default left it. Subscribed items remembers itself.</value>
   </data>
   <data name="Options_HeadlessLauncherHint" xml:space="preserve">
     <value>Only needed if it isn't at the top of the install folder.</value>
@@ -9588,7 +9570,7 @@ Sync your game to it now?</value>
     <comment>Tick box on the Play page's launcher card. Off by default.</comment>
   </data>
   <data name="Play_CloseGameWithServerToolTip" xml:space="preserve">
-    <value>When this install's server stops - Stop server, its own window closed, or a crash - the game is closed too, since it can't save anything without the server. A restart from this page doesn't count.</value>
+    <value>When this install's server stops - Stop server, its own window closed, or a crash - the game is closed too, since it can't save anything without the server. Stop server closes the game first, while the server can still answer it. A restart from this page doesn't count.</value>
     <comment>Tooltip on Play_CloseGameWithServer.</comment>
   </data>
   <data name="Play_GameClosed" xml:space="preserve">
@@ -10507,5 +10489,274 @@ Removing them - or turning them off - can leave a profile SPT won't load. If tha
   <data name="Play_DirectErrorFormat" xml:space="preserve">
     <value>Play stopped: {0}</value>
     <comment>Play page status (error) for an unexpected file or config problem. {0} = the system message.</comment>
+  </data>
+  <data name="Play_StoppedAfterGameFormat" xml:space="preserve">
+    <value>{0} stopped. The game was closed first, as ticked below.</value>
+    <comment>Play page message after Stop server when "Close the game when the server stops" is ticked and the game was running. {0} = the server process name.</comment>
+  </data>
+  <data name="Installed_ClearFiltersToolTip" xml:space="preserve">
+    <value>Puts every filter, the sort and the grouping back to the app's own. The page remembers what you set, so it also opens this way next time.</value>
+    <comment>Subscribed items, tooltip on Clear filters. The page now remembers its filters by itself, so there is no Save as default here.</comment>
+  </data>
+  <data name="Presets_Button" xml:space="preserve">
+    <value>Presets</value>
+    <comment>Subscribed items, Presets: the toolbar button. A preset is a saved set of which mods are on and which are off, as Mod Organizer 2's profiles keep them.</comment>
+  </data>
+  <data name="Presets_ButtonToolTip" xml:space="preserve">
+    <value>Save which mods are on and which are off as a preset, and switch between presets - for Fika, for troubleshooting with everything off, or anything else.</value>
+    <comment>Subscribed items, Presets: tooltip on the toolbar button.</comment>
+  </data>
+  <data name="Presets_None" xml:space="preserve">
+    <value>No presets saved yet</value>
+    <comment>Subscribed items, Presets: greyed menu entry while there are none.</comment>
+  </data>
+  <data name="Presets_SavedOnFormat" xml:space="preserve">
+    <value>Saved {0}</value>
+    <comment>Subscribed items, Presets: tooltip on a preset in the menu. {0} = date and time it was saved.</comment>
+  </data>
+  <data name="Presets_CurrentToolTip" xml:space="preserve">
+    <value>Your mods are set exactly as this preset has them.</value>
+    <comment>Subscribed items, Presets: tooltip on the ticked preset in the menu.</comment>
+  </data>
+  <data name="Presets_Apply" xml:space="preserve">
+    <value>Apply</value>
+    <comment>Subscribed items, Presets: submenu entry of a preset.</comment>
+  </data>
+  <data name="Presets_UpdateToCurrent" xml:space="preserve">
+    <value>Save the current setup over it</value>
+    <comment>Subscribed items, Presets: submenu entry of a preset: replaces what it holds with how the mods are now.</comment>
+  </data>
+  <data name="Presets_Rename" xml:space="preserve">
+    <value>Rename...</value>
+    <comment>Subscribed items, Presets: submenu entry of a preset.</comment>
+  </data>
+  <data name="Presets_Delete" xml:space="preserve">
+    <value>Delete...</value>
+    <comment>Subscribed items, Presets: submenu entry of a preset.</comment>
+  </data>
+  <data name="Presets_SaveCurrent" xml:space="preserve">
+    <value>Save the current setup as a preset...</value>
+    <comment>Subscribed items, Presets: menu entry.</comment>
+  </data>
+  <data name="Presets_PutBackFormat" xml:space="preserve">
+    <value>Put back how mods were before "{0}"</value>
+    <comment>Subscribed items, Presets: menu entry. {0} = the preset (or Disable all / Enable all) last applied.</comment>
+  </data>
+  <data name="Presets_PutBackToolTipFormat" xml:space="preserve">
+    <value>Turns mods on and off as they were just before {0} was applied, {1}. Kept until the next preset is applied, after Undo is gone.</value>
+    <comment>Subscribed items, Presets: tooltip. {0} = what was applied, {1} = when.</comment>
+  </data>
+  <data name="Presets_DisableAll" xml:space="preserve">
+    <value>Disable all mods...</value>
+    <comment>Subscribed items, Presets: menu entry, for troubleshooting.</comment>
+  </data>
+  <data name="Presets_DisableAllToolTip" xml:space="preserve">
+    <value>For troubleshooting: turns every mod off. SPT's own files are never touched. Put back, a preset, or Enable all mods turns them on again.</value>
+    <comment>Subscribed items, Presets: tooltip.</comment>
+  </data>
+  <data name="Presets_EnableAll" xml:space="preserve">
+    <value>Enable all mods...</value>
+    <comment>Subscribed items, Presets: menu entry.</comment>
+  </data>
+  <data name="Presets_EnableAllToolTip" xml:space="preserve">
+    <value>Turns every installed mod on.</value>
+    <comment>Subscribed items, Presets: tooltip.</comment>
+  </data>
+  <data name="Presets_SaveTitle" xml:space="preserve">
+    <value>Save preset</value>
+    <comment>Subscribed items, Presets: dialog title.</comment>
+  </data>
+  <data name="Presets_SaveIntro" xml:space="preserve">
+    <value>Saves which mods are on and which are off right now, under a name. Applying it later turns them on and off to match; mods installed after it was saved are left as they are.</value>
+    <comment>Subscribed items, Presets: dialog text.</comment>
+  </data>
+  <data name="Presets_NamePlaceholder" xml:space="preserve">
+    <value>Preset name</value>
+    <comment>Subscribed items, Presets: placeholder in the name box.</comment>
+  </data>
+  <data name="Presets_SaveConfirm" xml:space="preserve">
+    <value>Save</value>
+    <comment>Subscribed items, Presets: dialog button.</comment>
+  </data>
+  <data name="Presets_SaveOver" xml:space="preserve">
+    <value>Save over it</value>
+    <comment>Subscribed items, Presets: dialog button when a preset of that name exists.</comment>
+  </data>
+  <data name="Presets_ReplaceFormat" xml:space="preserve">
+    <value>A preset called {0} already exists. Save the current setup over it?</value>
+    <comment>Subscribed items, Presets: dialog text. {0} = name.</comment>
+  </data>
+  <data name="Presets_UpdateTitle" xml:space="preserve">
+    <value>Save over preset</value>
+    <comment>Subscribed items, Presets: dialog title.</comment>
+  </data>
+  <data name="Presets_UpdateFormat" xml:space="preserve">
+    <value>Save the current setup over {0}? What it held now is replaced.</value>
+    <comment>Subscribed items, Presets: dialog text. {0} = name.</comment>
+  </data>
+  <data name="Presets_RenameTitle" xml:space="preserve">
+    <value>Rename preset</value>
+    <comment>Subscribed items, Presets: dialog title.</comment>
+  </data>
+  <data name="Presets_RenameConfirm" xml:space="preserve">
+    <value>Rename</value>
+    <comment>Subscribed items, Presets: dialog button.</comment>
+  </data>
+  <data name="Presets_DeleteTitle" xml:space="preserve">
+    <value>Delete preset</value>
+    <comment>Subscribed items, Presets: dialog title.</comment>
+  </data>
+  <data name="Presets_DeleteFormat" xml:space="preserve">
+    <value>Delete the preset {0}? Your mods stay as they are.</value>
+    <comment>Subscribed items, Presets: dialog text. {0} = name.</comment>
+  </data>
+  <data name="Presets_DeleteConfirm" xml:space="preserve">
+    <value>Delete</value>
+    <comment>Subscribed items, Presets: dialog button.</comment>
+  </data>
+  <data name="Presets_ApplyTitleFormat" xml:space="preserve">
+    <value>Apply {0}?</value>
+    <comment>Subscribed items, Presets: dialog title. {0} = preset name.</comment>
+  </data>
+  <data name="Presets_DisableAllTitle" xml:space="preserve">
+    <value>Disable all mods?</value>
+    <comment>Subscribed items, Presets: dialog title.</comment>
+  </data>
+  <data name="Presets_EnableAllTitle" xml:space="preserve">
+    <value>Enable all mods?</value>
+    <comment>Subscribed items, Presets: dialog title.</comment>
+  </data>
+  <data name="Presets_PutBackTitle" xml:space="preserve">
+    <value>Put back how mods were?</value>
+    <comment>Subscribed items, Presets: dialog title.</comment>
+  </data>
+  <data name="Presets_DisableAllName" xml:space="preserve">
+    <value>Disable all</value>
+    <comment>Subscribed items, Presets: what was applied, in messages and Undo. Short.</comment>
+  </data>
+  <data name="Presets_EnableAllName" xml:space="preserve">
+    <value>Enable all</value>
+    <comment>Subscribed items, Presets: what was applied, in messages and Undo. Short.</comment>
+  </data>
+  <data name="Presets_PutBackName" xml:space="preserve">
+    <value>Put back</value>
+    <comment>Subscribed items, Presets: what was applied, in messages and Undo. Short.</comment>
+  </data>
+  <data name="Presets_TurnsOff_one" xml:space="preserve">
+    <value>Turns 1 mod off:</value>
+    <comment>Subscribed items, Presets: heading over the list of mods the apply disables.</comment>
+  </data>
+  <data name="Presets_TurnsOff_other" xml:space="preserve">
+    <value>Turns {0} mods off:</value>
+    <comment>Subscribed items, Presets: heading over the list of mods the apply disables. {0} = how many.</comment>
+  </data>
+  <data name="Presets_TurnsOn_one" xml:space="preserve">
+    <value>Turns 1 mod on:</value>
+    <comment>Subscribed items, Presets: heading over the list of mods the apply enables.</comment>
+  </data>
+  <data name="Presets_TurnsOn_other" xml:space="preserve">
+    <value>Turns {0} mods on:</value>
+    <comment>Subscribed items, Presets: heading over the list of mods the apply enables. {0} = how many.</comment>
+  </data>
+  <data name="Presets_NeedsHeader" xml:space="preserve">
+    <value>These would be left without something they need:</value>
+    <comment>Subscribed items, Presets: caution heading over lines of Presets_NeedsFormat.</comment>
+  </data>
+  <data name="Presets_NeedsFormat" xml:space="preserve">
+    <value>{0} needs {1}, which would be off.</value>
+    <comment>Subscribed items, Presets: one caution line. {0} = mod left on, {1} = mod it needs.</comment>
+  </data>
+  <data name="Presets_ProfileModsFormat" xml:space="preserve">
+    <value>sp-mod.com marks these as mods that may make permanent changes to your profile - turning them off can leave a profile SPT won't load:
+{0}</value>
+    <comment>Subscribed items, Presets: caution. {0} = the mods, one per line.</comment>
+  </data>
+  <data name="Presets_NotInstalled_one" xml:space="preserve">
+    <value>1 mod in this preset isn't installed any more, and is skipped.</value>
+    <comment>Subscribed items, Presets: note in the apply dialog.</comment>
+  </data>
+  <data name="Presets_NotInstalled_other" xml:space="preserve">
+    <value>{0} mods in this preset aren't installed any more, and are skipped.</value>
+    <comment>Subscribed items, Presets: note in the apply dialog. {0} = how many.</comment>
+  </data>
+  <data name="Presets_NotInPreset_one" xml:space="preserve">
+    <value>1 mod installed since this preset was saved is left as it is.</value>
+    <comment>Subscribed items, Presets: note in the apply dialog.</comment>
+  </data>
+  <data name="Presets_NotInPreset_other" xml:space="preserve">
+    <value>{0} mods installed since this preset was saved are left as they are.</value>
+    <comment>Subscribed items, Presets: note in the apply dialog. {0} = how many.</comment>
+  </data>
+  <data name="Presets_SafetyNote" xml:space="preserve">
+    <value>Nothing is deleted - mods are only moved in and out of their .disabled folders. A copy of your SPT profiles is kept first, and Undo, or Presets &gt; Put back, returns your mods to how they are now.</value>
+    <comment>Subscribed items, Presets: note at the end of the apply dialog. ".disabled" is a folder suffix - keep it as it is.</comment>
+  </data>
+  <data name="Presets_ApplyConfirm" xml:space="preserve">
+    <value>Apply</value>
+    <comment>Subscribed items, Presets: dialog button.</comment>
+  </data>
+  <data name="Presets_AlreadyFormat" xml:space="preserve">
+    <value>Your mods are already set as {0}.</value>
+    <comment>Subscribed items, Presets: status. {0} = preset name.</comment>
+  </data>
+  <data name="Presets_AppliedFormat" xml:space="preserve">
+    <value>Applied {0}: {1} off, {2} on.</value>
+    <comment>Subscribed items, Presets: status. {0} = preset name, {1} and {2} = mod folders turned off and on.</comment>
+  </data>
+  <data name="Presets_UndoFormat" xml:space="preserve">
+    <value>Undo "{0}"</value>
+    <comment>Subscribed items, Presets: the Undo button after applying. {0} = preset name, or Disable all / Enable all / Put back.</comment>
+  </data>
+  <data name="Presets_SavedFormat" xml:space="preserve">
+    <value>Saved the preset {0}.</value>
+    <comment>Subscribed items, Presets: status. {0} = name.</comment>
+  </data>
+  <data name="Presets_RenamedFormat" xml:space="preserve">
+    <value>Renamed the preset to {0}.</value>
+    <comment>Subscribed items, Presets: status. {0} = new name.</comment>
+  </data>
+  <data name="Presets_NameTakenFormat" xml:space="preserve">
+    <value>Another preset is already called {0}.</value>
+    <comment>Subscribed items, Presets: status. {0} = name.</comment>
+  </data>
+  <data name="Presets_DeletedFormat" xml:space="preserve">
+    <value>Deleted the preset {0}.</value>
+    <comment>Subscribed items, Presets: status. {0} = name.</comment>
+  </data>
+  <data name="Presets_BackupFailed" xml:space="preserve">
+    <value>A copy of your profiles couldn't be taken, so no mods were changed. The app's log says why.</value>
+    <comment>Subscribed items, Presets: status (error).</comment>
+  </data>
+  <data name="Presets_CouldNotSaveFormat" xml:space="preserve">
+    <value>The presets couldn't be saved: {0}</value>
+    <comment>Subscribed items, Presets: status (error). {0} = the system message.</comment>
+  </data>
+  <data name="Profiles_ReasonPreset" xml:space="preserve">
+    <value>Before applying a mod preset</value>
+    <comment>Why a copy of the profiles was taken: before Subscribed items applied a preset (or Disable all / Enable all).</comment>
+  </data>
+  <data name="Help_Installed_Presets_Title" xml:space="preserve">
+    <value>Switch sets of mods on and off with presets</value>
+    <comment>Help topic title. A preset is a saved set of which mods are on and which are off.</comment>
+  </data>
+  <data name="Help_Installed_Presets_Step1" xml:space="preserve">
+    <value>Set your mods on and off as you want them on {0}, then press {1} and {2}, and give it a name.</value>
+    <comment>Help step. {0} = Subscribed items, {1} = the Presets button, {2} = Save the current setup as a preset.</comment>
+  </data>
+  <data name="Help_Installed_Presets_Step2" xml:space="preserve">
+    <value>To switch, press {0}, point at a preset and press {1}. It names every mod it turns off and on before anything changes.</value>
+    <comment>Help step. {0} = Presets, {1} = Apply.</comment>
+  </data>
+  <data name="Help_Installed_Presets_Step3" xml:space="preserve">
+    <value>For troubleshooting, {0} turns every mod off; {1} turns them all back on.</value>
+    <comment>Help step. {0} = Disable all mods, {1} = Enable all mods.</comment>
+  </data>
+  <data name="Help_Installed_Presets_Note" xml:space="preserve">
+    <value>Nothing is deleted, a copy of your SPT profiles is kept first, and Undo puts it back. After a restart, Presets has Put back for the last one applied.</value>
+    <comment>Help note for the presets topic.</comment>
+  </data>
+  <data name="Help_Installed_Presets_Keywords" xml:space="preserve">
+    <value>preset, presets, profile, mod organizer, mo2, fika, troubleshoot, disable all, enable all, switch, loadout</value>
+    <comment>Search words for the Help topic, comma-separated.</comment>
   </data>
 </root>

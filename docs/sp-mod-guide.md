@@ -484,6 +484,7 @@ Everything lives next to the exe:
 | `Data\spt_versions.json` | Cached SPT release list, refetched daily |
 | `Data\dependency_flags.json` | Per-mod "has dependencies" answers, re-checked when a mod publishes |
 | `Data\mod_groups.json` | Your groups, and which mod is in which |
+| `Data\mod_presets.json` | Your presets of which mods are on and off, per SPT install, and how the mods were before the last one was applied |
 | `Data\mod_lists.json` | Your mod lists, which ones you follow, your pinned mods, and the single undo point |
 | `Data\downloads.json` | Monitor mode: each archive saved for you to install, what it would place, and whether you've confirmed it |
 | `Data\update_notifications.json` | Update notifications: which releases have already been announced, so none is announced twice |

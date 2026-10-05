@@ -990,6 +990,18 @@
                 ToolTip="{loc:Str Installed_MoreToolTip}"
                 Click="More_Click" />
 
+            <!-- Fork (1.1.0): presets of which mods are on and off - the menu is built in
+                 InstalledPage.xaml.cs (Presets_Click), the work is InstalledViewModel.Presets. -->
+            <ui:Button
+                DockPanel.Dock="Right"
+                Margin="8,0,8,0"
+                Padding="10,7"
+                VerticalAlignment="Center"
+                Icon="{ui:SymbolIcon Layer24}"
+                Content="{loc:Str Presets_Button}"
+                ToolTip="{loc:Str Presets_ButtonToolTip}"
+                Click="Presets_Click" />
+
             <!-- The three views as icons, as Steam switches its library between grid and list. The
                  one on screen is tinted, as before. Each names itself, and what it is for, on hover. -->
             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
@@ -1139,17 +1151,14 @@
                             SelectedItem="{Binding SelectedGrouping}"
                             Visibility="{Binding ShowGroupingPicker, Converter={StaticResource BoolToVis}}" />
 
+                        <!-- Fork (1.1.0): no Save as default - the page remembers these by itself
+                             (InstalledViewModel.Remember). -->
                         <DockPanel LastChildFill="False">
                             <ui:Button
                                 DockPanel.Dock="Right"
                                 Content="{loc:Str Common_ClearFilters}"
-                                ToolTip="{loc:Str Common_ClearFiltersToolTip}"
+                                ToolTip="{loc:Str Installed_ClearFiltersToolTip}"
                                 Command="{Binding ClearFiltersCommand}" />
-                            <ui:Button
-                                DockPanel.Dock="Left"
-                                Content="{loc:Str Common_SaveAsDefault}"
-                                ToolTip="{loc:Str Installed_SaveAsDefaultToolTip}"
-                                Command="{Binding SaveAsDefaultCommand}" />
                         </DockPanel>
                     </StackPanel>
                 </Border>
@@ -1621,7 +1630,7 @@
                 Margin="0,12,0,0"
                 HorizontalAlignment="Center"
                 Content="{loc:Str Common_ClearFilters}"
-                ToolTip="{loc:Str Common_ClearFiltersToolTip}"
+                ToolTip="{loc:Str Installed_ClearFiltersToolTip}"
                 Command="{Binding ClearFiltersCommand}" />
         </StackPanel>
         </Grid>

@@ -22,8 +22,9 @@ Player Tarkov) mods, laid out and styled like Steam's Workshop. Mods and collect
   removes it, with Undo for a while afterwards. Download only, and Install from file for an archive
   you already have.
 - **Subscribed items** - everything in your SPT install as cards, a list or your own groups: update
-  all, enable and disable, pin, spot re-uploads, and a warning before removing a mod that changes
-  your profile.
+  all, enable and disable, presets of which mods are on and off (and Disable all for
+  troubleshooting), pin, spot re-uploads, and a warning before removing a mod that changes your
+  profile.
 - **Collections** - public collections from sp-mod.com, your own collections, and sharing them with
   friends by code or shared folder.
 - **Play** - start the server and the game, read the server log, close the game, and open the tools

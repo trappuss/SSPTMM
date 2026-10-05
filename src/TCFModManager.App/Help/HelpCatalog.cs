@@ -177,6 +177,15 @@ internal static class HelpCatalog
                 .WithNote(() => Strings.Help_Installed_DisableMany_Note, () => Strings.Installed_ViewGroups)
                 .WithKeywords(() => Strings.Help_Installed_DisableMany_Keywords),
 
+            // Fork (1.1.0): presets of which mods are on and off.
+            Topic("installed.presets", () => Strings.Help_Installed_Presets_Title,
+                Step(() => Strings.Help_Installed_Presets_Step1,
+                    () => Strings.Nav_Installed, () => Strings.Presets_Button, () => Strings.Presets_SaveCurrent),
+                Step(() => Strings.Help_Installed_Presets_Step2, () => Strings.Presets_Button, () => Strings.Presets_Apply),
+                Step(() => Strings.Help_Installed_Presets_Step3, () => Strings.Presets_DisableAll, () => Strings.Presets_EnableAll))
+                .WithNote(() => Strings.Help_Installed_Presets_Note)
+                .WithKeywords(() => Strings.Help_Installed_Presets_Keywords),
+
             Topic("installed.undo", () => Strings.Help_Installed_Undo_Title,
                 Step(() => Strings.Help_Installed_Undo_Step1,
                     () => Strings.Nav_Installed, () => Strings.Installed_Undo),

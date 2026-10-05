@@ -53,6 +53,7 @@ public sealed partial class ProfileBackupsViewModel : LocalizedViewModel
         ProfileBackups.BeforeRemove => Strings.Profiles_ReasonRemove,
         ProfileBackups.BeforeList => Strings.Profiles_ReasonList,
         ProfileBackups.BeforeDisable => Strings.Profiles_ReasonDisable,
+        ProfileBackups.BeforePreset => Strings.Profiles_ReasonPreset,
         ProfileBackups.BeforeRestore => Strings.Profiles_ReasonRestore,
         ProfileBackups.BeforeWipe => Strings.Profiles_ReasonWipe,
         ProfileBackups.BeforeProfileDelete => Strings.Profiles_ReasonProfileDelete,

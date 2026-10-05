@@ -359,7 +359,10 @@ public static partial class SptLaunchService // Fork: partial - see SptLaunchSer
     //
     private static int Stop(SptLaunchTargetInfo info) => StopAll(ProcessesFor(info)); // Fork: the loop is shared with CloseGame
 
-    private static int StopAll(IEnumerable<Process> processes)
+    private static int StopAll(IEnumerable<Process> processes) => StopAll(processes, CloseGrace);
+
+    // Fork: the grace is the caller's - see CloseGame.
+    private static int StopAll(IEnumerable<Process> processes, TimeSpan grace)
     {
         var stopped = 0;
 
@@ -380,13 +383,13 @@ public static partial class SptLaunchService // Fork: partial - see SptLaunchSer
                 var asked = hasWindow ? process.CloseMainWindow() : Interrupt(process);
                 AppLog.Info("Launch", $"{name}: {(asked ? (hasWindow ? "asked its window to close" : "sent Ctrl+C") : "couldn't be asked to close")}");
 
-                if (asked && process.WaitForExit((int)CloseGrace.TotalMilliseconds))
+                if (asked && process.WaitForExit((int)grace.TotalMilliseconds))
                 {
                     AppLog.Info("Launch", $"{name} closed");
                 }
                 else
                 {
-                    AppLog.Info("Launch", asked ? $"{name} still running after {CloseGrace.TotalSeconds:0} s; killing it" : $"killing {name}");
+                    AppLog.Info("Launch", asked ? $"{name} still running after {grace.TotalSeconds:0} s; killing it" : $"killing {name}");
                     process.Kill();
                     AppLog.Info("Launch", process.WaitForExit((int)CloseGrace.TotalMilliseconds)
                         ? $"{name} killed"

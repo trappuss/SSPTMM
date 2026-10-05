@@ -26,8 +26,9 @@ the same details; click a card or row to open it.
 - **Search** by name, or **@name** for the author.
 - **Filters**: update status (updates available, up to date, not on sp-mod.com, recently
   installed), enabled/disabled, category, group, and Fika compatible, hide ads, has dependencies,
-  has addons, downloaded but not confirmed, has conflicts. **Save as default**
-  makes the page open that way.
+  has addons, downloaded but not confirmed, has conflicts.
+- The page **remembers** its filters, sort, grouping and view: it opens the way you left it. The
+  search box is not kept. **Clear filters** puts everything back to the app's own.
 
 ## On each mod
 
@@ -40,6 +41,35 @@ the same details; click a card or row to open it.
 - **PINNED** - see below. **RE-UPLOADED** - see below. **DISABLED**.
 - Opened: installed and latest version, notes, **More details** (GUID, folders, dates, who
   installed it), **Details and versions**, **Keep through collections**, **Unsubscribe**.
+
+## Presets
+
+![Presets](https://raw.githubusercontent.com/trappuss/SSPTMM/main/docs/images/07d-subscribed-presets.png)
+
+A preset is a saved set of which mods are on and which are off, as Mod Organizer 2's profiles keep
+them - your Fika setup, everything off for troubleshooting, or anything else. **Presets** in the
+toolbar:
+
+- **Save the current setup as a preset...** - saves which mods are on and off right now, under a
+  name. A mod with only its client or only its server half on is kept that way.
+- Each preset has **Apply**, **Save the current setup over it**, **Rename...** and **Delete...**.
+  The one your mods are set to now has a tick.
+- **Disable all mods...** and **Enable all mods...** - for troubleshooting.
+- **Put back how mods were before "..."** - returns the mods to how they were just before the last
+  preset (or Disable all / Enable all) was applied. Kept after a restart, when Undo is gone.
+
+Applying asks first and names every mod it turns off and on. It also says when a mod left on would
+be missing something it needs, when it would turn off a mod sp-mod.com marks as changing your
+profile, and how many mods it leaves alone: ones in the preset that are no longer installed, and
+ones installed after the preset was saved (those stay as they are). Then:
+
+- a copy of your SPT profiles is taken first - if that fails, nothing changes;
+- mods are only moved in and out of their `.disabled` folders, as the switch on a mod does - nothing
+  is deleted;
+- **Undo** puts it back in one step;
+- it is refused while SPT is running or a mod is being installed.
+
+Presets are kept per SPT install, in `Data\mod_presets.json`.
 
 ## Pinned mods
 

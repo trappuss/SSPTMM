@@ -60,7 +60,6 @@ internal static class Strings
     internal static string Installed_ViewListToolTip => LocalizationService.Get("Installed_ViewListToolTip");
     internal static string Installed_ListBadges => LocalizationService.Get("Installed_ListBadges");
     internal static string Installed_ListBadgesToolTip => LocalizationService.Get("Installed_ListBadgesToolTip");
-    internal static string Installed_SaveAsDefaultToolTip => LocalizationService.Get("Installed_SaveAsDefaultToolTip");
     internal static string Installed_UpdateFilterToolTip => LocalizationService.Get("Installed_UpdateFilterToolTip");
     internal static string Installed_EnabledFilterToolTip => LocalizationService.Get("Installed_EnabledFilterToolTip");
     internal static string Installed_CategoryFilterToolTip => LocalizationService.Get("Installed_CategoryFilterToolTip");
@@ -181,7 +180,6 @@ internal static class Strings
     internal static string Options_UseCurrentSizeToolTip => LocalizationService.Get("Options_UseCurrentSizeToolTip");
     internal static string Options_PageDefaultsHeader => LocalizationService.Get("Options_PageDefaultsHeader");
     internal static string Options_PageDefaultsDescription => LocalizationService.Get("Options_PageDefaultsDescription");
-    internal static string Options_ClearInstalledDefault => LocalizationService.Get("Options_ClearInstalledDefault");
     internal static string Options_ClearBrowseDefault => LocalizationService.Get("Options_ClearBrowseDefault");
     internal static string Options_ModPagesDescription => LocalizationService.Get("Options_ModPagesDescription");
     internal static string Options_FootprintHeader => LocalizationService.Get("Options_FootprintHeader");
@@ -688,7 +686,6 @@ internal static class Strings
     internal static string Installed_UndoEnableCountFormat => LocalizationService.Get("Installed_UndoEnableCountFormat");
     internal static string Installed_UndoInvertFormat => LocalizationService.Get("Installed_UndoInvertFormat");
     internal static string Installed_UndoSortOutFormat => LocalizationService.Get("Installed_UndoSortOutFormat");
-    internal static string Installed_SavedAsDefault => LocalizationService.Get("Installed_SavedAsDefault");
     internal static string Installed_PinnedFormat => LocalizationService.Get("Installed_PinnedFormat");
     internal static string Installed_UnpinnedFormat => LocalizationService.Get("Installed_UnpinnedFormat");
     internal static string Installed_NoModsFoundFormat => LocalizationService.Get("Installed_NoModsFoundFormat");
@@ -969,8 +966,6 @@ internal static class Strings
     internal static string Options_WindowFullScreenNote => LocalizationService.Get("Options_WindowFullScreenNote");
     internal static string Options_WindowSizeSavedFormat => LocalizationService.Get("Options_WindowSizeSavedFormat");
     internal static string Options_WindowSizeRestoreFirst => LocalizationService.Get("Options_WindowSizeRestoreFirst");
-    internal static string Options_InstalledNoDefault => LocalizationService.Get("Options_InstalledNoDefault");
-    internal static string Options_InstalledHasDefault => LocalizationService.Get("Options_InstalledHasDefault");
     internal static string Options_BrowseNoDefault => LocalizationService.Get("Options_BrowseNoDefault");
     internal static string Options_BrowseHasDefault => LocalizationService.Get("Options_BrowseHasDefault");
     internal static string Options_HeadlessPickerTitle => LocalizationService.Get("Options_HeadlessPickerTitle");
@@ -2779,4 +2774,71 @@ internal static class Strings
     internal static string Help_Play_Direct_Keywords => LocalizationService.Get("Help_Play_Direct_Keywords");
     internal static string Play_DirectBackupFailed => LocalizationService.Get("Play_DirectBackupFailed");
     internal static string Play_DirectErrorFormat => LocalizationService.Get("Play_DirectErrorFormat");
+    internal static string Play_StoppedAfterGameFormat => LocalizationService.Get("Play_StoppedAfterGameFormat");
+    internal static string Installed_ClearFiltersToolTip => LocalizationService.Get("Installed_ClearFiltersToolTip");
+    internal static string Presets_Button => LocalizationService.Get("Presets_Button");
+    internal static string Presets_ButtonToolTip => LocalizationService.Get("Presets_ButtonToolTip");
+    internal static string Presets_None => LocalizationService.Get("Presets_None");
+    internal static string Presets_SavedOnFormat => LocalizationService.Get("Presets_SavedOnFormat");
+    internal static string Presets_CurrentToolTip => LocalizationService.Get("Presets_CurrentToolTip");
+    internal static string Presets_Apply => LocalizationService.Get("Presets_Apply");
+    internal static string Presets_UpdateToCurrent => LocalizationService.Get("Presets_UpdateToCurrent");
+    internal static string Presets_Rename => LocalizationService.Get("Presets_Rename");
+    internal static string Presets_Delete => LocalizationService.Get("Presets_Delete");
+    internal static string Presets_SaveCurrent => LocalizationService.Get("Presets_SaveCurrent");
+    internal static string Presets_PutBackFormat => LocalizationService.Get("Presets_PutBackFormat");
+    internal static string Presets_PutBackToolTipFormat => LocalizationService.Get("Presets_PutBackToolTipFormat");
+    internal static string Presets_DisableAll => LocalizationService.Get("Presets_DisableAll");
+    internal static string Presets_DisableAllToolTip => LocalizationService.Get("Presets_DisableAllToolTip");
+    internal static string Presets_EnableAll => LocalizationService.Get("Presets_EnableAll");
+    internal static string Presets_EnableAllToolTip => LocalizationService.Get("Presets_EnableAllToolTip");
+    internal static string Presets_SaveTitle => LocalizationService.Get("Presets_SaveTitle");
+    internal static string Presets_SaveIntro => LocalizationService.Get("Presets_SaveIntro");
+    internal static string Presets_NamePlaceholder => LocalizationService.Get("Presets_NamePlaceholder");
+    internal static string Presets_SaveConfirm => LocalizationService.Get("Presets_SaveConfirm");
+    internal static string Presets_SaveOver => LocalizationService.Get("Presets_SaveOver");
+    internal static string Presets_ReplaceFormat => LocalizationService.Get("Presets_ReplaceFormat");
+    internal static string Presets_UpdateTitle => LocalizationService.Get("Presets_UpdateTitle");
+    internal static string Presets_UpdateFormat => LocalizationService.Get("Presets_UpdateFormat");
+    internal static string Presets_RenameTitle => LocalizationService.Get("Presets_RenameTitle");
+    internal static string Presets_RenameConfirm => LocalizationService.Get("Presets_RenameConfirm");
+    internal static string Presets_DeleteTitle => LocalizationService.Get("Presets_DeleteTitle");
+    internal static string Presets_DeleteFormat => LocalizationService.Get("Presets_DeleteFormat");
+    internal static string Presets_DeleteConfirm => LocalizationService.Get("Presets_DeleteConfirm");
+    internal static string Presets_ApplyTitleFormat => LocalizationService.Get("Presets_ApplyTitleFormat");
+    internal static string Presets_DisableAllTitle => LocalizationService.Get("Presets_DisableAllTitle");
+    internal static string Presets_EnableAllTitle => LocalizationService.Get("Presets_EnableAllTitle");
+    internal static string Presets_PutBackTitle => LocalizationService.Get("Presets_PutBackTitle");
+    internal static string Presets_DisableAllName => LocalizationService.Get("Presets_DisableAllName");
+    internal static string Presets_EnableAllName => LocalizationService.Get("Presets_EnableAllName");
+    internal static string Presets_PutBackName => LocalizationService.Get("Presets_PutBackName");
+    internal static string Presets_TurnsOff(int count, params object?[] values) =>
+        LocalizationService.Plural("Presets_TurnsOff", count, values);
+    internal static string Presets_TurnsOn(int count, params object?[] values) =>
+        LocalizationService.Plural("Presets_TurnsOn", count, values);
+    internal static string Presets_NeedsHeader => LocalizationService.Get("Presets_NeedsHeader");
+    internal static string Presets_NeedsFormat => LocalizationService.Get("Presets_NeedsFormat");
+    internal static string Presets_ProfileModsFormat => LocalizationService.Get("Presets_ProfileModsFormat");
+    internal static string Presets_NotInstalled(int count, params object?[] values) =>
+        LocalizationService.Plural("Presets_NotInstalled", count, values);
+    internal static string Presets_NotInPreset(int count, params object?[] values) =>
+        LocalizationService.Plural("Presets_NotInPreset", count, values);
+    internal static string Presets_SafetyNote => LocalizationService.Get("Presets_SafetyNote");
+    internal static string Presets_ApplyConfirm => LocalizationService.Get("Presets_ApplyConfirm");
+    internal static string Presets_AlreadyFormat => LocalizationService.Get("Presets_AlreadyFormat");
+    internal static string Presets_AppliedFormat => LocalizationService.Get("Presets_AppliedFormat");
+    internal static string Presets_UndoFormat => LocalizationService.Get("Presets_UndoFormat");
+    internal static string Presets_SavedFormat => LocalizationService.Get("Presets_SavedFormat");
+    internal static string Presets_RenamedFormat => LocalizationService.Get("Presets_RenamedFormat");
+    internal static string Presets_NameTakenFormat => LocalizationService.Get("Presets_NameTakenFormat");
+    internal static string Presets_DeletedFormat => LocalizationService.Get("Presets_DeletedFormat");
+    internal static string Presets_BackupFailed => LocalizationService.Get("Presets_BackupFailed");
+    internal static string Presets_CouldNotSaveFormat => LocalizationService.Get("Presets_CouldNotSaveFormat");
+    internal static string Profiles_ReasonPreset => LocalizationService.Get("Profiles_ReasonPreset");
+    internal static string Help_Installed_Presets_Title => LocalizationService.Get("Help_Installed_Presets_Title");
+    internal static string Help_Installed_Presets_Step1 => LocalizationService.Get("Help_Installed_Presets_Step1");
+    internal static string Help_Installed_Presets_Step2 => LocalizationService.Get("Help_Installed_Presets_Step2");
+    internal static string Help_Installed_Presets_Step3 => LocalizationService.Get("Help_Installed_Presets_Step3");
+    internal static string Help_Installed_Presets_Note => LocalizationService.Get("Help_Installed_Presets_Note");
+    internal static string Help_Installed_Presets_Keywords => LocalizationService.Get("Help_Installed_Presets_Keywords");
 }

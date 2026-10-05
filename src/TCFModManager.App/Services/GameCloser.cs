@@ -12,13 +12,22 @@ namespace TCFModManager.App.Services;
 // server stops however it stops - Stop server, its own window closed, a crash - and the page is
 // rarely the one showing while somebody plays.
 //
-// "Stopped" means it was seen running and then seen down on two checks in a row, about six seconds,
-// so a server that blinks out and back is not taken for one that stopped. A restart started from
+// "Stopped" means it was seen running and then seen down on two checks in a row, a second apart,
+// so a server that blinks out and back is not taken for one that stopped. (Three seconds apart
+// before 1.1.0: with the game's own wait added, the game stayed up some fifteen seconds after the
+// server and read as not closed at all.)
+//
+// The server is gone by then, so the game can't finish quitting - see SptLaunchService.CloseGame -
+// and gets ServerGoneGrace before it is killed. Stop server on the Play page doesn't come here when
+// this is ticked: it closes the game first, while the server can still answer it. A restart started from
 // this app holds the watch off while it runs (HoldOff), since its moment of being down is meant.
 //
 public static class GameCloser
 {
-    private static readonly DispatcherTimer Timer = new() { Interval = TimeSpan.FromSeconds(3) };
+    private static readonly DispatcherTimer Timer = new() { Interval = TimeSpan.FromSeconds(1) };
+
+    /// <summary>How long a game whose server is gone gets to close before it is killed.</summary>
+    public static readonly TimeSpan ServerGoneGrace = TimeSpan.FromSeconds(2);
 
     private const int DownChecksToCount = 2;
 
@@ -121,7 +130,7 @@ public static class GameCloser
         try
         {
             AppLog.Info("Launch", "the server stopped; closing the game, as ticked on the Play page");
-            var result = await Task.Run(() => SptLaunchService.CloseGame(installPath, spares));
+            var result = await Task.Run(() => SptLaunchService.CloseGame(installPath, spares, ServerGoneGrace));
 
             var closed = result.Problem is SptLaunchProblem.None or SptLaunchProblem.NotRunning;
             if (closed)

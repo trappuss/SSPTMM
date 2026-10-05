@@ -34,9 +34,15 @@ public static partial class SptLaunchService
 
     //
     // Closes the game: asked to close its window first, killed only if it hasn't gone within the
-    // grace Stop allows (see StopAll). Stopped is how many closed; NotRunning when there was none.
+    // grace (Stop's five seconds unless given). Stopped is how many closed; NotRunning when there was
+    // none.
     //
-    public static SptLaunchResult CloseGame(string? installPath, bool sparesWindowless)
+    // A shorter grace is for a game whose server is already gone: its quit asks the server to cancel
+    // invites and log out, and waits for answers that never come. On the user's PC (2026-10-04) every
+    // close with the server already down sat the full five seconds and was killed (3 of 3); every
+    // close with the server still up finished on its own in 2-5 s.
+    //
+    public static SptLaunchResult CloseGame(string? installPath, bool sparesWindowless, TimeSpan? grace = null)
     {
         var gameRoot = SptInstallationService.ToGameRoot(installPath);
         var info = new SptLaunchTargetInfo
@@ -57,7 +63,7 @@ public static partial class SptLaunchService
 
         try
         {
-            var stopped = StopAll(processes);
+            var stopped = StopAll(processes, grace ?? CloseGrace);
             return stopped == 0
                 ? new SptLaunchResult { Info = info, Problem = SptLaunchProblem.StopFailed }
                 : new SptLaunchResult { Info = info, Stopped = stopped };

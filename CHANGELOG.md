@@ -13,13 +13,22 @@ Close SSPTMM, then unzip `SSPTMM-1.1.0-win-x64.zip` over your SSPTMM folder. You
   - It copies how SPT's 4.1 launcher works, from its source code. The SPT team didn't make it and doesn't support it. If the game won't start or acts strangely, switch it off and use the SPT launcher. When you ask for help, say the game was started from SSPTMM.
   - Different from SPT's launcher: it stops when the server and the game files are different SPT versions, where SPT's launcher only notes it in its log and starts anyway. It keeps the last three game logs, so **Diagnose logs** can still read them after the next start clears them.
 
+- **Presets in Subscribed items.** A preset is a saved set of which mods are on and which are off, as Mod Organizer 2's profiles keep them - your Fika setup, everything off for troubleshooting, or anything else. **Presets** in the toolbar saves the current setup under a name, applies a preset, and has **Disable all mods** and **Enable all mods**.
+  - Applying asks first, naming every mod it turns off and on, and warns when a mod left on would be missing something it needs, or when it turns off a mod sp-mod.com marks as changing your profile.
+  - A copy of your SPT profiles is taken first, nothing is deleted (mods only move in and out of their `.disabled` folders), **Undo** puts it back, and **Put back** returns the mods to how they were before the last preset even after a restart.
+  - Mods installed after a preset was saved are left as they are.
+
 - **SSPTMM has its own icon and mascot.** The window, taskbar, tray and exe icon and the art at the left of the Workshop banner now show SSPTMM's mascot in place of the placeholder.
 
 ## Changed
 
+- **Subscribed items opens the way you left it.** Its filters, sort, grouping and view are remembered by themselves, so the **Save as default** button there is gone, and so is its row in Options > Page defaults. A default you saved before is where it starts. The search box is not kept, and **Clear filters** puts everything back to the app's own. Browse keeps its Save as default.
+
 - **"Hide mods with AI content" is gone** from the Browse and Subscribed items filters. sp-mod.com has no such flag: its API sends no such field and refuses it as a filter, so the option never hid anything. A saved filter default that had it ticked is ignored.
 
 ## Fixed
+
+- **"Close the game when the server stops" now closes the game promptly.** With the server already gone, the game can't finish quitting - it waits for the server to answer - so it sat there for up to fifteen seconds before it was killed, and looked as if nothing happened. Now **Stop server** closes the game first, while the server can still answer it, and the game quits cleanly in seconds. When the server goes any other way, the game is closed within about two seconds of it going, and killed two seconds after that if it hasn't gone. Each step is written to the app's log.
 
 - **The check after an install now covers server configs too.** Every file is compared with the archive's copy after an install, but server configs were all skipped, so one that went missing or came out different was never reported. Now only the configs that are meant to differ are skipped: those merged with your changes, kept as yours, or left alone.
 

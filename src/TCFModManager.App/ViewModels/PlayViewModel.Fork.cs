@@ -64,6 +64,23 @@ public partial class PlayViewModel
         if (!_readingCloseGameSetting) GameCloser.SetEnabled(value);
     }
 
+    // Stop server with "Close the game when the server stops" ticked: the game first. Null when that
+    // isn't ticked or no game is running.
+    private static async Task<SptLaunchResult?> CloseGameBeforeServerAsync(string? installPath)
+    {
+        var settings = new SettingsService().Load();
+        if (!settings.CloseGameWithServer) return null;
+
+        var spares = GameCloser.SparesWindowless(settings, installPath);
+        if (!SptLaunchService.IsGameRunning(installPath, spares)) return null;
+
+        AppLog.Info("Launch", "stopping the server; closing the game first, as ticked on the Play page");
+        var result = await Task.Run(() => SptLaunchService.CloseGame(installPath, spares));
+        if (result.Problem is not (SptLaunchProblem.None or SptLaunchProblem.NotRunning))
+            AppLog.Warn("Launch", $"the game could not be closed: {result.Problem}{(result.Error is null ? "" : " - " + result.Error.Message)}");
+        return result;
+    }
+
     [RelayCommand]
     private void AskCloseGame()
     {

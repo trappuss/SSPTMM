@@ -41,7 +41,7 @@ The gear at the top right. Each setting has a one-line explanation and a **?** w
 |---|---|
 | Mod footprint page | Adds the Mod footprint page to Tools. |
 | Server map | Adds the Server map page to Tools. |
-| Page defaults | What Save as default stored for Subscribed items and Browse. |
+| Page defaults | What Save as default stored for Browse. (Subscribed items remembers its own filters.) |
 
 ## Fika and servers
 

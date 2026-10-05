@@ -696,8 +696,9 @@
                 </StackPanel>
             </ui:CardExpander.Header>
 
+            <!-- Fork (1.1.0): Browse only - Subscribed items remembers itself (InstalledViewModel.Remember). -->
             <StackPanel>
-                <Grid Margin="0,0,0,12">
+                <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
@@ -705,30 +706,13 @@
                     <TextBlock
                         Style="{StaticResource SettingHint}"
                         VerticalAlignment="Center"
-                        Text="{Binding InstalledDefaultsDescription}" />
+                        Text="{Binding BrowseDefaultsDescription}" />
                     <ui:Button
                         Grid.Column="1"
                         Margin="14,0,0,0"
-                        Content="{loc:Str Options_ClearInstalledDefault}"
-                        Command="{Binding ResetInstalledDefaultsCommand}" />
+                        Content="{loc:Str Options_ClearBrowseDefault}"
+                        Command="{Binding ResetBrowseDefaultsCommand}" />
                 </Grid>
-                <Border Style="{StaticResource SubSetting}" Padding="0,12,0,0">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <TextBlock
-                            Style="{StaticResource SettingHint}"
-                            VerticalAlignment="Center"
-                            Text="{Binding BrowseDefaultsDescription}" />
-                        <ui:Button
-                            Grid.Column="1"
-                            Margin="14,0,0,0"
-                            Content="{loc:Str Options_ClearBrowseDefault}"
-                            Command="{Binding ResetBrowseDefaultsCommand}" />
-                    </Grid>
-                </Border>
             </StackPanel>
         </ui:CardExpander>
 

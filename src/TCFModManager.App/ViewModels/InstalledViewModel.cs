@@ -405,7 +405,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     // rather than set from Options - see Core's PageDefaults. Null on an install that has never
     // saved one, in which case every Default* helper below answers with the app's own default.
     //
-    private readonly InstalledPageDefaults? _defaults;
+    private InstalledPageDefaults? _defaults; // Fork: replaced as the page remembers itself (InstalledViewModel.Remember)
 
     //
     // Whether the saved category/group defaults have been handed to their dropdowns yet. Both lists
@@ -581,12 +581,14 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         //
         if (!forPage) return;
 
-        if (AppNavigation.TakeShowUpdates()) _selectedUpdateFilter = UpdatesAvailableFilter();
+        if (AppNavigation.TakeShowUpdates()) _selectedUpdateFilter = _updateFilterFromNavigation = UpdatesAvailableFilter();
 
         AppNavigation.ShowUpdatesRequested += (_, _) =>
         {
             if (!ReferenceEquals(Current, this)) return;
-            if (AppNavigation.TakeShowUpdates()) SelectedUpdateFilter = UpdatesAvailableFilter();
+            if (!AppNavigation.TakeShowUpdates()) return;
+            SelectedUpdateFilter = UpdatesAvailableFilter();
+            _updateFilterFromNavigation = SelectedUpdateFilter; // not remembered as a choice (Remember)
         };
 
         // Fork: Diagnose logs' "Show in Subscribed items".
@@ -651,10 +653,22 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
         // Keep the current choice if that category is still installed, rather than silently
         // resetting the page's filter under someone every time they come back to it.
-        SelectedCategory = CategoryOptions.FirstOrDefault(c => c.SameAs(previous)) ?? CategoryOptions[0];
+        _rebuildingFilterLists = true; // Fork: a fallback here is not a choice to remember
+        try
+        {
+            SelectedCategory = CategoryOptions.FirstOrDefault(c => c.SameAs(previous)) ?? CategoryOptions[0];
+        }
+        finally
+        {
+            _rebuildingFilterLists = false;
+        }
     }
 
-    partial void OnSelectedUpdateFilterChanged(UpdateFilterItem value) => AutoApplyFilter();
+    partial void OnSelectedUpdateFilterChanged(UpdateFilterItem value)
+    {
+        _updateFilterFromNavigation = null; // Fork: chosen now, so remembered (see Remember)
+        AutoApplyFilter();
+    }
 
     partial void OnSelectedEnabledFilterChanged(EnabledFilterItem value) => AutoApplyFilter();
 
@@ -703,6 +717,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         // Cards and List hold their own expansion, so the same mods can be all-open in one and
         // all-closed in the other - the two buttons have to re-read whichever is now on screen.
         NotifyExpandedState();
+        RememberFilters(); // Fork
     }
 
     partial void OnSelectedGroupSortOptionChanged(GroupSortItem value)
@@ -717,6 +732,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         // Clear filters sets this among the rest, then refreshes once itself.
         if (_suppressAutoApplyFilter) return;
         RefreshActiveView(CurrentPage);
+        RememberFilters(); // Fork
     }
 
     partial void OnSelectedGroupingChanged(GroupingItem value)
@@ -729,6 +745,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         // Clear filters sets this among the rest, then refreshes once itself.
         if (_suppressAutoApplyFilter) return;
         RefreshActiveView(CurrentPage);
+        RememberFilters(); // Fork
     }
 
     /// <summary>Re-filters/re-sorts and refreshes whichever of the three views is active whenever a
@@ -738,6 +755,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     {
         if (_suppressAutoApplyFilter) return;
         ApplyFilter();
+        RememberFilters(); // Fork
 
         // CurrentPage, not 1. Narrowing a filter shrinks TotalPages and GoToPage clamps to it, so a
         // page that no longer exists still lands somewhere sensible - and nothing is left that can
@@ -780,12 +798,11 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     }
 
     //
-    // Resets every filter/search control back to this page's opening default, then re-applies once
+    // Resets every filter/search control back to the app's own defaults, then re-applies once
     // immediately.
     //
-    // "Default" means whatever SaveAsDefault last captured, not the app's own - once you have told
-    // the page how you want it to open, that is what clearing the filters should give you back.
-    // With nothing saved the two are the same thing, which is what every Default* helper answers.
+    // Fork (1.1.0): the app's own, not a saved default - the page now remembers itself (Remember), so
+    // "this page's default" would just be how it already is. The cleared page is then remembered.
     //
     // The view mode is deliberately left alone: which of Cards/Groups/List you are looking at is
     // not a filter, and a button in the filter row that also switched view would be a surprise.
@@ -793,6 +810,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     [RelayCommand]
     private void ClearFilters()
     {
+        _defaults = null; // Fork: every Default* helper now answers with the app's own
         _suppressAutoApplyFilter = true;
         try
         {
@@ -817,44 +835,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
         ApplyFilter();
         RefreshActiveView(CurrentPage);
-    }
-
-    //
-    // Captures the page exactly as it currently stands as what it opens at next time.
-    //
-    // Taken from the page rather than restated as a second set of dropdowns in Options: these
-    // controls already exist, you can see what they do as you set them, and a filter added to this
-    // page later is covered without anything in Options needing to know about it.
-    //
-    // The search box is not included. A page that opens already filtered to a phrase you typed
-    // weeks ago looks broken rather than configured.
-    //
-    [RelayCommand]
-    private void SaveAsDefault()
-    {
-        var service = new SettingsService();
-        var settings = service.Load();
-
-        settings.InstalledDefaults = new InstalledPageDefaults
-        {
-            ViewMode = ViewMode.ToString(),
-            UpdateStatus = SelectedUpdateFilter.Value.ToString(),
-            Enabled = SelectedEnabledFilter.Value.ToString(),
-            Category = SelectedCategory.Title,
-            Group = SelectedGroupFilter.AllGroups
-                ? "all"
-                : SelectedGroupFilter.GroupId?.ToString() ?? "ungrouped",
-            Sort = SelectedSortOption.Value.ToString(),
-            GroupSort = SelectedGroupSortOption.Value.ToString(),
-            Grouping = SelectedGrouping.Value.ToString(),
-            PageSize = PageSize,
-            Attributes = SavedFilterDefaults.CapturedAttributes(AttributeOptions),
-        };
-
-        service.Save(settings);
-
-        StatusMessage = Strings.Installed_SavedAsDefault;
-        AppLog.Info("Installed", "saved the current filters as this page's default");
+        RememberFilters(); // Fork
     }
 
     //

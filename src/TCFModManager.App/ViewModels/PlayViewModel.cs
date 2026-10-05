@@ -492,12 +492,22 @@ public partial class PlayViewModel : LocalizedViewModel
         try
         {
             var installPath = AppServices.SptEnvironment.InstallPath;
+
+            // Fork: with "Close the game when the server stops" ticked, the game goes first, while
+            // the server can still answer its quit (see GameCloser) - it then closes in seconds
+            // rather than hanging until it is killed.
+            var gameClosedFirst = await CloseGameBeforeServerAsync(installPath);
+
             var result = await Task.Run(() => SptLaunchService.StopTarget(installPath, SptLaunchTarget.Server));
 
-            HasError = result.Problem != SptLaunchProblem.None;
-            Message = HasError
+            HasError = result.Problem != SptLaunchProblem.None || gameClosedFirst is { Problem: not (SptLaunchProblem.None or SptLaunchProblem.NotRunning) };
+            Message = result.Problem != SptLaunchProblem.None
                 ? SptLaunchProblems.Describe(result)
-                : Text(Strings.Play_StoppedFormat, result.Info.ProcessName);
+                : gameClosedFirst is null || gameClosedFirst.Problem == SptLaunchProblem.NotRunning
+                    ? Text(Strings.Play_StoppedFormat, result.Info.ProcessName)
+                    : gameClosedFirst.Problem == SptLaunchProblem.None
+                        ? Text(Strings.Play_StoppedAfterGameFormat, result.Info.ProcessName)
+                        : SptLaunchProblems.Describe(gameClosedFirst);
         }
         finally
         {

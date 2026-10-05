@@ -409,6 +409,86 @@ public partial class InstalledPage : Page
         menu.IsOpen = true;
     }
 
+    //
+    // Fork (1.1.0): the Presets menu - each saved preset (ticked when the mods are set as it has them)
+    // with Apply, Save over, Rename and Delete under it; then Save the current setup, Put back, and
+    // Disable all / Enable all. Built on each click, so it always reads the presets as they are.
+    //
+    private void Presets_Click(object sender, RoutedEventArgs e)
+    {
+        var vm = ViewModel;
+        var menu = new ContextMenu
+        {
+            PlacementTarget = (UIElement)sender,
+            Placement = PlacementMode.Bottom,
+            DataContext = vm,
+        };
+
+        var presets = vm.Presets;
+        var current = vm.CurrentPresetName;
+
+        if (presets.Count == 0)
+        {
+            menu.Items.Add(new MenuItem { Header = Strings.Presets_None, IsEnabled = false });
+        }
+
+        foreach (var preset in presets)
+        {
+            var name = preset.Name;
+            var isCurrent = string.Equals(name, current, StringComparison.OrdinalIgnoreCase);
+            var item = new MenuItem
+            {
+                Header = name,
+                // A tick for the preset the mods are set to: a menu item that has a submenu draws no
+                // check mark of its own, so it is the item's icon.
+                Icon = isCurrent ? new Wpf.Ui.Controls.SymbolIcon { Symbol = Wpf.Ui.Controls.SymbolRegular.Checkmark16 } : null,
+                ToolTip = isCurrent
+                    ? Strings.Presets_CurrentToolTip
+                    : LocalizationService.Text(Strings.Presets_SavedOnFormat, preset.SavedAt.ToLocalTime().ToString("g")),
+            };
+            item.Items.Add(Entry(Strings.Presets_Apply, () => vm.ApplyPresetAsync(name)));
+            item.Items.Add(Entry(Strings.Presets_UpdateToCurrent, () => vm.UpdatePresetAsync(name)));
+            item.Items.Add(new Separator());
+            item.Items.Add(Entry(Strings.Presets_Rename, () => { vm.RenamePreset(name); return Task.CompletedTask; }));
+            item.Items.Add(Entry(Strings.Presets_Delete, () => { vm.DeletePreset(name); return Task.CompletedTask; }));
+            menu.Items.Add(item);
+        }
+
+        menu.Items.Add(new Separator());
+        menu.Items.Add(Entry(Strings.Presets_SaveCurrent, vm.SavePresetAsync, enabled: vm.HasModsForPresets));
+
+        if (vm.BeforeLastPreset is { } before)
+        {
+            menu.Items.Add(Entry(
+                LocalizationService.Text(Strings.Presets_PutBackFormat, before.Name),
+                vm.PutBackBeforeLastPresetAsync,
+                LocalizationService.Text(Strings.Presets_PutBackToolTipFormat, before.Name, before.SavedAt.ToLocalTime().ToString("g"))));
+        }
+
+        menu.Items.Add(new Separator());
+        menu.Items.Add(Entry(Strings.Presets_DisableAll, vm.DisableAllAsync, Strings.Presets_DisableAllToolTip, vm.HasModsForPresets));
+        menu.Items.Add(Entry(Strings.Presets_EnableAll, vm.EnableAllAsync, Strings.Presets_EnableAllToolTip, vm.HasModsForPresets));
+
+        foreach (var entry in menu.Items.OfType<MenuItem>())
+            ToolTipService.SetPlacement(entry, PlacementMode.Left);
+
+        menu.IsOpen = true;
+
+        // Each action runs once the menu has closed, so its dialog never opens over a menu that is still
+        // on its way out.
+        MenuItem Entry(string header, Func<Task> run, string? toolTip = null, bool enabled = true)
+        {
+            var item = new MenuItem { Header = header, ToolTip = toolTip, IsEnabled = enabled };
+            item.Click += (_, args) =>
+            {
+                args.Handled = true;
+                menu.IsOpen = false;
+                Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(async () => await run()));
+            };
+            return item;
+        }
+    }
+
     // Fork: the empty state's way on - the Workshop, where mods are subscribed to.
     private void BrowseWorkshop_Click(object sender, RoutedEventArgs e) => AppNavigation.Navigate(typeof(WorkshopHomePage));
 

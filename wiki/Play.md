@@ -22,6 +22,10 @@ if the server closed before it was ready).
 - While the game runs: **Close game**. It asks first - a raid in progress is lost.
 - **Close the game when the server stops** (off by default): when the server is seen stopping,
   however it stops, the game is closed too. It watches the SPT install currently set in Options.
+  **Stop server** closes the game first, while the server can still answer it, so the game quits
+  cleanly in a few seconds. When the server goes some other way (its window closed, a crash), the
+  game is closed within about two seconds of the server going, and killed if it hasn't gone two
+  seconds after that - with the server gone it can't finish quitting by itself.
 
 ## Play (experimental)
 

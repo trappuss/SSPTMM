@@ -387,8 +387,6 @@ public partial class OptionsViewModel : LocalizedViewModel
     // simply say so - a button that appears only once you have used a feature elsewhere is one
     // nobody finds when they want it.
     //
-    [ObservableProperty]
-    private string _installedDefaultsDescription = string.Empty;
 
     [ObservableProperty]
     private string _browseDefaultsDescription = string.Empty;
@@ -898,20 +896,10 @@ public partial class OptionsViewModel : LocalizedViewModel
     private static string FormatSize(double value) => ((int)Math.Round(value)).ToString();
 
     //
-    // The two page defaults are cleared here rather than on the pages themselves: the page has a
-    // button that saves one, and the place to undo a setting is where the rest of the settings are.
+    // Browse's page default is cleared here rather than on the page itself: the page has a button
+    // that saves one, and the place to undo a setting is where the rest of the settings are.
+    // (Fork, 1.1.0: Subscribed items remembers itself, and Clear filters there resets it.)
     //
-    [RelayCommand]
-    private void ResetInstalledDefaults()
-    {
-        var settings = _settings.Load();
-        settings.InstalledDefaults = null;
-        _settings.Save(settings);
-
-        RefreshPageDefaultDescriptions(settings);
-        AppLog.Info("Installed", "cleared the saved page default");
-    }
-
     [RelayCommand]
     private void ResetBrowseDefaults()
     {
@@ -930,10 +918,6 @@ public partial class OptionsViewModel : LocalizedViewModel
     //
     private void RefreshPageDefaultDescriptions(AppSettings settings)
     {
-        InstalledDefaultsDescription = settings.InstalledDefaults is null
-            ? Strings.Options_InstalledNoDefault
-            : Strings.Options_InstalledHasDefault;
-
         BrowseDefaultsDescription = settings.BrowseDefaults is null
             ? Strings.Options_BrowseNoDefault
             : Strings.Options_BrowseHasDefault;
