@@ -401,7 +401,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     private int _totalPages = 1;
 
     //
-    // What this page opens filtered and sorted to - since 1.1.0 remembered by the page itself as it
+    // What this page opens filtered and sorted to - since 1.2.0 remembered by the page itself as it
     // changes (InstalledViewModel.Remember), in the setting Save as default wrote before; see Core's
     // PageDefaults. Null on an install that has never had one, in which case every Default* helper
     // below answers with the app's own default.
@@ -816,7 +816,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     // Resets every filter/search control back to the app's own defaults, then re-applies once
     // immediately.
     //
-    // Fork (1.1.0): the app's own, not a saved default - the page now remembers itself (Remember), so
+    // Fork (1.2.0): the app's own, not a saved default - the page now remembers itself (Remember), so
     // "this page's default" would just be how it already is. The cleared page is then remembered.
     //
     // The view mode is deliberately left alone: which of Cards/Groups/List you are looking at is

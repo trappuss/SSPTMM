@@ -6,7 +6,7 @@ using TCFModManager.Core.Models;
 namespace TCFModManager.Core.Services;
 
 //
-// Fork (SSPTMM 1.1.0): presets - named sets of which installed mods are on and which are off, as Mod
+// Fork (SSPTMM 1.2.0): presets - named sets of which installed mods are on and which are off, as Mod
 // Organizer 2's profiles keep them. "Everything but Fika", "troubleshooting: all off", "my Fika
 // setup". Applying one only enables and disables (ModDisableService: folders move between a container
 // and its ".disabled" sibling), so nothing is ever deleted and every apply can be undone.

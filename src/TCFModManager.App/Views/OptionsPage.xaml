@@ -696,7 +696,7 @@
                 </StackPanel>
             </ui:CardExpander.Header>
 
-            <!-- Fork (1.1.0): Browse only - Subscribed items remembers itself (InstalledViewModel.Remember). -->
+            <!-- Fork (1.2.0): Browse only - Subscribed items remembers itself (InstalledViewModel.Remember). -->
             <StackPanel>
                 <Grid>
                     <Grid.ColumnDefinitions>

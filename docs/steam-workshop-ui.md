@@ -1845,7 +1845,7 @@ closed by the user's hand or read as not closed.
 
 InstalledViewModel.Remember saves the filters, sort, grouping, view and page size half a second after
 the last change, into AppSettings.InstalledDefaults (where Save as default wrote), so an old default
-is where 1.1.0 starts. Not kept: the search box; "Updates available" chosen by a notification click;
+is where 1.2.0 starts. Not kept: the search box; "Updates available" chosen by a notification click;
 a category that fell back to All because nothing installed is in it (offline, with no catalog, that
 is every category) - the remembered one stays until a category is picked, and comes back when it is
 installed again. A change made before the first scan is saved once the lists exist; a pending save is
@@ -1872,6 +1872,13 @@ the model; "Presets" because SPT's profiles are something else.
 
 Wine test against a fixture of public mods: save, Disable all (10 folders), restart, Put back, a
 preset breaking SAIN's BigBrain dependency (warned), rename, delete.
+
+### Version
+
+1.1.0 had already been released from aa978a5 (GitHub's tag v1.1.0 and main, checked 2026-10-05), so
+Round 37's direct launch and this round are 1.2.0: Directory.Build.props, a new CHANGELOG section
+(1.1.0's put back exactly as released), the code comments added since, and the version digit in the
+screenshots' title bars (taken from a 1.2.0 window; 15b keeps its older version on purpose).
 
 ### Review and audit
 

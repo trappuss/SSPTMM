@@ -898,7 +898,7 @@ public partial class OptionsViewModel : LocalizedViewModel
     //
     // Browse's page default is cleared here rather than on the page itself: the page has a button
     // that saves one, and the place to undo a setting is where the rest of the settings are.
-    // (Fork, 1.1.0: Subscribed items remembers itself, and Clear filters there resets it.)
+    // (Fork, 1.2.0: Subscribed items remembers itself, and Clear filters there resets it.)
     //
     [RelayCommand]
     private void ResetBrowseDefaults()

@@ -10,7 +10,7 @@ using TCFModManager.Core.Services;
 namespace TCFModManager.App.ViewModels;
 
 //
-// Fork (SSPTMM 1.1.0): presets - which mods are on and which are off, saved under a name and put
+// Fork (SSPTMM 1.2.0): presets - which mods are on and which are off, saved under a name and put
 // back in one go, as Mod Organizer 2's profiles do (Core's ModPresets). Disable all and Enable all go
 // the same way, for troubleshooting.
 //

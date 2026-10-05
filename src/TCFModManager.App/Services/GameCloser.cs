@@ -14,7 +14,7 @@ namespace TCFModManager.App.Services;
 //
 // "Stopped" means it was seen running and then seen down on two checks in a row, a second apart,
 // so a server that blinks out and back is not taken for one that stopped. (Three seconds apart
-// before 1.1.0: with the game's own wait added, the game stayed up some fifteen seconds after the
+// before 1.2.0: with the game's own wait added, the game stayed up some fifteen seconds after the
 // server and read as not closed at all.)
 //
 // The server is gone by then, so the game can't finish quitting - see SptLaunchService.CloseGame -

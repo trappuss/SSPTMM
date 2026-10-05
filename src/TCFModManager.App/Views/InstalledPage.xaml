@@ -990,7 +990,7 @@
                 ToolTip="{loc:Str Installed_MoreToolTip}"
                 Click="More_Click" />
 
-            <!-- Fork (1.1.0): presets of which mods are on and off - the menu is built in
+            <!-- Fork (1.2.0): presets of which mods are on and off - the menu is built in
                  InstalledPage.xaml.cs (Presets_Click), the work is InstalledViewModel.Presets. -->
             <ui:Button
                 DockPanel.Dock="Right"
@@ -1151,7 +1151,7 @@
                             SelectedItem="{Binding SelectedGrouping}"
                             Visibility="{Binding ShowGroupingPicker, Converter={StaticResource BoolToVis}}" />
 
-                        <!-- Fork (1.1.0): no Save as default - the page remembers these by itself
+                        <!-- Fork (1.2.0): no Save as default - the page remembers these by itself
                              (InstalledViewModel.Remember). -->
                         <DockPanel LastChildFill="False">
                             <ui:Button

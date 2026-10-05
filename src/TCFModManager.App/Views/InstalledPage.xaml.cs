@@ -410,7 +410,7 @@ public partial class InstalledPage : Page
     }
 
     //
-    // Fork (1.1.0): the Presets menu - each saved preset (ticked when the mods are set as it has them)
+    // Fork (1.2.0): the Presets menu - each saved preset (ticked when the mods are set as it has them)
     // with Apply, Save over, Rename and Delete under it; then Save the current setup, Put back, and
     // Disable all / Enable all. Built on each click, so it always reads the presets as they are.
     //

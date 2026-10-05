@@ -7,9 +7,9 @@ using TCFModManager.Core.Services;
 namespace TCFModManager.App.ViewModels;
 
 //
-// Fork (SSPTMM 1.1.0): Subscribed items opens the way it was left - filters, sort, grouping and view
+// Fork (SSPTMM 1.2.0): Subscribed items opens the way it was left - filters, sort, grouping and view
 // - without a Save as default button. Written to the same setting the button wrote
-// (AppSettings.InstalledDefaults), so a default saved before 1.1.0 is where the page starts.
+// (AppSettings.InstalledDefaults), so a default saved before 1.2.0 is where the page starts.
 //
 // Not remembered:
 // - the search box: a page that opens filtered to something typed weeks ago looks broken;

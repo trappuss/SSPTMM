@@ -38,4 +38,15 @@ folder (or into a new folder and copy your old `Data` folder across). Your setti
 
 ## Uninstalling
 
-Close SSPTMM and delete its folder. Mods it installed stay in SPT.
+1. Close SSPTMM, and stop SPT's server if SSPTMM started it (Play > **Stop server**).
+2. Delete SSPTMM's folder - the exe and its `Data` folder. Nothing of SSPTMM is left anywhere else on
+   the PC.
+
+Mods it installed stay in SPT and keep working. Two things inside your SPT folder are worth knowing:
+
+- Mods you disabled are in `.disabled` folders beside the ones SPT loads from
+  (`BepInEx\plugins.disabled`, `SPT_Runtime\user\mods.disabled` and so on). Move a mod back out to
+  enable it again, or delete it.
+- The hidden working folders (`.tcfmm-removed`, `.tcfmm-work`, `.tcfmm-duplicates`) hold mods you
+  unsubscribed from (kept for Undo) and set-aside duplicates. Delete them once you no longer need
+  them - unless you also use TCF Mod Manager, which uses the same folders.

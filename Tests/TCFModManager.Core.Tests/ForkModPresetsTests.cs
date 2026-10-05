@@ -4,7 +4,7 @@ using Xunit;
 
 namespace TCFModManager.Core.Tests;
 
-// Fork (SSPTMM 1.1.0): presets of which mods are on and off - see ModPresets.
+// Fork (SSPTMM 1.2.0): presets of which mods are on and off - see ModPresets.
 public sealed class ForkModPresetsTests : IDisposable
 {
     private readonly string _root = Path.Combine(Path.GetTempPath(), "ssptmm-presets-" + Guid.NewGuid().ToString("N"));
