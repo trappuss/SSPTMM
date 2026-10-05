@@ -12,6 +12,8 @@ Everything below is generated from it, so a new mascot is one file swap and one 
     docs/images/ssptmm-banner.png                   README header (1280x320)
     docs/images/ssptmm-social.png                   GitHub social preview (1280x640, set by hand
                                                     in the repository's Settings > General)
+    docs/branding/                                  all of the above and more sizes, to upload
+                                                    elsewhere (see docs/branding/README.md)
 
 The icon sits on a square dark Steam-blue tile (boxed, like the mods' thumbnails beside it) because the mascot is mostly white: on its own it would
 vanish on a light taskbar or a light GitHub page. At 16-32 px the whole mascot is a smudge, so
@@ -170,6 +172,29 @@ def main() -> None:
     wide(mascot, (1280, 320), 96, 34, 26).save(images / "ssptmm-banner.png", optimize=True)
     wide(mascot, (1280, 640), 132, 44, 32).save(images / "ssptmm-social.png", optimize=True)
     print("written:", ico.name, "WorkshopBanner.png, ssptmm-icon-256.png, ssptmm-banner.png, ssptmm-social.png")
+
+    kit(mascot, head, ico)
+
+
+def kit(mascot: Image.Image, head: Image.Image, ico: Path) -> None:
+    """docs/branding/: every piece of art in one place, ready to upload anywhere (sp-mod.com,
+    GitHub, Discord) - see docs/branding/README.md for what each file is for. (Not the top-level
+    branding/ folder, which is git-ignored for your own source art.)"""
+    out = ROOT / "docs" / "branding"
+    (out / "icon").mkdir(parents=True, exist_ok=True)
+    for size in (16, 24, 32, 48, 64, 128, 256, 512, 1024):
+        if size <= 32:
+            art = tile(size * 4, head, 0.86).resize((size, size), Image.LANCZOS)
+        else:
+            art = tile(size, mascot, 0.86)
+        art.save(out / "icon" / f"ssptmm-icon-{size}.png", optimize=True)
+    (out / "ssptmm.ico").write_bytes(ico.read_bytes())
+    Image.open(MASCOT).convert("RGBA").save(out / "ssptmm-mascot.png", optimize=True)
+    workshop_art(mascot).save(out / "ssptmm-thumbnail-512.png", optimize=True)
+    wide(mascot, (1280, 320), 96, 34, 26).save(out / "ssptmm-banner-1280x320.png", optimize=True)
+    wide(mascot, (2560, 640), 192, 68, 52).save(out / "ssptmm-banner-2560x640.png", optimize=True)
+    wide(mascot, (1280, 640), 132, 44, 32).save(out / "ssptmm-social-1280x640.png", optimize=True)
+    print("written: docs/branding/ (icons 16-1024, .ico, mascot, thumbnail, banners, social preview)")
 
 
 if __name__ == "__main__":

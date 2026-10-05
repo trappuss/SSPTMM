@@ -86,6 +86,7 @@ starts it. `SSPTMM-test.bat` runs the tests on their own. See
 - [docs/server-map-guide.md](docs/server-map-guide.md) - setting up the Server Map mod on a server.
 - [Files and network](https://github.com/trappuss/SSPTMM/wiki/Files-and-Network) - every file SSPTMM
   keeps and every server it talks to.
+- [docs/branding](docs/branding) - the icon, banners, mascot and sp-mod.com thumbnail, in every size.
 
 ## License
 
