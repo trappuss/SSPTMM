@@ -1,3 +1,15 @@
+# SSPTMM 1.2.1
+
+## Updating from 1.2.0
+
+Close SSPTMM. The 1.2.1 zip holds a single folder, `SSPTMM`: copy its contents over your SSPTMM folder (whatever you named it). Your settings in the `Data` folder stay as they are. From now on, unzipping a new release to the same place puts its `SSPTMM` folder over yours.
+
+## Changed
+
+- **The download now unzips into a folder of its own.** The zip holds one folder, `SSPTMM`, so it can be unzipped straight into your SPT folder - you get `SPT\SSPTMM\` beside the game - or anywhere else. Installing, updating and removing mods works with SSPTMM there; only its own folder is kept out of reach.
+- **SSPTMM's own sp-mod.com listing is never offered as a mod**, like TCF Mod Manager's: Browse, collections and links leave it out, so subscribing can't unzip a mod manager into your SPT folder.
+- **"Works with SPT 3.x" is no longer claimed.** SSPTMM is made and tested for SPT 4.0 and 4.1; the README and wiki now say so.
+
 # SSPTMM 1.2.0
 
 ## Updating from 1.1.0

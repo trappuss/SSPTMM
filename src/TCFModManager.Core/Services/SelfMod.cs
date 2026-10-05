@@ -51,4 +51,15 @@ public static class SelfMod
     // Whether the original's sp-mod.com listing is checked for a newer version. A property rather
     // than a const, so code behind it is not compiled as unreachable.
     public static bool ChecksOriginalUpdates => !IsFork;
+
+    // SSPTMM's own sp-mod.com listing (1.2.1). Like the original's, it is never offered as a mod:
+    // subscribing to it would unzip a mod manager into the SPT folder.
+    public const string OwnModId = "3111";
+
+    /// <summary>True for a sp-mod.com listing that is a mod manager this app must not install:
+    /// SSPTMM's own, or TCF Mod Manager's.</summary>
+    public static bool IsOwnListing(int modId) => IsOwnListing(modId.ToString(System.Globalization.CultureInfo.InvariantCulture));
+
+    public static bool IsOwnListing(string? modId) =>
+        string.Equals(modId, ModId, StringComparison.Ordinal) || string.Equals(modId, OwnModId, StringComparison.Ordinal);
 }

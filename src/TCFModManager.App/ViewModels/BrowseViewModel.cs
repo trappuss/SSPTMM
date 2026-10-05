@@ -1727,8 +1727,7 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
     }
 
     /// <summary>True for this app's own sp-mod.com listing.</summary>
-    public static bool IsSelf(Mod mod) =>
-        string.Equals(mod.Id.ToString(), SelfMod.ModId, StringComparison.Ordinal);
+    public static bool IsSelf(Mod mod) => SelfMod.IsOwnListing(mod.Id);
 
     /// <summary>A catalog mod by id, leaving out this app's own listing - what a link or a required
     /// item may open.</summary>

@@ -3,7 +3,7 @@
 ## What you need
 
 - Windows 10 or 11.
-- An SPT install (SPT 3.x or 4.x).
+- An SPT 4.0 or 4.1 install.
 
 The download is **self-contained**: you don't need to install .NET.
 
@@ -11,10 +11,12 @@ The download is **self-contained**: you don't need to install .NET.
 
 1. Open [Releases](https://github.com/trappuss/SSPTMM/releases/latest) and download
    `SSPTMM-<version>-win-x64.zip`.
-2. Unzip it into **a folder of its own**, for example `C:\Games\SSPTMM`.
+2. Unzip it into your SPT folder (the one with `EscapeFromTarkov.exe`). The zip holds a single
+   folder, `SSPTMM`, so you get `SPT\SSPTMM\` - a folder of its own beside the game.
+   - You can unzip it anywhere else instead, for example `C:\Games`.
    - **Not** inside `BepInEx\plugins` or `user\mods` - SSPTMM is not a mod.
    - Not inside a folder Windows protects, such as `Program Files`.
-3. Run `SSPTMM.exe`.
+3. Run `SSPTMM\SSPTMM.exe`.
 4. Go on to [First start](First-Start).
 
 ## Where it keeps its files
@@ -33,8 +35,11 @@ Inside your SPT folder it uses a few hidden working folders with TCF Mod Manager
 ## Updating
 
 SSPTMM tells you when a newer release is out (a dot beside **Help** and **About**), but it doesn't
-update itself. To update, close SSPTMM, download the new release and unzip it **over** the old
-folder (or into a new folder and copy your old `Data` folder across). Your settings stay.
+update itself. To update, close SSPTMM, download the new release and unzip it to the same place:
+its `SSPTMM` folder lands **over** yours. Your settings in `Data` stay.
+
+Coming from 1.2.0 or earlier, whose zip had no folder inside? Copy the contents of the new zip's
+`SSPTMM` folder over your SSPTMM folder instead, whatever you named it.
 
 ## Uninstalling
 

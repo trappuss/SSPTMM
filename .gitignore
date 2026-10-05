@@ -1,11 +1,11 @@
 # Build output
 bin/
 # Update-and-run script Claude hands over beside the repo rather than in it: it moves the branch,
-# and a script that git itself might replace mid-run would be cut off halfway. The push and
-# release scripts live beside it. (steam-ui-*: their names before the app was SSPTMM.)
+# and a script that git itself might replace mid-run would be cut off halfway. The old push script
+# lived beside it. (steam-ui-*: their names before the app was SSPTMM.) The release script is in
+# the repository: it builds from a separate worktree and never moves the branch.
 SSPTMM-update-and-run.bat
 SSPTMM-push-to-github.bat
-SSPTMM-release-to-github.bat
 steam-ui-rebuild-and-run.bat
 steam-ui-push-to-github.bat
 # What the .bat files write about each run
@@ -50,8 +50,9 @@ TestResults/
 coverage*.json
 coverage*.xml
 
-# PowerShell tooling stays local
+# PowerShell tooling stays local - except the test checklist, which is part of releasing
 *.ps1
+!tools/ssptmm-test-checklist.ps1
 
 # Machine-specific build config only
 build/Directory.Build.local.props

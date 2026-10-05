@@ -808,7 +808,7 @@ public sealed class ModListService
         foreach (var mod in AppServices.ModCache.AllMods)
         {
             if (string.IsNullOrWhiteSpace(mod.Name)) continue;
-            if (string.Equals(mod.Id.ToString(), SelfMod.ModId, StringComparison.Ordinal)) continue;
+            if (SelfMod.IsOwnListing(mod.Id)) continue;
 
             var entry = ModListEntries.ForCatalogMod(mod.Id, mod.Name!, mod.Guid);
 

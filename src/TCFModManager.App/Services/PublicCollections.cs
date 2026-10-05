@@ -150,7 +150,7 @@ public static class PublicCollections
         {
             // This app's own listing is never installed from a list: it is not a mod, and applying
             // it would drop a second copy of the manager into BepInEx\plugins.
-            if (item.ModId.ToString() == SelfMod.ModId) continue;
+            if (SelfMod.IsOwnListing(item.ModId)) continue;
 
             var mod = catalog.GetValueOrDefault(item.ModId);
             var pick = picks[item.ModId];

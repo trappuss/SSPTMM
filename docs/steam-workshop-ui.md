@@ -1940,6 +1940,28 @@ and that every connection be documented:
 HUNCH: whether sp-mod.com counts the Server Map's once-a-minute reporting (after its own consent
 dialog) as needing anything more than the documentation it now has.
 
+## Round 40: 1.2.1 - a folder of its own in the zip, its own listing hidden (2026-10-05)
+
+sp-mod.com disabled SSPTMM's listing (mod 3111) pending proper review and testing. Against the
+content guidelines:
+
+- **The zip holds one folder, `SSPTMM\`** (release script: published into `release\<pkg>\SSPTMM`
+  and zipped from `release\<pkg>`). The guidelines expect an archive to unzip straight into the
+  SPT root; this one then gives `<SPT>\SSPTMM\`, a folder of its own - the layout InstallPathGuard
+  already treats as the app's whole folder. Checked under Wine: 1.2.1 run from
+  `<SPT>\SSPTMM\`, SVM subscribed (Greed.exe placed at the root) and unsubscribed (removed, kept
+  in `.tcfmm-removed`, config set aside in the app's Data). The Server Map finds its folder from the
+  SPT path either way. (The single-file exe doesn't start under Wine at all - CoreLib load error
+  0x8007046C, in any folder - so the Wine run used a normal publish.)
+- **SSPTMM's own listing is never offered**, like TCF Mod Manager's: `SelfMod.IsOwnListing`
+  (2945 and 3111) behind BrowseViewModel.IsSelf, public collections and mod lists. Tests:
+  SelfModTests.
+- **Claims trimmed to what was tested:** SPT 3.x is no longer claimed (only 4.0 and 4.1 were used).
+- **Manual test checklist:** `SSPTMM-test-checklist.bat` runs `tools\ssptmm-test-checklist.ps1`,
+  which asks P/F/S and a note for each advertised feature on a fresh SPT install and writes
+  `test-reports\SSPTMM-<version>-test-<date>.md`. Checked with PowerShell 7 here; written for 5.1.
+- **The release script is tracked** (no longer in .gitignore): it never moves the branch.
+
 ## Values that could not be measured (marked HUNCH in the source)
 
 - Round 37: everything about the real SPT 4.1 server and game under direct launch - only a fake

@@ -10119,7 +10119,7 @@ Removing them - or turning them off - can leave a profile SPT won't load. If tha
     <comment>About page, when GitHub has a newer release. {0} is the kind of update (Bug fix update, Feature update, Major update), {1} its version number.</comment>
   </data>
   <data name="About_UpdateBody" xml:space="preserve">
-    <value>Get it from the release page. Close SSPTMM, then unzip the new release over this folder - your settings in the Data folder stay as they are.</value>
+    <value>Get it from the release page. Close SSPTMM, then unzip the new release to the same place, so its SSPTMM folder goes over this one - your settings in the Data folder stay as they are.</value>
     <comment>About page, under the newer-release title. SSPTMM never downloads or installs itself.</comment>
   </data>
   <data name="About_OpenRelease" xml:space="preserve">

@@ -112,14 +112,16 @@ Everything that differs, item by item, is in the wiki:
 
 1. Download `SSPTMM-<version>-win-x64.zip` from
    [Releases](https://github.com/trappuss/SSPTMM/releases/latest).
-2. Unzip it into a folder of its own - **not** inside `BepInEx\plugins` or `user\mods`.
-3. Run `SSPTMM.exe`.
+2. Unzip it into your SPT folder (the one with `EscapeFromTarkov.exe`). The zip holds one folder,
+   so you get `SPT\SSPTMM\`. Anywhere else works too - just never inside `BepInEx\plugins` or
+   `user\mods`.
+3. Run `SSPTMM\SSPTMM.exe`.
 4. Open **Options** (the gear, top right), set **SPT Install Folder** to the folder with
    `EscapeFromTarkov.exe` in it, and press **Save**. The window title then shows your SPT version.
 
 Windows 10 or 11. The download is self-contained: no .NET install needed. Settings, caches and logs
 live in a `Data` folder beside the exe, so SSPTMM never touches another mod manager or another copy of itself.
-Works with SPT 3.x and 4.x.
+Made and tested for SPT 4.0 and 4.1.
 
 ## Credits
 
@@ -140,7 +142,8 @@ out.
 
 Double-click **`SSPTMM-build-and-run.bat`**. It installs the .NET 9 SDK into the folder if the PC
 has none, builds, runs the tests, publishes a self-contained `SSPTMM.exe` into `dist\SSPTMM\` and
-starts it. `SSPTMM-test.bat` runs the tests on their own. See
+starts it. `SSPTMM-test.bat` runs the tests on their own, and `SSPTMM-test-checklist.bat` walks
+through testing a release by hand on a fresh SPT install and writes a report to `test-reports\`. See
 [Building from source](https://github.com/trappuss/SSPTMM/wiki/Building-from-Source) in the wiki.
 
 ## More
@@ -152,12 +155,6 @@ starts it. `SSPTMM-test.bat` runs the tests on their own. See
 - [Files and network](https://github.com/trappuss/SSPTMM/wiki/Files-and-Network) - every file SSPTMM
   keeps and every server it talks to.
 - [docs/branding](docs/branding) - the icon, banners, mascot and sp-mod.com thumbnail, in every size.
-
-## SPT-Mod Site
-
-Can't really post AI content on Forge so it was disabled shortly after but no suprise there! Either way, GITHUB4U. For some reason SPT community has this extreme disdain for users of mod managers. Yes It's obvious that it will never be as accurate as simply doing it yourself (IQ Dependant) but guess what; if you don't like them then don't use it. Tough to understand I know! Let's not pretend most of the content on Forge isn't AI btw; there's a reason it's only published via zipped release files instead of fully open source. 
-
-<img width="585" height="476" alt="brave_T4Mg9TfAfN" src="https://github.com/user-attachments/assets/d0bc7953-996a-4370-b3fa-1d544993a2b3" />
 
 ## License
 
