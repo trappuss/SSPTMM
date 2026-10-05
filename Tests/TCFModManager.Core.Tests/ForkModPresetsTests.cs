@@ -87,6 +87,11 @@ public sealed class ForkModPresetsTests : IDisposable
         var plan = ModPresets.Plan(_install, [new ModPresetEntry { Path = "BepInEx/plugins/A", Enabled = false }], [live, copy]);
 
         Assert.True(plan.ChangesNothing);
+        Assert.Equal(2, plan.InTwoPlaces.Count);
+
+        // ...and a preset naming it is never ticked as the one the mods are set to.
+        var preset = new ModPreset { Name = "P", Entries = [new ModPresetEntry { Path = "BepInEx/plugins/A", Enabled = true }] };
+        Assert.Null(ModPresets.Matching(_install, [preset], [live, copy]));
     }
 
     [Fact]

@@ -10,7 +10,9 @@ Collections are lists of mods: public ones from sp-mod.com, and your own.
 - A collection's page shows its description, each item with the author's note and the version it
   gets on your SPT, and how much of it you already have.
 
-![A collection](https://raw.githubusercontent.com/trappuss/SSPTMM/main/docs/images/06b-collection-items.png)
+| A collection | Its items |
+|---|---|
+| ![A collection](https://raw.githubusercontent.com/trappuss/SSPTMM/main/docs/images/06-collection.png) | ![Its items](https://raw.githubusercontent.com/trappuss/SSPTMM/main/docs/images/06b-collection-items.png) |
 
 - **Subscribe to all** installs each item at its newest version for your SPT. A collection made for
   another SPT asks **For My SPT** or **For the Collection's SPT**. You see what will change first,

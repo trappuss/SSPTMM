@@ -401,9 +401,10 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     private int _totalPages = 1;
 
     //
-    // What this page opens filtered and sorted to, saved from the page itself by SaveAsDefault
-    // rather than set from Options - see Core's PageDefaults. Null on an install that has never
-    // saved one, in which case every Default* helper below answers with the app's own default.
+    // What this page opens filtered and sorted to - since 1.1.0 remembered by the page itself as it
+    // changes (InstalledViewModel.Remember), in the setting Save as default wrote before; see Core's
+    // PageDefaults. Null on an install that has never had one, in which case every Default* helper
+    // below answers with the app's own default.
     //
     private InstalledPageDefaults? _defaults; // Fork: replaced as the page remembers itself (InstalledViewModel.Remember)
 
@@ -613,7 +614,11 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     private UpdateFilterItem UpdatesAvailableFilter() =>
         UpdateFilterOptions.First(o => o.Value == UpdateFilter.NeedsUpdate);
 
-    partial void OnSelectedCategoryChanged(CategoryFilterItem value) => AutoApplyFilter();
+    partial void OnSelectedCategoryChanged(CategoryFilterItem value)
+    {
+        if (!_rebuildingFilterLists) _categoryFellBack = false; // Fork: picked, so remembered as it is
+        AutoApplyFilter();
+    }
 
     // "Any mod", the one option's own label, or a count.
     private void UpdateAttributeFilterSummary()
@@ -636,32 +641,42 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     {
         // The saved default on the first build, and whatever is currently chosen on every rebuild
         // after it - a rescan must not quietly reset a filter the user has since changed.
-        var previous = _categoryDefaultApplied ? SelectedCategory : DefaultCategory();
+        // Fork: and while the remembered one has fallen back to All, still the remembered one - so it
+        // comes back once something in it is installed, or the catalog says what is.
+        var previous = _categoryDefaultApplied && !_categoryFellBack ? SelectedCategory : DefaultCategory();
         _categoryDefaultApplied = true;
 
-        CategoryOptions.Clear();
-        CategoryOptions.Add(CategoryFilterItem.All);
-
-        var categories = _all
-            .Select(c => c.CategoryTag)
-            .Where(t => !string.IsNullOrWhiteSpace(t))
-            .Select(t => t!.Trim())
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .OrderBy(t => t, StringComparer.OrdinalIgnoreCase);
-
-        foreach (var category in categories) CategoryOptions.Add(new CategoryFilterItem(category, category));
-
-        // Keep the current choice if that category is still installed, rather than silently
-        // resetting the page's filter under someone every time they come back to it.
-        _rebuildingFilterLists = true; // Fork: a fallback here is not a choice to remember
+        // Fork: the whole rebuild, Clear included - a fallback here is not a choice to remember.
+        _rebuildingFilterLists = true;
         try
         {
-            SelectedCategory = CategoryOptions.FirstOrDefault(c => c.SameAs(previous)) ?? CategoryOptions[0];
+            CategoryOptions.Clear();
+            CategoryOptions.Add(CategoryFilterItem.All);
+
+            var categories = _all
+                .Select(c => c.CategoryTag)
+                .Where(t => !string.IsNullOrWhiteSpace(t))
+                .Select(t => t!.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(t => t, StringComparer.OrdinalIgnoreCase);
+
+            foreach (var category in categories) CategoryOptions.Add(new CategoryFilterItem(category, category));
+
+            // Keep the current choice if that category is still installed, rather than silently
+            // resetting the page's filter under someone every time they come back to it.
+            var kept = CategoryOptions.FirstOrDefault(c => c.SameAs(previous));
+            SelectedCategory = kept ?? CategoryOptions[0];
+
+            // Fork: a remembered category with nothing installed in it (or no catalog to say so, offline)
+            // stays remembered until a category is picked (see Remember).
+            _categoryFellBack = kept is null && !previous.SameAs(CategoryFilterItem.All);
         }
         finally
         {
             _rebuildingFilterLists = false;
         }
+
+        RememberIfPending(); // Fork
     }
 
     partial void OnSelectedUpdateFilterChanged(UpdateFilterItem value)
@@ -3011,6 +3026,8 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         {
             _suppressAutoApplyFilter = false;
         }
+
+        RememberIfPending(); // Fork
     }
 
     // Everything that has to happen after groups are added, renamed, deleted, reordered, or a mod

@@ -507,7 +507,9 @@ public partial class PlayViewModel : LocalizedViewModel
                     ? Text(Strings.Play_StoppedFormat, result.Info.ProcessName)
                     : gameClosedFirst.Problem == SptLaunchProblem.None
                         ? Text(Strings.Play_StoppedAfterGameFormat, result.Info.ProcessName)
-                        : SptLaunchProblems.Describe(gameClosedFirst);
+                        : string.Join(Strings.Common_SentenceSeparator,
+                            SptLaunchProblems.Describe(gameClosedFirst),
+                            Text(Strings.Play_StoppedFormat, result.Info.ProcessName));
         }
         finally
         {

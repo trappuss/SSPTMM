@@ -253,14 +253,14 @@ public sealed class ForkLogDiagnosisTests : IDisposable
     public void Redacting_takes_out_the_user_ids_and_addresses_but_not_versions()
     {
         var text = string.Join("\n",
-            @"Applying enum prepatch definitions: C:\Users\notso\SPT\user\patchers\x.json",
-            "C:/Users/notso/AppData and notso said",
+            @"Applying enum prepatch definitions: C:\Users\jdoe\SPT\user\patchers\x.json",
+            "C:/Users/jdoe/AppData and jdoe said",
             "Failed to load profile with ID '6ab93267b208402e592581aa'. 6ab93267b208402e592581aa again",
             "client 192.168.1.20:25565 joined; server https://127.0.0.1:6969; plugin 1.8.0.0");
 
-        var redacted = LogRedactor.Redact(text, @"C:\Users\notso", "notso");
+        var redacted = LogRedactor.Redact(text, @"C:\Users\jdoe", "jdoe");
 
-        Assert.DoesNotContain("notso", redacted, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("jdoe", redacted, StringComparison.OrdinalIgnoreCase);
         Assert.Contains(@"%USERPROFILE%\SPT\user\patchers", redacted);
         Assert.Contains("%USERPROFILE%/AppData and <user> said", redacted);
         Assert.DoesNotContain("6ab93267b208402e592581aa", redacted);

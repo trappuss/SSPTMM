@@ -39,6 +39,7 @@ public static class GameCloser
     private static int _downChecks;
     private static DateTime _holdUntil = DateTime.MinValue;
     private static bool _closing;
+    private static bool _checking;
 
     /// <summary>Raised on the UI thread with what happened, for the Play page to show.</summary>
     public static event EventHandler<GameClosedEventArgs>? Closed;
@@ -48,7 +49,7 @@ public static class GameCloser
     // Called once the main window has loaded.
     public static void Start()
     {
-        Timer.Tick += (_, _) => Check();
+        Timer.Tick += async (_, _) => await CheckAsync();
         if (IsEnabled) Timer.Start();
     }
 
@@ -83,9 +84,11 @@ public static class GameCloser
         settings.Roles.HasFlag(InstallRoles.Headless)
         || SptLaunchService.Describe(installPath, SptLaunchTarget.Headless, settings.HeadlessLauncherPath).Exists;
 
-    private static void Check()
+    // Once a second, so the process look-up runs off the UI thread; a look-up still running when the
+    // next tick comes is let finish rather than doubled.
+    private static async Task CheckAsync()
     {
-        if (_closing) return;
+        if (_closing || _checking) return;
 
         var installPath = AppServices.SptEnvironment.InstallPath;
         if (!string.Equals(installPath, _watchedInstall, StringComparison.OrdinalIgnoreCase))
@@ -95,7 +98,19 @@ public static class GameCloser
             _downChecks = 0;
         }
 
-        var up = SptLaunchService.Describe(installPath, SptLaunchTarget.Server).IsRunning;
+        bool up;
+        _checking = true;
+        try
+        {
+            up = await Task.Run(() => SptLaunchService.Describe(installPath, SptLaunchTarget.Server).IsRunning);
+        }
+        finally
+        {
+            _checking = false;
+        }
+
+        // Switched install or turned off while the look-up ran: that answer is about something else.
+        if (!Timer.IsEnabled || !string.Equals(installPath, _watchedInstall, StringComparison.OrdinalIgnoreCase)) return;
 
         if (up)
         {

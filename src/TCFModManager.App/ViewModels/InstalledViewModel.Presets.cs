@@ -48,7 +48,7 @@ public partial class InstalledViewModel
 
     public async Task SavePresetAsync()
     {
-        if (PresetInstall is not { } install) return;
+        if (PresetInstall is not { } install || !ReadyForPresets()) return;
         await ScanAsync();
 
         var name = AskPresetName(Strings.Presets_SaveTitle, Strings.Presets_SaveIntro, Strings.Presets_SaveConfirm, string.Empty);
@@ -63,7 +63,7 @@ public partial class InstalledViewModel
 
     public async Task UpdatePresetAsync(string name)
     {
-        if (PresetInstall is not { } install) return;
+        if (PresetInstall is not { } install || !ReadyForPresets()) return;
         await ScanAsync();
 
         if (!Ask(Strings.Presets_UpdateTitle, Text(Strings.Presets_UpdateFormat, name), Strings.Presets_SaveOver)) return;
@@ -138,21 +138,37 @@ public partial class InstalledViewModel
         ApplyEntriesAsync(Strings.Presets_PutBackName, Strings.Presets_PutBackTitle, install =>
             PresetStore.For(install).BeforeLastApply?.Entries);
 
-    private async Task ApplyEntriesAsync(string name, string title, Func<string, IReadOnlyList<ModPresetEntry>?> entriesFor)
+    // False, with the reason said, while the page is scanning or busy - a preset waits for that.
+    private bool ReadyForPresets()
     {
-        if (PresetInstall is not { } install || IsBusy) return;
+        if (!IsBusy && !ScanCommand.IsRunning) return true;
+        StatusMessage = Strings.Presets_WaitForScan;
+        return false;
+    }
 
+    // False, with the reason said, while folders can't be moved: SPT running, or a mod being placed.
+    // Asked before the plan and again after the confirmation, which can stay open for as long as
+    // anyone likes while the download queue keeps working.
+    private bool InstallFreeToMove(string install)
+    {
         if (InstallingNow() is { } busy)
         {
             StatusMessage = Text(Strings.Installed_WaitForInstallFormat, busy);
-            return;
+            return false;
         }
 
         if (ModInstallService.RunningBlockers(install) is { Count: > 0 } blockers)
         {
             StatusMessage = ModInstallProblems.InstallInUse(blockers, ModInstallAction.Disable);
-            return;
+            return false;
         }
+
+        return true;
+    }
+
+    private async Task ApplyEntriesAsync(string name, string title, Func<string, IReadOnlyList<ModPresetEntry>?> entriesFor)
+    {
+        if (PresetInstall is not { } install || !ReadyForPresets() || !InstallFreeToMove(install)) return;
 
         // Planned from what is on disk now, not from what the page last saw.
         await ScanAsync();
@@ -162,11 +178,13 @@ public partial class InstalledViewModel
         var plan = ModPresets.Plan(install, entries, mods);
         if (plan.ChangesNothing)
         {
-            StatusMessage = Text(Strings.Presets_AlreadyFormat, name);
+            StatusMessage = plan.InTwoPlaces.Count > 0
+                ? Strings.Presets_OnlyInTwoPlaces(CardTitles(plan.InTwoPlaces).Count)
+                : Text(Strings.Presets_AlreadyFormat, name);
             return;
         }
 
-        if (!ConfirmPreset(title, plan, mods)) return;
+        if (!ConfirmPreset(title, plan, mods) || !InstallFreeToMove(install)) return;
 
         IsBusy = true;
         var moved = new List<ModMove>();
@@ -213,8 +231,11 @@ public partial class InstalledViewModel
 
         SetLastMoves(moved, (nameof(Strings.Presets_UndoFormat), name));
 
-        var offCount = moved.Count(m => DisabledModPaths.IsModDisabled(m.To));
-        var message = Text(Strings.Presets_AppliedFormat, name, offCount, moved.Count - offCount);
+        // Counted as the dialog counted them: whole mods, not folders.
+        var movedFrom = moved.Select(m => m.From).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var offCount = CardTitles(plan.ToDisable.Where(m => movedFrom.Contains(m.FolderPath))).Count;
+        var onCount = CardTitles(plan.ToEnable.Where(m => movedFrom.Contains(m.FolderPath))).Count;
+        var message = Text(Strings.Presets_AppliedFormat, name, offCount, onCount);
         if (failed.Count > 0) message = Sentences(message, DescribeFailures(failed));
 
         await ScanAsync();
@@ -255,7 +276,12 @@ public partial class InstalledViewModel
         if (profileMods.Count > 0)
             body.Children.Add(Caution(Text(Strings.Presets_ProfileModsFormat, string.Join("\n", profileMods))));
 
-        if (plan.NotInstalled.Count > 0) body.Children.Add(Note(Strings.Presets_NotInstalled(plan.NotInstalled.Count)));
+        if (plan.InTwoPlaces.Count > 0) body.Children.Add(Note(Strings.Presets_InTwoPlaces(CardTitles(plan.InTwoPlaces).Count)));
+        if (plan.NotInstalled.Count > 0)
+        {
+            var missingMods = plan.NotInstalled.Select(e => e.Name ?? e.Path).Distinct(StringComparer.OrdinalIgnoreCase).Count();
+            body.Children.Add(Note(Strings.Presets_NotInstalled(missingMods)));
+        }
         if (plan.NotInPreset.Count > 0) body.Children.Add(Note(Strings.Presets_NotInPreset(CardTitles(plan.NotInPreset).Count)));
 
         body.Children.Add(Note(Strings.Presets_SafetyNote));

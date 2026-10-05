@@ -28,7 +28,7 @@ the same details; click a card or row to open it.
   installed), enabled/disabled, category, group, and Fika compatible, hide ads, has dependencies,
   has addons, downloaded but not confirmed, has conflicts.
 - The page **remembers** its filters, sort, grouping and view: it opens the way you left it. The
-  search box is not kept. **Clear filters** puts everything back to the app's own.
+  search box is not kept. **Clear filters** puts the filters, sort and grouping back to the app's own.
 
 ## On each mod
 

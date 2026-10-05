@@ -1,3 +1,5 @@
+using System.IO;
+using System.Windows;
 using System.Windows.Threading;
 using TCFModManager.Core.Models;
 using TCFModManager.Core.Services;
@@ -12,8 +14,8 @@ namespace TCFModManager.App.ViewModels;
 // Not remembered:
 // - the search box: a page that opens filtered to something typed weeks ago looks broken;
 // - "Updates available" when a notification click chose it, until you pick a status yourself;
-// - a category or group the page fell back from because nothing installed is in it any more - the
-//   rebuild that drops it is not a choice you made.
+// - a category the page fell back from because nothing installed is in it (or, offline, no catalog
+//   says so) - the remembered one stays until a category is picked.
 //
 // Saved half a second after the last change, so a run of changes (Clear filters sets several at once)
 // is one write.
@@ -28,12 +30,24 @@ public partial class InstalledViewModel
     // The update filter a notification click set, while it is still the one showing.
     private UpdateFilterItem? _updateFilterFromNavigation;
 
+    // The remembered category isn't installed, so the page shows All in its place.
+    private bool _categoryFellBack;
+
+    // A change made before the first scan had rebuilt the lists - saved once it has.
+    private bool _rememberPending;
+
     // Called after every user-visible change of a remembered control.
     private void RememberFilters()
     {
-        // Only the page itself, and only once both rebuilt lists have their saved choice - before
-        // that, Category and Group show "All" for want of a list, not because anyone chose it.
-        if (!_forPage || _rebuildingFilterLists || !_categoryDefaultApplied || !_groupDefaultApplied) return;
+        if (!_forPage || _rebuildingFilterLists) return;
+
+        // Before both rebuilt lists have their saved choice, Category and Group show "All" for want of
+        // a list, not because anyone chose it - so the save waits for them.
+        if (!_categoryDefaultApplied || !_groupDefaultApplied)
+        {
+            _rememberPending = true;
+            return;
+        }
 
         if (_rememberTimer is null)
         {
@@ -43,10 +57,29 @@ public partial class InstalledViewModel
                 _rememberTimer.Stop();
                 SaveFilters();
             };
+
+            // A change in the last half second before the app closes is still kept.
+            if (Application.Current is { } app)
+            {
+                app.Exit += (_, _) =>
+                {
+                    if (!_rememberTimer.IsEnabled) return;
+                    _rememberTimer.Stop();
+                    SaveFilters();
+                };
+            }
         }
 
         _rememberTimer.Stop();
         _rememberTimer.Start();
+    }
+
+    // From the two list rebuilds: a change that had to wait for them is saved now.
+    private void RememberIfPending()
+    {
+        if (!_rememberPending || !_categoryDefaultApplied || !_groupDefaultApplied) return;
+        _rememberPending = false;
+        RememberFilters();
     }
 
     private void SaveFilters()
@@ -58,7 +91,7 @@ public partial class InstalledViewModel
                 ? _defaults?.UpdateStatus
                 : SelectedUpdateFilter.Value.ToString(),
             Enabled = SelectedEnabledFilter.Value.ToString(),
-            Category = SelectedCategory.Title,
+            Category = _categoryFellBack ? _defaults?.Category : SelectedCategory.Title,
             Group = SelectedGroupFilter.AllGroups
                 ? "all"
                 : SelectedGroupFilter.GroupId?.ToString() ?? "ungrouped",
@@ -71,12 +104,20 @@ public partial class InstalledViewModel
 
         if (Same(remembered, _defaults)) return;
 
-        var service = new SettingsService();
-        var settings = service.Load();
-        settings.InstalledDefaults = remembered;
-        service.Save(settings);
-        _defaults = remembered;
-        AppLog.Debug("Installed", "remembered the filters, sort and view");
+        try
+        {
+            var service = new SettingsService();
+            var settings = service.Load();
+            settings.InstalledDefaults = remembered;
+            service.Save(settings);
+            _defaults = remembered;
+            AppLog.Debug("Installed", "remembered the filters, sort and view");
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            // Only a convenience: the page works as it is, and the next change tries again.
+            AppLog.Warn("Installed", $"couldn't remember the filters: {ex.Message}");
+        }
     }
 
     private static bool Same(InstalledPageDefaults a, InstalledPageDefaults? b) =>

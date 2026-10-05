@@ -71,8 +71,12 @@ public partial class PlayViewModel
         var settings = new SettingsService().Load();
         if (!settings.CloseGameWithServer) return null;
 
-        var spares = GameCloser.SparesWindowless(settings, installPath);
-        if (!SptLaunchService.IsGameRunning(installPath, spares)) return null;
+        var (spares, running) = await Task.Run(() =>
+        {
+            var spare = GameCloser.SparesWindowless(settings, installPath);
+            return (spare, SptLaunchService.IsGameRunning(installPath, spare));
+        });
+        if (!running) return null;
 
         AppLog.Info("Launch", "stopping the server; closing the game first, as ticked on the Play page");
         var result = await Task.Run(() => SptLaunchService.CloseGame(installPath, spares));

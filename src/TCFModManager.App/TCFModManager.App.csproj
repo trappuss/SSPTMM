@@ -8,7 +8,7 @@
       notifications' toasts go through (Microsoft.Toolkit.Uwp.Notifications). Measured 2026-09-27:
       +24.8 MB on the single-file exe, nearly all of it Microsoft.Windows.SDK.NET.dll, and the
       published host still reads CET-compat 0 with CetCompat=false below. 1809 is also the floor the
-      toolkit's unpackaged-app activation needs. See docs\CLOSED-07-TCFUpdateNotifications-DESIGN.md §10.
+      toolkit's unpackaged-app activation needs.
 
       The output folder follows the TFM: bin\<config>\net9.0-windows10.0.17763.0\.
     -->
@@ -23,7 +23,7 @@
     <ApplicationIcon>Assets\AppIcon.ico</ApplicationIcon>
 
     <!--
-      Trims size out of the self-contained single-file publish (package-release.ps1) by dropping
+      Trims size out of the self-contained single-file publish (SSPTMM-build-and-run.bat, the release script) by dropping
       non-English satellite resource assemblies WPF/WPF-UI/CommunityToolkit ship by default.
 
       It does NOT touch this app's own translations. The property filters satellites arriving from

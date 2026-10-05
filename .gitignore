@@ -12,6 +12,9 @@ steam-ui-push-to-github.bat
 logs/
 # What Claude hands over (bundles, staged files), and shortcuts made beside the repo
 Claude outputs/
+*.bundle
+# Claude's own working folders
+.claude/
 *.lnk
 # The release script's working files
 release/

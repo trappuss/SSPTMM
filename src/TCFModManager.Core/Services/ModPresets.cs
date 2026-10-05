@@ -65,7 +65,8 @@ public sealed record ModPresetPlan(
     IReadOnlyList<InstalledMod> ToDisable,
     IReadOnlyList<InstalledMod> ToEnable,
     IReadOnlyList<ModPresetEntry> NotInstalled,
-    IReadOnlyList<InstalledMod> NotInPreset)
+    IReadOnlyList<InstalledMod> NotInPreset,
+    IReadOnlyList<InstalledMod> InTwoPlaces)
 {
     public bool ChangesNothing => ToDisable.Count == 0 && ToEnable.Count == 0;
 }
@@ -116,6 +117,7 @@ public static class ModPresets
         var toDisable = new List<InstalledMod>();
         var toEnable = new List<InstalledMod>();
         var notInPreset = new List<InstalledMod>();
+        var inTwoPlaces = new List<InstalledMod>();
 
         foreach (var (key, copies) in byKey)
         {
@@ -125,7 +127,11 @@ public static class ModPresets
                 continue;
             }
 
-            if (copies.Count != 1) continue;
+            if (copies.Count != 1)
+            {
+                inTwoPlaces.AddRange(copies);
+                continue;
+            }
 
             var mod = copies[0];
             if (entry.Enabled && mod.IsDisabled) toEnable.Add(mod);
@@ -137,13 +143,15 @@ public static class ModPresets
             .OrderBy(e => e.Path, StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-        return new ModPresetPlan(toDisable, toEnable, notInstalled, notInPreset);
+        return new ModPresetPlan(toDisable, toEnable, notInstalled, notInPreset, inTwoPlaces);
     }
 
     /// <summary>The preset (by name, ignoring case) the mods are set exactly as now, if any - for a
-    /// tick in the menu. Mods the preset doesn't name don't count against it.</summary>
+    /// tick in the menu. Mods the preset doesn't name don't count against it; a mod it names that is
+    /// in the install twice does - neither copy is "as the preset has it".</summary>
     public static ModPreset? Matching(string installPath, IEnumerable<ModPreset> presets, IReadOnlyCollection<InstalledMod> mods) =>
-        presets.FirstOrDefault(p => p.Entries.Count > 0 && Plan(installPath, p.Entries, mods).ChangesNothing);
+        presets.FirstOrDefault(p =>
+            p.Entries.Count > 0 && Plan(installPath, p.Entries, mods) is { ChangesNothing: true, InTwoPlaces.Count: 0 });
 
     /// <summary>A name as it is kept: trimmed, single-line, at most MaxNameLength. Null when blank.</summary>
     public static string? CleanName(string? name)

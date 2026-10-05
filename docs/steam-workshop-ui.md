@@ -1821,6 +1821,68 @@ SptLauncherApi and SptDirectLaunch follow it, with the files cited in their comm
   close shows as an error on the Play page. The cause is still open until a run with this logging.
 - 86 new strings; 40 new tests. 1716 pass.
 
+## Round 38: presets, a page that remembers itself, closing the game with the server (2026-10-04)
+
+### Closing the game when the server stops
+
+The user's own log (with Round 37's step logging) settled why the game "didn't close": every close
+with the server already gone was asked, sat the full five seconds and was killed (19:43, 22:09,
+22:52 on 2026-10-04: 3 of 3), while every close with the server still up finished by itself in
+2-5 s. The game's quit asks the server to cancel invites and log out (its backend log: cancel-all,
+then logout, each waiting for an answer), and with no server it waits. With the watch's 3 s poll
+and two down-checks on top, the game stayed up some fifteen seconds after Stop server and was
+closed by the user's hand or read as not closed.
+
+- **Stop server** with the box ticked closes the game first (normal 5 s grace), then the server
+  (PlayViewModel.ConfirmStopServerAsync, CloseGameBeforeServerAsync). Wine test: game asked, gone in
+  2 s, then the server.
+- Any other stop: GameCloser polls every second (off the UI thread), still two down-checks, and gives
+  the game ServerGoneGrace (2 s) before killing it. Wine test with a fake game that refuses to close:
+  server killed at :43.5, noticed :45.4, game killed :47.4.
+- Stop server's message says both outcomes when the game couldn't be closed.
+
+### Subscribed items remembers its filters
+
+InstalledViewModel.Remember saves the filters, sort, grouping, view and page size half a second after
+the last change, into AppSettings.InstalledDefaults (where Save as default wrote), so an old default
+is where 1.1.0 starts. Not kept: the search box; "Updates available" chosen by a notification click;
+a category that fell back to All because nothing installed is in it (offline, with no catalog, that
+is every category) - the remembered one stays until a category is picked, and comes back when it is
+installed again. A change made before the first scan is saved once the lists exist; a pending save is
+written on exit. Clear filters now resets to the app's own defaults (it used to reset to the saved
+default); the Save as default button and Options' Subscribed items row are gone. Browse is unchanged.
+Wine test: List view + Z-A survived a restart.
+
+### Presets
+
+Core's ModPresets: one entry per mod folder or loose DLL, keyed by its install-relative path as it
+reads when enabled (DisabledModPaths.ToEnabledRelativePath), so a client+server mod with one half off
+is kept that way. Plan() lists what moves; mods the preset doesn't name are left alone; a mod in the
+install twice (enabled and .disabled copies) is left alone and said, and never counts as matching.
+Data\mod_presets.json, per install (the ProfileBackups install hash), written with SafeFile backups; a
+damaged file is set aside and read as empty, a file that can't be read is never written over.
+
+Applying (InstalledViewModel.Presets): rescan; confirm naming every mod turned off and on, the hard
+dependencies a mod left on would lose (ModDependencyGraph), mods sp-mod.com marks as changing the
+profile, mods skipped; the install-queue and SPT-running checks again after the dialog; a profile copy
+that must succeed (EnsureBackupBefore, reason "preset"); the mods as they were kept as Put back; then
+ModDisableService off and on, one Undo step. Disable all / Enable all are presets made on the spot.
+The menu (InstalledPage.xaml.cs) runs each action after it has closed. Mod Organizer 2's profiles are
+the model; "Presets" because SPT's profiles are something else.
+
+Wine test against a fixture of public mods: save, Disable all (10 folders), restart, Put back, a
+preset breaking SAIN's BigBrain dependency (warned), rename, delete.
+
+### Review and audit
+
+An independent review found no high-severity problem; fixed from it: the re-check after the dialog,
+the category fallback, a scan already running, counts by mod rather than folder, mods in two places,
+the exit flush, settings write errors, the UI-thread poll, the Stop server message. A release audit
+added: the changelog lines for minimise-while-playing and the greyed launcher switch, *.bundle and
+.claude/ in .gitignore, licence notices for the Windows SDK projection and C#/WinRT (in the exe since
+the 1809 target), a scrubbed account name in a test, the original app's unused screenshots removed
+from assets, and stale pointers to files not in the repository.
+
 ## Values that could not be measured (marked HUNCH in the source)
 
 - Round 37: everything about the real SPT 4.1 server and game under direct launch - only a fake

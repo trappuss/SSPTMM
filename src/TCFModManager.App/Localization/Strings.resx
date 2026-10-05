@@ -10512,11 +10512,11 @@ Removing them - or turning them off - can leave a profile SPT won't load. If tha
   </data>
   <data name="Presets_SavedOnFormat" xml:space="preserve">
     <value>Saved {0}</value>
-    <comment>Subscribed items, Presets: tooltip on a preset in the menu. {0} = date and time it was saved.</comment>
+    <comment>Subscribed items, Presets: greyed first line of a preset's submenu. {0} = date and time it was saved.</comment>
   </data>
   <data name="Presets_CurrentToolTip" xml:space="preserve">
     <value>Your mods are set exactly as this preset has them.</value>
-    <comment>Subscribed items, Presets: tooltip on the ticked preset in the menu.</comment>
+    <comment>Subscribed items, Presets: greyed first line of the ticked preset's submenu.</comment>
   </data>
   <data name="Presets_Apply" xml:space="preserve">
     <value>Apply</value>
@@ -10758,5 +10758,25 @@ Removing them - or turning them off - can leave a profile SPT won't load. If tha
   <data name="Help_Installed_Presets_Keywords" xml:space="preserve">
     <value>preset, presets, profile, mod organizer, mo2, fika, troubleshoot, disable all, enable all, switch, loadout</value>
     <comment>Search words for the Help topic, comma-separated.</comment>
+  </data>
+  <data name="Presets_WaitForScan" xml:space="preserve">
+    <value>Subscribed items is still scanning - try again in a moment.</value>
+    <comment>Subscribed items, Presets: status while a scan or another change is running.</comment>
+  </data>
+  <data name="Presets_InTwoPlaces_one" xml:space="preserve">
+    <value>1 mod is in the install twice - on, and in its .disabled folder - and is left alone. Its card's prompt sorts it out.</value>
+    <comment>Subscribed items, Presets: note in the apply dialog. ".disabled" is a folder suffix.</comment>
+  </data>
+  <data name="Presets_InTwoPlaces_other" xml:space="preserve">
+    <value>{0} mods are in the install twice - on, and in their .disabled folder - and are left alone. Their cards' prompt sorts them out.</value>
+    <comment>Subscribed items, Presets: note in the apply dialog. {0} = how many.</comment>
+  </data>
+  <data name="Presets_OnlyInTwoPlaces_one" xml:space="preserve">
+    <value>Nothing to change, except 1 mod that is in the install twice - on, and in its .disabled folder. Sort it out on its card first.</value>
+    <comment>Subscribed items, Presets: status.</comment>
+  </data>
+  <data name="Presets_OnlyInTwoPlaces_other" xml:space="preserve">
+    <value>Nothing to change, except {0} mods that are in the install twice - on, and in their .disabled folder. Sort them out on their cards first.</value>
+    <comment>Subscribed items, Presets: status. {0} = how many.</comment>
   </data>
 </root>

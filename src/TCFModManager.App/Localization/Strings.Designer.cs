@@ -2841,4 +2841,9 @@ internal static class Strings
     internal static string Help_Installed_Presets_Step3 => LocalizationService.Get("Help_Installed_Presets_Step3");
     internal static string Help_Installed_Presets_Note => LocalizationService.Get("Help_Installed_Presets_Note");
     internal static string Help_Installed_Presets_Keywords => LocalizationService.Get("Help_Installed_Presets_Keywords");
+    internal static string Presets_WaitForScan => LocalizationService.Get("Presets_WaitForScan");
+    internal static string Presets_InTwoPlaces(int count, params object?[] values) =>
+        LocalizationService.Plural("Presets_InTwoPlaces", count, values);
+    internal static string Presets_OnlyInTwoPlaces(int count, params object?[] values) =>
+        LocalizationService.Plural("Presets_OnlyInTwoPlaces", count, values);
 }

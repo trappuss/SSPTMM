@@ -10,7 +10,7 @@ rem   3. Reads what the app logged and writes logs\perf-report.txt: frames per s
 rem      and the longest stall while scrolling, page by page; how long each description took to
 rem      show; the graphics card and screen. A short summary is shown here too.
 rem
-rem  Nothing is changed or sent anywhere. Build the app first with SSPTMM-update-and-run.bat.
+rem  Nothing is changed or sent anywhere. Build the app first with SSPTMM-build-and-run.bat.
 rem ---------------------------------------------------------------------------------------------
 
 rem This file is in tools\: everything else is found from the folder above it.
@@ -21,7 +21,7 @@ set "REPORT=%ROOT%logs\perf-report.txt"
 set "SELF=%~f0"
 
 if not exist "%OUT%\SSPTMM.exe" (
-    echo dist\SSPTMM\SSPTMM.exe is not there yet. Run SSPTMM-update-and-run.bat first,
+    echo dist\SSPTMM\SSPTMM.exe is not there yet. Run SSPTMM-build-and-run.bat first,
     echo close the app it opens, then run this again.
     goto :end
 )
@@ -71,7 +71,7 @@ $perf = @($lines | Where-Object { $_ -match '\[Perf\]' -and $_.Length -ge 19 -an
 if (-not ($perf | Where-Object { $_ -match 'measuring - render tier' })) {
     Write-Host ''
     Write-Host 'The app did not record anything - it may not have started, or it is an older build without'
-    Write-Host 'measuring. Run SSPTMM-update-and-run.bat, close the app, then run this again.'
+    Write-Host 'measuring. Run SSPTMM-build-and-run.bat, close the app, then run this again.'
     return
 }
 

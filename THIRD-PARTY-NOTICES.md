@@ -9,6 +9,8 @@ in this repository they are in `build/steam-ui/licenses/` (and the font licence 
 |---|---|---|---|
 | TCF Mod Manager (what SSPTMM is built on) | MIT, as listed on [sp-mod.com](https://sp-mod.com/mod/2945/tcf-mod-manager) | TheCrimsonFckr | `LICENSE.txt` beside the exe |
 | .NET runtime and Windows Desktop runtime (WPF), bundled because the exe is self-contained; also System.Drawing.Common, Microsoft.Win32.SystemEvents, Microsoft.Win32.Registry, System.Security.AccessControl, System.Security.Principal.Windows, System.Reflection.Emit, System.ValueTuple | MIT | .NET Foundation and Contributors | `DotNet-Runtime-LICENSE.txt`, `DotNet-Runtime-ThirdPartyNotices.txt` |
+| Windows SDK .NET projection 10.0.17763 (`Microsoft.Windows.SDK.NET.dll`), from the Windows 10 1809 target the notifications need | Microsoft Windows SDK licence terms (Distributable Code) | Microsoft Corporation | `WindowsSDK-LICENSE.txt` |
+| C#/WinRT runtime (`WinRT.Runtime.dll`), shipped with the projection above | MIT | Microsoft Corporation | `CsWinRT-LICENSE.txt` |
 | WPF UI, WPF UI Tray, WPF UI Abstractions 4.3.0 | MIT | Leszek Pomianowski and WPF UI Contributors | `WPF-UI-LICENSE.txt`, `WPF-UI-ThirdPartyNotices.txt` |
 | CommunityToolkit.Mvvm 8.4.2 | MIT | .NET Foundation and Contributors | `CommunityToolkit.Mvvm-LICENSE.txt`, `CommunityToolkit.Mvvm-ThirdPartyNotices.txt` |
 | Microsoft.Toolkit.Uwp.Notifications 7.1.3 | MIT | .NET Foundation and Contributors | `Microsoft.Toolkit.Uwp.Notifications-LICENSE.txt` |

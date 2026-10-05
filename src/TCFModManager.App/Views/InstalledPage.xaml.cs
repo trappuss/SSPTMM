@@ -442,10 +442,18 @@ public partial class InstalledPage : Page
                 // A tick for the preset the mods are set to: a menu item that has a submenu draws no
                 // check mark of its own, so it is the item's icon.
                 Icon = isCurrent ? new Wpf.Ui.Controls.SymbolIcon { Symbol = Wpf.Ui.Controls.SymbolRegular.Checkmark16 } : null,
-                ToolTip = isCurrent
+            };
+
+            // What a tooltip would say, as the submenu's first, greyed line: the submenu opens on the
+            // side a tooltip would, and covered it.
+            item.Items.Add(new MenuItem
+            {
+                Header = isCurrent
                     ? Strings.Presets_CurrentToolTip
                     : LocalizationService.Text(Strings.Presets_SavedOnFormat, preset.SavedAt.ToLocalTime().ToString("g")),
-            };
+                IsEnabled = false,
+            });
+            item.Items.Add(new Separator());
             item.Items.Add(Entry(Strings.Presets_Apply, () => vm.ApplyPresetAsync(name)));
             item.Items.Add(Entry(Strings.Presets_UpdateToCurrent, () => vm.UpdatePresetAsync(name)));
             item.Items.Add(new Separator());
@@ -469,7 +477,7 @@ public partial class InstalledPage : Page
         menu.Items.Add(Entry(Strings.Presets_DisableAll, vm.DisableAllAsync, Strings.Presets_DisableAllToolTip, vm.HasModsForPresets));
         menu.Items.Add(Entry(Strings.Presets_EnableAll, vm.EnableAllAsync, Strings.Presets_EnableAllToolTip, vm.HasModsForPresets));
 
-        foreach (var entry in menu.Items.OfType<MenuItem>())
+        foreach (var entry in menu.Items.OfType<MenuItem>().Where(m => m.ToolTip is not null))
             ToolTipService.SetPlacement(entry, PlacementMode.Left);
 
         menu.IsOpen = true;
