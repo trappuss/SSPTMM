@@ -60,11 +60,14 @@ Works with SPT 3.x and 4.x.
 
 SSPTMM began as a fork of **[TCF Mod Manager](https://sp-mod.com/mod/2945/tcf-mod-manager) by
 TheCrimsonFckr** (MIT), whose mod handling, installing and removing it was built on. It is now
-developed on its own, with its own look, names, settings and version numbers.
+developed on its own, with its own look, names, settings and version numbers. Everything it adds,
+changes or leaves out compared with TCF Mod Manager 1.19.0-beta, the release it was based on, is in
+[Changes from TCF Mod Manager](https://github.com/trappuss/SSPTMM/wiki/Changes-from-TCF-Mod-Manager).
 
 Problems with SSPTMM belong in this repository's
 [Issues](https://github.com/trappuss/SSPTMM/issues). Diagnose logs' **Copy a report for help** gives
-you a report to paste there, with your user name, folders and ids taken out.
+you a report to paste there, with your user name, user folder, profile ids and IP addresses taken
+out.
 
 ## Building from source
 

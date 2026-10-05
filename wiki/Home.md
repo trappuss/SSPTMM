@@ -46,7 +46,8 @@ SSPTMM uses Steam's words for what it does:
 ## Credits
 
 SSPTMM began as a fork of [TCF Mod Manager](https://sp-mod.com/mod/2945/tcf-mod-manager) by
-TheCrimsonFckr (MIT), and is now developed on its own. Report SSPTMM problems in
+TheCrimsonFckr (MIT), and is now developed on its own - see
+[Changes from TCF Mod Manager](Changes-from-TCF-Mod-Manager) for what is different. Report SSPTMM problems in
 [this repository's Issues](https://github.com/trappuss/SSPTMM/issues).
 
 Steam and the Steam Workshop are trademarks of Valve Corporation. SSPTMM is an independent fan

@@ -20,4 +20,5 @@
 - [Troubleshooting](Troubleshooting)
 - [Files and network](Files-and-Network)
 - [Building from source](Building-from-Source)
+- [Changes from TCF Mod Manager](Changes-from-TCF-Mod-Manager)
 - [Changelog](https://github.com/trappuss/SSPTMM/blob/main/CHANGELOG.md)
