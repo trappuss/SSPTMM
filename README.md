@@ -88,6 +88,12 @@ starts it. `SSPTMM-test.bat` runs the tests on their own. See
   keeps and every server it talks to.
 - [docs/branding](docs/branding) - the icon, banners, mascot and sp-mod.com thumbnail, in every size.
 
+## SPT-Mod Site
+
+Can't really post AI content on Forge so it was disabled shortly after but no suprise there! Either way, GITHUB4U. For some reason SPT community has this extreme disdain for users of mod managers. Yes It's obvious that it will never be as accurate as simply doing it yourself (IQ Dependant) but guess what; if you don't like them then don't use it. Tough to understand I know! Let's not pretend most of the content on Forge isn't AI btw; there's a reason it's only published via zipped release files instead of fully open source. 
+
+<img width="585" height="476" alt="brave_T4Mg9TfAfN" src="https://github.com/user-attachments/assets/d0bc7953-996a-4370-b3fa-1d544993a2b3" />
+
 ## License
 
 MIT - see [LICENSE](LICENSE), which also keeps TCF Mod Manager's MIT copyright notice. The libraries
