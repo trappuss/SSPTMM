@@ -60,7 +60,7 @@ Works with SPT 3.x and 4.x.
 
 SSPTMM began as a fork of **[TCF Mod Manager](https://sp-mod.com/mod/2945/tcf-mod-manager) by
 TheCrimsonFckr** (MIT), whose mod handling, installing and removing it was built on. It is now
-developed on its own, with its own look, names, settings and version numbers.
+developed on its own, with its own look, names, settings and version numbers. Yes I reached out and got permission before uploading.
 
 Problems with SSPTMM belong in this repository's
 [Issues](https://github.com/trappuss/SSPTMM/issues). Diagnose logs' **Copy a report for help** gives
