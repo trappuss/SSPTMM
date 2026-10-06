@@ -1,13 +1,16 @@
 # Build output
 bin/
-# Update-and-run script Claude hands over beside the repo rather than in it: it moves the branch,
-# and a script that git itself might replace mid-run would be cut off halfway. The old push script
-# lived beside it. (steam-ui-*: their names before the app was SSPTMM.) The release script is in
-# the repository: it builds from a separate worktree and never moves the branch.
+# Scripts from before there were just the two (SSPTMM-build-and-run.bat, which runs from a copy of
+# itself in %TEMP% so it can update the folder it is in, and SSPTMM-upload-to-github.bat), if any
+# copy of them is still lying around. (steam-ui-*: their names before the app was SSPTMM.)
 SSPTMM-update-and-run.bat
 SSPTMM-push-to-github.bat
+SSPTMM-github-setup.bat
 steam-ui-rebuild-and-run.bat
 steam-ui-push-to-github.bat
+# Your own copy of a file an update brought in, kept when it differed
+*.before-update
+*.update-copy
 # What the .bat files write about each run
 logs/
 # What Claude hands over (bundles, staged files), and shortcuts made beside the repo
@@ -18,7 +21,7 @@ Claude outputs/
 # Your own source art for the icon and mascot (the generated files are in build/branding and docs/images)
 /branding/
 *.lnk
-# The release script's working files
+# The upload script's working files (the release zip)
 release/
 # The .NET SDK SSPTMM-build-and-run.bat installs locally when a PC has none
 .dotnet/

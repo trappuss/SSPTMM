@@ -36,6 +36,7 @@ Several fixes above are ported from TCF Mod Manager's later releases (MIT), cred
 
 ## For developers
 
+- **Two scripts in the repository root.** `SSPTMM-build-and-run.bat` brings in an update bundle when there is one, then builds, tests and runs; `SSPTMM-upload-to-github.bat` uploads the code and wiki, and makes the release when the version is new. The release, update and test scripts they replace are gone; the manual test checklist is in `tools\`.
 - GitHub Actions builds and tests every push and pull request. On a `v*` tag it also publishes the release zip as a build artifact with its SHA-256 (it does not publish the release itself).
 
 # SSPTMM 1.2.1

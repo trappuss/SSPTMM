@@ -1,12 +1,12 @@
 # Builds and tests SSPTMM on GitHub's own Windows machines.
 #
 # - Every push and pull request: build and run the tests.
-# - Every version tag (v1.2.3): also publish SSPTMM.exe exactly as SSPTMM-release-to-github.bat
+# - Every version tag (v1.2.3): also publish SSPTMM.exe exactly as SSPTMM-upload-to-github.bat
 #   does, zip it the same way (one SSPTMM\ folder), and keep the zip as this run's artifact with
 #   its SHA-256 in the run summary. That build comes from the tagged source in this repository and
 #   its log is public, so anyone can see what the release was made from.
 #
-# It does not create or change GitHub releases: SSPTMM-release-to-github.bat still does that.
+# It does not create or change GitHub releases: SSPTMM-upload-to-github.bat still does that.
 
 name: Build
 
