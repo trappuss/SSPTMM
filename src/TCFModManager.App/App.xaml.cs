@@ -62,6 +62,17 @@ public partial class App : Application
             AppLog.Error("Records", "couldn't move the fork's install records over", ex);
         }
 
+        // Fork (1.3.0): an install the app was closed in the middle of goes on record before anything
+        // reads the records - see InstallJournal. Said once the window is up.
+        try
+        {
+            _cutOffInstalls = InstallJournal.RecoverAll(new ModInstallManifestService());
+        }
+        catch (Exception ex) when (ex is System.IO.IOException or UnauthorizedAccessException)
+        {
+            AppLog.Error("Install", "couldn't check for an install that did not finish", ex);
+        }
+
         // Before the theme and before any string is read, so the first frame is drawn in the right
         // language rather than re-read a moment later.
         AppLanguage.ApplyStored();
@@ -142,6 +153,9 @@ public partial class App : Application
         MainWindow = window;
         window.Show();
 
+        if (_cutOffInstalls.Count > 0)
+            Dispatcher.BeginInvoke(ReportCutOffInstalls, DispatcherPriority.ApplicationIdle);
+
         // The first check is one interval from now, never at launch (R2). A no-op while it's off.
         AppServices.UpdateWatcher.Start();
 
@@ -156,6 +170,18 @@ public partial class App : Application
     }
 
     private static readonly HashSet<string> ReportedData = new(StringComparer.OrdinalIgnoreCase);
+
+    private List<InstallJournal.Recovered> _cutOffInstalls = [];
+
+    private void ReportCutOffInstalls()
+    {
+        if (MainWindow is not { IsLoaded: true } window || _cutOffInstalls.Count == 0) return;
+
+        var names = string.Join(", ", _cutOffInstalls.Select(r => string.Join(" ", r.Name, r.Version)));
+        _cutOffInstalls = [];
+        MessageBox.Show(window, LocalizationService.Text(Strings.App_InstallCutOffFormat, names),
+            Strings.App_InstallCutOffTitle, MessageBoxButton.OK, MessageBoxImage.Warning);
+    }
 
     //
     // What SafeFile found: a settings file, the collections or the install records damaged by a

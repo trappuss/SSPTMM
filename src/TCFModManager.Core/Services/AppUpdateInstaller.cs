@@ -71,13 +71,15 @@ public sealed class AppUpdateException(AppUpdateFailure reason, Exception? inner
 }
 
 //
-// Downloads a published release of this app from sp-mod.com and swaps it in over the running copy.
+// Downloads a published release of this app and swaps it in over the running copy. Fork (1.3.0):
+// SSPTMM's releases, from GitHub (GitHubReleaseCheck), only when the user asks on About - and the
+// About page asks again before anything is downloaded.
 //
 // A running exe can't overwrite itself, so the replacement is done from outside the process:
 //
-//   1. PrepareAsync downloads the release zip - the very same file the mod page's Download button
-//      serves - and extracts it into ".tcfmm-update\payload" next to the exe, checking that what
-//      came out actually looks like a TCF Mod Manager build before going any further.
+//   1. PrepareAsync downloads the release zip - the very same file the release page offers - and
+//      extracts it into ".tcfmm-update\payload" next to the exe, checking that what
+//      came out actually looks like an SSPTMM build before going any further.
 //   2. LaunchApplyScript writes a small PowerShell script into that folder and starts it, then the
 //      app shuts itself down normally.
 //   3. The script waits for this process to exit, copies the new files over the app folder, and
@@ -89,7 +91,8 @@ public sealed class AppUpdateException(AppUpdateFailure reason, Exception? inner
 //
 public sealed class AppUpdateInstaller(ModDownloadService downloads)
 {
-    private const string ExeName = "TCFModManager.exe";
+    // Fork (1.3.0): SSPTMM's own exe - the updater installs SSPTMM releases from GitHub.
+    private const string ExeName = "SSPTMM.exe";
     private const string ScriptName = "apply-update.ps1";
     private const string LogName = "apply-update.log";
     private const string PayloadFolderName = "payload";
@@ -159,7 +162,7 @@ public sealed class AppUpdateInstaller(ModDownloadService downloads)
         ClearWorkingFiles();
         Directory.CreateDirectory(UpdateDirectory);
 
-        var zipPath = Path.Combine(UpdateDirectory, $"TCF-ModManager-{Sanitize(update.LatestVersion)}.zip");
+        var zipPath = Path.Combine(UpdateDirectory, $"SSPTMM-{Sanitize(update.LatestVersion)}.zip");
         var extractDirectory = Path.Combine(UpdateDirectory, "extracted");
 
         AppLog.Info("AppUpdate", $"downloading {update.LatestVersion} from {update.DownloadUrl}");
@@ -363,14 +366,14 @@ public sealed class AppUpdateInstaller(ModDownloadService downloads)
     // mangled by quoting on the way across.
     //
     private const string ApplyScript = """
-        # TCF Mod Manager - applies a downloaded update once the app itself has exited.
+        # SSPTMM - applies a downloaded update once the app itself has exited.
         # Written and started by AppUpdateInstaller; not meant to be run by hand.
         param([Parameter(Mandatory = $true)][int]$ProcessId)
 
         $updateDir = $PSScriptRoot
         $payloadDir = Join-Path $updateDir 'payload'
         $appDir = Split-Path $updateDir -Parent
-        $exePath = Join-Path $appDir 'TCFModManager.exe'
+        $exePath = Join-Path $appDir 'SSPTMM.exe'
         $logPath = Join-Path $updateDir 'apply-update.log'
 
         function Write-Log([string]$message) {
@@ -383,7 +386,7 @@ public sealed class AppUpdateInstaller(ModDownloadService downloads)
             }
         }
 
-        Write-Log "waiting for TCF Mod Manager (PID $ProcessId) to exit"
+        Write-Log "waiting for SSPTMM (PID $ProcessId) to exit"
         $running = Get-Process -Id $ProcessId -ErrorAction SilentlyContinue
         if ($running) { $null = $running.WaitForExit(60000) }
 

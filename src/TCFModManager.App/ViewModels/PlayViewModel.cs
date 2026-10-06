@@ -126,19 +126,39 @@ public partial class PlayViewModel : LocalizedViewModel
         if (string.IsNullOrWhiteSpace(installPath))
         {
             ConflictWarning = null;
+            NeedsWarning = null;
             return;
         }
 
         try
         {
-            var (_, conflicts) = await ModConflicts.ScanAsync(installPath);
+            var (_, conflicts, needs) = await ModConflicts.ScanWithNeedsAsync(installPath);
             ConflictWarning = conflicts.Count == 0 ? null : Strings.Installed_ConflictCount(conflicts.Count, conflicts.Count);
+            NeedsWarning = needs.Count == 0
+                ? null
+                : Strings.Play_ModsNeedSomething(needs.Count, needs.Count, TextLists.Join(needs.Take(3).Select(c => c.DisplayTitle).ToList()));
         }
         catch (Exception ex) when (ex is System.IO.IOException or UnauthorizedAccessException)
         {
             ConflictWarning = null;
+            NeedsWarning = null;
         }
     }
+
+    //
+    // Fork (1.3.0): "2 mods need something that's missing or disabled: SAIN, Waypoints - see
+    // Subscribed items", or null. Like the conflicts line, a warning only - launching is never held up.
+    //
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowLaunchWarnings))]
+    private string? _needsWarning;
+
+    public bool ShowLaunchWarnings => ConflictWarning is not null || NeedsWarning is not null;
+
+    partial void OnConflictWarningChanged(string? value) => OnPropertyChanged(nameof(ShowLaunchWarnings));
+
+    [RelayCommand]
+    private static void ShowSubscribedItems() => AppNavigation.Navigate(typeof(Views.InstalledPage));
 
     [RelayCommand]
     private static void ShowConflicts() => AppNavigation.Navigate(typeof(Views.DependenciesPage));

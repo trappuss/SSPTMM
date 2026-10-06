@@ -2,6 +2,17 @@
 
 ![Play](https://raw.githubusercontent.com/trappuss/SSPTMM/main/docs/images/01-play.png)
 
+## Warnings before you launch
+
+Above the buttons, a card appears only when something in your install may not load. It never stops
+you from launching.
+
+- **Conflicts** (red): the same mod installed twice, or two copies of a mod that differ. Click it
+  for the details.
+- **Mods that need something** (from 1.3.0, amber): enabled mods that need a mod that isn't
+  installed or is switched off - the same flag Subscribed items shows on their cards. Up to three are
+  named; click it to go to Subscribed items.
+
 ## SPT server
 
 - **Start server** starts `SPT.Server.exe` in its own window. It keeps running if you close

@@ -17,7 +17,8 @@ The download is **self-contained**: you don't need to install .NET.
    - **Not** inside `BepInEx\plugins` or `user\mods` - SSPTMM is not a mod.
    - Not inside a folder Windows protects, such as `Program Files`.
 3. Run `SSPTMM\SSPTMM.exe`.
-4. Go on to [First start](First-Start).
+4. Go on to [First start](First-Start). Unzipped into your SPT folder, SSPTMM finds the SPT install
+   around it by itself (from 1.3.0); anywhere else, you point it at SPT once in Options.
 
 ## Where it keeps its files
 
@@ -34,9 +35,13 @@ Inside your SPT folder it uses a few hidden working folders with TCF Mod Manager
 
 ## Updating
 
-SSPTMM tells you when a newer release is out (a dot beside **Help** and **About**), but it doesn't
-update itself. To update, close SSPTMM, download the new release and unzip it to the same place:
-its `SSPTMM` folder lands **over** yours. Your settings in `Data` stay.
+SSPTMM tells you when a newer release is out (a dot beside **Help** and **About**). From 1.3.0,
+About has an **Install update** button: after you confirm, SSPTMM downloads the release from
+GitHub, closes, puts the new version over its folder and starts again. Your settings in `Data`
+stay. It needs Windows PowerShell (every Windows 10 and 11 PC has it) and a folder SSPTMM can write to.
+
+Or update by hand: close SSPTMM, download the new release and unzip it to the same place - its
+`SSPTMM` folder lands **over** yours.
 
 Coming from 1.2.0 or earlier, whose zip had no folder inside? Copy the contents of the new zip's
 `SSPTMM` folder over your SSPTMM folder instead, whatever you named it.

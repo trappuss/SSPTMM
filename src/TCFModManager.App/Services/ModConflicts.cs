@@ -24,7 +24,17 @@ public static class ModConflicts
     // does - with whatever catalog is already loaded, never waiting for one. Runs off the UI thread.
     // Returns the cards too, which the conflicts' member indices point into.
     //
-    public static Task<(List<InstalledModCardViewModel> Cards, List<ModConflict> Conflicts)> ScanAsync(string installPath)
+    public static async Task<(List<InstalledModCardViewModel> Cards, List<ModConflict> Conflicts)> ScanAsync(string installPath)
+    {
+        var (cards, conflicts, _) = await ScanWithNeedsAsync(installPath).ConfigureAwait(true);
+        return (cards, conflicts);
+    }
+
+    //
+    // Fork (1.3.0): the same scan, plus the enabled mods that need something the install lacks or has
+    // disabled - what Subscribed items flags on each card - for the Play page's check before launch.
+    //
+    public static Task<(List<InstalledModCardViewModel> Cards, List<ModConflict> Conflicts, List<InstalledModCardViewModel> NeedSomething)> ScanWithNeedsAsync(string installPath)
     {
         var catalog = AppServices.ModCache.AllMods;
         var addons = AppServices.Addons.AllAddons;
@@ -33,9 +43,12 @@ public static class ModConflicts
 
         return Task.Run(() =>
         {
-            var cards = InstalledModCardViewModel.BuildFrom(
-                InstalledModScanner.Scan(installPath), catalog, sptVersion, records, addons);
-            return (cards, Find(cards));
+            var scanned = InstalledModScanner.Scan(installPath);
+            var cards = InstalledModCardViewModel.BuildFrom(scanned, catalog, sptVersion, records, addons);
+            var graph = ModDependencyGraph.Build(scanned);
+            var loaded = InstalledModScanner.LoadedPluginGuids(installPath);
+            var needs = cards.Where(c => InstalledViewModel.MissingDependencies(c, graph, loaded).Count > 0).ToList();
+            return (cards, Find(cards), needs);
         });
     }
 

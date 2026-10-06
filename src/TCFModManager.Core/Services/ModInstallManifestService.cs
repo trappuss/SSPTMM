@@ -17,6 +17,9 @@ public sealed class ModInstallManifestService
         _filePath = filePath ?? Path.Combine(AppPaths.DataDirectory, "installed-mods.json");
     }
 
+    // Where the records are kept - the install journal sits beside it (InstallJournal).
+    public string FilePath => _filePath;
+
     public ModInstallManifest Load()
     {
         if (!File.Exists(_filePath)) return new ModInstallManifest();

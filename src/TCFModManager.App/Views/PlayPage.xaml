@@ -22,7 +22,7 @@
             Padding="16"
             VerticalAlignment="Top"
             Margin="0,0,0,16"
-            Visibility="{Binding ConflictWarning, Converter={StaticResource NullToCollapsed}}">
+            Visibility="{Binding ShowLaunchWarnings, Converter={StaticResource BoolToVisibility}}">
             <StackPanel>
                 <ui:Button
                     Padding="0"
@@ -31,7 +31,18 @@
                     Foreground="{DynamicResource SystemFillColorCriticalBrush}"
                     Icon="{ui:SymbolIcon ErrorCircle20}"
                     Content="{Binding ConflictWarning}"
-                    Command="{Binding ShowConflictsCommand}" />
+                    Command="{Binding ShowConflictsCommand}"
+                    Visibility="{Binding ConflictWarning, Converter={StaticResource NullToCollapsed}}" />
+                <!-- Fork (1.3.0): enabled mods that need something missing or disabled. -->
+                <ui:Button
+                    Padding="0"
+                    Appearance="Transparent"
+                    FontWeight="SemiBold"
+                    Foreground="{DynamicResource SystemFillColorCautionBrush}"
+                    Icon="{ui:SymbolIcon Warning20}"
+                    Content="{Binding NeedsWarning}"
+                    Command="{Binding ShowSubscribedItemsCommand}"
+                    Visibility="{Binding NeedsWarning, Converter={StaticResource NullToCollapsed}}" />
                 <TextBlock
                     Margin="0,4,0,0"
                     TextWrapping="Wrap"

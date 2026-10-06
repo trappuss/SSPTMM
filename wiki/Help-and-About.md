@@ -22,8 +22,10 @@ release each time it starts. Answer **Check at start** or **Don't check** (closi
 start); you can change it later
 with **Check for new releases when SSPTMM starts** on About. Only SSPTMM's version number is sent.
 When a check finds one, a dot appears beside **Help** and **About**, and About shows the version, its date and size, its
-release notes and an **Open the release page** button. **Check now** asks again. SSPTMM never
-downloads or installs anything by itself - see [Installing](Installing#updating) for how to update.
+release notes, **Install update** and **Open the release page**. **Install update** asks first,
+naming the version and its size; then SSPTMM downloads it from GitHub, closes, puts the new version
+over its folder and starts again (see [Installing](Installing#updating)). **Check now** asks again.
+SSPTMM never downloads or installs an update without you pressing Install update.
 If GitHub can't be reached, About says why and nothing else changes.
 
 ![About with a newer release](https://raw.githubusercontent.com/trappuss/SSPTMM/main/docs/images/15b-about-new-release.png)

@@ -186,20 +186,11 @@ Il a été écrit dans :
   <data name="AppUpdate_DownloadAndInstall" xml:space="preserve">
     <value>Télécharger et installer</value>
   </data>
-  <data name="AppUpdate_DownloadingFormat" xml:space="preserve">
-    <value>Téléchargement de {0} depuis sp-mod.com...</value>
-  </data>
-  <data name="AppUpdate_DownloadingProgressFormat" xml:space="preserve">
-    <value>Téléchargement de {0} depuis sp-mod.com... {1:P0}</value>
-  </data>
   <data name="AppUpdate_DownloadNotReadable" xml:space="preserve">
     <value>Le fichier téléchargé n'est pas un zip lisible - le téléchargement a peut-être été interrompu. Réessayez.</value>
   </data>
   <data name="AppUpdate_DownloadSizeFormat" xml:space="preserve">
     <value>{0:N0} MB à télécharger</value>
-  </data>
-  <data name="AppUpdate_FolderNotWritableFormat" xml:space="preserve">
-    <value>Cette application ne peut pas écrire dans son propre dossier ({0}), elle ne peut donc pas se mettre à jour sur place. Déplacez-la en dehors de Program Files, ou téléchargez la nouvelle version depuis la page du mod et remplacez-la à la main.</value>
   </data>
   <data name="AppUpdate_InfoMessage" xml:space="preserve">
     <value>Cette application a sa propre page de mod sur sp-mod.com, comme tout ce que vous installez avec elle. Les mises à jour sont lues depuis cette fiche via l'API publique, et le fichier téléchargé est celui que sert le bouton Download de la page. Comme pour tout autre mod, la page est ouverte avant tout téléchargement afin que vous puissiez lire la mise à jour - aucun processus n'est contourné, conformément aux exigences de sp-mod.com et de ses auteurs.</value>
@@ -227,9 +218,6 @@ Il a été écrit dans :
   </data>
   <data name="AppUpdate_MinorNote" xml:space="preserve">
     <value>mise à jour fonctionnelle. Quelque chose de nouveau, ou quelque chose fonctionne différemment.</value>
-  </data>
-  <data name="AppUpdate_NoDownloadFileFormat" xml:space="preserve">
-    <value>sp-mod.com référence {0} mais aucun fichier n'y est attaché. Ouvrez la page du mod et téléchargez-le manuellement.</value>
   </data>
   <data name="AppUpdate_NoSpaceFormat" xml:space="preserve">
     <value>Espace libre insuffisant sur {0} pour télécharger et décompresser la mise à jour.</value>
@@ -264,9 +252,6 @@ Il a été écrit dans :
   <data name="AppUpdate_RateLimited" xml:space="preserve">
     <value>sp-mod.com limite les requêtes en ce moment. Réessayez dans une minute.</value>
   </data>
-  <data name="AppUpdate_ReleaseMissingExeFormat" xml:space="preserve">
-    <value>La version {0} ne contient pas {1} là où cette application l'attend. Téléchargez-la depuis la page du mod et copiez-la à la main à la place.</value>
-  </data>
   <data name="AppUpdate_Restarting" xml:space="preserve">
     <value>Fermeture et redémarrage pour terminer la mise à jour...</value>
   </data>
@@ -287,9 +272,6 @@ Il a été écrit dans :
   </data>
   <data name="AppUpdate_TimedOut" xml:space="preserve">
     <value>Délai dépassé en joignant sp-mod.com - vérifiez votre connexion et réessayez.</value>
-  </data>
-  <data name="AppUpdate_UnexpectedFormat" xml:space="preserve">
-    <value>La mise à jour a échoué : {0}. Rien n'a été modifié - téléchargez-la depuis la page du mod et remplacez ce dossier à la main si cela persiste.</value>
   </data>
   <data name="AppUpdate_UnknownBodyFormat" xml:space="preserve">
     <value>sp-mod.com propose {0}, mais son numéro n'est pas dans un format que cette app peut comparer à {1}. Consultez la page du mod pour voir ce qui a changé.</value>

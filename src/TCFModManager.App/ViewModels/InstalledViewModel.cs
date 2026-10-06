@@ -2435,19 +2435,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     private static string? MissingDependencyNote(
         InstalledModCardViewModel card, ModDependencyGraph graph, IReadOnlySet<string> loadedGuids, IReadOnlyList<Mod> catalog)
     {
-        if (card.IsDisabled) return null;
-
-        // The plugins BepInEx loads meet a plugin's needs only: a server mod needing a GUID its
-        // plugin half also carries is still missing it.
-        var missing = card.Entries
-            .Where(e => !e.IsDisabled)
-            .SelectMany(e => graph.MissingOf(e).Select(m => (e.Target, Missing: m)))
-            .Where(x => !(x.Target == InstalledModTarget.Client && loadedGuids.Contains(x.Missing.Identifier))
-                && !IsSptItself(x.Missing.Identifier))
-            .Select(x => x.Missing)
-            .GroupBy(m => m.Identifier, StringComparer.OrdinalIgnoreCase)
-            .Select(g => g.First())
-            .ToList();
+        var missing = MissingDependencies(card, graph, loadedGuids);
         if (missing.Count == 0) return null;
 
         string NameOf(ModMissingDependency m) =>
@@ -2462,6 +2450,29 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         if (absent.Count > 0) parts.Add(Text(Strings.Installed_NeedsMissingFormat, TextLists.Join(absent)));
         if (disabled.Count > 0) parts.Add(Text(Strings.Installed_NeedsDisabledFormat, TextLists.Join(disabled)));
         return string.Join(" ", parts);
+    }
+
+    //
+    // What an enabled card's enabled folders declare they cannot run without and the install does
+    // not provide (missing, or only in a disabled folder). Shared with the Play page's check before
+    // launch (1.3.0) - see ModConflicts.ScanAsync.
+    //
+    internal static List<ModMissingDependency> MissingDependencies(
+        InstalledModCardViewModel card, ModDependencyGraph graph, IReadOnlySet<string> loadedGuids)
+    {
+        if (card.IsDisabled) return [];
+
+        // The plugins BepInEx loads meet a plugin's needs only: a server mod needing a GUID its
+        // plugin half also carries is still missing it.
+        return card.Entries
+            .Where(e => !e.IsDisabled)
+            .SelectMany(e => graph.MissingOf(e).Select(m => (e.Target, Missing: m)))
+            .Where(x => !(x.Target == InstalledModTarget.Client && loadedGuids.Contains(x.Missing.Identifier))
+                && !IsSptItself(x.Missing.Identifier))
+            .Select(x => x.Missing)
+            .GroupBy(m => m.Identifier, StringComparer.OrdinalIgnoreCase)
+            .Select(g => g.First())
+            .ToList();
     }
 
     //

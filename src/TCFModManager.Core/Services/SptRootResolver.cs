@@ -117,6 +117,34 @@ public static class SptRootResolver
         return Failed(SptRootKind.Server, SptRootProblem.NotFound, startDirectory);
     }
 
+    //
+    // Fork (SSPTMM 1.3.0): the SPT install SSPTMM was unzipped into, if any. Since 1.2.1 the release
+    // zip holds a single SSPTMM folder meant to be unzipped into the SPT folder, so on a first start
+    // with no install set, the folder above the app's own is checked. Only that one, and only when it
+    // has both the game exe and SPT's server - a BepInEx folder alone, anything further up, or a live
+    // (non-SPT) game folder is too loose a guess to act on without asking.
+    //
+    public static string? InstallAroundApp(string? appDirectory)
+    {
+        if (string.IsNullOrWhiteSpace(appDirectory)) return null;
+
+        try
+        {
+            var parent = Directory.GetParent(Path.TrimEndingDirectorySeparator(Path.GetFullPath(appDirectory)));
+            if (parent is null) return null;
+
+            return GameRootMarkerFiles.Any(file => File.Exists(Path.Combine(parent.FullName, file)))
+                && SptInstallationService.TryGetServerRoot(parent.FullName, out _)
+                ? parent.FullName
+                : null;
+        }
+        catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException
+                                   or IOException or UnauthorizedAccessException or System.Security.SecurityException)
+        {
+            return null;
+        }
+    }
+
     // True for a folder holding the game, either state of BepInEx included.
     public static bool IsGameRoot(string directory)
     {

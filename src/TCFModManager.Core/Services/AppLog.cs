@@ -25,6 +25,9 @@ public static class AppLog
     private static readonly ConcurrentQueue<string> Queue = new();
     private static readonly Lock StartupGate = new();
 
+    // Held while a line is written, by the background writer and by Flush.
+    private static readonly Lock WriteGate = new();
+
     private static int _draining;
     private static bool _started;
 
@@ -93,20 +96,27 @@ public static class AppLog
         Drain();
     }
 
-    // Writes anything still queued, for use on shutdown.
+    //
+    // Writes anything still queued, for use on shutdown. Fork (SSPTMM 1.3.0): it waits for a line the
+    // background writer has already taken off the queue but not yet written - before, that line
+    // was lost when the process ended straight after (seen: the last lines before "Shutting down").
+    //
     public static void Flush()
     {
-        try
+        lock (WriteGate)
         {
-            System.IO.Directory.CreateDirectory(Directory);
-            var file = CurrentFile;
+            try
+            {
+                System.IO.Directory.CreateDirectory(Directory);
+                var file = CurrentFile;
 
-            while (Queue.TryDequeue(out var line))
-                File.AppendAllText(file, line + Environment.NewLine);
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-        {
-            // Nothing useful to do while shutting down.
+                while (Queue.TryDequeue(out var line))
+                    File.AppendAllText(file, line + Environment.NewLine);
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                // Nothing useful to do while shutting down.
+            }
         }
     }
 
@@ -125,36 +135,42 @@ public static class AppLog
         // Only one drain loop runs at a time; others just enqueue and move on.
         if (Interlocked.CompareExchange(ref _draining, 1, 0) != 0) return;
 
-        _ = Task.Run(DrainQueueAsync);
+        _ = Task.Run(DrainQueue);
     }
 
-    private static async Task DrainQueueAsync()
+    //
+    // Each line is taken off the queue and written under WriteGate, so Flush - which takes the same
+    // gate - never finishes while a line is still on its way to the file.
+    //
+    private static void DrainQueue()
     {
         try
         {
-            System.IO.Directory.CreateDirectory(Directory);
-            var file = CurrentFile;
-
-            while (Queue.TryDequeue(out var line))
+            while (true)
             {
-                try
+                lock (WriteGate)
                 {
-                    await File.AppendAllTextAsync(file, line + Environment.NewLine).ConfigureAwait(false);
-                }
-                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-                {
-                    // Drop this line and carry on rather than spinning on a locked file.
+                    if (!Queue.TryDequeue(out var line)) break;
+
+                    try
+                    {
+                        System.IO.Directory.CreateDirectory(Directory);
+                        File.AppendAllText(CurrentFile, line + Environment.NewLine);
+                    }
+                    catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+                    {
+                        // Drop this line and carry on rather than spinning on a locked file.
+                    }
                 }
             }
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-        {
-            // Log folder unavailable; discard what's queued.
-            while (Queue.TryDequeue(out _)) { }
         }
         finally
         {
             Interlocked.Exchange(ref _draining, 0);
+
+            // A line queued between the last empty check and the reset above would otherwise wait
+            // for the next one to start a drain.
+            if (!Queue.IsEmpty) Drain();
         }
     }
 

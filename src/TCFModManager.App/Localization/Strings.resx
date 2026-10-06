@@ -1406,14 +1406,14 @@
     <comment>Stands in for a file name the app could not read. It appears mid-sentence where "TCFModManager.exe" would otherwise be.</comment>
   </data>
   <data name="AppUpdate_NoDownloadFileFormat" xml:space="preserve">
-    <value>sp-mod.com lists {0} but has no file attached to it. Open the mod page and download it manually.</value>
+    <value>GitHub lists {0} but its download isn't attached to the release. Open the release page and download it by hand.</value>
     <comment>{0} is a version number, or the AppUpdate_TheNewVersion phrase.</comment>
   </data>
   <data name="AppUpdate_DownloadNotReadable" xml:space="preserve">
     <value>The downloaded file isn't a readable zip - the download may have been interrupted. Try again.</value>
   </data>
   <data name="AppUpdate_ReleaseMissingExeFormat" xml:space="preserve">
-    <value>The {0} release doesn't contain {1} where this app expects it. Download it from the mod page and copy it over by hand instead.</value>
+    <value>The {0} release doesn't contain {1} where SSPTMM expects it. Download it from the release page and unzip it over this folder by hand instead.</value>
     <comment>{0} is a version, {1} a file name.</comment>
   </data>
   <data name="AppUpdate_StagedMissingExeFormat" xml:space="preserve">
@@ -1433,7 +1433,7 @@
     <comment>{0} is a folder path.</comment>
   </data>
   <data name="AppUpdate_FolderNotWritableFormat" xml:space="preserve">
-    <value>This app can't write to its own folder ({0}), so it can't update itself in place. Move it somewhere outside Program Files, or download the new version from the mod page and replace it by hand.</value>
+    <value>SSPTMM can't write to its own folder ({0}), so it can't update itself in place. Move it somewhere outside Program Files, or download the new version from the release page and unzip it over this folder by hand.</value>
     <comment>{0} is a folder path. Program Files is a Windows folder - use whatever Windows calls it in your language.</comment>
   </data>
   <data name="AppUpdate_NoSpaceSizedFormat" xml:space="preserve">
@@ -1445,7 +1445,7 @@
     <comment>Used when the sizes could not be read.</comment>
   </data>
   <data name="AppUpdate_UnexpectedFormat" xml:space="preserve">
-    <value>The update failed: {0}. Nothing was changed - download it from the mod page and replace this folder by hand if it keeps happening.</value>
+    <value>The update failed: {0}. Nothing was changed - download it from the release page and unzip it over this folder by hand if it keeps happening.</value>
     <comment>{0} is the reason, which arrives in the system's language.</comment>
   </data>
   <data name="ConfigUpdate_NotUpdatedNamedFormat" xml:space="preserve">
@@ -3822,11 +3822,11 @@ You can turn it back on at any time.</value>
     <comment>{0} is the underlying error, which arrives in English.</comment>
   </data>
   <data name="AppUpdate_DownloadingFormat" xml:space="preserve">
-    <value>Downloading {0} from sp-mod.com...</value>
+    <value>Downloading {0} from GitHub...</value>
     <comment>{0} is the new version number.</comment>
   </data>
   <data name="AppUpdate_DownloadingProgressFormat" xml:space="preserve">
-    <value>Downloading {0} from sp-mod.com... {1:P0}</value>
+    <value>Downloading {0} from GitHub... {1:P0}</value>
     <comment>{0} is the new version number, {1} how far through. Keep the :P0 - it writes the percent sign the way your language does.</comment>
   </data>
   <data name="AppUpdate_Unpacking" xml:space="preserve">
@@ -10119,7 +10119,7 @@ Removing them - or turning them off - can leave a profile SPT won't load. If tha
     <comment>About page, when GitHub has a newer release. {0} is the kind of update (Bug fix update, Feature update, Major update), {1} its version number.</comment>
   </data>
   <data name="About_UpdateBody" xml:space="preserve">
-    <value>Get it from the release page. Close SSPTMM, then unzip the new release to the same place, so its SSPTMM folder goes over this one - your settings in the Data folder stay as they are.</value>
+    <value>Install update downloads it from GitHub, closes SSPTMM, puts the new version over this folder and starts it again - your settings in the Data folder stay as they are. Or get it from the release page and unzip it to the same place yourself.</value>
     <comment>About page, under the newer-release title. SSPTMM never downloads or installs itself.</comment>
   </data>
   <data name="About_OpenRelease" xml:space="preserve">
@@ -10818,5 +10818,47 @@ You can change this any time in Help &gt; About, where Check now always works.</
   <data name="AppUpdate_CheckAtStartToolTip" xml:space="preserve">
     <value>Asks GitHub (and sp-mod.com, for the Server Map mod where that is in use) whether a newer release is out. Only SSPTMM's version number is sent; nothing is downloaded.</value>
     <comment>Tooltip on the switch above.</comment>
+  </data>
+  <data name="App_InstallCutOffTitle" xml:space="preserve">
+    <value>An install did not finish</value>
+    <comment>Message box at start: SSPTMM was closed or the PC went off while a mod was being installed.</comment>
+  </data>
+  <data name="App_InstallCutOffFormat" xml:space="preserve">
+    <value>SSPTMM was closed before it finished installing {0}. The files it had already placed are on record, and the mod shows as incomplete in Subscribed items - update or reinstall it there to finish.</value>
+    <comment>Message box at start. {0} is the mod name and version, e.g. "SAIN 4.4.3"; several are joined with commas.</comment>
+  </data>
+  <data name="About_InstallUpdate" xml:space="preserve">
+    <value>Install update</value>
+    <comment>About page button, beside Open the release page, when a newer SSPTMM release is on GitHub.</comment>
+  </data>
+  <data name="About_InstallConfirmTitle" xml:space="preserve">
+    <value>Install SSPTMM {0}?</value>
+    <comment>Dialog title before SSPTMM updates itself. {0} is the new version.</comment>
+  </data>
+  <data name="About_InstallConfirmBodyFormat" xml:space="preserve">
+    <value>SSPTMM will download {0} from GitHub ({1}), close, put the new version over this folder and start again. Your settings, install records and backups in the Data folder stay as they are.
+
+If anything goes wrong before the files are replaced, nothing is changed.</value>
+    <comment>Dialog body before SSPTMM updates itself. {0} the file name (SSPTMM-1.3.0-win-x64.zip), {1} its size ("68 MB") or "size unknown".</comment>
+  </data>
+  <data name="About_InstallConfirmYes" xml:space="preserve">
+    <value>Install update</value>
+    <comment>Dialog button: go ahead with the self-update.</comment>
+  </data>
+  <data name="About_InstallConfirmNo" xml:space="preserve">
+    <value>Not now</value>
+    <comment>Dialog button: do not update.</comment>
+  </data>
+  <data name="About_SizeUnknown" xml:space="preserve">
+    <value>size unknown</value>
+    <comment>Shown in place of a download size GitHub did not give.</comment>
+  </data>
+  <data name="Play_ModsNeedSomething_one" xml:space="preserve">
+    <value>A mod needs something that's missing or switched off: {1}. See Subscribed items.</value>
+    <comment>See the _other form.</comment>
+  </data>
+  <data name="Play_ModsNeedSomething_other" xml:space="preserve">
+    <value>{0} mods need something that's missing or switched off: {1}. See Subscribed items.</value>
+    <comment>Play page, above PLAY. {0} is how many installed mods need a mod that is missing or disabled; {1} lists up to three of their names.</comment>
   </data>
 </root>

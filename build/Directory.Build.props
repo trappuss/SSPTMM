@@ -16,7 +16,7 @@
       AssemblyInformationalVersion verbatim - the only one of the three generated version attributes
       that keeps a pre-release suffix, which is why AppVersion reads that one.
     -->
-    <Version>1.2.1</Version>
+    <Version>1.3.0</Version>
 
     <!--
       Stack traces embed the absolute path of every source file as it existed on the build machine,

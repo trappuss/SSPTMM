@@ -1962,6 +1962,46 @@ content guidelines:
   `test-reports\SSPTMM-<version>-test-<date>.md`. Checked with PowerShell 7 here; written for 5.1.
 - **The release script is tracked** (no longer in .gitignore): it never moves the branch.
 
+## Round 41: 1.3.0 - self-update, safer saves and installs, Play warns about missing needs (2026-10-06)
+
+- **Settings saves merge** (SettingsService): every part of the app loads its own AppSettings copy
+  and saved it whole, so overlapping load/save pairs lost each other's changes. Load now keeps a
+  JSON snapshot per copy (ConditionalWeakTable, by identity); Save, under one static lock, applies
+  only what that copy changed onto the file as it is now (objects recursively, so dictionary keys
+  merge; lists are one value). A never-loaded copy is written whole. Tests: SettingsMergeTests.
+- **AppLog** writes each line under one lock and re-drains a queue filled while draining ended, so
+  lines no longer interleave or wait for the next message.
+- **SPT found around the app** (SptRootResolver.InstallAroundApp): with no install set and the
+  exe's parent folder holding EscapeFromTarkov.exe, that folder is set at start and logged. Only the
+  parent is checked - the layout the 1.2.1 zip gives. Tests: InstallAroundAppTests.
+- **Install journal** (InstallJournal): a note in `Data\install-journal\` from before placement until
+  the install record is saved. Left behind = cut off; at start the planned paths that pass
+  InstallPathGuard and exist - minus files already there at Begin and unchanged since (size and
+  write time), unless the previous record owned them - plus what is left of the previous version
+  (with its fingerprints) are recorded as an incomplete install of that mod, and the user is told
+  once the window is up. A journal whose mod has a finished record newer than it is just removed;
+  one that can't be read now is left; a damaged one is set aside. A failure inside InstallAsync once
+  placing has begun recovers at once; before that the journal just goes. Tests: InstallJournalTests.
+- **Review fixes:** settings that fell back to defaults, or whose merge result doesn't read back
+  (a wrong-typed value, a duplicate key), are written whole, which repairs the file. The update
+  link is checked as a parsed URI (https, github.com, default port, no user info, path under the
+  repository's release downloads). Auto-detect also needs SPT's server beside the game exe, so a
+  live game folder is never picked.
+- **Install update** (About): TCF's AppUpdateInstaller, pointed at SSPTMM - the zip asset of the
+  latest GitHub release, accepted only under `github.com/trappuss/SSPTMM/releases/download/`, staged in
+  `.tcfmm-update\`, applied by its PowerShell script after the app exits (robocopy /E, never /MIR).
+  A SteamDialog confirm names version and size first. Applying could not be run under Wine; staging
+  is tested (SelfUpdateStagingTests).
+- **Play page needs warning**: ModConflicts.ScanWithNeedsAsync also returns enabled mods with a
+  missing or disabled-only dependency (InstalledViewModel.MissingDependencies, shared with the
+  card flag). The Play card shows when there are conflicts or needs. The conflict warning itself
+  was already there from TCF.
+- **CI**: `.github/workflows/build.yml` - build and test on windows-latest; on `v*` tags it checks the
+  props version, publishes the single-file zip as an artifact with its SHA-256. No release is made.
+- **Exe compression measured, not adopted**: EnableCompressionInSingleFile took the exe from 170.1 MB
+  to 73.4 MB on disk but the zip only from 68.1 to 67.5 MB, at a start-up cost (decompressing to
+  memory each start) that could not be measured here. Left off.
+
 ## Values that could not be measured (marked HUNCH in the source)
 
 - Round 37: everything about the real SPT 4.1 server and game under direct launch - only a fake

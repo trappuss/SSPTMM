@@ -35,8 +35,8 @@
                     <TextBlock Margin="0,12,0,0" TextWrapping="Wrap" Text="{Binding BasedOnLine, Mode=OneWay}" />
                     <TextBlock Margin="0,4,0,0" Foreground="{DynamicResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" Text="{loc:Str About_Updates}" />
 
-                    <!-- Fork: a newer release on GitHub. Told, never installed: the button opens the
-                         release page in the browser. -->
+                    <!-- Fork: a newer release on GitHub. Install update (1.3.0) downloads and installs it
+                         after a confirmation; Open the release page opens it in the browser. -->
                     <Border
                         Margin="0,12,0,0"
                         Padding="12"
@@ -52,12 +52,44 @@
                                 Text="{Binding ReleaseDetails, Mode=OneWay}"
                                 Visibility="{Binding ReleaseDetails, Converter={StaticResource NullToCollapsed}}" />
                             <TextBlock Margin="0,6,0,0" TextWrapping="Wrap" Text="{loc:Str About_UpdateBody}" />
-                            <ui:Button
+                            <StackPanel Margin="0,10,0,0" Orientation="Horizontal">
+                                <ui:Button
+                                    Appearance="Primary"
+                                    Content="{loc:Str About_InstallUpdate}"
+                                    Icon="{ui:SymbolIcon ArrowDownload24}"
+                                    Command="{Binding InstallUpdateCommand}" />
+                                <ui:Button
+                                    Margin="8,0,0,0"
+                                    Content="{loc:Str About_OpenRelease}"
+                                    Icon="{ui:SymbolIcon Open24}"
+                                    Command="{Binding OpenModPageCommand}" />
+                                <ui:Button
+                                    Margin="8,0,0,0"
+                                    Content="{loc:Str Common_Cancel}"
+                                    Command="{Binding CancelInstallCommand}"
+                                    Visibility="{Binding IsInstalling, Converter={StaticResource BoolToVis}}" />
+                            </StackPanel>
+                            <StackPanel
                                 Margin="0,10,0,0"
-                                Appearance="Primary"
-                                Content="{loc:Str About_OpenRelease}"
-                                Icon="{ui:SymbolIcon Open24}"
-                                Command="{Binding OpenModPageCommand}" />
+                                Visibility="{Binding IsInstalling, Converter={StaticResource BoolToVis}}">
+                                <TextBlock
+                                    Margin="0,0,0,6"
+                                    Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                    Text="{Binding InstallStatus}" />
+                                <ProgressBar
+                                    Height="6"
+                                    Minimum="0"
+                                    Maximum="100"
+                                    Value="{Binding InstallProgress, Mode=OneWay}" />
+                            </StackPanel>
+                            <ui:InfoBar
+                                Margin="0,10,0,0"
+                                IsOpen="True"
+                                IsClosable="False"
+                                Severity="Error"
+                                Title="{loc:Str AppUpdate_NotAppliedTitle}"
+                                Message="{Binding InstallError}"
+                                Visibility="{Binding InstallError, Converter={StaticResource NullToCollapsed}}" />
                         </StackPanel>
                     </Border>
 

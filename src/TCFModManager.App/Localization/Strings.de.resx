@@ -186,20 +186,11 @@ Das wurde hier hingeschrieben:
   <data name="AppUpdate_DownloadAndInstall" xml:space="preserve">
     <value>Herunterladen und installieren</value>
   </data>
-  <data name="AppUpdate_DownloadingFormat" xml:space="preserve">
-    <value>{0} wird von sp-mod.com heruntergeladen...</value>
-  </data>
-  <data name="AppUpdate_DownloadingProgressFormat" xml:space="preserve">
-    <value>{0} wird von sp-mod.com heruntergeladen... {1:P0}</value>
-  </data>
   <data name="AppUpdate_DownloadNotReadable" xml:space="preserve">
     <value>Die heruntergeladene Datei ist kein lesbares Zip - der Download wurde vielleicht unterbrochen. Versuch es erneut.</value>
   </data>
   <data name="AppUpdate_DownloadSizeFormat" xml:space="preserve">
     <value>{0:N0} MB Download</value>
-  </data>
-  <data name="AppUpdate_FolderNotWritableFormat" xml:space="preserve">
-    <value>Diese App kann nicht in ihren eigenen Ordner ({0}) schreiben und sich deshalb nicht an Ort und Stelle aktualisieren. Verschiebe sie an einen Ort außerhalb von Programme, oder lade die neue Version von der Mod-Seite und ersetze sie von Hand.</value>
   </data>
   <data name="AppUpdate_InfoMessage" xml:space="preserve">
     <value>Diese App hat ihre eigene Mod-Seite auf sp-mod.com, genau wie alles andere, was du über diese App installierst. Updates werden über die öffentliche API aus diesem Eintrag gelesen, und heruntergeladen wird die Datei, die der Download-Button der Seite selbst liefert. Wie bei jedem anderen Mod wird die Seite geöffnet, bevor irgendetwas heruntergeladen wird, damit du das Update lesen kannst - es werden keine Abläufe umgangen, so wie sp-mod.com und seine Autoren es verlangen.</value>
@@ -227,9 +218,6 @@ Das wurde hier hingeschrieben:
   </data>
   <data name="AppUpdate_MinorNote" xml:space="preserve">
     <value>Funktions-Update. Etwas Neues, oder etwas funktioniert anders.</value>
-  </data>
-  <data name="AppUpdate_NoDownloadFileFormat" xml:space="preserve">
-    <value>sp-mod.com führt {0} auf, hat aber keine Datei daran hängen. Öffne die Mod-Seite und lade sie von Hand herunter.</value>
   </data>
   <data name="AppUpdate_NoSpaceFormat" xml:space="preserve">
     <value>Auf {0} ist nicht genug freier Speicher, um das Update herunterzuladen und zu entpacken.</value>
@@ -264,9 +252,6 @@ Das wurde hier hingeschrieben:
   <data name="AppUpdate_RateLimited" xml:space="preserve">
     <value>sp-mod.com drosselt gerade die Anfragen. Versuch es in einer Minute erneut.</value>
   </data>
-  <data name="AppUpdate_ReleaseMissingExeFormat" xml:space="preserve">
-    <value>Das Release {0} enthält {1} nicht an der Stelle, an der diese App es erwartet. Lade es von der Mod-Seite herunter und kopiere es stattdessen von Hand hinüber.</value>
-  </data>
   <data name="AppUpdate_Restarting" xml:space="preserve">
     <value>Wird geschlossen und neu gestartet, um das Update abzuschließen...</value>
   </data>
@@ -287,9 +272,6 @@ Das wurde hier hingeschrieben:
   </data>
   <data name="AppUpdate_TimedOut" xml:space="preserve">
     <value>Zeitüberschreitung bei sp-mod.com - prüf deine Verbindung und versuch es erneut.</value>
-  </data>
-  <data name="AppUpdate_UnexpectedFormat" xml:space="preserve">
-    <value>Das Update ist fehlgeschlagen: {0}. Es wurde nichts geändert - lade es von der Mod-Seite und ersetze diesen Ordner von Hand, wenn es weiter passiert.</value>
   </data>
   <data name="AppUpdate_UnknownBodyFormat" xml:space="preserve">
     <value>sp-mod.com listet {0}, aber die Nummer ist nicht so aufgebaut, dass diese App sie mit {1} vergleichen kann. Schau auf der Mod-Seite nach, was sich geändert hat.</value>

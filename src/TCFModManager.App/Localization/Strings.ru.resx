@@ -186,20 +186,11 @@
   <data name="AppUpdate_DownloadAndInstall" xml:space="preserve">
     <value>Скачать и установить</value>
   </data>
-  <data name="AppUpdate_DownloadingFormat" xml:space="preserve">
-    <value>Загрузка {0} с sp-mod.com...</value>
-  </data>
-  <data name="AppUpdate_DownloadingProgressFormat" xml:space="preserve">
-    <value>Загрузка {0} с sp-mod.com... {1:P0}</value>
-  </data>
   <data name="AppUpdate_DownloadNotReadable" xml:space="preserve">
     <value>Скачанный файл не является читаемым zip-архивом - возможно, загрузка прервалась. Попробуйте ещё раз.</value>
   </data>
   <data name="AppUpdate_DownloadSizeFormat" xml:space="preserve">
     <value>Загрузка {0:N0} МБ</value>
-  </data>
-  <data name="AppUpdate_FolderNotWritableFormat" xml:space="preserve">
-    <value>Приложение не может писать в собственную папку ({0}), поэтому не может обновить себя на месте. Переместите его куда-нибудь за пределы Program Files или скачайте новую версию со страницы мода и замените вручную.</value>
   </data>
   <data name="AppUpdate_InfoMessage" xml:space="preserve">
     <value>У этого приложения есть собственная страница мода на sp-mod.com, как и у всего остального, что вы через него устанавливаете. Обновления считываются с этой страницы через публичный API, а скачивается тот же файл, который отдаёт кнопка Download на самой странице. Как и для любого другого мода, страница открывается до того, как что-либо скачивается, чтобы вы могли прочитать описание обновления, - никакие процедуры не обходятся, как того требуют sp-mod.com и его авторы.</value>
@@ -227,9 +218,6 @@
   </data>
   <data name="AppUpdate_MinorNote" xml:space="preserve">
     <value>обновление возможностей. Что-то новое или что-то работает иначе.</value>
-  </data>
-  <data name="AppUpdate_NoDownloadFileFormat" xml:space="preserve">
-    <value>На sp-mod.com есть {0}, но файл к ней не приложен. Откройте страницу мода и скачайте его вручную.</value>
   </data>
   <data name="AppUpdate_NoSpaceFormat" xml:space="preserve">
     <value>На {0} не хватает свободного места, чтобы скачать и распаковать обновление.</value>
@@ -264,9 +252,6 @@
   <data name="AppUpdate_RateLimited" xml:space="preserve">
     <value>sp-mod.com сейчас ограничивает частоту запросов. Попробуйте через минуту.</value>
   </data>
-  <data name="AppUpdate_ReleaseMissingExeFormat" xml:space="preserve">
-    <value>Релиз {0} не содержит {1} там, где приложение его ожидает. Скачайте его со страницы мода и скопируйте вручную.</value>
-  </data>
   <data name="AppUpdate_Restarting" xml:space="preserve">
     <value>Закрытие и перезапуск для завершения обновления...</value>
   </data>
@@ -287,9 +272,6 @@
   </data>
   <data name="AppUpdate_TimedOut" xml:space="preserve">
     <value>Превышено время ожидания sp-mod.com - проверьте подключение и попробуйте снова.</value>
-  </data>
-  <data name="AppUpdate_UnexpectedFormat" xml:space="preserve">
-    <value>Обновление не удалось: {0}. Ничего не изменено - если это повторяется, скачайте новую версию со страницы мода и замените эту папку вручную.</value>
   </data>
   <data name="AppUpdate_UnknownBodyFormat" xml:space="preserve">
     <value>На sp-mod.com опубликована {0}, но её номер составлен так, что приложение не может сравнить его с {1}. Посмотрите на странице мода, что изменилось.</value>

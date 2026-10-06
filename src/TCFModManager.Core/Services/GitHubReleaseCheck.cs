@@ -87,13 +87,14 @@ public sealed class GitHubReleaseCheck : IDisposable
             CurrentVersion = currentVersion,
             LatestVersion = latestText,
             ChangeKind = changeKind,
-            // Never installed from here: no download link, so CanInstall stays false.
-            DownloadUrl = null,
+            // Fork (1.3.0): the release zip's own download link, for Install update on About - which
+            // asks first, every time. Null when the release has no SSPTMM zip, so CanInstall is false.
+            DownloadUrl = ZipAsset(root)?.Url,
             ModPageUrl = String(root, "html_url") is { Length: > 0 } page
                 ? page
                 : $"https://github.com/{Repository}/releases/latest",
             Changelog = String(root, "body_html"),
-            DownloadSizeBytes = ZipSize(root),
+            DownloadSizeBytes = ZipAsset(root)?.Bytes,
             PublishedAt = root.TryGetProperty("published_at", out var published)
                 && published.ValueKind == JsonValueKind.String
                 && DateTimeOffset.TryParse(published.GetString(), out var at)
@@ -102,7 +103,8 @@ public sealed class GitHubReleaseCheck : IDisposable
         };
     }
 
-    private static long? ZipSize(JsonElement root)
+    // The release's SSPTMM-<version>-win-x64.zip: its download link and size.
+    private static (string? Url, long? Bytes)? ZipAsset(JsonElement root)
     {
         if (!root.TryGetProperty("assets", out var assets) || assets.ValueKind != JsonValueKind.Array) return null;
 
@@ -113,7 +115,21 @@ public sealed class GitHubReleaseCheck : IDisposable
                 || !name.StartsWith(AssetPrefix, StringComparison.OrdinalIgnoreCase)
                 || !name.EndsWith(AssetSuffix, StringComparison.OrdinalIgnoreCase)) continue;
 
-            if (asset.TryGetProperty("size", out var size) && size.TryGetInt64(out var bytes)) return bytes;
+            // Only GitHub's own download address for it - nothing else is fetched from here.
+            // Compared as a parsed address, so "..", escapes or another host can't pass for it.
+            var url = String(asset, "browser_download_url");
+            if (url is not null
+                && !(Uri.TryCreate(url, UriKind.Absolute, out var uri)
+                     && uri.Scheme == Uri.UriSchemeHttps
+                     && uri.IsDefaultPort
+                     && string.Equals(uri.Host, "github.com", StringComparison.OrdinalIgnoreCase)
+                     && string.IsNullOrEmpty(uri.UserInfo)
+                     && uri.AbsolutePath.StartsWith($"/{Repository}/releases/download/", StringComparison.OrdinalIgnoreCase)))
+            {
+                url = null;
+            }
+
+            return (url, asset.TryGetProperty("size", out var size) && size.TryGetInt64(out var bytes) ? bytes : null);
         }
 
         return null;

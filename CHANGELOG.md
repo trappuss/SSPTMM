@@ -1,3 +1,25 @@
+# SSPTMM 1.3.0
+
+## Updating from 1.2.x
+
+Close SSPTMM, download `SSPTMM-1.3.0-win-x64.zip` and unzip it to the same place: its `SSPTMM` folder goes over yours. Your settings in the `Data` folder stay as they are. From 1.3.0 on, **Install update** on Help > About does this for you.
+
+## New
+
+- **Install update.** When a newer release is out, Help > About has an **Install update** button. It asks first, naming the version and its size; then SSPTMM downloads the release from GitHub, closes, puts the new version over its folder and starts again. Your settings, install records and backups in `Data` stay. Only files from SSPTMM's own GitHub releases are accepted. **Open the release page** is still there for updating by hand.
+- **The Play page warns about mods that need something.** Next to the conflict warning, the Play page now names enabled mods that need a mod that isn't installed or is switched off - what Subscribed items flags on their cards - before you launch. Click it to go to Subscribed items. It never stops you from launching.
+- **SPT is found by itself.** Unzipped into your SPT folder (`SPT\SSPTMM\`), SSPTMM sets the SPT install folder by itself on first start. Anywhere else, set it once in Options as before.
+
+## Fixed
+
+- **Settings no longer overwrite each other.** Two parts of SSPTMM saving settings at nearly the same time (one waiting on the network or a question in between) could undo the other's change. Each save now writes only what it changed.
+- **An install cut off part-way is noticed.** If SSPTMM, Windows or the power stops in the middle of placing a mod's files, the next start puts that mod on record as incomplete - the files the install had changed or placed, and whatever is left of the previous version - so Unsubscribe can still remove them, and says which mod to reinstall.
+- **The log file is written in order** when several things log at once.
+
+## For developers
+
+- GitHub Actions builds and tests every push and pull request. On a `v*` tag it also publishes the release zip as a build artifact with its SHA-256 (it does not publish the release itself).
+
 # SSPTMM 1.2.1
 
 ## Updating from 1.2.0

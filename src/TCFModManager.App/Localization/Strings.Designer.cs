@@ -2855,4 +2855,14 @@ internal static class Strings
     internal static string AppUpdate_ConsentNo => LocalizationService.Get("AppUpdate_ConsentNo");
     internal static string AppUpdate_CheckAtStart => LocalizationService.Get("AppUpdate_CheckAtStart");
     internal static string AppUpdate_CheckAtStartToolTip => LocalizationService.Get("AppUpdate_CheckAtStartToolTip");
+    internal static string App_InstallCutOffTitle => LocalizationService.Get("App_InstallCutOffTitle");
+    internal static string App_InstallCutOffFormat => LocalizationService.Get("App_InstallCutOffFormat");
+    internal static string About_InstallUpdate => LocalizationService.Get("About_InstallUpdate");
+    internal static string About_InstallConfirmTitle => LocalizationService.Get("About_InstallConfirmTitle");
+    internal static string About_InstallConfirmBodyFormat => LocalizationService.Get("About_InstallConfirmBodyFormat");
+    internal static string About_InstallConfirmYes => LocalizationService.Get("About_InstallConfirmYes");
+    internal static string About_InstallConfirmNo => LocalizationService.Get("About_InstallConfirmNo");
+    internal static string About_SizeUnknown => LocalizationService.Get("About_SizeUnknown");
+    internal static string Play_ModsNeedSomething(int count, params object?[] values) =>
+        LocalizationService.Plural("Play_ModsNeedSomething", count, values);
 }

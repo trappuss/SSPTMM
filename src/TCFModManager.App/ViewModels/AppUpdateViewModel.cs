@@ -402,8 +402,9 @@ public partial class AppUpdateViewModel : LocalizedViewModel
         OpenUrl(url);
     }
 
-    // Never in the fork: the listing's download is the original app - see SelfMod.IsFork.
-    private bool CanInstallUpdate() => !SelfMod.IsFork && Update?.CanInstall == true && !IsInstalling;
+    // Fork (1.3.0): SSPTMM's own release from GitHub (GitHubReleaseCheck gives its zip's link). The
+    // original's sp-mod.com listing is never checked here, so Update is always SSPTMM's.
+    private bool CanInstallUpdate() => Update?.CanInstall == true && !IsInstalling;
 
     public bool IsFork => SelfMod.IsFork;
 
@@ -438,20 +439,33 @@ public partial class AppUpdateViewModel : LocalizedViewModel
     [RelayCommand(CanExecute = nameof(CanInstallUpdate))]
     private async Task InstallUpdateAsync()
     {
-        if (SelfMod.IsFork || Update is not { CanInstall: true } update) return;
+        if (Update is not { CanInstall: true } update) return;
 
-        // The same gate every other install in this app goes through, for the same reason: the
-        // mod page gets opened first, so nothing is downloaded without the author's page - and
-        // whatever they've written on it - having been in front of the user.
-        //
-        // allowSkip: false because this one ignores the "skip mod pages" option. Skipping a mod's
-        // page costs you its install notes; skipping this app's page costs you the release notes
-        // for the build about to replace the one you are running.
-        if (!ReadModPageConfirmationWindow.Confirm(SelfMod.Name, update.ModPageUrl, allowSkip: false))
+        // Fork (1.3.0): asked every time, naming what is downloaded and from where - nothing is
+        // fetched or changed before a yes. (The original went through its mod page here; SSPTMM's
+        // release notes are already on this page.)
+        var file = Uri.TryCreate(update.DownloadUrl, UriKind.Absolute, out var link)
+            ? Uri.UnescapeDataString(link.Segments[^1])
+            : update.LatestVersion;
+        var body = new System.Windows.Controls.TextBlock
         {
-            AppLog.Info("AppUpdate", "update cancelled at the mod page gate");
+            Text = Text(Strings.About_InstallConfirmBodyFormat, file, DownloadSizeText ?? Strings.About_SizeUnknown),
+            TextWrapping = TextWrapping.Wrap,
+            LineHeight = 21,
+            MaxWidth = 560,
+        };
+        var answer = SteamDialog.Show(
+            Text(Strings.About_InstallConfirmTitle, update.LatestVersion),
+            body,
+            new SteamDialogChoice(Strings.About_InstallConfirmYes, SteamDialogButton.Green, IsDefault: true),
+            new SteamDialogChoice(Strings.About_InstallConfirmNo, SteamDialogButton.Grey));
+        if (answer != 0)
+        {
+            AppLog.Info("AppUpdate", $"install of {update.LatestVersion} declined");
             return;
         }
+
+        AppLog.Info("AppUpdate", $"installing {update.LatestVersion} from {update.DownloadUrl}");
 
         _installCts?.Dispose();
         _installCts = new CancellationTokenSource();

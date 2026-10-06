@@ -50,6 +50,15 @@ public partial class SptEnvironmentViewModel : LocalizedViewModel
     public SptEnvironmentViewModel()
     {
         var stored = _settings.Load().SptInstallPath;
+
+        // Fork (1.3.0): unzipped into SPT\SSPTMM and started for the first time - that SPT install.
+        if (string.IsNullOrWhiteSpace(stored) && SptRootResolver.InstallAroundApp(AppContext.BaseDirectory) is { } around)
+        {
+            AppLog.Info("InstallPath", $"no SPT install set; using the one SSPTMM sits in, {around}");
+            SetInstallPath(around);
+            return;
+        }
+
         if (SptInstallationService.ToGameRoot(stored) != stored)
         {
             SetInstallPath(stored);

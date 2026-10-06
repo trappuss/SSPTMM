@@ -57,7 +57,8 @@ public class ForkGitHubReleaseCheckTests
         Assert.Equal("1.1.0", info.LatestVersion);
         Assert.Equal(VersionChangeKind.Minor, info.ChangeKind);
         Assert.True(info.IsUpdate);
-        Assert.False(info.CanInstall); // never installed from here
+        Assert.True(info.CanInstall); // 1.3.0: installable from About, after a confirmation
+        Assert.Equal("https://github.com/trappuss/SSPTMM/releases/download/v1.1.0/SSPTMM-1.1.0-win-x64.zip", info.DownloadUrl);
         Assert.Equal("https://github.com/trappuss/SSPTMM/releases/tag/v1.1.0", info.ModPageUrl);
         Assert.Equal(70_000_000, info.DownloadSizeBytes);
         Assert.Equal(new DateTimeOffset(2026, 10, 3, 12, 56, 11, TimeSpan.Zero), info.PublishedAt);
@@ -136,5 +137,48 @@ public class ForkGitHubReleaseCheckTests
         var error = await Assert.ThrowsAsync<GitHubReleaseCheckException>(() => check.CheckAsync("1.0.0"));
         Assert.False(error.RateLimited);
         Assert.Equal(HttpStatusCode.Forbidden, error.Status);
+    }
+
+    [Fact]
+    public void A_release_without_its_zip_is_not_installable()
+    {
+        var info = GitHubReleaseCheck.Read(Release("v1.1.0", "source.tar.gz"), "1.0.0")!;
+
+        Assert.True(info.IsUpdate);
+        Assert.False(info.CanInstall);
+        Assert.Null(info.DownloadUrl);
+    }
+
+    [Fact]
+    public void A_download_link_off_the_repositorys_releases_is_never_used()
+    {
+        var json = Release("v1.1.0", "SSPTMM-1.1.0-win-x64.zip")
+            .Replace("https://github.com/trappuss/SSPTMM/releases/download/", "https://example.com/elsewhere/");
+
+        var info = GitHubReleaseCheck.Read(json, "1.0.0")!;
+
+        Assert.False(info.CanInstall);
+        Assert.Equal(67467802, info.DownloadSizeBytes);
+    }
+
+    [Theory]
+    [InlineData("https://github.com/trappuss/SSPTMM/releases/download/../../../../other/repo/releases/download/")]
+    [InlineData("https://github.com/trappuss/SSPTMM/releases/download/%2e%2e/%2e%2e/%2e%2e/%2e%2e/other/repo/releases/download/")]
+    [InlineData("https://github.com.example.com/trappuss/SSPTMM/releases/download/")]
+    [InlineData("http://github.com/trappuss/SSPTMM/releases/download/")]
+    [InlineData("https://user@github.com/trappuss/SSPTMM/releases/download/")]
+    [InlineData("https://github.com:8443/trappuss/SSPTMM/releases/download/")]
+    public void A_link_that_only_looks_like_the_repositorys_is_never_used(string prefix)
+    {
+        var json = Release("v1.1.0", "SSPTMM-1.1.0-win-x64.zip")
+            .Replace("https://github.com/trappuss/SSPTMM/releases/download/", prefix);
+
+        Assert.False(GitHubReleaseCheck.Read(json, "1.0.0")!.CanInstall);
+    }
+
+    [Fact]
+    public void The_running_version_or_older_is_not_installable()
+    {
+        Assert.False(GitHubReleaseCheck.Read(Release("v1.0.0", "SSPTMM-1.0.0-win-x64.zip"), "1.0.0")!.CanInstall);
     }
 }

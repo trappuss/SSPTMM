@@ -201,6 +201,8 @@ public sealed class ModInstallService(
 
         var workDir = CreateWorkDirectory(installPath, out var canMoveIntoInstall);
         AppLog.Debug("Install", $"work dir {workDir} (move into install: {canMoveIntoInstall})");
+        string? journal = null;
+        var placing = false;
         var archivePath = downloadedArchive ?? Path.Combine(workDir, "download.bin");
         var extractDir = Path.Combine(workDir, "extracted");
 
@@ -407,6 +409,24 @@ public sealed class ModInstallService(
             //
             var overwrote = KeepOriginals(installPath, target, version, existing, manifest, placements, pending, timestamp);
 
+            // Fork (1.3.0): from here on the SPT folder changes. Written down first, so an install cut
+            // off part-way is still put on record at the next start - see InstallJournal.
+            journal = InstallJournal.Begin(manifestService, new InstallJournal.Entry
+            {
+                ModId = target.Id,
+                IsAddon = target.IsAddon,
+                Guid = target.Guid,
+                Name = target.Name,
+                VersionId = version.Id,
+                Version = version.Version ?? "unknown",
+                ListedBytes = version.ContentLength is > 0 ? version.ContentLength : null,
+                ArchiveBytes = SafeLength(archivePath),
+                InstallPath = installPath,
+                StartedAt = timestamp,
+                Planned = [.. placements.Select(p => p.Forward)],
+                Overwrote = overwrote,
+            });
+
             if (existing is not null)
             {
                 status?.Report(new ModInstallProgress(
@@ -447,6 +467,7 @@ public sealed class ModInstallService(
             var placedFiles = new List<string>(placements.Count);
             var keptSettings = new List<string>();
             var reportClock = Stopwatch.StartNew();
+            placing = true;
 
             try
             {
@@ -512,6 +533,8 @@ public sealed class ModInstallService(
                 // originals kept so far are recorded too - they are owed back whatever happens next.
                 SaveRecord(target, version, placedFiles, incomplete: true, installPath, overwrote,
                     KeepSettingsPrints(Fingerprint(installPath, placedFiles), pending, existing), placedArchiveBytes);
+                InstallJournal.End(journal);
+                journal = null;
 
                 AppLog.Error("Install",
                     $"{target.Name} {version.Version} incomplete after {placedFiles.Count}/{placements.Count} file(s)", ex);
@@ -529,6 +552,8 @@ public sealed class ModInstallService(
             CreateEmptyFolders(archivePath, extractDir, contentRoot, bareBepInEx, serverRoot, installPath, target, version);
 
             var record = SaveRecord(target, version, placedFiles, incomplete: false, installPath, overwrote, fingerprints: [], placedArchiveBytes);
+            InstallJournal.End(journal);
+            journal = null;
 
             AppLog.Info("Install",
                 $"{target.Name} {version.Version} placed {placedFiles.Count} file(s) in folders [{string.Join(", ", record.Folders)}]"
@@ -606,6 +631,16 @@ public sealed class ModInstallService(
         }
         finally
         {
+            // Fork (1.3.0): failed while placing files, in a way that did not record itself: what is on
+            // disk now goes on record as incomplete, as it would at the next start.
+            // Before placing began (an error removing the previous version, say), the install's own
+            // error handling stands as it did, and the journal just goes.
+            if (journal is not null)
+            {
+                if (placing) InstallJournal.RecoverOne(journal, manifestService);
+                else InstallJournal.End(journal);
+            }
+
             TryDeleteDirectory(workDir);
         }
     }
