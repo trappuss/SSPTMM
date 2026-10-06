@@ -179,7 +179,8 @@ public partial class App : Application
 
         var names = string.Join(", ", _cutOffInstalls.Select(r => string.Join(" ", r.Name, r.Version)));
         _cutOffInstalls = [];
-        MessageBox.Show(window, LocalizationService.Text(Strings.App_InstallCutOffFormat, names),
+        _ = window;
+        TCFModManager.App.Views.SteamMessageBox.Show(LocalizationService.Text(Strings.App_InstallCutOffFormat, names),
             Strings.App_InstallCutOffTitle, MessageBoxButton.OK, MessageBoxImage.Warning);
     }
 
@@ -200,7 +201,7 @@ public partial class App : Application
             var kept = problem.KeptAs ?? Strings.App_DataNotKept;
             var body = LocalizationService.Text(Strings.App_DataDamagedFormat, name, kept);
 
-            MessageBox.Show(Current.MainWindow, body, Strings.App_DataProblemTitle, MessageBoxButton.OK, MessageBoxImage.Warning);
+            TCFModManager.App.Views.SteamMessageBox.Show(body, Strings.App_DataProblemTitle, MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
 

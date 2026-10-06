@@ -147,7 +147,7 @@ public partial class OptionsViewModel : LocalizedViewModel
 
         var size = DownloadQueueItemViewModel.SizeLabel(RemovedModsBytes);
 
-        var answer = MessageBox.Show(
+        var answer = TCFModManager.App.Views.SteamMessageBox.Show(
             Text(Strings.Options_RemovedModsClearConfirmFormat, size, installPath),
             Strings.Options_RemovedModsClearTitle,
             MessageBoxButton.YesNo,
@@ -821,7 +821,7 @@ public partial class OptionsViewModel : LocalizedViewModel
     // which mods those are.
     //
     private static bool ConfirmSkip() =>
-        MessageBox.Show(
+        TCFModManager.App.Views.SteamMessageBox.Show(
             Strings.Options_SkipGateBody,
             Strings.Options_SkipGateTitle,
             MessageBoxButton.YesNo,

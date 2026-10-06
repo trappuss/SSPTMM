@@ -5928,4 +5928,13 @@
   <data name="ModList_ReasonNoVersionForParentFormat" xml:space="preserve">
     <value>ни одна из его версий не подходит к версии {0} мода, для которого это аддон</value>
   </data>
+  <data name="Common_Yes" xml:space="preserve">
+    <value>Да</value>
+  </data>
+  <data name="Common_No" xml:space="preserve">
+    <value>Нет</value>
+  </data>
+  <data name="Common_OK" xml:space="preserve">
+    <value>ОК</value>
+  </data>
 </root>

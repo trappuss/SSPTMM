@@ -35,7 +35,7 @@ public static class ModUpdates
         // placed, so the new one goes on top of it.
         //
         var handInstalled = targets.Where(t => !t.IsAppManaged).Select(t => t.Title).ToList();
-        if (!downloadOnly && handInstalled.Count > 0 && MessageBox.Show(
+        if (!downloadOnly && handInstalled.Count > 0 && TCFModManager.App.Views.SteamMessageBox.Show(
                 LocalizationService.Text(Strings.Installed_UpdateHandInstalledBodyFormat, TextLists.Join(handInstalled)),
                 Strings.Installed_UpdateHandInstalledTitle(handInstalled.Count),
                 MessageBoxButton.YesNo,

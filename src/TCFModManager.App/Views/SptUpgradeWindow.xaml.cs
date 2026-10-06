@@ -15,7 +15,7 @@ public sealed record SptUpgradeRowView(string Name, string Detail, SymbolRegular
 // The SPT upgrade check - see SptUpgradeReport. The release picked is the only input; the rows are
 // worked out again from the catalog each time it changes.
 //
-public partial class SptUpgradeWindow : FluentWindow
+public partial class SptUpgradeWindow : SteamModalWindow
 {
     private readonly List<SptUpgradeInput> _installed;
     private readonly IReadOnlyList<Mod> _catalog;

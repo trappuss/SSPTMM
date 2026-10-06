@@ -265,9 +265,11 @@ public partial class MainWindow : FluentWindow
         if (installing is null) return true;
 
         var text = Localization.LocalizationService.Text(Localization.Strings.App_CloseWhileInstallingFormat, installing.ModName);
-        var answer = owner is { IsVisible: true }
-            ? System.Windows.MessageBox.Show(owner, text, Localization.Strings.App_CloseWhileInstallingTitle, System.Windows.MessageBoxButton.YesNo, MessageBoxImage.Warning)
-            : System.Windows.MessageBox.Show(text, Localization.Strings.App_CloseWhileInstallingTitle, System.Windows.MessageBoxButton.YesNo, MessageBoxImage.Warning);
+        // Fork (1.3.0): Steam's modal - over the window when it shows, mid-screen from the tray.
+        _ = owner;
+        var answer = TCFModManager.App.Views.SteamMessageBox.Show(
+            text, Localization.Strings.App_CloseWhileInstallingTitle, System.Windows.MessageBoxButton.YesNo, MessageBoxImage.Warning,
+            System.Windows.MessageBoxResult.No);
         return answer == System.Windows.MessageBoxResult.Yes;
     }
 

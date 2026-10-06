@@ -5610,4 +5610,13 @@ Vedi Dipendenze e conflitti.</value>
   <data name="ModList_ReasonNoVersionForParentFormat" xml:space="preserve">
     <value>nessuna delle sue versioni è adatta alla versione {0} della mod di cui è un addon</value>
   </data>
+  <data name="Common_Yes" xml:space="preserve">
+    <value>Sì</value>
+  </data>
+  <data name="Common_No" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="Common_OK" xml:space="preserve">
+    <value>OK</value>
+  </data>
 </root>

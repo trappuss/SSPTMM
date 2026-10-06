@@ -1,17 +1,14 @@
-<ui:FluentWindow
+<local:SteamModalWindow
+    Title="{loc:Str ModDisable_Title}"
     x:Class="TCFModManager.App.Views.ModDisableConfirmationWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:TCFModManager.App.Views"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:loc="clr-namespace:TCFModManager.App.Localization"
     Width="520"
     MaxHeight="640"
-    SizeToContent="Height"
-    ResizeMode="NoResize"
-    ShowInTaskbar="False"
-    ExtendsContentIntoTitleBar="True"
-    TextOptions.TextFormattingMode="Display"
-    TextOptions.TextRenderingMode="ClearType">
+    SizeToContent="Height">
     <!--
         Shown before a disable/enable that affects other mods, following the same plain modal
         FluentWindow pattern as ReadModPageConfirmationWindow - ShowDialog() from any call site,
@@ -23,14 +20,9 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <ui:TitleBar
-            x:Name="WindowTitleBar"
-            Grid.Row="0"
-            Title="{loc:Str ModDisable_Title}" />
-
         <StackPanel
             Grid.Row="1"
-            Margin="24,12,24,24">
+            Margin="0">
             <TextBlock
                 x:Name="SummaryText"
                 TextWrapping="Wrap"
@@ -42,7 +34,7 @@
                 Foreground="{DynamicResource TextFillColorSecondaryBrush}"
                 Margin="0,0,0,16" />
 
-            <TextBlock
+            <TextBlock Foreground="White"
                 x:Name="ImpactHeading"
                 TextWrapping="Wrap"
                 FontWeight="SemiBold"
@@ -67,7 +59,7 @@
                                     Foreground="{Binding Brush}" />
 
                                 <StackPanel Grid.Column="1">
-                                    <TextBlock
+                                    <TextBlock Foreground="White"
                                         FontWeight="SemiBold"
                                         TextTrimming="CharacterEllipsis"
                                         Text="{Binding Name}" />
@@ -90,21 +82,21 @@
                 Text="{loc:Str ModDisable_Note}" />
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
-                <ui:Button
-                    Margin="0,0,8,0"
+                <Button
+                    Style="{StaticResource SteamModalGreyButton}"
                     Content="{loc:Str Common_Cancel}"
                     Click="CancelButton_Click" />
 
-                <ui:Button
+                <Button
+                    Style="{StaticResource SteamModalGreyButton}"
                     x:Name="ProceedOnlyButton"
-                    Margin="0,0,8,0"
                     Click="ProceedOnlyButton_Click" />
 
-                <ui:Button
+                <Button
+                    Style="{StaticResource SteamModalGreenButton}"
                     x:Name="CascadeButton"
-                    Appearance="Primary"
                     Click="CascadeButton_Click" />
             </StackPanel>
         </StackPanel>
     </Grid>
-</ui:FluentWindow>
+</local:SteamModalWindow>

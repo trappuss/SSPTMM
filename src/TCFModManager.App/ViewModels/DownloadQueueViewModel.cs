@@ -951,7 +951,7 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
         var key = "fika:" + modName;
         if (!askAgain && _problemAnswers.TryGetValue(key, out var answer) && StillStands(answer, DateTime.UtcNow)) return answer.Install;
 
-        var install = System.Windows.MessageBox.Show(
+        var install = TCFModManager.App.Views.SteamMessageBox.Show(
             Text(downloadOnly ? Strings.Downloads_FikaIncompatibleDownloadFormat : Strings.Downloads_FikaIncompatibleFormat, modName),
             Strings.Downloads_FikaIncompatibleTitle,
             System.Windows.MessageBoxButton.YesNo,
@@ -980,7 +980,7 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
 
         if (unanswered.Count == 0) return true;
 
-        var install = System.Windows.MessageBox.Show(
+        var install = TCFModManager.App.Views.SteamMessageBox.Show(
             Text(downloadOnly ? Strings.Downloads_DepProblemsDownloadFormat : Strings.Downloads_DepProblemsFormat, modName, string.Join("\n", unanswered.Select(p => "\u2022 " + Describe(p)))),
             Strings.Downloads_DepProblemsTitle,
             System.Windows.MessageBoxButton.YesNo,

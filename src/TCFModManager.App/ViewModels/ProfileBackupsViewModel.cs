@@ -126,7 +126,7 @@ public sealed partial class ProfileBackupsViewModel : LocalizedViewModel
             return;
         }
 
-        if (MessageBox.Show(
+        if (TCFModManager.App.Views.SteamMessageBox.Show(
                 LocalizationService.Text(Strings.Profiles_RestoreConfirmFormat, row.When, row.Why),
                 Strings.Profiles_RestoreTitle,
                 MessageBoxButton.YesNo,

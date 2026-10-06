@@ -29,7 +29,7 @@ public enum InstallRoleChoice
 // question. Whether anyone sits at this machine is not discoverable at all, which is why it is asked
 // rather than detected.
 //
-public partial class InstallRoleWindow : FluentWindow
+public partial class InstallRoleWindow : SteamModalWindow
 {
     private InstallRoleWindow(string launcherPath)
     {

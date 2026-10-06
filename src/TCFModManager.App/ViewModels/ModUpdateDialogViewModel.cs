@@ -469,7 +469,7 @@ public partial class ModUpdateDialogViewModel : LocalizedViewModel
     }
 
     private static bool Confirm(string title, string message) =>
-        MessageBox.Show(message, title, MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes;
+        TCFModManager.App.Views.SteamMessageBox.Show(message, title, MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes;
 
     // Opens ModPageUrl in the OS's default browser.
     [RelayCommand]
