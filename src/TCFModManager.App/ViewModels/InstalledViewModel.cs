@@ -1607,7 +1607,10 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         ModInstallService.EnsureInstallNotInUse(ModInstallAction.Remove, installPath);
 
         // Fork: the profiles as they were, as an app-installed mod's removal keeps them.
-        AppServices.ProfileBackups.BackupIfChanged(installPath, ProfileBackups.BeforeRemove);
+        await Task.Run(() => AppServices.ProfileBackups.BackupIfChanged(installPath, ProfileBackups.BeforeRemove)); // Fork (1.3.0): off the UI thread
+
+        // Again: SPT may have been started while the copy was being taken.
+        ModInstallService.EnsureInstallNotInUse(ModInstallAction.Remove, installPath);
 
         var configs = ModInstallService.FindLegacyConfigs(installPath, paths);
         var kept = configAction == ConfigAction.Keep && configs.Count > 0
@@ -2025,8 +2028,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     // sp-mod.com holds back the very version this update would install. A different, newer version
     // being held back leaves this one alone.
     private static bool IsHeldBack(InstalledModCardViewModel card) =>
-        AppServices.HeldBack.HeldVersion(card.ModId) is { } held
-        && string.Equals(held, card.UpdateVersion ?? card.LatestPublishedVersion, StringComparison.OrdinalIgnoreCase);
+        AppServices.HeldBack.Holds(card.ModId, card.UpdateVersion ?? card.LatestPublishedVersion);
 
     // After each scan: ask sp-mod.com about the whole install, then mark what it holds back.
     private async Task CheckHeldBackAsync(IReadOnlyList<InstalledModCardViewModel> cards)
@@ -2322,7 +2324,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
             // Not while SPT runs: the move is refused then, and its server may be writing them.
             if (AppServices.SptEnvironment.InstallPath is { Length: > 0 } profilesOf
                 && ModInstallService.RunningBlockers(profilesOf).Count == 0)
-                AppServices.ProfileBackups.BackupIfChanged(profilesOf, ProfileBackups.BeforeDisable);
+                await Task.Run(() => AppServices.ProfileBackups.BackupIfChanged(profilesOf, ProfileBackups.BeforeDisable)); // Fork (1.3.0): off the UI thread
 
             outcome = ModDisableService.Apply(entries, disable, AppServices.SptEnvironment.InstallPath);
         }

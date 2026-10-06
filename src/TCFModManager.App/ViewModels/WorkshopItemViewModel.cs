@@ -332,7 +332,11 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel, IModActi
     }
 
     // sp-mod.com's update check may answer after this page opened.
-    private void OnHeldBackChanged(object? sender, EventArgs e) => OnPropertyChanged(nameof(HeldBackNote));
+    private void OnHeldBackChanged(object? sender, EventArgs e)
+    {
+        OnPropertyChanged(nameof(HeldBackNote));
+        OnPropertyChanged(nameof(CanUpdate));
+    }
 
     // ------------------------------------------------------------------ what the page shows
 
@@ -543,7 +547,10 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel, IModActi
 
     public bool IsDisabled => Card.IsDisabled;
 
-    public bool CanUpdate => Installed is not null && Card.UpdateAvailable == true && !Card.IsDisabled;
+    // Fork (1.3.0): not an update sp-mod.com holds back - it would break another installed mod, and
+    // Update all leaves it out too. The page says why (HeldBackNote).
+    public bool CanUpdate => Installed is not null && Card.UpdateAvailable == true && !Card.IsDisabled
+        && (Installed.IsAddon || !AppServices.HeldBack.Holds(Mod.Id, Installed.UpdateVersion ?? Installed.LatestPublishedVersion));
 
     // "Installed", "Update available", "Disabled" - the same words the rest of the app uses.
     public string? StatusLine => Card.IsInstalled ? Card.StatusTooltip : null;

@@ -5925,4 +5925,7 @@
   <data name="Options_InstallModeSummary" xml:space="preserve">
     <value>Устанавливать моды за вас или только скачивать их.</value>
   </data>
+  <data name="ModList_ReasonNoVersionForParentFormat" xml:space="preserve">
+    <value>ни одна из его версий не подходит к версии {0} мода, для которого это аддон</value>
+  </data>
 </root>

@@ -35,6 +35,16 @@ public class DependencyStatusResolverTests
         Assert.Equal(ModStatus.TooNew, DependencyStatusResolver.Resolve(Node(), "0.9.0", "0.5.0"));
     }
 
+    // A DLL can't carry a label: 1.2.0.0 on disk is the published 1.2.0-hotfix, not behind it. A
+    // version known exactly still is behind it.
+    [Fact]
+    public void Resolve_ADllVersion_IsTheSameReleaseAsItsLabelledOne()
+    {
+        Assert.Equal(ModStatus.Installed, DependencyStatusResolver.Resolve(Node(), "1.2.0.0", "1.2.0-hotfix", exactVersion: false));
+        Assert.Equal(ModStatus.UpdateAvailable, DependencyStatusResolver.Resolve(Node(), "1.2.0", "1.2.0-hotfix"));
+        Assert.Equal(ModStatus.UpdateAvailable, DependencyStatusResolver.Resolve(Node(), "1.1.0.0", "1.2.0-hotfix", exactVersion: false));
+    }
+
     [Fact]
     public void Resolve_InstalledWhenTheScannedVersionCarriesAnExtraZero() =>
         // The scanner reports a DLL's file version as "1.3.0.0" against a published "1.3.0".

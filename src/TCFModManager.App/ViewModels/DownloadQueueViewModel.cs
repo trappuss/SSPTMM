@@ -384,6 +384,7 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
                 item.Status = DownloadQueueItemStatus.Failed;
                 item.StatusMessage = Text(
                     Strings.Downloads_NoLinkFormat, item.ModName, item.VersionLabel);
+                AppLog.Warn("Downloads", $"{item.ModName} {item.VersionLabel} failed: {item.StatusMessage}"); // Fork (1.3.0)
                 return;
             }
 
@@ -681,6 +682,7 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
     // Says how an item stopped, whichever stage it stopped in.
     private static void Settle(DownloadQueueItemViewModel item, Exception exception)
     {
+        var expected = true;
         switch (exception)
         {
             case OperationCanceledException when item.Token.IsCancellationRequested:
@@ -714,6 +716,7 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
 
             default:
                 item.StatusMessage = Text(Strings.Downloads_UnexpectedFormat, exception.Message);
+                expected = false;
                 break;
         }
 
@@ -721,8 +724,10 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
 
         // Fork (SSPTMM): the reason was only ever on the card, so a failure left no line in the log -
         // a refused SVM install showed nothing after "using the archive kept from before".
-        AppLog.Warn("Downloads",
+        // Fork (1.3.0, as TCF 673c324): an exception nobody expected goes in with its stack trace.
+        if (expected) AppLog.Warn("Downloads",
             $"{item.ModName} {item.VersionLabel} failed: {item.StatusMessage} ({exception.GetType().Name}: {exception.Message})");
+        else AppLog.Error("Downloads", $"{item.ModName} {item.VersionLabel} failed: {item.StatusMessage}", exception);
     }
 
     // Fork: Download only, in a download slot. Failures settle the card here - nothing awaits this.
@@ -950,7 +955,8 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
             Text(downloadOnly ? Strings.Downloads_FikaIncompatibleDownloadFormat : Strings.Downloads_FikaIncompatibleFormat, modName),
             Strings.Downloads_FikaIncompatibleTitle,
             System.Windows.MessageBoxButton.YesNo,
-            System.Windows.MessageBoxImage.Warning) == System.Windows.MessageBoxResult.Yes;
+            System.Windows.MessageBoxImage.Warning,
+            System.Windows.MessageBoxResult.No) == System.Windows.MessageBoxResult.Yes; // Fork (1.3.0): Enter is No
 
         _problemAnswers[key] = (install, DateTime.UtcNow);
         return install;
@@ -978,7 +984,8 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
             Text(downloadOnly ? Strings.Downloads_DepProblemsDownloadFormat : Strings.Downloads_DepProblemsFormat, modName, string.Join("\n", unanswered.Select(p => "\u2022 " + Describe(p)))),
             Strings.Downloads_DepProblemsTitle,
             System.Windows.MessageBoxButton.YesNo,
-            System.Windows.MessageBoxImage.Warning) == System.Windows.MessageBoxResult.Yes;
+            System.Windows.MessageBoxImage.Warning,
+            System.Windows.MessageBoxResult.No) == System.Windows.MessageBoxResult.Yes; // Fork (1.3.0): Enter is No
 
         foreach (var problem in unanswered) _problemAnswers[Describe(problem)] = (install, now);
         return install;

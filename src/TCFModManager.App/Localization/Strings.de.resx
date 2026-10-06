@@ -5607,4 +5607,7 @@ Siehe Abhängigkeiten und Konflikte.</value>
   <data name="Options_InstallModeSummary" xml:space="preserve">
     <value>Mods für dich installieren oder nur herunterladen.</value>
   </data>
+  <data name="ModList_ReasonNoVersionForParentFormat" xml:space="preserve">
+    <value>keine seiner Versionen passt zu Version {0} der Mod, für die es ein Addon ist</value>
+  </data>
 </root>

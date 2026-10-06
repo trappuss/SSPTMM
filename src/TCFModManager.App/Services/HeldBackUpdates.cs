@@ -33,6 +33,11 @@ public sealed class HeldBackUpdates
     /// <summary>The version sp-mod.com holds back for this mod, if any.</summary>
     public string? HeldVersion(int? modId) => For(modId)?.LatestVersion?.Version;
 
+    /// <summary>True when sp-mod.com holds back exactly this version of this mod - the update the
+    /// app would install. A different, newer version being held back leaves this one alone.</summary>
+    public bool Holds(int? modId, string? version) =>
+        HeldVersion(modId) is { } held && string.Equals(held, version, StringComparison.OrdinalIgnoreCase);
+
     // The SPT version the last answer was for.
     private string? _checkedSpt;
 
@@ -89,34 +94,45 @@ public sealed class HeldBackUpdates
             : LocalizationService.Text(Strings.Installed_HeldBackPlainFormat, version);
     }
 
+    /// <summary>Taken just before asking sp-mod.com, and handed to <see cref="Apply"/> with the
+    /// answer: an answer to an older question than the last one asked is dropped (Fork, 1.3.0).</summary>
+    public int Begin() => ++_request;
+
+    /// <summary>Takes an answer sp-mod.com already gave - the background update check's (Fork, 1.3.0).
+    /// Dropped when a newer question was asked since <paramref name="ticket"/> was taken.</summary>
+    public bool Apply(int ticket, IEnumerable<ModBlockedUpdateEntry> blockedUpdates, IEnumerable<ModIncompatibleEntry> incompatibleWithSpt, string sptVersion)
+    {
+        if (ticket != _request) return false;
+
+        // Both worked out before either is replaced, so a surprise in one leaves both as they were.
+        var blocked = blockedUpdates
+            .Where(b => b.CurrentVersion is not null)
+            .GroupBy(b => b.CurrentVersion!.ModId)
+            .ToDictionary(g => g.Key, g => g.First());
+
+        var incompatible = incompatibleWithSpt
+            .GroupBy(i => i.ModId)
+            .ToDictionary(g => g.Key, g => g.First());
+
+        _blocked = blocked;
+        _incompatible = incompatible;
+        _checkedSpt = sptVersion;
+        Changed?.Invoke(this, EventArgs.Empty);
+        return true;
+    }
+
     /// <summary>Asks sp-mod.com about these installed mods (id and installed version).</summary>
     public async Task RefreshAsync(IReadOnlyCollection<(int ModId, string Version)> installed, string? sptVersion)
     {
         if (installed.Count == 0 || string.IsNullOrWhiteSpace(sptVersion)) return;
 
-        var request = ++_request;
+        var request = Begin();
         try
         {
             var mods = string.Join(",", installed.Select(m => $"{m.ModId}:{m.Version}"));
             var result = await AppServices.SpModApi.GetModUpdatesAsync(mods, sptVersion);
-            if (request != _request) return;
-
-            // Both worked out before either is replaced, so a surprise in one leaves both as they were.
-            var blocked = (result.BlockedUpdates ?? [])
-                .Where(b => b.CurrentVersion is not null)
-                .GroupBy(b => b.CurrentVersion!.ModId)
-                .ToDictionary(g => g.Key, g => g.First());
-
-            var incompatible = (result.IncompatibleWithSpt ?? [])
-                .GroupBy(i => i.ModId)
-                .ToDictionary(g => g.Key, g => g.First());
-
-            _blocked = blocked;
-            _incompatible = incompatible;
-            _checkedSpt = sptVersion;
-
+            if (!Apply(request, result.BlockedUpdates ?? [], result.IncompatibleWithSpt ?? [], sptVersion)) return;
             AppLog.Info("Updates", $"sp-mod.com update check: {result.Updates?.Count ?? 0} updates, {_blocked.Count} held back, {_incompatible.Count} not for SPT {sptVersion}");
-            Changed?.Invoke(this, EventArgs.Empty);
         }
         catch (Exception ex)
         {

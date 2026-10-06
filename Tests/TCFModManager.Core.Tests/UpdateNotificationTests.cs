@@ -186,6 +186,22 @@ public class UpdateCheckServiceTests
         Assert.Contains("spt_version=4.0.13", handler.LastRequestUri.Query);
     }
 
+    // Fork (1.3.0): the same answer's not-for-SPT entries (and held-back ones) come through for
+    // HeldBackUpdates, with how many requests it took.
+    [Fact]
+    public async Task TheAnswersHeldBackAndNotForSptEntriesComeThrough()
+    {
+        var handler = new FakeHttpMessageHandler(HttpStatusCode.OK, UpdatesResponse);
+        using var client = new SpModApiClient(new HttpClient(handler));
+
+        var check = await new UpdateCheckService(client)
+            .FindUpdatedModsAsync([(2909, "1.0.1"), (1090, "1.1.1"), (2935, "1.0.0")], "4.0.13");
+
+        Assert.Equal(1, check.Requests);
+        Assert.Empty(check.Blocked);
+        Assert.Equal(2935, Assert.Single(check.Incompatible).ModId);
+    }
+
     [Fact]
     public async Task AModTheAnswerLeavesOutIsReadAgainDirectly()
     {

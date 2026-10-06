@@ -1,8 +1,10 @@
 # SSPTMM 1.3.0
 
-## Updating from 1.2.x
+## Updating from 1.2.0
 
-Close SSPTMM, download `SSPTMM-1.3.0-win-x64.zip` and unzip it to the same place: its `SSPTMM` folder goes over yours. Your settings in the `Data` folder stay as they are. From 1.3.0 on, **Install update** on Help > About does this for you.
+Close SSPTMM and download `SSPTMM-1.3.0-win-x64.zip`. It holds a single folder, `SSPTMM`: copy its contents over your SSPTMM folder (whatever you named it). Your settings in the `Data` folder stay as they are. From 1.3.0 on, **Install update** on Help > About does this for you.
+
+1.3.0 also carries 1.2.1, which was not released on its own - see its section below: the zip now unzips into a folder of its own (`SPT\SSPTMM\`), and SSPTMM's own sp-mod.com listing is never offered as a mod.
 
 ## New
 
@@ -15,6 +17,20 @@ Close SSPTMM, download `SSPTMM-1.3.0-win-x64.zip` and unzip it to the same place
 - **Settings no longer overwrite each other.** Two parts of SSPTMM saving settings at nearly the same time (one waiting on the network or a question in between) could undo the other's change. Each save now writes only what it changed.
 - **An install cut off part-way is noticed.** If SSPTMM, Windows or the power stops in the middle of placing a mod's files, the next start puts that mod on record as incomplete - the files the install had changed or placed, and whatever is left of the previous version - so Unsubscribe can still remove them, and says which mod to reinstall.
 - **The log file is written in order** when several things log at once.
+- **Held-back updates are not announced.** The background update check now takes sp-mod.com's held-back list from the answer it already gets, so an update that would break another installed mod no longer raises a notification, and neither the item page nor the right-click menu offers Update for it (Update all already left it out). With a very long mod list the check is split, and then the held-back list from Subscribed items' own check is used.
+- **A cut-off update keeps the right version label.** When an update was cut off before any of the new version's files were written, the mod stays on record at its previous version.
+- **An addon on a collection gets a version that fits its parent.** A collection entry for an addon with no version named (or whose version is gone) now gets the newest version that works with the version its parent mod will be at, rather than the newest overall; when none fits, it is listed as not fetched, with the reason.
+- **"Install anyway?" questions default to No.** The not-for-Fika and dependency-problem questions now answer No when you press Enter.
+- **Dependencies page:** a mod whose version was read from its DLL (1.2.0.0) is no longer shown as behind the same release published with a label (1.2.0-hotfix).
+- **Play page:** a Restart question for the server or headless client goes away when it stops by itself, instead of offering a Restart that then fails.
+- **Configs:** the "SPT is running" note only counts SPT running from this install, not another copy.
+- **Profile backups:** restoring when the SPT folder can't be used gives a translated message instead of an English error; the list follows a language change; and the copy taken before disabling or removing a hand-installed mod no longer holds up the window.
+- **The log names every failed download,** including one with no download link, and records the full details of an unexpected error.
+- The last unused trace of the old AI-content filter (which sp-mod.com refuses) is gone from the code; SSPTMM never sent it.
+
+## From TCF Mod Manager
+
+Several fixes above are ported from TCF Mod Manager's later releases (MIT), credited in the code: held-back updates in the background check (be28c66), the addon pick for collections (448af87, its NewestFittingVersion), the Play page's Restart question and the Configs running check (4315064, 99dd8f2), the log lines for failed downloads (673c324), the labelled-version comparison on the Dependencies page (5ec9304), the profile backup message, language refresh and off-thread disable backup (cdf20f9), the No default on the Fika question (83a8942), and the previous version's label in a cut-off update (d865b9f). The rest - the dependency-problem question's No default, the off-thread backup when removing a hand-installed mod - are SSPTMM's own.
 
 ## For developers
 

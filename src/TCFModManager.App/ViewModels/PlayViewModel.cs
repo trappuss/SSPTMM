@@ -205,10 +205,15 @@ public partial class PlayViewModel : LocalizedViewModel
 
     public bool CanStopServer => Server?.IsRunning == true && !IsRestarting;
 
-    // A server that went down on its own takes the question about stopping it with it.
+    // A server that went down on its own takes the questions about stopping or restarting it with it.
     partial void OnServerChanged(SptLaunchTargetInfo? value)
     {
-        if (value?.IsRunning != true) ConfirmingServerStop = false;
+        if (value?.IsRunning != true)
+        {
+            ConfirmingServerStop = false;
+            if (ConfirmingRestart == SptLaunchTarget.Server) ConfirmingRestart = null; // Fork (1.3.0, TCF 4315064)
+        }
+
         OnPropertyChanged(nameof(CanPlay)); // Fork
         PlayCommand.NotifyCanExecuteChanged();
     }
@@ -217,6 +222,12 @@ public partial class PlayViewModel : LocalizedViewModel
     private CancellationTokenSource? _launcherWait;
 
     public bool CanRestartHeadless => Headless?.IsRunning == true && !IsRestarting;
+
+    // Fork (1.3.0, TCF 4315064): the same for a headless client that went down on its own.
+    partial void OnHeadlessChanged(SptLaunchTargetInfo? value)
+    {
+        if (value?.IsRunning != true && ConfirmingRestart == SptLaunchTarget.Headless) ConfirmingRestart = null;
+    }
 
     //
     // Which target the page is asking about before it kills anything, or null when it is not asking.

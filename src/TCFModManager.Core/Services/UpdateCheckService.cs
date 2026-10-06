@@ -40,10 +40,14 @@ public sealed class UpdateCheckService(SpModApiClient api)
     {
         var updated = new List<int>();
         var answered = new HashSet<int>();
+        var blocked = new List<ModBlockedUpdateEntry>();
+        var requests = 0;
+        var incompatible = new List<ModIncompatibleEntry>();
 
         foreach (var chunk in ModsQueryChunks(installed))
         {
             var result = await api.GetModUpdatesAsync(chunk, sptVersion, ct).ConfigureAwait(false);
+            requests++;
 
             var ids = result.Updates.Select(u => u.CurrentVersion?.ModId).OfType<int>().ToList();
             updated.AddRange(ids);
@@ -52,13 +56,21 @@ public sealed class UpdateCheckService(SpModApiClient api)
             answered.UnionWith(result.BlockedUpdates.Select(u => u.CurrentVersion?.ModId).OfType<int>());
             answered.UnionWith(result.UpToDate.Select(u => u.ModId));
             answered.UnionWith(result.IncompatibleWithSpt.Select(u => u.ModId));
+
+            blocked.AddRange(result.BlockedUpdates);
+            incompatible.AddRange(result.IncompatibleWithSpt);
         }
 
         var asked = installed.Where(m => !string.IsNullOrWhiteSpace(m.Version)).Select(m => m.ModId);
 
         return new InstalledUpdateCheck(
             [.. updated.Distinct()],
-            [.. asked.Distinct().Where(id => !answered.Contains(id))]);
+            [.. asked.Distinct().Where(id => !answered.Contains(id))])
+        {
+            Blocked = blocked,
+            Incompatible = incompatible,
+            Requests = requests,
+        };
     }
 
     // Fresh listings, with categories and versions, shaped like the catalog cache's own.
@@ -136,5 +148,14 @@ public sealed class UpdateCheckService(SpModApiClient api)
 // What one /mods/updates round said. ToRefetch is every mod whose listing a check should re-read.
 public sealed record InstalledUpdateCheck(IReadOnlyList<int> Updated, IReadOnlyList<int> NotRecognised)
 {
+    // Fork (1.3.0): what the same answers held back, and what doesn't run on this SPT - for
+    // HeldBackUpdates, so the background check needs no second request.
+    public IReadOnlyList<ModBlockedUpdateEntry> Blocked { get; init; } = [];
+
+    public IReadOnlyList<ModIncompatibleEntry> Incompatible { get; init; } = [];
+
+    // How many /mods/updates requests the answer took (the install is split when its list is long).
+    public int Requests { get; init; }
+
     public IReadOnlyList<int> ToRefetch => [.. Updated.Concat(NotRecognised).Distinct()];
 }

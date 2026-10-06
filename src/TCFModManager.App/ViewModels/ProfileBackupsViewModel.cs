@@ -71,6 +71,14 @@ public sealed partial class ProfileBackupsViewModel : LocalizedViewModel
         OnPropertyChanged(nameof(IsEmpty));
     }
 
+    // Fork (1.3.0, as TCF): each row's "why" and date are worded when it is made, so a language
+    // change rebuilds them.
+    protected internal override void RefreshText()
+    {
+        base.RefreshText();
+        Refresh();
+    }
+
     private bool CanChange => !IsBusy;
 
     [RelayCommand(CanExecute = nameof(CanChange))]

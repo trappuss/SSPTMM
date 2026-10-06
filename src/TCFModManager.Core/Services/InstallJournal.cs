@@ -232,19 +232,32 @@ public static class InstallJournal
             .GroupBy(f => f.Path, StringComparer.OrdinalIgnoreCase)
             .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
 
-        // The planned paths on disk now, inside the install and somewhere a mod may be - unless the
-        // file was there before the install began, unchanged, and not this mod's.
-        var placed = entry.Planned
-            .Where(path => InstallPathGuard.CheckPlacedPath(entry.InstallPath, path, out var full) is null
-                && Describe(path, full) is { } now
-                && (owned.Contains(path) || !before.TryGetValue(path, out var then)
-                    || then.Bytes != now.Bytes || then.WrittenUtc != now.WrittenUtc))
+        // Each planned path on disk now, inside the install and somewhere a mod may be, and whether
+        // this install wrote it: it wasn't there when the install began, or it has changed since.
+        var onDiskNow = entry.Planned
+            .Select(path => (Path: path, Now: InstallPathGuard.CheckPlacedPath(entry.InstallPath, path, out var full) is null
+                ? Describe(path, full)
+                : null))
+            .Where(p => p.Now is not null)
+            .Select(p => (p.Path, Written: !before.TryGetValue(p.Path, out var then)
+                || then.Bytes != p.Now!.Bytes || then.WrittenUtc != p.Now.WrittenUtc))
             .ToList();
+
+        // On record: what this install wrote, and the previous version's files it was going to
+        // replace but hadn't yet. A file that was there before, unchanged, and not this mod's is
+        // somebody else's.
+        var placed = onDiskNow.Where(p => p.Written || owned.Contains(p.Path)).Select(p => p.Path).ToList();
+
+        // The previous version's files still as they were - their fingerprints still fit.
+        var untouchedOld = new HashSet<string>(
+            onDiskNow.Where(p => !p.Written && owned.Contains(p.Path)).Select(p => p.Path),
+            StringComparer.OrdinalIgnoreCase);
+        var anyNew = onDiskNow.Any(p => p.Written);
 
         //
         // Cut off while the previous version was being removed: what is left of it stays on record,
-        // with the fingerprints it had, so Unsubscribe still clears it. Paths this install was going to
-        // place are left out - the previous fingerprint would no longer fit them.
+        // with the fingerprints it had, so Unsubscribe still clears it. (Its files at paths this
+        // install was going to place are covered above.)
         //
         var planned = new HashSet<string>(entry.Planned, StringComparer.OrdinalIgnoreCase);
         var leftOver = (previous?.Files ?? [])
@@ -266,15 +279,17 @@ public static class InstallJournal
             IsAddon = entry.IsAddon,
             Guid = entry.Guid,
             Name = entry.Name,
-            VersionId = entry.VersionId,
-            Version = entry.Version,
+            // Nothing of the new version written yet (cut off while the previous one was being
+            // removed): what is on disk is the previous version's, so its label stays.
+            VersionId = !anyNew && previous is not null ? previous.VersionId : entry.VersionId,
+            Version = !anyNew && previous is not null ? previous.Version : entry.Version,
             InstalledAt = entry.StartedAt,
             Files = onDisk,
             Folders = InstalledModFolders.FromPlacedFiles(onDisk),
             Incomplete = true,
             InstallPath = stamp,
             Overwrote = overwrote,
-            Fingerprints = [.. (previous?.Fingerprints ?? []).Where(f => leftOverSet.Contains(f.Path))],
+            Fingerprints = [.. (previous?.Fingerprints ?? []).Where(f => leftOverSet.Contains(f.Path) || untouchedOld.Contains(f.Path))],
             ArchiveBytes = entry.ArchiveBytes,
             ListedBytes = entry.ListedBytes,
         };

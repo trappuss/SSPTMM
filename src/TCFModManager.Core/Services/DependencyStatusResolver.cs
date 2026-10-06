@@ -32,7 +32,13 @@ public static class DependencyStatusResolver
                 : ModStatus.NotInstalled;
         }
 
-        if (ModVersionComparer.IsUpdateAvailable(installedVersion, requiredVersion) == true)
+        //
+        // Fork (1.3.0, as TCF 5ec9304): a version read off a DLL carries no label, so 1.2.0.0 on disk
+        // against a published 1.2.0-hotfix is the same release, not an update - as the Subscribed
+        // items card already reads it.
+        //
+        if (ModVersionComparer.IsUpdateAvailable(installedVersion, requiredVersion) == true
+            && (exactVersion || !ModVersionComparer.IsSameRelease(installedVersion, requiredVersion)))
             return ModStatus.UpdateAvailable;
 
         //

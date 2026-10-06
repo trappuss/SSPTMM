@@ -28,12 +28,16 @@ Player Tarkov) mods, laid out and styled like Steam's Workshop. Mods and collect
 - **Collections** - public collections from sp-mod.com, your own collections, and sharing them with
   friends by code or shared folder.
 - **Play** - start the server and the game, read the server log, close the game, and open the tools
-  your mods installed (SVM's Greed, give-ui...). Experimental, off by default: pick a profile and
+  your mods installed (SVM's Greed, give-ui...). Before you launch it warns about conflicts and about
+  mods that need something missing or switched off. Experimental, off by default: pick a profile and
   press PLAY - server and game start with no SPT launcher window.
 - **Tools** - Configs, Dependencies and Conflicts, and **Diagnose logs**, which reads SPT's logs and
   says what went wrong and which mod it came from.
 - **Safety** - a copy of your SPT profiles before anything changes the install, your BepInEx
-  settings kept, SPT's own files protected, and every install checked file by file.
+  settings kept, SPT's own files protected, every install checked file by file, and an install cut
+  off part-way (a crash, the power going) put on record so it can be finished or removed.
+- **Updates itself** - Help > About says when a new SSPTMM is out, and **Install update** puts it
+  in place for you.
 
 | | |
 |---|---|
@@ -94,13 +98,17 @@ addresses.
 ### Safer installs
 
 - **Profile backups:** a copy of your SPT profiles before anything changes your install.
-- **Held-back updates:** an update that would break another installed mod is held back.
+- **Held-back updates:** an update that would break another installed mod is held back - left out
+  of Update all and never announced.
+- **Interrupted installs:** an install cut off part-way is put on record at the next start, so
+  it can be finished or cleanly removed.
 - **Re-upload detection:** spots a mod re-uploaded under the same version number.
 - **SPT upgrade check:** shows which of your mods are ready for a newer SPT.
 - **Install from file:** installs an archive you already have.
 
 ### More control from the Play page
 
+- **Warnings before you launch:** conflicts, and mods that need something missing or switched off.
 - **Server:** stop it, run it without its window, and read its log live.
 - **Game:** close it, optionally whenever the server stops.
 - **Experimental:** start the game straight from SSPTMM with no SPT launcher window.
@@ -116,8 +124,16 @@ Everything that differs, item by item, is in the wiki:
    so you get `SPT\SSPTMM\`. Anywhere else works too - just never inside `BepInEx\plugins` or
    `user\mods`.
 3. Run `SSPTMM\SSPTMM.exe`.
-4. Open **Options** (the gear, top right), set **SPT Install Folder** to the folder with
-   `EscapeFromTarkov.exe` in it, and press **Save**. The window title then shows your SPT version.
+4. Unzipped into your SPT folder, SSPTMM finds that install by itself - the window title shows your
+   SPT version. Anywhere else, open **Options** (the gear, top right), set **SPT Install Folder** to
+   the folder with `EscapeFromTarkov.exe` in it, and press **Save**.
+
+### Updating
+
+From 1.3.0, **Help > About** shows when a newer release is out and has an **Install update**
+button: it asks first, downloads the release from this repository, closes SSPTMM, puts the new
+version over its folder and starts it again. Your settings in `Data` stay. Or update by hand: close
+SSPTMM and unzip the new release to the same place. Coming from 1.2.x, update by hand once.
 
 Windows 10 or 11. The download is self-contained: no .NET install needed. Settings, caches and logs
 live in a `Data` folder beside the exe, so SSPTMM never touches another mod manager or another copy of itself.
@@ -128,6 +144,10 @@ Made and tested for SPT 4.0 and 4.1.
 SSPTMM began as a fork of **[TCF Mod Manager](https://sp-mod.com/mod/2945/tcf-mod-manager) by
 TheCrimsonFckr** (MIT), whose mod handling, installing and removing it was built on. It is now
 developed on its own, with its own look, names, settings and version numbers. Yes I reached out and got permission before uploading.
+
+Code goes both ways: TCF Mod Manager has since taken several SSPTMM features (profile backups, the
+download queue, kept BepInEx settings and more), and SSPTMM takes fixes back from TCF Mod Manager's
+later releases, credited in [CHANGELOG.md](CHANGELOG.md) and in the code.
 
 Everything it adds, changes or leaves out compared with TCF Mod Manager 1.19.0-beta, the release it
 was based on, is in

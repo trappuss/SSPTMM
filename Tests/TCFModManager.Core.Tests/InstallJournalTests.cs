@@ -162,8 +162,53 @@ public class InstallJournalTests : IDisposable
 
         var record = Assert.Single(_manifest.Load().Mods);
         Assert.True(record.Incomplete);
+        Assert.Equal("1.0.0", record.Version); // nothing of 2.0.0 placed yet
         Assert.Equal(["BepInEx/plugins/CutOff/old.dll"], record.Files);
         Assert.Equal(print, Assert.Single(record.Fingerprints));
+    }
+
+    // The new version uses the same paths as the old: cut off before any was overwritten, what is on
+    // disk is still the old version - its label and fingerprint stay. One overwritten makes it the new.
+    [Fact]
+    public void OverlappingPaths_UntouchedKeepTheOldLabel_OverwrittenTakeTheNew()
+    {
+        var id = NewId();
+        var path = "BepInEx/plugins/CutOff/same.dll";
+        var full = Write(path, "old");
+        var print = FileFingerprint.Compute(full, path)!;
+        var manifest = _manifest.Load();
+        manifest.Mods.Add(new InstalledModRecord
+        {
+            ModId = id, Name = "Cut Off", Version = "1.0.0", InstalledAt = DateTimeOffset.UtcNow.AddMinutes(-5),
+            Files = [path], Fingerprints = [print], InstallPath = InstallStamp.Of(_install),
+        });
+        _manifest.Save(manifest);
+        var journal = InstallJournal.Begin(_manifest, Entry(id, path));
+
+        var untouched = InstallJournal.RecoverOne(journal, _manifest);
+        var record = Assert.Single(_manifest.Load().Mods);
+        Assert.NotNull(untouched);
+        Assert.Equal("1.0.0", record.Version);
+        Assert.Equal([path], record.Files);
+        Assert.Equal(print, Assert.Single(record.Fingerprints));
+
+        // Again, with the file replaced by the new version's.
+        manifest = _manifest.Load();
+        manifest.Mods.Clear();
+        manifest.Mods.Add(new InstalledModRecord
+        {
+            ModId = id, Name = "Cut Off", Version = "1.0.0", InstalledAt = DateTimeOffset.UtcNow.AddMinutes(-5),
+            Files = [path], Fingerprints = [print], InstallPath = InstallStamp.Of(_install),
+        });
+        _manifest.Save(manifest);
+        journal = InstallJournal.Begin(_manifest, Entry(id, path));
+        File.WriteAllText(full, "new version, longer");
+
+        InstallJournal.RecoverOne(journal, _manifest);
+        record = Assert.Single(_manifest.Load().Mods);
+        Assert.Equal("2.0.0", record.Version);
+        Assert.Equal([path], record.Files);
+        Assert.Empty(record.Fingerprints);
     }
 
     // The install finished and only its journal stayed behind: the finished record is left alone.

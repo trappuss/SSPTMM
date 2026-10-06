@@ -35,7 +35,8 @@ the same details; click a card or row to open it.
 - The **switch** enables or disables it. Disabling moves its files aside (nothing is deleted) and
   first checks what else needs it.
 - A blue **Update** when an update for your SPT is out, and **Update all** at the top. An update
-  that would break another installed mod is held back and says so.
+  that would break another installed mod is held back and says so: Update all leaves it out, and
+  update notifications don't announce it.
 - Flags when the installed version doesn't run on your SPT, or when it needs a mod that is missing
   or disabled - read from the mod's own files, so it works offline and for hand-installed mods.
 - **PINNED** - see below. **RE-UPLOADED** - see below. **DISABLED**.

@@ -2865,4 +2865,5 @@ internal static class Strings
     internal static string About_SizeUnknown => LocalizationService.Get("About_SizeUnknown");
     internal static string Play_ModsNeedSomething(int count, params object?[] values) =>
         LocalizationService.Plural("Play_ModsNeedSomething", count, values);
+    internal static string ModList_ReasonNoVersionForParentFormat => LocalizationService.Get("ModList_ReasonNoVersionForParentFormat");
 }

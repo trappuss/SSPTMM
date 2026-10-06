@@ -194,13 +194,14 @@ public sealed class ProfileBackups(string? root = null, int keep = 10)
 
     /// <summary>Puts a copy's files back into the install's profiles folder, after taking a copy of
     /// what is there now. Returns that copy (null when the profiles had not changed since the last
-    /// one). Throws <see cref="ModInstallException"/> while the server or game runs from the install.</summary>
+    /// one). Throws <see cref="ModInstallException"/> while the server or game runs from the install, or
+    /// when the install has no SPT server.</summary>
     public ProfileBackup? Restore(ProfileBackup backup, string installPath)
     {
         ModInstallService.EnsureInstallNotInUse(ModInstallAction.RestoreProfiles, installPath);
 
         if (!SptInstallationService.TryGetServerRoot(installPath, out var serverRoot))
-            throw new DirectoryNotFoundException("no SPT server was found in the install folder");
+            throw new ModInstallException(ModInstallFailure.NoInstallFolder); // Fork (1.3.0, as TCF): a sentence the user can read
 
         var folder = System.IO.Path.Combine(installPath, serverRoot, "user", "profiles");
 

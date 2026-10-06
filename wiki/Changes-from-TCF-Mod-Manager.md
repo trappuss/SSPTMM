@@ -97,8 +97,8 @@ Manager 1.19.0-beta does is still here, under Steam's names:
 - **Pick several mods** as Steam's library does (Ctrl+click, Shift+click, Ctrl+A), with Unsubscribe
   in the selection bar alongside Update, Enable and Disable.
 - An on/off switch and a blue **Update** button on each mod, and **Update all**.
-- **Held-back updates**: an update that would break another installed mod is flagged and left out of
-  Update all.
+- **Held-back updates**: an update that would break another installed mod is flagged, left out of
+  Update all and never announced by update notifications.
 - A mod that doesn't run on your SPT names the newest version that does, and a mod that needs a
   missing or disabled mod is flagged, offline and for hand-installed mods too.
 - Pinned mods sort to the top with a **PINNED** tag; a **RE-UPLOADED** tag with **Get it again**; a

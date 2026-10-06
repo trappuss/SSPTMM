@@ -441,6 +441,20 @@ public sealed class ModListService
         foreach (var action in fetches.Where(a => a is { IsAddon: false, ModId: not null }))
             parents.Add(action.ModId!.Value);
 
+        //
+        // Fork (1.3.0, as TCF 448af87): the version each parent will be at once this apply is done -
+        // the one the list names when it fetches the parent, otherwise the one installed - so an addon
+        // is picked to fit it. A parent fetched with no version named is not known yet; its addons
+        // take their newest.
+        //
+        var parentVersions = installed
+            .Where(c => c is { IsAddon: false, ModId: not null })
+            .GroupBy(c => c.ModId!.Value)
+            .ToDictionary(g => g.Key, g => g.First().Version);
+
+        foreach (var action in fetches.Where(a => a is { IsAddon: false, ModId: not null }))
+            parentVersions[action.ModId!.Value] = string.IsNullOrWhiteSpace(action.TargetVersion) ? null : action.TargetVersion.Trim();
+
         var ready = new List<ModListDownload>();
         var changes = new List<ModListVersionChange>();
         var unavailable = new List<ModListFetchFailure>();
@@ -454,6 +468,7 @@ public sealed class ModListService
             }
 
             InstallTarget target;
+            string? parentVersion = null;
 
             if (action.IsAddon)
             {
@@ -476,6 +491,7 @@ public sealed class ModListService
                 }
 
                 target = InstallTarget.For(addon);
+                parentVersion = addon.ModId is { } parent ? parentVersions.GetValueOrDefault(parent) : null;
             }
             else
             {
@@ -517,11 +533,13 @@ public sealed class ModListService
                 // only thing it can mean, so it needs no asking.
                 if (string.IsNullOrWhiteSpace(wanted))
                 {
-                    var newest = await NewestAsync(id, action.IsAddon, sptVersion, ct);
+                    var (newest, anyPublished) = await NewestAsync(id, action.IsAddon, sptVersion, parentVersion, ct);
 
                     if (newest is null)
                         unavailable.Add(new ModListFetchFailure(
-                            action.Name, Strings.ModList_ReasonNoVersions));
+                            action.Name, anyPublished && action.IsAddon
+                                ? Text(Strings.ModList_ReasonNoVersionForParentFormat, parentVersion)
+                                : Strings.ModList_ReasonNoVersions));
                     else ready.Add(new ModListDownload(action, target, newest, IsSubstitute: false));
 
                     continue;
@@ -538,7 +556,7 @@ public sealed class ModListService
                     continue;
                 }
 
-                var replacement = await NewestAsync(id, action.IsAddon, sptVersion, ct);
+                var (replacement, _) = await NewestAsync(id, action.IsAddon, sptVersion, parentVersion, ct);
 
                 if (replacement is null)
                     unavailable.Add(new ModListFetchFailure(
@@ -607,9 +625,32 @@ public sealed class ModListService
     // version, and the replacement offered for one that is gone, both mean a version that runs here
     // before one that does not.
     //
-    private static async Task<ModVersion?> NewestAsync(string id, bool isAddon, string? sptVersion, CancellationToken ct)
+    // Fork (1.3.0, as TCF 448af87): an addon gets the newest version that fits the version its parent
+    // will be at. AnyPublished tells "nothing fits" from "nothing published at all".
+    //
+    private static async Task<(ModVersion? Version, bool AnyPublished)> NewestAsync(
+        string id, bool isAddon, string? sptVersion, string? parentVersion, CancellationToken ct)
     {
-        if (!isAddon && !string.IsNullOrWhiteSpace(sptVersion))
+        if (isAddon)
+        {
+            var published = await AppServices.SpModApi.GetAddonVersionsAsync(
+                id, new AddonVersionsQuery { Sort = "-published_at", PerPage = NewestLookupSize }, ct);
+            return (NewestFittingVersion.ForParent(published.Data, parentVersion) is { } fit ? AsModVersion(fit) : null,
+                published.Data.Count > 0);
+        }
+
+        var mod = await NewestModAsync(id, sptVersion, ct);
+        return (mod, mod is not null);
+    }
+
+    // Enough of the newest versions to reach back past a run of releases for a newer parent.
+    private const int NewestLookupSize = 50;
+
+    // A mod: the newest version for this install's SPT or - when it has none, or the SPT version is
+    // not known - the newest there is (the queue then asks before installing one that won't run).
+    private static async Task<ModVersion?> NewestModAsync(string id, string? sptVersion, CancellationToken ct)
+    {
+        if (!string.IsNullOrWhiteSpace(sptVersion))
         {
             try
             {
@@ -623,19 +664,12 @@ public sealed class ModListService
             }
         }
 
-        if (!isAddon)
-        {
-            // Sorted, as every other caller asks: left to itself the API answers oldest first
-            // (measured 2026-09-25 on APBS - 2.0.3 of Nov 2025 came back ahead of 2.2.1), which
-            // quietly made "newest" the oldest release it had.
-            var mods = await AppServices.SpModApi.GetModVersionsAsync(
-                id, new ModVersionsQuery { Sort = "-published_at", PerPage = 5 }, ct);
-            return mods.Data.FirstOrDefault();
-        }
-
-        var addons = await AppServices.SpModApi.GetAddonVersionsAsync(
-            id, new AddonVersionsQuery { Sort = "-published_at", PerPage = 5 }, ct);
-        return addons.Data.Select(AsModVersion).FirstOrDefault();
+        // Sorted, as every other caller asks: left to itself the API answers oldest first
+        // (measured 2026-09-25 on APBS - 2.0.3 of Nov 2025 came back ahead of 2.2.1), which
+        // quietly made "newest" the oldest release it had.
+        var mods = await AppServices.SpModApi.GetModVersionsAsync(
+            id, new ModVersionsQuery { Sort = "-published_at", PerPage = 5 }, ct);
+        return mods.Data.FirstOrDefault();
     }
 
     //

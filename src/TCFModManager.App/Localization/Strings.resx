@@ -10861,4 +10861,8 @@ If anything goes wrong before the files are replaced, nothing is changed.</value
     <value>{0} mods need something that's missing or switched off: {1}. See Subscribed items.</value>
     <comment>Play page, above PLAY. {0} is how many installed mods need a mod that is missing or disabled; {1} lists up to three of their names.</comment>
   </data>
+  <data name="ModList_ReasonNoVersionForParentFormat" xml:space="preserve">
+    <value>none of its versions works with version {0} of the mod it's an addon for</value>
+    <comment>Why an addon on a collection could not be fetched: versions are published, but none fits its parent. {0} is the parent mod's version.</comment>
+  </data>
 </root>

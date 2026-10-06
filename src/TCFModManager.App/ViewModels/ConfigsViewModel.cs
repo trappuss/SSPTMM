@@ -743,7 +743,7 @@ public sealed partial class ConfigsViewModel : LocalizedViewModel
     //
     private void RefreshRunningWarning()
     {
-        if (ModInstallService.RunningBlockers() is not { Count: > 0 } blockers)
+        if (ModInstallService.RunningBlockers(AppServices.SptEnvironment.InstallPath) is not { Count: > 0 } blockers)
         {
             RunningWarning = null;
             return;

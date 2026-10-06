@@ -182,8 +182,15 @@ internal sealed class UpdateWatcher
 
         // The mods with an update, and the ones The Forge couldn't place - a hand install whose
         // version came from its files and matches no release (R7). Both are re-read in one go.
+        var heldBackTicket = AppServices.HeldBack.Begin();
         var answer = mods.Count == 0 ? null : await _checker.FindUpdatedModsAsync(mods, sptVersion, ct);
         var refetch = answer?.ToRefetch ?? [];
+
+        // Fork (1.3.0, as TCF be28c66): the same answer says which updates would break another
+        // installed mod. Taken in first, so none of those is announced below. Only an answer about the
+        // whole install in one request: split into several, a blocker in one part can't hold back an
+        // update in another, and Subscribed items' own (single) check stands instead.
+        if (answer is { Requests: 1 }) AppServices.HeldBack.Apply(heldBackTicket, answer.Blocked, answer.Incompatible, sptVersion);
 
         var patched = false;
         if (refetch.Count > 0) patched |= AppServices.ModCache.Patch(await _checker.FetchModsAsync(refetch, ct));
@@ -193,8 +200,10 @@ internal sealed class UpdateWatcher
         if (patched) cards = await BuildCardsAsync(scanned, sptVersion, records, ct);
 
         // Exactly the cards Installed shows an arrow on: a disabled mod's arrow is hidden (§7).
+        // Held-back updates are not: Update all leaves them out too.
         var available = cards
             .Where(c => c.UpdateAvailable == true && !c.IsDisabled && c.ModId is not null)
+            .Where(c => c.IsAddon || !AppServices.HeldBack.Holds(c.ModId, c.UpdateVersion ?? c.LatestPublishedVersion))
             .Select(c => new UpdateCandidate(
                 c.ModId!.Value, c.IsAddon, c.DisplayTitle, c.UpdateVersion ?? c.LatestPublishedVersion ?? string.Empty))
             .ToList();

@@ -2002,6 +2002,40 @@ content guidelines:
   to 73.4 MB on disk but the zip only from 68.1 to 67.5 MB, at a start-up cost (decompressing to
   memory each start) that could not be measured here. Left off.
 
+## Round 42: 1.3.0 - fixes taken back from TCF Mod Manager (2026-10-06)
+
+TCF Mod Manager's 70 commits since the fork (8bde5ed..87c4231) were read one by one against
+SSPTMM. Most were already here (several were ported from SSPTMM: profile backups, the queue, kept
+.cfg, empty folders, labelled versions, config kind changes). Taken back, each marked in the code:
+
+- **Held-back updates in the background check** (be28c66): UpdateCheckService keeps the blocked and
+  not-for-SPT answers of the /mods/updates call it already makes; UpdateWatcher hands them to
+  HeldBackUpdates.Apply before picking what to announce, and leaves held-back updates out. A ticket
+  taken before asking (`Begin`) drops an answer older than the last question asked; an answer split
+  over several requests (long installs, MaxModsQueryLength) is not applied, since a blocker in one
+  part can't hold back an update in another. The item page's Update button and the right-click
+  menu (`ModActions.CanUpdate`) follow. Not taken: upstream's "safe older version" offer
+  (HeldBackVersions) - more plumbing through the update paths than this round wanted.
+- **Addon on a collection fits its parent** (448af87): Core `NewestFittingVersion.ForParent` and the
+  parent-version map in ModListService.ResolveAsync (list's named version, else installed). Mods
+  keep SSPTMM's rule (newest for this SPT, else newest - the queue asks before one that won't run).
+  `per_page=50` on /addon/{id}/versions checked live (200).
+- **Small ones:** Restart question cleared when the target stops by itself (4315064 X4); Configs'
+  running note per install (99dd8f2); failed downloads logged including no-link, unexpected
+  exceptions with stack (673c324); install-anyway questions default to No (83a8942); DLL-read
+  versions vs labelled releases on the Dependencies page (5ec9304); ProfileBackups.Restore throws
+  NoInstallFolder, the backups list rebuilds on a language change, and two backups run off the UI
+  thread (cdf20f9); the unused `filter[contains_ai_content]` emit lines removed (SSPTMM had dropped
+  the option first, round 36; the API answers it 400).
+- **Install journal**: keeps the previous version's label when nothing of the new one was written
+  (no planned file is new or changed since Begin - so the previous version's files at the same paths
+  still count as old, with their fingerprints). Upstream keeps the old record in that case too;
+  its journal (d865b9f) is otherwise weaker. Removing a hand-installed mod re-checks that SPT isn't
+  running after its (now background) profile copy, before moving configs.
+- **Not taken:** GradualFill / InstallFingerprint (Subscribed items performance - can't be measured
+  here), a right-click menu acting on the selection, the sp-mod list import window (Collections
+  covers it), detached-parent and count checks in the list parser (no real page found with one).
+
 ## Values that could not be measured (marked HUNCH in the source)
 
 - Round 37: everything about the real SPT 4.1 server and game under direct launch - only a fake

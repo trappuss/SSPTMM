@@ -30,9 +30,11 @@ public static class ModActions
 
     // A newer version than the installed one, on a mod that is not set aside - the item page's own
     // test for showing Update.
+    // Fork (1.3.0): not an update sp-mod.com holds back, as on the item page and the card.
     public static bool CanUpdate(Mod mod) =>
-        AppServices.Browse.InstalledMatchFor(mod) is not null
-        && AppServices.Browse.BuildCard(mod) is { UpdateAvailable: true, IsDisabled: false };
+        AppServices.Browse.InstalledMatchFor(mod) is { } installed
+        && AppServices.Browse.BuildCard(mod) is { UpdateAvailable: true, IsDisabled: false }
+        && (installed.IsAddon || !AppServices.HeldBack.Holds(mod.Id, installed.UpdateVersion ?? installed.LatestPublishedVersion));
 
     public static Task<string?> OpenAsync(Mod mod) => AppServices.Browse.LoadDetailsAsync(mod);
 
