@@ -1,37 +1,32 @@
 @echo off
 setlocal EnableExtensions
 rem ---------------------------------------------------------------------------------------------
-rem  SSPTMM (Steamified SPT Mod Manager) - publish a release on GitHub, in one double-click.
+rem  SSPTMM - upload to GitHub, in one double-click: https://github.com/trappuss/SSPTMM
 rem
-rem   https://github.com/trappuss/SSPTMM
+rem   1. Picks what to upload: the newest of your steam-workshop-ui branch here and Claude's
+rem      steam-workshop-ui.bundle ("Claude outputs" or beside this file). Run
+rem      SSPTMM-build-and-run.bat first to bring Claude's update in and try it.
+rem   2. Checks GitHub holds nothing that isn't in it, and reads the version from
+rem      build\Directory.Build.props.
+rem   3. A NEW version (no v<version> tag on GitHub yet): builds it in a separate folder under %TEMP%,
+rem      runs the tests and zips SSPTMM.exe as release\SSPTMM-<version>-win-x64.zip.
+rem      The SAME version as the last release: only the code and the wiki go up - no new release.
+rem   4. Says what it is about to upload and waits for you to type Y. Anything else stops with
+rem      nothing sent.
+rem   5. Pushes main and steam-workshop-ui; for a new version also the tag and the GitHub release
+rem      with the zip and this version's CHANGELOG.md section as its notes; then the wiki\ pages.
 rem
-rem   1. Picks what to release: the newest of the steam-workshop-ui.bundle from Claude
-rem      ("Claude outputs" or beside this file) and your own steam-workshop-ui branch here.
-rem   2. Checks GitHub's main and steam-workshop-ui hold nothing that is not in it, and reads the
-rem      version from build\Directory.Build.props - the tag is v plus that version.
-rem   3. Builds it in a separate folder under %TEMP% - your own files and branch stay as they are -
-rem      runs the tests, publishes SSPTMM.exe and zips it, inside a folder SSPTMM\, as
-rem      release\SSPTMM-<version>-win-x64.zip.
-rem   4. Shows what it is about to publish and waits for you to type Y. Anything else stops here
-rem      with nothing sent; the zip stays in release\ for you to try.
-rem   5. Pushes it to GitHub as both steam-workshop-ui and main, tags it, creates the GitHub release
-rem      with the zip and this version's section of CHANGELOG.md as its notes, and copies the
-rem      wiki\ pages to the wiki.
-rem
-rem  It never force-pushes. If GitHub has commits this does not, it stops before sending anything.
-rem  Safe to run again: a step already done (same commit, same tag, release already there) is
-rem  skipped or updated, not repeated.
-rem
-rem  Needs: Git for Windows; the GitHub CLI (it offers to install it with winget); a .NET 9 SDK
-rem  (run SSPTMM-build-and-run.bat once first if this PC has none). Sign in as trappuss when asked.
-rem  Everything it does is also written to logs\release.log.
+rem  It never force-pushes, and your own files and branch stay as they are. Safe to run again.
+rem  Needs Git for Windows, the GitHub CLI (it offers to install it) and a .NET 9 SDK
+rem  (SSPTMM-build-and-run.bat installs one). Sign in as trappuss when asked.
+rem  Everything it does is also written to logs\upload.log.
 rem ---------------------------------------------------------------------------------------------
 
 pushd "%~dp0" || exit /b 1
 set "ROOT=%~dp0"
 if not exist "%ROOT%logs" mkdir "%ROOT%logs"
 if not exist "%ROOT%release" mkdir "%ROOT%release"
-set "LOG=%ROOT%logs\release.log"
+set "LOG=%ROOT%logs\upload.log"
 set "REL=%ROOT%release"
 set "REPO=trappuss/SSPTMM"
 set "FORK_URL=https://github.com/trappuss/SSPTMM.git"
@@ -45,8 +40,10 @@ set "WT=%TEMP%\SSPTMM-release-src"
 set "LOCALSDK=%ROOT%.dotnet"
 set "DOTNET_CLI_TELEMETRY_OPTOUT=1"
 set "DOTNET_NOLOGO=1"
+rem No pager: a long git listing would otherwise wait at a ":" prompt that looks like a hang.
+set "GIT_PAGER=cat"
 
-> "%LOG%" echo SSPTMM release - %DATE% %TIME%
+> "%LOG%" echo SSPTMM upload - %DATE% %TIME%
 
 rem (git, gh and dotnet through CALL throughout: some installs provide them as .cmd wrappers, and
 rem a script run without CALL never returns to this one.)
@@ -100,7 +97,7 @@ goto :end_fail
 :have_dotnet
 
 rem ---------------------------------------------------------------- 1. what to release
-call :say "[1/6] Picking what to release..."
+call :say "[1/6] Picking what to upload..."
 set "BUNDLE="
 if exist "%ROOT%Claude outputs\steam-workshop-ui.bundle" set "BUNDLE=%ROOT%Claude outputs\steam-workshop-ui.bundle"
 if not defined BUNDLE if exist "%ROOT%steam-workshop-ui.bundle" set "BUNDLE=%ROOT%steam-workshop-ui.bundle"
@@ -121,7 +118,7 @@ goto :remote
 :have_bundle
 call git fetch --quiet "%BUNDLE%" steam-workshop-ui >> "%LOG%" 2>&1
 if errorlevel 1 (
-    call :say "The bundle could not be read. logs\release.log says why."
+    call :say "The bundle could not be read. logs\upload.log says why."
     goto :end_fail
 )
 set "BUNDLE_SHA="
@@ -141,7 +138,8 @@ call git merge-base --is-ancestor %BRANCH_SHA% %BUNDLE_SHA%
 if not errorlevel 1 goto :remote
 
 call :say "Your steam-workshop-ui branch and the bundle have each got commits the other has not."
-call :say "Nothing was sent. Run SSPTMM-update-and-run.bat first - it says what to do about that."
+call :say "Nothing was sent. Run SSPTMM-build-and-run.bat first - it brings Claude's update into this"
+call :say "folder - then this again."
 goto :end_fail
 
 rem ---------------------------------------------------------------- 2. GitHub's side
@@ -152,7 +150,7 @@ for /f "delims=" %%u in ('git remote get-url fork 2^>nul') do set "HAVE_FORK=%%u
 if not defined HAVE_FORK (
     call git remote add fork "%FORK_URL%" >> "%LOG%" 2>&1
     if errorlevel 1 (
-        call :say "Could not add the repository as a remote. logs\release.log says why."
+        call :say "Could not add the repository as a remote. logs\upload.log says why."
         goto :end_fail
     )
     call :say "      Added the repository to this folder's git as the remote named fork."
@@ -164,7 +162,7 @@ if /i "%HAVE_FORK%.git"=="%FORK_URL%" goto :fetch
 if /i "%HAVE_FORK%"=="%OLD_FORK_URL%" (
     call git remote set-url fork "%FORK_URL%" >> "%LOG%" 2>&1
     if errorlevel 1 (
-        call :say "Could not point the fork remote at the renamed repository. logs\release.log says why."
+        call :say "Could not point the fork remote at the renamed repository. logs\upload.log says why."
         goto :end_fail
     )
     call :say "      Pointed the fork remote at the renamed repository, SSPTMM."
@@ -180,7 +178,7 @@ if /i not "%HAVE_FORK%"=="%FORK_URL%" (
 :fetch
 call git fetch --quiet fork >> "%LOG%" 2>&1
 if errorlevel 1 (
-    call :say "Could not read the repository on GitHub. logs\release.log says why. Nothing was sent."
+    call :say "Could not read the repository on GitHub. logs\upload.log says why. Nothing was sent."
     goto :end_fail
 )
 call :check_behind main
@@ -210,40 +208,39 @@ set "APPDIR=%REL%\%PKG%\SSPTMM"
 
 rem The tag: fine if it is new, or already on this very commit - a rerun. Anywhere else, stop.
 set "TAG_DONE="
+set "CODE_ONLY="
 set "REMOTE_TAG="
 rem An annotated tag is listed twice - the tag, then "^{}" with the commit it points at - so the
 rem last line is always the commit.
 for /f %%c in ('git ls-remote --tags fork refs/tags/%TAG% "refs/tags/%TAG%^{}" 2^>nul') do set "REMOTE_TAG=%%c"
 if not defined REMOTE_TAG goto :tag_local
+rem Released already, on an earlier commit: this is an upload between releases - code and wiki only.
 if /i not "%REMOTE_TAG%"=="%SEND%" (
-    call :say "GitHub already has a tag %TAG% on a different commit, %REMOTE_TAG%."
-    call :say "Raise the version in build\Directory.Build.props for a new release. Nothing was sent."
-    goto :end_fail
+    set "CODE_ONLY=1"
+    goto :tag_ok
 )
 set "TAG_DONE=1"
 :tag_local
 set "LOCAL_TAG="
 for /f %%c in ('git rev-list -n 1 refs/tags/%TAG% -- 2^>nul') do set "LOCAL_TAG=%%c"
 if not defined LOCAL_TAG goto :tag_ok
-if /i not "%LOCAL_TAG%"=="%SEND%" (
-    call :say "This folder already has a tag %TAG% on a different commit, %LOCAL_TAG%."
-    call :say "Raise the version in build\Directory.Build.props for a new release. Nothing was sent."
-    goto :end_fail
-)
+if /i not "%LOCAL_TAG%"=="%SEND%" set "CODE_ONLY=1"
 :tag_ok
 call :say "      Version %VERSION%, commit %SEND%."
+if defined CODE_ONLY call :say "      %TAG% is already released - this uploads the code and the wiki only, no new release."
 
 rem ---------------------------------------------------------------- 3. build, test, zip
-call :say "[3/6] Building %TAG% in a separate folder..."
+call :say "[3/6] Taking a clean copy of it into a separate folder..."
 call git worktree remove --force "%WT%" >> "%LOG%" 2>&1
 if exist "%WT%\" rmdir /s /q "%WT%"
 rem -f: a record of this folder left by an interrupted run is reused, not an error. (No "worktree
 rem prune": it would also forget any other worktree of yours on a drive that is unplugged.)
 call git worktree add -f --detach "%WT%" %SEND% >> "%LOG%" 2>&1
 if errorlevel 1 (
-    call :say "Could not check the commit out into %WT%. logs\release.log says why. Nothing was sent."
+    call :say "Could not check the commit out into %WT%. logs\upload.log says why. Nothing was sent."
     goto :end_fail
 )
+if defined CODE_ONLY goto :confirm
 if not exist "%WT%\CHANGELOG.md" (
     call :say "This commit has no CHANGELOG.md for the release notes. Nothing was sent."
     goto :fail_cleanup
@@ -258,12 +255,13 @@ call powershell -NoProfile -ExecutionPolicy Bypass -Command "& { $ErrorActionPre
 if errorlevel 1 goto :fail_notes
 if not exist "%NOTES%" goto :fail_notes
 
+call :say "      Building %TAG%..."
 call "%DOTNET%" build "%WT%\src\TCFModManager.App" -c Release --nologo >> "%LOG%" 2>&1
 if errorlevel 1 goto :fail_build
 call :say "[4/6] Running the tests..."
 call "%DOTNET%" test "%WT%\Tests\TCFModManager.Core.Tests" -c Release --nologo >> "%LOG%" 2>&1
 if errorlevel 1 (
-    call :say "The tests failed, so nothing was released. logs\release.log names the failing test."
+    call :say "The tests failed, so nothing was released. logs\upload.log names the failing test."
     goto :fail_cleanup
 )
 call :say "      All tests passed. Publishing and zipping..."
@@ -286,6 +284,16 @@ for %%A in ("%ZIP%") do set "ZIPBYTES=%%~zA"
 set /a ZIPMB=ZIPBYTES/1048576
 
 rem ---------------------------------------------------------------- 4. confirm
+goto :confirm_release
+:confirm
+call :say ""
+call :say "Ready to upload (no new release - %TAG% is out already):"
+call :say "   commit   %SEND%"
+call :say "   GitHub   %REPO%: branches main and steam-workshop-ui, and the wiki pages"
+call :say ""
+call git --no-pager log --oneline --no-decorate -20 refs/remotes/fork/main..%SEND% 2>nul
+goto :ask
+:confirm_release
 call :say ""
 call :say "Ready to publish SSPTMM %VERSION%:"
 call :say "   commit   %SEND%"
@@ -294,15 +302,17 @@ call :say "   GitHub   %REPO%: branches main and steam-workshop-ui, tag %TAG%,"
 call :say "            a release named SSPTMM %VERSION% with the zip and its CHANGELOG.md section, and the wiki pages"
 call :say ""
 call :say "You can try release\%PKG%\SSPTMM\SSPTMM.exe first - it keeps its own settings beside it."
+:ask
 set "GO="
-set /p "GO=Type Y and press Enter to publish, or just press Enter to stop: "
+set /p "GO=Type Y and press Enter to upload, or just press Enter to stop: "
 rem Only its first letter counts, so "yes" works too and nothing stray after it matters.
 rem A quote typed as the answer is dropped; anything else is only ever used inside quotes.
 if defined GO set "GO=%GO:~0,1%"
 if defined GO set "GO=%GO:"=%"
 if /i not "%GO%"=="Y" (
     >> "%LOG%" echo Answer: not Y
-    call :say "Stopped. Nothing was sent; the zip is in release\."
+    if defined CODE_ONLY call :say "Stopped. Nothing was sent."
+    if not defined CODE_ONLY call :say "Stopped. Nothing was sent; the zip is in release\."
     call :cleanup
     goto :end_ok
 )
@@ -330,6 +340,10 @@ call git push fork %SEND%:refs/heads/steam-workshop-ui >> "%LOG%" 2>&1
 if errorlevel 1 goto :fail_push
 call git push fork %SEND%:refs/heads/main >> "%LOG%" 2>&1
 if errorlevel 1 goto :fail_push
+if not defined CODE_ONLY goto :push_tag
+call :say "      main and steam-workshop-ui are on GitHub."
+goto :release_done
+:push_tag
 if defined TAG_DONE goto :tag_pushed
 if not defined LOCAL_TAG call git tag %TAG% %SEND% >> "%LOG%" 2>&1
 call git push fork refs/tags/%TAG% >> "%LOG%" 2>&1
@@ -382,7 +396,7 @@ call :say "      Wiki updated."
 call :cleanup
 call :say ""
 call :say "Done."
-call :say "   Release   https://github.com/%REPO%/releases/tag/%TAG%"
+if not defined CODE_ONLY call :say "   Release   https://github.com/%REPO%/releases/tag/%TAG%"
 call :say "   Code      https://github.com/%REPO%"
 call :say "   Wiki      https://github.com/%REPO%/wiki"
 goto :end_ok
@@ -390,7 +404,7 @@ goto :end_ok
 rem ---------------------------------------------------------------- failures
 :fail_build
 call :say "The build failed, so nothing was released. The first line containing 'error' in"
-call :say "logs\release.log says why."
+call :say "logs\upload.log says why."
 goto :fail_cleanup
 
 :fail_notes
@@ -404,17 +418,17 @@ call :say "running from there, then run this again. Nothing was sent."
 goto :fail_cleanup
 
 :fail_zip
-call :say "Could not zip the build. logs\release.log says why. Nothing was sent."
+call :say "Could not zip the build. logs\upload.log says why. Nothing was sent."
 goto :fail_cleanup
 
 :fail_push
-call :say "A push did not go through - the end of logs\release.log says why. Most often a cancelled"
+call :say "A push did not go through - the end of logs\upload.log says why. Most often a cancelled"
 call :say "sign-in. Nothing was force-pushed; run this again once that is sorted."
 goto :fail_cleanup
 
 :fail_release
 call :say "The code and tag are on GitHub, but the release could not be created or updated - the end"
-call :say "of logs\release.log says why. Run this again: it picks up from there."
+call :say "of logs\upload.log says why. Run this again: it picks up from there."
 goto :fail_cleanup
 
 :fail_wiki_clone
@@ -423,7 +437,7 @@ call :say "save any first page there, then run this again. The release itself is
 goto :fail_cleanup
 
 :fail_wiki
-call :say "The wiki could not be updated - the end of logs\release.log says why. The release itself"
+call :say "The wiki could not be updated - the end of logs\upload.log says why. The release itself"
 call :say "is done; run this again to retry the wiki."
 goto :fail_cleanup
 

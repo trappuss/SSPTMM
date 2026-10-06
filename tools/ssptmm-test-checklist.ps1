@@ -1,4 +1,4 @@
-# SSPTMM - manual test checklist. Started by SSPTMM-test-checklist.bat in the repository root.
+# SSPTMM - manual test checklist. Started by tools\SSPTMM-test-checklist.bat.
 #
 # Walks through testing a release on a FRESH SPT install, one step at a time, and writes what you
 # found to test-reports\. For each step: do it, then answer P (passed), F (failed) or S (skipped)

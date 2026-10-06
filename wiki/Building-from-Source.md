@@ -4,14 +4,18 @@
 
 1. Get the code: **Code > Download ZIP** on GitHub, or `git clone https://github.com/trappuss/SSPTMM`.
 2. Double-click **`SSPTMM-build-and-run.bat`**. It:
-   1. finds a .NET 9 SDK, or installs one into `.dotnet\` beside the file (no admin rights);
-   2. builds the app;
-   3. runs the tests - a failure stops here;
-   4. publishes a self-contained `SSPTMM.exe` into `dist\SSPTMM\`;
-   5. starts it.
+   1. brings in an update bundle, if there is one in `Claude outputs\` (the maintainer's workflow -
+      skipped otherwise);
+   2. finds a .NET 9 SDK, or installs one into `.dotnet\` beside the file (no admin rights);
+   3. builds the app;
+   4. runs the tests - a failure stops here;
+   5. publishes a self-contained `SSPTMM.exe` into `dist\SSPTMM\`;
+   6. starts it.
 
-Everything it does is written to `logs\build.log`. `SSPTMM-test.bat` runs the tests on their own
-(`logs\test.log`).
+Everything it does is written to `logs\build.log`.
+
+For the maintainer, **`SSPTMM-upload-to-github.bat`** sends the code and wiki to GitHub, and makes
+the release when the version is new (`logs\upload.log`).
 
 ## By hand
 

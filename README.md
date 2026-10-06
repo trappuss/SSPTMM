@@ -160,10 +160,17 @@ out.
 
 ## Building from source
 
-Double-click **`SSPTMM-build-and-run.bat`**. It installs the .NET 9 SDK into the folder if the PC
-has none, builds, runs the tests, publishes a self-contained `SSPTMM.exe` into `dist\SSPTMM\` and
-starts it. `SSPTMM-test.bat` runs the tests on their own, and `SSPTMM-test-checklist.bat` walks
-through testing a release by hand on a fresh SPT install and writes a report to `test-reports\`. See
+Two files do everything:
+
+- **`SSPTMM-build-and-run.bat`** - installs the .NET 9 SDK into the folder if the PC has none,
+  builds, runs the tests, publishes a self-contained `SSPTMM.exe` into `dist\SSPTMM\` and starts it.
+  When there is a `steam-workshop-ui.bundle` in `Claude outputs\`, it brings that update in first.
+- **`SSPTMM-upload-to-github.bat`** - puts the code on GitHub. When the version in
+  `build\Directory.Build.props` is new, it also makes the release: builds and tests it, zips it and
+  publishes it with its CHANGELOG section. It asks before sending anything.
+
+`tools\SSPTMM-test-checklist.bat` walks through testing a release by hand on a fresh SPT install and
+writes a report to `test-reports\`. See
 [Building from source](https://github.com/trappuss/SSPTMM/wiki/Building-from-Source) in the wiki.
 
 ## More
