@@ -417,14 +417,16 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     private bool _categoryDefaultApplied;
     private bool _groupDefaultApplied;
 
-    // A default saved before Recently installed moved from Sort by to this dropdown carries it as
-    // Sort = "RecentlyInstalled"; with no update status of its own saved, that becomes this filter.
+    //
+    // Fork (1.3.0): only the saved update status. The original also read Sort = "RecentlyInstalled"
+    // as this filter - from the release where Recently installed moved from Sort by to here - but
+    // SSPTMM has a Recently installed sort again (5ba33de), so that turned "Installed in the last 7
+    // days" back on at every start for anyone sorting by it, whatever this dropdown was left at.
+    //
     private UpdateFilterItem DefaultUpdateFilter() =>
-        SavedFilterDefaults.Parse<UpdateFilter>(_defaults?.UpdateStatus) is { } value and not UpdateFilter.All
+        SavedFilterDefaults.Parse<UpdateFilter>(_defaults?.UpdateStatus) is { } value
             ? UpdateFilterOptions.FirstOrDefault(o => o.Value == value) ?? UpdateFilterOptions[0]
-            : _defaults?.Sort == nameof(UpdateFilter.RecentlyInstalled)
-                ? UpdateFilterOptions.First(o => o.Value == UpdateFilter.RecentlyInstalled)
-                : UpdateFilterOptions[0];
+            : UpdateFilterOptions[0];
 
     private EnabledFilterItem DefaultEnabledFilter() =>
         SavedFilterDefaults.Parse<EnabledFilter>(_defaults?.Enabled) is { } value
@@ -1385,7 +1387,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         else
             question = Text(Strings.Installed_LocalConfirmUnmatchedFormat, Path.GetFileName(file), name, version);
 
-        if (MessageBox.Show(question, Strings.Installed_InstallFromFileTitle, MessageBoxButton.YesNo, MessageBoxImage.Question)
+        if (TCFModManager.App.Views.SteamMessageBox.Show(question, Strings.Installed_InstallFromFileTitle, MessageBoxButton.YesNo, MessageBoxImage.Question)
             != MessageBoxResult.Yes)
         {
             StatusMessage = null;
@@ -1906,7 +1908,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         var pairs = mod.DuplicateFolders;
         var folders = string.Join("\n", pairs.SelectMany(p => new[] { p.Enabled.FolderPath, p.Disabled.FolderPath }));
 
-        var answer = MessageBox.Show(
+        var answer = TCFModManager.App.Views.SteamMessageBox.Show(
             Text(Strings.Installed_DuplicateBodyFormat, mod.DisplayTitle, folders),
             Text(Strings.Installed_DuplicateTitleFormat, mod.DisplayTitle),
             MessageBoxButton.YesNoCancel,
@@ -2532,7 +2534,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         AppServices.DownloadQueue.Items.FirstOrDefault(i => i.Status == DownloadQueueItemStatus.Installing)?.ModName;
 
     private static bool Confirm(string title, string message) =>
-        MessageBox.Show(message, title, MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes;
+        TCFModManager.App.Views.SteamMessageBox.Show(message, title, MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes;
 
     //
     // Confirms a removal and, when the mod has config files of its own, asks what should happen to
@@ -3236,7 +3238,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
             : Strings.Installed_DeleteGroup(
                 section.Items.Count, section.Name, section.Items.Count);
 
-        if (MessageBox.Show(
+        if (TCFModManager.App.Views.SteamMessageBox.Show(
                 message,
                 Strings.Installed_DeleteGroupTitle,
                 MessageBoxButton.YesNo,

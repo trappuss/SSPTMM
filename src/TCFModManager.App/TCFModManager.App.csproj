@@ -188,7 +188,10 @@
         // AppendLine writes the platform's newline, and this file is committed.
         var text = sb.ToString().Replace("\r\n", "\n");
 
-        if (!System.IO.File.Exists(Destination) || System.IO.File.ReadAllText(Destination) != text)
+        // Compared without line endings: Git on Windows checks the file out with CRLF, and writing
+        // the LF copy over it on every build left it showing as changed - which then blocked an
+        // update of the folder (fork, 1.3.0).
+        if (!System.IO.File.Exists(Destination) || System.IO.File.ReadAllText(Destination).Replace("\r\n", "\n") != text)
             System.IO.File.WriteAllText(Destination, text);
       ]]></Code>
     </Task>

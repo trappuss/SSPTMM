@@ -43,7 +43,7 @@ public sealed partial class ModListAddRow : LocalizedViewModel
 // acts on them. That is why a mod nobody here has can be added at all - the point of a list is
 // often to describe an install someone else should end up with.
 //
-public partial class ModListAddModWindow : FluentWindow
+public partial class ModListAddModWindow : SteamModalWindow
 {
     private static string Text(string format, params object?[] values) =>
         LocalizationService.Text(format, values);
@@ -70,7 +70,7 @@ public partial class ModListAddModWindow : FluentWindow
 
         InitializeComponent();
 
-        WindowTitleBar.Title = Title = Text(Strings.ModLists_AddTitleFormat, listName);
+        Title = Text(Strings.ModLists_AddTitleFormat, listName);
         InstalledSourceButton.Content = Text(
             Strings.ModLists_AddSourceInstalledFormat, _installed.Count);
         CatalogSourceButton.Content = Text(
@@ -175,8 +175,8 @@ public partial class ModListAddModWindow : FluentWindow
 
     private void ShowSource()
     {
-        InstalledSourceButton.Appearance = _showingCatalog ? ControlAppearance.Secondary : ControlAppearance.Primary;
-        CatalogSourceButton.Appearance = _showingCatalog ? ControlAppearance.Primary : ControlAppearance.Secondary;
+        InstalledSourceButton.Style = (Style)FindResource(_showingCatalog ? "SteamModalGreyButton" : "SteamModalBlueButton");
+        CatalogSourceButton.Style = (Style)FindResource(_showingCatalog ? "SteamModalBlueButton" : "SteamModalGreyButton");
 
         SourceNote.Text = _showingCatalog
             ? Strings.ModLists_AddSourceCatalogNote

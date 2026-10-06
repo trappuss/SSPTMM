@@ -1,17 +1,16 @@
-<ui:FluentWindow
+<local:SteamModalWindow
     x:Class="TCFModManager.App.Views.ModListAddModWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:TCFModManager.App.Views"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:loc="clr-namespace:TCFModManager.App.Localization"
     Width="660"
     Height="680"
     MinWidth="520"
     MinHeight="440"
-    ShowInTaskbar="False"
-    ExtendsContentIntoTitleBar="True"
-    TextOptions.TextFormattingMode="Display"
-    TextOptions.TextRenderingMode="ClearType">
+    Title="{loc:Str ModLists_AddMods}"
+    ResizeMode="CanResizeWithGrip">
     <!--
         Picks mods to add to a list, from what this install has and from the cached sp-mod.com
         catalog. Nothing here downloads or installs anything - it names mods, and applying the list
@@ -20,7 +19,7 @@
         Every TextBlock sets its own Foreground: a plain ListBox hands its content the system
         control foreground, which is black whatever the theme is.
     -->
-    <ui:FluentWindow.Resources>
+    <local:SteamModalWindow.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
 
         <!--
@@ -53,7 +52,7 @@
             </Setter>
         </Style>
 
-    </ui:FluentWindow.Resources>
+    </local:SteamModalWindow.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -63,26 +62,22 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <ui:TitleBar
-            x:Name="WindowTitleBar"
-            Grid.Row="0"
-            Title="{loc:Str ModLists_AddMods}" />
-
-        <StackPanel Grid.Row="1" Margin="24,12,24,12">
+        <StackPanel Grid.Row="1" Margin="0,0,0,12">
             <StackPanel Orientation="Horizontal">
-                <ui:Button
+                <!-- The source showing is blue, the other grey (set in code). -->
+                <Button
                     x:Name="InstalledSourceButton"
+                    Style="{StaticResource SteamModalBlueButton}"
                     MinWidth="150"
+                    Margin="0"
                     HorizontalContentAlignment="Center"
-                    Icon="{ui:SymbolIcon Folder24}"
                     Click="InstalledSource_Click" />
 
-                <ui:Button
+                <Button
                     x:Name="CatalogSourceButton"
+                    Style="{StaticResource SteamModalGreyButton}"
                     MinWidth="150"
-                    Margin="10,0,0,0"
                     HorizontalContentAlignment="Center"
-                    Icon="{ui:SymbolIcon Globe24}"
                     Click="CatalogSource_Click" />
             </StackPanel>
 
@@ -113,7 +108,7 @@
             hangs in the middle of the window. Alignment only - the card is still measured against
             the cell, so a long result set stays constrained and still scrolls inside its own list.
         -->
-        <ui:Card Grid.Row="2" Margin="24,0,24,0" Padding="4" VerticalAlignment="Top">
+        <ui:Card Grid.Row="2" Margin="0" Padding="4" VerticalAlignment="Top">
             <Grid>
                 <TextBlock
                     x:Name="EmptyNote"
@@ -155,7 +150,7 @@
                                         <TextBlock
                                             TextWrapping="Wrap"
                                             FontWeight="SemiBold"
-                                            Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                            Foreground="White"
                                             Text="{Binding Name}" />
 
                                         <TextBlock
@@ -173,7 +168,7 @@
             </Grid>
         </ui:Card>
 
-        <Grid Grid.Row="3" Margin="24,16,24,24">
+        <Grid Grid.Row="3" Margin="0,16,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
@@ -189,23 +184,24 @@
                 Foreground="{DynamicResource TextFillColorSecondaryBrush}"
                 Text="{loc:Str ModListAdd_NothingPicked}" />
 
-            <ui:Button
+            <Button
+                Style="{StaticResource SteamModalGreyButton}"
                 Grid.Column="1"
                 MinWidth="100"
+                Margin="0"
                 HorizontalContentAlignment="Center"
                 Content="{loc:Str Common_Cancel}"
                 Click="CancelButton_Click" />
 
-            <ui:Button
+            <Button
                 x:Name="AddButton"
+                Style="{StaticResource SteamModalGreenButton}"
                 Grid.Column="2"
                 MinWidth="130"
-                Margin="10,0,0,0"
                 HorizontalContentAlignment="Center"
-                Appearance="Primary"
                 IsEnabled="False"
                 Content="{loc:Str ModListAdd_Add}"
                 Click="AddButton_Click" />
         </Grid>
     </Grid>
-</ui:FluentWindow>
+</local:SteamModalWindow>

@@ -2036,6 +2036,27 @@ SSPTMM. Most were already here (several were ported from SSPTMM: profile backups
   here), a right-click menu acting on the selection, the sp-mod list import window (Collections
   covers it), detached-parent and count checks in the list parser (no real page found with one).
 
+## Round 43: 1.3.0 - the last non-Steam dialogs, and a filter that came back (2026-10-06)
+
+- **"Installed in the last 7 days" at every start:** InstalledViewModel.DefaultUpdateFilter read a
+  saved Sort = "RecentlyInstalled" as that filter - a migration from upstream's c486519, which moved
+  Recently installed from Sort by to the update-status dropdown. SSPTMM brought the sort back
+  (5ba33de), so sorting by it turned the filter on at the next start whatever the dropdown said, and
+  clearing it only held until a restart. The migration is gone; only the saved update status counts.
+  Checked under Wine with UpdateStatus "All" + Sort "RecentlyInstalled" saved: the page opens on Any.
+- **SteamModalWindow** (Views/SteamModalWindow.cs, SteamModalWindowStyle in SteamStyles.xaml): the
+  SteamDialog look for dialogs with more in them - glow, the blue line, 22px bold title (the Window's
+  Title, also its drag handle), the X, Esc, the main window dimmed while it is open (DimsOwner),
+  #ACB2B8 text with the theme's text brushes re-pointed, headings white. The seven FluentWindows that
+  were left (ModDisableConfirmation, SptUpgrade, InstallRole, DownloadConfirm, ModListVersionChange,
+  ModListAddMod, DataFiles - the last two resizable with a grip, Data files not modal) are on it; their
+  ui:Buttons are SteamModal green/blue/grey. ModPageWindow (a browser) keeps its window.
+- **SteamMessageBox**: MessageBox.Show's arguments and answer over SteamDialog, with Common_Yes/No/OK
+  in all five languages; all 21 calls moved, except the crash report, which stays Windows' own box
+  (it has to show when the app's resources are what broke). Closing answers Cancel, else No, else OK.
+  Called off the UI thread, it hops onto it.
+- Steam's tooltips are light grey on purpose (the community tooltip), so they were left as they are.
+
 ## Values that could not be measured (marked HUNCH in the source)
 
 - Round 37: everything about the real SPT 4.1 server and game under direct launch - only a fake

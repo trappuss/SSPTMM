@@ -374,7 +374,7 @@ public sealed partial class ConfigsViewModel : LocalizedViewModel
         // Moving away from an edited file would drop the edit silently, so it is offered back first.
         if (IsDirty && _loadedEntry is not null && !ReferenceEquals(_loadedEntry, value))
         {
-            var keep = MessageBox.Show(
+            var keep = TCFModManager.App.Views.SteamMessageBox.Show(
                 Text(Strings.Configs_DiscardFormat, _loadedEntry.FileName),
                 Strings.Configs_DiscardTitle,
                 MessageBoxButton.YesNo,
@@ -516,7 +516,7 @@ public sealed partial class ConfigsViewModel : LocalizedViewModel
 
         // Edits not saved yet would be replaced: asked first, as switching files does.
         if (IsDirty && _loadedEntry is not null
-            && MessageBox.Show(
+            && TCFModManager.App.Views.SteamMessageBox.Show(
                 Text(Strings.Configs_DiscardFormat, _loadedEntry.FileName),
                 Strings.Configs_DiscardTitle,
                 MessageBoxButton.YesNo,
@@ -652,7 +652,7 @@ public sealed partial class ConfigsViewModel : LocalizedViewModel
     //
     private void HandleChangedOnDisk(ConfigEntryViewModel entry)
     {
-        var answer = MessageBox.Show(
+        var answer = TCFModManager.App.Views.SteamMessageBox.Show(
             Text(
                 Strings.Configs_ChangedOnDiskFormat,
                 entry.FileName,

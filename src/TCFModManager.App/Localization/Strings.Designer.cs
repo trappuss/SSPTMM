@@ -2866,4 +2866,7 @@ internal static class Strings
     internal static string Play_ModsNeedSomething(int count, params object?[] values) =>
         LocalizationService.Plural("Play_ModsNeedSomething", count, values);
     internal static string ModList_ReasonNoVersionForParentFormat => LocalizationService.Get("ModList_ReasonNoVersionForParentFormat");
+    internal static string Common_Yes => LocalizationService.Get("Common_Yes");
+    internal static string Common_No => LocalizationService.Get("Common_No");
+    internal static string Common_OK => LocalizationService.Get("Common_OK");
 }

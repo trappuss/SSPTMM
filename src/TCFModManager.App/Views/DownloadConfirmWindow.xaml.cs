@@ -25,7 +25,7 @@ public sealed partial class DownloadConfirmRow(DownloadedModRecord download) : O
 // Asks whether the downloads a scan found installed should be recorded as installed. Every row
 // starts ticked, since the scan has already checked each one's files on disk.
 //
-public partial class DownloadConfirmWindow : FluentWindow
+public partial class DownloadConfirmWindow : SteamModalWindow
 {
     private readonly List<DownloadConfirmRow> _rows;
 

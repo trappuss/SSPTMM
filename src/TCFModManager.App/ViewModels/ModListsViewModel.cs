@@ -1883,7 +1883,7 @@ public partial class ModListsViewModel : LocalizedViewModel
         switch (AppServices.ModLists.ClashFor(list))
         {
             case ModListImportClash.YourOwnList:
-                var own = System.Windows.MessageBox.Show(
+                var own = TCFModManager.App.Views.SteamMessageBox.Show(
                     Text(Strings.ModLists_ImportOwnListFormat, existing!.Name),
                     Strings.ModLists_ImportClashTitle,
                     System.Windows.MessageBoxButton.YesNoCancel,
@@ -1898,7 +1898,7 @@ public partial class ModListsViewModel : LocalizedViewModel
                 break;
 
             case ModListImportClash.OlderThanStored:
-                var older = System.Windows.MessageBox.Show(
+                var older = TCFModManager.App.Views.SteamMessageBox.Show(
                     Text(Strings.ModLists_ImportOlderFormat, existing!.Name, list.Revision, existing.Revision),
                     Strings.ModLists_ImportClashTitle,
                     System.Windows.MessageBoxButton.YesNo,

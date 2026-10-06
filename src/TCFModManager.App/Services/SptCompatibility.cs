@@ -46,7 +46,7 @@ public static class SptCompatibility
             AppServices.SptEnvironment.InstalledVersion,
             string.Join("\n", lines));
 
-        return MessageBox.Show(
+        return TCFModManager.App.Views.SteamMessageBox.Show(
             body,
             Strings.Install_IncompatibleTitle,
             MessageBoxButton.YesNo,

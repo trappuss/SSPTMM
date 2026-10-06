@@ -31,7 +31,7 @@ public sealed class ModListVersionChangeRow(ModListVersionChange change)
 // quietly installing a different one is the kind of thing that desyncs a Fika group without anyone
 // noticing. This is where that decision is made visible.
 //
-public partial class ModListVersionChangeWindow : FluentWindow
+public partial class ModListVersionChangeWindow : SteamModalWindow
 {
     private static string Text(string format, params object?[] values) =>
         LocalizationService.Text(format, values);
@@ -43,7 +43,7 @@ public partial class ModListVersionChangeWindow : FluentWindow
         _rows = [.. changes.Select(c => new ModListVersionChangeRow(c))];
         InitializeComponent();
 
-        WindowTitleBar.Title = Title = _rows.Count == 1
+        Title = _rows.Count == 1
             ? Text(Strings.ModLists_VersionChangeTitleNamedFormat, _rows[0].Name)
             : Text(Strings.ModLists_VersionChangeTitleCountFormat, _rows.Count);
 

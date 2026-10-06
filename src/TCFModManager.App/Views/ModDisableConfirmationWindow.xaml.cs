@@ -39,7 +39,7 @@ public sealed class ModDisableImpactRow(string name, string detail, bool isSoft)
 // dependencies are still disabled. Offers to carry the affected mods along rather than only
 // reporting them.
 //
-public partial class ModDisableConfirmationWindow : FluentWindow
+public partial class ModDisableConfirmationWindow : SteamModalWindow
 {
     private static string Text(string format, params object?[] values) =>
         LocalizationService.Text(format, values);
@@ -49,7 +49,7 @@ public partial class ModDisableConfirmationWindow : FluentWindow
         InitializeComponent();
 
         // One whole title per action and count rather than a verb and a noun phrase concatenated.
-        WindowTitleBar.Title = Title = targets.Count == 1
+        Title = targets.Count == 1
             ? Text(
                 disabling ? Strings.Disable_TitleDisableNamedFormat : Strings.Disable_TitleEnableNamedFormat,
                 targets[0])

@@ -115,7 +115,7 @@ public partial class DependenciesViewModel : LocalizedViewModel
             (o.Card.IsAppManaged ? o.Card.Entries.Where(e => !e.IsDisabled) : o.Entries).Select(e =>
                 Text(Strings.Conflicts_KeepLineFormat, o.Card.DisplayTitle, Path.GetRelativePath(installPath, e.FolderPath)))));
 
-        var answer = System.Windows.MessageBox.Show(
+        var answer = TCFModManager.App.Views.SteamMessageBox.Show(
             Text(Strings.Conflicts_KeepConfirmFormat, keep.ModName, keep.Location, lines, InstalledViewModel.HeldSentence()),
             Strings.Conflicts_KeepConfirmTitle,
             System.Windows.MessageBoxButton.YesNo,
