@@ -42,6 +42,11 @@ public class SteamModalWindow : Window
         Resources[typeof(TextBlock)] = heading;
 
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
+
+        // Never taller than the screen, so a dialog with a long list keeps its buttons in view (its
+        // rows scroll instead). A MaxHeight of the dialog's own, set in its XAML, replaces this.
+        MaxHeight = Math.Max(320, SystemParameters.WorkArea.Height - 40);
+
         KeyDown += OnKeyDown; // bubbling: an open dropdown takes its own Esc first
         Loaded += OnLoaded;
         Closed += OnClosed;
