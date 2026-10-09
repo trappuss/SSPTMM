@@ -53,6 +53,11 @@ public enum DirectLaunchProblem
     // The server refused the wipe (its config forbids wiping).
     WipeRefused,
 
+    // Fork (1.3.1): the server marked the profile invalid (it holds an item, trader or clothing no
+    // installed mod adds), so the game would stop on it - and a wipe is never saved for such a
+    // profile, so ticking "wipe" can't help either.
+    ProfileInvalid,
+
     // SPT's patch folder is missing, or a patch would not apply. Carries Detail, Error.
     PatchFailed,
 
@@ -238,6 +243,16 @@ public sealed class SptDirectLaunch(string gameRoot, string serverRoot, SptLaunc
 
             if (!await api.LoginAsync(profile.Username, ct).ConfigureAwait(false))
                 return new DirectLaunchResult { Problem = DirectLaunchProblem.NoSuchProfile };
+
+            // Fork (1.3.1): asked fresh, as the server decides this when it loads the profiles - the
+            // list Play shows may be from before a mod was removed and the server restarted.
+            var current = (await api.ProfilesAsync(ct).ConfigureAwait(false))
+                .FirstOrDefault(p => string.Equals(p.Username, profile.Username, StringComparison.Ordinal));
+            if ((current ?? profile).Invalid)
+            {
+                AppLog.Warn("DirectLaunch", $"{profile.Username} is marked invalid by the server - not started");
+                return new DirectLaunchResult { Problem = DirectLaunchProblem.ProfileInvalid };
+            }
 
             progress?.Report(new DirectLaunchProgress(DirectLaunchStage.CleaningUp));
             await Task.Run(() => CleanUp(options), ct).ConfigureAwait(false);

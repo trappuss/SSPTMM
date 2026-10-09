@@ -6,41 +6,50 @@
     xmlns:local="clr-namespace:TCFModManager.App.Views"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:loc="clr-namespace:TCFModManager.App.Localization"
-    Width="520"
-    MaxHeight="640"
+    Width="560"
     SizeToContent="Height">
     <!--
         Shown before a disable/enable that affects other mods, following the same plain modal
         FluentWindow pattern as ReadModPageConfirmationWindow - ShowDialog() from any call site,
         result read back through a static Confirm helper.
     -->
+    <!--
+        Fork (1.3.0): rows rather than one stack, so however many mods are picked (47 names, say)
+        the buttons stay on screen: the picked names scroll in a box of their own, the affected
+        list takes the room that is left and scrolls, and the note and buttons are always shown.
+        The window is never taller than the screen (SteamModalWindow).
+    -->
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" MinHeight="60" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <StackPanel
-            Grid.Row="1"
-            Margin="0">
             <TextBlock
+                Grid.Row="0"
                 x:Name="SummaryText"
                 TextWrapping="Wrap"
                 Margin="0,0,0,4" />
 
-            <TextBlock
-                x:Name="TargetsText"
-                TextWrapping="Wrap"
-                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                Margin="0,0,0,16" />
+            <ScrollViewer Grid.Row="1" FocusVisualStyle="{x:Null}" MaxHeight="110" Margin="0,0,0,16" VerticalScrollBarVisibility="Auto">
+                <TextBlock
+                    x:Name="TargetsText"
+                    TextWrapping="Wrap"
+                    Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+            </ScrollViewer>
 
             <TextBlock Foreground="White"
+                Grid.Row="2"
                 x:Name="ImpactHeading"
                 TextWrapping="Wrap"
                 FontWeight="SemiBold"
                 Margin="0,0,0,8" />
 
-            <ScrollViewer FocusVisualStyle="{x:Null}" MaxHeight="260" VerticalScrollBarVisibility="Auto">
+            <ScrollViewer Grid.Row="3" FocusVisualStyle="{x:Null}" VerticalScrollBarVisibility="Auto">
                 <ItemsControl Focusable="False" x:Name="ImpactList">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
@@ -76,12 +85,13 @@
             </ScrollViewer>
 
             <TextBlock
+                Grid.Row="4"
                 TextWrapping="Wrap"
                 Foreground="{DynamicResource TextFillColorSecondaryBrush}"
                 Margin="0,12,0,0"
                 Text="{loc:Str ModDisable_Note}" />
 
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+            <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
                 <Button
                     Style="{StaticResource SteamModalGreyButton}"
                     Content="{loc:Str Common_Cancel}"
@@ -97,6 +107,5 @@
                     x:Name="CascadeButton"
                     Click="CascadeButton_Click" />
             </StackPanel>
-        </StackPanel>
     </Grid>
 </local:SteamModalWindow>

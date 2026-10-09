@@ -9951,7 +9951,7 @@ Removing them - or turning them off - can leave a profile SPT won't load. If tha
     <comment>Diagnose logs finding</comment>
   </data>
   <data name="Diagnose_Body_ProfileInvalid" xml:space="preserve">
-    <value>SPT marked profile {0} as invalid and won't load it. To get it back, put back the mod whose items or clothing it holds, or restore a profile backup.</value>
+    <value>SPT marked profile {0} as invalid and won't load it - and wiping it won't help, as SPT doesn't save changes to a profile it won't load. Put back the mod whose items, trader or clothing it holds, restore a profile backup, or make a new profile. Or keep the profile: set removeModItemsFromProfile and removeInvalidTradersFromProfile to true in SPT\SPT_Data\configs\core.json and restart the server - SPT then removes what's missing from the profile itself.</value>
     <comment>Diagnose logs finding. {0} profile id.</comment>
   </data>
   <data name="Diagnose_Title_ProfileClothingMissing" xml:space="preserve">
@@ -10876,5 +10876,25 @@ If anything goes wrong before the files are replaced, nothing is changed.</value
   <data name="Common_OK" xml:space="preserve">
     <value>OK</value>
     <comment>The button that closes a message.</comment>
+  </data>
+  <data name="Diagnose_Title_ProfileItemMissing" xml:space="preserve">
+    <value>A profile holds an item no mod adds</value>
+    <comment>Diagnose logs finding</comment>
+  </data>
+  <data name="Diagnose_Body_ProfileItemMissing" xml:space="preserve">
+    <value>A profile holds an item (id {0}) that no installed mod adds, so SPT won't load it - and wiping it won't help, as SPT doesn't save changes to a profile it won't load. Put back the mod that adds the item, restore a profile backup, or make a new profile. Or keep the profile: set removeModItemsFromProfile and removeInvalidTradersFromProfile to true in SPT\SPT_Data\configs\core.json and restart the server - SPT then removes what's missing from the profile itself.</value>
+    <comment>Diagnose logs finding. {0} item id.</comment>
+  </data>
+  <data name="Diagnose_Title_ProfileTraderMissing" xml:space="preserve">
+    <value>A profile knows a trader no mod adds</value>
+    <comment>Diagnose logs finding</comment>
+  </data>
+  <data name="Diagnose_Body_ProfileTraderMissing" xml:space="preserve">
+    <value>A profile has dealt with a trader (id {0}) that no installed mod adds, so SPT won't load it - and wiping it won't help, as SPT doesn't save changes to a profile it won't load. Put back the mod that adds the trader, restore a profile backup, or make a new profile. Or keep the profile: set removeModItemsFromProfile and removeInvalidTradersFromProfile to true in SPT\SPT_Data\configs\core.json and restart the server - SPT then removes what's missing from the profile itself.</value>
+    <comment>Diagnose logs finding. {0} trader id.</comment>
+  </data>
+  <data name="Play_DirectProfileInvalid" xml:space="preserve">
+    <value>SPT won't load this profile: it holds items, a trader or clothing from a mod that is no longer installed. Wiping it doesn't help - SPT never saves a wipe of a profile it won't load. Put the mod back, restore a profile backup (Options), or make a new profile. Or keep the profile: set removeModItemsFromProfile and removeInvalidTradersFromProfile to true in SPT\SPT_Data\configs\core.json and restart the server - SPT then removes what's missing from the profile itself. Nothing was started.</value>
+    <comment>Play error.</comment>
   </data>
 </root>

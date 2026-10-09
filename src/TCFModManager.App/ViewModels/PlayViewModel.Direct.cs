@@ -296,6 +296,7 @@ public partial class PlayViewModel
         DirectLaunchProblem.VersionMismatch => Text(Strings.Play_DirectVersionMismatchFormat, result.ServerVersion, result.DllVersion),
         DirectLaunchProblem.NoSuchProfile => Strings.Play_DirectNoSuchProfile,
         DirectLaunchProblem.WipeRefused => Strings.Play_DirectWipeRefused,
+        DirectLaunchProblem.ProfileInvalid => Strings.Play_DirectProfileInvalid,
         DirectLaunchProblem.PatchFailed => Text(Strings.Play_DirectPatchFailedFormat, result.Detail, result.Error?.Message),
         DirectLaunchProblem.BundlesFailed when result.Detail?.Split('|', 2) is [var count, var name] =>
             Text(Strings.Play_DirectBundlesFailedFormat, count, name),

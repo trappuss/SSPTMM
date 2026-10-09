@@ -47,6 +47,7 @@ public class ForkDirectLaunchTests : IDisposable
         public string Version = "4.1.6";
         public bool HasProfile = true;
         public bool WipeAllowed = true;
+        public bool Invalid;
         public List<SptBundleEntry> Bundles = [];
         public Dictionary<string, byte[]> BundleFiles = [];
         public List<(string Method, string Path, string? Body)> Calls = [];
@@ -74,7 +75,7 @@ public class ForkDirectLaunchTests : IDisposable
                 SptLauncherApi.BundlesPath => Bundles,
                 SptLauncherApi.ProfilesPath => new
                 {
-                    Response = new[] { new { username = "trap", nickname = "Trap", side = "Usec", currlvl = 64, profileId = "6abee519842869498c34024b", edition = "SPT Developer", wipe = false } },
+                    Response = new[] { new { username = "trap", nickname = "Trap", side = "Usec", currlvl = 64, profileId = "6abee519842869498c34024b", edition = "SPT Developer", wipe = false, invalidOrUnloadableProfile = Invalid } },
                 },
                 _ => null,
             };
@@ -336,6 +337,17 @@ public class ForkDirectLaunchTests : IDisposable
         server.WipeAllowed = false;
         started.Clear();
         Assert.Equal(DirectLaunchProblem.WipeRefused, (await launch.RunAsync(Trap, new DirectLaunchOptions { Wipe = true }, null, default)).Problem);
+        Assert.Empty(started);
+    }
+
+    [Fact]
+    public async Task A_profile_the_server_marked_invalid_is_said_before_any_wipe()
+    {
+        var (server, launch, started, _) = Setup();
+        server.Invalid = true;
+
+        Assert.Equal(DirectLaunchProblem.ProfileInvalid, (await launch.RunAsync(Trap, new DirectLaunchOptions { Wipe = true }, null, default)).Problem);
+        Assert.DoesNotContain(server.Calls, c => c.Path == SptLauncherApi.WipePath);
         Assert.Empty(started);
     }
 

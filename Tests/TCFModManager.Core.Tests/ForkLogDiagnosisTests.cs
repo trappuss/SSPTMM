@@ -159,6 +159,24 @@ public sealed class ForkLogDiagnosisTests : IDisposable
     }
 
     [Fact]
+    public void Items_and_traders_from_a_removed_mod_are_said_with_their_ids()
+    {
+        // SPT 4.1.6's lines for a profile holding a removed mod's item, and one that dealt with a
+        // removed mod's trader (fixer-mod_item_found, fixer-trader_found).
+        var found = Find(ServerLog(
+            "[2026-10-07 20:00:00.000][Critical][SPTarkov.Server.Core.Services.Profile.ProfileMigrationService] Failed to load profile with ID '6ac065b3a2a7936f346528aa'. The profile will be marked as invalid.",
+            "[2026-10-07 20:00:00.001][Critical][SPTarkov.Server.Core.Services.Profile.ProfileMigrationService] SPTarkov.Server.Core.Exceptions.Items.InvalidModdedItemException: Item: 6ac08b5ba2a7936f34652936 found in profile that does not exist in items db. You WILL experience errors...",
+            "[2026-10-07 20:00:00.002][Critical][SPTarkov.Server.Core.Services.Profile.ProfileMigrationService] SPTarkov.Server.Core.Exceptions.Items.InvalidModdedTraderException: Trader: 699f89c757994beece5cf7e1 found in profile but does not exist in SPT. You WILL experience errors..."));
+
+        Assert.Equal(
+            [LogFindingKind.ProfileInvalid, LogFindingKind.ProfileItemMissing, LogFindingKind.ProfileTraderMissing],
+            found.Select(f => f.Kind).OrderBy(k => k));
+        Assert.All(found, f => Assert.Null(f.Mod));
+        Assert.Equal(["6ac08b5ba2a7936f34652936"], found.Single(f => f.Kind == LogFindingKind.ProfileItemMissing).Args);
+        Assert.Equal(["699f89c757994beece5cf7e1"], found.Single(f => f.Kind == LogFindingKind.ProfileTraderMissing).Args);
+    }
+
+    [Fact]
     public void A_mods_own_error_and_a_relayed_plugin_error_name_the_mod()
     {
         var found = Find(ServerLog(

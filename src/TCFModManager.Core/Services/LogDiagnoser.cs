@@ -12,6 +12,12 @@ public enum LogFindingKind
     /// <summary>A profile wears clothing no installed mod adds. Args: clothing id.</summary>
     ProfileClothingMissing,
 
+    /// <summary>Fork (1.3.1): a profile holds an item no installed mod adds. Args: item id.</summary>
+    ProfileItemMissing,
+
+    /// <summary>Fork (1.3.1): a profile knows a trader no installed mod adds. Args: trader id.</summary>
+    ProfileTraderMissing,
+
     /// <summary>Raid results the server couldn't read, so they weren't saved. Args: the type it couldn't read into.</summary>
     RaidResultsLost,
 
@@ -147,6 +153,15 @@ public static partial class LogDiagnoser
     [GeneratedRegex(@"InvalidModdedClothingException: Clothing item: \w+ \{ Id = (?<id>[0-9a-fA-F]{24})")]
     private static partial Regex ClothingMissing();
 
+    // SPT 4.1: "...InvalidModdedItemException: Item: 6ac08b5ba2a7936f34652936 found in profile that does
+    // not exist in items db." and "...InvalidModdedTraderException: Trader: 699f89c757994beece5cf7e1
+    // found in profile but does not exist in SPT." (measured on a 4.1.6 server log).
+    [GeneratedRegex(@"InvalidModdedItemException: Item: (?<id>[0-9a-fA-F]{24}) found in profile")]
+    private static partial Regex ItemMissing();
+
+    [GeneratedRegex(@"InvalidModdedTraderException: Trader: (?<id>[0-9a-fA-F]{24}) found in profile")]
+    private static partial Regex TraderMissing();
+
     [GeneratedRegex(@"^Failed to start the web server on (?<address>\S+?)\. Socket error: AddressAlreadyInUse")]
     private static partial Regex PortInUse();
 
@@ -209,6 +224,16 @@ public static partial class LogDiagnoser
             else if ((m = ClothingMissing().Match(entry.Message)).Success)
             {
                 found.Add(LogFindingKind.ProfileClothingMissing, LogSeverity.Warning, null, [m.Groups["id"].Value], entry);
+                explained.Add(entry);
+            }
+            else if ((m = ItemMissing().Match(entry.Message)).Success)
+            {
+                found.Add(LogFindingKind.ProfileItemMissing, LogSeverity.Warning, null, [m.Groups["id"].Value], entry);
+                explained.Add(entry);
+            }
+            else if ((m = TraderMissing().Match(entry.Message)).Success)
+            {
+                found.Add(LogFindingKind.ProfileTraderMissing, LogSeverity.Warning, null, [m.Groups["id"].Value], entry);
                 explained.Add(entry);
             }
             else if ((m = PortInUse().Match(entry.Message)).Success)

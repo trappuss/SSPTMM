@@ -13,21 +13,22 @@
         mod, ticked by default, so the substitution is visible and reversible rather than silent.
         Same plain-modal-FluentWindow shape as ReadModPageConfirmationWindow.
     -->
+    <!-- Fork (1.3.0): a long list scrolls; the buttons stay on screen. -->
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" MinHeight="60" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <StackPanel
-            Grid.Row="1"
-            Margin="0">
             <TextBlock
+                Grid.Row="0"
                 TextWrapping="Wrap"
                 Margin="0,0,0,16"
                 Foreground="{DynamicResource TextFillColorSecondaryBrush}"
                 Text="{loc:Str ModListVersionChange_Intro}" />
 
+            <ScrollViewer Grid.Row="1" FocusVisualStyle="{x:Null}" VerticalScrollBarVisibility="Auto">
             <ItemsControl Focusable="False" x:Name="ChangesList">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
@@ -61,8 +62,9 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
+            </ScrollViewer>
 
-            <Grid Margin="0,8,0,0">
+            <Grid Grid.Row="2" Margin="0,8,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
@@ -86,6 +88,5 @@
                     Content="{loc:Str Common_Continue}"
                     Click="ContinueButton_Click" />
             </Grid>
-        </StackPanel>
     </Grid>
 </local:SteamModalWindow>

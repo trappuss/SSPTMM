@@ -1,3 +1,15 @@
+# SSPTMM 1.3.1
+
+## Updating
+
+From 1.3.0: Help > About > **Install update**. From an older version: close SSPTMM, download `SSPTMM-1.3.1-win-x64.zip` and copy the contents of its `SSPTMM` folder over your SSPTMM folder. Your settings in `Data` stay as they are.
+
+## Fixed
+
+- **The disable/enable warning keeps its buttons on screen.** With many mods picked, the list of names pushed the note and the buttons off the bottom of the window. The picked names now scroll in a box of their own, the list of affected mods takes the room that is left, and the buttons always show. A collection's replaced-versions list scrolls the same way, and no Steam dialog is ever taller than the screen.
+- **Play no longer starts a profile SPT won't load.** When you remove a mod whose items or trader a profile still holds, SPT marks that profile invalid and the game stops on it at start - with **Wipe profile on next play** ticked too, because SPT never saves a wipe of a profile it won't load. Play now checks with the server first and says so, with what to do, instead of starting the game.
+- **Diagnose names the item or trader.** For a profile SPT won't load, Diagnose now also says which item or trader from a removed mod is in it, explains that a wipe can't help, and names SPT's own fix: setting `removeModItemsFromProfile` and `removeInvalidTradersFromProfile` to true in `SPT\SPT_Data\configs\core.json` and restarting the server, so SPT removes what's missing from the profile itself.
+
 # SSPTMM 1.3.0
 
 ## Updating from 1.2.0

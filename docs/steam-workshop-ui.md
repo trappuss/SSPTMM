@@ -2057,6 +2057,23 @@ SSPTMM. Most were already here (several were ported from SSPTMM: profile backups
   Called off the UI thread, it hops onto it.
 - Steam's tooltips are light grey on purpose (the community tooltip), so they were left as they are.
 
+## Round 44: 1.3.1 - long disable lists, and profiles SPT won't load (2026-10-08)
+
+- **ModDisableConfirmationWindow** is a six-row grid: the picked names in a ScrollViewer capped at
+  110px, the affected list in the `*` row (MinHeight 60), note and buttons below. The replaced-versions
+  list in ModListVersionChangeWindow scrolls the same way. SteamModalWindow caps every dialog at the
+  work area's height less 40px (at least 320). Checked under Wine with 47 picked and 30 affected.
+- **Invalid profiles.** Measured from SPT 4.1's server source: ProfileMigrationService marks a
+  profile InvalidOrUnloadableProfile when ProfileValidatorHelper finds a removed mod's item, clothing
+  or trader (unless core.json's fixes.removeModItemsFromProfile is true); GameCallbacks.GameStart then
+  refuses it (505001) and SaveServer.SaveProfileAsync skips it - so LauncherV2Controller.Wipe's change
+  is never saved and a wipe can't help. SptDirectLaunch.RunAsync now asks /launcher/v2/profiles after
+  login and returns DirectLaunchProblem.ProfileInvalid (before the clean-up and the wipe) when the
+  profile is marked. LogDiagnoser reads InvalidModdedItemException / InvalidModdedTraderException
+  (fixer-mod_item_found, fixer-trader_found) as ProfileItemMissing / ProfileTraderMissing with the id.
+  The messages name SPT's own fix: removeModItemsFromProfile and removeInvalidTradersFromProfile in
+  SPT_Data\configs\core.json, then a server restart.
+
 ## Values that could not be measured (marked HUNCH in the source)
 
 - Round 37: everything about the real SPT 4.1 server and game under direct launch - only a fake

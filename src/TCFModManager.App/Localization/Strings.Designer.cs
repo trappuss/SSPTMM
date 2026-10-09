@@ -2869,4 +2869,9 @@ internal static class Strings
     internal static string Common_Yes => LocalizationService.Get("Common_Yes");
     internal static string Common_No => LocalizationService.Get("Common_No");
     internal static string Common_OK => LocalizationService.Get("Common_OK");
+    internal static string Diagnose_Title_ProfileItemMissing => LocalizationService.Get("Diagnose_Title_ProfileItemMissing");
+    internal static string Diagnose_Body_ProfileItemMissing => LocalizationService.Get("Diagnose_Body_ProfileItemMissing");
+    internal static string Diagnose_Title_ProfileTraderMissing => LocalizationService.Get("Diagnose_Title_ProfileTraderMissing");
+    internal static string Diagnose_Body_ProfileTraderMissing => LocalizationService.Get("Diagnose_Body_ProfileTraderMissing");
+    internal static string Play_DirectProfileInvalid => LocalizationService.Get("Play_DirectProfileInvalid");
 }
