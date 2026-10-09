@@ -64,7 +64,8 @@ public sealed class LogFindingRow
 
     public bool IsAboutPort => Finding.Kind == LogFindingKind.PortInUse;
 
-    public bool IsAboutProfile => Finding.Kind is LogFindingKind.ProfileInvalid or LogFindingKind.ProfileClothingMissing;
+    public bool IsAboutProfile => Finding.Kind is LogFindingKind.ProfileInvalid or LogFindingKind.ProfileClothingMissing
+        or LogFindingKind.ProfileItemMissing or LogFindingKind.ProfileTraderMissing;
 
     private static string Arg(LogFinding f, int i) => i < f.Args.Count ? f.Args[i] : string.Empty;
 
@@ -78,6 +79,8 @@ public sealed class LogFindingRow
         {
             LogFindingKind.ProfileInvalid => (Strings.Diagnose_Title_ProfileInvalid, T(Strings.Diagnose_Body_ProfileInvalid, Arg(f, 0))),
             LogFindingKind.ProfileClothingMissing => (Strings.Diagnose_Title_ProfileClothingMissing, T(Strings.Diagnose_Body_ProfileClothingMissing, Arg(f, 0))),
+            LogFindingKind.ProfileItemMissing => (Strings.Diagnose_Title_ProfileItemMissing, T(Strings.Diagnose_Body_ProfileItemMissing, Arg(f, 0))),
+            LogFindingKind.ProfileTraderMissing => (Strings.Diagnose_Title_ProfileTraderMissing, T(Strings.Diagnose_Body_ProfileTraderMissing, Arg(f, 0))),
             LogFindingKind.RaidResultsLost => (Strings.Diagnose_Title_RaidResultsLost, T(Strings.Diagnose_Body_RaidResultsLost, Arg(f, 0))),
             LogFindingKind.PortInUse => (Strings.Diagnose_Title_PortInUse, T(Strings.Diagnose_Body_PortInUse, Arg(f, 0))),
             LogFindingKind.PluginMissingDependency => (Strings.Diagnose_Title_PluginMissingDependency, T(Strings.Diagnose_Body_PluginMissingDependency, Arg(f, 0), Arg(f, 1))),
