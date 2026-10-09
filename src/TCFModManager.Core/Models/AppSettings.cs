@@ -128,6 +128,13 @@ public sealed class AppSettings
     public bool SmoothScrolling { get; set; } = true;
 
     //
+    // Fork (round 47): Subscribed items draws each mod's own picture, blurred, behind its card and
+    // List row, as Steam's rows have it (CardBackdrop). On by default; off for a PC that scrolls
+    // the page slowly with it.
+    //
+    public bool CardPictures { get; set; } = true;
+
+    //
     // Whether removing an item (Unsubscribe) asks first - what will be deleted, and what to do with
     // its config files. On by default; the question's "Don't ask again" turns it off. Unasked, an
     // item's config files are kept (set aside), never deleted.

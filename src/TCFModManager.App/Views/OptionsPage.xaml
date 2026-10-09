@@ -384,6 +384,19 @@
             <ui:ToggleSwitch Style="{StaticResource RowSwitch}" IsChecked="{Binding SmoothScrolling}" />
         </ui:CardControl>
 
+        <!-- Fork (round 47): each subscribed mod's own picture, blurred, behind its card. -->
+        <ui:CardControl
+            Style="{StaticResource SettingRow}"
+            Icon="{ui:SymbolIcon Image24}">
+            <ui:CardControl.Header>
+                <StackPanel>
+                    <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_CardPicturesHeader}" />
+                    <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_CardPicturesSummary}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_CardPicturesDescription}" /></InlineUIContainer></TextBlock>
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ui:ToggleSwitch Style="{StaticResource RowSwitch}" IsChecked="{Binding CardPictures}" />
+        </ui:CardControl>
+
         <!-- ─── Installing mods ─── -->
         <TextBlock Style="{StaticResource SectionHeader}" Text="{loc:Str Options_SectionInstalling}" />
 

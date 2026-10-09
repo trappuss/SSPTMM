@@ -42,26 +42,31 @@
                 Focusable="False"
                 ItemsSource="{Binding Lists}"
                 Visibility="{Binding ShowLists, Converter={StaticResource BoolToVis}}">
+                <!-- One line, and a "+2" for what does not fit (OneLinePanel): wrapped onto a
+                     second line they made that card taller than its neighbours. -->
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <WrapPanel />
+                        <behaviors:OneLinePanel />
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
+                        <!-- Steam's tag: its light blue on that same blue at 20%. The chip was the
+                             accent blue on the theme's mid grey (#67707B), two colours of nearly
+                             the same brightness, and could not be read. HUNCH: #67C1F5 is the
+                             store's tag colour as remembered, not measured for this page. -->
                         <Border
-                            Margin="0,2,4,0"
+                            Margin="0,3,4,0"
                             Padding="6,1"
-                            CornerRadius="3"
+                            CornerRadius="2"
                             ToolTip="{loc:Str Installed_ListChipToolTip}"
-                            Background="{DynamicResource ControlFillColorSecondaryBrush}">
+                            Background="#3367C1F5">
                             <TextBlock
                                 Text="{Binding}"
-                                FontSize="10"
-                                FontWeight="SemiBold"
+                                FontSize="11"
                                 TextTrimming="CharacterEllipsis"
                                 MaxWidth="140"
-                                Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}" />
+                                Foreground="#67C1F5" />
                         </Border>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
@@ -129,13 +134,15 @@
                         Text="{Binding AddonSubtitle}"
                         Visibility="{Binding AddonSubtitle, Converter={StaticResource NullToCollapsed}}" />
 
+                    <!-- The two lines an opened card is opened for, in Steam's body grey; the
+                         reference lines behind More details stay in the dimmer one. -->
                     <TextBlock
-                        Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                        Foreground="{StaticResource SteamText}"
                         TextWrapping="Wrap"
                         Text="{Binding InstalledVersion, Mode=OneWay, TargetNullValue={loc:Str Common_Unknown}, StringFormat={loc:Str Installed_DetailInstalledVersionFormat}}" />
 
                     <TextBlock
-                        Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                        Foreground="{StaticResource SteamText}"
                         TextWrapping="Wrap"
                         Text="{Binding LatestPublishedText, Mode=OneWay, StringFormat={loc:Str Installed_DetailLatestPublishedFormat}}" />
 
@@ -345,8 +352,8 @@
 
         <!-- A mod's group, on a card or a row - unless the section around it already says it. -->
         <Style x:Key="GroupChip" TargetType="Border">
-            <Setter Property="Padding" Value="8,2" />
-            <Setter Property="CornerRadius" Value="3" />
+            <Setter Property="Padding" Value="6,1" />
+            <Setter Property="CornerRadius" Value="2" />
             <Setter Property="Background" Value="{DynamicResource ControlFillColorDefaultBrush}" />
             <Setter Property="Visibility" Value="Collapsed" />
             <Style.Triggers>
@@ -571,26 +578,175 @@
             </Style.Triggers>
         </Style>
 
+        <!--
+            Fork (rounds 46 and 47): the surface of a subscribed mod, on a card and on a List row -
+            Steam's own, from the rows of its "Your Workshop Files" lists (workshop_userfiles.css,
+            read 2026-10-08):
+
+                .workshopItemCollectionContainer  background-color #273b52; border-radius 4px;
+                                                  box-shadow 2px 2px 10px rgba(0,0,0,0.3)
+                .backgroundImg                    the item's own picture across the row's width,
+                                                  blur(30px), opacity 0.3, masked left to right
+                                                  from black (at -25%) to nothing (at 100%)
+
+            So the glow behind a row is not a highlight of the row's own: it is the mod's picture,
+            out of focus, and each row's is different.
+
+            Nothing here is an effect. Round 46 had a BlurEffect, an opacity mask and two
+            DropShadowEffects in every card and the page became very slow to scroll; the picture
+            is now blurred and faded once, in code (CardBackdrop), and the shadow is eight
+            pieces of one worked out once (CardShadow). A disabled mod has no picture behind it:
+            at 45% it could barely be seen, and that is half of a large install not made.
+
+            No edge is drawn. Under the pointer the row is lifted with the 20% tint Steam's
+            collection rows take (.workshopItemCollection:hover, rgba(190,209,228,0.2)) and its
+            shadow turns white, as a Browse card's does here. A ticked one carries the accent edge
+            and tint every other picked thing in the app has.
+
+            Tag is whether the pointer is over the card (bound by each template to its own root).
+        -->
+        <ControlTemplate x:Key="SubscribedBackdrop" TargetType="ContentControl">
+            <Grid>
+                <behaviors:CardShadow x:Name="Shadow" />
+
+                <Border x:Name="Panel" Background="#273B52" CornerRadius="4" />
+                <Border CornerRadius="4">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="behaviors:CardBackdrop.Source" Value="{Binding Thumbnail}" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsDisabled}" Value="True">
+                                    <Setter Property="behaviors:CardBackdrop.Source" Value="{x:Null}" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                </Border>
+
+                <Border x:Name="HoverTint" Background="#33BED1E4" CornerRadius="4" Visibility="Hidden" />
+                <Border
+                    x:Name="PickedEdge"
+                    Background="{StaticResource RowSelectedBrush}"
+                    BorderBrush="{StaticResource SelectedRowStroke}"
+                    BorderThickness="1"
+                    CornerRadius="4"
+                    Visibility="Hidden" />
+            </Grid>
+            <ControlTemplate.Triggers>
+                <!-- A disabled mod: the panel at 45%, in its colour, and no shadow (see
+                     SubscribedTitle for why not an opacity). -->
+                <DataTrigger Binding="{Binding IsDisabled}" Value="True">
+                    <Setter TargetName="Panel" Property="Background" Value="#73273B52" />
+                    <Setter TargetName="Shadow" Property="Visibility" Value="Collapsed" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource Self}}" Value="True">
+                    <Setter TargetName="Shadow" Property="IsLit" Value="True" />
+                    <Setter TargetName="HoverTint" Property="Visibility" Value="Visible" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                    <Setter TargetName="PickedEdge" Property="Visibility" Value="Visible" />
+                </DataTrigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+        <!-- The expander itself draws nothing: the backdrop behind it is the card. -->
+        <Style
+            x:Key="SubscribedCardExpander"
+            TargetType="ui:CardExpander"
+            BasedOn="{StaticResource {x:Type ui:CardExpander}}">
+            <Style.Resources>
+                <!-- What the expander's template fills the opened body with (it asks for this key
+                     by name, not for the control's Background): a shade over the row, so the body
+                     reads as inside it. HUNCH: black at 20% - Steam's rows do not open. -->
+                <SolidColorBrush x:Key="CardBackground" Color="#33000000" />
+            </Style.Resources>
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="Padding" Value="12,12,12,12" />
+            <Style.Triggers>
+                <!-- Its arrow, on a disabled mod's card. -->
+                <DataTrigger Binding="{Binding IsDisabled}" Value="True">
+                    <Setter Property="Foreground" Value="#73FFFFFF" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- A tag under a mod's name - DISABLED, PINNED, RE-UPLOADED, its group, its collections -
+             all one shape and on one line, so none of them changes the card's. -->
+        <Style x:Key="SubscribedTag" TargetType="Border">
+            <Setter Property="Margin" Value="0,3,4,0" />
+            <Setter Property="Padding" Value="6,1" />
+            <Setter Property="CornerRadius" Value="2" />
+            <Setter Property="VerticalAlignment" Value="Top" />
+        </Style>
+        <!-- The line under a mod's name: version, which halves it installs, who wrote it. 12px in
+             Steam's body grey (#ACB2B8) - it was 11px in the dimmer #8F98A0. -->
+        <Style x:Key="SubscribedFactsLine" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Margin" Value="0,1,0,0" />
+            <Setter Property="Foreground" Value="{StaticResource SteamText}" />
+            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsDisabled}" Value="True">
+                    <Setter Property="Foreground" Value="#73ACB2B8" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!--
+            Fork (round 49): how a disabled mod is greyed out. It was one Opacity of 45% on the
+            whole card, and an opacity on anything with more than one thing in it makes WPF draw
+            all of it to one side first and then fade that - for 63 cards of a 132-mod install, on
+            every frame of a scroll. The same 45% is now in the colours themselves, which costs
+            nothing: the panel's fill (SubscribedBackdrop), the name and the facts line here, the
+            expander's arrow. Only the small things that are pictures or several colours - the
+            thumbnail, the status and switch, the tags - still carry the opacity, each on its own.
+            A disabled card has no shadow, and its opened body is at full strength.
+        -->
+        <Style x:Key="SubscribedTitle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="Foreground" Value="{StaticResource SteamWhite}" />
+            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsDisabled}" Value="True">
+                    <Setter Property="Foreground" Value="#73FFFFFF" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- The same for a List row's and a Groups row's name, which is the theme's own text
+             colour (#DFE3E6) in semi-bold. -->
+        <Style x:Key="SubscribedRowTitle" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="#DFE3E6" />
+            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsDisabled}" Value="True">
+                    <Setter Property="Foreground" Value="#73DFE3E6" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
         <DataTemplate x:Key="ModCardTemplate" DataType="{x:Type viewmodels:InstalledModCardViewModel}">
-            <!-- Opacity is the whole-card cue for a disabled mod (CardOpacity is 1.0
-                 when enabled); the DISABLED chip and the status icon carry the same
-                 state for anyone who can't read a dimming. -->
+            <!-- A disabled mod's card is greyed out, part by part (SubscribedTitle says
+                 how and why); the DISABLED tag and the status icon carry the same state
+                 for anyone who can't read a dimming. -->
             <!-- Top, not the default stretch: a WrapPanel arranges each line at the
                  height of its tallest item, so without this every card beside an
                  expanded one would stretch to match it. -->
-            <!-- TickableCardExpander rather than HoverCardExpander: in Multi select
-                 mode a ticked card carries the accent edge and tint every other picked
-                 thing in the app does, so what a bulk enable, disable or remove is
-                 about to act on is readable from across the grid rather than from a
-                 checkbox at the corner of each card. Outside that mode nothing is
-                 ticked, and it behaves exactly as it did. -->
+            <!-- In Multi select mode a ticked card carries the accent edge and tint every
+                 other picked thing in the app does (SubscribedBackdrop), so what a bulk
+                 enable, disable or remove is about to act on is readable from across the
+                 grid rather than from a checkbox at the corner of each card. -->
+            <Grid x:Name="CardRoot" Margin="0,0,10,10" VerticalAlignment="Top">
+            <ContentControl
+                Focusable="False"
+                IsHitTestVisible="False"
+                Template="{StaticResource SubscribedBackdrop}"
+                Tag="{Binding IsMouseOver, ElementName=CardRoot}" />
             <ui:CardExpander
-                VerticalAlignment="Top"
-                Style="{StaticResource TickableCardExpander}"
-                Margin="0,0,6,6"
+                Style="{StaticResource SubscribedCardExpander}"
                 IsExpanded="{Binding IsCardExpanded, Mode=TwoWay}"
                 behaviors:ModContextMenu.ModId="{Binding CatalogModId}"
-                Opacity="{Binding CardOpacity}"
                 PreviewMouseLeftButtonDown="Card_PreviewMouseLeftButtonDown"
                 PreviewMouseMove="Card_PreviewMouseMove"
                 PreviewMouseLeftButtonUp="Card_PreviewMouseLeftButtonUp">
@@ -619,7 +775,7 @@
                              with the title block beside them so the icon reads as
                              belonging to the title line rather than floating against
                              the middle of the whole header. -->
-                        <StackPanel Grid.Column="1" VerticalAlignment="Top">
+                        <StackPanel Grid.Column="1" VerticalAlignment="Top" Opacity="{Binding CardOpacity}">
                             <ui:SymbolIcon
                                 Margin="0,1,10,0"
                                 HorizontalAlignment="Center"
@@ -662,23 +818,19 @@
                                 Margin="0,0,10,0"
                                 Background="{StaticResource SteamPreviewBackground}"
                                 ClipToBounds="True"
+                                Opacity="{Binding CardOpacity}"
                                 Visibility="{Binding Thumbnail, Converter={StaticResource NullToCollapsed}}">
                                 <Image Stretch="UniformToFill" behaviors:ThumbnailLoader.Source="{Binding Thumbnail}" />
                             </Grid>
                             <StackPanel>
                             <TextBlock
-                                FontSize="15"
-                                Foreground="{StaticResource SteamWhite}"
-                                TextTrimming="CharacterEllipsis"
+                                Style="{StaticResource SubscribedTitle}"
                                 Text="{Binding DisplayTitle}"
                                 ToolTip="{Binding DisplayTitle}" />
 
                             <!-- The one line worth scanning: what you have, which
                                  halves it installs, and who wrote it. -->
-                            <TextBlock
-                                FontSize="11"
-                                Foreground="{DynamicResource TextFillColorTertiaryBrush}"
-                                TextTrimming="CharacterEllipsis">
+                            <TextBlock Style="{StaticResource SubscribedFactsLine}">
                                 <Run Text="{Binding InstalledVersion, TargetNullValue='unknown', Mode=OneWay}" />
                                 <Run Text=" • " />
                                 <Run Text="{Binding TargetSummary, Mode=OneWay}" />
@@ -696,57 +848,61 @@
                                 Text="{Binding AddonSubtitle}"
                                 Visibility="{Binding AddonSubtitle, Converter={StaticResource NullToCollapsed}}" />
 
-                            <ContentPresenter
-                                ContentTemplate="{StaticResource ModListBadges}"
-                                Content="{Binding}" />
-                            </StackPanel>
-                            </DockPanel>
-
-                            <!-- Group and disabled state, both readable without
-                                 opening the card. Under the summary rather than beside
-                                 it: a card is far narrower than a List row. -->
-                            <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                                <Border Style="{StaticResource GroupChip}">
-                                    <StackPanel Orientation="Horizontal">
-                                        <ui:SymbolIcon Symbol="Folder24" FontSize="12" Margin="0,0,5,0" VerticalAlignment="Center" />
-                                        <TextBlock FontSize="11" Text="{Binding GroupName}" VerticalAlignment="Center" />
-                                    </StackPanel>
-                                </Border>
-
+                            <!-- Disabled, pinned, re-uploaded, its group, then its collections:
+                                 one line of tags under the facts, in line with the name. They
+                                 were a second row under the picture, in other shapes, which
+                                 made a disabled card taller than its neighbours. The line is
+                                 there whether or not a mod has a tag to put on it, so every
+                                 closed card is the same height. -->
+                            <Grid MinHeight="20" Opacity="{Binding CardOpacity}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Horizontal">
                                 <Border
-                                    Margin="6,0,0,0"
-                                    Padding="8,2"
-                                    CornerRadius="3"
-                                    Background="{DynamicResource ControlFillColorSecondaryBrush}"
+                                    Style="{StaticResource SubscribedTag}"
+                                    Background="{StaticResource SteamGray}"
                                     Visibility="{Binding IsDisabled, Converter={StaticResource BoolToVis}}">
-                                    <TextBlock Text="{loc:Str Installed_DisabledTag}" FontSize="10" FontWeight="SemiBold" />
+                                    <TextBlock Text="{loc:Str Installed_DisabledTag}" FontSize="11" Foreground="{StaticResource SteamTextBright}" />
                                 </Border>
 
                                 <!-- Fork: pinned - applying a collection never disables it. -->
                                 <Border
-                                    Margin="6,0,0,0"
-                                    Padding="6,2"
-                                    CornerRadius="3"
+                                    Style="{StaticResource SubscribedTag}"
                                     Background="{DynamicResource AccentFillColorDefaultBrush}"
                                     ToolTip="{loc:Str Common_PinnedToolTip}"
                                     Visibility="{Binding IsPinned, Converter={StaticResource BoolToVis}}">
                                     <StackPanel Orientation="Horizontal">
                                         <ui:SymbolIcon Symbol="Pin24" FontSize="11" Margin="0,0,4,0" VerticalAlignment="Center" Foreground="{DynamicResource TextOnAccentFillColorPrimaryBrush}" />
-                                        <TextBlock Text="{loc:Str Installed_PinnedTag}" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="{DynamicResource TextOnAccentFillColorPrimaryBrush}" />
+                                        <TextBlock Text="{loc:Str Installed_PinnedTag}" FontSize="11" VerticalAlignment="Center" Foreground="{DynamicResource TextOnAccentFillColorPrimaryBrush}" />
                                     </StackPanel>
                                 </Border>
 
                                 <!-- Fork: uploaded again under the same version number. -->
                                 <Border
-                                    Margin="6,0,0,0"
-                                    Padding="6,2"
-                                    CornerRadius="3"
+                                    Style="{StaticResource SubscribedTag}"
                                     Background="{DynamicResource SystemFillColorCautionBackgroundBrush}"
                                     ToolTip="{Binding ReuploadNote}"
                                     Visibility="{Binding HasReupload, Converter={StaticResource BoolToVis}}">
-                                    <TextBlock Text="{loc:Str Installed_ReuploadedTag}" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource SystemFillColorCautionBrush}" />
+                                    <TextBlock Text="{loc:Str Installed_ReuploadedTag}" FontSize="11" Foreground="{DynamicResource SystemFillColorCautionBrush}" />
                                 </Border>
+
+                                <Border Style="{StaticResource GroupChip}" Margin="0,3,4,0" VerticalAlignment="Top">
+                                    <StackPanel Orientation="Horizontal">
+                                        <ui:SymbolIcon Symbol="Folder24" FontSize="11" Margin="0,0,4,0" VerticalAlignment="Center" />
+                                        <TextBlock FontSize="11" Text="{Binding GroupName}" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </Border>
+
                             </StackPanel>
+                                <ContentPresenter
+                                    Grid.Column="1"
+                                    ContentTemplate="{StaticResource ModListBadges}"
+                                    Content="{Binding}" />
+                            </Grid>
+                            </StackPanel>
+                            </DockPanel>
                         </StackPanel>
                     </Grid>
                 </ui:CardExpander.Header>
@@ -755,17 +911,22 @@
                     ContentTemplate="{StaticResource ModDetailBody}"
                     Content="{Binding}" />
             </ui:CardExpander>
+            </Grid>
         </DataTemplate>
 
         <DataTemplate x:Key="ModListRowTemplate" DataType="{x:Type viewmodels:InstalledModCardViewModel}">
-            <!-- TickableCardExpander, as the cards: in Multi select a ticked row
-                 carries the accent edge, and a click on it ticks it. -->
+            <!-- The same backdrop as the cards: in Multi select a ticked row carries the
+                 accent edge, and a click on it ticks it. -->
+            <Grid x:Name="RowRoot" Margin="0,0,10,10">
+            <ContentControl
+                Focusable="False"
+                IsHitTestVisible="False"
+                Template="{StaticResource SubscribedBackdrop}"
+                Tag="{Binding IsMouseOver, ElementName=RowRoot}" />
             <ui:CardExpander
-                Style="{StaticResource TickableCardExpander}"
-                Margin="0,0,6,6"
+                Style="{StaticResource SubscribedCardExpander}"
                 behaviors:ModContextMenu.ModId="{Binding CatalogModId}"
                 IsExpanded="{Binding IsRowExpanded, Mode=TwoWay}"
-                Opacity="{Binding CardOpacity}"
                 PreviewMouseLeftButtonDown="Card_PreviewMouseLeftButtonDown"
                 PreviewMouseMove="Card_PreviewMouseMove"
                 PreviewMouseLeftButtonUp="Card_PreviewMouseLeftButtonUp">
@@ -789,6 +950,7 @@
 
                         <ui:SymbolIcon
                             Grid.Column="1"
+                            Opacity="{Binding CardOpacity}"
                             Margin="0,0,12,0"
                             VerticalAlignment="Center"
                             FontSize="20"
@@ -805,18 +967,13 @@
                                 Margin="0,0,10,0"
                                 Background="{StaticResource SteamPreviewBackground}"
                                 ClipToBounds="True"
+                                Opacity="{Binding CardOpacity}"
                                 Visibility="{Binding Thumbnail, Converter={StaticResource NullToCollapsed}}">
                                 <Image Stretch="UniformToFill" behaviors:ThumbnailLoader.Source="{Binding Thumbnail}" />
                             </Grid>
                             <StackPanel VerticalAlignment="Center">
-                                <TextBlock
-                                    FontWeight="SemiBold"
-                                    TextTrimming="CharacterEllipsis"
-                                    Text="{Binding DisplayTitle}" />
-                                <TextBlock
-                                    FontSize="11"
-                                    Foreground="{DynamicResource TextFillColorTertiaryBrush}"
-                                    TextTrimming="CharacterEllipsis">
+                                <TextBlock Style="{StaticResource SubscribedRowTitle}" Text="{Binding DisplayTitle}" />
+                                <TextBlock Style="{StaticResource SubscribedFactsLine}">
                                     <Run Text="{Binding InstalledVersion, TargetNullValue='unknown', Mode=OneWay}" />
                                     <Run Text=" • " />
                                     <Run Text="{Binding TargetSummary, Mode=OneWay}" />
@@ -833,6 +990,7 @@
 
                                 <ContentPresenter
                                     ContentTemplate="{StaticResource ModListBadges}"
+                                    Opacity="{Binding CardOpacity}"
                                     Content="{Binding}" />
                             </StackPanel>
                         </DockPanel>
@@ -841,6 +999,7 @@
                              opening the row. -->
                         <StackPanel
                             Grid.Column="3"
+                            Opacity="{Binding CardOpacity}"
                             Orientation="Horizontal"
                             VerticalAlignment="Center"
                             Margin="12,0,12,0">
@@ -888,7 +1047,7 @@
 
                         <!-- Only the non-destructive actions live in the header; Remove
                              and Sort out are inside the row, which has to be opened first. -->
-                        <StackPanel Grid.Column="4" VerticalAlignment="Center" Orientation="Horizontal">
+                        <StackPanel Grid.Column="4" VerticalAlignment="Center" Orientation="Horizontal" Opacity="{Binding CardOpacity}">
                             <!-- Fork: Update when there is one, then the on/off switch. -->
                             <Button Margin="0,0,12,0" Style="{StaticResource CardUpdateButton}" />
                             <Button
@@ -905,6 +1064,7 @@
                     ContentTemplate="{StaticResource ModDetailBody}"
                     Content="{Binding}" />
             </ui:CardExpander>
+            </Grid>
         </DataTemplate>
 
     </Page.Resources>
@@ -1362,9 +1522,13 @@
             <ItemsControl Focusable="False" ItemsSource="{Binding Sections}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="{x:Type viewmodels:ModGroupSectionViewModel}">
+                        <!-- Fork (round 46): a solid fill, the cards' dark end, in place of the
+                             theme's black at 20% - the page grid ran through every row. -->
                         <ui:Card
                             Margin="0,0,6,8"
                             Padding="10"
+                            Background="#1B1D21"
+                            BorderBrush="Transparent"
                             AllowDrop="True"
                             DragOver="Section_DragOver"
                             Drop="Section_Drop">
@@ -1385,32 +1549,38 @@
                                     <ItemsControl Focusable="False" ItemsSource="{Binding Items}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate DataType="{x:Type viewmodels:InstalledModCardViewModel}">
+                                                <!-- Fork (round 49): Steam's row here too - the same backdrop
+                                                     as a card and a List row, drawn behind the row's padding. -->
                                                 <Border
-                                                    Margin="0,0,0,4"
+                                                    Margin="0,0,0,8"
                                                     Padding="8,6"
-                                                    Opacity="{Binding CardOpacity}"
                                                     behaviors:ModContextMenu.ModId="{Binding CatalogModId}"
                                                     PreviewMouseLeftButtonDown="ModRow_PreviewMouseLeftButtonDown"
                                                     PreviewMouseMove="ModRow_PreviewMouseMove"
                                                     PreviewMouseLeftButtonUp="ModRow_PreviewMouseLeftButtonUp">
                                                     <!-- Sorted by category there is no group to drag it onto. -->
                                                     <Border.Style>
-                                                        <Style TargetType="Border" BasedOn="{StaticResource ClickableCardRow}">
+                                                        <!-- Its fill, its hover and its picked state are the
+                                                             backdrop's (SubscribedBackdrop); this is only
+                                                             something to point at. -->
+                                                        <Style TargetType="Border">
+                                                            <Setter Property="Background" Value="Transparent" />
+                                                            <Setter Property="Cursor" Value="Hand" />
                                                             <Setter Property="ToolTip" Value="{Binding [Installed_GroupRowToolTip], Source={x:Static loc:LocalizationService.Instance}}" />
-                                                            <Setter Property="BorderThickness" Value="1" />
-                                                            <Setter Property="BorderBrush" Value="Transparent" />
                                                             <Style.Triggers>
-                                                                <!-- Fork: a ticked row reads as picked, as a ticked card does. -->
-                                                                <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                                                    <Setter Property="Background" Value="{StaticResource RowSelectedBrush}" />
-                                                                    <Setter Property="BorderBrush" Value="{StaticResource SelectedRowStroke}" />
-                                                                </DataTrigger>
                                                                 <DataTrigger Binding="{Binding DataContext.GroupsByCategory, RelativeSource={RelativeSource AncestorType={x:Type Page}}}" Value="True">
                                                                     <Setter Property="ToolTip" Value="{Binding [Installed_CategoryRowToolTip], Source={x:Static loc:LocalizationService.Instance}}" />
                                                                 </DataTrigger>
                                                             </Style.Triggers>
                                                         </Style>
                                                     </Border.Style>
+                                                    <Grid>
+                                                    <ContentControl
+                                                        Margin="-8,-6"
+                                                        Focusable="False"
+                                                        IsHitTestVisible="False"
+                                                        Template="{StaticResource SubscribedBackdrop}"
+                                                        Tag="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType={x:Type Border}}}" />
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="Auto" />
@@ -1432,6 +1602,7 @@
 
                                                         <ui:SymbolIcon
                                                             Grid.Column="1"
+                                                            Opacity="{Binding CardOpacity}"
                                                             Margin="0,0,8,0"
                                                             VerticalAlignment="Center"
                                                             FontSize="20"
@@ -1449,18 +1620,13 @@
                                                                 Margin="0,0,10,0"
                                                                 Background="{StaticResource SteamPreviewBackground}"
                                                                 ClipToBounds="True"
+                                                                Opacity="{Binding CardOpacity}"
                                                                 Visibility="{Binding Thumbnail, Converter={StaticResource NullToCollapsed}}">
                                                                 <Image Stretch="UniformToFill" behaviors:ThumbnailLoader.Source="{Binding Thumbnail}" />
                                                             </Grid>
                                                             <StackPanel VerticalAlignment="Center">
-                                                                <TextBlock
-                                                                    FontWeight="SemiBold"
-                                                                    TextTrimming="CharacterEllipsis"
-                                                                    Text="{Binding DisplayTitle}" />
-                                                                <TextBlock
-                                                                    FontSize="11"
-                                                                    Foreground="{DynamicResource TextFillColorTertiaryBrush}"
-                                                                    TextTrimming="CharacterEllipsis">
+                                                                <TextBlock Style="{StaticResource SubscribedRowTitle}" Text="{Binding DisplayTitle}" />
+                                                                <TextBlock Style="{StaticResource SubscribedFactsLine}">
                                                                     <Run Text="{Binding InstalledVersion, TargetNullValue='unknown', Mode=OneWay}" />
                                                                     <Run Text=" • " />
                                                                     <Run Text="{Binding TargetSummary, Mode=OneWay}" />
@@ -1477,6 +1643,7 @@
 
                                                                 <ContentPresenter
                                                                     ContentTemplate="{StaticResource ModListBadges}"
+                                                                    Opacity="{Binding CardOpacity}"
                                                                     Content="{Binding}" />
                                                             </StackPanel>
                                                         </DockPanel>
@@ -1485,6 +1652,7 @@
                                                              not the group) and DISABLED, as on the cards and List. -->
                                                         <StackPanel
                                                             Grid.Column="3"
+                                                            Opacity="{Binding CardOpacity}"
                                                             Orientation="Horizontal"
                                                             VerticalAlignment="Center"
                                                             Margin="12,0,12,0">
@@ -1533,7 +1701,7 @@
                                                         <!-- Per-row disable toggle. ModRow_PreviewMouseLeftButtonDown
                                                              steps aside for anything inside a button, so this click
                                                              isn't swallowed by the row's own click/drag gesture. -->
-                                                        <StackPanel Grid.Column="4" VerticalAlignment="Center" Orientation="Horizontal">
+                                                        <StackPanel Grid.Column="4" VerticalAlignment="Center" Orientation="Horizontal" Opacity="{Binding CardOpacity}">
                                                             <!-- Fork: Update when there is one, then the on/off switch. -->
                                                             <Button Margin="0,0,12,0" Style="{StaticResource CardUpdateButton}" />
                                                             <Button
@@ -1543,6 +1711,7 @@
                                                                 CommandParameter="{Binding}"
                                                                 ToolTip="{Binding DisableToggleTooltip}" />
                                                         </StackPanel>
+                                                    </Grid>
                                                     </Grid>
                                                 </Border>
                                             </DataTemplate>

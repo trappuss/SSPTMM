@@ -21,8 +21,8 @@ the same details; click a card or row to open it.
 
 ## Sort, search and filter
 
-- **Sort**: by name, author or group (A-Z / Z-A), or **Recently installed** (newest install or
-  update first).
+- **Sort**: by name, author or group (A-Z / Z-A), **Recently installed** (newest install or
+  update first), or **Enabled first** / **Disabled first** (each half by name).
 - **Search** by name, or **@name** for the author.
 - **Filters**: update status (updates available, up to date, not on sp-mod.com, recently
   installed), enabled/disabled, category, group, and Fika compatible, hide ads, has dependencies,

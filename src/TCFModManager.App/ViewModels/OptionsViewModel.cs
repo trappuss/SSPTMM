@@ -277,6 +277,24 @@ public partial class OptionsViewModel : LocalizedViewModel
         AppLog.Info("Options", value ? "smooth scrolling on" : "smooth scrolling off");
     }
 
+    // Fork: each subscribed mod's own picture behind its card - see AppSettings.CardPictures and
+    // Behaviors/CardBackdrop.
+    [ObservableProperty]
+    private bool _cardPictures;
+
+    partial void OnCardPicturesChanged(bool value)
+    {
+        if (!_loaded) return;
+
+        Behaviors.CardBackdrop.Enabled = value;
+
+        var settings = _settings.Load();
+        settings.CardPictures = value;
+        _settings.Save(settings);
+
+        AppLog.Info("Options", value ? "pictures behind subscribed mods on" : "pictures behind subscribed mods off");
+    }
+
     // Whether removing an item asks first - see AppSettings.ConfirmUnsubscribe. A plain property
     // rather than [ObservableProperty]: the question's "Don't ask again" changes the stored value
     // while this page may be open, and Reload puts it on the switch without saving it again.
@@ -458,6 +476,7 @@ public partial class OptionsViewModel : LocalizedViewModel
         _directLaunch = settings.DirectLaunch; // Fork: OptionsViewModel.DirectLaunch.cs
         _minimizeWhilePlaying = settings.MinimizeWhilePlaying;
         _smoothScrolling = settings.SmoothScrolling;
+        _cardPictures = settings.CardPictures;
         _confirmUnsubscribe = settings.ConfirmUnsubscribe;
         _keepDownloads = settings.KeepDownloads;
         _showSubscribedItemsTab = settings.ShowSubscribedItemsTab;

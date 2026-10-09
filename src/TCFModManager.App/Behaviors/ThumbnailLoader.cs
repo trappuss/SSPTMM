@@ -193,6 +193,25 @@ public static class ThumbnailLoader
     /// decoded, when one asks. True once it is; false when it cannot be fetched or decoded here.</summary>
     public static Task<bool> PrefetchAsync(string url, int width)
     {
+        var pixels = WindowPixels(width);
+        return Cache.TryGetValue(KeyFor(url, pixels), out _) || Gifs.TryGetValue(url, out _)
+            ? Task.FromResult(true)
+            : Enqueue(null, url, pixels);
+    }
+
+    /// <summary>The decoded picture PrefetchAsync loads, for something that draws with it rather than
+    /// showing it in an Image (CardBackdrop). Null when it cannot be loaded, or is an animated GIF,
+    /// which is kept as its file and has no one picture. UI thread, like everything here.</summary>
+    public static async Task<BitmapSource?> GetAsync(string url, int width)
+    {
+        if (!await PrefetchAsync(url, width)) return null;
+
+        return Cache.TryGetValue(KeyFor(url, WindowPixels(width)), out var bitmap) ? bitmap : null;
+    }
+
+    // Device pixels for a width in device-independent ones, at the main window's scale.
+    private static int WindowPixels(int width)
+    {
         var scale = 1.0;
         if (Application.Current?.MainWindow is { } window)
         {
@@ -206,10 +225,7 @@ public static class ThumbnailLoader
             }
         }
 
-        var pixels = (int)Math.Ceiling(width * Math.Max(1.0, scale));
-        return Cache.TryGetValue(KeyFor(url, pixels), out _) || Gifs.TryGetValue(url, out _)
-            ? Task.FromResult(true)
-            : Enqueue(null, url, pixels);
+        return (int)Math.Ceiling(width * Math.Max(1.0, scale));
     }
 
     // ------------------------------------------------------------------ the queue

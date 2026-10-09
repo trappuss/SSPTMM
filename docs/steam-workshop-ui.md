@@ -2125,8 +2125,126 @@ Measured and left alone:
 - **SafeFile's backup check** parses the old file before finding no backup is due: about 10 ms per
   save of the install records, off the UI thread. Left; reordering it changes when a warning is logged.
 
+## Round 46: Subscribed items, on Steam's own rows (2026-10-08)
+
+The cards were hard to read and did not look like the rest of the Workshop: WPF UI's stock expander
+on the theme's card fill (black at 20%, so the page grid ran through every title), an 11px line in
+#8F98A0 under the name, and collection chips in the accent blue on mid grey.
+
+A first pass drew them on the Browse card's gradient with a white edge and left the disabled ones
+at full strength. Seen on a real install that was worse in places: 132 outlined boxes, each with
+its own glow. It was taken back out and the rows of Steam's "Your Workshop Files" lists were read
+instead (workshop_userfiles.css, 2026-10-08):
+
+- `.workshopItemCollectionContainer`: `background-color: #273b52`, `border-radius: 4px`,
+  `box-shadow: 2px 2px 10px rgba(0,0,0,0.3)`. No border.
+- `.backgroundImg`: the item's own picture across the row's width, `filter: blur(30px)`,
+  `opacity: 0.3`, `top: -30%`, masked left to right from black (at -25%) to nothing. That is the
+  light behind a Steam row - not a highlight of the row's, the mod's picture out of focus.
+- `.workshopItemCollection:hover`: `background-color: rgba(190,209,228,0.2)`.
+
+A card and a List row are now that (InstalledPage's SubscribedBackdrop): the navy panel, the mod's
+picture blurred behind it and fading to the right, a drop shadow and no edge. Under the pointer it
+takes the 20% tint and its shadow turns white, as a Browse card's does. A ticked one has the accent
+edge and tint. The blur is done on a 64px copy of the picture (a deviation of 3px there for Steam's
+30px on a 650px row), kept as a bitmap and stretched: 132 blurs at a card's size were not wanted.
+
+Also:
+
+- **Disabled mods are greyed out again**, the whole card at 45%, as before the first pass.
+- **DISABLED is a tag like the others.** It was a second row under the picture, in another shape,
+  and made a disabled card taller than its neighbours. It, PINNED, RE-UPLOADED and the group now
+  sit on one line with the collections' tags, under the facts line and in line with the name.
+- **The facts line** (version, client/server, author) is 12px in Steam's body grey, #ACB2B8, in
+  all three views; an opened card's Installed version and Latest published too.
+- **A collection's tag** is light blue on that blue at 20%.
+- **The Groups view's sections** have a solid dark fill (#1B1D21) and no edge.
+
+Layout, controls and words are otherwise as they were.
+
+Checked in pictures of Cards, List and Groups with cards opened, ticked, disabled and (faked)
+under the pointer, from a copy of the app run on a hidden Windows desktop with software rendering,
+against a copy of a real install's 132 mod folders. Not checked: a real pointer, scrolling speed
+with a graphics card (each card is two cached shadow layers and one cached 64px picture more than
+before), a light Windows theme, and a background picture behind the cards.
+
+## Round 47: the cards without effects; Play from SSPTMM for everyone (2026-10-08)
+
+**Subscribed items was very slow to scroll after round 46** (reported from a real PC; it could not
+be timed here - the pictures in this log are drawn without a graphics card, on a desktop nothing is
+shown on, where WPF neither presents frames nor redraws for a window capture, so two attempts at a
+scroll benchmark measured nothing). What round 46 had put in every card: a BlurEffect, an opacity
+and an opacity mask over the picture, and two DropShadowEffect layers - and half the cards sit
+inside a 45% opacity of their own, where all of that is worked out again on every frame. Keeping
+the picture's layer as a bitmap was tried first and was not enough. All of it is gone:
+
+- **The picture** is blurred, faded and dimmed once, in code, on a background thread
+  (Behaviors/CardBackdrop): shrunk to 64px, three passes of a box blur (a deviation of 3.5px, for
+  Steam's 30px on a 650px row), Steam's mask and its 30%, kept as a frozen 16 KB brush that every
+  card showing that picture paints with. It uses the card's own thumbnail - no second download or
+  decode.
+- **The shadow** is worked out once for a small rounded rectangle and cut into four corners and
+  four edges; a card draws those eight pieces, edges stretched (Behaviors/CardShadow). The white
+  one under the pointer is the same, made the same way.
+- **A disabled mod has no picture behind it.** At 45% it could barely be seen.
+- **Options > Picture behind each subscribed mod** switches the pictures off (AppSettings.
+  CardPictures, on by default).
+
+The page looks the same as it did after round 46, in pictures of Cards and List.
+
+**Play from SSPTMM is no longer experimental and is on by default** (AppSettings.DirectLaunch).
+The EXPERIMENTAL tags on its Options card and on the Play card are gone, the Options note is titled
+"Not made by the SPT team", and Help, the README and the wiki say on by default. A settings file
+from before holds "false" whether or not anyone chose it and is left as it is. It is still only
+used on SPT 4.1.3 to 4.1.6; Play opens SPT's launcher on any other.
+
+## Round 48: cards a few at a time; sorting by enabled and disabled (2026-10-08)
+
+Round 47's cards were reported "much better" on the PC that had found round 46's slow, with one
+thing left: with smooth scrolling on, the glide stuttered "as new mods come into view", and not
+with it off.
+
+- **The infinite list adds its cards two at a time.** It added 24 at once when the view came
+  within 800px of the end, and building 24 cards is one long moment in which nothing else is drawn -
+  a glide stops dead in it, a jump hides it. Each step now adds two and waits its turn behind
+  drawing and input (Dispatcher Background), asking for the next one itself until the end is 1600px
+  away again (InstalledPage.QueueLoadMore). In the copy run for pictures the longest wait for one
+  scroll step went from 272-447 ms to 103 ms - a copy that draws no frames, so a sign of less
+  work at once and not a frame time.
+- **Sort by: Enabled first, Disabled first** (ModSortOption), each half by name. Pinned mods stay
+  at the top, as in every order. The page remembers it like the others.
+
+## Round 49: 1.4.0 - one line of tags, greying without an opacity, Groups rows (2026-10-08)
+
+- **Tags stay on one line** (Behaviors/OneLinePanel, the collections' ItemsPanel): what does not
+  fit is left out and counted in a "+2" drawn after the last tag, with every collection's name in
+  the tooltip. On a card the state tags (DISABLED, PINNED, RE-UPLOADED, the group) come first and
+  the collections take the rest of the line, which is there (20px) whether or not a mod has a tag -
+  so every closed card is the same height. Before, a mod in three collections was a line taller
+  than its neighbours.
+- **A disabled mod is greyed out in its colours, not by an opacity.** One Opacity of 45% on a whole
+  card makes WPF draw the card to one side and fade that, for 63 cards of a 132-mod install, every
+  frame. The 45% is now the alpha of the panel's fill, the name, the facts line and the expander's
+  arrow; only the thumbnail, the status and switch, and the tags still carry an opacity, each a
+  small thing on its own. A disabled card has no shadow, and its opened body is at full strength
+  (it was faded with the rest). In pictures the closed cards are the same as before.
+- **Groups rows are Steam's rows too**: the same backdrop as a card and a List row, in place of the
+  flat dark row. Fill, hover and picked come from the backdrop.
+- **1.4.0**: version, CHANGELOG, and docs\images 07 (Subscribed items: cards, list, groups), taken
+  from a copy of the app on a hidden desktop with a dozen well-known mods and made-up collection
+  names. The Play and Options pictures (01, 01b, 14) still show 1.3.1's and need retaking on a real
+  install: a copy has no server to start and its paths are a temp folder's.
+
 ## Values that could not be measured (marked HUNCH in the source)
 
+- Round 49: that greying in colours is quicker than the opacity it replaces (the reason to expect it
+  is above; no frame time was taken).
+- Round 48: two cards a step and 1600px ahead.
+- Round 47: that the cards are now as quick to scroll as they were before round 46. Nothing in
+  them is an effect any more, which is the reason to expect it; the speed itself was not measured.
+- Round 46: the shade over an opened card's body (black at 20% - Steam's rows do not open), the
+  collection tag's blue (#67C1F5, Steam's store tag as remembered) and the Groups sections' fill.
+  The row itself is measured.
 - Round 45: how much sooner a picture shows from the kept download (it saves one request to
   files.sp-mod.com; not timed - the app was not run against the site for this), and the 24 MB kept.
 

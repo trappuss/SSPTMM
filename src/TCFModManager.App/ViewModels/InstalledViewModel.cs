@@ -132,6 +132,8 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         new(nameof(Strings.Sort_GroupAscending), ModSortOption.GroupAscending),
         new(nameof(Strings.Sort_GroupDescending), ModSortOption.GroupDescending),
         new(nameof(Strings.Sort_RecentlyInstalled), ModSortOption.RecentlyInstalled), // Fork
+        new(nameof(Strings.Sort_EnabledFirst), ModSortOption.EnabledFirst), // Fork
+        new(nameof(Strings.Sort_DisabledFirst), ModSortOption.DisabledFirst), // Fork
     ];
 
     [ObservableProperty]
@@ -2871,12 +2873,14 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         _cardsDirty = false;
     }
 
-    /// <summary>Adds the next cards to the infinite list - called as Cards view nears its bottom.</summary>
-    public void LoadMore()
+    /// <summary>Adds the next <paramref name="count"/> cards to the infinite list - called as Cards
+    /// view nears its bottom. False when there was nothing to add.</summary>
+    public bool LoadMore(int count)
     {
-        if (!IsInfinite || !ShowCardsFlat || _cardsDirty || Results.Count >= _filtered.Count) return;
+        if (!IsInfinite || !ShowCardsFlat || _cardsDirty || Results.Count >= _filtered.Count) return false;
 
-        foreach (var card in _filtered.Skip(Results.Count).Take(PageStep).ToList()) Results.Add(card);
+        foreach (var card in _filtered.Skip(Results.Count).Take(count).ToList()) Results.Add(card);
+        return true;
     }
 
     private void ApplyFilter()
@@ -2995,6 +2999,12 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
             ModSortOption.RecentlyInstalled => mods
                 .OrderBy(m => m.InstalledAt is null)
                 .ThenByDescending(m => m.InstalledAt)
+                .ThenBy(m => m.DisplayTitle, StringComparer.OrdinalIgnoreCase),
+            ModSortOption.EnabledFirst => mods
+                .OrderBy(m => m.IsDisabled)
+                .ThenBy(m => m.DisplayTitle, StringComparer.OrdinalIgnoreCase),
+            ModSortOption.DisabledFirst => mods
+                .OrderByDescending(m => m.IsDisabled)
                 .ThenBy(m => m.DisplayTitle, StringComparer.OrdinalIgnoreCase),
             _ => mods,
         };

@@ -9131,6 +9131,18 @@ See Dependencies and Conflicts.</value>
     <value>Hide the Subscribed items or Collections tab, or use a picture of your own.</value>
     <comment>Options, Tabs and background: the line on show. The full explanation is behind the "?".</comment>
   </data>
+  <data name="Options_CardPicturesHeader" xml:space="preserve">
+    <value>Picture behind each subscribed mod</value>
+    <comment>Options card heading. On Subscribed items, each mod's card has that mod's own picture, blurred, behind it.</comment>
+  </data>
+  <data name="Options_CardPicturesSummary" xml:space="preserve">
+    <value>Each mod's own picture, out of focus, behind its card - as Steam draws its rows.</value>
+    <comment>Options, Picture behind each subscribed mod: the line on show. The rest is behind the "?".</comment>
+  </data>
+  <data name="Options_CardPicturesDescription" xml:space="preserve">
+    <value>On Subscribed items, in Cards and List. Turned off, the cards are plain - worth trying if the page is slow to scroll. It takes hold the next time the page is opened.</value>
+    <comment>Options card text, behind the "?".</comment>
+  </data>
   <data name="Options_ScrollingSummary" xml:space="preserve">
     <value>Smooth scrolling glides the page, as a web browser does.</value>
     <comment>Options, Scrolling: the line on show. The full explanation is behind the "?".</comment>
@@ -9762,6 +9774,14 @@ Download them anyway? Once installed, SPT may refuse to load them. No downloads 
   <data name="Sort_RecentlyInstalled" xml:space="preserve">
     <value>Recently installed</value>
     <comment>Subscribed items Sort by entry: newest install first; mods with no recorded install date last.</comment>
+  </data>
+  <data name="Sort_EnabledFirst" xml:space="preserve">
+    <value>Enabled first</value>
+    <comment>Subscribed items Sort by entry: the mods that are switched on, then the ones switched off, each by name.</comment>
+  </data>
+  <data name="Sort_DisabledFirst" xml:space="preserve">
+    <value>Disabled first</value>
+    <comment>Subscribed items Sort by entry: the mods that are switched off, then the ones switched on, each by name.</comment>
   </data>
   <data name="Installed_GroupingInstallState" xml:space="preserve">
     <value>Grouped by enabled / disabled</value>

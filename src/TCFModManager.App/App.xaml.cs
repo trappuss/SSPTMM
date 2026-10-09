@@ -94,6 +94,9 @@ public partial class App : Application
         Behaviors.SmoothScrolling.Enabled = new Core.Services.SettingsService().Load().SmoothScrolling;
         Behaviors.SmoothScrolling.Register();
 
+        // Fork: each subscribed mod's picture behind its card, unless switched off in Options.
+        Behaviors.CardBackdrop.Enabled = new Core.Services.SettingsService().Load().CardPictures;
+
         // Frame-rate and description timings in the log, only when asked for - see PerfProbe.
         Services.PerfProbe.Start();
 

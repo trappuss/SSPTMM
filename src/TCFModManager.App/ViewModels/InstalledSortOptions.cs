@@ -17,6 +17,10 @@ public enum ModSortOption
 
     // Fork: newest install first (InstalledMod.InstalledAt); mods with no recorded date last.
     RecentlyInstalled,
+
+    // Fork (round 48): by whether the mod is switched on, each half by name.
+    EnabledFirst,
+    DisabledFirst,
 }
 
 // One entry in the "Sort by" dropdown. Overrides ToString() so the label shows instead of the enum name.

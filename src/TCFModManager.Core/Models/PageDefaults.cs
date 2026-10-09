@@ -37,7 +37,7 @@ public sealed class InstalledPageDefaults
     public string? Group { get; set; }
 
     // ModSortOption: NameAscending, NameDescending, AuthorAscending, AuthorDescending,
-    // GroupAscending, GroupDescending. RecentlyInstalled was one until v1.19.0, when it became an
+    // GroupAscending, GroupDescending, EnabledFirst, DisabledFirst. RecentlyInstalled was one until v1.19.0, when it became an
     // update status filter; a saved one is read as that filter (InstalledViewModel.DefaultUpdateFilter).
     public string? Sort { get; set; }
 

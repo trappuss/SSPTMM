@@ -191,15 +191,46 @@ public partial class InstalledPage : Page
     // How close to the bottom, in pixels, the infinite list adds its next cards - as Browse does.
     // ScrollChanged also fires when the list grows, so a window tall enough to show every card
     // added keeps asking until the list is longer than the view.
-    private const double LoadMoreDistance = 800;
+    //
+    // Fork (round 48): 1600, and the cards arrive a few at a time. They came 24 at once, 800px
+    // ahead, and building 24 cards is a long moment in which nothing else is drawn: with the wheel
+    // gliding (Options > Scrolling) the glide stopped dead in the middle of each turn that reached
+    // a new batch - reported as a stutter "as new mods come into view", and gone with the glide
+    // off, where a jump hides it. Now each step adds LoadMoreStep cards and waits its turn behind
+    // drawing and input (Background priority), so a glide's frames come between the steps; and the
+    // steps start twice as far ahead, so the cards are in place before they are scrolled to.
+    // HUNCH: 2 a step and 1600px - reasoned from that report, not timed.
+    //
+    private const double LoadMoreDistance = 1600;
+
+    private const int LoadMoreStep = 2;
+
+    private bool _loadMoreQueued;
 
     private void CardsScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
     {
-        if (!ViewModel.IsInfinite) return;
-
-        var remaining = CardsScrollViewer.ExtentHeight - CardsScrollViewer.ViewportHeight - CardsScrollViewer.VerticalOffset;
-        if (remaining <= LoadMoreDistance) ViewModel.LoadMore();
+        if (ViewModel.IsInfinite && NearCardsEnd()) QueueLoadMore();
     }
+
+    private void QueueLoadMore()
+    {
+        if (_loadMoreQueued) return;
+
+        _loadMoreQueued = true;
+        Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Background, () =>
+        {
+            _loadMoreQueued = false;
+
+            // Asks for the step after itself rather than leaving it to ScrollChanged: two cards
+            // that only finish a row do not make the list any longer, and nothing would be raised.
+            // By the time this runs again the last step has been laid out (layout comes before
+            // Background), so "near the end" is read from the list as it now is.
+            if (ViewModel.IsInfinite && NearCardsEnd() && ViewModel.LoadMore(LoadMoreStep)) QueueLoadMore();
+        });
+    }
+
+    private bool NearCardsEnd() =>
+        CardsScrollViewer.ExtentHeight - CardsScrollViewer.ViewportHeight - CardsScrollViewer.VerticalOffset <= LoadMoreDistance;
 
     private async void InstalledPage_Loaded(object sender, RoutedEventArgs e)
     {

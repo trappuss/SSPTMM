@@ -2439,6 +2439,9 @@ internal static class Strings
     internal static string ModLists_AboutLists => LocalizationService.Get("ModLists_AboutLists");
     internal static string Options_LaunchSummary => LocalizationService.Get("Options_LaunchSummary");
     internal static string Options_TabsBackgroundSummary => LocalizationService.Get("Options_TabsBackgroundSummary");
+    internal static string Options_CardPicturesHeader => LocalizationService.Get("Options_CardPicturesHeader");
+    internal static string Options_CardPicturesSummary => LocalizationService.Get("Options_CardPicturesSummary");
+    internal static string Options_CardPicturesDescription => LocalizationService.Get("Options_CardPicturesDescription");
     internal static string Options_ScrollingSummary => LocalizationService.Get("Options_ScrollingSummary");
     internal static string Options_InstallModeSummary => LocalizationService.Get("Options_InstallModeSummary");
     internal static string Options_RemovedModsSummary => LocalizationService.Get("Options_RemovedModsSummary");
@@ -2593,6 +2596,8 @@ internal static class Strings
     internal static string Help_Play_Tools_Note => LocalizationService.Get("Help_Play_Tools_Note");
     internal static string Help_Play_Tools_Keywords => LocalizationService.Get("Help_Play_Tools_Keywords");
     internal static string Sort_RecentlyInstalled => LocalizationService.Get("Sort_RecentlyInstalled");
+    internal static string Sort_EnabledFirst => LocalizationService.Get("Sort_EnabledFirst");
+    internal static string Sort_DisabledFirst => LocalizationService.Get("Sort_DisabledFirst");
     internal static string Installed_GroupingInstallState => LocalizationService.Get("Installed_GroupingInstallState");
     internal static string Installed_SectionEnabled => LocalizationService.Get("Installed_SectionEnabled");
     internal static string Installed_SectionDisabled => LocalizationService.Get("Installed_SectionDisabled");
