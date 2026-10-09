@@ -2296,7 +2296,7 @@ graphics card's drawing rather than software, Play against a real server, and th
 itself to 1.4.0, which needs 1.4.0 published. 01-play.png and 01b-play-direct.png are 1.3's: a copy
 shows a temp folder's paths.
 
-## Round 52: a mod's addons - their own tab, and Install Anyway (2026-10-09)
+## Round 52: 1.4.1 - a mod's addons: their own tab, and Install Anyway (2026-10-09)
 
 Asked for: better browsing and installing of addons, and an "install anyway", since what addons say
 about compatibility misleads. In the catalog of that day there were 126 addons; one mod had 34, and

@@ -1,3 +1,18 @@
+# SSPTMM 1.4.1
+
+## Updating
+
+From 1.3.0 or later: Help > About > **Install update**. From an older version: close SSPTMM, download `SSPTMM-1.4.1-win-x64.zip` and copy the contents of its `SSPTMM` folder over your SSPTMM folder. Your settings in `Data` stay as they are.
+
+## New
+
+- **A mod's addons have their own tab.** They were at the foot of the Description tab, under however long the description was, with nothing higher up saying they were there. A mod with addons now has an **Addons (5)** tab and a row under the Subscribe box that opens it. The list is drawn as the rest of the item page is, each addon with its author and downloads, its version picker and buttons at the right; with more than six there is a search box (one mod has 34). What is installed comes first, then what fits your version of the mod. An addon on an author's page opens its mod at that tab.
+- **Install Anyway.** An addon says which versions of its mod it works with, and SSPTMM refused to install one that didn't match - but authors often leave that as it was while the mod moves on (every one of SAIN's five addons asks for a SAIN older than today's). The button now reads **Install Anyway**, in grey, and asks first, saying what it needs and what you have; No is the default. The same when the mod itself isn't found in your install. A mod that doesn't fit your SPT version was already asked about this way.
+
+## Fixed
+
+- **A mod's addons follow what you install.** Subscribe on a mod's page and its addons went on saying to install the mod first until the page was closed and opened again, and an addon just installed still offered Install. The list now updates as installs land.
+
 # SSPTMM 1.4.0
 
 ## Updating
@@ -11,8 +26,6 @@ From 1.3.0 or 1.3.1: Help > About > **Install update**. From an older version: c
 - **Sort by Enabled first or Disabled first** on Subscribed items, each half by name. Pinned mods stay at the top, as in every order.
 - **Options looks like Steam's settings.** The sections are listed down the left - General, Play, Look, Pages, Installing mods, Updates, Fika and servers, Advanced - and a click goes to one. Each section is one solid panel of plain rows with a line between them, in a column narrow enough that a switch sits near what it switches; before, the rows were see-through boxes across the whole window. The settings are regrouped to match: starting the game has a section of its own (Play), and the tabs, background, pictures and scrolling are together under Look.
 - **Play starts the game from SSPTMM by default.** *Start the game from SSPTMM* is no longer experimental: on a new setup, Play on the Play page starts the server and the game itself, with no SPT launcher window (SPT 4.1.3 to 4.1.6; on any other version Play opens the SPT launcher as before). If your settings already say off - 1.2.x wrote that for everybody - it stays off: switch it on in Options if you want it. A setup that never ran 1.2.x has nothing written and gets the new default. It is still not made or supported by the SPT team.
-- **A mod's addons have their own tab.** They were at the foot of the Description tab, under however long the description was, with nothing higher up saying they were there. A mod with addons now has an **Addons (5)** tab and a row under the Subscribe box that opens it. The list is drawn as the rest of the item page is, each addon with its author and downloads, its version picker and buttons at the right; with more than six there is a search box (one mod has 34). What is installed comes first, then what fits your version of the mod. An addon on an author's page opens its mod at that tab.
-- **Install Anyway.** An addon says which versions of its mod it works with, and SSPTMM refused to install one that didn't match - but authors often leave that as it was while the mod moves on (every one of SAIN's five addons asks for a SAIN older than today's). The button now reads **Install Anyway**, in grey, and asks first, saying what it needs and what you have; No is the default. The same when the mod itself isn't found in your install. A mod that doesn't fit your SPT version was already asked about this way.
 - **Options > Picture behind each subscribed mod** switches the pictures behind the cards off, for a PC that scrolls the page slowly with them.
 
 ## Faster
@@ -28,7 +41,6 @@ From 1.3.0 or 1.3.1: Help > About > **Install update**. From an older version: c
 
 - **Smooth scrolling no longer stops for a moment as Subscribed items reaches more mods.** The page added 24 cards at once when you neared the end of what was loaded; it now adds them one at a time, further ahead.
 - **A mod no longer shows the same collection twice** among its tags.
-- **A mod's addons follow what you install.** Subscribe on a mod's page and its addons went on saying to install the mod first until the page was closed and opened again, and an addon just installed still offered Install. The list now updates as installs land.
 # SSPTMM 1.3.1
 
 ## Updating
