@@ -29,8 +29,8 @@ Player Tarkov) mods, laid out and styled like Steam's Workshop. Mods and collect
   friends by code or shared folder.
 - **Play** - start the server and the game, read the server log, close the game, and open the tools
   your mods installed (SVM's Greed, give-ui...). Before you launch it warns about conflicts and about
-  mods that need something missing or switched off. Experimental, off by default: pick a profile and
-  press PLAY - server and game start with no SPT launcher window.
+  mods that need something missing or switched off. Pick a profile and press PLAY - server and game
+  start with no SPT launcher window (SPT 4.1.3 and later in 4.1; it can be switched off in Options).
 - **Tools** - Configs, Dependencies and Conflicts, and **Diagnose logs**, which reads SPT's logs and
   says what went wrong and which mod it came from.
 - **Safety** - a copy of your SPT profiles before anything changes the install, your BepInEx
@@ -111,7 +111,7 @@ addresses.
 - **Warnings before you launch:** conflicts, and mods that need something missing or switched off.
 - **Server:** stop it, run it without its window, and read its log live.
 - **Game:** close it, optionally whenever the server stops.
-- **Experimental:** start the game straight from SSPTMM with no SPT launcher window.
+- **Play:** start the game straight from SSPTMM with no SPT launcher window (on by default).
 
 Everything that differs, item by item, is in the wiki:
 [Changes from TCF Mod Manager](https://github.com/trappuss/SSPTMM/wiki/Changes-from-TCF-Mod-Manager).

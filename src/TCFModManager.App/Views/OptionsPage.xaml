@@ -260,8 +260,8 @@
             </StackPanel>
         </ui:CardExpander>
 
-        <!-- Fork (experimental): Play starts the game itself instead of opening SPT's launcher
-             (SptDirectLaunch). Warned about on the card, and off unless switched on. -->
+        <!-- Fork: Play starts the game itself instead of opening SPT's launcher (SptDirectLaunch).
+             On unless switched off; the card says what it is and is not. -->
         <ui:CardExpander
             Style="{StaticResource SettingExpander}"
             Icon="{ui:SymbolIcon Rocket24}">
@@ -272,18 +272,7 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <StackPanel VerticalAlignment="Center">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_DirectLaunchHeader}" />
-                            <Border
-                                Margin="8,0,0,0"
-                                Padding="6,1"
-                                VerticalAlignment="Center"
-                                CornerRadius="3"
-                                Background="{DynamicResource SystemFillColorCautionBrush}"
-                                ToolTip="{loc:Str Options_DirectLaunchExperimentalToolTip}">
-                                <TextBlock Text="{loc:Str Common_Experimental}" FontSize="10" FontWeight="SemiBold" Foreground="#171A21" />
-                            </Border>
-                        </StackPanel>
+                        <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_DirectLaunchHeader}" />
                         <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_DirectLaunchSummary}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_DirectLaunchDescription}" /></InlineUIContainer></TextBlock>
                     </StackPanel>
                     <ui:ToggleSwitch

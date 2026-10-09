@@ -103,11 +103,16 @@ public sealed class AppSettings
     public bool? CheckForNewReleases { get; set; }
 
     //
-    // Fork (SSPTMM, experimental): Play on the Play page starts the game itself - server, profile,
-    // the launcher's checks, patches and bundles - instead of opening SPT's launcher
-    // (SptDirectLaunch). Off by default; only on SPT 4.1.3 and later in 4.1.
+    // Fork (SSPTMM): Play on the Play page starts the game itself - server, profile, the launcher's
+    // checks, patches and bundles - instead of opening SPT's launcher (SptDirectLaunch). On by
+    // default since round 47 (it was experimental, and off, up to 1.3.1); only used on SPT
+    // 4.1.3 and later in 4.1, and Play opens SPT's launcher on any other.
     //
-    public bool DirectLaunch { get; set; }
+    // A settings file written before that holds "false" whether or not anyone chose it, and is left
+    // as it is: switching it on for somebody who switched it off would be worse than leaving it off
+    // for somebody who never looked.
+    //
+    public bool DirectLaunch { get; set; } = true;
 
     // The profile Play starts (its profile id), picked on the Play page. Null: the one SPT's launcher
     // last started, else the first.

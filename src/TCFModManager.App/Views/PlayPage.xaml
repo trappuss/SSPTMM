@@ -255,17 +255,7 @@
                         Text="{Binding LauncherCardTitle}"
                         FontWeight="SemiBold"
                         Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
-                    <!-- Fork: Play from SSPTMM is experimental, and says so where it is used. -->
-                    <Border
-                        Margin="8,0,0,0"
-                        Padding="6,1"
-                        VerticalAlignment="Center"
-                        CornerRadius="3"
-                        Background="{DynamicResource SystemFillColorCautionBrush}"
-                        ToolTip="{loc:Str Options_DirectLaunchExperimentalToolTip}"
-                        Visibility="{Binding IsDirectLaunchOn, Converter={StaticResource BoolToVisibility}}">
-                        <TextBlock Text="{loc:Str Common_Experimental}" FontSize="10" FontWeight="SemiBold" Foreground="#171A21" />
-                    </Border>
+
                 </StackPanel>
                 <TextBlock
                     TextWrapping="Wrap"
@@ -282,7 +272,7 @@
                     <Run Text="{loc:Str Play_DirectSummary}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Play_DirectDescription}" /></InlineUIContainer>
                 </TextBlock>
 
-                <!-- Fork (experimental): Play - the profile, PLAY, Close game, and the rest behind "...". -->
+                <!-- Fork: Play - the profile, PLAY, Close game, and the rest behind "...". -->
                 <StackPanel Visibility="{Binding IsDirectLaunchOn, Converter={StaticResource BoolToVisibility}}">
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                         <ComboBox

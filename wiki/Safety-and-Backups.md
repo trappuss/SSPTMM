@@ -3,7 +3,7 @@
 ## SPT profile backups
 
 Before SSPTMM installs, updates, removes or disables a mod, applies a collection, or wipes or
-deletes a profile from [Play](Play#play-experimental), it zips your SPT profiles (`user\profiles`) -
+deletes a profile from [Play](Play#play-from-ssptmm), it zips your SPT profiles (`user\profiles`) -
 whenever they changed since the last copy. The last 10 are kept per install. Options > **SPT profile
 backups** lists them, takes one by hand, and puts one back (it refuses while SPT is running, and
 takes a copy of the profiles as they are first, so a put-back can itself be undone). SPT's own

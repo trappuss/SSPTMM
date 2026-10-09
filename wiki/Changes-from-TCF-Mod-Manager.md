@@ -132,7 +132,7 @@ Manager 1.19.0-beta does is still here, under Steam's names:
 - **Mod tools**: every .exe an installed mod put in your SPT folder (SVM's Greed, give-ui...), with
   Open, its folder and Hide.
 - "Running" means running from this SPT install; another SPT copy elsewhere doesn't block it.
-- **Experimental, off by default: start the game from SSPTMM.** A profile list and a **PLAY** button
+- **Start the game from SSPTMM (on by default).** A profile list and a **PLAY** button
   that start the server and the game with no SPT launcher window, for SPT 4.1.3 to 4.1.6. The SPT
   team didn't make it and doesn't support it.
 

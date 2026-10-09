@@ -10146,18 +10146,12 @@ Removing them - or turning them off - can leave a profile SPT won't load. If tha
     <value>GitHub answered with error {0}. Try again later.</value>
     <comment>About page. {0} is the HTTP status code, for example 503.</comment>
   </data>
-  <data name="Common_Experimental" xml:space="preserve">
-    <value>EXPERIMENTAL</value>
-    <comment>A small tag on something that is new and may not work everywhere yet.</comment>
-  </data>
+
   <data name="Options_DirectLaunchHeader" xml:space="preserve">
     <value>Start the game from SSPTMM</value>
     <comment>Options card title. SSPTMM is this app's name.</comment>
   </data>
-  <data name="Options_DirectLaunchExperimentalToolTip" xml:space="preserve">
-    <value>New, and only tried on SPT 4.1.3 to 4.1.6. The SPT launcher is still there if anything goes wrong.</value>
-    <comment>Tooltip of the EXPERIMENTAL tag.</comment>
-  </data>
+
   <data name="Options_DirectLaunchSummary" xml:space="preserve">
     <value>Play on the Play page starts the server and the game itself - no SPT launcher window.</value>
     <comment>Options card, one line.</comment>
@@ -10167,8 +10161,8 @@ Removing them - or turning them off - can leave a profile SPT won't load. If tha
     <comment>Options card, behind the ?.</comment>
   </data>
   <data name="Options_DirectLaunchWarningTitle" xml:space="preserve">
-    <value>Experimental</value>
-    <comment>Title of the warning on the Options card.</comment>
+    <value>Not made by the SPT team</value>
+    <comment>Title of the note on the Options card.</comment>
   </data>
   <data name="Options_DirectLaunchWarning" xml:space="preserve">
     <value>This copies what SPT 4.1's launcher does, read from its source code - it is not made or supported by the SPT team. A future SPT update can change how the game has to be started; SSPTMM then goes back to opening the SPT launcher for versions it doesn't know. If the game won't start or acts strangely, switch this off and use the SPT launcher, and say it was started from SSPTMM when asking for help. For everything to run in the background, also turn on starting the server without its window, above.</value>
@@ -10456,14 +10450,14 @@ Removing them - or turning them off - can leave a profile SPT won't load. If tha
   </data>
   <data name="Options_LaunchReplacedByDirect" xml:space="preserve">
     <value>Not used while "Start the game from SSPTMM" is on - Play starts the game itself.</value>
-    <comment>Options, Starting the game: shown under the line, with the switch greyed, while the experimental direct launch (Options_DirectLaunchHeader) is on.</comment>
+    <comment>Options, Starting the game: shown under the line, with the switch greyed, while the direct launch (Options_DirectLaunchHeader) is on.</comment>
   </data>
   <data name="Help_Play_Direct_Title" xml:space="preserve">
-    <value>Play straight from SSPTMM (experimental)</value>
+    <value>Play straight from SSPTMM</value>
     <comment>Help topic title. The direct launch: Play starts the server and the game with no SPT launcher window.</comment>
   </data>
   <data name="Help_Play_Direct_Step1" xml:space="preserve">
-    <value>Open {0} and switch on {1}. Read the warning on it first.</value>
+    <value>It is on unless you switched it off: {0}, {1}. The note on it says what it does.</value>
     <comment>Help step. {0} = Options, {1} = the "Start the game from SSPTMM" setting.</comment>
   </data>
   <data name="Help_Play_Direct_Step2" xml:space="preserve">
@@ -10479,7 +10473,7 @@ Removing them - or turning them off - can leave a profile SPT won't load. If tha
     <comment>Help note. {0} = the Open launcher button.</comment>
   </data>
   <data name="Help_Play_Direct_Keywords" xml:space="preserve">
-    <value>play, start game, launcher, profile, wipe, new profile, delete profile, cache, experimental</value>
+    <value>play, start game, launcher, profile, wipe, new profile, delete profile, cache</value>
     <comment>Search words for the Help topic, comma-separated.</comment>
   </data>
   <data name="Play_DirectBackupFailed" xml:space="preserve">

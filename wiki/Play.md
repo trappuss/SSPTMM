@@ -38,12 +38,13 @@ if the server closed before it was ready).
   game is closed within about two seconds of the server going, and killed if it hasn't gone two
   seconds after that - with the server gone it can't finish quitting by itself.
 
-## Play (experimental)
+## Play from SSPTMM
 
 ![Play from SSPTMM](https://raw.githubusercontent.com/trappuss/SSPTMM/main/docs/images/01b-play-direct.png)
 
-With [Options](Options) > **Start the game from SSPTMM** switched on (it is off by default), the game
-card changes: pick a profile and press **PLAY**. SSPTMM then
+With [Options](Options) > **Start the game from SSPTMM** on (it is by default; an install that was
+set up before that keeps what it had), the game card has a profile list and a **PLAY** button: pick a
+profile and press it. SSPTMM then
 
 1. starts the server if it isn't running, and waits for it (the server log is above if it fails);
 2. checks the server and the game files are the same SPT version;

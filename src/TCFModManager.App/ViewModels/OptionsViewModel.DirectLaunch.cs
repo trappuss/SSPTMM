@@ -22,7 +22,7 @@ public partial class OptionsViewModel
         settings.DirectLaunch = value;
         _settings.Save(settings);
 
-        AppLog.Info("DirectLaunch", value ? "Play starts the game from SSPTMM (experimental)" : "Play opens SPT's launcher");
+        AppLog.Info("DirectLaunch", value ? "Play starts the game from SSPTMM" : "Play opens SPT's launcher");
     }
 
     // Start server's "also open the SPT launcher" has no part while Play starts the game itself.

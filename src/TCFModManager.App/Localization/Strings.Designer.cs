@@ -2688,9 +2688,7 @@ internal static class Strings
     internal static string About_CheckUnreachableFormat => LocalizationService.Get("About_CheckUnreachableFormat");
     internal static string About_CheckTimedOut => LocalizationService.Get("About_CheckTimedOut");
     internal static string About_CheckRefusedFormat => LocalizationService.Get("About_CheckRefusedFormat");
-    internal static string Common_Experimental => LocalizationService.Get("Common_Experimental");
     internal static string Options_DirectLaunchHeader => LocalizationService.Get("Options_DirectLaunchHeader");
-    internal static string Options_DirectLaunchExperimentalToolTip => LocalizationService.Get("Options_DirectLaunchExperimentalToolTip");
     internal static string Options_DirectLaunchSummary => LocalizationService.Get("Options_DirectLaunchSummary");
     internal static string Options_DirectLaunchDescription => LocalizationService.Get("Options_DirectLaunchDescription");
     internal static string Options_DirectLaunchWarningTitle => LocalizationService.Get("Options_DirectLaunchWarningTitle");
