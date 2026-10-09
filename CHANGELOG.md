@@ -1,3 +1,30 @@
+# SSPTMM 1.4.0
+
+## Updating
+
+From 1.3.0 or 1.3.1: Help > About > **Install update**. From an older version: close SSPTMM, download `SSPTMM-1.4.0-win-x64.zip` and copy the contents of its `SSPTMM` folder over your SSPTMM folder. Your settings in `Data` stay as they are.
+
+## New
+
+- **Subscribed items looks like Steam's own lists.** A mod's card, List row and Groups row are now drawn the way Steam draws the rows of *Your Workshop Files*: a navy panel with a soft shadow and no outline, and behind it the mod's own picture, out of focus and fading to the right. Under the pointer a card lightens and its shadow turns white, as a Browse card's does. Before, the cards were see-through boxes that the page's grid ran through, with small grey text.
+- **Easier to read.** The line under a mod's name (version, client or server, author) is larger and lighter. The tags under it - DISABLED, PINNED, RE-UPLOADED, the group and the collections - are one shape on one line, in line with the name; collections that don't fit are counted in a **+2** with their names in its tooltip. Every closed card is now the same height.
+- **Sort by Enabled first or Disabled first** on Subscribed items, each half by name.
+- **Play starts the game from SSPTMM by default.** *Start the game from SSPTMM* is no longer experimental: on a new setup, Play on the Play page starts the server and the game itself, with no SPT launcher window (SPT 4.1.3 to 4.1.6; on any other version Play opens the SPT launcher as before). If you already use SSPTMM, your setting stays as you left it - switch it on in Options if you want it. It is still not made or supported by the SPT team.
+- **Options > Picture behind each subscribed mod** switches the pictures behind the cards off, for a PC that scrolls the page slowly with them.
+
+## Faster
+
+- **Installing and updating.** Checking a mod's files used about a megabyte of memory per file however small the file was - 307 MB for a mod of 300 small files, now under 1 MB - and unzipping did the same. An update no longer re-reads every file of the old version that it is about to replace anyway, and removing a mod with thousands of files no longer re-checks the same folders for each one.
+- **Workshop Home** read the collections file once per card, forty times a visit; it now reads it three times.
+- **Typing in Browse's search**: the SPT-version check it runs on every mod for every letter typed takes a tenth of the time.
+- **Mod pictures are downloaded once.** The Browse card, the popup over it and the item page each fetched the same picture again; the popup's picture no longer starts blank.
+- **Starting up**: the saved catalog is read about three times faster.
+- **Subscribed items**: the install records are read once per scan, not twice.
+
+## Fixed
+
+- **Smooth scrolling no longer stops for a moment as Subscribed items reaches more mods.** The page added 24 cards at once when you neared the end of what was loaded; it now adds them two at a time, further ahead.
+- **A mod no longer shows the same collection twice** among its tags (seen on a pinned mod).
 # SSPTMM 1.3.1
 
 ## Updating
