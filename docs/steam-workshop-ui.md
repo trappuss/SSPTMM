@@ -2235,8 +2235,36 @@ with it off.
   names. The Play and Options pictures (01, 01b, 14) still show 1.3.1's and need retaking on a real
   install: a copy has no server to start and its paths are a temp folder's.
 
+## Round 50: Options as Steam's settings (2026-10-09)
+
+Options was laid out like Windows Settings on WPF UI's cards: each row an outlined box on the
+theme's fill (black at 20%, the page grid through all of it), an icon at its left, and across a
+1,700px window the switch a screen's width from its name. Nine unrelated settings sat under General.
+
+- **The sections are listed down the left**, as Steam's own settings window lists its pages
+  (#171D25, the picked one on #3D4450). A click scrolls to the section; scrolling moves the mark;
+  a click on a section too near the end to reach the top keeps the mark where it was clicked. The
+  page scrolls itself now (ScrollViewer.CanContentScroll off, as on Subscribed items), so the list
+  stays put.
+- **A section is one solid panel of flat rows.** The rows sit a pixel apart on the colour of the
+  line between them (#1C2028 on #2C313B), so the gaps are the lines: a CardExpander's template draws
+  all four sides of its edge and cannot be given a line under it alone. An opened row's body is
+  #171A20. No row icons; the sections have them, in the list.
+- **The column is at most 1040 wide**, against the left.
+- **Regrouped**, nothing added or removed, every row as it was inside:
+  General (SPT install folder, Language, Window) - Play (Starting the game, Start the game from
+  SSPTMM) - Look (Tabs and background, Picture behind each subscribed mod, Scrolling, and the hidden
+  Appearance row) - Pages - Installing mods - Updates - Fika and servers - Advanced.
+  Two new strings, Options_SectionPlay and Options_SectionLook.
+
+Checked in pictures of the page top to bottom, closed and with every expander opened. Not checked:
+a real pointer on the list (hover), the keyboard, and a narrow window (below about 900px the 216px
+list takes a quarter of it).
+
 ## Values that could not be measured (marked HUNCH in the source)
 
+- Round 50: every colour on the Options page. Steam's settings are in its client, not on a page
+  that can be read; these are the app's Steam palette with a row fill and a line chosen beside it.
 - Round 49: that greying in colours is quicker than the opacity it replaces (the reason to expect it
   is above; no frame time was taken).
 - Round 48: two cards a step and 1600px ahead.

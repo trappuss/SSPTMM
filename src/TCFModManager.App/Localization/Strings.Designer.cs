@@ -2439,6 +2439,8 @@ internal static class Strings
     internal static string ModLists_AboutLists => LocalizationService.Get("ModLists_AboutLists");
     internal static string Options_LaunchSummary => LocalizationService.Get("Options_LaunchSummary");
     internal static string Options_TabsBackgroundSummary => LocalizationService.Get("Options_TabsBackgroundSummary");
+    internal static string Options_SectionPlay => LocalizationService.Get("Options_SectionPlay");
+    internal static string Options_SectionLook => LocalizationService.Get("Options_SectionLook");
     internal static string Options_CardPicturesHeader => LocalizationService.Get("Options_CardPicturesHeader");
     internal static string Options_CardPicturesSummary => LocalizationService.Get("Options_CardPicturesSummary");
     internal static string Options_CardPicturesDescription => LocalizationService.Get("Options_CardPicturesDescription");

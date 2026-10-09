@@ -9131,6 +9131,14 @@ See Dependencies and Conflicts.</value>
     <value>Hide the Subscribed items or Collections tab, or use a picture of your own.</value>
     <comment>Options, Tabs and background: the line on show. The full explanation is behind the "?".</comment>
   </data>
+  <data name="Options_SectionPlay" xml:space="preserve">
+    <value>Play</value>
+    <comment>Options section heading: how the server and the game are started from the Play page.</comment>
+  </data>
+  <data name="Options_SectionLook" xml:space="preserve">
+    <value>Look</value>
+    <comment>Options section heading: how the app looks - tabs, background, pictures, scrolling.</comment>
+  </data>
   <data name="Options_CardPicturesHeader" xml:space="preserve">
     <value>Picture behind each subscribed mod</value>
     <comment>Options card heading. On Subscribed items, each mod's card has that mod's own picture, blurred, behind it.</comment>

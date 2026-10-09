@@ -8,12 +8,27 @@
     xmlns:converters="clr-namespace:TCFModManager.App.Converters"
     xmlns:loc="clr-namespace:TCFModManager.App.Localization"
     xmlns:views="clr-namespace:TCFModManager.App.Views"
-    Title="{loc:Str Nav_Options}">
+    Title="{loc:Str Nav_Options}"
+    ScrollViewer.CanContentScroll="False">
     <!--
-        Laid out like Windows Settings: a heading per section, one row per setting with its name and
-        a one-line hint on the left and the control on the right. A setting with more than one part is
-        a CardExpander whose header still carries the main control, so the page reads complete with
-        every expander closed. The longer explanation of each setting is the row's tooltip.
+        A heading per section, one row per setting with its name and a one-line hint on the left
+        and the control on the right. A setting with more than one part is a CardExpander whose
+        header still carries the main control, so the page reads complete with every expander
+        closed. The longer explanation of each setting is the row's tooltip.
+
+        Fork (round 50): laid out as Steam's own settings window is, where it was Windows
+        Settings' - the sections listed down the left, and each section one solid panel of flat
+        rows with a line between them, no icons and no boxes. The rows were WPF UI's cards on the
+        theme's fill, black at 20%, each in an outline: the page grid ran through all of it, and
+        on a wide window a switch sat a screen's width from what it switches. The column is now
+        no wider than 1040.
+
+        The page scrolls itself (CanContentScroll off opts out of the navigation view's own
+        scroll viewer, as on Subscribed items), so the list of sections stays where it is.
+
+        HUNCH: every colour here. Steam's settings are in its client, not on a page that can be
+        measured; they are the app's own Steam palette (the header's #171D25, #3D4450 for the
+        section picked) with a row fill and a line chosen beside them.
 
         Fork (SSPTMM, UI tidy-up 3): every hint is one line, and a "?" at its end (InfoTip) holds
         the longer explanation - so it can be found without knowing to hover the row. Several
@@ -25,11 +40,50 @@
         <converters:NullToVisibilityConverter x:Key="NullToCollapsed" />
         <converters:InverseBooleanConverter x:Key="Inverse" />
 
+        <SolidColorBrush x:Key="OptionsNavFill" Color="#171D25" />
+        <SolidColorBrush x:Key="OptionsRowFill" Color="#1C2028" />
+        <SolidColorBrush x:Key="OptionsRowLine" Color="#2C313B" />
+        <SolidColorBrush x:Key="OptionsBodyFill" Color="#171A20" />
+
         <Style x:Key="SectionHeader" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontSize" Value="16" />
             <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Margin" Value="2,20,0,8" />
-            <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+            <Setter Property="Margin" Value="2,26,0,8" />
+            <Setter Property="Foreground" Value="{StaticResource SteamWhite}" />
+        </Style>
+
+        <!-- A section's rows sit on the colour of the line between them, a pixel apart: the gaps
+             are the lines. (A CardExpander's own edge cannot be given a thickness per side - its
+             template draws all four - so a line under each row could not be its border.) -->
+        <Style x:Key="SectionPanel" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource OptionsRowLine}" />
+            <Setter Property="Padding" Value="0,1,0,0" />
+        </Style>
+
+        <!-- One section in the list down the left. -->
+        <Style x:Key="OptionsNavItem" TargetType="RadioButton">
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Foreground" Value="{StaticResource SteamText}" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="Row" Background="Transparent" Padding="14,9,12,9">
+                            <ContentPresenter TextElement.Foreground="{TemplateBinding Foreground}" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{StaticResource SteamWhite}" />
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Row" Property="Background" Value="{StaticResource SteamGray}" />
+                                <Setter Property="Foreground" Value="{StaticResource SteamWhite}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <Style x:Key="SettingTitle" TargetType="TextBlock">
@@ -51,13 +105,27 @@
         </Style>
 
         <Style x:Key="SettingRow" TargetType="ui:CardControl" BasedOn="{StaticResource {x:Type ui:CardControl}}">
-            <Setter Property="Margin" Value="0,0,0,4" />
+            <Setter Property="Margin" Value="0,0,0,1" />
+            <Setter Property="Padding" Value="18,14,18,14" />
+            <Setter Property="Background" Value="{StaticResource OptionsRowFill}" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="CornerRadius" Value="0" />
             <Setter Property="Focusable" Value="False" />
             <Setter Property="ToolTipService.ShowDuration" Value="30000" />
         </Style>
 
         <Style x:Key="SettingExpander" TargetType="ui:CardExpander" BasedOn="{StaticResource {x:Type ui:CardExpander}}">
-            <Setter Property="Margin" Value="0,0,0,4" />
+            <Style.Resources>
+                <!-- What the expander's template fills its opened part with. -->
+                <SolidColorBrush x:Key="CardBackground" Color="#171A20" />
+            </Style.Resources>
+            <Setter Property="Margin" Value="0,0,0,1" />
+            <Setter Property="Padding" Value="18,14,14,14" />
+            <Setter Property="ContentPadding" Value="18,6,18,14" />
+            <Setter Property="Background" Value="{StaticResource OptionsRowFill}" />
+            <!-- The same as the fill: its edge is always drawn, and this is how it is not seen. -->
+            <Setter Property="BorderBrush" Value="{StaticResource OptionsRowFill}" />
+            <Setter Property="CornerRadius" Value="0" />
         </Style>
 
         <!-- The switch sits at the left of a fixed-width box, so On and Off don't move it. -->
@@ -76,1026 +144,1169 @@
         </Style>
     </Page.Resources>
 
-    <StackPanel Margin="24,8,24,16">
+    <Grid Margin="24,8,24,0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="216" />
+            <ColumnDefinition Width="20" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
 
-        <!-- ─── General ─── -->
-        <TextBlock Style="{StaticResource SectionHeader}" Text="{loc:Str Options_SectionGeneral}" Margin="2,4,0,8" />
-
-        <ui:CardControl
-            Style="{StaticResource SettingRow}"
-            Icon="{ui:SymbolIcon Folder24}">
-            <ui:CardControl.Header>
-                <StackPanel>
-                    <StackPanel ToolTip="{loc:Str Options_InstallFolderDescription}" ToolTipService.ShowDuration="30000">
-                        <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_InstallFolderHeader}" />
-                        <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_InstallFolderHint}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_InstallFolderDescription}" /></InlineUIContainer></TextBlock>
+        <!-- The sections, as Steam's own settings window lists its pages down the left. A click
+             scrolls to the section; scrolling moves the mark (OptionsPage.xaml.cs). -->
+        <Border Background="{StaticResource OptionsNavFill}" VerticalAlignment="Top" Padding="0,6">
+            <StackPanel x:Name="SectionNav">
+                <RadioButton
+                    Style="{StaticResource OptionsNavItem}"
+                    GroupName="OptionsSections"
+                    Tag="SectionGeneral"
+                    IsChecked="True"
+                    Click="SectionNav_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="Settings24" FontSize="16" Margin="0,0,10,0" VerticalAlignment="Center" />
+                        <TextBlock Text="{loc:Str Options_SectionGeneral}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
                     </StackPanel>
-
-                    <Grid Margin="0,10,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <ui:TextBox
-                            Grid.Column="0"
-                            Text="{Binding InstallPathInput, UpdateSourceTrigger=PropertyChanged}" />
-                        <ui:Button
-                            Grid.Column="1"
-                            Margin="8,0,0,0"
-                            Content="{loc:Str Options_Browse}"
-                            Icon="{ui:SymbolIcon FolderOpen24}"
-                            Command="{Binding BrowseCommand}" />
-                        <ui:Button
-                            Grid.Column="2"
-                            Margin="8,0,0,0"
-                            Content="{loc:Str Common_Save}"
-                            Command="{Binding SaveCommand}" />
-                    </Grid>
-
-                    <TextBlock
-                        Style="{StaticResource SettingHint}"
-                        Margin="0,6,0,0"
-                        Text="{Binding SptEnvironment.StatusMessage}" />
-                </StackPanel>
-            </ui:CardControl.Header>
-        </ui:CardControl>
-
-        <ui:CardControl
-            Style="{StaticResource SettingRow}"
-            Icon="{ui:SymbolIcon LocalLanguage24}"
-            ToolTip="{loc:Str Options_Language_Description}">
-            <ui:CardControl.Header>
-                <StackPanel>
-                    <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_Language_Header}" />
-                    <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_LanguageHint}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_Language_Description}" /></InlineUIContainer></TextBlock>
-                    <!-- Collapsed while the credit is empty, which is English. -->
-                    <TextBlock
-                        Style="{StaticResource SettingNote}"
-                        Margin="0,4,0,0"
-                        Text="{Binding TranslationCredit}"
-                        Visibility="{Binding TranslationCredit, Converter={StaticResource NullToCollapsed}}" />
-                </StackPanel>
-            </ui:CardControl.Header>
-            <ComboBox
-                MinWidth="200"
-                DisplayMemberPath="Label"
-                ItemsSource="{Binding LanguageOptions}"
-                SelectedItem="{Binding SelectedLanguage}" />
-        </ui:CardControl>
-
-        <!-- Hidden in the Steam Workshop fork: Steam has one look, so there is no light theme to
-             choose (see AppTheme.ApplyOnly). Left in place rather than deleted, so the setting it
-             edits is untouched and the upstream app finds it where it was left. -->
-        <ui:CardControl
-            Style="{StaticResource SettingRow}"
-            Icon="{ui:SymbolIcon DarkTheme24}"
-            Visibility="Collapsed"
-            ToolTip="{loc:Str Options_AppearanceDescription}">
-            <ui:CardControl.Header>
-                <StackPanel>
-                    <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_AppearanceHeader}" />
-                    <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_AppearanceHint}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_AppearanceDescription}" /></InlineUIContainer></TextBlock>
-                </StackPanel>
-            </ui:CardControl.Header>
-            <ComboBox
-                MinWidth="200"
-                ItemsSource="{Binding ThemeOptions}"
-                SelectedItem="{Binding SelectedTheme}" />
-        </ui:CardControl>
-
-        <ui:CardControl
-            Style="{StaticResource SettingRow}"
-            Icon="{ui:SymbolIcon Window24}">
-            <ui:CardControl.Header>
-                <StackPanel>
-                    <StackPanel ToolTip="{loc:Str Options_WindowDescription}" ToolTipService.ShowDuration="30000">
-                        <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_WindowHeader}" />
-                        <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_WindowHint}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_WindowDescription}" /></InlineUIContainer></TextBlock>
+                </RadioButton>
+                <RadioButton
+                    Style="{StaticResource OptionsNavItem}"
+                    GroupName="OptionsSections"
+                    Tag="SectionPlay"
+                    Click="SectionNav_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="Play24" FontSize="16" Margin="0,0,10,0" VerticalAlignment="Center" />
+                        <TextBlock Text="{loc:Str Options_SectionPlay}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
                     </StackPanel>
-
-                    <!-- Only for the one mode that reads them. -->
-                    <WrapPanel
-                        Margin="0,10,0,0"
-                        Visibility="{Binding ShowCustomSize, Converter={StaticResource BoolToVisibility}}">
-                        <ui:TextBox
-                            MinWidth="110"
-                            Margin="0,0,0,4"
-                            PlaceholderText="{loc:Str Options_WidthPlaceholder}"
-                            Text="{Binding CustomWidthInput, UpdateSourceTrigger=PropertyChanged}" />
-                        <TextBlock
-                            Margin="8,0,8,4"
-                            VerticalAlignment="Center"
-                            Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                            Text="{loc:Str Options_SizeBy}" />
-                        <ui:TextBox
-                            MinWidth="110"
-                            Margin="0,0,0,4"
-                            PlaceholderText="{loc:Str Options_HeightPlaceholder}"
-                            Text="{Binding CustomHeightInput, UpdateSourceTrigger=PropertyChanged}" />
-                        <ui:Button
-                            Margin="8,0,0,4"
-                            Content="{loc:Str Options_ApplySize}"
-                            Command="{Binding ApplyWindowSizeCommand}" />
-                        <ui:Button
-                            Margin="8,0,0,4"
-                            Content="{loc:Str Options_UseCurrentSize}"
-                            ToolTip="{loc:Str Options_UseCurrentSizeToolTip}"
-                            Command="{Binding UseCurrentWindowSizeCommand}" />
-                    </WrapPanel>
-
-                    <TextBlock
-                        Style="{StaticResource SettingNote}"
-                        Margin="0,4,0,0"
-                        Text="{Binding WindowSizeMessage}"
-                        Visibility="{Binding WindowSizeMessage, Converter={StaticResource NullToCollapsed}}" />
-                </StackPanel>
-            </ui:CardControl.Header>
-            <ComboBox
-                MinWidth="200"
-                VerticalAlignment="Top"
-                ItemsSource="{Binding WindowStartupOptions}"
-                SelectedItem="{Binding SelectedWindowStartup}" />
-        </ui:CardControl>
-
-        <!-- Fork: Start server can bring the launcher up after it, and keep its own window out of the way. -->
-        <ui:CardExpander
-            Style="{StaticResource SettingExpander}"
-            Icon="{ui:SymbolIcon Play24}">
-            <ui:CardExpander.Header>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <StackPanel VerticalAlignment="Center">
-                        <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_LaunchHeader}" />
-                        <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_LaunchSummary}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_LaunchDescription}" /></InlineUIContainer></TextBlock>
-                        <TextBlock
-                            Style="{StaticResource SettingHint}"
-                            Foreground="{DynamicResource SystemFillColorCautionBrush}"
-                            Text="{loc:Str Options_LaunchReplacedByDirect}"
-                            Visibility="{Binding DirectLaunchReplacesLauncher, Converter={StaticResource BoolToVisibility}}" />
+                </RadioButton>
+                <RadioButton
+                    Style="{StaticResource OptionsNavItem}"
+                    GroupName="OptionsSections"
+                    Tag="SectionLook"
+                    Click="SectionNav_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="DarkTheme24" FontSize="16" Margin="0,0,10,0" VerticalAlignment="Center" />
+                        <TextBlock Text="{loc:Str Options_SectionLook}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
                     </StackPanel>
-                    <ui:ToggleSwitch
-                        Grid.Column="1"
-                        Margin="14,0,12,0"
-                        VerticalAlignment="Center"
-                        Style="{StaticResource RowSwitch}"
-                        IsEnabled="{Binding DirectLaunchReplacesLauncher, Converter={StaticResource Inverse}}"
-                        IsChecked="{Binding StartLauncherAfterServer}" />
-                </Grid>
-            </ui:CardExpander.Header>
-
-            <StackPanel>
-                <ui:ToggleSwitch
-                    HorizontalAlignment="Left"
-                    IsChecked="{Binding HideServerWindow}"
-                    OnContent="{loc:Str Options_HideServerOn}"
-                    OffContent="{loc:Str Options_HideServerOff}" />
-                <TextBlock
-                    Style="{StaticResource SettingNote}"
-                    Margin="0,6,0,0"
-                    Text="{loc:Str Options_HideServerNote}" />
+                </RadioButton>
+                <RadioButton
+                    Style="{StaticResource OptionsNavItem}"
+                    GroupName="OptionsSections"
+                    Tag="SectionPages"
+                    Click="SectionNav_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="Window24" FontSize="16" Margin="0,0,10,0" VerticalAlignment="Center" />
+                        <TextBlock Text="{loc:Str Options_SectionPages}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+                </RadioButton>
+                <RadioButton
+                    Style="{StaticResource OptionsNavItem}"
+                    GroupName="OptionsSections"
+                    Tag="SectionInstalling"
+                    Click="SectionNav_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="ArrowDownload24" FontSize="16" Margin="0,0,10,0" VerticalAlignment="Center" />
+                        <TextBlock Text="{loc:Str Options_SectionInstalling}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+                </RadioButton>
+                <RadioButton
+                    Style="{StaticResource OptionsNavItem}"
+                    GroupName="OptionsSections"
+                    Tag="SectionUpdates"
+                    Click="SectionNav_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="Alert24" FontSize="16" Margin="0,0,10,0" VerticalAlignment="Center" />
+                        <TextBlock Text="{loc:Str Options_SectionUpdates}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+                </RadioButton>
+                <RadioButton
+                    Style="{StaticResource OptionsNavItem}"
+                    GroupName="OptionsSections"
+                    Tag="SectionMultiplayer"
+                    Click="SectionNav_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="PlugConnected24" FontSize="16" Margin="0,0,10,0" VerticalAlignment="Center" />
+                        <TextBlock Text="{loc:Str Options_SectionMultiplayer}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+                </RadioButton>
+                <RadioButton
+                    Style="{StaticResource OptionsNavItem}"
+                    GroupName="OptionsSections"
+                    Tag="SectionAdvanced"
+                    Click="SectionNav_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="DocumentData24" FontSize="16" Margin="0,0,10,0" VerticalAlignment="Center" />
+                        <TextBlock Text="{loc:Str Options_SectionAdvanced}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+                </RadioButton>
             </StackPanel>
-        </ui:CardExpander>
+        </Border>
 
-        <!-- Fork: Play starts the game itself instead of opening SPT's launcher (SptDirectLaunch).
-             On unless switched off; the card says what it is and is not. -->
-        <ui:CardExpander
-            Style="{StaticResource SettingExpander}"
-            Icon="{ui:SymbolIcon Rocket24}">
-            <ui:CardExpander.Header>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <StackPanel VerticalAlignment="Center">
-                        <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_DirectLaunchHeader}" />
-                        <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_DirectLaunchSummary}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_DirectLaunchDescription}" /></InlineUIContainer></TextBlock>
-                    </StackPanel>
-                    <ui:ToggleSwitch
-                        Grid.Column="1"
-                        Margin="14,0,12,0"
-                        VerticalAlignment="Center"
-                        Style="{StaticResource RowSwitch}"
-                        IsChecked="{Binding DirectLaunch}" />
-                </Grid>
-            </ui:CardExpander.Header>
+        <ScrollViewer
+            x:Name="SettingsScroll"
+            Grid.Column="2"
+            Focusable="False"
+            VerticalScrollBarVisibility="Auto"
+            HorizontalScrollBarVisibility="Disabled"
+            ScrollChanged="SettingsScroll_ScrollChanged">
+            <!-- No wider than a line of a setting's hint reads comfortably, and against the left:
+                 across a whole wide window the switches were a long way from what they switch. -->
+            <Grid Margin="0,0,14,24">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" MaxWidth="1040" />
+                </Grid.ColumnDefinitions>
+                <StackPanel x:Name="SettingsStack">
 
-            <StackPanel>
-                <ui:InfoBar
-                    IsOpen="True"
-                    IsClosable="False"
-                    Severity="Warning"
-                    Title="{loc:Str Options_DirectLaunchWarningTitle}"
-                    Message="{loc:Str Options_DirectLaunchWarning}" />
-                <TextBlock Margin="0,8,0,0" Text="{Binding DirectLaunchSupportText}">
-                    <TextBlock.Style>
-                        <Style TargetType="TextBlock" BasedOn="{StaticResource SettingNote}">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding DirectLaunchSupportIsCaution}" Value="True">
-                                    <Setter Property="Foreground" Value="{DynamicResource SystemFillColorCautionBrush}" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBlock.Style>
-                </TextBlock>
-                <ui:ToggleSwitch
-                    Margin="0,12,0,0"
-                    HorizontalAlignment="Left"
-                    IsEnabled="{Binding DirectLaunch}"
-                    IsChecked="{Binding MinimizeWhilePlaying}"
-                    OnContent="{loc:Str Options_MinimizeWhilePlayingOn}"
-                    OffContent="{loc:Str Options_MinimizeWhilePlayingOff}" />
-            </StackPanel>
-        </ui:CardExpander>
-
-        <!-- Fork: the hub's own Subscribed items and Collections tabs, and a picture of your own
-             behind the window in place of the Steam grid. -->
-        <ui:CardExpander
-            Style="{StaticResource SettingExpander}"
-            Icon="{ui:SymbolIcon Image24}">
-            <ui:CardExpander.Header>
-                <StackPanel>
-                    <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_TabsBackgroundHeader}" />
-                    <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_TabsBackgroundSummary}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_TabsBackgroundDescription}" /></InlineUIContainer></TextBlock>
-                </StackPanel>
-            </ui:CardExpander.Header>
-
-            <StackPanel>
-                <ui:ToggleSwitch
-                    HorizontalAlignment="Left"
-                    IsChecked="{Binding ShowSubscribedItemsTab}"
-                    OnContent="{loc:Str Options_SubscribedTabOn}"
-                    OffContent="{loc:Str Options_SubscribedTabOff}" />
-                <ui:ToggleSwitch
-                    Margin="0,8,0,12"
-                    HorizontalAlignment="Left"
-                    IsChecked="{Binding ShowCollectionsTab}"
-                    OnContent="{loc:Str Options_CollectionsTabOn}"
-                    OffContent="{loc:Str Options_CollectionsTabOff}" />
-
-                <Border Style="{StaticResource SubSetting}" Padding="0,12,0,0">
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <Button Command="{Binding ChooseBackgroundCommand}" Content="{loc:Str Options_BackgroundChoose}" />
-                            <Button Margin="8,0,0,0" Command="{Binding UseGridBackgroundCommand}" Content="{loc:Str Options_BackgroundUseGrid}" />
-                        </StackPanel>
-                        <TextBlock
-                            Style="{StaticResource SettingHint}"
-                            Margin="0,8,0,0"
-                            Text="{Binding BackgroundFileName, StringFormat={loc:Str Options_BackgroundCurrentFormat}}"
-                            Visibility="{Binding BackgroundFileName, Converter={StaticResource NullToCollapsed}}" />
-                        <StackPanel Margin="0,8,0,0" Orientation="Horizontal" Visibility="{Binding HasBackgroundImage, Converter={StaticResource BoolToVisibility}}">
-                            <TextBlock VerticalAlignment="Center" Text="{loc:Str Options_BackgroundDarkness}" />
-                            <Slider
-                                Width="220"
-                                Margin="10,0,0,0"
-                                VerticalAlignment="Center"
-                                Maximum="0.9"
-                                Minimum="0"
-                                SmallChange="0.05"
-                                LargeChange="0.1"
-                                Value="{Binding BackgroundDarkness, Delay=250}" />
-                        </StackPanel>
-                        <TextBlock
-                            Margin="0,8,0,0"
-                            TextWrapping="Wrap"
-                            Foreground="{DynamicResource SystemFillColorCautionBrush}"
-                            Text="{Binding BackgroundStatus}"
-                            Visibility="{Binding BackgroundStatus, Converter={StaticResource NullToCollapsed}}" />
-                    </StackPanel>
-                </Border>
-            </StackPanel>
-        </ui:CardExpander>
-
-        <!-- Fork: whether the mouse wheel glides the page or jumps it. -->
-        <ui:CardControl
-            Style="{StaticResource SettingRow}"
-            Icon="{ui:SymbolIcon ArrowSortDown24}">
-            <ui:CardControl.Header>
-                <StackPanel>
-                    <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_ScrollingHeader}" />
-                    <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_ScrollingSummary}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_ScrollingDescription}" /></InlineUIContainer></TextBlock>
-                </StackPanel>
-            </ui:CardControl.Header>
-            <ui:ToggleSwitch Style="{StaticResource RowSwitch}" IsChecked="{Binding SmoothScrolling}" />
-        </ui:CardControl>
-
-        <!-- Fork (round 47): each subscribed mod's own picture, blurred, behind its card. -->
-        <ui:CardControl
-            Style="{StaticResource SettingRow}"
-            Icon="{ui:SymbolIcon Image24}">
-            <ui:CardControl.Header>
-                <StackPanel>
-                    <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_CardPicturesHeader}" />
-                    <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_CardPicturesSummary}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_CardPicturesDescription}" /></InlineUIContainer></TextBlock>
-                </StackPanel>
-            </ui:CardControl.Header>
-            <ui:ToggleSwitch Style="{StaticResource RowSwitch}" IsChecked="{Binding CardPictures}" />
-        </ui:CardControl>
-
-        <!-- ─── Installing mods ─── -->
-        <TextBlock Style="{StaticResource SectionHeader}" Text="{loc:Str Options_SectionInstalling}" />
-
-        <!--
-            Monitor mode. The dropdown decides what every install button does; the small button
-            beside each one does the other thing for a single mod. The download folder applies to any
-            download-only save, whichever button started it, so it lives in here in either mode.
-        -->
-        <ui:CardExpander
-            Style="{StaticResource SettingExpander}"
-            Icon="{ui:SymbolIcon ArrowDownload24}">
-            <ui:CardExpander.Header>
-                <Grid ToolTip="{loc:Str Options_MonitorDescription}" ToolTipService.ShowDuration="30000">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <StackPanel VerticalAlignment="Center">
-                        <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_InstallModeHeader}" />
-                        <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_InstallModeSummary}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_MonitorDescription}" /></InlineUIContainer></TextBlock>
-                    </StackPanel>
-                    <ComboBox
-                        Grid.Column="1"
-                        MinWidth="200"
-                        Margin="14,0,12,0"
-                        VerticalAlignment="Center"
-                        ItemsSource="{Binding InstallModeOptions}"
-                        SelectedItem="{Binding SelectedInstallMode}" />
-                </Grid>
-            </ui:CardExpander.Header>
-
-            <StackPanel>
-                <StackPanel Margin="0,0,0,12">
-                    <TextBlock
-                        Style="{StaticResource SettingTitle}"
-                        Text="{loc:Str Options_MonitorFolderHeader}"
-                        ToolTip="{loc:Str Options_MonitorFolderDescription}" />
-                    <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_MonitorFolderHint}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_MonitorFolderDescription}" /></InlineUIContainer></TextBlock>
-                    <Grid Margin="0,8,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <ui:TextBox
-                            Grid.Column="0"
-                            PlaceholderText="{Binding DownloadFolderPlaceholder}"
-                            Text="{Binding DownloadFolderInput, UpdateSourceTrigger=LostFocus}" />
-                        <ui:Button
-                            Grid.Column="1"
-                            Margin="8,0,0,0"
-                            Content="{loc:Str Options_Browse}"
-                            Icon="{ui:SymbolIcon FolderOpen24}"
-                            Command="{Binding BrowseDownloadFolderCommand}" />
-                        <ui:Button
-                            Grid.Column="2"
-                            Margin="8,0,0,0"
-                            Appearance="Transparent"
-                            Content="{loc:Str Options_MonitorFolderReset}"
-                            ToolTip="{loc:Str Options_MonitorFolderResetToolTip}"
-                            Command="{Binding ResetDownloadFolderCommand}" />
-                    </Grid>
-                    <ui:ToggleSwitch
-                        Margin="0,10,0,0"
-                        HorizontalAlignment="Left"
-                        IsChecked="{Binding DownloadListSubfolders}"
-                        OnContent="{loc:Str Options_MonitorListSubfoldersOn}"
-                        OffContent="{loc:Str Options_MonitorListSubfoldersOff}" />
-                </StackPanel>
-
-                <Border Style="{StaticResource SubSetting}" Padding="0,12,0,0">
-                    <Grid ToolTip="{loc:Str Options_MonitorConfirmDescription}" ToolTipService.ShowDuration="30000">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_MonitorConfirmHeader}" />
-                            <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_MonitorConfirmHint}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_MonitorConfirmDescription}" /></InlineUIContainer></TextBlock>
-                        </StackPanel>
-                        <ComboBox
-                            Grid.Column="1"
-                            MinWidth="200"
-                            Margin="14,0,0,0"
-                            VerticalAlignment="Center"
-                            ItemsSource="{Binding DownloadConfirmationOptions}"
-                            SelectedItem="{Binding SelectedDownloadConfirmation}" />
-                    </Grid>
-                </Border>
-            </StackPanel>
-        </ui:CardExpander>
-
-        <ui:CardControl
-            Style="{StaticResource SettingRow}"
-            Icon="{ui:SymbolIcon Open24}"
-            ToolTip="{loc:Str Options_ModPagesDescription}">
-            <ui:CardControl.Header>
-                <StackPanel>
-                    <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_ModPagesTitle}" />
-                    <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_ModPagesHint}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_ModPagesDescription}" /></InlineUIContainer></TextBlock>
-                </StackPanel>
-            </ui:CardControl.Header>
-            <!-- On = ask first, so it writes the opposite of SkipModPageConfirmation. -->
-            <ui:ToggleSwitch
-                Style="{StaticResource RowSwitch}"
-                ToolTip="{Binding ModPageGate.SettingToolTip}"
-                IsChecked="{Binding SkipModPageConfirmation, Converter={StaticResource Inverse}}" />
-        </ui:CardControl>
-
-        <!-- How long removed mods are kept in the install's holding folder (R11, D27). -->
-        <ui:CardControl
-            Style="{StaticResource SettingRow}"
-            Icon="{ui:SymbolIcon Delete24}"
-            ToolTip="{loc:Str Options_RemovedModsDescription}">
-            <ui:CardControl.Header>
-                <StackPanel>
-                    <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_RemovedModsHeader}" />
-                    <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_RemovedModsSummary}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_RemovedModsDescription}" /></InlineUIContainer></TextBlock>
-                    <TextBlock
-                        Style="{StaticResource SettingHint}"
-                        Text="{Binding RemovedModsStatus}"
-                        Visibility="{Binding RemovedModsStatus, Converter={StaticResource NullToCollapsed}}" />
-                </StackPanel>
-            </ui:CardControl.Header>
-            <StackPanel Orientation="Horizontal">
-                <ComboBox
-                    MinWidth="200"
-                    ItemsSource="{Binding RemovedModsRetentionOptions}"
-                    SelectedItem="{Binding SelectedRemovedModsRetention}" />
-                <ui:Button
-                    Margin="8,0,0,0"
-                    Content="{Binding ClearRemovedModsLabel}"
-                    Command="{Binding ClearRemovedModsCommand}" />
-            </StackPanel>
-        </ui:CardControl>
-
-        <!-- Fork: several downloads at once, and whether downloaded files are kept for next time. -->
-        <ui:CardControl
-            Style="{StaticResource SettingRow}"
-            Icon="{ui:SymbolIcon Archive24}">
-            <ui:CardControl.Header>
-                <StackPanel>
-                    <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_DownloadsHeader}" />
-                    <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_DownloadsSummary}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_DownloadsDescription}" /></InlineUIContainer></TextBlock>
-                    <StackPanel Margin="0,10,0,0" Orientation="Horizontal">
-                        <ui:Button Content="{loc:Str Options_DownloadsClear}" Command="{Binding ClearKeptDownloadsCommand}" />
-                        <TextBlock
-                            Style="{StaticResource SettingNote}"
-                            Margin="12,0,0,0"
-                            VerticalAlignment="Center"
-                            Text="{Binding KeptDownloadsLabel}" />
-                    </StackPanel>
-                </StackPanel>
-            </ui:CardControl.Header>
-            <ui:ToggleSwitch
-                Style="{StaticResource RowSwitch}"
-                VerticalAlignment="Top"
-                IsChecked="{Binding KeepDownloads}" />
-        </ui:CardControl>
-
-        <!-- Fork: whether removing an item asks first; the question's "Don't ask again" turns this off. -->
-        <ui:CardControl
-            Style="{StaticResource SettingRow}"
-            Icon="{ui:SymbolIcon DismissCircle24}">
-            <ui:CardControl.Header>
-                <StackPanel>
-                    <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_UnsubscribeHeader}" />
-                    <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_UnsubscribeSummary}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_UnsubscribeDescription}" /></InlineUIContainer></TextBlock>
-                </StackPanel>
-            </ui:CardControl.Header>
-            <ui:ToggleSwitch Style="{StaticResource RowSwitch}" IsChecked="{Binding ConfirmUnsubscribe}" />
-        </ui:CardControl>
-
-        <!-- ─── Updates ─── -->
-        <TextBlock Style="{StaticResource SectionHeader}" Text="{loc:Str Options_SectionUpdates}" />
-
-        <!-- Apart from Monitor mode (R3): it works the same whichever mode the install buttons are in. -->
-        <ui:CardExpander
-            Style="{StaticResource SettingExpander}"
-            Icon="{ui:SymbolIcon Alert24}">
-            <ui:CardExpander.Header>
-                <Grid ToolTip="{loc:Str Options_UpdateNotificationsDescription}" ToolTipService.ShowDuration="30000">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <StackPanel VerticalAlignment="Center">
-                        <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_UpdateNotificationsHeader}" />
-                        <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_UpdateNotificationsHint}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_UpdateNotificationsDescription}" /></InlineUIContainer></TextBlock>
-                    </StackPanel>
-                    <ui:ToggleSwitch
-                        Grid.Column="1"
-                        Margin="14,0,12,0"
-                        VerticalAlignment="Center"
-                        Style="{StaticResource RowSwitch}"
-                        IsChecked="{Binding UpdateNotificationsEnabled}" />
-                </Grid>
-            </ui:CardExpander.Header>
-
-            <!-- Greyed out rather than hidden while notifications are off (D8), so what switching them
-                 on would do is readable first. -->
-            <StackPanel>
-                <ui:ToggleSwitch
-                    Margin="0,0,0,12"
-                    HorizontalAlignment="Left"
-                    IsEnabled="{Binding UpdateNotificationsEnabled}"
-                    ToolTip="{loc:Str Options_TrayToolTip}"
-                    ToolTipService.ShowDuration="20000"
-                    IsChecked="{Binding KeepRunningInTray}"
-                    OnContent="{loc:Str Options_TrayOn}"
-                    OffContent="{loc:Str Options_TrayOff}" />
-
-                <Border Style="{StaticResource SubSetting}">
-                    <StackPanel>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock
-                                Style="{StaticResource SettingTitle}"
-                                VerticalAlignment="Center"
-                                Text="{loc:Str Options_UpdateIntervalHeader}" />
-                            <ComboBox
-                                Grid.Column="1"
-                                MinWidth="160"
-                                Margin="14,0,0,0"
-                                IsEnabled="{Binding UpdateNotificationsEnabled}"
-                                ItemsSource="{Binding UpdateIntervalOptions}"
-                                SelectedItem="{Binding SelectedUpdateInterval}" />
-                            <!-- Greyed while notifications are off, through the command's CanExecute. -->
-                            <ui:Button
-                                Grid.Column="2"
-                                Margin="8,0,0,0"
-                                Content="{loc:Str Options_UpdateCheckNow}"
-                                Icon="{ui:SymbolIcon ArrowSync24}"
-                                ToolTip="{loc:Str Options_UpdateCheckNowToolTip}"
-                                ToolTipService.ShowDuration="20000"
-                                Command="{Binding CheckUpdatesNowCommand}" />
-                        </Grid>
-
-                        <TextBlock
-                            Style="{StaticResource SettingHint}"
-                            Margin="0,8,0,0"
-                            Text="{Binding UpdateCheckStatus}"
-                            Visibility="{Binding UpdateCheckStatus, Converter={StaticResource NullToCollapsed}}" />
-                    </StackPanel>
-                </Border>
-
-                <TextBlock
-                    Style="{StaticResource SettingNote}"
-                    Text="{loc:Str Options_UpdateNotificationsNote}" />
-            </StackPanel>
-        </ui:CardExpander>
-
-        <!-- ─── Pages ─── -->
-        <TextBlock Style="{StaticResource SectionHeader}" Text="{loc:Str Options_SectionPages}" />
-
-        <ui:CardControl
-            Style="{StaticResource SettingRow}"
-            Icon="{ui:SymbolIcon DataUsage24}"
-            ToolTip="{loc:Str Options_FootprintDescription}">
-            <ui:CardControl.Header>
-                <StackPanel>
-                    <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_FootprintHeader}" />
-                    <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_FootprintHint}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_FootprintDescription}" /></InlineUIContainer></TextBlock>
-                </StackPanel>
-            </ui:CardControl.Header>
-            <ui:ToggleSwitch
-                Style="{StaticResource RowSwitch}"
-                ToolTip="{Binding FootprintGate.SettingToolTip}"
-                IsChecked="{Binding ShowModFootprintPage}" />
-        </ui:CardControl>
-
-        <ui:CardControl
-            Style="{StaticResource SettingRow}"
-            Icon="{ui:SymbolIcon Server24}"
-            ToolTip="{loc:Str Options_ServerMapDescription}">
-            <ui:CardControl.Header>
-                <StackPanel>
-                    <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_ServerMapHeader}" />
-                    <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_ServerMapPageHint}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_ServerMapDescription}" /></InlineUIContainer></TextBlock>
-                </StackPanel>
-            </ui:CardControl.Header>
-            <ui:ToggleSwitch
-                Style="{StaticResource RowSwitch}"
-                ToolTip="{Binding ServerMap.SettingToolTip}"
-                IsChecked="{Binding ServerMap.IsPageEnabled}" />
-        </ui:CardControl>
-
-        <ui:CardExpander
-            Style="{StaticResource SettingExpander}"
-            Icon="{ui:SymbolIcon Filter24}">
-            <ui:CardExpander.Header>
-                <StackPanel ToolTip="{loc:Str Options_PageDefaultsDescription}" ToolTipService.ShowDuration="30000">
-                    <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_PageDefaultsHeader}" />
-                    <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_PageDefaultsHint}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_PageDefaultsDescription}" /></InlineUIContainer></TextBlock>
-                </StackPanel>
-            </ui:CardExpander.Header>
-
-            <!-- Fork (1.2.0): Browse only - Subscribed items remembers itself (InstalledViewModel.Remember). -->
-            <StackPanel>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <TextBlock
-                        Style="{StaticResource SettingHint}"
-                        VerticalAlignment="Center"
-                        Text="{Binding BrowseDefaultsDescription}" />
-                    <ui:Button
-                        Grid.Column="1"
-                        Margin="14,0,0,0"
-                        Content="{loc:Str Options_ClearBrowseDefault}"
-                        Command="{Binding ResetBrowseDefaultsCommand}" />
-                </Grid>
-            </StackPanel>
-        </ui:CardExpander>
-
-        <!-- ─── Fika and servers ─── -->
-        <TextBlock Style="{StaticResource SectionHeader}" Text="{loc:Str Options_SectionMultiplayer}" />
-
-        <!--
-            Always shown, not gated on finding a launcher: someone who answered "ask me later", or
-            whose headless is started some other way, needs somewhere to say so. The collapsed row
-            names the current answer, so nobody has to open it to check.
-        -->
-        <ui:CardExpander
-            Style="{StaticResource SettingExpander}"
-            Icon="{ui:SymbolIcon Desktop24}">
-            <ui:CardExpander.Header>
-                <StackPanel ToolTip="{loc:Str Options_MachineRoleDescription}" ToolTipService.ShowDuration="30000">
-                    <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_MachineRoleHeader}" />
-                    <TextBlock Style="{StaticResource SettingHint}"><Run Text="{Binding InstallRoleSummary, Mode=OneWay}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_MachineRoleDescription}" /></InlineUIContainer></TextBlock>
-                </StackPanel>
-            </ui:CardExpander.Header>
-
-            <StackPanel>
-                <StackPanel Margin="0,0,0,12">
-                    <ui:ToggleSwitch
-                        HorizontalAlignment="Left"
-                        Margin="0,0,0,8"
-                        ToolTip="{loc:Str Options_PlaysHereToolTip}"
-                        ToolTipService.ShowDuration="20000"
-                        IsChecked="{Binding PlaysHere}"
-                        OnContent="{loc:Str Options_PlaysHereOn}"
-                        OffContent="{loc:Str Options_PlaysHereOff}" />
-                    <ui:ToggleSwitch
-                        HorizontalAlignment="Left"
-                        ToolTip="{loc:Str Options_HeadlessToolTip}"
-                        ToolTipService.ShowDuration="20000"
-                        IsChecked="{Binding RunsHeadlessClient}"
-                        OnContent="{loc:Str Options_HeadlessOn}"
-                        OffContent="{loc:Str Options_HeadlessOff}" />
-                    <TextBlock
-                        Style="{StaticResource SettingHint}"
-                        Margin="0,10,0,0"
-                        Text="{Binding InstallRoleDescription}" />
-                </StackPanel>
-
-                <!--
-                    The way out of detection, which only ever looks at the top of the install folder
-                    (see SptLaunchService), so a manager kept beside the SPT folder has to be named.
-                -->
-                <Border Style="{StaticResource SubSetting}" Padding="0,12,0,0">
-                    <StackPanel>
-                        <TextBlock
-                            Style="{StaticResource SettingTitle}"
-                            Text="{loc:Str Options_HeadlessLauncherHeader}"
-                            ToolTip="{loc:Str Options_HeadlessLauncherDescription}"
-                            ToolTipService.ShowDuration="30000" />
-                        <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_HeadlessLauncherHint}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_HeadlessLauncherDescription}" /></InlineUIContainer></TextBlock>
-                        <Grid Margin="0,8,0,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <ui:TextBox
-                                Grid.Column="0"
-                                PlaceholderText="{loc:Str Options_HeadlessLauncherPlaceholder}"
-                                Text="{Binding HeadlessLauncherPath, UpdateSourceTrigger=LostFocus}" />
-                            <ui:Button
-                                Grid.Column="1"
-                                Margin="8,0,0,0"
-                                Content="{loc:Str Options_Browse}"
-                                Icon="{ui:SymbolIcon FolderOpen24}"
-                                Command="{Binding BrowseHeadlessLauncherCommand}" />
-                            <ui:Button
-                                Grid.Column="2"
-                                Margin="8,0,0,0"
-                                Appearance="Transparent"
-                                Content="{loc:Str Options_ClearHeadlessLauncher}"
-                                ToolTip="{loc:Str Options_ClearHeadlessLauncherToolTip}"
-                                Command="{Binding ClearHeadlessLauncherCommand}" />
-                        </Grid>
-                        <!-- Worth mentioning, never preventing - there are plenty of ways to start one. -->
-                        <TextBlock
-                            Style="{StaticResource SettingNote}"
-                            Margin="0,8,0,0"
-                            Text="{loc:Str Options_NoHeadlessLauncherNotice}"
-                            Visibility="{Binding HasHeadlessLauncher, Converter={StaticResource FalseToVisible}}" />
-                    </StackPanel>
-                </Border>
-            </StackPanel>
-        </ui:CardExpander>
-
-        <!--
-            The Server map page's connection, only while that page is switched on. Set up here
-            because it is a one-off and the page itself is for reading.
-
-            The address is asked for rather than derived from the install folder: on any Fika setup
-            http.json is stale (Fika overrides the binding from fika.jsonc, with a bind address no
-            client can dial), and the address typed into the SPT launcher is the honest source.
-        -->
-        <ui:CardExpander
-            Style="{StaticResource SettingExpander}"
-            Icon="{ui:SymbolIcon PlugConnected24}"
-            Visibility="{Binding ServerMap.IsPageEnabled, Converter={StaticResource BoolToVisibility}}">
-            <ui:CardExpander.Header>
-                <StackPanel>
-                    <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_ServerMapConnectionHeader}" />
-                    <TextBlock Style="{StaticResource SettingHint}" Text="{loc:Str Options_ServerMapConnectionHint}" />
-                </StackPanel>
-            </ui:CardExpander.Header>
-
-            <StackPanel DataContext="{Binding ServerMap}">
-                <!-- Hidden until the addon page URL is set, so a build without one never shows a dead link. -->
-                <StackPanel
-                    Margin="0,0,0,12"
-                    Visibility="{Binding HasAddonPage, Converter={StaticResource BoolToVisibility}}">
-                    <TextBlock
-                        Style="{StaticResource SettingHint}"
-                        Margin="0,0,0,8"
-                        Text="{loc:Str Options_ServerMapModNotice}" />
-                    <ui:Button
-                        HorizontalAlignment="Left"
-                        Content="{loc:Str Options_GetServerMapMod}"
-                        Icon="{ui:SymbolIcon Open24}"
-                        ToolTip="{loc:Str Options_GetServerMapModToolTip}"
-                        Command="{Binding OpenAddonPageCommand}" />
-                </StackPanel>
-
-                <!-- The placeholder is a hint, not a default: Fika's own 127.0.0.1 is quietly wrong
-                     for anyone connecting to someone else's server. -->
-                <WrapPanel Margin="0,0,0,4">
-                    <ui:TextBox
-                        MinWidth="260"
-                        Margin="0,0,8,4"
-                        PlaceholderText="{loc:Str Options_ServerAddressPlaceholder}"
-                        Text="{Binding HostInput, UpdateSourceTrigger=PropertyChanged}" />
-                    <ui:TextBox
-                        MinWidth="90"
-                        Margin="0,0,8,4"
-                        PlaceholderText="{loc:Str Options_PortPlaceholder}"
-                        Text="{Binding PortInput, UpdateSourceTrigger=PropertyChanged}" />
-                    <ui:Button
-                        Margin="0,0,0,4"
-                        Content="{loc:Str Options_Connect}"
-                        Icon="{ui:SymbolIcon Connected20}"
-                        Command="{Binding ConnectCommand}" />
-                    <ProgressBar
-                        Width="80"
-                        Height="4"
-                        Margin="12,0,0,4"
-                        VerticalAlignment="Center"
-                        IsIndeterminate="True"
-                        Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}" />
-                </WrapPanel>
-
-                <!-- A plain TextBox, not a PasswordBox: it gets copied between machines and pasted
-                     into chat, and hiding it only makes it harder to check. -->
-                <ui:TextBox
-                    MinWidth="260"
-                    HorizontalAlignment="Left"
-                    Margin="0,0,0,8"
-                    PlaceholderText="{loc:Str Options_SharedKeyPlaceholder}"
-                    Text="{Binding KeyInput, UpdateSourceTrigger=PropertyChanged}" />
-
-                <TextBlock
-                    Style="{StaticResource SettingNote}"
-                    Margin="0,0,0,8"
-                    Text="{Binding KeyDescription}" />
-
-                <!-- Only on the machine running a server. Shown in full: it is there to be copied out. -->
-                <Border
-                    Style="{StaticResource SubSetting}"
-                    Visibility="{Binding IsServerOwner, Converter={StaticResource BoolToVisibility}}">
-                    <StackPanel>
-                        <TextBlock
-                            Style="{StaticResource SettingHint}"
-                            Margin="0"
-                            Text="{Binding LocalKeyDescription}" />
-                        <WrapPanel Margin="0,8,0,0">
-                            <ui:Button
-                                Margin="0,0,8,0"
-                                Content="{loc:Str Options_UseMachineKey}"
-                                Icon="{ui:SymbolIcon Key24}"
-                                Command="{Binding UseLocalKeyCommand}" />
-                            <!-- Deliberate and destructive, so a button and never automatic. -->
-                            <ui:Button
-                                Content="{loc:Str Options_GenerateKey}"
-                                Icon="{ui:SymbolIcon ArrowSync24}"
-                                ToolTip="{loc:Str Options_GenerateKeyToolTip}"
-                                Command="{Binding NewLocalKeyCommand}" />
-                        </WrapPanel>
-                        <!-- LAN-only, for this machine's own server. Beside the key because it is the
-                             other thing only the operator decides, and only here is there a server. -->
-                        <Grid Margin="0,12,0,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
+                    <!-- ─── General ─── -->
+                    <StackPanel x:Name="SectionGeneral">
+                        <TextBlock Style="{StaticResource SectionHeader}" Text="{loc:Str Options_SectionGeneral}" Margin="2,2,0,8" />
+                        <Border Style="{StaticResource SectionPanel}">
                             <StackPanel>
-                                <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_ServerMapLanOnly}" />
-                                <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_ServerMapLanOnlySummary}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_ServerMapLanOnlyHint}" /></InlineUIContainer></TextBlock>
+
+                                <ui:CardControl
+                                    Style="{StaticResource SettingRow}">
+                                    <ui:CardControl.Header>
+                                        <StackPanel>
+                                            <StackPanel ToolTip="{loc:Str Options_InstallFolderDescription}" ToolTipService.ShowDuration="30000">
+                                                <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_InstallFolderHeader}" />
+                                                <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_InstallFolderHint}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_InstallFolderDescription}" /></InlineUIContainer></TextBlock>
+                                            </StackPanel>
+
+                                            <Grid Margin="0,10,0,0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <ui:TextBox
+                                                    Grid.Column="0"
+                                                    Text="{Binding InstallPathInput, UpdateSourceTrigger=PropertyChanged}" />
+                                                <ui:Button
+                                                    Grid.Column="1"
+                                                    Margin="8,0,0,0"
+                                                    Content="{loc:Str Options_Browse}"
+                                                    Icon="{ui:SymbolIcon FolderOpen24}"
+                                                    Command="{Binding BrowseCommand}" />
+                                                <ui:Button
+                                                    Grid.Column="2"
+                                                    Margin="8,0,0,0"
+                                                    Content="{loc:Str Common_Save}"
+                                                    Command="{Binding SaveCommand}" />
+                                            </Grid>
+
+                                            <TextBlock
+                                                Style="{StaticResource SettingHint}"
+                                                Margin="0,6,0,0"
+                                                Text="{Binding SptEnvironment.StatusMessage}" />
+                                        </StackPanel>
+                                    </ui:CardControl.Header>
+                                </ui:CardControl>
+
+                                <ui:CardControl
+                                    Style="{StaticResource SettingRow}"
+                                    ToolTip="{loc:Str Options_Language_Description}">
+                                    <ui:CardControl.Header>
+                                        <StackPanel>
+                                            <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_Language_Header}" />
+                                            <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_LanguageHint}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_Language_Description}" /></InlineUIContainer></TextBlock>
+                                            <!-- Collapsed while the credit is empty, which is English. -->
+                                            <TextBlock
+                                                Style="{StaticResource SettingNote}"
+                                                Margin="0,4,0,0"
+                                                Text="{Binding TranslationCredit}"
+                                                Visibility="{Binding TranslationCredit, Converter={StaticResource NullToCollapsed}}" />
+                                        </StackPanel>
+                                    </ui:CardControl.Header>
+                                    <ComboBox
+                                        MinWidth="200"
+                                        DisplayMemberPath="Label"
+                                        ItemsSource="{Binding LanguageOptions}"
+                                        SelectedItem="{Binding SelectedLanguage}" />
+                                </ui:CardControl>
+
+                                <ui:CardControl
+                                    Style="{StaticResource SettingRow}">
+                                    <ui:CardControl.Header>
+                                        <StackPanel>
+                                            <StackPanel ToolTip="{loc:Str Options_WindowDescription}" ToolTipService.ShowDuration="30000">
+                                                <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_WindowHeader}" />
+                                                <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_WindowHint}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_WindowDescription}" /></InlineUIContainer></TextBlock>
+                                            </StackPanel>
+
+                                            <!-- Only for the one mode that reads them. -->
+                                            <WrapPanel
+                                                Margin="0,10,0,0"
+                                                Visibility="{Binding ShowCustomSize, Converter={StaticResource BoolToVisibility}}">
+                                                <ui:TextBox
+                                                    MinWidth="110"
+                                                    Margin="0,0,0,4"
+                                                    PlaceholderText="{loc:Str Options_WidthPlaceholder}"
+                                                    Text="{Binding CustomWidthInput, UpdateSourceTrigger=PropertyChanged}" />
+                                                <TextBlock
+                                                    Margin="8,0,8,4"
+                                                    VerticalAlignment="Center"
+                                                    Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                                    Text="{loc:Str Options_SizeBy}" />
+                                                <ui:TextBox
+                                                    MinWidth="110"
+                                                    Margin="0,0,0,4"
+                                                    PlaceholderText="{loc:Str Options_HeightPlaceholder}"
+                                                    Text="{Binding CustomHeightInput, UpdateSourceTrigger=PropertyChanged}" />
+                                                <ui:Button
+                                                    Margin="8,0,0,4"
+                                                    Content="{loc:Str Options_ApplySize}"
+                                                    Command="{Binding ApplyWindowSizeCommand}" />
+                                                <ui:Button
+                                                    Margin="8,0,0,4"
+                                                    Content="{loc:Str Options_UseCurrentSize}"
+                                                    ToolTip="{loc:Str Options_UseCurrentSizeToolTip}"
+                                                    Command="{Binding UseCurrentWindowSizeCommand}" />
+                                            </WrapPanel>
+
+                                            <TextBlock
+                                                Style="{StaticResource SettingNote}"
+                                                Margin="0,4,0,0"
+                                                Text="{Binding WindowSizeMessage}"
+                                                Visibility="{Binding WindowSizeMessage, Converter={StaticResource NullToCollapsed}}" />
+                                        </StackPanel>
+                                    </ui:CardControl.Header>
+                                    <ComboBox
+                                        MinWidth="200"
+                                        VerticalAlignment="Top"
+                                        ItemsSource="{Binding WindowStartupOptions}"
+                                        SelectedItem="{Binding SelectedWindowStartup}" />
+                                </ui:CardControl>
                             </StackPanel>
-                            <ui:ToggleSwitch
-                                Grid.Column="1"
-                                Margin="14,0,0,0"
-                                VerticalAlignment="Center"
-                                Style="{StaticResource RowSwitch}"
-                                IsChecked="{Binding ServerLanOnly, Mode=TwoWay}" />
-                        </Grid>
-
-                        <TextBlock
-                            Style="{StaticResource SettingHint}"
-                            Margin="0,8,0,0"
-                            Visibility="{Binding HasKeyNotice, Converter={StaticResource BoolToVisibility}}"
-                            Text="{Binding KeyNotice}" />
+                        </Border>
                     </StackPanel>
-                </Border>
 
-                <!-- ErrorText turns this red only when the last attempt actually failed. -->
-                <TextBlock
-                    TextWrapping="Wrap"
-                    Style="{StaticResource ErrorText}"
-                    Text="{Binding StatusMessage}" />
-
-                <!-- The one failure the user has to judge rather than just read. -->
-                <ui:Button
-                    Margin="0,8,0,0"
-                    HorizontalAlignment="Left"
-                    Appearance="Caution"
-                    Content="{loc:Str Options_TrustCertificate}"
-                    Icon="{ui:SymbolIcon Certificate24}"
-                    Command="{Binding TrustNewCertificateCommand}"
-                    Visibility="{Binding HasCertificateChanged, Converter={StaticResource BoolToVisibility}}" />
-
-                <Border Style="{StaticResource SubSetting}" Margin="0,12,0,0" Padding="0,12,0,0">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <TextBlock
-                            Style="{StaticResource SettingNote}"
-                            VerticalAlignment="Center"
-                            Text="{Binding PinDescription}" />
-                        <ui:Button
-                            Grid.Column="1"
-                            Margin="14,0,0,0"
-                            Content="{loc:Str Options_ForgetCertificate}"
-                            Icon="{ui:SymbolIcon Delete24}"
-                            ToolTip="{loc:Str Options_ForgetCertificateToolTip}"
-                            Command="{Binding ForgetPinCommand}" />
-                    </Grid>
-                </Border>
-
-                <!--
-                    Whether this machine reports to the server's map, and under what name. The same
-                    answer the question on the Server map page records (D9, once per server) - so
-                    switching it off here takes the machine off the map. Disabled until this machine
-                    has connected once, because the answer is keyed on the certificate that
-                    connection records.
-                -->
-                <Border Style="{StaticResource SubSetting}" Margin="0,12,0,0">
-                    <StackPanel>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
+                    <!-- ─── Play ─── -->
+                    <StackPanel x:Name="SectionPlay">
+                        <TextBlock Style="{StaticResource SectionHeader}" Text="{loc:Str Options_SectionPlay}" />
+                        <Border Style="{StaticResource SectionPanel}">
                             <StackPanel>
-                                <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_ServerMapReport}" />
-                                <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_ServerMapReportSummary}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_ServerMapReportHint}" /></InlineUIContainer></TextBlock>
+
+                                <!-- Fork: Start server can bring the launcher up after it, and keep its own window out of the way. -->
+                                <ui:CardExpander
+                                    Style="{StaticResource SettingExpander}">
+                                    <ui:CardExpander.Header>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_LaunchHeader}" />
+                                                <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_LaunchSummary}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_LaunchDescription}" /></InlineUIContainer></TextBlock>
+                                                <TextBlock
+                                                    Style="{StaticResource SettingHint}"
+                                                    Foreground="{DynamicResource SystemFillColorCautionBrush}"
+                                                    Text="{loc:Str Options_LaunchReplacedByDirect}"
+                                                    Visibility="{Binding DirectLaunchReplacesLauncher, Converter={StaticResource BoolToVisibility}}" />
+                                            </StackPanel>
+                                            <ui:ToggleSwitch
+                                                Grid.Column="1"
+                                                Margin="14,0,12,0"
+                                                VerticalAlignment="Center"
+                                                Style="{StaticResource RowSwitch}"
+                                                IsEnabled="{Binding DirectLaunchReplacesLauncher, Converter={StaticResource Inverse}}"
+                                                IsChecked="{Binding StartLauncherAfterServer}" />
+                                        </Grid>
+                                    </ui:CardExpander.Header>
+
+                                    <StackPanel>
+                                        <ui:ToggleSwitch
+                                            HorizontalAlignment="Left"
+                                            IsChecked="{Binding HideServerWindow}"
+                                            OnContent="{loc:Str Options_HideServerOn}"
+                                            OffContent="{loc:Str Options_HideServerOff}" />
+                                        <TextBlock
+                                            Style="{StaticResource SettingNote}"
+                                            Margin="0,6,0,0"
+                                            Text="{loc:Str Options_HideServerNote}" />
+                                    </StackPanel>
+                                </ui:CardExpander>
+
+                                <!-- Fork: Play starts the game itself instead of opening SPT's launcher (SptDirectLaunch).
+                                     On unless switched off; the card says what it is and is not. -->
+                                <ui:CardExpander
+                                    Style="{StaticResource SettingExpander}">
+                                    <ui:CardExpander.Header>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_DirectLaunchHeader}" />
+                                                <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_DirectLaunchSummary}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_DirectLaunchDescription}" /></InlineUIContainer></TextBlock>
+                                            </StackPanel>
+                                            <ui:ToggleSwitch
+                                                Grid.Column="1"
+                                                Margin="14,0,12,0"
+                                                VerticalAlignment="Center"
+                                                Style="{StaticResource RowSwitch}"
+                                                IsChecked="{Binding DirectLaunch}" />
+                                        </Grid>
+                                    </ui:CardExpander.Header>
+
+                                    <StackPanel>
+                                        <ui:InfoBar
+                                            IsOpen="True"
+                                            IsClosable="False"
+                                            Severity="Warning"
+                                            Title="{loc:Str Options_DirectLaunchWarningTitle}"
+                                            Message="{loc:Str Options_DirectLaunchWarning}" />
+                                        <TextBlock Margin="0,8,0,0" Text="{Binding DirectLaunchSupportText}">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock" BasedOn="{StaticResource SettingNote}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding DirectLaunchSupportIsCaution}" Value="True">
+                                                            <Setter Property="Foreground" Value="{DynamicResource SystemFillColorCautionBrush}" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                        <ui:ToggleSwitch
+                                            Margin="0,12,0,0"
+                                            HorizontalAlignment="Left"
+                                            IsEnabled="{Binding DirectLaunch}"
+                                            IsChecked="{Binding MinimizeWhilePlaying}"
+                                            OnContent="{loc:Str Options_MinimizeWhilePlayingOn}"
+                                            OffContent="{loc:Str Options_MinimizeWhilePlayingOff}" />
+                                    </StackPanel>
+                                </ui:CardExpander>
                             </StackPanel>
-                            <ui:ToggleSwitch
-                                Grid.Column="1"
-                                Margin="14,0,0,0"
-                                VerticalAlignment="Center"
-                                Style="{StaticResource RowSwitch}"
-                                IsEnabled="{Binding CanChooseReporting}"
-                                IsChecked="{Binding ReportsToServer, Mode=TwoWay}" />
-                        </Grid>
-
-                        <TextBlock
-                            Style="{StaticResource SettingTitle}"
-                            Margin="0,12,0,0"
-                            Text="{loc:Str Options_ServerMapDisplayName}" />
-                        <TextBlock Style="{StaticResource SettingHint}" Text="{loc:Str Options_ServerMapDisplayNameHint}" />
-                        <!-- Saved when the box loses focus, not on every keystroke. -->
-                        <ui:TextBox
-                            MinWidth="260"
-                            HorizontalAlignment="Left"
-                            Margin="0,6,0,0"
-                            PlaceholderText="{Binding DisplayNamePlaceholder}"
-                            Text="{Binding DisplayNameInput, UpdateSourceTrigger=LostFocus}" />
-
-                        <TextBlock
-                            Style="{StaticResource SettingNote}"
-                            Margin="0,8,0,0"
-                            Text="{Binding ReportingStatus}" />
+                        </Border>
                     </StackPanel>
-                </Border>
-            </StackPanel>
-        </ui:CardExpander>
 
-        <!-- ─── Advanced ─── -->
-        <TextBlock Style="{StaticResource SectionHeader}" Text="{loc:Str Options_SectionAdvanced}" />
+                    <!-- ─── Look ─── -->
+                    <StackPanel x:Name="SectionLook">
+                        <TextBlock Style="{StaticResource SectionHeader}" Text="{loc:Str Options_SectionLook}" />
+                        <Border Style="{StaticResource SectionPanel}">
+                            <StackPanel>
 
-        <!-- Fork: copies of the SPT profiles, taken before the app changes the install (ProfileBackups). -->
-        <ui:CardExpander
-            Style="{StaticResource SettingExpander}"
-            Icon="{ui:SymbolIcon History24}">
-            <ui:CardExpander.Header>
-                <StackPanel DataContext="{Binding Profiles}">
-                    <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Profiles_Header}" />
-                    <TextBlock Style="{StaticResource SettingHint}"><Run Text="{Binding KeepSummary, Mode=OneWay}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{Binding KeepText}" /></InlineUIContainer></TextBlock>
+                                <!-- Hidden in the Steam Workshop fork: Steam has one look, so there is no light theme to
+                                     choose (see AppTheme.ApplyOnly). Left in place rather than deleted, so the setting it
+                                     edits is untouched and the upstream app finds it where it was left. -->
+                                <ui:CardControl
+                                    Style="{StaticResource SettingRow}"
+                                    Visibility="Collapsed"
+                                    ToolTip="{loc:Str Options_AppearanceDescription}">
+                                    <ui:CardControl.Header>
+                                        <StackPanel>
+                                            <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_AppearanceHeader}" />
+                                            <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_AppearanceHint}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_AppearanceDescription}" /></InlineUIContainer></TextBlock>
+                                        </StackPanel>
+                                    </ui:CardControl.Header>
+                                    <ComboBox
+                                        MinWidth="200"
+                                        ItemsSource="{Binding ThemeOptions}"
+                                        SelectedItem="{Binding SelectedTheme}" />
+                                </ui:CardControl>
+
+                                <!-- Fork: the hub's own Subscribed items and Collections tabs, and a picture of your own
+                                     behind the window in place of the Steam grid. -->
+                                <ui:CardExpander
+                                    Style="{StaticResource SettingExpander}">
+                                    <ui:CardExpander.Header>
+                                        <StackPanel>
+                                            <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_TabsBackgroundHeader}" />
+                                            <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_TabsBackgroundSummary}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_TabsBackgroundDescription}" /></InlineUIContainer></TextBlock>
+                                        </StackPanel>
+                                    </ui:CardExpander.Header>
+
+                                    <StackPanel>
+                                        <ui:ToggleSwitch
+                                            HorizontalAlignment="Left"
+                                            IsChecked="{Binding ShowSubscribedItemsTab}"
+                                            OnContent="{loc:Str Options_SubscribedTabOn}"
+                                            OffContent="{loc:Str Options_SubscribedTabOff}" />
+                                        <ui:ToggleSwitch
+                                            Margin="0,8,0,12"
+                                            HorizontalAlignment="Left"
+                                            IsChecked="{Binding ShowCollectionsTab}"
+                                            OnContent="{loc:Str Options_CollectionsTabOn}"
+                                            OffContent="{loc:Str Options_CollectionsTabOff}" />
+
+                                        <Border Style="{StaticResource SubSetting}" Padding="0,12,0,0">
+                                            <StackPanel>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Button Command="{Binding ChooseBackgroundCommand}" Content="{loc:Str Options_BackgroundChoose}" />
+                                                    <Button Margin="8,0,0,0" Command="{Binding UseGridBackgroundCommand}" Content="{loc:Str Options_BackgroundUseGrid}" />
+                                                </StackPanel>
+                                                <TextBlock
+                                                    Style="{StaticResource SettingHint}"
+                                                    Margin="0,8,0,0"
+                                                    Text="{Binding BackgroundFileName, StringFormat={loc:Str Options_BackgroundCurrentFormat}}"
+                                                    Visibility="{Binding BackgroundFileName, Converter={StaticResource NullToCollapsed}}" />
+                                                <StackPanel Margin="0,8,0,0" Orientation="Horizontal" Visibility="{Binding HasBackgroundImage, Converter={StaticResource BoolToVisibility}}">
+                                                    <TextBlock VerticalAlignment="Center" Text="{loc:Str Options_BackgroundDarkness}" />
+                                                    <Slider
+                                                        Width="220"
+                                                        Margin="10,0,0,0"
+                                                        VerticalAlignment="Center"
+                                                        Maximum="0.9"
+                                                        Minimum="0"
+                                                        SmallChange="0.05"
+                                                        LargeChange="0.1"
+                                                        Value="{Binding BackgroundDarkness, Delay=250}" />
+                                                </StackPanel>
+                                                <TextBlock
+                                                    Margin="0,8,0,0"
+                                                    TextWrapping="Wrap"
+                                                    Foreground="{DynamicResource SystemFillColorCautionBrush}"
+                                                    Text="{Binding BackgroundStatus}"
+                                                    Visibility="{Binding BackgroundStatus, Converter={StaticResource NullToCollapsed}}" />
+                                            </StackPanel>
+                                        </Border>
+                                    </StackPanel>
+                                </ui:CardExpander>
+
+                                <!-- Fork (round 47): each subscribed mod's own picture, blurred, behind its card. -->
+                                <ui:CardControl
+                                    Style="{StaticResource SettingRow}">
+                                    <ui:CardControl.Header>
+                                        <StackPanel>
+                                            <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_CardPicturesHeader}" />
+                                            <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_CardPicturesSummary}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_CardPicturesDescription}" /></InlineUIContainer></TextBlock>
+                                        </StackPanel>
+                                    </ui:CardControl.Header>
+                                    <ui:ToggleSwitch Style="{StaticResource RowSwitch}" IsChecked="{Binding CardPictures}" />
+                                </ui:CardControl>
+
+                                <!-- Fork: whether the mouse wheel glides the page or jumps it. -->
+                                <ui:CardControl
+                                    Style="{StaticResource SettingRow}">
+                                    <ui:CardControl.Header>
+                                        <StackPanel>
+                                            <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_ScrollingHeader}" />
+                                            <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_ScrollingSummary}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_ScrollingDescription}" /></InlineUIContainer></TextBlock>
+                                        </StackPanel>
+                                    </ui:CardControl.Header>
+                                    <ui:ToggleSwitch Style="{StaticResource RowSwitch}" IsChecked="{Binding SmoothScrolling}" />
+                                </ui:CardControl>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- ─── Pages ─── -->
+                    <StackPanel x:Name="SectionPages">
+                        <TextBlock Style="{StaticResource SectionHeader}" Text="{loc:Str Options_SectionPages}" />
+                        <Border Style="{StaticResource SectionPanel}">
+                            <StackPanel>
+
+                                <ui:CardControl
+                                    Style="{StaticResource SettingRow}"
+                                    ToolTip="{loc:Str Options_FootprintDescription}">
+                                    <ui:CardControl.Header>
+                                        <StackPanel>
+                                            <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_FootprintHeader}" />
+                                            <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_FootprintHint}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_FootprintDescription}" /></InlineUIContainer></TextBlock>
+                                        </StackPanel>
+                                    </ui:CardControl.Header>
+                                    <ui:ToggleSwitch
+                                        Style="{StaticResource RowSwitch}"
+                                        ToolTip="{Binding FootprintGate.SettingToolTip}"
+                                        IsChecked="{Binding ShowModFootprintPage}" />
+                                </ui:CardControl>
+
+                                <ui:CardControl
+                                    Style="{StaticResource SettingRow}"
+                                    ToolTip="{loc:Str Options_ServerMapDescription}">
+                                    <ui:CardControl.Header>
+                                        <StackPanel>
+                                            <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_ServerMapHeader}" />
+                                            <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_ServerMapPageHint}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_ServerMapDescription}" /></InlineUIContainer></TextBlock>
+                                        </StackPanel>
+                                    </ui:CardControl.Header>
+                                    <ui:ToggleSwitch
+                                        Style="{StaticResource RowSwitch}"
+                                        ToolTip="{Binding ServerMap.SettingToolTip}"
+                                        IsChecked="{Binding ServerMap.IsPageEnabled}" />
+                                </ui:CardControl>
+
+                                <ui:CardExpander
+                                    Style="{StaticResource SettingExpander}">
+                                    <ui:CardExpander.Header>
+                                        <StackPanel ToolTip="{loc:Str Options_PageDefaultsDescription}" ToolTipService.ShowDuration="30000">
+                                            <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_PageDefaultsHeader}" />
+                                            <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_PageDefaultsHint}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_PageDefaultsDescription}" /></InlineUIContainer></TextBlock>
+                                        </StackPanel>
+                                    </ui:CardExpander.Header>
+
+                                    <!-- Fork (1.2.0): Browse only - Subscribed items remembers itself (InstalledViewModel.Remember). -->
+                                    <StackPanel>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock
+                                                Style="{StaticResource SettingHint}"
+                                                VerticalAlignment="Center"
+                                                Text="{Binding BrowseDefaultsDescription}" />
+                                            <ui:Button
+                                                Grid.Column="1"
+                                                Margin="14,0,0,0"
+                                                Content="{loc:Str Options_ClearBrowseDefault}"
+                                                Command="{Binding ResetBrowseDefaultsCommand}" />
+                                        </Grid>
+                                    </StackPanel>
+                                </ui:CardExpander>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- ─── Installing ─── -->
+                    <StackPanel x:Name="SectionInstalling">
+                        <TextBlock Style="{StaticResource SectionHeader}" Text="{loc:Str Options_SectionInstalling}" />
+                        <Border Style="{StaticResource SectionPanel}">
+                            <StackPanel>
+
+                                <!--
+                                    Monitor mode. The dropdown decides what every install button does; the small button
+                                    beside each one does the other thing for a single mod. The download folder applies to any
+                                    download-only save, whichever button started it, so it lives in here in either mode.
+                                -->
+                                <ui:CardExpander
+                                    Style="{StaticResource SettingExpander}">
+                                    <ui:CardExpander.Header>
+                                        <Grid ToolTip="{loc:Str Options_MonitorDescription}" ToolTipService.ShowDuration="30000">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_InstallModeHeader}" />
+                                                <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_InstallModeSummary}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_MonitorDescription}" /></InlineUIContainer></TextBlock>
+                                            </StackPanel>
+                                            <ComboBox
+                                                Grid.Column="1"
+                                                MinWidth="200"
+                                                Margin="14,0,12,0"
+                                                VerticalAlignment="Center"
+                                                ItemsSource="{Binding InstallModeOptions}"
+                                                SelectedItem="{Binding SelectedInstallMode}" />
+                                        </Grid>
+                                    </ui:CardExpander.Header>
+
+                                    <StackPanel>
+                                        <StackPanel Margin="0,0,0,12">
+                                            <TextBlock
+                                                Style="{StaticResource SettingTitle}"
+                                                Text="{loc:Str Options_MonitorFolderHeader}"
+                                                ToolTip="{loc:Str Options_MonitorFolderDescription}" />
+                                            <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_MonitorFolderHint}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_MonitorFolderDescription}" /></InlineUIContainer></TextBlock>
+                                            <Grid Margin="0,8,0,0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <ui:TextBox
+                                                    Grid.Column="0"
+                                                    PlaceholderText="{Binding DownloadFolderPlaceholder}"
+                                                    Text="{Binding DownloadFolderInput, UpdateSourceTrigger=LostFocus}" />
+                                                <ui:Button
+                                                    Grid.Column="1"
+                                                    Margin="8,0,0,0"
+                                                    Content="{loc:Str Options_Browse}"
+                                                    Icon="{ui:SymbolIcon FolderOpen24}"
+                                                    Command="{Binding BrowseDownloadFolderCommand}" />
+                                                <ui:Button
+                                                    Grid.Column="2"
+                                                    Margin="8,0,0,0"
+                                                    Appearance="Transparent"
+                                                    Content="{loc:Str Options_MonitorFolderReset}"
+                                                    ToolTip="{loc:Str Options_MonitorFolderResetToolTip}"
+                                                    Command="{Binding ResetDownloadFolderCommand}" />
+                                            </Grid>
+                                            <ui:ToggleSwitch
+                                                Margin="0,10,0,0"
+                                                HorizontalAlignment="Left"
+                                                IsChecked="{Binding DownloadListSubfolders}"
+                                                OnContent="{loc:Str Options_MonitorListSubfoldersOn}"
+                                                OffContent="{loc:Str Options_MonitorListSubfoldersOff}" />
+                                        </StackPanel>
+
+                                        <Border Style="{StaticResource SubSetting}" Padding="0,12,0,0">
+                                            <Grid ToolTip="{loc:Str Options_MonitorConfirmDescription}" ToolTipService.ShowDuration="30000">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel VerticalAlignment="Center">
+                                                    <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_MonitorConfirmHeader}" />
+                                                    <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_MonitorConfirmHint}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_MonitorConfirmDescription}" /></InlineUIContainer></TextBlock>
+                                                </StackPanel>
+                                                <ComboBox
+                                                    Grid.Column="1"
+                                                    MinWidth="200"
+                                                    Margin="14,0,0,0"
+                                                    VerticalAlignment="Center"
+                                                    ItemsSource="{Binding DownloadConfirmationOptions}"
+                                                    SelectedItem="{Binding SelectedDownloadConfirmation}" />
+                                            </Grid>
+                                        </Border>
+                                    </StackPanel>
+                                </ui:CardExpander>
+
+                                <ui:CardControl
+                                    Style="{StaticResource SettingRow}"
+                                    ToolTip="{loc:Str Options_ModPagesDescription}">
+                                    <ui:CardControl.Header>
+                                        <StackPanel>
+                                            <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_ModPagesTitle}" />
+                                            <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_ModPagesHint}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_ModPagesDescription}" /></InlineUIContainer></TextBlock>
+                                        </StackPanel>
+                                    </ui:CardControl.Header>
+                                    <!-- On = ask first, so it writes the opposite of SkipModPageConfirmation. -->
+                                    <ui:ToggleSwitch
+                                        Style="{StaticResource RowSwitch}"
+                                        ToolTip="{Binding ModPageGate.SettingToolTip}"
+                                        IsChecked="{Binding SkipModPageConfirmation, Converter={StaticResource Inverse}}" />
+                                </ui:CardControl>
+
+                                <!-- How long removed mods are kept in the install's holding folder (R11, D27). -->
+                                <ui:CardControl
+                                    Style="{StaticResource SettingRow}"
+                                    ToolTip="{loc:Str Options_RemovedModsDescription}">
+                                    <ui:CardControl.Header>
+                                        <StackPanel>
+                                            <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_RemovedModsHeader}" />
+                                            <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_RemovedModsSummary}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_RemovedModsDescription}" /></InlineUIContainer></TextBlock>
+                                            <TextBlock
+                                                Style="{StaticResource SettingHint}"
+                                                Text="{Binding RemovedModsStatus}"
+                                                Visibility="{Binding RemovedModsStatus, Converter={StaticResource NullToCollapsed}}" />
+                                        </StackPanel>
+                                    </ui:CardControl.Header>
+                                    <StackPanel Orientation="Horizontal">
+                                        <ComboBox
+                                            MinWidth="200"
+                                            ItemsSource="{Binding RemovedModsRetentionOptions}"
+                                            SelectedItem="{Binding SelectedRemovedModsRetention}" />
+                                        <ui:Button
+                                            Margin="8,0,0,0"
+                                            Content="{Binding ClearRemovedModsLabel}"
+                                            Command="{Binding ClearRemovedModsCommand}" />
+                                    </StackPanel>
+                                </ui:CardControl>
+
+                                <!-- Fork: several downloads at once, and whether downloaded files are kept for next time. -->
+                                <ui:CardControl
+                                    Style="{StaticResource SettingRow}">
+                                    <ui:CardControl.Header>
+                                        <StackPanel>
+                                            <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_DownloadsHeader}" />
+                                            <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_DownloadsSummary}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_DownloadsDescription}" /></InlineUIContainer></TextBlock>
+                                            <StackPanel Margin="0,10,0,0" Orientation="Horizontal">
+                                                <ui:Button Content="{loc:Str Options_DownloadsClear}" Command="{Binding ClearKeptDownloadsCommand}" />
+                                                <TextBlock
+                                                    Style="{StaticResource SettingNote}"
+                                                    Margin="12,0,0,0"
+                                                    VerticalAlignment="Center"
+                                                    Text="{Binding KeptDownloadsLabel}" />
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </ui:CardControl.Header>
+                                    <ui:ToggleSwitch
+                                        Style="{StaticResource RowSwitch}"
+                                        VerticalAlignment="Top"
+                                        IsChecked="{Binding KeepDownloads}" />
+                                </ui:CardControl>
+
+                                <!-- Fork: whether removing an item asks first; the question's "Don't ask again" turns this off. -->
+                                <ui:CardControl
+                                    Style="{StaticResource SettingRow}">
+                                    <ui:CardControl.Header>
+                                        <StackPanel>
+                                            <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_UnsubscribeHeader}" />
+                                            <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_UnsubscribeSummary}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_UnsubscribeDescription}" /></InlineUIContainer></TextBlock>
+                                        </StackPanel>
+                                    </ui:CardControl.Header>
+                                    <ui:ToggleSwitch Style="{StaticResource RowSwitch}" IsChecked="{Binding ConfirmUnsubscribe}" />
+                                </ui:CardControl>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- ─── Updates ─── -->
+                    <StackPanel x:Name="SectionUpdates">
+                        <TextBlock Style="{StaticResource SectionHeader}" Text="{loc:Str Options_SectionUpdates}" />
+                        <Border Style="{StaticResource SectionPanel}">
+                            <StackPanel>
+
+                                <!-- Apart from Monitor mode (R3): it works the same whichever mode the install buttons are in. -->
+                                <ui:CardExpander
+                                    Style="{StaticResource SettingExpander}">
+                                    <ui:CardExpander.Header>
+                                        <Grid ToolTip="{loc:Str Options_UpdateNotificationsDescription}" ToolTipService.ShowDuration="30000">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_UpdateNotificationsHeader}" />
+                                                <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_UpdateNotificationsHint}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_UpdateNotificationsDescription}" /></InlineUIContainer></TextBlock>
+                                            </StackPanel>
+                                            <ui:ToggleSwitch
+                                                Grid.Column="1"
+                                                Margin="14,0,12,0"
+                                                VerticalAlignment="Center"
+                                                Style="{StaticResource RowSwitch}"
+                                                IsChecked="{Binding UpdateNotificationsEnabled}" />
+                                        </Grid>
+                                    </ui:CardExpander.Header>
+
+                                    <!-- Greyed out rather than hidden while notifications are off (D8), so what switching them
+                                         on would do is readable first. -->
+                                    <StackPanel>
+                                        <ui:ToggleSwitch
+                                            Margin="0,0,0,12"
+                                            HorizontalAlignment="Left"
+                                            IsEnabled="{Binding UpdateNotificationsEnabled}"
+                                            ToolTip="{loc:Str Options_TrayToolTip}"
+                                            ToolTipService.ShowDuration="20000"
+                                            IsChecked="{Binding KeepRunningInTray}"
+                                            OnContent="{loc:Str Options_TrayOn}"
+                                            OffContent="{loc:Str Options_TrayOff}" />
+
+                                        <Border Style="{StaticResource SubSetting}">
+                                            <StackPanel>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock
+                                                        Style="{StaticResource SettingTitle}"
+                                                        VerticalAlignment="Center"
+                                                        Text="{loc:Str Options_UpdateIntervalHeader}" />
+                                                    <ComboBox
+                                                        Grid.Column="1"
+                                                        MinWidth="160"
+                                                        Margin="14,0,0,0"
+                                                        IsEnabled="{Binding UpdateNotificationsEnabled}"
+                                                        ItemsSource="{Binding UpdateIntervalOptions}"
+                                                        SelectedItem="{Binding SelectedUpdateInterval}" />
+                                                    <!-- Greyed while notifications are off, through the command's CanExecute. -->
+                                                    <ui:Button
+                                                        Grid.Column="2"
+                                                        Margin="8,0,0,0"
+                                                        Content="{loc:Str Options_UpdateCheckNow}"
+                                                        Icon="{ui:SymbolIcon ArrowSync24}"
+                                                        ToolTip="{loc:Str Options_UpdateCheckNowToolTip}"
+                                                        ToolTipService.ShowDuration="20000"
+                                                        Command="{Binding CheckUpdatesNowCommand}" />
+                                                </Grid>
+
+                                                <TextBlock
+                                                    Style="{StaticResource SettingHint}"
+                                                    Margin="0,8,0,0"
+                                                    Text="{Binding UpdateCheckStatus}"
+                                                    Visibility="{Binding UpdateCheckStatus, Converter={StaticResource NullToCollapsed}}" />
+                                            </StackPanel>
+                                        </Border>
+
+                                        <TextBlock
+                                            Style="{StaticResource SettingNote}"
+                                            Text="{loc:Str Options_UpdateNotificationsNote}" />
+                                    </StackPanel>
+                                </ui:CardExpander>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- ─── Multiplayer ─── -->
+                    <StackPanel x:Name="SectionMultiplayer">
+                        <TextBlock Style="{StaticResource SectionHeader}" Text="{loc:Str Options_SectionMultiplayer}" />
+                        <Border Style="{StaticResource SectionPanel}">
+                            <StackPanel>
+
+                                <!--
+                                    Always shown, not gated on finding a launcher: someone who answered "ask me later", or
+                                    whose headless is started some other way, needs somewhere to say so. The collapsed row
+                                    names the current answer, so nobody has to open it to check.
+                                -->
+                                <ui:CardExpander
+                                    Style="{StaticResource SettingExpander}">
+                                    <ui:CardExpander.Header>
+                                        <StackPanel ToolTip="{loc:Str Options_MachineRoleDescription}" ToolTipService.ShowDuration="30000">
+                                            <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_MachineRoleHeader}" />
+                                            <TextBlock Style="{StaticResource SettingHint}"><Run Text="{Binding InstallRoleSummary, Mode=OneWay}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_MachineRoleDescription}" /></InlineUIContainer></TextBlock>
+                                        </StackPanel>
+                                    </ui:CardExpander.Header>
+
+                                    <StackPanel>
+                                        <StackPanel Margin="0,0,0,12">
+                                            <ui:ToggleSwitch
+                                                HorizontalAlignment="Left"
+                                                Margin="0,0,0,8"
+                                                ToolTip="{loc:Str Options_PlaysHereToolTip}"
+                                                ToolTipService.ShowDuration="20000"
+                                                IsChecked="{Binding PlaysHere}"
+                                                OnContent="{loc:Str Options_PlaysHereOn}"
+                                                OffContent="{loc:Str Options_PlaysHereOff}" />
+                                            <ui:ToggleSwitch
+                                                HorizontalAlignment="Left"
+                                                ToolTip="{loc:Str Options_HeadlessToolTip}"
+                                                ToolTipService.ShowDuration="20000"
+                                                IsChecked="{Binding RunsHeadlessClient}"
+                                                OnContent="{loc:Str Options_HeadlessOn}"
+                                                OffContent="{loc:Str Options_HeadlessOff}" />
+                                            <TextBlock
+                                                Style="{StaticResource SettingHint}"
+                                                Margin="0,10,0,0"
+                                                Text="{Binding InstallRoleDescription}" />
+                                        </StackPanel>
+
+                                        <!--
+                                            The way out of detection, which only ever looks at the top of the install folder
+                                            (see SptLaunchService), so a manager kept beside the SPT folder has to be named.
+                                        -->
+                                        <Border Style="{StaticResource SubSetting}" Padding="0,12,0,0">
+                                            <StackPanel>
+                                                <TextBlock
+                                                    Style="{StaticResource SettingTitle}"
+                                                    Text="{loc:Str Options_HeadlessLauncherHeader}"
+                                                    ToolTip="{loc:Str Options_HeadlessLauncherDescription}"
+                                                    ToolTipService.ShowDuration="30000" />
+                                                <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_HeadlessLauncherHint}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_HeadlessLauncherDescription}" /></InlineUIContainer></TextBlock>
+                                                <Grid Margin="0,8,0,0">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <ui:TextBox
+                                                        Grid.Column="0"
+                                                        PlaceholderText="{loc:Str Options_HeadlessLauncherPlaceholder}"
+                                                        Text="{Binding HeadlessLauncherPath, UpdateSourceTrigger=LostFocus}" />
+                                                    <ui:Button
+                                                        Grid.Column="1"
+                                                        Margin="8,0,0,0"
+                                                        Content="{loc:Str Options_Browse}"
+                                                        Icon="{ui:SymbolIcon FolderOpen24}"
+                                                        Command="{Binding BrowseHeadlessLauncherCommand}" />
+                                                    <ui:Button
+                                                        Grid.Column="2"
+                                                        Margin="8,0,0,0"
+                                                        Appearance="Transparent"
+                                                        Content="{loc:Str Options_ClearHeadlessLauncher}"
+                                                        ToolTip="{loc:Str Options_ClearHeadlessLauncherToolTip}"
+                                                        Command="{Binding ClearHeadlessLauncherCommand}" />
+                                                </Grid>
+                                                <!-- Worth mentioning, never preventing - there are plenty of ways to start one. -->
+                                                <TextBlock
+                                                    Style="{StaticResource SettingNote}"
+                                                    Margin="0,8,0,0"
+                                                    Text="{loc:Str Options_NoHeadlessLauncherNotice}"
+                                                    Visibility="{Binding HasHeadlessLauncher, Converter={StaticResource FalseToVisible}}" />
+                                            </StackPanel>
+                                        </Border>
+                                    </StackPanel>
+                                </ui:CardExpander>
+
+                                <!--
+                                    The Server map page's connection, only while that page is switched on. Set up here
+                                    because it is a one-off and the page itself is for reading.
+
+                                    The address is asked for rather than derived from the install folder: on any Fika setup
+                                    http.json is stale (Fika overrides the binding from fika.jsonc, with a bind address no
+                                    client can dial), and the address typed into the SPT launcher is the honest source.
+                                -->
+                                <ui:CardExpander
+                                    Style="{StaticResource SettingExpander}"
+                                    Visibility="{Binding ServerMap.IsPageEnabled, Converter={StaticResource BoolToVisibility}}">
+                                    <ui:CardExpander.Header>
+                                        <StackPanel>
+                                            <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_ServerMapConnectionHeader}" />
+                                            <TextBlock Style="{StaticResource SettingHint}" Text="{loc:Str Options_ServerMapConnectionHint}" />
+                                        </StackPanel>
+                                    </ui:CardExpander.Header>
+
+                                    <StackPanel DataContext="{Binding ServerMap}">
+                                        <!-- Hidden until the addon page URL is set, so a build without one never shows a dead link. -->
+                                        <StackPanel
+                                            Margin="0,0,0,12"
+                                            Visibility="{Binding HasAddonPage, Converter={StaticResource BoolToVisibility}}">
+                                            <TextBlock
+                                                Style="{StaticResource SettingHint}"
+                                                Margin="0,0,0,8"
+                                                Text="{loc:Str Options_ServerMapModNotice}" />
+                                            <ui:Button
+                                                HorizontalAlignment="Left"
+                                                Content="{loc:Str Options_GetServerMapMod}"
+                                                Icon="{ui:SymbolIcon Open24}"
+                                                ToolTip="{loc:Str Options_GetServerMapModToolTip}"
+                                                Command="{Binding OpenAddonPageCommand}" />
+                                        </StackPanel>
+
+                                        <!-- The placeholder is a hint, not a default: Fika's own 127.0.0.1 is quietly wrong
+                                             for anyone connecting to someone else's server. -->
+                                        <WrapPanel Margin="0,0,0,4">
+                                            <ui:TextBox
+                                                MinWidth="260"
+                                                Margin="0,0,8,4"
+                                                PlaceholderText="{loc:Str Options_ServerAddressPlaceholder}"
+                                                Text="{Binding HostInput, UpdateSourceTrigger=PropertyChanged}" />
+                                            <ui:TextBox
+                                                MinWidth="90"
+                                                Margin="0,0,8,4"
+                                                PlaceholderText="{loc:Str Options_PortPlaceholder}"
+                                                Text="{Binding PortInput, UpdateSourceTrigger=PropertyChanged}" />
+                                            <ui:Button
+                                                Margin="0,0,0,4"
+                                                Content="{loc:Str Options_Connect}"
+                                                Icon="{ui:SymbolIcon Connected20}"
+                                                Command="{Binding ConnectCommand}" />
+                                            <ProgressBar
+                                                Width="80"
+                                                Height="4"
+                                                Margin="12,0,0,4"
+                                                VerticalAlignment="Center"
+                                                IsIndeterminate="True"
+                                                Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}" />
+                                        </WrapPanel>
+
+                                        <!-- A plain TextBox, not a PasswordBox: it gets copied between machines and pasted
+                                             into chat, and hiding it only makes it harder to check. -->
+                                        <ui:TextBox
+                                            MinWidth="260"
+                                            HorizontalAlignment="Left"
+                                            Margin="0,0,0,8"
+                                            PlaceholderText="{loc:Str Options_SharedKeyPlaceholder}"
+                                            Text="{Binding KeyInput, UpdateSourceTrigger=PropertyChanged}" />
+
+                                        <TextBlock
+                                            Style="{StaticResource SettingNote}"
+                                            Margin="0,0,0,8"
+                                            Text="{Binding KeyDescription}" />
+
+                                        <!-- Only on the machine running a server. Shown in full: it is there to be copied out. -->
+                                        <Border
+                                            Style="{StaticResource SubSetting}"
+                                            Visibility="{Binding IsServerOwner, Converter={StaticResource BoolToVisibility}}">
+                                            <StackPanel>
+                                                <TextBlock
+                                                    Style="{StaticResource SettingHint}"
+                                                    Margin="0"
+                                                    Text="{Binding LocalKeyDescription}" />
+                                                <WrapPanel Margin="0,8,0,0">
+                                                    <ui:Button
+                                                        Margin="0,0,8,0"
+                                                        Content="{loc:Str Options_UseMachineKey}"
+                                                        Icon="{ui:SymbolIcon Key24}"
+                                                        Command="{Binding UseLocalKeyCommand}" />
+                                                    <!-- Deliberate and destructive, so a button and never automatic. -->
+                                                    <ui:Button
+                                                        Content="{loc:Str Options_GenerateKey}"
+                                                        Icon="{ui:SymbolIcon ArrowSync24}"
+                                                        ToolTip="{loc:Str Options_GenerateKeyToolTip}"
+                                                        Command="{Binding NewLocalKeyCommand}" />
+                                                </WrapPanel>
+                                                <!-- LAN-only, for this machine's own server. Beside the key because it is the
+                                                     other thing only the operator decides, and only here is there a server. -->
+                                                <Grid Margin="0,12,0,0">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel>
+                                                        <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_ServerMapLanOnly}" />
+                                                        <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_ServerMapLanOnlySummary}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_ServerMapLanOnlyHint}" /></InlineUIContainer></TextBlock>
+                                                    </StackPanel>
+                                                    <ui:ToggleSwitch
+                                                        Grid.Column="1"
+                                                        Margin="14,0,0,0"
+                                                        VerticalAlignment="Center"
+                                                        Style="{StaticResource RowSwitch}"
+                                                        IsChecked="{Binding ServerLanOnly, Mode=TwoWay}" />
+                                                </Grid>
+
+                                                <TextBlock
+                                                    Style="{StaticResource SettingHint}"
+                                                    Margin="0,8,0,0"
+                                                    Visibility="{Binding HasKeyNotice, Converter={StaticResource BoolToVisibility}}"
+                                                    Text="{Binding KeyNotice}" />
+                                            </StackPanel>
+                                        </Border>
+
+                                        <!-- ErrorText turns this red only when the last attempt actually failed. -->
+                                        <TextBlock
+                                            TextWrapping="Wrap"
+                                            Style="{StaticResource ErrorText}"
+                                            Text="{Binding StatusMessage}" />
+
+                                        <!-- The one failure the user has to judge rather than just read. -->
+                                        <ui:Button
+                                            Margin="0,8,0,0"
+                                            HorizontalAlignment="Left"
+                                            Appearance="Caution"
+                                            Content="{loc:Str Options_TrustCertificate}"
+                                            Icon="{ui:SymbolIcon Certificate24}"
+                                            Command="{Binding TrustNewCertificateCommand}"
+                                            Visibility="{Binding HasCertificateChanged, Converter={StaticResource BoolToVisibility}}" />
+
+                                        <Border Style="{StaticResource SubSetting}" Margin="0,12,0,0" Padding="0,12,0,0">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock
+                                                    Style="{StaticResource SettingNote}"
+                                                    VerticalAlignment="Center"
+                                                    Text="{Binding PinDescription}" />
+                                                <ui:Button
+                                                    Grid.Column="1"
+                                                    Margin="14,0,0,0"
+                                                    Content="{loc:Str Options_ForgetCertificate}"
+                                                    Icon="{ui:SymbolIcon Delete24}"
+                                                    ToolTip="{loc:Str Options_ForgetCertificateToolTip}"
+                                                    Command="{Binding ForgetPinCommand}" />
+                                            </Grid>
+                                        </Border>
+
+                                        <!--
+                                            Whether this machine reports to the server's map, and under what name. The same
+                                            answer the question on the Server map page records (D9, once per server) - so
+                                            switching it off here takes the machine off the map. Disabled until this machine
+                                            has connected once, because the answer is keyed on the certificate that
+                                            connection records.
+                                        -->
+                                        <Border Style="{StaticResource SubSetting}" Margin="0,12,0,0">
+                                            <StackPanel>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel>
+                                                        <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_ServerMapReport}" />
+                                                        <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_ServerMapReportSummary}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_ServerMapReportHint}" /></InlineUIContainer></TextBlock>
+                                                    </StackPanel>
+                                                    <ui:ToggleSwitch
+                                                        Grid.Column="1"
+                                                        Margin="14,0,0,0"
+                                                        VerticalAlignment="Center"
+                                                        Style="{StaticResource RowSwitch}"
+                                                        IsEnabled="{Binding CanChooseReporting}"
+                                                        IsChecked="{Binding ReportsToServer, Mode=TwoWay}" />
+                                                </Grid>
+
+                                                <TextBlock
+                                                    Style="{StaticResource SettingTitle}"
+                                                    Margin="0,12,0,0"
+                                                    Text="{loc:Str Options_ServerMapDisplayName}" />
+                                                <TextBlock Style="{StaticResource SettingHint}" Text="{loc:Str Options_ServerMapDisplayNameHint}" />
+                                                <!-- Saved when the box loses focus, not on every keystroke. -->
+                                                <ui:TextBox
+                                                    MinWidth="260"
+                                                    HorizontalAlignment="Left"
+                                                    Margin="0,6,0,0"
+                                                    PlaceholderText="{Binding DisplayNamePlaceholder}"
+                                                    Text="{Binding DisplayNameInput, UpdateSourceTrigger=LostFocus}" />
+
+                                                <TextBlock
+                                                    Style="{StaticResource SettingNote}"
+                                                    Margin="0,8,0,0"
+                                                    Text="{Binding ReportingStatus}" />
+                                            </StackPanel>
+                                        </Border>
+                                    </StackPanel>
+                                </ui:CardExpander>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- ─── Advanced ─── -->
+                    <StackPanel x:Name="SectionAdvanced">
+                        <TextBlock Style="{StaticResource SectionHeader}" Text="{loc:Str Options_SectionAdvanced}" />
+                        <Border Style="{StaticResource SectionPanel}">
+                            <StackPanel>
+
+                                <!-- Fork: copies of the SPT profiles, taken before the app changes the install (ProfileBackups). -->
+                                <ui:CardExpander
+                                    Style="{StaticResource SettingExpander}">
+                                    <ui:CardExpander.Header>
+                                        <StackPanel DataContext="{Binding Profiles}">
+                                            <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Profiles_Header}" />
+                                            <TextBlock Style="{StaticResource SettingHint}"><Run Text="{Binding KeepSummary, Mode=OneWay}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{Binding KeepText}" /></InlineUIContainer></TextBlock>
+                                        </StackPanel>
+                                    </ui:CardExpander.Header>
+
+                                    <StackPanel DataContext="{Binding Profiles}">
+                                        <TextBlock
+                                            Style="{StaticResource SettingNote}"
+                                            Margin="0,0,0,8"
+                                            Text="{loc:Str Profiles_Empty}"
+                                            Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibility}}" />
+
+                                        <ItemsControl ItemsSource="{Binding Backups}" Margin="0,0,0,8">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Grid Margin="0,0,0,6">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="170" />
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="Auto" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock VerticalAlignment="Center" Text="{Binding When}" />
+                                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                            <TextBlock Text="{Binding Why}" TextWrapping="Wrap" />
+                                                            <TextBlock
+                                                                Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                                                Text="{Binding Detail}" />
+                                                        </StackPanel>
+                                                        <ui:Button
+                                                            Grid.Column="2"
+                                                            Margin="8,0,0,0"
+                                                            Content="{loc:Str Profiles_Restore}"
+                                                            Command="{Binding DataContext.RestoreCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                            CommandParameter="{Binding}" />
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+
+                                        <StackPanel Orientation="Horizontal">
+                                            <ui:Button
+                                                Content="{loc:Str Profiles_BackUpNow}"
+                                                Command="{Binding BackUpNowCommand}" />
+                                            <ui:Button
+                                                Margin="8,0,0,0"
+                                                Content="{loc:Str Profiles_OpenFolder}"
+                                                Command="{Binding OpenFolderCommand}" />
+                                        </StackPanel>
+
+                                        <TextBlock
+                                            Style="{StaticResource SettingHint}"
+                                            Margin="0,8,0,0"
+                                            Text="{Binding StatusMessage}"
+                                            Visibility="{Binding StatusMessage, Converter={StaticResource NullToCollapsed}}" />
+                                    </StackPanel>
+                                </ui:CardExpander>
+
+                                <ui:CardControl
+                                    Style="{StaticResource SettingRow}"
+                                    ToolTip="{loc:Str Options_DataFilesDescription}">
+                                    <ui:CardControl.Header>
+                                        <StackPanel>
+                                            <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_DataFilesHeader}" />
+                                            <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_DataFilesHint}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_DataFilesDescription}" /></InlineUIContainer></TextBlock>
+                                        </StackPanel>
+                                    </ui:CardControl.Header>
+                                    <ui:Button
+                                        Content="{loc:Str Options_DataFiles}"
+                                        Click="DataFiles_Click" />
+                                </ui:CardControl>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
                 </StackPanel>
-            </ui:CardExpander.Header>
-
-            <StackPanel DataContext="{Binding Profiles}">
-                <TextBlock
-                    Style="{StaticResource SettingNote}"
-                    Margin="0,0,0,8"
-                    Text="{loc:Str Profiles_Empty}"
-                    Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibility}}" />
-
-                <ItemsControl ItemsSource="{Binding Backups}" Margin="0,0,0,8">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Grid Margin="0,0,0,6">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="170" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <TextBlock VerticalAlignment="Center" Text="{Binding When}" />
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                    <TextBlock Text="{Binding Why}" TextWrapping="Wrap" />
-                                    <TextBlock
-                                        Foreground="{DynamicResource TextFillColorTertiaryBrush}"
-                                        Text="{Binding Detail}" />
-                                </StackPanel>
-                                <ui:Button
-                                    Grid.Column="2"
-                                    Margin="8,0,0,0"
-                                    Content="{loc:Str Profiles_Restore}"
-                                    Command="{Binding DataContext.RestoreCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                    CommandParameter="{Binding}" />
-                            </Grid>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-
-                <StackPanel Orientation="Horizontal">
-                    <ui:Button
-                        Content="{loc:Str Profiles_BackUpNow}"
-                        Command="{Binding BackUpNowCommand}" />
-                    <ui:Button
-                        Margin="8,0,0,0"
-                        Content="{loc:Str Profiles_OpenFolder}"
-                        Command="{Binding OpenFolderCommand}" />
-                </StackPanel>
-
-                <TextBlock
-                    Style="{StaticResource SettingHint}"
-                    Margin="0,8,0,0"
-                    Text="{Binding StatusMessage}"
-                    Visibility="{Binding StatusMessage, Converter={StaticResource NullToCollapsed}}" />
-            </StackPanel>
-        </ui:CardExpander>
-
-        <ui:CardControl
-            Style="{StaticResource SettingRow}"
-            Icon="{ui:SymbolIcon DocumentData24}"
-            ToolTip="{loc:Str Options_DataFilesDescription}">
-            <ui:CardControl.Header>
-                <StackPanel>
-                    <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_DataFilesHeader}" />
-                    <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_DataFilesHint}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_DataFilesDescription}" /></InlineUIContainer></TextBlock>
-                </StackPanel>
-            </ui:CardControl.Header>
-            <ui:Button
-                Content="{loc:Str Options_DataFiles}"
-                Click="DataFiles_Click" />
-        </ui:CardControl>
-    </StackPanel>
+            </Grid>
+        </ScrollViewer>
+    </Grid>
 </Page>
