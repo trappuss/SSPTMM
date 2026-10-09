@@ -7,10 +7,10 @@ From 1.3.0 or 1.3.1: Help > About > **Install update**. From an older version: c
 ## New
 
 - **Subscribed items looks like Steam's own lists.** A mod's card, List row and Groups row are now drawn the way Steam draws the rows of *Your Workshop Files*: a navy panel with a soft shadow and no outline, and behind it the mod's own picture, out of focus and fading to the right. Under the pointer a card lightens and its shadow turns white, as a Browse card's does. Before, the cards were see-through boxes that the page's grid ran through, with small grey text.
-- **Easier to read.** The line under a mod's name (version, client or server, author) is larger and lighter. The tags under it - DISABLED, PINNED, RE-UPLOADED, the group and the collections - are one shape on one line, in line with the name; collections that don't fit are counted in a **+2** with their names in its tooltip. Every closed card is now the same height.
-- **Sort by Enabled first or Disabled first** on Subscribed items, each half by name.
+- **Easier to read.** The line under a mod's name (version, client or server, author) is larger and lighter. The tags under it - DISABLED, PINNED, RE-UPLOADED, the group and the collections - are one shape on one line, in line with the name; on a card, collections that don't fit are counted in a **+2** with their names in its tooltip, so closed cards are the same height (an addon's has one more line, saying what it is for).
+- **Sort by Enabled first or Disabled first** on Subscribed items, each half by name. Pinned mods stay at the top, as in every order.
 - **Options looks like Steam's settings.** The sections are listed down the left - General, Play, Look, Pages, Installing mods, Updates, Fika and servers, Advanced - and a click goes to one. Each section is one solid panel of plain rows with a line between them, in a column narrow enough that a switch sits near what it switches; before, the rows were see-through boxes across the whole window. The settings are regrouped to match: starting the game has a section of its own (Play), and the tabs, background, pictures and scrolling are together under Look.
-- **Play starts the game from SSPTMM by default.** *Start the game from SSPTMM* is no longer experimental: on a new setup, Play on the Play page starts the server and the game itself, with no SPT launcher window (SPT 4.1.3 to 4.1.6; on any other version Play opens the SPT launcher as before). If you already use SSPTMM, your setting stays as you left it - switch it on in Options if you want it. It is still not made or supported by the SPT team.
+- **Play starts the game from SSPTMM by default.** *Start the game from SSPTMM* is no longer experimental: on a new setup, Play on the Play page starts the server and the game itself, with no SPT launcher window (SPT 4.1.3 to 4.1.6; on any other version Play opens the SPT launcher as before). If your settings already say off - 1.2.x wrote that for everybody - it stays off: switch it on in Options if you want it. A setup that never ran 1.2.x has nothing written and gets the new default. It is still not made or supported by the SPT team.
 - **Options > Picture behind each subscribed mod** switches the pictures behind the cards off, for a PC that scrolls the page slowly with them.
 
 ## Faster
@@ -24,8 +24,8 @@ From 1.3.0 or 1.3.1: Help > About > **Install update**. From an older version: c
 
 ## Fixed
 
-- **Smooth scrolling no longer stops for a moment as Subscribed items reaches more mods.** The page added 24 cards at once when you neared the end of what was loaded; it now adds them two at a time, further ahead.
-- **A mod no longer shows the same collection twice** among its tags (seen on a pinned mod).
+- **Smooth scrolling no longer stops for a moment as Subscribed items reaches more mods.** The page added 24 cards at once when you neared the end of what was loaded; it now adds them one at a time, further ahead.
+- **A mod no longer shows the same collection twice** among its tags.
 # SSPTMM 1.3.1
 
 ## Updating

@@ -42,8 +42,9 @@ public static class ModListMembership
                 if (action.Installed is not { } candidate) continue;
                 if (!indexOf.TryGetValue(candidate, out var index)) continue;
 
-                // Once per list: the planner can have two actions for one installed mod (seen with a
-                // pinned mod, 2026-10-08), and its badge then named the same collection twice.
+                // Once per list: two entries of one list can both resolve to the same installed mod
+                // (ModListMatch does not claim a mod it has matched), and its badge then named the
+                // collection twice. Seen 2026-10-08; the plan still holds both actions.
                 if (!membership[index].Contains(list)) membership[index].Add(list);
             }
         }

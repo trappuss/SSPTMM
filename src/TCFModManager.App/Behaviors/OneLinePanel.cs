@@ -80,12 +80,14 @@ public sealed class OneLinePanel : Panel
             _hidden = hidden;
             _counter = counter;
             InvalidateVisual();
-
-            // What the hidden ones say, since they cannot be pointed at.
-            ToolTip = hidden > 0
-                ? string.Join(Environment.NewLine, children.Cast<UIElement>().Select(TextOf).Where(t => t.Length > 0))
-                : null;
         }
+
+        // What the hidden ones say, since they cannot be pointed at. Worked out on every arrange
+        // and set only when it differs: other names of the same widths leave the count as it was.
+        var names = hidden > 0
+            ? string.Join(Environment.NewLine, children.Cast<UIElement>().Select(TextOf).Where(t => t.Length > 0))
+            : null;
+        if (!Equals(ToolTip, names)) ToolTip = names;
 
         return finalSize;
     }

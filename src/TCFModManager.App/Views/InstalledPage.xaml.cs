@@ -199,11 +199,14 @@ public partial class InstalledPage : Page
     // off, where a jump hides it. Now each step adds LoadMoreStep cards and waits its turn behind
     // drawing and input (Background priority), so a glide's frames come between the steps; and the
     // steps start twice as far ahead, so the cards are in place before they are scrolled to.
-    // HUNCH: 2 a step and 1600px - reasoned from that report, not timed.
+    //
+    // One card a step, measured with the app's own frame log (TCFMM_PERF) while the list was
+    // scrolled as it loaded, drawn in software: the longest gap between two frames was 257-298 ms
+    // with 24 at once, 78-82 ms with two a step and 31-55 ms with one. 1600px is a HUNCH.
     //
     private const double LoadMoreDistance = 1600;
 
-    private const int LoadMoreStep = 2;
+    private const int LoadMoreStep = 1;
 
     private bool _loadMoreQueued;
 
@@ -221,12 +224,20 @@ public partial class InstalledPage : Page
         {
             _loadMoreQueued = false;
 
-            // Asks for the step after itself rather than leaving it to ScrollChanged: two cards
-            // that only finish a row do not make the list any longer, and nothing would be raised.
+            // Asks for the step after itself rather than leaving it to ScrollChanged: a card that
+            // only fills out a row does not make the list any longer, and nothing would be raised.
             // By the time this runs again the last step has been laid out (layout comes before
             // Background), so "near the end" is read from the list as it now is.
             if (ViewModel.IsInfinite && NearCardsEnd() && ViewModel.LoadMore(LoadMoreStep)) QueueLoadMore();
         });
+    }
+
+    // Cards shown again - from List or Groups, where LoadMore adds nothing and the steps above stop.
+    // Nothing scrolls when a view comes back exactly as it left, so nothing would start them again,
+    // and a list that had not yet filled the window would stay short.
+    private void CardsScrollViewer_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+        if (e.NewValue is true && ViewModel.IsInfinite) QueueLoadMore();
     }
 
     private bool NearCardsEnd() =>

@@ -45,10 +45,14 @@
         <SolidColorBrush x:Key="OptionsRowLine" Color="#2C313B" />
         <SolidColorBrush x:Key="OptionsBodyFill" Color="#171A20" />
 
+        <!-- On a bar of its own colour, joined to its rows: over a background picture of the
+             user's own (Options > Tabs and background) a heading on nothing could not be read. -->
         <Style x:Key="SectionHeader" TargetType="TextBlock">
             <Setter Property="FontSize" Value="16" />
             <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Margin" Value="2,26,0,8" />
+            <Setter Property="Margin" Value="0,22,0,0" />
+            <Setter Property="Padding" Value="18,11,18,11" />
+            <Setter Property="Background" Value="{StaticResource OptionsNavFill}" />
             <Setter Property="Foreground" Value="{StaticResource SteamWhite}" />
         </Style>
 
@@ -63,7 +67,6 @@
         <!-- One section in the list down the left. -->
         <Style x:Key="OptionsNavItem" TargetType="RadioButton">
             <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
             <Setter Property="Foreground" Value="{StaticResource SteamText}" />
             <Setter Property="FontSize" Value="14" />
             <Setter Property="Template">
@@ -154,12 +157,15 @@
         <!-- The sections, as Steam's own settings window lists its pages down the left. A click
              scrolls to the section; scrolling moves the mark (OptionsPage.xaml.cs). -->
         <Border Background="{StaticResource OptionsNavFill}" VerticalAlignment="Top" Padding="0,6">
+            <!-- Scrolls by itself in a window too short for all eight. -->
+            <ScrollViewer Focusable="False" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <StackPanel x:Name="SectionNav">
                 <RadioButton
                     Style="{StaticResource OptionsNavItem}"
                     GroupName="OptionsSections"
                     Tag="SectionGeneral"
                     IsChecked="True"
+                    Checked="SectionNav_Checked"
                     Click="SectionNav_Click">
                     <StackPanel Orientation="Horizontal">
                         <ui:SymbolIcon Symbol="Settings24" FontSize="16" Margin="0,0,10,0" VerticalAlignment="Center" />
@@ -170,6 +176,7 @@
                     Style="{StaticResource OptionsNavItem}"
                     GroupName="OptionsSections"
                     Tag="SectionPlay"
+                    Checked="SectionNav_Checked"
                     Click="SectionNav_Click">
                     <StackPanel Orientation="Horizontal">
                         <ui:SymbolIcon Symbol="Play24" FontSize="16" Margin="0,0,10,0" VerticalAlignment="Center" />
@@ -180,6 +187,7 @@
                     Style="{StaticResource OptionsNavItem}"
                     GroupName="OptionsSections"
                     Tag="SectionLook"
+                    Checked="SectionNav_Checked"
                     Click="SectionNav_Click">
                     <StackPanel Orientation="Horizontal">
                         <ui:SymbolIcon Symbol="DarkTheme24" FontSize="16" Margin="0,0,10,0" VerticalAlignment="Center" />
@@ -190,6 +198,7 @@
                     Style="{StaticResource OptionsNavItem}"
                     GroupName="OptionsSections"
                     Tag="SectionPages"
+                    Checked="SectionNav_Checked"
                     Click="SectionNav_Click">
                     <StackPanel Orientation="Horizontal">
                         <ui:SymbolIcon Symbol="Window24" FontSize="16" Margin="0,0,10,0" VerticalAlignment="Center" />
@@ -200,6 +209,7 @@
                     Style="{StaticResource OptionsNavItem}"
                     GroupName="OptionsSections"
                     Tag="SectionInstalling"
+                    Checked="SectionNav_Checked"
                     Click="SectionNav_Click">
                     <StackPanel Orientation="Horizontal">
                         <ui:SymbolIcon Symbol="ArrowDownload24" FontSize="16" Margin="0,0,10,0" VerticalAlignment="Center" />
@@ -210,6 +220,7 @@
                     Style="{StaticResource OptionsNavItem}"
                     GroupName="OptionsSections"
                     Tag="SectionUpdates"
+                    Checked="SectionNav_Checked"
                     Click="SectionNav_Click">
                     <StackPanel Orientation="Horizontal">
                         <ui:SymbolIcon Symbol="Alert24" FontSize="16" Margin="0,0,10,0" VerticalAlignment="Center" />
@@ -220,6 +231,7 @@
                     Style="{StaticResource OptionsNavItem}"
                     GroupName="OptionsSections"
                     Tag="SectionMultiplayer"
+                    Checked="SectionNav_Checked"
                     Click="SectionNav_Click">
                     <StackPanel Orientation="Horizontal">
                         <ui:SymbolIcon Symbol="PlugConnected24" FontSize="16" Margin="0,0,10,0" VerticalAlignment="Center" />
@@ -230,6 +242,7 @@
                     Style="{StaticResource OptionsNavItem}"
                     GroupName="OptionsSections"
                     Tag="SectionAdvanced"
+                    Checked="SectionNav_Checked"
                     Click="SectionNav_Click">
                     <StackPanel Orientation="Horizontal">
                         <ui:SymbolIcon Symbol="DocumentData24" FontSize="16" Margin="0,0,10,0" VerticalAlignment="Center" />
@@ -237,6 +250,7 @@
                     </StackPanel>
                 </RadioButton>
             </StackPanel>
+            </ScrollViewer>
         </Border>
 
         <ScrollViewer
@@ -256,7 +270,7 @@
 
                     <!-- ─── General ─── -->
                     <StackPanel x:Name="SectionGeneral">
-                        <TextBlock Style="{StaticResource SectionHeader}" Text="{loc:Str Options_SectionGeneral}" Margin="2,2,0,8" />
+                        <TextBlock Style="{StaticResource SectionHeader}" Text="{loc:Str Options_SectionGeneral}" Margin="0" />
                         <Border Style="{StaticResource SectionPanel}">
                             <StackPanel>
 

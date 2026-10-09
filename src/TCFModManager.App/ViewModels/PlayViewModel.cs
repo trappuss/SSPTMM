@@ -346,7 +346,7 @@ public partial class PlayViewModel : LocalizedViewModel
         if (ShowServerLog && FollowServerLog) UpdateServerLog(installPath);
 
         RefreshGame(installPath, settings); // Fork: the game, and Close game
-        RefreshDirect(installPath, settings); // Fork: Play from SSPTMM (experimental)
+        RefreshDirect(installPath, settings); // Fork: Play from SSPTMM
     }
 
     [RelayCommand]

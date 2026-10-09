@@ -843,6 +843,7 @@
                                  installed. Kept in the header for that reason. -->
                             <TextBlock
                                 FontSize="11"
+                                Opacity="{Binding CardOpacity}"
                                 Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"
                                 TextTrimming="CharacterEllipsis"
                                 Text="{Binding AddonSubtitle}"
@@ -1012,36 +1013,36 @@
 
                             <Border
                                 Margin="6,0,0,0"
-                                Padding="8,2"
-                                CornerRadius="3"
-                                Background="{DynamicResource ControlFillColorSecondaryBrush}"
+                                Padding="6,1"
+                                CornerRadius="2"
+                                Background="{StaticResource SteamGray}"
                                 Visibility="{Binding IsDisabled, Converter={StaticResource BoolToVis}}">
-                                <TextBlock Text="{loc:Str Installed_DisabledTag}" FontSize="10" FontWeight="SemiBold" />
+                                <TextBlock Text="{loc:Str Installed_DisabledTag}" FontSize="11" Foreground="{StaticResource SteamTextBright}" />
                             </Border>
 
                             <!-- Fork: pinned - applying a collection never disables it. -->
                             <Border
                                 Margin="6,0,0,0"
-                                Padding="6,2"
-                                CornerRadius="3"
+                                Padding="6,1"
+                                CornerRadius="2"
                                 Background="{DynamicResource AccentFillColorDefaultBrush}"
                                 ToolTip="{loc:Str Common_PinnedToolTip}"
                                 Visibility="{Binding IsPinned, Converter={StaticResource BoolToVis}}">
                                 <StackPanel Orientation="Horizontal">
                                     <ui:SymbolIcon Symbol="Pin24" FontSize="11" Margin="0,0,4,0" VerticalAlignment="Center" Foreground="{DynamicResource TextOnAccentFillColorPrimaryBrush}" />
-                                    <TextBlock Text="{loc:Str Installed_PinnedTag}" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="{DynamicResource TextOnAccentFillColorPrimaryBrush}" />
+                                    <TextBlock Text="{loc:Str Installed_PinnedTag}" FontSize="11" VerticalAlignment="Center" Foreground="{DynamicResource TextOnAccentFillColorPrimaryBrush}" />
                                 </StackPanel>
                             </Border>
 
                             <!-- Fork: uploaded again under the same version number. -->
                             <Border
                                 Margin="6,0,0,0"
-                                Padding="6,2"
-                                CornerRadius="3"
+                                Padding="6,1"
+                                CornerRadius="2"
                                 Background="{DynamicResource SystemFillColorCautionBackgroundBrush}"
                                 ToolTip="{Binding ReuploadNote}"
                                 Visibility="{Binding HasReupload, Converter={StaticResource BoolToVis}}">
-                                <TextBlock Text="{loc:Str Installed_ReuploadedTag}" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource SystemFillColorCautionBrush}" />
+                                <TextBlock Text="{loc:Str Installed_ReuploadedTag}" FontSize="11" Foreground="{DynamicResource SystemFillColorCautionBrush}" />
                             </Border>
                         </StackPanel>
 
@@ -1423,6 +1424,7 @@
             Background="Transparent"
             FocusVisualStyle="{x:Null}"
             ScrollChanged="CardsScrollViewer_ScrollChanged"
+            IsVisibleChanged="CardsScrollViewer_IsVisibleChanged"
             Focusable="False"
             Padding="4"
             VerticalScrollBarVisibility="Auto"
@@ -1665,36 +1667,36 @@
 
                                                             <Border
                                                                 Margin="6,0,0,0"
-                                                                Padding="8,2"
-                                                                CornerRadius="3"
-                                                                Background="{DynamicResource ControlFillColorSecondaryBrush}"
+                                                                Padding="6,1"
+                                                                CornerRadius="2"
+                                                                Background="{StaticResource SteamGray}"
                                                                 Visibility="{Binding IsDisabled, Converter={StaticResource BoolToVis}}">
-                                                                <TextBlock Text="{loc:Str Installed_DisabledTag}" FontSize="10" FontWeight="SemiBold" />
+                                                                <TextBlock Text="{loc:Str Installed_DisabledTag}" FontSize="11" Foreground="{StaticResource SteamTextBright}" />
                                                             </Border>
 
                                                             <!-- Fork: pinned - applying a collection never disables it. -->
                                                             <Border
                                                                 Margin="6,0,0,0"
-                                                                Padding="6,2"
-                                                                CornerRadius="3"
+                                                                Padding="6,1"
+                                                                CornerRadius="2"
                                                                 Background="{DynamicResource AccentFillColorDefaultBrush}"
                                                                 ToolTip="{loc:Str Common_PinnedToolTip}"
                                                                 Visibility="{Binding IsPinned, Converter={StaticResource BoolToVis}}">
                                                                 <StackPanel Orientation="Horizontal">
                                                                     <ui:SymbolIcon Symbol="Pin24" FontSize="11" Margin="0,0,4,0" VerticalAlignment="Center" Foreground="{DynamicResource TextOnAccentFillColorPrimaryBrush}" />
-                                                                    <TextBlock Text="{loc:Str Installed_PinnedTag}" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="{DynamicResource TextOnAccentFillColorPrimaryBrush}" />
+                                                                    <TextBlock Text="{loc:Str Installed_PinnedTag}" FontSize="11" VerticalAlignment="Center" Foreground="{DynamicResource TextOnAccentFillColorPrimaryBrush}" />
                                                                 </StackPanel>
                                                             </Border>
 
                                                             <!-- Fork: uploaded again under the same version number. -->
                                                             <Border
                                                                 Margin="6,0,0,0"
-                                                                Padding="6,2"
-                                                                CornerRadius="3"
+                                                                Padding="6,1"
+                                                                CornerRadius="2"
                                                                 Background="{DynamicResource SystemFillColorCautionBackgroundBrush}"
                                                                 ToolTip="{Binding ReuploadNote}"
                                                                 Visibility="{Binding HasReupload, Converter={StaticResource BoolToVis}}">
-                                                                <TextBlock Text="{loc:Str Installed_ReuploadedTag}" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource SystemFillColorCautionBrush}" />
+                                                                <TextBlock Text="{loc:Str Installed_ReuploadedTag}" FontSize="11" Foreground="{DynamicResource SystemFillColorCautionBrush}" />
                                                             </Border>
                                                         </StackPanel>
 

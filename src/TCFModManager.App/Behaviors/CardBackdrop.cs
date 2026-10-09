@@ -37,9 +37,8 @@ public static class CardBackdrop
 
     private const double Opacity = 0.3;
 
-    // By address. UI thread only. Null is kept too: a picture that would not load is not asked for
-    // again by every card that shows it.
-    private static readonly Dictionary<string, ImageBrush?> Made = new(StringComparer.Ordinal);
+    // By address. UI thread only.
+    private static readonly Dictionary<string, ImageBrush> Made = new(StringComparer.Ordinal);
 
     private static readonly Dictionary<string, Task<ImageBrush?>> Making = new(StringComparer.Ordinal);
 
@@ -103,8 +102,14 @@ public static class CardBackdrop
         {
             Making.Remove(url);
 
-            if (Made.Count >= MadeLimit) Made.Clear();
-            Made[url] = brush;
+            // Only what was made. A picture that did not load this time - offline at start, the
+            // site down for a moment - is asked for again by the next card that shows it, as the
+            // card's own thumbnail is.
+            if (brush is not null)
+            {
+                if (Made.Count >= MadeLimit) Made.Clear();
+                Made[url] = brush;
+            }
         }
 
         return brush;

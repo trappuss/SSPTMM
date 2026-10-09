@@ -42,7 +42,7 @@ if the server closed before it was ready).
 
 ![Play from SSPTMM](https://raw.githubusercontent.com/trappuss/SSPTMM/main/docs/images/01b-play-direct.png)
 
-With [Options](Options) > **Start the game from SSPTMM** on (it is by default; an install that was
+With [Options](Options) > **Start the game from SSPTMM** on (it is by default; a setup from before 1.4.0 whose settings say off stays off - an install that was
 set up before that keeps what it had), the game card has a profile list and a **PLAY** button: pick a
 profile and press it. SSPTMM then
 

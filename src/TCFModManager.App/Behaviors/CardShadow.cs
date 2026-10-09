@@ -47,6 +47,12 @@ public sealed class CardShadow : FrameworkElement
     public CardShadow()
     {
         IsHitTestVisible = false;
+
+        // The pieces' edges fall on whole pixels, so two of them never share one half each and
+        // leave a lighter seam where they meet - at 125%, 18 units is 22.5 pixels. HUNCH: not seen
+        // either way; it was drawn at 100% only.
+        RenderOptions.SetEdgeMode(this, EdgeMode.Aliased);
+        SnapsToDevicePixels = true;
     }
 
     protected override void OnRender(DrawingContext drawing)

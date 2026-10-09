@@ -108,9 +108,10 @@ public sealed class AppSettings
     // default since round 47 (it was experimental, and off, up to 1.3.1); only used on SPT
     // 4.1.3 and later in 4.1, and Play opens SPT's launcher on any other.
     //
-    // A settings file written before that holds "false" whether or not anyone chose it, and is left
-    // as it is: switching it on for somebody who switched it off would be worse than leaving it off
-    // for somebody who never looked.
+    // A settings file that names it keeps what it says - "false" there may be a choice or only what
+    // 1.2.x wrote for everybody, and switching it on for somebody who switched it off would be worse
+    // than leaving it off for somebody who never looked. A file that does not name it (one that went
+    // from before 1.2.0 straight to 1.3.0 or later, which write only what changes) gets the default.
     //
     public bool DirectLaunch { get; set; } = true;
 

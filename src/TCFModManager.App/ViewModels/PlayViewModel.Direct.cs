@@ -30,7 +30,7 @@ public sealed class PlayProfileItem(SptMiniProfile profile)
 }
 
 //
-// Fork (SSPTMM, experimental): Play on the launcher's card - the server, the profile, SPT's
+// Fork (SSPTMM): Play on the launcher's card - the server, the profile, SPT's
 // launcher steps and the game, with SPT's launcher never opened (SptDirectLaunch). Switched on in
 // Options; on an SPT version it was not made for the card is the launcher's, as before.
 //
@@ -129,9 +129,16 @@ public partial class PlayViewModel
         var support = SptDirectLaunch.Support(AppServices.SptEnvironment.InstalledVersion);
         IsDirectLaunchOn = settings.DirectLaunch && support != DirectLaunchSupport.Unsupported && Server?.Exists == true;
 
-        DirectLaunchUnavailable = settings.DirectLaunch && !IsDirectLaunchOn
-            ? Text(Strings.Play_DirectUnavailableFormat, AppServices.SptEnvironment.InstalledVersion ?? "?")
-            : null;
+        // Said only for an install whose SPT version is known and is not one this can start. The
+        // setting is on by default now, so this is no longer somebody's own choice not working:
+        // with no install, or no server found, the page already says that, and this said
+        // "SPT ?" beside it.
+        DirectLaunchUnavailable = settings.DirectLaunch
+            && support == DirectLaunchSupport.Unsupported
+            && Server?.Exists == true
+            && AppServices.SptEnvironment.InstalledVersion is { Length: > 0 } installedVersion
+                ? Text(Strings.Play_DirectUnavailableFormat, installedVersion)
+                : null;
         DirectLaunchUntested = IsDirectLaunchOn && support == DirectLaunchSupport.NewerUntested
             ? Text(Strings.Play_DirectUntestedFormat, AppServices.SptEnvironment.InstalledVersion, SptDirectLaunch.TestedUpTo)
             : null;

@@ -456,7 +456,7 @@
                     <TextBlock
                         Margin="0,0,0,8"
                         TextWrapping="Wrap"
-                        Foreground="{DynamicResource SystemFillColorCautionBrush}"
+                        Foreground="{DynamicResource TextFillColorSecondaryBrush}"
                         Text="{Binding DirectLaunchUnavailable}"
                         Visibility="{Binding DirectLaunchUnavailable, Converter={StaticResource NullToCollapsed}}" />
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,8">

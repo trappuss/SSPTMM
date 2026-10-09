@@ -2261,13 +2261,50 @@ Checked in pictures of the page top to bottom, closed and with every expander op
 a real pointer on the list (hover), the keyboard, and a narrow window (below about 900px the 216px
 list takes a quarter of it).
 
+## Round 51: 1.4.0 read over before it went out (2026-10-09)
+
+Rounds 46 to 50 were read by a second reviewer that had not written them, and what it found was
+put right. Nothing new was added.
+
+- **Cards are added one at a time** while scrolling, not two. Measured with TCFMM_PERF in a copy
+  drawn in software, over the same scroll of 132 mods: the worst gap between two frames was
+  257-298 ms with 24 cards at once, 78-82 ms with two, 31-55 ms with one.
+- **The list goes on filling after a change of view.** Cards are added while the end of the list is
+  near; a list that was hidden when it was last asked had no size to judge that by and stopped. It
+  asks again when it is shown.
+- **A picture that did not load is asked for again.** The light behind a card kept "no picture" for
+  an address as it kept a picture, so a card first shown offline stayed plain until restart.
+- **The "+2" tooltip is worked out on every arrange**, and set only when it differs. It was only
+  redone when the count changed, so other names of the same widths left the old ones in it.
+- **A greyed-out addon's subtitle is greyed with it**, and the state tags in List and Groups are the
+  shape the cards' are (2px corners, 11px, DISABLED on Steam's grey).
+- **Play only says "use the SPT launcher here" when that is true**: the setting is on, the server is
+  there, its version was read and is one SSPTMM cannot start. On by default, the line had begun to
+  show on an install with no folder set. It is in the secondary grey, not the caution colour.
+- **Options:** the section headings are solid bars (over a background picture the bare text could
+  not be read), the list of sections scrolls in a short window, and it works from the keyboard - the
+  arrow keys pick a section and the page goes there, with the focus mark the theme gives it.
+- **docs/images/07b-subscribed-list.png was a blank white picture** in 1.4.0's commit. Retaken, with
+  07c and 14, and each checked for being a picture.
+- The changelog said things the app does not do (every card the same height - addons' are not; the
+  new settings shown as "on" for people who had set them off). Corrected.
+
+Checked in pictures of the hidden copy: a 1000x760 window, a background picture, a first start with
+no Data folder. Not checked, and not possible here: a real pointer over the cards and the list, the
+keyboard on Options (the code is as described; no key was pressed), a screen at 125% or 150%, the
+graphics card's drawing rather than software, Play against a real server, and the app updating
+itself to 1.4.0, which needs 1.4.0 published. 01-play.png and 01b-play-direct.png are 1.3's: a copy
+shows a temp folder's paths.
+
 ## Values that could not be measured (marked HUNCH in the source)
 
+- Round 51: that the shadow's pieces, snapped to whole pixels, leave no seam at 125% (CardShadow).
+  It was drawn at 100% only.
 - Round 50: every colour on the Options page. Steam's settings are in its client, not on a page
   that can be read; these are the app's Steam palette with a row fill and a line chosen beside it.
 - Round 49: that greying in colours is quicker than the opacity it replaces (the reason to expect it
   is above; no frame time was taken).
-- Round 48: two cards a step and 1600px ahead.
+- Round 48: 1600px ahead. (The cards a step were measured in round 51, and are one.)
 - Round 47: that the cards are now as quick to scroll as they were before round 46. Nothing in
   them is an effect any more, which is the reason to expect it; the speed itself was not measured.
 - Round 46: the shade over an opened card's body (black at 20% - Steam's rows do not open), the

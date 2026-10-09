@@ -31,8 +31,18 @@ public partial class OptionsPage : Page
 
     // ------------------------------------------------------------------ fork: the list of sections
 
-    // A click on a section in the list: scrolled to, its heading at the top.
-    private void SectionNav_Click(object sender, RoutedEventArgs e)
+    // A section picked in the list - by a click or by the arrow keys, which move the mark without a
+    // click: scrolled to, its heading at the top. Not when the mark was moved by scrolling
+    // (_marking), which would scroll the page back to the heading it had just passed.
+    private void SectionNav_Checked(object sender, RoutedEventArgs e)
+    {
+        if (!_marking && IsLoaded) GoTo(sender);
+    }
+
+    // And a click on the section already marked, which checks nothing: back to its heading.
+    private void SectionNav_Click(object sender, RoutedEventArgs e) => GoTo(sender);
+
+    private void GoTo(object sender)
     {
         if (sender is not RadioButton { Tag: string name } item || FindName(name) is not FrameworkElement section) return;
 
@@ -48,6 +58,9 @@ public partial class OptionsPage : Page
     private RadioButton? _clicked;
     private double _clickedOffset;
 
+    // True while SettingsScroll_ScrollChanged is moving the mark itself.
+    private bool _marking;
+
     // Scrolling moves the mark in the list to the section now at the top of the view - or, with the
     // page at its end, to the last one, which is too short to ever reach the top.
     private void SettingsScroll_ScrollChanged(object sender, ScrollChangedEventArgs e)
@@ -56,7 +69,7 @@ public partial class OptionsPage : Page
 
         if (_clicked is not null && Math.Abs(SettingsScroll.VerticalOffset - _clickedOffset) < 1.5)
         {
-            if (_clicked.IsChecked != true) _clicked.IsChecked = true;
+            Mark(_clicked);
             return;
         }
 
@@ -74,7 +87,16 @@ public partial class OptionsPage : Page
             if (atEnd || TopOf(section) <= SettingsScroll.VerticalOffset + 24) current = item;
         }
 
-        if (current is { IsChecked: not true }) current.IsChecked = true;
+        if (current is not null) Mark(current);
+    }
+
+    private void Mark(RadioButton item)
+    {
+        if (item.IsChecked == true) return;
+
+        _marking = true;
+        try { item.IsChecked = true; }
+        finally { _marking = false; }
     }
 
     private double TopOf(FrameworkElement section) =>

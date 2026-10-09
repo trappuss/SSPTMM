@@ -9244,7 +9244,7 @@ See Dependencies and Conflicts.</value>
     <comment>Third step of the checklist. Done once the install has a profile.</comment>
   </data>
   <data name="GettingStarted_PlayDetail" xml:space="preserve">
-    <value>Start the server, then the launcher, and make your profile.</value>
+    <value>Make your profile and press Play - or start the server and use the SPT launcher.</value>
     <comment>Third step of the checklist: what to do.</comment>
   </data>
   <data name="GettingStarted_PlayAction" xml:space="preserve">
@@ -10273,7 +10273,7 @@ Removing them - or turning them off - can leave a profile SPT won't load. If tha
     <comment>{0} is the profile's nickname.</comment>
   </data>
   <data name="Play_DirectUnavailableFormat" xml:space="preserve">
-    <value>Starting the game from SSPTMM is on in Options, but this install is SPT {0} - only 4.1.3 and later in 4.1 can be. Use the SPT launcher.</value>
+    <value>This install is SPT {0}. SSPTMM starts the game itself only on SPT 4.1.3 and later in 4.1, so use the SPT launcher here.</value>
     <comment>{0} is the SPT version.</comment>
   </data>
   <data name="Play_DirectUntestedFormat" xml:space="preserve">
