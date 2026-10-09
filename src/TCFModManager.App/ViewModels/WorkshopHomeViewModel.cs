@@ -183,7 +183,7 @@ public sealed partial class WorkshopHomeViewModel : LocalizedViewModel, IModActi
     private static void Replace(ObservableCollection<ModCardViewModel> target, IEnumerable<Mod> mods)
     {
         target.Clear();
-        foreach (var mod in mods) target.Add(AppServices.Browse.BuildCard(mod));
+        foreach (var card in AppServices.Browse.BuildCards(mods)) target.Add(card);
     }
 
     [RelayCommand]

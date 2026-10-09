@@ -55,7 +55,33 @@ public static class ThumbnailLoader
     //
     private const long GifBudget = 32L * 1024 * 1024;
 
-    private static readonly GifCache Gifs = new(GifBudget);
+    private static readonly FileCache Gifs = new(GifBudget);
+
+    //
+    // The picture files themselves, as downloaded, by the address they came from. The decoded cache
+    // above is per width, and one picture is shown at several: 245 on a Browse card, 254 in the
+    // popup over that card, 268 on its item page - three widths that, on a screen at 100% or 125%,
+    // all fit the same 384-pixel copy, which was downloaded again for each, the popup's picture
+    // staying blank until it came. Each width still decodes for itself, from these bytes, exactly
+    // as before; only the second trip to the server goes. As with the decoded cache, a picture
+    // replaced on the site under the same address is not seen until the app is started again.
+    //
+    // Holds what decoded, never an animated GIF (those are in Gifs). A smaller copy is about 28 KB
+    // and a full picture about 380 KB, so this is several hundred of the first or about sixty of
+    // the second. HUNCH: the figure is a judgement, like the two above.
+    //
+    private const long FileBudget = 24L * 1024 * 1024;
+
+    private static readonly FileCache Files = new(FileBudget);
+
+    // From Files, or from the server. Stopped first, so a request nothing wants any more is dropped
+    // here just as it was when every picture was a download.
+    private static async Task<byte[]> FetchAsync(string address, CancellationToken stop)
+    {
+        stop.ThrowIfCancellationRequested();
+
+        return Files.TryGetValue(address, out var kept) ? kept : await Http.GetByteArrayAsync(address, stop);
+    }
 
     //
     // The width the image is shown at, in device-independent pixels. Decoding at the shown size
@@ -476,10 +502,11 @@ public static class ThumbnailLoader
         {
             try
             {
-                var small = await Http.GetByteArrayAsync(smaller, request.Cancel.Token);
+                var small = await FetchAsync(smaller, request.Cancel.Token);
                 var fromSmall = await DecodeThread.Run(() => Decode(small, request.Width));
                 if (fromSmall is not null)
                 {
+                    Files.Add(smaller, small);
                     AppLog.Debug("Thumbnails", $"ThumbnailLoader: loaded {small.Length} bytes after {sw.ElapsedMilliseconds}ms for {smaller}");
                     if (!_smallerShownLogged)
                     {
@@ -509,7 +536,7 @@ public static class ThumbnailLoader
         byte[] bytes;
         try
         {
-            bytes = await Http.GetByteArrayAsync(url, request.Cancel.Token);
+            bytes = await FetchAsync(url, request.Cancel.Token);
         }
         catch (OperationCanceledException) when (request.Cancel.IsCancellationRequested)
         {
@@ -546,6 +573,8 @@ public static class ThumbnailLoader
             AppLog.Debug("Thumbnails", $"ThumbnailLoader: {url} could not be decoded");
             return Outcome.Failed;
         }
+
+        Files.Add(url, bytes);
 
         AppLog.Debug("Thumbnails", $"ThumbnailLoader: loaded {bytes.Length} bytes after {sw.ElapsedMilliseconds}ms for {url}");
         return Shown(request, bitmap);
@@ -652,44 +681,45 @@ public static class ThumbnailLoader
         }
     }
 
-    // The animated GIFs' files, by address, least recently used first out past the budget. UI thread only.
-    private sealed class GifCache(long budget)
+    // Files as downloaded - the animated GIFs, and the pictures' own - by address, least recently
+    // used first out past the budget. UI thread only.
+    private sealed class FileCache(long budget)
     {
-        private readonly Dictionary<string, LinkedListNode<(string Url, byte[] Gif)>> _index = new(StringComparer.Ordinal);
-        private readonly LinkedList<(string Url, byte[] Gif)> _order = new();
+        private readonly Dictionary<string, LinkedListNode<(string Url, byte[] File)>> _index = new(StringComparer.Ordinal);
+        private readonly LinkedList<(string Url, byte[] File)> _order = new();
         private long _bytes;
 
-        public bool TryGetValue(string url, out byte[] gif)
+        public bool TryGetValue(string url, out byte[] file)
         {
             if (_index.TryGetValue(url, out var node))
             {
                 _order.Remove(node);
                 _order.AddFirst(node);
-                gif = node.Value.Gif;
+                file = node.Value.File;
                 return true;
             }
 
-            gif = null!;
+            file = null!;
             return false;
         }
 
-        public void Add(string url, byte[] gif)
+        public void Add(string url, byte[] file)
         {
             if (_index.Remove(url, out var old))
             {
                 _order.Remove(old);
-                _bytes -= old.Value.Gif.Length;
+                _bytes -= old.Value.File.Length;
             }
 
-            _index[url] = _order.AddFirst((url, gif));
-            _bytes += gif.Length;
+            _index[url] = _order.AddFirst((url, file));
+            _bytes += file.Length;
 
             while (_bytes > budget && _order.Count > 1)
             {
                 var last = _order.Last!;
                 _order.RemoveLast();
                 _index.Remove(last.Value.Url);
-                _bytes -= last.Value.Gif.Length;
+                _bytes -= last.Value.File.Length;
             }
         }
     }

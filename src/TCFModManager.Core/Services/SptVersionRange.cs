@@ -51,12 +51,48 @@ public static class SptVersionRange
         @"^\s*(\^|~|>=|<=|>|<|=)?\s*([0-9]+(?:\.(?:[0-9]+|\*|[xX])){0,3}|\*)\s*$",
         RegexOptions.Compiled);
 
+    //
+    // What each constraint string parsed to, kept for the session. The answer depends on the string
+    // and nothing else, and the catalog repeats very few of them: 6,127 versions carried 135 distinct
+    // constraints on 2026-10-08. Browse's filter asks about every version on every keystroke, twice
+    // over when an SPT line is ticked - measured on that catalog, one such pass was 6.0 ms and 9.2 MB
+    // of garbage before this and 0.6 ms and 0.3 MB after.
+    //
+    // Bounded, so strings from somewhere other than the catalog (a hand-edited list file) cannot
+    // grow it without end: past the cap a string is simply parsed each time, as before.
+    //
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, (bool Parsed, SptVersionBounds Bounds)> Known =
+        new(StringComparer.Ordinal);
+
+    private const int KnownLimit = 4096;
+
+    // How many are held, counted here: asking the dictionary takes every one of its locks.
+    private static int _knownCount;
+
     // Parses every clause and intersects them. False when the constraint is missing or has
     // a clause this doesn't understand.
     public static bool TryParse(string? constraint, out SptVersionBounds bounds)
     {
         bounds = default;
         if (string.IsNullOrWhiteSpace(constraint)) return false;
+
+        if (Known.TryGetValue(constraint, out var known))
+        {
+            bounds = known.Bounds;
+            return known.Parsed;
+        }
+
+        var parsed = Parse(constraint, out bounds);
+
+        if (Volatile.Read(ref _knownCount) < KnownLimit && Known.TryAdd(constraint, (parsed, bounds)))
+            Interlocked.Increment(ref _knownCount);
+
+        return parsed;
+    }
+
+    private static bool Parse(string constraint, out SptVersionBounds bounds)
+    {
+        bounds = default;
 
         Version? min = null;
         Version? maxExclusive = null;

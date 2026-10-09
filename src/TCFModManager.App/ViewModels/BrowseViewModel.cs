@@ -1606,6 +1606,22 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
         return MakeCard(mod, AppServices.ModLists.GetPins());
     }
 
+    /// <summary>BuildCard for each of several mods, with the pins read once for all of them:
+    /// GetPins reads and parses the whole collections file, and Workshop Home asked it for each of
+    /// its forty cards in turn - 51 ms of the UI thread per visit, measured on a file of three
+    /// collections and 270 mods, against 1.2 ms for each of its three rows now. Read when the first
+    /// card is made, so no mods is still no read.</summary>
+    public IEnumerable<ModCardViewModel> BuildCards(IEnumerable<Mod> mods)
+    {
+        IReadOnlySet<string>? pins = null;
+
+        foreach (var mod in mods)
+        {
+            pins ??= AppServices.ModLists.GetPins();
+            yield return MakeCard(mod, pins);
+        }
+    }
+
     /// <summary>The installed copy of a catalog mod, if this install has one.</summary>
     public InstalledModCardViewModel? InstalledMatchFor(Mod mod) => FindInstalledMatch(mod);
 

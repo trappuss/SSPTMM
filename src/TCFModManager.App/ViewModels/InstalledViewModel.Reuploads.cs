@@ -15,9 +15,13 @@ namespace TCFModManager.App.ViewModels;
 //
 public partial class InstalledViewModel
 {
-    private static void ApplyReuploads(IReadOnlyList<InstalledModCardViewModel> cards)
+    // records: the install records the scan read and built these cards from. They are handed in
+    // rather than read again here - the file holds every mod's file list and hashes (1.3 MB for 122
+    // mods), and reading it a second time was 10 ms of every scan spent on the UI thread, measured
+    // (the read itself; this page was not timed).
+    private static void ApplyReuploads(
+        IReadOnlyList<InstalledModCardViewModel> cards, IReadOnlyList<InstalledModRecord> records)
     {
-        var records = AppServices.InstallManifest.Load().ModsFor(AppServices.SptEnvironment.InstallPath);
         var catalog = AppServices.ModCache.AllMods.GroupBy(m => m.Id).ToDictionary(g => g.Key, g => g.First());
 
         foreach (var card in cards)

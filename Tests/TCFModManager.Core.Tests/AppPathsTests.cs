@@ -15,6 +15,12 @@ namespace TCFModManager.Core.Tests;
 // a temp directory, because that is what the method resolves - so each test clears both folders
 // before and after itself.
 //
+// Run on its own, never beside another class: Clear deletes the whole of Data\LegacyConfigs, and
+// that is where every install test's update copies a config aside before merging it. Deleted in
+// between, the merge found its copy gone ("couldn't merge ... Could not find a part of the path")
+// and ForkPrepatchInstallTests failed - in 3 of 15 runs of the suite, measured 2026-10-08.
+//
+[Collection(AloneWithLegacyConfigsCollection.Name)]
 public class AppPathsTests : IDisposable
 {
     private static readonly string OldFolder = Path.Combine(AppContext.BaseDirectory, "LegacyConfigs");
@@ -82,4 +88,10 @@ public class AppPathsTests : IDisposable
         Assert.False(Directory.Exists(OldFolder));
         Assert.True(Directory.Exists(AppPaths.LegacyConfigsDirectory));
     }
+}
+
+[CollectionDefinition(Name, DisableParallelization = true)]
+public sealed class AloneWithLegacyConfigsCollection
+{
+    public const string Name = "Alone with Data\\LegacyConfigs";
 }

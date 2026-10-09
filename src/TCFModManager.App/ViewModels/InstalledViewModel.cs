@@ -991,7 +991,10 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
             }
 
             // What this app itself installed, and which folders it placed - identifies those mods
-            // exactly instead of inferring them from folder names.
+            // exactly instead of inferring them from folder names. Read here, on the UI thread, and
+            // not in the background work below: saves made from this thread (confirming a download,
+            // setting a version by hand) replace the file, and a read open on another thread at that
+            // moment could make the save fail.
             var installRecords = AppServices.InstallManifest.Load().ModsFor(installPath);
 
             // Read once here rather than inside the background work, so a catalog refresh landing
@@ -1044,7 +1047,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
             ApplyListMembership(cards);
             ApplyPins(cards);
-            ApplyReuploads(cards); // Fork
+            ApplyReuploads(cards, installRecords); // Fork
             ApplyPendingDownloads(cards, downloads);
             ApplyLeftovers(cards);
             ModConflicts.Apply(cards, conflicts);

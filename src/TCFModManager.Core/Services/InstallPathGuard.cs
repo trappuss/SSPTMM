@@ -281,8 +281,14 @@ public static class InstallPathGuard
     {
         try
         {
-            FileSystemInfo info = Directory.Exists(path) ? new DirectoryInfo(path) : new FileInfo(path);
-            return info.Exists && info.Attributes.HasFlag(FileAttributes.ReparsePoint);
+            // One look at the disk for a folder, which is what this is asked about for every level
+            // of every path checked: Exists reads the attributes, and Attributes then answers from
+            // that same read. (Directory.Exists followed by the info's own Exists was two.)
+            var directory = new DirectoryInfo(path);
+            if (directory.Exists) return directory.Attributes.HasFlag(FileAttributes.ReparsePoint);
+
+            var file = new FileInfo(path);
+            return file.Exists && file.Attributes.HasFlag(FileAttributes.ReparsePoint);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException)
         {

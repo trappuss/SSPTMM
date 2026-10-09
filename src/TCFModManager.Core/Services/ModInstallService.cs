@@ -1010,9 +1010,12 @@ public sealed class ModInstallService(
                 continue;
             }
 
-            if (record.FingerprintFor(relative) is { } print
-                && !print.Matches(fullPath)
-                && !(kind == RemovalKind.ReplacedByUpdate && incoming is not null && incoming.Contains(relative)))
+            // Asked in this order because Matches reads and hashes the whole file: a file the update
+            // is about to replace is moved out whether it was changed or not, so it is not hashed
+            // to find out.
+            if (!(kind == RemovalKind.ReplacedByUpdate && incoming is not null && incoming.Contains(relative))
+                && record.FingerprintFor(relative) is { } print
+                && !print.Matches(fullPath))
             {
                 keptChanged.Add(relative);
                 session.Note(relative, RemovalOutcome.KeptChangedSinceInstall);
@@ -1195,8 +1198,13 @@ public sealed class ModInstallService(
     private static void NoteFoldersToTidy(string installPath, string fullPath, HashSet<string> touched)
     {
         // Only a mod's own folder and what's below it are ever tidied away (D14).
+        //
+        // A folder already noted ends the walk: the walk that noted it went on up from there, so
+        // everything above it that qualifies is noted too, and asking again costs several disk
+        // look-ups per level for every file in the same folder. Nothing is decided here - each
+        // folder is checked again, against the disk as it then is, just before it is deleted.
         for (var dir = Path.GetDirectoryName(fullPath);
-             dir is not null && InstallPathGuard.MayRemoveEmptyFolder(installPath, dir);
+             dir is not null && !touched.Contains(dir) && InstallPathGuard.MayRemoveEmptyFolder(installPath, dir);
              dir = Path.GetDirectoryName(dir))
         {
             touched.Add(dir);
@@ -1614,9 +1622,14 @@ public sealed class ModInstallService(
 
             var destination = ResolveEntryDestination(entry.FullName, extractDir, extractRoot);
 
+            // The file's own buffer is no larger than the file: a FileStream allocates the whole of
+            // the size it is given for anything written in smaller pieces, which was 1 MB for every
+            // entry, however small. A large entry is buffered exactly as before.
+            var targetBuffer = (int)Math.Clamp(entry.Length, 4096, CopyBufferSize);
+
             await using var source = entry.Open();
             await using var target = new FileStream(
-                destination, FileMode.Create, FileAccess.Write, FileShare.None, CopyBufferSize, useAsync: true);
+                destination, FileMode.Create, FileAccess.Write, FileShare.None, targetBuffer, useAsync: true);
             await source.CopyToAsync(target, CopyBufferSize, ct).ConfigureAwait(false);
 
             extracted++;

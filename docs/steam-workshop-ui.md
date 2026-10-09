@@ -2074,7 +2074,61 @@ SSPTMM. Most were already here (several were ported from SSPTMM: profile backups
   The messages name SPT's own fix: removeModItemsFromProfile and removeInvalidTradersFromProfile in
   SPT_Data\configs\core.json, then a server restart.
 
+## Round 45: the tool itself, measured for speed (2026-10-08)
+
+Nothing here changes what the app does or shows. Measured on Windows 11 with a throwaway console
+program calling Core, against copies of a real Data folder (catalog of 1,424 mods and 6,127 versions;
+install records for 122 mods, 5,555 files; three collections, 270 entries) and, read-only, a real
+SPT 4.1 install with 180 mod folders. Times are medians of warm runs.
+
+Changed:
+
+- **Hashing a file** (FileFingerprint.Compute) read through a FileStream given a 1 MB buffer, which
+  .NET allocates in full for every file. 300 small files: 307 MB allocated and 73 full collections,
+  48 ms; now 0.2 MB, none, 26 ms, same digests. An install hashes every file twice.
+- **Zip extraction** gave each entry's file the same 1 MB buffer: 330 MB allocated for 320 entries,
+  23 MB now. The time did not move (290 ms either way; the disk decides it).
+- **SPT version constraints** (SptVersionRange.TryParse) are remembered by their text. Browse's filter
+  parsed every version's constraint on every keystroke, twice with an SPT line ticked, and the
+  catalog holds 135 distinct ones: 6.0 ms and 9.2 MB per pass, now 0.6 ms and 0.3 MB.
+- **Workshop Home** read the collections file once per card, forty times a visit: 51 ms of the UI
+  thread. Now once per row of cards, three reads of 1.2 ms.
+- **The install records** (1.3 MB) take 10 ms to read and were read twice per Subscribed items
+  scan, on the UI thread. Now once: the re-upload check is handed the records the scan read.
+  Moving that read into the scan's background work was tried and taken back out - saves made from
+  the UI thread replace the file, and a read open on another thread at that moment could fail them.
+- **The catalog cache** is read and written as UTF-8 bytes, not through a string: load 29 ms and
+  14 MB, now 8 ms and 6 MB; the file written is byte-for-byte the same.
+- **An update** no longer hashes each old file it is about to replace anyway (the answer was not
+  used). **A removal** no longer re-checks a folder's parents for every file in it.
+  **InstallPathGuard.IsLink** asks the disk once per folder, not twice. None of the three was timed
+  on its own: no test mod here has the thousands of files where they show.
+- **Mod pictures** are kept as downloaded (24 MB, by address) as well as decoded: the Browse card,
+  the popup over it and the item page ask for 245, 254 and 268 pixels, which all fit the same
+  384-pixel copy, and each fetched it again.
+- **Tests**: ForkPrepatchInstallTests failed in 3 of 15 runs of the suite, before any of this.
+  AppPathsTests deletes Data\LegacyConfigs, which the install tests copy configs into before merging
+  them; it now runs on its own (a collection with DisableParallelization). 25 runs, no failure.
+
+Measured and left alone:
+
+- **ReadyToRun**: the window is up in 1,041 ms against 1,171 ms (medians of 8 warm starts each,
+  offline, catalog cached, no SPT folder set), for an exe of 246.3 MB against 170.1 MB. Not adopted:
+  a tenth of a second for 76 MB. Compiling only the app's own assemblies was not tried.
+- **The Play page's 2-second poll** asks Windows for its process list five to seven times on the UI
+  thread: 8.4 ms a tick with 378 processes running. Under a frame; left as it is.
+- **InstalledModScanner.Scan**: 121 ms for 180 mod folders, off the UI thread. Reading the DLLs'
+  metadata is 33 ms of it, and 10 of those are opening the files, so skipping the type walk for
+  DLLs that cannot be plugins would save about 4 ms. Not worth a second code path.
+- **Reading the collections file** is 1.2 ms and settings 0.2 ms, so the places that read them two
+  or three times in a row (Your collections, the Subscribed items scan, start-up) stay as they are.
+- **SafeFile's backup check** parses the old file before finding no backup is due: about 10 ms per
+  save of the install records, off the UI thread. Left; reordering it changes when a warning is logged.
+
 ## Values that could not be measured (marked HUNCH in the source)
+
+- Round 45: how much sooner a picture shows from the kept download (it saves one request to
+  files.sp-mod.com; not timed - the app was not run against the site for this), and the 24 MB kept.
 
 - Round 37: everything about the real SPT 4.1 server and game under direct launch - only a fake
   server was used here. Also whether 4.1 releases after 4.1.6 start the game the same way. And the
