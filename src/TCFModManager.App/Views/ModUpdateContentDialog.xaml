@@ -323,7 +323,7 @@
                 </ListBox>
 
                 <!-- Collapses itself when this mod has no addons, so it costs nothing here. -->
-                <views:AddonsSection DataContext="{Binding Addons}" />
+                <views:AddonsSection Margin="0,16,0,0" DataContext="{Binding Addons}" />
               </StackPanel>
             </ScrollViewer>
         </Grid>

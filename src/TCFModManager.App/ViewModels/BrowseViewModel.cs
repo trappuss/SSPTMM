@@ -1692,7 +1692,7 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
     /// <summary>Opens a mod's item page. Returns null once it is showing, or what went wrong - which
     /// is also put in this page's status line, and which a caller on another page (Home, the item
     /// page itself) shows in its own, since this page's line is not on screen there.</summary>
-    public async Task<string?> LoadDetailsAsync(Mod mod)
+    public async Task<string?> LoadDetailsAsync(Mod mod, bool openAddons = false)
     {
         // The app's own listing never gets an item page, from any link: its Subscribe would install
         // the manager into the SPT folder - see the note in ApplyFilter. It opens on sp-mod.com.
@@ -1706,7 +1706,7 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
         if (details is not null)
         {
             // The installed version is what this mod's addons check their own constraints against.
-            AppServices.ModDetailsOverlay.Show(details, FindInstalledMatch(mod)?.InstalledVersion);
+            AppServices.ModDetailsOverlay.Show(details, FindInstalledMatch(mod)?.InstalledVersion, openAddons);
             return null;
         }
 

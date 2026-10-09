@@ -86,7 +86,7 @@ public sealed partial class AddonRowViewModel : LocalizedViewModel
             .ToList();
 
         // Newest version the installed parent can take, falling back to the newest overall so the
-        // picker is never empty and the reason it can't be installed is visible on the row.
+        // picker is never empty and what the row says about its fit is about a real version.
         SelectedVersion = Versions.FirstOrDefault(v => v.IsCompatible != false) ?? Versions.FirstOrDefault();
     }
 
@@ -99,6 +99,19 @@ public sealed partial class AddonRowViewModel : LocalizedViewModel
     public string? Thumbnail => string.IsNullOrWhiteSpace(_addon.Thumbnail) ? null : _addon.Thumbnail;
 
     public string? Author => _addon.Owner?.Name;
+
+    public string? AuthorText => string.IsNullOrWhiteSpace(Author) ? null : Text(Strings.Addon_ByFormat, Author);
+
+    public int Downloads => _addon.Downloads ?? 0;
+
+    /// <summary>Some version fits the installed parent mod, or cannot be told not to.</summary>
+    public bool FitsParent => IsParentInstalled && Versions.Any(v => v.IsCompatible != false);
+
+    /// <summary>What the search box over the list looks through.</summary>
+    public bool Matches(string words) =>
+        Name.Contains(words, StringComparison.CurrentCultureIgnoreCase)
+        || (Author?.Contains(words, StringComparison.CurrentCultureIgnoreCase) ?? false)
+        || (Teaser?.Contains(words, StringComparison.CurrentCultureIgnoreCase) ?? false);
 
     public string? DetailUrl => _addon.DetailUrl;
 
@@ -125,8 +138,11 @@ public sealed partial class AddonRowViewModel : LocalizedViewModel
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanInstall))]
+    [NotifyPropertyChangedFor(nameof(NeedsAnyway))]
     [NotifyPropertyChangedFor(nameof(BlockedReason))]
     [NotifyPropertyChangedFor(nameof(HasBlockedReason))]
+    [NotifyPropertyChangedFor(nameof(FitWarning))]
+    [NotifyPropertyChangedFor(nameof(HasFitWarning))]
     [NotifyPropertyChangedFor(nameof(CompatibilityNote))]
     [NotifyPropertyChangedFor(nameof(HasCompatibilityNote))]
     [NotifyPropertyChangedFor(nameof(ActionLabel))]
@@ -144,10 +160,12 @@ public sealed partial class AddonRowViewModel : LocalizedViewModel
     // Install / Update / Redownload, following the same wording the mod path uses. An addon that
     // lives inside its parent's folder has no card on the Installed page, so this row is where its
     // update is offered - the label has to say so rather than reading as a fresh install.
-    public string ActionLabel => (IsInstalled, SelectedVersion) switch
+    public string ActionLabel => (NeedsAnyway, IsInstalled, SelectedVersion) switch
     {
-        (false, _) => Strings.Addon_ActionInstall,
-        (true, { IsInstalled: true }) => Strings.Addon_ActionRedownload,
+        // Redownloading what is already there is not a new risk, whatever its constraint says.
+        (_, true, { IsInstalled: true }) => Strings.Addon_ActionRedownload,
+        (true, _, _) => Strings.Addon_ActionInstallAnyway,
+        (_, false, _) => Strings.Addon_ActionInstall,
         _ => Strings.Addon_ActionUpdate,
     };
 
@@ -155,31 +173,29 @@ public sealed partial class AddonRowViewModel : LocalizedViewModel
     // stops being "Install" the moment the app is in another language.
     public string ActionIcon => IsInstalled ? "ArrowSync24" : "ArrowDownload24";
 
-    // 
-    // An addon is only useful next to its parent, so the parent has to be installed and has to
-    // satisfy the selected version's constraint. An unreadable or unknowable answer is allowed
-    // through with a note rather than blocked - the same way an unparsable SPT constraint is.
-    // 
-    public bool CanInstall => SelectedVersion is { IsCompatible: not false, Raw.Link: not null }
-        && !string.IsNullOrWhiteSpace(_parentVersion);
+    private bool IsParentInstalled => !string.IsNullOrWhiteSpace(_parentVersion);
 
+    //
+    // Fork (round 52): anything with a download can be installed. The button used to be dead when
+    // the selected version's constraint did not take the installed parent, or the parent was not
+    // found - but the constraint is the author's word, written once and often left as it was while
+    // the parent moved on, and "not found" is this app's reading of the folder. A mod that does
+    // not fit the installed SPT is asked about and never refused (SptCompatibility); so is this.
+    //
+    public bool CanInstall => SelectedVersion is { Raw.Link: not null };
+
+    /// <summary>The selected version is not known to fit: installing it asks first, and the
+    /// button says "Install Anyway".</summary>
+    public bool NeedsAnyway => CanInstall
+        && SelectedVersion is { IsInstalled: false }
+        && (!IsParentInstalled || SelectedVersion.IsCompatible == false);
+
+    // What stops the button altogether.
     public string? BlockedReason
     {
         get
         {
             if (SelectedVersion is null) return Text(Strings.Addon_NoVersionsFormat, Name);
-
-            if (string.IsNullOrWhiteSpace(_parentVersion))
-                return Text(
-                    Strings.Addon_InstallParentFirstFormat,
-                    _parentName ?? Strings.Addon_ParentFallback);
-
-            if (SelectedVersion.IsCompatible == false)
-                return Text(
-                    Strings.Addon_NeedsParentFormat,
-                    _parentName ?? Strings.Addon_ParentFallback,
-                    SelectedVersion.Raw.ModVersionConstraint,
-                    _parentVersion);
 
             if (SelectedVersion.Raw.Link is null)
                 return ModInstallProblems.NoDownloadLink(Name, SelectedVersion.VersionText);
@@ -190,9 +206,29 @@ public sealed partial class AddonRowViewModel : LocalizedViewModel
 
     public bool HasBlockedReason => BlockedReason is not null;
 
-    // Shown when the version can be installed but the fit couldn't be confirmed - an addon whose
-    // constraint this app can't parse, against a parent whose version is known.
-    public string? CompatibilityNote => CanInstall && SelectedVersion?.IsCompatible is null
+    // Why the button says "Install Anyway".
+    public string? FitWarning
+    {
+        get
+        {
+            if (!NeedsAnyway || SelectedVersion is null) return null;
+
+            // Said once over the whole list (AddonsSectionViewModel.ParentNotice), not on every row.
+            if (!IsParentInstalled) return null;
+
+            return Text(
+                Strings.Addon_NeedsParentFormat,
+                _parentName ?? Strings.Addon_ParentFallback,
+                SelectedVersion.Raw.ModVersionConstraint,
+                _parentVersion);
+        }
+    }
+
+    public bool HasFitWarning => FitWarning is not null;
+
+    // Shown when the fit couldn't be confirmed - an addon whose constraint this app can't parse,
+    // against a parent whose version is known.
+    public string? CompatibilityNote => CanInstall && IsParentInstalled && SelectedVersion?.IsCompatible is null
         ? Text(
             Strings.Addon_UncheckedFormat,
             _parentName ?? Strings.Addon_ParentFallback,
@@ -216,6 +252,14 @@ public sealed partial class AddonRowViewModel : LocalizedViewModel
         if (string.IsNullOrWhiteSpace(installPath))
         {
             StatusMessage = AppMessages.NoSptInstallFolder;
+            return;
+        }
+
+        // A download places nothing, so there is nothing to ask about yet.
+        var downloadOnly = AppServices.ModPageGate.DownloadOnlyFor(alternate);
+        if (NeedsAnyway && !downloadOnly && !ConfirmAnyway(selected))
+        {
+            StatusMessage = Text(Strings.Addon_AnywayCancelledFormat, Name);
             return;
         }
 
@@ -243,9 +287,32 @@ public sealed partial class AddonRowViewModel : LocalizedViewModel
             installPath,
             () => Task.FromResult<ModVersion?>(version),
             totalBytes: selected.Raw.ContentLength,
-            downloadOnly: AppServices.ModPageGate.DownloadOnlyFor(alternate));
+            downloadOnly: downloadOnly);
 
         StatusMessage = Text(Strings.Addon_QueuedFormat, Name, selected.VersionText);
+    }
+
+    // Asked, never refused, and No is the answer Enter gives - as for a mod and SPT.
+    private bool ConfirmAnyway(AddonVersionOption selected)
+    {
+        var parent = _parentName ?? Strings.Addon_ParentFallback;
+
+        var body = IsParentInstalled
+            ? Text(
+                Strings.Addon_AnywayMismatchFormat,
+                Name,
+                selected.VersionText,
+                parent,
+                selected.Raw.ModVersionConstraint,
+                _parentVersion)
+            : Text(Strings.Addon_AnywayNoParentFormat, Name, parent);
+
+        return SteamMessageBox.Show(
+            body,
+            Strings.Addon_AnywayTitle,
+            System.Windows.MessageBoxButton.YesNo,
+            System.Windows.MessageBoxImage.Warning,
+            System.Windows.MessageBoxResult.No) == System.Windows.MessageBoxResult.Yes;
     }
 
     [RelayCommand]

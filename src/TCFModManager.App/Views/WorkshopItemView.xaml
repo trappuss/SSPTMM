@@ -207,6 +207,14 @@
                         IsChecked="{Binding IsVersionsShown, Mode=OneWay}">
                         <TextBlock Text="{Binding VersionsTabTitle}" />
                     </ToggleButton>
+                    <!-- Fork (round 52): only on a mod that has addons. -->
+                    <ToggleButton
+                        Style="{StaticResource SteamSectionTab}"
+                        Command="{Binding ShowAddonsCommand}"
+                        IsChecked="{Binding IsAddonsShown, Mode=OneWay}"
+                        Visibility="{Binding HasAddons, Converter={StaticResource TrueToVisible}}">
+                        <TextBlock Text="{Binding AddonsTabTitle}" />
+                    </ToggleButton>
                 </StackPanel>
 
                 <!-- ============================================================ Description tab -->
@@ -733,6 +741,33 @@
                                 </ItemsControl>
                             </StackPanel>
 
+                            <!-- Fork (round 52): the way to the mod's addons, as a row of the block
+                                 above - they were under the whole description, unannounced. -->
+                            <StackPanel Margin="0,20,0,0" Visibility="{Binding HasAddons, Converter={StaticResource TrueToVisible}}">
+                                <TextBlock Margin="0,0,0,6" FontSize="11" Foreground="#61696D" Text="{loc:Str Item_AddonsHeader}" />
+                                <Button
+                                    HorizontalAlignment="Stretch"
+                                    Command="{Binding ShowAddonsCommand}"
+                                    Cursor="Hand"
+                                    FocusVisualStyle="{x:Null}">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="Row" Height="30" Padding="5,0" Background="#335485B7">
+                                                <DockPanel VerticalAlignment="Center">
+                                                    <TextBlock Margin="12,0,0,0" DockPanel.Dock="Right" FontSize="14" Foreground="#99A1A8" Text="{loc:Str Item_AddonsOpen}" />
+                                                    <TextBlock FontSize="14" FontWeight="Bold" Foreground="White" TextTrimming="CharacterEllipsis" Text="{Binding AddonsLinkText}" />
+                                                </DockPanel>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="Row" Property="Background" Value="#4D75BAFF" />
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </StackPanel>
+
                             <!-- DESCRIPTION, with the rule over it. -->
                             <Rectangle Height="1" Margin="0,26,0,0" Fill="#1F2E40" />
                             <TextBlock Style="{StaticResource SteamDescriptionTitle}" Text="{loc:Str Item_DescriptionHeader}" />
@@ -758,8 +793,6 @@
                                 </RichTextBox.Resources>
                             </RichTextBox>
 
-                            <!-- The mod's own addons; collapses when it has none. -->
-                            <views:AddonsSection Margin="0,16,0,0" DataContext="{Binding Addons}" />
                         </StackPanel>
 
                         <StackPanel Grid.Column="1">
@@ -905,6 +938,12 @@
                             </Border>
                         </StackPanel>
                     </Grid>
+                </StackPanel>
+
+                <!-- ============================================================== Addons tab -->
+                <!-- Fork (round 52): the mod's addons, each with its versions and Install. -->
+                <StackPanel Visibility="{Binding IsAddonsShown, Converter={StaticResource TrueToVisible}}">
+                    <views:AddonsSection DataContext="{Binding Addons}" />
                 </StackPanel>
 
                 <!-- ============================================================ Versions tab -->

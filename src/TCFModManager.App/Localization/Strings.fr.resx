@@ -88,9 +88,6 @@
   <data name="Addon_HeadingFormat" xml:space="preserve">
     <value>Addons : {0}</value>
   </data>
-  <data name="Addon_InstallParentFirstFormat" xml:space="preserve">
-    <value>Installez d'abord {0} - cet addon s'y rattache.</value>
-  </data>
   <data name="Addon_InstallParentNoticeFormat" xml:space="preserve">
     <value>Installez d'abord {0} - un addon a besoin de la version de son mod parent pour savoir lesquelles de ses propres versions conviennent.</value>
   </data>

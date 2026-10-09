@@ -2296,8 +2296,45 @@ graphics card's drawing rather than software, Play against a real server, and th
 itself to 1.4.0, which needs 1.4.0 published. 01-play.png and 01b-play-direct.png are 1.3's: a copy
 shows a temp folder's paths.
 
+## Round 52: a mod's addons - their own tab, and Install Anyway (2026-10-09)
+
+Asked for: better browsing and installing of addons, and an "install anyway", since what addons say
+about compatibility misleads. In the catalog of that day there were 126 addons; one mod had 34, and
+all five of SAIN's asked for a SAIN older than the one installed (4.3.1 or ~4.4.x against 4.5.1).
+
+- **Never refused, asked.** An addon version whose constraint the installed mod does not satisfy,
+  or whose mod is not found, had a dead button. The constraint is the author's word and "not found"
+  is this app's reading of a folder, so the button now reads Install Anyway (grey, where Install is
+  blue) and a Steam dialog asks, with what it needs and what is there; No is the default. A mod
+  that does not fit SPT was already asked about so (SptCompatibility). A download-only save is not asked about: it
+  places nothing. Redownloading the version already installed is not asked about either. The only
+  dead button left is a version with no download link.
+- **An Addons tab** on the item page, after Versions, on a mod that has addons, and a row under the
+  subscribe box ("5 addons - View", the shape of an In N Collections row) that opens it. They were
+  the last thing on the Description tab. An addon on an author's page opens its mod at that tab
+  (ModDetailsRequest.OpenAddons).
+- **The list on Steam's palette**: the required-item fill, a 64px picture, 15px bold white name,
+  "by" and downloads in the dim grey, the item page's caution colour (#D3AC42) for what does not
+  fit. The picker and the buttons are at the row's right, so a row is about 100px, not 160: five to
+  a screen where there were three. Installed first, then what fits, then by downloads. A search box
+  (name, author, teaser) from seven addons up.
+- **The rows follow installs.** The item page built them once, from the version it was opened with.
+  They are rebuilt when the mod's installed version or an addon's own changes - and only then, so a
+  version picked in a row is not thrown away by an unrelated redraw.
+- Help's "Install an addon for a mod" and the wiki say where they are now.
+
+Checked in pictures of the hidden copy (a nine-file copy of SAIN as the one installed mod): the tab
+and its count; rows that do not fit (grey Install Anyway, the reason under the teaser); the same
+rows with the record saying 4.3.1 (blue Install on the four that fit, the fifth still grey); a mod
+that is not installed, with 34 addons, and the search box narrowing them. Not checked: the question
+itself (no button was pressed), an install going through, the rows changing as one lands, the row
+under the subscribe box (below the fold in the pictures), the list inside the update dialog, which
+is narrower, and the pointer over any of it.
+
 ## Values that could not be measured (marked HUNCH in the source)
 
+- Round 52: the addon rows' layout and sizes (Steam has no addons; its palette, this app's
+  arrangement), and seven as the number of addons from which a search box is worth its room.
 - Round 51: that the shadow's pieces, snapped to whole pixels, leave no seam at 125% (CardShadow).
   It was drawn at 100% only.
 - Round 50: every colour on the Options page. Steam's settings are in its client, not on a page

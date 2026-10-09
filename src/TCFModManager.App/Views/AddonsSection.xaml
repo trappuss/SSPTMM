@@ -8,149 +8,228 @@
     xmlns:behaviors="clr-namespace:TCFModManager.App.Behaviors"
     xmlns:loc="clr-namespace:TCFModManager.App.Localization">
     <!--
-        The Addons section of a mod's details dialog. DataContext is an AddonsSectionViewModel,
-        set by whichever dialog hosts this. The whole control collapses when the mod has no addons,
-        so hosting it costs nothing for the mods that don't.
+        A mod's addons: the Addons tab of its item page, and the same list in the update dialog.
+        DataContext is an AddonsSectionViewModel, set by whichever hosts this. The whole control
+        collapses when the mod has no addons, so hosting it costs nothing for the mods that don't.
 
-        Read-only rows (HoverRow, not ClickableRow): the row itself isn't the click target - its
-        version picker and its own button are.
+        Fork (round 52): Steam's rows - the item page's required-item fill, a 64px picture, the name
+        in white over its author and downloads - where it was the Windows theme's hover rows. Steam
+        has no addons, so the layout is this app's on Steam's palette (HUNCH); the caution colour is
+        the item page's own (#D3AC42, its held-back note).
+
+        The row itself isn't the click target - its version picker and its buttons are.
     -->
     <UserControl.Resources>
         <converters:NullToVisibilityConverter x:Key="NullToCollapsed" />
         <converters:UpdateAvailableToVisibilityConverter x:Key="TrueToVisible" />
+        <SolidColorBrush x:Key="AddonCaution" Color="#D3AC42" />
     </UserControl.Resources>
 
     <StackPanel Visibility="{Binding HasAddons, Converter={StaticResource TrueToVisible}}">
-        <Separator Margin="0,12,0,8" Background="{DynamicResource DividerStrokeColorDefaultBrush}" />
+        <DockPanel>
+            <!-- Only once there are enough of them to lose one in. -->
+            <Border
+                Width="260"
+                Height="36"
+                Margin="16,0,0,0"
+                VerticalAlignment="Top"
+                DockPanel.Dock="Right"
+                Background="{StaticResource SteamGray}"
+                Padding="2"
+                Visibility="{Binding ShowFilter, Converter={StaticResource TrueToVisible}}">
+                <TextBox
+                    Style="{StaticResource SteamSearchField}"
+                    Tag="{loc:Str Addon_FilterHint}"
+                    Text="{Binding Filter, UpdateSourceTrigger=PropertyChanged}" />
+            </Border>
 
-        <TextBlock
-            FontWeight="SemiBold"
-            Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-            Text="{Binding Heading}" />
+            <StackPanel>
+                <TextBlock
+                    FontSize="16"
+                    Foreground="{StaticResource SteamWhite}"
+                    Text="{Binding Heading}" />
 
-        <TextBlock
-            Margin="0,2,0,0"
-            TextWrapping="Wrap"
-            Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-            Text="{loc:Str Addons_Description}" />
+                <TextBlock
+                    Margin="0,4,0,0"
+                    FontSize="13"
+                    TextWrapping="Wrap"
+                    Foreground="{StaticResource SteamText}"
+                    Text="{loc:Str Addons_Description}" />
+            </StackPanel>
+        </DockPanel>
 
         <!-- One explanation for the whole list rather than the same sentence on every row. -->
         <TextBlock
-            Margin="0,6,0,0"
+            Margin="0,8,0,0"
+            FontSize="13"
             TextWrapping="Wrap"
-            Foreground="{DynamicResource SystemFillColorCautionBrush}"
+            Foreground="{StaticResource AddonCaution}"
             Text="{Binding ParentNotice}"
             Visibility="{Binding HasParentNotice, Converter={StaticResource TrueToVisible}}" />
 
-        <ItemsControl Focusable="False" Margin="0,8,0,0" ItemsSource="{Binding Addons}">
+        <TextBlock
+            Margin="0,16,0,0"
+            FontSize="13"
+            Foreground="{StaticResource SteamText}"
+            Text="{loc:Str Addon_FilterNone}"
+            Visibility="{Binding HasNoMatches, Converter={StaticResource TrueToVisible}}" />
+
+        <ItemsControl Focusable="False" Margin="0,12,0,0" ItemsSource="{Binding Addons}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Border Style="{StaticResource HoverRow}" Padding="8" Margin="0,0,0,4">
+                    <Border Margin="0,0,0,2" Padding="10" Background="{StaticResource SteamRequiredItem}">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
 
-                            <Image
+                            <Border
                                 Grid.Column="0"
-                                Width="40"
-                                Height="40"
-                                Margin="0,0,10,0"
+                                Width="64"
+                                Height="64"
+                                Margin="0,0,12,0"
                                 VerticalAlignment="Top"
-                                Stretch="UniformToFill"
-                                behaviors:ThumbnailLoader.Source="{Binding Thumbnail}"
-                                Visibility="{Binding Thumbnail, Converter={StaticResource NullToCollapsed}}" />
+                                Background="Black"
+                                Visibility="{Binding Thumbnail, Converter={StaticResource NullToCollapsed}}">
+                                <Image
+                                    Stretch="UniformToFill"
+                                    behaviors:ThumbnailLoader.DecodeWidth="128"
+                                    behaviors:ThumbnailLoader.Source="{Binding Thumbnail}" />
+                            </Border>
 
                             <StackPanel Grid.Column="1">
                                 <TextBlock
-                                    FontWeight="SemiBold"
+                                    FontSize="15"
+                                    FontWeight="Bold"
                                     TextWrapping="Wrap"
-                                    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                    Foreground="{StaticResource SteamWhite}"
                                     Text="{Binding Name}" />
 
+                                <!-- "by Someone   1,204 downloads   Contains ads" -->
+                                <WrapPanel Margin="0,2,0,0">
+                                    <TextBlock
+                                        Margin="0,0,14,0"
+                                        FontSize="12"
+                                        Foreground="{StaticResource SteamTextDim}"
+                                        Text="{Binding AuthorText}"
+                                        Visibility="{Binding AuthorText, Converter={StaticResource NullToCollapsed}}" />
+                                    <TextBlock
+                                        Margin="0,0,14,0"
+                                        FontSize="12"
+                                        Foreground="{StaticResource SteamTextDim}"
+                                        Text="{Binding DownloadsText}" />
+                                    <TextBlock
+                                        Margin="0,0,14,0"
+                                        FontSize="12"
+                                        Foreground="{StaticResource SteamTextDim}"
+                                        Text="{Binding FlagsSummary}"
+                                        Visibility="{Binding FlagsSummary, Converter={StaticResource NullToCollapsed}}" />
+                                    <TextBlock
+                                        FontSize="12"
+                                        Foreground="#A4D007"
+                                        Text="{Binding InstalledVersion, StringFormat={loc:Str Addons_InstalledFormat}}"
+                                        Visibility="{Binding IsInstalled, Converter={StaticResource TrueToVisible}}" />
+                                </WrapPanel>
+
                                 <TextBlock
-                                    Margin="0,2,0,0"
+                                    Margin="0,6,0,0"
+                                    FontSize="13"
                                     TextWrapping="Wrap"
-                                    Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                    Foreground="{StaticResource SteamText}"
                                     Text="{Binding Teaser}"
                                     Visibility="{Binding Teaser, Converter={StaticResource NullToCollapsed}}" />
 
                                 <TextBlock
-                                    Margin="0,2,0,0"
-                                    Foreground="{DynamicResource TextFillColorTertiaryBrush}"
-                                    Text="{Binding DownloadsText}" />
-
-                                <TextBlock
-                                    Margin="0,2,0,0"
-                                    Foreground="{DynamicResource TextFillColorTertiaryBrush}"
-                                    Text="{Binding FlagsSummary}"
-                                    Visibility="{Binding FlagsSummary, Converter={StaticResource NullToCollapsed}}" />
-
-                                <TextBlock
-                                    Margin="0,2,0,0"
-                                    Foreground="{DynamicResource TextFillColorTertiaryBrush}"
-                                    Text="{Binding InstalledVersion, StringFormat={loc:Str Addons_InstalledFormat}}"
-                                    Visibility="{Binding IsInstalled, Converter={StaticResource TrueToVisible}}" />
-
-                                <!-- The picker stays enabled even when nothing is installable, so the
-                                     row can explain which version would fit rather than going blank. -->
-                                <DockPanel Margin="0,6,0,0">
-                                    <ui:Button
-                                        DockPanel.Dock="Right"
-                                        Margin="8,0,0,0"
-                                        Content="{Binding ActionLabel}"
-                                        Command="{Binding InstallCommand}"
-                                        ToolTip="{Binding InstallToolTip, Source={x:Static app:AppServices.ModPageGate}}" />
-                                    <!-- Does the opposite of Monitor mode's setting, for this one addon. -->
-                                    <ui:Button
-                                        DockPanel.Dock="Right"
-                                        Margin="8,0,0,0"
-                                        Padding="6"
-                                        Appearance="Transparent"
-                                        Command="{Binding InstallAlternateCommand}"
-                                        ToolTip="{Binding AlternateToolTip, Source={x:Static app:AppServices.ModPageGate}}">
-                                        <ui:Button.Icon>
-                                            <ui:SymbolIcon Symbol="{Binding AlternateSymbol, Source={x:Static app:AppServices.ModPageGate}}" />
-                                        </ui:Button.Icon>
-                                    </ui:Button>
-                                    <ui:Button
-                                        DockPanel.Dock="Right"
-                                        Margin="8,0,0,0"
-                                        Padding="8,6"
-                                        HorizontalAlignment="Left"
-                                        Icon="{ui:SymbolIcon Open24}"
-                                        Command="{Binding OpenAddonPageCommand}"
-                                        ToolTip="{loc:Str Addons_OpenPage}"
-                                        Visibility="{Binding DetailUrl, Converter={StaticResource NullToCollapsed}}" />
-                                    <ComboBox
-                                        MinWidth="150"
-                                        HorizontalAlignment="Left"
-                                        DisplayMemberPath="Label"
-                                        ItemsSource="{Binding Versions}"
-                                        SelectedItem="{Binding SelectedVersion}" />
-                                </DockPanel>
-
-                                <TextBlock
-                                    Margin="0,6,0,0"
+                                    Margin="0,8,0,0"
+                                    FontSize="13"
                                     TextWrapping="Wrap"
-                                    Foreground="{DynamicResource SystemFillColorCautionBrush}"
+                                    Foreground="{StaticResource AddonCaution}"
                                     Text="{Binding BlockedReason}"
                                     Visibility="{Binding HasBlockedReason, Converter={StaticResource TrueToVisible}}" />
 
                                 <TextBlock
-                                    Margin="0,6,0,0"
+                                    Margin="0,8,0,0"
+                                    FontSize="13"
                                     TextWrapping="Wrap"
-                                    Foreground="{DynamicResource SystemFillColorCautionBrush}"
+                                    Foreground="{StaticResource AddonCaution}"
+                                    Text="{Binding FitWarning}"
+                                    Visibility="{Binding HasFitWarning, Converter={StaticResource TrueToVisible}}" />
+
+                                <TextBlock
+                                    Margin="0,8,0,0"
+                                    FontSize="13"
+                                    TextWrapping="Wrap"
+                                    Foreground="{StaticResource AddonCaution}"
                                     Text="{Binding CompatibilityNote}"
                                     Visibility="{Binding HasCompatibilityNote, Converter={StaticResource TrueToVisible}}" />
 
                                 <TextBlock
-                                    Margin="0,6,0,0"
+                                    Margin="0,8,0,0"
+                                    FontSize="13"
                                     TextWrapping="Wrap"
-                                    Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                    Foreground="{StaticResource SteamLegacyBlue}"
                                     Text="{Binding StatusMessage}"
                                     Visibility="{Binding HasStatusMessage, Converter={StaticResource TrueToVisible}}" />
+                            </StackPanel>
+
+                            <!-- Fork (round 52): at the row's right, not under its text - a row is
+                                 some 95px where it was 160, and a mod can have thirty of them. -->
+                            <StackPanel Grid.Column="2" Margin="16,0,0,0" VerticalAlignment="Top">
+                                <!-- The picker always works, so a row can show which version would
+                                     fit; the button is only dead when there is nothing to fetch. -->
+                                <ComboBox
+                                    Width="210"
+                                    HorizontalAlignment="Right"
+                                    DisplayMemberPath="Label"
+                                    ItemsSource="{Binding Versions}"
+                                    SelectedItem="{Binding SelectedVersion}" />
+                                <DockPanel Margin="0,8,0,0" LastChildFill="False">
+                                    <Button
+                                        MinHeight="32"
+                                        Margin="8,0,0,0"
+                                        DockPanel.Dock="Right"
+                                        Content="{Binding ActionLabel}"
+                                        Command="{Binding InstallCommand}"
+                                        ToolTip="{Binding InstallToolTip, Source={x:Static app:AppServices.ModPageGate}}">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource SteamBlueButton}">
+                                                <Style.Triggers>
+                                                    <!-- Not the plain choice: grey, as the Versions tab's Install. -->
+                                                    <DataTrigger Binding="{Binding NeedsAnyway}" Value="True">
+                                                        <Setter Property="Background" Value="{StaticResource SteamGray}" />
+                                                        <Setter Property="Tag" Value="{StaticResource SteamGrayHover}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                    <!-- Does the opposite of Monitor mode's setting, for this one addon. -->
+                                    <Button
+                                        Width="32"
+                                        MinHeight="32"
+                                        Margin="8,0,0,0"
+                                        Padding="0"
+                                        DockPanel.Dock="Right"
+                                        Style="{StaticResource SteamButton}"
+                                        Command="{Binding InstallAlternateCommand}"
+                                        ToolTip="{Binding AlternateToolTip, Source={x:Static app:AppServices.ModPageGate}}">
+                                        <ui:SymbolIcon FontSize="16" Symbol="{Binding AlternateSymbol, Source={x:Static app:AppServices.ModPageGate}}" />
+                                    </Button>
+                                    <Button
+                                        Width="32"
+                                        MinHeight="32"
+                                        Margin="8,0,0,0"
+                                        Padding="0"
+                                        DockPanel.Dock="Right"
+                                        Style="{StaticResource SteamButton}"
+                                        Command="{Binding OpenAddonPageCommand}"
+                                        ToolTip="{loc:Str Addons_OpenPage}"
+                                        Visibility="{Binding DetailUrl, Converter={StaticResource NullToCollapsed}}">
+                                        <ui:SymbolIcon FontSize="16" Symbol="Open24" />
+                                    </Button>
+                                </DockPanel>
                             </StackPanel>
                         </Grid>
                     </Border>

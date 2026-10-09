@@ -45,6 +45,10 @@ the other Workshop pages.
 - **Change Notes** - every version's notes. **Versions** - each version's SPT range (green when it
   runs on yours), size, downloads, Fika status and requirements, with **Install this version** /
   **Switch to this version**.
+- **Addons** - a tab on a mod that has any, with a row under the Subscribe box that opens it. Each
+  addon has its versions and **Install**; more than six, and a search box. An addon says which
+  versions of its mod it works with: when that doesn't match yours, or the mod isn't installed, the
+  button reads **Install Anyway** and asks first - what an addon says it needs is often out of date.
 - The side panel: content type (a link to Browse), tags, licence, GUID, source code, VirusTotal
   scans, which SPT it runs on, size and dates.
 - **Required Items** (ticked when installed), **Required By** and **More By** this author.
@@ -60,6 +64,6 @@ were opened.
 
 ## Authors
 
-Click an author's name for their page: Workshop Items, Collections and Addons, followers and
-member-since date. **Follow** them; **Authors you follow** (Your Items) lists them, and Home shows
+Click an author's name for their page: Workshop Items, Collections and Addons (an addon opens its
+mod's page at the Addons tab), followers and member-since date. **Follow** them; **Authors you follow** (Your Items) lists them, and Home shows
 what they posted recently. Follows are kept on this PC.

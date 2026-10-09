@@ -89,6 +89,9 @@ public enum WorkshopItemTab
     ChangeNotes,
     Versions,
     Comments,
+
+    // Fork (round 52): the mod's addons. Not Steam's - it has none.
+    Addons,
 }
 
 // One of your collections holding the item - a row of Steam's "In N Collections" block.
@@ -177,6 +180,8 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel, IModActi
         Mod = request.Mod;
         InstalledVersion = request.InstalledVersion;
         Addons = new AddonsSectionViewModel();
+        Addons.PropertyChanged += OnAddonsChanged;
+        if (request.OpenAddons) Tab = WorkshopItemTab.Addons;
 
         RefreshInstallState();
 
@@ -312,6 +317,7 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel, IModActi
     public void Detach()
     {
         _detached = true;
+        Addons.PropertyChanged -= OnAddonsChanged;
         AppServices.Followed.Changed -= OnFollowedChanged;
         AppServices.HeldBack.Changed -= OnHeldBackChanged;
         AppServices.Browse.PageChanged -= OnBrowsePageChanged;
@@ -575,6 +581,10 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel, IModActi
 
         foreach (var row in Versions) row.Refresh(Installed?.InstalledVersion);
         foreach (var required in RequiredItems) required.Refresh();
+
+        // The addons are measured against this mod's installed version, and say which of them are
+        // installed themselves.
+        Addons.Refresh(Installed?.InstalledVersion);
     }
 
     // What the last action said - queued, removed, failed.
@@ -594,6 +604,29 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel, IModActi
 
     public bool IsCommentsShown => Tab == WorkshopItemTab.Comments;
 
+    public bool IsAddonsShown => Tab == WorkshopItemTab.Addons;
+
+    // Fork (round 52): the addons had the foot of the Description tab, under however long the
+    // description was, and nothing higher up said they were there. They have a tab, shown when the
+    // mod has any, and a row under the subscribe box that opens it.
+    public bool HasAddons => Addons.HasAddons;
+
+    public string AddonsTabTitle => Text(Strings.Item_TabAddonsFormat, Addons.Count);
+
+    public string AddonsLinkText => Strings.Browse_AddonBadge(Addons.Count, Addons.Count);
+
+    private void OnAddonsChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName != nameof(AddonsSectionViewModel.Count)) return;
+
+        OnPropertyChanged(nameof(HasAddons));
+        OnPropertyChanged(nameof(AddonsTabTitle));
+        OnPropertyChanged(nameof(AddonsLinkText));
+
+        // Opened at its addons and it has none after all (the catalog moved on): the description.
+        if (IsAddonsShown && !HasAddons) ShowTab(WorkshopItemTab.Description);
+    }
+
     /// <summary>The mod's comments on sp-mod.com, opened at the comments tab.</summary>
     public string? CommentsUrl => HasModPage ? Mod.DetailUrl + "#comments" : null;
 
@@ -611,6 +644,9 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel, IModActi
     [RelayCommand]
     private void ShowComments() => ShowTab(WorkshopItemTab.Comments);
 
+    [RelayCommand]
+    private void ShowAddons() => ShowTab(WorkshopItemTab.Addons);
+
     private void ShowTab(WorkshopItemTab tab)
     {
         Tab = tab;
@@ -620,6 +656,7 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel, IModActi
         OnPropertyChanged(nameof(ShownChangeNotes));
         OnPropertyChanged(nameof(IsVersionsShown));
         OnPropertyChanged(nameof(IsCommentsShown));
+        OnPropertyChanged(nameof(IsAddonsShown));
 
         if (tab == WorkshopItemTab.Versions) _ = CheckVersionsAsync();
     }
@@ -718,7 +755,7 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel, IModActi
     // items read, and the first page of the Versions tab.
     public async Task LoadAsync()
     {
-        _ = Addons.LoadAsync(Mod.Id, Mod.Name, InstalledVersion);
+        _ = Addons.LoadAsync(Mod.Id, Mod.Name, Installed?.InstalledVersion ?? InstalledVersion);
         _ = LoadRequiredByAsync();
 
         await LoadVersionsPageAsync(1);

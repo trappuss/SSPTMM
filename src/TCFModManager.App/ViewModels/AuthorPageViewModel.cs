@@ -302,8 +302,8 @@ public sealed partial class AuthorPageViewModel : LocalizedViewModel
 
     public bool HasAddons => Addons.Count > 0;
 
-    // Opens the mod it is for - its item page lists its addons, with Install - or, when the catalog
-    // does not have that mod, the addon's page on sp-mod.com.
+    // Opens the mod it is for at its Addons tab, which lists them with Install - or, when the
+    // catalog does not have that mod, the addon's page on sp-mod.com.
     [RelayCommand]
     private async Task OpenAddonAsync(AuthorAddon? addon)
     {
@@ -311,7 +311,7 @@ public sealed partial class AuthorPageViewModel : LocalizedViewModel
 
         if (addon.Parent is { } mod)
         {
-            if (await AppServices.Browse.LoadDetailsAsync(mod) is { } failed) Message = failed;
+            if (await AppServices.Browse.LoadDetailsAsync(mod, openAddons: true) is { } failed) Message = failed;
             return;
         }
 

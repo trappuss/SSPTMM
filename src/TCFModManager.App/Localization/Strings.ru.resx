@@ -88,9 +88,6 @@
   <data name="Addon_HeadingFormat" xml:space="preserve">
     <value>Аддоны: {0}</value>
   </data>
-  <data name="Addon_InstallParentFirstFormat" xml:space="preserve">
-    <value>Сначала установите {0} - этот аддон присоединяется к нему.</value>
-  </data>
   <data name="Addon_InstallParentNoticeFormat" xml:space="preserve">
     <value>Сначала установите {0} - аддону нужна версия родительского мода, чтобы понять, какие из его собственных версий подходят.</value>
   </data>

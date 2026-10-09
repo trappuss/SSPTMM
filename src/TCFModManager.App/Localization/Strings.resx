@@ -4140,6 +4140,56 @@ You can turn it back on at any time.</value>
     <value>Update</value>
     <comment>On an addon's button, when a different version is selected.</comment>
   </data>
+  <data name="Addon_ActionInstallAnyway" xml:space="preserve">
+    <value>Install Anyway</value>
+    <comment>On an addon's button, when the selected version says it does not fit the installed parent mod, or the parent mod is not found. Pressing it asks first.</comment>
+  </data>
+  <data name="Addon_AnywayTitle" xml:space="preserve">
+    <value>Install this addon anyway?</value>
+  </data>
+  <data name="Addon_AnywayMismatchFormat" xml:space="preserve">
+    <value>{0} {1} says it needs {2} {3}. You have {2} {4}.
+
+What an addon says it needs is its author's word and is often out of date, so it may work all the same. It may also fail to load, or break {2}.
+
+Install it anyway?</value>
+    <comment>{0} is an addon's name, {1} its version, {2} the parent mod's name, {3} a version constraint like "&gt;= 1.2", {4} the parent version installed.</comment>
+  </data>
+  <data name="Addon_AnywayNoParentFormat" xml:space="preserve">
+    <value>{0} is an addon for {1}, and SSPTMM doesn't find {1} in this SPT install.
+
+If {1} is there all the same - installed by hand under another name, say - the addon may work. Without it, the addon's files do nothing or stop the game loading.
+
+Install it anyway?</value>
+    <comment>{0} is an addon's name, {1} the parent mod's name, or Addon_ParentFallback.</comment>
+  </data>
+  <data name="Addon_AnywayCancelledFormat" xml:space="preserve">
+    <value>{0} was not installed.</value>
+    <comment>{0} is an addon's name. After answering No to Addon_AnywayTitle.</comment>
+  </data>
+  <data name="Addon_ByFormat" xml:space="preserve">
+    <value>by {0}</value>
+    <comment>Under an addon's name. {0} is its author.</comment>
+  </data>
+  <data name="Addon_FilterHint" xml:space="preserve">
+    <value>Search these addons</value>
+    <comment>Hint in the search box over a mod's addons.</comment>
+  </data>
+  <data name="Addon_FilterNone" xml:space="preserve">
+    <value>No addon matches that.</value>
+  </data>
+  <data name="Item_TabAddonsFormat" xml:space="preserve">
+    <value>Addons ({0})</value>
+    <comment>A tab on a mod's page. {0} is how many addons the mod has; the number sits outside the sentence.</comment>
+  </data>
+  <data name="Item_AddonsHeader" xml:space="preserve">
+    <value>ADDONS FOR THIS ITEM</value>
+    <comment>Small heading on a mod's page, over the row that opens its Addons tab. Upper case, as "IN 2 COLLECTIONS" above it.</comment>
+  </data>
+  <data name="Item_AddonsOpen" xml:space="preserve">
+    <value>View</value>
+    <comment>At the right of the row that opens a mod's Addons tab.</comment>
+  </data>
   <data name="Addon_NoVersionsFormat" xml:space="preserve">
     <value>{0} has no published versions.</value>
     <comment>{0} is an addon's name.</comment>
@@ -4147,10 +4197,6 @@ You can turn it back on at any time.</value>
   <data name="Addon_ParentFallback" xml:space="preserve">
     <value>the parent mod</value>
     <comment>Stands in for a parent mod whose name is not known. It appears mid-sentence, so it is lower case in English.</comment>
-  </data>
-  <data name="Addon_InstallParentFirstFormat" xml:space="preserve">
-    <value>Install {0} first - this addon attaches to it.</value>
-    <comment>{0} is the parent mod's name, or Addon_ParentFallback.</comment>
   </data>
   <data name="Addon_NeedsParentFormat" xml:space="preserve">
     <value>Needs {0} {1} - you have {2}.</value>
@@ -7851,13 +7897,13 @@ Install the file as it is anyway?</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_Browse_Addon_Step2" xml:space="preserve">
-    <value>Its addons are listed under its description. Press the install button on the one you want.</value>
+    <value>Open its Addons tab - it is there when the mod has any. Press Install on the one you want.</value>
   </data>
   <data name="Help_Browse_Addon_Step3" xml:space="preserve">
     <value>Read the addon's page when asked, then continue as for any other install.</value>
   </data>
   <data name="Help_Browse_Addon_Note" xml:space="preserve">
-    <value>An addon must match the version of its mod you have, not your SPT version - so install or update the mod first.</value>
+    <value>An addon says which versions of its mod it works with, not which SPT - so install the mod first. When what it says doesn't match the version you have, the button reads Install Anyway and asks before it goes on: authors often leave that out of date.</value>
   </data>
   <data name="Help_Configs_Edit_Title" xml:space="preserve">
     <value>Change a mod's settings</value>
