@@ -23,6 +23,11 @@ namespace TCFModManager.Core.Services;
 // The text is "SSPTMM1." then the list as compact JSON, deflated and in URL-safe base64, so it
 // survives chat clients that mangle '+' and '/' and can be found inside surrounding text.
 //
+// Fork (1.4.4): a copy made with Make a copy also carries the collection it was copied from ("d",
+// DerivedFrom), so the person whose collection it is can take the mods it adds (ModListCopyBack).
+// Only when there is one, and an older reader passes over a field it doesn't know - so the format
+// stays 1.
+//
 public static class ModListShareCode
 {
     public const string Prefix = "SSPTMM1.";
@@ -68,6 +73,8 @@ public static class ModListShareCode
             ["p"] = list.Policy == ModListPolicy.Additive ? 1 : null,
             ["e"] = entries,
         };
+
+        if (list.DerivedFrom is { } from && from != Guid.Empty) root["d"] = from.ToString("N");
 
         var json = Encoding.UTF8.GetBytes(root.ToJsonString());
         using var packed = new MemoryStream();
@@ -128,6 +135,7 @@ public static class ModListShareCode
             Policy = (int?)root["p"] == 1 ? ModListPolicy.Additive : ModListPolicy.Exclusive,
             Source = ((string?)root["a"])?.Trim() is { Length: > 0 } author ? author : null,
             SptVersion = (string?)root["s"],
+            DerivedFrom = Guid.TryParseExact((string?)root["d"], "N", out var from) && from != Guid.Empty ? from : null,
             CreatedAt = DateTimeOffset.UtcNow,
             UpdatedAt = DateTimeOffset.UtcNow,
         };

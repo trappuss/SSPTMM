@@ -263,6 +263,13 @@ internal static class HelpCatalog
                 .WithNote(() => Strings.Help_ModLists_Share_Note)
                 .WithKeywords(() => Strings.Help_ModLists_Share_Keywords),
 
+            // Fork (1.4.4): a friend's copy, come back - see ModListCopyBack.
+            Topic("modlists.suggest", () => Strings.Help_ModLists_Suggest_Title,
+                Step(() => Strings.Help_ModLists_Suggest_Step1, () => Strings.Nav_ModLists, () => Strings.Collection_SaveToCollection),
+                Step(() => Strings.Help_ModLists_Suggest_Step2, () => Strings.Sharing_ShareWithFriends),
+                Step(() => Strings.Help_ModLists_Suggest_Step3))
+                .WithKeywords(() => Strings.Help_ModLists_Suggest_Keywords),
+
             Topic("modlists.follow", () => Strings.Help_ModLists_Follow_Title,
                 Step(() => Strings.Help_ModLists_Follow_Step1,
                     () => Strings.Nav_ModLists, () => Strings.Sharing_ShareWithFriends, () => Strings.Sharing_ChooseFolder),
@@ -615,6 +622,7 @@ internal static class HelpCatalog
         nameof(BrowsePage) => Strings.Nav_Browse,
         nameof(InstalledPage) => Strings.Nav_Installed,
         nameof(ModListsPage) => Strings.Nav_ModLists,
+        nameof(YourCollectionsPage) => Strings.Nav_ModLists, // Fork (1.4.4): the Collections tab's page; was shown by its class name
         nameof(ConfigsPage) => Strings.Nav_Configs,
         nameof(DependenciesPage) => Strings.Nav_Dependencies,
         nameof(DiagnosePage) => Strings.Nav_Diagnose,

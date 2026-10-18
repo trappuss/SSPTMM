@@ -6119,6 +6119,21 @@
   <data name="Help_ModLists_Share_Note" xml:space="preserve">
     <value>修改了合集？再发送一次代码即可——他们的副本会更新，并显示有哪些变化。用“导出”生成的文件也可以。</value>
   </data>
+  <data name="Help_ModLists_Suggest_Title" xml:space="preserve">
+    <value>为好友的合集推荐模组</value>
+  </data>
+  <data name="Help_ModLists_Suggest_Step1" xml:space="preserve">
+    <value>在{0}上打开对方分享的合集并按{1}，即可创建一份你自己的副本。</value>
+  </data>
+  <data name="Help_ModLists_Suggest_Step2" xml:space="preserve">
+    <value>把你想要的模组添加到你的副本中，然后按{0}并把它的分享码发给对方。</value>
+  </data>
+  <data name="Help_ModLists_Suggest_Step3" xml:space="preserve">
+    <value>对方添加你的分享码后，其应用会列出你的副本新增的模组，由对方勾选要加入其合集的模组。不会从中移除任何模组。</value>
+  </data>
+  <data name="Help_ModLists_Suggest_Keywords" xml:space="preserve">
+    <value>推荐, 建议, 请求, 好友, 朋友, 添加, 批准, 副本, 合集, 整合包, 模组包</value>
+  </data>
   <data name="Help_ModLists_Server_Title" xml:space="preserve">
     <value>获取服务端运行的模组</value>
   </data>
@@ -7458,6 +7473,36 @@
   </data>
   <data name="Sharing_ClipboardUpdateFormat" xml:space="preserve">
     <value>剪贴板中有来自 {1} 的“{0}”更新。</value>
+  </data>
+  <data name="Sharing_ClipboardCopyBackFormat" xml:space="preserve">
+    <value>剪贴板中有 {1} 的“{0}”副本，其中有 {2} 个你的合集没有的模组。</value>
+  </data>
+  <data name="Sharing_CopyBackTitle" xml:space="preserve">
+    <value>来自好友副本的模组</value>
+  </data>
+  <data name="Sharing_CopyBackIntroFormat" xml:space="preserve">
+    <value>{1} 的“{0}”副本中有这些模组，而你的合集没有。勾选要添加到你的合集的模组——不会从中移除任何模组。</value>
+  </data>
+  <data name="Sharing_CopyBackNothingFormat" xml:space="preserve">
+    <value>{1} 的“{0}”副本中没有你的合集缺少的模组——你已经全部拥有。</value>
+  </data>
+  <data name="Sharing_CopyBackLeftOut_other" xml:space="preserve">
+    <value>这份副本少了你的 {0} 个模组。它们仍保留在你的合集中。</value>
+  </data>
+  <data name="Sharing_CopyBackAdd" xml:space="preserve">
+    <value>添加到我的合集</value>
+  </data>
+  <data name="Sharing_CopyBackKeepSeparate" xml:space="preserve">
+    <value>保留为单独的合集</value>
+  </data>
+  <data name="Sharing_Took_other" xml:space="preserve">
+    <value>已从 {1} 的副本向“{2}”添加 {0} 个模组。</value>
+  </data>
+  <data name="Sharing_TookShareAgain" xml:space="preserve">
+    <value>再分享一次，让所有人都收到这些模组。</value>
+  </data>
+  <data name="Sharing_TookFolder" xml:space="preserve">
+    <value>它的共享文件夹中已经有了，因此关注该文件夹的好友会收到通知。</value>
   </data>
   <data name="Sharing_NoModChanges" xml:space="preserve">
     <value>模组无变化</value>

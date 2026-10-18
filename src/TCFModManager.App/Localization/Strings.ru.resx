@@ -7746,6 +7746,21 @@
   <data name="Help_ModLists_Share_Note" xml:space="preserve">
     <value>Изменили коллекцию? Отправьте код ещё раз - их копия обновится, и им покажут, что изменилось. Подойдёт и файл из «Экспорта».</value>
   </data>
+  <data name="Help_ModLists_Suggest_Title" xml:space="preserve">
+    <value>Предложить моды для коллекции друга</value>
+  </data>
+  <data name="Help_ModLists_Suggest_Step1" xml:space="preserve">
+    <value>Откройте коллекцию, которой с вами поделились, на странице {0} и нажмите {1}. Так у вас появится своя копия.</value>
+  </data>
+  <data name="Help_ModLists_Suggest_Step2" xml:space="preserve">
+    <value>Добавьте в свою копию нужные моды, затем нажмите {0} и отправьте её код обратно.</value>
+  </data>
+  <data name="Help_ModLists_Suggest_Step3" xml:space="preserve">
+    <value>Когда ваш код добавят, приложение владельца коллекции покажет моды, которые добавляет ваша копия, и в коллекцию войдут только отмеченные. Из неё ничего не убирается.</value>
+  </data>
+  <data name="Help_ModLists_Suggest_Keywords" xml:space="preserve">
+    <value>предложить, предложение, посоветовать, запрос, друг, друзья, добавить, одобрить, копия, коллекция, сборка, модпак</value>
+  </data>
   <data name="Help_ModLists_Undo_Step1" xml:space="preserve">
     <value>Откройте любую коллекцию на странице {0}, нажмите {1}, затем {2} под сохранёнными списками.</value>
   </data>
@@ -8253,6 +8268,48 @@
   </data>
   <data name="Sharing_ClipboardUpdateFormat" xml:space="preserve">
     <value>В буфере обмена обновление «{0}» (поделился: {1}).</value>
+  </data>
+  <data name="Sharing_ClipboardCopyBackFormat" xml:space="preserve">
+    <value>В буфере обмена копия «{0}» от {1}: модов, которых нет в вашей, - {2}.</value>
+  </data>
+  <data name="Sharing_CopyBackTitle" xml:space="preserve">
+    <value>Моды из копии друга</value>
+  </data>
+  <data name="Sharing_CopyBackIntroFormat" xml:space="preserve">
+    <value>В копии «{0}» от {1} есть эти моды, а в вашей нет. Отметьте те, что добавить в вашу, - из неё ничего не убирается.</value>
+  </data>
+  <data name="Sharing_CopyBackNothingFormat" xml:space="preserve">
+    <value>В копии «{0}» от {1} нет модов, которых нет в вашей, - у вас уже есть все.</value>
+  </data>
+  <data name="Sharing_CopyBackLeftOut_one" xml:space="preserve">
+    <value>В этой копии нет {0} вашего мода. В вашей он остаётся.</value>
+  </data>
+  <data name="Sharing_CopyBackLeftOut_few" xml:space="preserve">
+    <value>В этой копии нет {0} ваших модов. В вашей они остаются.</value>
+  </data>
+  <data name="Sharing_CopyBackLeftOut_many" xml:space="preserve">
+    <value>В этой копии нет {0} ваших модов. В вашей они остаются.</value>
+  </data>
+  <data name="Sharing_CopyBackAdd" xml:space="preserve">
+    <value>Добавить в мою</value>
+  </data>
+  <data name="Sharing_CopyBackKeepSeparate" xml:space="preserve">
+    <value>Оставить отдельной коллекцией</value>
+  </data>
+  <data name="Sharing_Took_one" xml:space="preserve">
+    <value>Из копии от {1} в «{2}» добавлен {0} мод.</value>
+  </data>
+  <data name="Sharing_Took_few" xml:space="preserve">
+    <value>Из копии от {1} в «{2}» добавлено {0} мода.</value>
+  </data>
+  <data name="Sharing_Took_many" xml:space="preserve">
+    <value>Из копии от {1} в «{2}» добавлено {0} модов.</value>
+  </data>
+  <data name="Sharing_TookShareAgain" xml:space="preserve">
+    <value>Поделитесь ею снова, чтобы они дошли до всех.</value>
+  </data>
+  <data name="Sharing_TookFolder" xml:space="preserve">
+    <value>В её общей папке они уже есть, так что друзья, которые за ней следят, узнают об этом.</value>
   </data>
   <data name="Sharing_NoModChanges" xml:space="preserve">
     <value>моды не изменились</value>

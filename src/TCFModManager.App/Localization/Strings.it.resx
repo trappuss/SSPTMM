@@ -7365,6 +7365,21 @@ Installare comunque il file così com'è?</value>
   <data name="Help_ModLists_Share_Note" xml:space="preserve">
     <value>Hai cambiato la collezione? Manda di nuovo il codice - la loro copia si aggiorna e vedono cosa è cambiato. Funziona anche un file da Esporta.</value>
   </data>
+  <data name="Help_ModLists_Suggest_Title" xml:space="preserve">
+    <value>Suggerire mod per la collezione di un amico</value>
+  </data>
+  <data name="Help_ModLists_Suggest_Step1" xml:space="preserve">
+    <value>Apri in {0} la collezione condivisa e premi {1}. Così ne hai una copia tua.</value>
+  </data>
+  <data name="Help_ModLists_Suggest_Step2" xml:space="preserve">
+    <value>Aggiungi alla tua copia i mod che vorresti, poi premi {0} e rimanda il suo codice.</value>
+  </data>
+  <data name="Help_ModLists_Suggest_Step3" xml:space="preserve">
+    <value>Quando il tuo codice viene aggiunto, l'app dall'altra parte elenca i mod che la tua copia aggiunge, e solo quelli spuntati entrano nella collezione. Non ne viene tolto nulla.</value>
+  </data>
+  <data name="Help_ModLists_Suggest_Keywords" xml:space="preserve">
+    <value>suggerire, suggerimento, consigliare, richiesta, amico, amici, aggiungere, approvare, copia, collezione, modpack</value>
+  </data>
   <data name="Help_ModLists_Undo_Step1" xml:space="preserve">
     <value>Apri una collezione qualsiasi in {0}, premi {1}, poi {2} sotto le liste salvate.</value>
   </data>
@@ -7866,6 +7881,42 @@ Sincronizzare ora il tuo gioco?</value>
   </data>
   <data name="Sharing_ClipboardUpdateFormat" xml:space="preserve">
     <value>Negli appunti c'è un aggiornamento di "{0}" da {1}.</value>
+  </data>
+  <data name="Sharing_ClipboardCopyBackFormat" xml:space="preserve">
+    <value>Negli appunti c'è la copia di "{0}" fatta da {1}, con {2} mod che la tua non ha.</value>
+  </data>
+  <data name="Sharing_CopyBackTitle" xml:space="preserve">
+    <value>Mod dalla copia di un amico</value>
+  </data>
+  <data name="Sharing_CopyBackIntroFormat" xml:space="preserve">
+    <value>La copia di "{0}" fatta da {1} ha questi mod, la tua no. Spunta quelli da aggiungere alla tua - non ne viene tolto nulla.</value>
+  </data>
+  <data name="Sharing_CopyBackNothingFormat" xml:space="preserve">
+    <value>La copia di "{0}" fatta da {1} non ha mod che la tua non abbia - li hai già tutti.</value>
+  </data>
+  <data name="Sharing_CopyBackLeftOut_one" xml:space="preserve">
+    <value>Questa copia lascia fuori {0} dei tuoi mod. Resta nella tua.</value>
+  </data>
+  <data name="Sharing_CopyBackLeftOut_other" xml:space="preserve">
+    <value>Questa copia lascia fuori {0} dei tuoi mod. Restano nella tua.</value>
+  </data>
+  <data name="Sharing_CopyBackAdd" xml:space="preserve">
+    <value>Aggiungi alla mia</value>
+  </data>
+  <data name="Sharing_CopyBackKeepSeparate" xml:space="preserve">
+    <value>Tienila come collezione a parte</value>
+  </data>
+  <data name="Sharing_Took_one" xml:space="preserve">
+    <value>Aggiunto {0} mod dalla copia di {1} a "{2}".</value>
+  </data>
+  <data name="Sharing_Took_other" xml:space="preserve">
+    <value>Aggiunti {0} mod dalla copia di {1} a "{2}".</value>
+  </data>
+  <data name="Sharing_TookShareAgain" xml:space="preserve">
+    <value>Condividila di nuovo perché tutti li ricevano.</value>
+  </data>
+  <data name="Sharing_TookFolder" xml:space="preserve">
+    <value>La sua cartella condivisa li ha già, quindi gli amici che la seguono vengono avvisati.</value>
   </data>
   <data name="Sharing_NoModChanges" xml:space="preserve">
     <value>nessuna modifica ai mod</value>

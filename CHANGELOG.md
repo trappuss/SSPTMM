@@ -1,3 +1,17 @@
+# SSPTMM 1.4.4
+
+## Updating
+
+From 1.3.0 or later: Help > About > **Install update**. From an older version: close SSPTMM, download `SSPTMM-1.4.4-win-x64.zip` and copy the contents of its `SSPTMM` folder over your SSPTMM folder. Your settings in `Data` stay as they are.
+
+## New
+
+- **Friends can suggest mods for your collection.** A friend opens the collection you shared, presses **Save to Collection** to make a copy of their own, adds the mods they'd like and shares that copy back to you. When you add it - **Add from code**, a code on your clipboard, or **Add from file** - SSPTMM sees it is a copy of one of yours and lists the mods it has that yours doesn't, all ticked. **Add to mine** puts the ticked ones in your collection; nothing is taken out of it, and the mods their copy left out are only counted. **Keep as its own collection** adds the copy like any other. Share yours again and everyone gets them - a collection kept in a shared folder is updated there straight away. A share code only says what it was copied from when your friend has 1.4.4 or later; from an older version it arrives as a collection of its own. *Asked for in feedback.*
+
+## Fixed
+
+- **Help's Collections how-tos said "Open YourCollectionsPage"** on their button instead of "Open Collections".
+
 # SSPTMM 1.4.3
 
 ## Updating
@@ -47,7 +61,7 @@ From 1.3.0 or later: Help > About > **Install update**. From an older version: c
 
 ## Fixed
 
-- **The downloads bar spoke English in every language** ("DOWNLOADS - Manage") until a download started.
+- **The downloads bar spoke English in every language** ("DOWNLOADS - Manage") until a download started. *Reported by Praxideke.*
 - **Presets tell apart two mods in one folder.** A preset kept such a folder as one entry, so it couldn't keep one of its mods on and the other off, and when one was off it left the folder alone as "in two places". Each now has its own entry and is switched by its own files, as its card is. Presets saved before this go by the folder's entry for both.
 - **Switching off one of two mods in one folder no longer warns about the other.** The warning listed mods that need the mod staying on, and could name the folder's other mod as the one being switched off.
 - The Options gear at the top right now has a name for screen readers.

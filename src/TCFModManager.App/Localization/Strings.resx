@@ -7926,6 +7926,26 @@ Install the file as it is anyway?</value>
   <data name="Help_ModLists_Share_Note" xml:space="preserve">
     <value>Changed the collection? Send the code again - their copy is updated and they are shown what changed. A file from Export works too.</value>
   </data>
+  <data name="Help_ModLists_Suggest_Title" xml:space="preserve">
+    <value>Suggest mods for a friend's collection</value>
+    <comment>How-to title.</comment>
+  </data>
+  <data name="Help_ModLists_Suggest_Step1" xml:space="preserve">
+    <value>Open the collection they shared on {0} and press {1}. That makes a copy of your own.</value>
+    <comment>{0} is the Collections tab, {1} the Save to Collection button.</comment>
+  </data>
+  <data name="Help_ModLists_Suggest_Step2" xml:space="preserve">
+    <value>Add the mods you'd like to your copy, then press {0} and send them its code.</value>
+    <comment>{0} is the Share with friends button.</comment>
+  </data>
+  <data name="Help_ModLists_Suggest_Step3" xml:space="preserve">
+    <value>When they add your code, their app lists the mods your copy adds, and they tick the ones that join their collection. Nothing is taken out of it.</value>
+    <comment>What the friend whose collection it is sees.</comment>
+  </data>
+  <data name="Help_ModLists_Suggest_Keywords" xml:space="preserve">
+    <value>suggest, suggestion, recommend, request, friend, add, approve, copy, collection, modpack</value>
+    <comment>Search words for this how-to, comma separated.</comment>
+  </data>
   <data name="Help_ModLists_Server_Title" xml:space="preserve">
     <value>Get the mods a server runs</value>
     <comment>How-to title.</comment>
@@ -9692,6 +9712,54 @@ Sync your game to it now?</value>
   <data name="Sharing_ClipboardUpdateFormat" xml:space="preserve">
     <value>An update to "{0}" from {1} is on your clipboard.</value>
     <comment>Your collections: a newer code of a collection you have was copied.</comment>
+  </data>
+  <data name="Sharing_ClipboardCopyBackFormat" xml:space="preserve">
+    <value>{1}'s copy of "{0}" is on your clipboard, with {2} mods yours doesn't have.</value>
+    <comment>Your collections: a friend's copy of one of your collections was copied. {0} your collection, {1} the friend, {2} how many mods it has that yours doesn't.</comment>
+  </data>
+  <data name="Sharing_CopyBackTitle" xml:space="preserve">
+    <value>Mods from a friend's copy</value>
+    <comment>Title of the dialog for a friend's copy of one of your collections.</comment>
+  </data>
+  <data name="Sharing_CopyBackIntroFormat" xml:space="preserve">
+    <value>{1}'s copy of "{0}" has these mods and yours doesn't. Tick the ones to add to yours - nothing is taken out of it.</value>
+    <comment>Above the mods a friend's copy adds, as tick boxes. {0} your collection, {1} the friend.</comment>
+  </data>
+  <data name="Sharing_CopyBackNothingFormat" xml:space="preserve">
+    <value>{1}'s copy of "{0}" has no mods yours doesn't - you have them all already.</value>
+    <comment>A friend's copy of your collection with no mods yours doesn't have. {0} your collection, {1} the friend.</comment>
+  </data>
+  <data name="Sharing_CopyBackLeftOut_one" xml:space="preserve">
+    <value>Their copy leaves out {0} mod of yours. It stays in yours.</value>
+    <comment>Under the tick boxes: mods of yours the friend's copy doesn't have. {0} how many.</comment>
+  </data>
+  <data name="Sharing_CopyBackLeftOut_other" xml:space="preserve">
+    <value>Their copy leaves out {0} mods of yours. They stay in yours.</value>
+    <comment>Under the tick boxes: mods of yours the friend's copy doesn't have. {0} how many.</comment>
+  </data>
+  <data name="Sharing_CopyBackAdd" xml:space="preserve">
+    <value>Add to mine</value>
+    <comment>Adds the ticked mods to your collection.</comment>
+  </data>
+  <data name="Sharing_CopyBackKeepSeparate" xml:space="preserve">
+    <value>Keep as its own collection</value>
+    <comment>Adds the friend's copy as a collection of its own instead.</comment>
+  </data>
+  <data name="Sharing_Took_one" xml:space="preserve">
+    <value>Added {0} mod from {1}'s copy to "{2}".</value>
+    <comment>After adding mods from a friend's copy. {0} how many, {1} the friend, {2} your collection.</comment>
+  </data>
+  <data name="Sharing_Took_other" xml:space="preserve">
+    <value>Added {0} mods from {1}'s copy to "{2}".</value>
+    <comment>After adding mods from a friend's copy. {0} how many, {1} the friend, {2} your collection.</comment>
+  </data>
+  <data name="Sharing_TookShareAgain" xml:space="preserve">
+    <value>Share it again so everyone gets them.</value>
+    <comment>Follows Sharing_Took when the collection isn't kept in a shared folder.</comment>
+  </data>
+  <data name="Sharing_TookFolder" xml:space="preserve">
+    <value>Its shared folder has them already, so friends following it are told.</value>
+    <comment>Follows Sharing_Took when the collection is kept in a shared folder.</comment>
   </data>
   <data name="Sharing_NoModChanges" xml:space="preserve">
     <value>no mod changes</value>

@@ -2694,6 +2694,32 @@ From another mod manager (trappuss: "research it and see if there's anything cou
   limit once escaped) with the whole on the clipboard. Not checked: the crash dialog (nothing to
   crash it on purpose) and the issue page opening.
 
+## Round 55: 1.4.4 - friends suggest mods for your collection (2026-10-17)
+
+- **A friend's copy, come back** (a user's feedback: friends adding mods to a shared collection,
+  with the owner approving each). Built on what was there rather than as suggestion codes: a
+  friend's copy of your collection is read-only, but Save to Collection / Make a copy forks it
+  (`ModListStore.Fork`, `DerivedFrom` = your collection's id), and its code comes back to you.
+  `ModListShareCode` now carries `DerivedFrom` as `"d"` when there is one (format stays 1 - an
+  older reader passes over a field it doesn't know); the list file always carried it.
+  `ModListCopyBack.For` (Core) recognises an arrival whose `DerivedFrom` is one of your editable
+  collections - not your own collection read back, which keeps its YourOwnList clash - and works
+  out the mods it adds (`ModListEntries.Contains`, so an addon and a mod of one number stay two)
+  and those it left out. Only additions are offered: leaving a mod out of a copy is as likely
+  "I don't want it" as "the group shouldn't", and a version both have is the copy's business.
+  `CollectionSharing.Receive` asks first (`CopyBackDialog`: the mods ticked, the left-out count,
+  Add to mine / Keep as its own collection / Cancel); taking replaces the entries, writes the
+  shared folders (numbering it again there, so followers hear), and says so with Share and Open
+  it. Not for a followed file - following a friend's copy is following it. Your collections'
+  clipboard notice names it as a friend's copy, and offers nothing once yours has every mod.
+  Help: "Suggest mods for a friend's collection". Seen on a hidden desktop with a code made for a
+  sandbox collection (two mods left out, three added): the dialog, Add to mine taking 72 to 75
+  with the revision unchanged, the after-dialog, and the same code again offering nothing. Not
+  seen: the clipboard notice (the test would have to write the user's clipboard), a shared folder.
+- **Help's Open button for Collections** read "Open YourCollectionsPage": `HelpCatalog.PageName`
+  had no case for the Collections tab's own page (the section has opened it since the UI tidy-up).
+  Seen while checking the new how-to.
+
 ## Values that could not be measured (marked HUNCH in the source)
 
 - Round 53: the back and forward arrows' greys and 32x36 box (Steam's are in its client, not on a

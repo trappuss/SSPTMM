@@ -2125,6 +2125,11 @@ internal static class Strings
     internal static string Help_ModLists_Share_Step2 => LocalizationService.Get("Help_ModLists_Share_Step2");
     internal static string Help_ModLists_Share_Step3 => LocalizationService.Get("Help_ModLists_Share_Step3");
     internal static string Help_ModLists_Share_Note => LocalizationService.Get("Help_ModLists_Share_Note");
+    internal static string Help_ModLists_Suggest_Title => LocalizationService.Get("Help_ModLists_Suggest_Title");
+    internal static string Help_ModLists_Suggest_Step1 => LocalizationService.Get("Help_ModLists_Suggest_Step1");
+    internal static string Help_ModLists_Suggest_Step2 => LocalizationService.Get("Help_ModLists_Suggest_Step2");
+    internal static string Help_ModLists_Suggest_Step3 => LocalizationService.Get("Help_ModLists_Suggest_Step3");
+    internal static string Help_ModLists_Suggest_Keywords => LocalizationService.Get("Help_ModLists_Suggest_Keywords");
     internal static string Help_ModLists_Server_Title => LocalizationService.Get("Help_ModLists_Server_Title");
     internal static string Help_ModLists_Server_Step1 => LocalizationService.Get("Help_ModLists_Server_Step1");
     internal static string Help_ModLists_Server_Step2 => LocalizationService.Get("Help_ModLists_Server_Step2");
@@ -2577,6 +2582,18 @@ internal static class Strings
     internal static string Sharing_FollowedUpdateFormat => LocalizationService.Get("Sharing_FollowedUpdateFormat");
     internal static string Sharing_ClipboardNewFormat => LocalizationService.Get("Sharing_ClipboardNewFormat");
     internal static string Sharing_ClipboardUpdateFormat => LocalizationService.Get("Sharing_ClipboardUpdateFormat");
+    internal static string Sharing_ClipboardCopyBackFormat => LocalizationService.Get("Sharing_ClipboardCopyBackFormat");
+    internal static string Sharing_CopyBackTitle => LocalizationService.Get("Sharing_CopyBackTitle");
+    internal static string Sharing_CopyBackIntroFormat => LocalizationService.Get("Sharing_CopyBackIntroFormat");
+    internal static string Sharing_CopyBackNothingFormat => LocalizationService.Get("Sharing_CopyBackNothingFormat");
+    internal static string Sharing_CopyBackLeftOut(int count, params object?[] values) =>
+        LocalizationService.Plural("Sharing_CopyBackLeftOut", count, values);
+    internal static string Sharing_CopyBackAdd => LocalizationService.Get("Sharing_CopyBackAdd");
+    internal static string Sharing_CopyBackKeepSeparate => LocalizationService.Get("Sharing_CopyBackKeepSeparate");
+    internal static string Sharing_Took(int count, params object?[] values) =>
+        LocalizationService.Plural("Sharing_Took", count, values);
+    internal static string Sharing_TookShareAgain => LocalizationService.Get("Sharing_TookShareAgain");
+    internal static string Sharing_TookFolder => LocalizationService.Get("Sharing_TookFolder");
     internal static string Sharing_NoModChanges => LocalizationService.Get("Sharing_NoModChanges");
     internal static string Sharing_DiffAddedFormat => LocalizationService.Get("Sharing_DiffAddedFormat");
     internal static string Sharing_DiffRemovedFormat => LocalizationService.Get("Sharing_DiffRemovedFormat");

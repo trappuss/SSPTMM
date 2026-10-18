@@ -194,6 +194,17 @@ public sealed partial class YourCollectionsViewModel : LocalizedViewModel
         if (!read.Succeeded) return;
 
         var incoming = read.List!;
+
+        // Fork (1.4.4): a friend's copy of one of yours - offered for the mods it adds, and not at
+        // all once yours has them.
+        if (ModListCopyBack.For(incoming, AppServices.ModLists.Load().Lists) is { } back)
+        {
+            Offer = back.Adds.Count == 0
+                ? null
+                : new ClipboardOffer(text!, Text(Strings.Sharing_ClipboardCopyBackFormat, back.Yours.Name, incoming.Source ?? Strings.Sharing_Someone, back.Adds.Count), false);
+            return;
+        }
+
         var existing = AppServices.ModLists.Find(incoming.Id);
 
         // Already here, and this copy is no newer: nothing to offer.

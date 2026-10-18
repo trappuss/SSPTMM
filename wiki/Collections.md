@@ -48,6 +48,32 @@ Open one for its page: **Manage in Collections** and **Share with friends**.
 When a friend's collection changes, a notice says exactly what was added or removed and offers
 **Sync** or **Later**. A share code you copy is noticed when you switch to the app.
 
+### Suggesting mods for a friend's collection
+
+A collection a friend shared with you is theirs: your copy of it can't be changed. To suggest mods
+for it:
+
+1. Open their collection (Collections > Your Items) and press **Save to Collection**. That makes a
+   copy of your own.
+2. Add the mods you'd like to your copy - **Add to Collection** on any mod, or **Add mods** under
+   **Manage in Collections**.
+3. Press **Share with friends** on your copy and send them its code (or the file from **Export**).
+
+When they add it - **Add from code**, the clipboard notice, or **Add from file** - their SSPTMM sees
+it is a copy of one of their collections and shows **Mods from a friend's copy**: each mod your
+copy has and theirs doesn't, ticked.
+
+- **Add to mine** puts the ticked mods in their collection. Nothing is taken out of it: mods your
+  copy left out are only counted, and a mod you both have keeps their version.
+- **Keep as its own collection** adds your copy as a separate collection instead, as before.
+- Afterwards they share it again (**Share**, right there) so everyone gets the new mods. A
+  collection kept in a shared folder is updated in the folder straight away, and friends following
+  it are told.
+
+Sending the same copy again only offers what their collection still doesn't have. Both of you need
+SSPTMM 1.4.4 or later for a share code; a copy sent as a file works from older versions too, as
+long as the one adding it has 1.4.4.
+
 ## Manage collections
 
 ![Manage](https://raw.githubusercontent.com/trappuss/SSPTMM/main/docs/images/08c-collection-manage.png)

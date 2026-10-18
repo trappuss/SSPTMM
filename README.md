@@ -153,6 +153,8 @@ folder. **Open** starts it in the right folder, and the folder button opens the 
   - a **shared folder** (Dropbox, OneDrive, Google Drive), which keeps everyone's copy up to date.
 - **When a friend's collection changes,** SSPTMM says exactly what was added or removed and offers
   **Sync**. Only the list travels; every mod still downloads from sp-mod.com.
+- **Friends can suggest mods for yours.** They save a copy of your collection, add mods and send
+  you its code. SSPTMM lists the mods their copy adds, and you tick the ones that join yours.
 
 ![Sharing a collection by code or shared folder](docs/images/18-share-collection.png)
 

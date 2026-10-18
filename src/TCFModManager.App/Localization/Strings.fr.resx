@@ -7365,6 +7365,21 @@ Installer quand même le fichier tel quel ?</value>
   <data name="Help_ModLists_Share_Note" xml:space="preserve">
     <value>Vous avez modifié la collection ? Renvoyez le code - leur copie est mise à jour et on leur montre ce qui a changé. Un fichier obtenu avec Exporter fonctionne aussi.</value>
   </data>
+  <data name="Help_ModLists_Suggest_Title" xml:space="preserve">
+    <value>Suggérer des mods pour la collection d'un ami</value>
+  </data>
+  <data name="Help_ModLists_Suggest_Step1" xml:space="preserve">
+    <value>Ouvrez la collection partagée dans {0} et cliquez sur {1}. Cela crée votre propre copie.</value>
+  </data>
+  <data name="Help_ModLists_Suggest_Step2" xml:space="preserve">
+    <value>Ajoutez à votre copie les mods que vous aimeriez, puis cliquez sur {0} et renvoyez son code.</value>
+  </data>
+  <data name="Help_ModLists_Suggest_Step3" xml:space="preserve">
+    <value>Quand votre code est ajouté, l'application de l'autre côté liste les mods que votre copie ajoute, et seuls ceux qui sont cochés rejoignent la collection. Rien n'en est retiré.</value>
+  </data>
+  <data name="Help_ModLists_Suggest_Keywords" xml:space="preserve">
+    <value>suggérer, suggestion, recommander, demande, ami, amis, ajouter, approuver, copie, collection, modpack</value>
+  </data>
   <data name="Help_ModLists_Undo_Step1" xml:space="preserve">
     <value>Ouvrez n'importe quelle collection dans {0}, cliquez sur {1}, puis sur {2} sous les listes enregistrées.</value>
   </data>
@@ -7866,6 +7881,42 @@ Synchroniser votre jeu avec elle maintenant ?</value>
   </data>
   <data name="Sharing_ClipboardUpdateFormat" xml:space="preserve">
     <value>Une mise à jour de « {0} » par {1} se trouve dans votre presse-papiers.</value>
+  </data>
+  <data name="Sharing_ClipboardCopyBackFormat" xml:space="preserve">
+    <value>La copie de « {0} » faite par {1} se trouve dans votre presse-papiers, avec {2} mods que la vôtre n'a pas.</value>
+  </data>
+  <data name="Sharing_CopyBackTitle" xml:space="preserve">
+    <value>Mods de la copie d'un ami</value>
+  </data>
+  <data name="Sharing_CopyBackIntroFormat" xml:space="preserve">
+    <value>La copie de « {0} » faite par {1} a ces mods, la vôtre non. Cochez ceux à ajouter à la vôtre - rien n'en est retiré.</value>
+  </data>
+  <data name="Sharing_CopyBackNothingFormat" xml:space="preserve">
+    <value>La copie de « {0} » faite par {1} n'a aucun mod que la vôtre n'a pas - vous les avez déjà tous.</value>
+  </data>
+  <data name="Sharing_CopyBackLeftOut_one" xml:space="preserve">
+    <value>Cette copie laisse de côté {0} de vos mods. Il reste dans la vôtre.</value>
+  </data>
+  <data name="Sharing_CopyBackLeftOut_other" xml:space="preserve">
+    <value>Cette copie laisse de côté {0} de vos mods. Ils restent dans la vôtre.</value>
+  </data>
+  <data name="Sharing_CopyBackAdd" xml:space="preserve">
+    <value>Ajouter à la mienne</value>
+  </data>
+  <data name="Sharing_CopyBackKeepSeparate" xml:space="preserve">
+    <value>Garder comme collection à part</value>
+  </data>
+  <data name="Sharing_Took_one" xml:space="preserve">
+    <value>{0} mod de la copie de {1} ajouté à « {2} ».</value>
+  </data>
+  <data name="Sharing_Took_other" xml:space="preserve">
+    <value>{0} mods de la copie de {1} ajoutés à « {2} ».</value>
+  </data>
+  <data name="Sharing_TookShareAgain" xml:space="preserve">
+    <value>Partagez-la de nouveau pour que tout le monde les reçoive.</value>
+  </data>
+  <data name="Sharing_TookFolder" xml:space="preserve">
+    <value>Son dossier partagé les a déjà, donc les amis qui le suivent sont prévenus.</value>
   </data>
   <data name="Sharing_NoModChanges" xml:space="preserve">
     <value>aucun changement de mod</value>

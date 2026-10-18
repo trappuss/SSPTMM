@@ -31,6 +31,10 @@ namespace TCFModManager.App.Services;
 // friend is told what changed and offered Sync: the Collections page's preview with "match the pack
 // exactly" (Exclusive) chosen, so the group ends up on the same set - nothing changes unseen.
 //
+// Fork (1.4.4): a friend's copy of one of YOUR collections (made with Make a copy) is the way a
+// friend suggests mods for it. Arriving, it offers the mods it adds to yours, each to take or leave
+// (ModListCopyBack, CopyBackDialog), rather than becoming one more collection - unless you'd rather.
+//
 public static class CollectionSharing
 {
     private static readonly SettingsService Settings = new();
@@ -167,9 +171,10 @@ public static class CollectionSharing
 
     // ---------------------------------------------------------------- the friend receiving
 
-    public enum Arrival { Added, Updated, AlreadyHave, AddedAsCopy, Kept }
+    public enum Arrival { Added, Updated, AlreadyHave, AddedAsCopy, Kept, TookMods }
 
-    public sealed record Received(ModList List, Arrival Arrival, ModListDiff? Diff);
+    // Taken and From: for TookMods, how many of the copy's mods joined List, and whose copy it was.
+    public sealed record Received(ModList List, Arrival Arrival, ModListDiff? Diff, int Taken = 0, string? From = null);
 
     // A share code's entries carry ids, not names: filled in here from the catalog, as is each
     // mod's plugin GUID, which is how a copy installed by hand is recognised.
@@ -211,6 +216,13 @@ public static class CollectionSharing
     //
     public static Received? Receive(ModList incoming, string? followedFile = null)
     {
+        if (followedFile is null && ModListCopyBack.For(incoming, AppServices.ModLists.Load().Lists) is { } back)
+        {
+            var (choice, taken) = CopyBackDialog.Ask(back);
+            if (choice == CopyBackDialog.Choice.Cancel) return null;
+            if (choice == CopyBackDialog.Choice.Take) return TakeMods(back, taken);
+        }
+
         var existing = AppServices.ModLists.Find(incoming.Id);
 
         switch (AppServices.ModLists.ClashFor(incoming))
@@ -259,6 +271,18 @@ public static class CollectionSharing
         AppLog.Info("Sharing", $"received \"{stored.Name}\" revision {stored.Revision} from {stored.Source ?? "someone"}: {arrival}"
             + (diff is null ? "" : $" (+{diff.Added.Count} -{diff.Removed.Count} ~{diff.Changed.Count})"));
         return new Received(stored, arrival, diff);
+    }
+
+    // The mods chosen from a friend's copy, into your collection - and into its shared folder's
+    // file, numbered again, so friends following it hear of them now.
+    private static Received TakeMods(ModListCopyBack back, IReadOnlyList<ModListEntry> taken)
+    {
+        var updated = AppServices.ModLists.ReplaceEntries(back.Yours.Id, back.With(taken)) ?? back.Yours;
+        WriteSharedFolders();
+
+        var from = back.Theirs.Source ?? Strings.Sharing_Someone;
+        AppLog.Info("Sharing", $"took {taken.Count} of {back.Adds.Count} mod(s) from {from}'s copy into \"{updated.Name}\"");
+        return new Received(updated, Arrival.TookMods, null, taken.Count, from);
     }
 
     public static async Task<Received?> AddFromCodeAsync(string text)
@@ -375,6 +399,19 @@ public static class CollectionSharing
                 break;
 
             case Arrival.Kept:
+                break;
+
+            case Arrival.TookMods:
+                var took = Strings.Sharing_Took(received.Taken, received.Taken, received.From, list.Name)
+                    + " " + (SharedFileFor(list.Id) is null ? Strings.Sharing_TookShareAgain : Strings.Sharing_TookFolder);
+                var next = SteamDialog.Show(
+                    Strings.Sharing_CopyBackTitle,
+                    took,
+                    new SteamDialogChoice(Strings.Collection_Share, SteamDialogButton.Green, IsDefault: true),
+                    new SteamDialogChoice(Strings.Sharing_Open, SteamDialogButton.Blue),
+                    new SteamDialogChoice(Strings.Common_Close, SteamDialogButton.Grey));
+                if (next == 0) ShareCollectionDialog.Show(list.Id);
+                else if (next == 1) AppServices.CollectionOverlay.Show(list.Id);
                 break;
 
             default:
