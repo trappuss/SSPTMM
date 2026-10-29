@@ -1,3 +1,14 @@
+# SSPTMM 1.4.5
+
+## Updating
+
+From 1.3.0 or later: Help > About > **Install update**. From an older version: close SSPTMM, download `SSPTMM-1.4.5-win-x64.zip` and copy the contents of its `SSPTMM` folder over your SSPTMM folder. Your settings in `Data` stay as they are.
+
+## New
+
+- **Your profiles are checked before mods go.** Removing a mod, turning one off, applying a preset or applying a collection now reads your SPT profiles first. If one holds items or traders that a mod about to go adds - a gun in the stash, a trader you've dealt with - you're told which profile, which mod and how many (`Main - Some Weapon Pack: 71 items`), before anything changes, and can keep the mod. Without it SPT won't load that profile, or with its profile clean-up on, takes those items out for good. It is asked even with Don't ask again ticked. The check finds a mod's items in its own files, so a mod that makes up its item ids while it runs isn't caught; it only reads profiles on this PC, and never changes them. *Asked for in feedback.*
+- **Fika incompatible and Fika compatibility unknown filters**, beside Fika compatible - in Subscribed items' filters and Browse's tags. Ticked together they add up: Compatible and Unknown shows both. sp-mod.com says incompatible or unknown per version; the newest version decides. *Asked for in feedback.*
+
 # SSPTMM 1.4.4
 
 ## Updating
