@@ -13,6 +13,12 @@ public enum ModAttributeFilter
     // Only mods flagged Fika compatible.
     FikaCompatible,
 
+    // Fork (1.4.5): only mods whose newest version sp-mod.com marks Fika incompatible, and only
+    // those it says nothing about. Ticked together with FikaCompatible, each adds its own -
+    // Mod.Fika is one of the three, so requiring two would always show nothing.
+    FikaIncompatible,
+    FikaUnknown,
+
     // Mods flagged as containing ads are hidden.
     HideAds,
 
@@ -72,6 +78,8 @@ public partial class ModAttributeOption(ModAttributeFilter value, string key, st
     public static ObservableCollection<ModAttributeOption> Standard(string dependenciesToolTipKey) =>
     [
         new(ModAttributeFilter.FikaCompatible, nameof(Strings.Filter_FikaOnly)),
+        new(ModAttributeFilter.FikaIncompatible, nameof(Strings.Filter_FikaIncompatible)),
+        new(ModAttributeFilter.FikaUnknown, nameof(Strings.Filter_FikaUnknown)),
         new(ModAttributeFilter.HideAds, nameof(Strings.Filter_HideAds)),
         new(ModAttributeFilter.HasDependencies, nameof(Strings.Filter_HasDependencies), dependenciesToolTipKey),
         new(ModAttributeFilter.HasAddons, nameof(Strings.Filter_HasAddons), nameof(Strings.Filter_HasAddonsToolTip)),

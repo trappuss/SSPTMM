@@ -27,6 +27,18 @@ public sealed class Mod
     public List<SourceCodeLink>? SourceCodeLinks { get; set; }
     public string? DetailUrl { get; set; }
     public bool? FikaCompatibility { get; set; }
+
+    //
+    // Fork (1.4.5): Fika compatible, incompatible, or not said. The mod's own flag only says yes or
+    // no; its versions say which no - "incompatible" or "unknown" - so the newest one decides.
+    //
+    public FikaStatus Fika =>
+        FikaCompatibility == true ? FikaStatus.Compatible
+        : Versions?.OrderByDescending(v => v.PublishedAt ?? v.CreatedAt ?? DateTimeOffset.MinValue).FirstOrDefault() is { } newest
+          && string.Equals(newest.FikaCompatibility, "incompatible", StringComparison.OrdinalIgnoreCase)
+            ? FikaStatus.Incompatible
+            : FikaStatus.Unknown;
+
     public bool? Featured { get; set; }
     public bool? ContainsAds { get; set; }
     public bool? ContainsAiContent { get; set; }
@@ -61,4 +73,15 @@ public sealed class ModVersionSummary
     // Fork: also sent with include=versions, kept for ReuploadCheck. Null in a catalog cached before.
     public long? ContentLength { get; set; }
     public DateTimeOffset? CreatedAt { get; set; }
+
+    // Fork (1.4.5): "compatible", "incompatible" or "unknown" - see Mod.Fika.
+    public string? FikaCompatibility { get; set; }
+}
+
+// Fork (1.4.5): what sp-mod.com says about a mod and Fika.
+public enum FikaStatus
+{
+    Unknown,
+    Compatible,
+    Incompatible,
 }

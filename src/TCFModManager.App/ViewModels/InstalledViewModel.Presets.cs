@@ -301,12 +301,19 @@ public partial class InstalledViewModel
         if (missing.Count > 0)
             body.Children.Add(Caution(Strings.Presets_NeedsHeader + "\n" + string.Join("\n", missing)));
 
-        var profileMods = plan.ToDisable
+        var goingOff = plan.ToDisable
             .Select(m => _cardByEntry.GetValueOrDefault(m))
             .Concat(plan.SharedToDisable.Select(s => _sharedCards.GetValueOrDefault(s)))
             .OfType<InstalledModCardViewModel>()
             .Distinct()
-            .Where(ChangesProfile)
+            .ToList();
+
+        // Fork (1.4.5): what the profiles hold from them, then what sp-mod.com marks beyond that.
+        var losses = ProfileItemsWarning.ForCards(goingOff);
+        if (losses.Count > 0) body.Children.Add(Caution(ProfileItemsWarning.Text(losses)));
+
+        var profileMods = goingOff
+            .Where(c => ChangesProfile(c) && !losses.Any(l => l.ModName == c.DisplayTitle))
             .Select(c => c.DisplayTitle)
             .ToList();
         if (profileMods.Count > 0)

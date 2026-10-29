@@ -183,6 +183,9 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
     // True when the matched catalog listing is flagged Fika compatible.
     public bool IsFikaCompatible { get; init; }
 
+    // Fork (1.4.5): what the matched listing says about Fika; Unknown with no listing.
+    public FikaStatus Fika { get; init; }
+
     // True when the matched catalog listing is flagged as containing ads.
     public bool ContainsAds { get; init; }
 
@@ -1611,6 +1614,7 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
             CategoryTag = match?.Category?.Title,
             AddonCount = match is null ? 0 : addonsByParent.GetValueOrDefault(match.Id),
             IsFikaCompatible = match?.FikaCompatibility == true,
+            Fika = match?.Fika ?? FikaStatus.Unknown,
             ContainsAds = match?.ContainsAds == true,
             ContainsAiContent = match?.ContainsAiContent == true,
             UpdateAvailable = updateAvailable,

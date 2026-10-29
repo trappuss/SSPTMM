@@ -498,6 +498,12 @@ Das wurde hier hingeschrieben:
   <data name="Common_FlagFikaCompatible" xml:space="preserve">
     <value>Fika-kompatibel</value>
   </data>
+  <data name="Common_FlagFikaIncompatible" xml:space="preserve">
+    <value>Fika-inkompatibel</value>
+  </data>
+  <data name="Common_FlagFikaUnknown" xml:space="preserve">
+    <value>Fika-Kompatibilität unbekannt</value>
+  </data>
   <data name="Common_FlagSeparator" xml:space="preserve">
     <value> • </value>
   </data>
@@ -1262,6 +1268,12 @@ Was du auch wählst: Die Version, die gerade auf der Festplatte liegt, wird zuer
   </data>
   <data name="Filter_FikaOnly" xml:space="preserve">
     <value>Nur Fika-kompatible</value>
+  </data>
+  <data name="Filter_FikaIncompatible" xml:space="preserve">
+    <value>Nur Fika-inkompatible</value>
+  </data>
+  <data name="Filter_FikaUnknown" xml:space="preserve">
+    <value>Nur Fika-Kompatibilität unbekannt</value>
   </data>
   <data name="Filter_HasAddons" xml:space="preserve">
     <value>Hat Addons</value>
@@ -8153,6 +8165,36 @@ Wenn du sie entfernst - oder ausschaltest -, kann ein Profil zurückbleiben, das
   </data>
   <data name="Installed_RemoveProfileRemove" xml:space="preserve">
     <value>Entfernen</value>
+  </data>
+  <data name="ProfileItems_Title" xml:space="preserve">
+    <value>Deine Profile enthalten Gegenstände aus diesen Mods</value>
+  </data>
+  <data name="ProfileItems_Intro" xml:space="preserve">
+    <value>Diese Profile enthalten Gegenstände oder Händler aus Mods, die gleich wegfallen. Ohne sie lädt SPT das Profil nicht - oder entfernt sie endgültig, wenn seine Profilbereinigung an ist:</value>
+  </data>
+  <data name="ProfileItems_LineFormat" xml:space="preserve">
+    <value>{0} - {1}: {2}</value>
+  </data>
+  <data name="ProfileItems_Items_one" xml:space="preserve">
+    <value>{0} Gegenstand</value>
+  </data>
+  <data name="ProfileItems_Items_other" xml:space="preserve">
+    <value>{0} Gegenstände</value>
+  </data>
+  <data name="ProfileItems_Traders_one" xml:space="preserve">
+    <value>{0} Händler</value>
+  </data>
+  <data name="ProfileItems_Traders_other" xml:space="preserve">
+    <value>{0} Händler</value>
+  </data>
+  <data name="ProfileItems_Outro" xml:space="preserve">
+    <value>Kommt der Mod zurück, lädt das Profil wieder. Eine Kopie deiner Profile von kurz davor wird aufbewahrt (Optionen &gt; SPT-Profilsicherungen).</value>
+  </data>
+  <data name="ProfileItems_TurnOffAnyway" xml:space="preserve">
+    <value>Trotzdem ausschalten</value>
+  </data>
+  <data name="ProfileItems_ApplyAnyway" xml:space="preserve">
+    <value>Trotzdem anwenden</value>
   </data>
   <data name="Installed_ReuploadedTag" xml:space="preserve">
     <value>NEU HOCHGELADEN</value>

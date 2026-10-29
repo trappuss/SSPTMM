@@ -69,7 +69,9 @@ friends who need the same set. Here is the honest version of both sides.
 - **Playing together.** With Fika, everyone needs the same mods. A shared collection keeps a group
   in step, and says exactly what changed when someone adds or removes one.
 - **Your profile.** Some mods write into your profile and can leave it unloadable when removed.
-  SSPTMM backs your profiles up before every change and warns before removing one of those mods.
+  SSPTMM backs your profiles up before every change, and before a mod is removed or turned off -
+  on its own, by a preset or by a collection - checks your profiles for its items and traders and
+  tells you which profile would lose what.
 
 ### Why not, or what to keep in mind
 

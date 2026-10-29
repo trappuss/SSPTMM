@@ -150,6 +150,8 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
         TagRows =
         [
             new(nameof(Strings.Common_FlagFikaCompatible), Option(ModAttributeFilter.FikaCompatible), null),
+            new(nameof(Strings.Common_FlagFikaIncompatible), Option(ModAttributeFilter.FikaIncompatible), null),
+            new(nameof(Strings.Common_FlagFikaUnknown), Option(ModAttributeFilter.FikaUnknown), null),
             new(nameof(Strings.Filter_HasDependencies), Option(ModAttributeFilter.HasDependencies), null),
             new(nameof(Strings.Filter_HasAddons), Option(ModAttributeFilter.HasAddons), null),
             new(nameof(Strings.Common_FlagContainsAds), null, Option(ModAttributeFilter.HideAds)),
@@ -448,6 +450,19 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
 
     private bool IsOn(ModAttributeFilter filter) =>
         AttributeOptions.Any(o => o.Value == filter && o.IsSelected);
+
+    // Fork (1.4.5): the three Fika ticks add to each other - none ticked shows every mod.
+    private bool FikaWanted(FikaStatus fika)
+    {
+        bool compatible = IsOn(ModAttributeFilter.FikaCompatible), incompatible = IsOn(ModAttributeFilter.FikaIncompatible), unknown = IsOn(ModAttributeFilter.FikaUnknown);
+        if (!compatible && !incompatible && !unknown) return true;
+        return fika switch
+        {
+            FikaStatus.Compatible => compatible,
+            FikaStatus.Incompatible => incompatible,
+            _ => unknown,
+        };
+    }
 
     [ObservableProperty]
     private bool _isBusy;
@@ -1052,7 +1067,7 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
             })
             .Where(m => SelectedCategory.Title is not { } category
                 || string.Equals(m.Category?.Title, category, StringComparison.OrdinalIgnoreCase))
-            .Where(m => !IsOn(ModAttributeFilter.FikaCompatible) || m.FikaCompatibility == true)
+            .Where(m => FikaWanted(m.Fika))
             .Where(m => !IsOn(ModAttributeFilter.HideAds) || m.ContainsAds != true)
             .Where(m => !IsOn(ModAttributeFilter.HasAddons) || AppServices.Addons.CountFor(m.Id) > 0)
             .Where(m => !IsOn(ModAttributeFilter.HideInstalled) || FindInstalledMatch(m) is null)

@@ -179,6 +179,19 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     private bool IsOn(ModAttributeFilter filter) =>
         AttributeOptions.Any(o => o.Value == filter && o.IsSelected);
 
+    // Fork (1.4.5): the three Fika ticks add to each other - none ticked shows every mod.
+    private bool FikaWanted(FikaStatus fika)
+    {
+        bool compatible = IsOn(ModAttributeFilter.FikaCompatible), incompatible = IsOn(ModAttributeFilter.FikaIncompatible), unknown = IsOn(ModAttributeFilter.FikaUnknown);
+        if (!compatible && !incompatible && !unknown) return true;
+        return fika switch
+        {
+            FikaStatus.Compatible => compatible,
+            FikaStatus.Incompatible => incompatible,
+            _ => unknown,
+        };
+    }
+
     //
     // Which of the three views the results area is showing. All three render the same filtered,
     // sorted set - Cards paginates summary cards, Groups arranges compact rows under the user's own
@@ -1060,6 +1073,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
             }
             ApplyBadgeVisibility();
             _dependencies = dependencies;
+            ProfileItemsWarning.Warm(); // Fork (1.4.5)
 
             // Set before the cards are subscribed to below, so filling it in doesn't read as a
             // card changing under the page.
@@ -1471,7 +1485,8 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
             // Asked even with the question switched off: nothing else says which install it goes from.
             var unstamped = record.InstallPath is null && !InstallStamp.AppIsInside(installPath);
 
-            if (ConfirmRemoval(mod.DisplayTitle, body, configs.Count, needed, mustAsk: unstamped, changesProfile: ChangesProfile(mod))
+            if (ConfirmRemoval(mod.DisplayTitle, body, configs.Count, needed, mustAsk: unstamped, changesProfile: ChangesProfile(mod),
+                    profileLosses: ProfileItemsWarning.ForCards([mod]))
                 is not { } answer)
             {
                 return null;
@@ -1500,7 +1515,8 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
                     Text(Strings.Installed_RemoveLegacyBodyFormat, string.Join("\n", paths)),
                     configs.Count,
                     needed,
-                    changesProfile: ChangesProfile(mod)) is not { } answer)
+                    changesProfile: ChangesProfile(mod),
+                    profileLosses: ProfileItemsWarning.ForCards([mod])) is not { } answer)
             {
                 return null;
             }
@@ -2330,6 +2346,14 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
         var affected = AffectedCards(targets, disable);
 
+        // Fork (1.4.5): turning off a mod whose items a profile holds - SPT won't load that profile
+        // until it is back, or, with its clean-up on, takes them out for good.
+        if (confirm && disable && ProfileItemsWarning.ForCards(targets) is { Count: > 0 } losses
+            && !ProfileItemsWarning.Confirm(losses, Strings.ProfileItems_TurnOffAnyway))
+        {
+            return null;
+        }
+
         if (confirm && affected.Count > 0)
         {
             var rows = affected
@@ -2600,15 +2624,20 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     //
     private static ConfigAction? ConfirmRemoval(
         string modName, string message, int configCount, IReadOnlyList<(string Name, string Detail)> needed,
-        bool mustAsk = false, bool changesProfile = false)
+        bool mustAsk = false, bool changesProfile = false, IReadOnlyList<ProfileLoss>? profileLosses = null)
     {
         var settingsService = new SettingsService();
+        var holdsItems = profileLosses is { Count: > 0 };
 
-        // Fork: a mod sp-mod.com says may change the profile is asked about whatever the setting.
-        if (!mustAsk && !changesProfile && !settingsService.Load().ConfirmUnsubscribe) return ConfigAction.Keep;
+        // Fork: a mod sp-mod.com says may change the profile, or whose items a profile holds
+        // (1.4.5), is asked about whatever the setting.
+        if (!mustAsk && !changesProfile && !holdsItems && !settingsService.Load().ConfirmUnsubscribe) return ConfigAction.Keep;
 
         var body = new System.Windows.Controls.StackPanel { MaxWidth = 640 };
-        if (changesProfile) body.Children.Add(ProfileWarning(Text(Strings.Installed_RemoveProfileWarningFormat, modName)));
+
+        // What the profiles actually hold says more than sp-mod.com's may, so it is said instead.
+        if (holdsItems) body.Children.Add(ProfileWarning(ProfileItemsWarning.Text(profileLosses!)));
+        else if (changesProfile) body.Children.Add(ProfileWarning(Text(Strings.Installed_RemoveProfileWarningFormat, modName)));
         body.Children.Add(Paragraph(message));
 
         // What may stop working - what a removal of several checks for, named here too.
@@ -2974,7 +3003,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
                     || (m.Note is { } note && Matches(note, query))) // Fork (1.4.3): your notes too
             .Where(m => SelectedCategory.Title is not { } category
                 || string.Equals(m.CategoryTag, category, StringComparison.OrdinalIgnoreCase))
-            .Where(m => !IsOn(ModAttributeFilter.FikaCompatible) || m.IsFikaCompatible)
+            .Where(m => FikaWanted(m.Fika))
             .Where(m => !IsOn(ModAttributeFilter.HideAds) || !m.ContainsAds)
             .Where(m => !IsOn(ModAttributeFilter.HasDependencies) || m.HasDependencies)
             .Where(m => !IsOn(ModAttributeFilter.HasAddons) || m.HasAddons)

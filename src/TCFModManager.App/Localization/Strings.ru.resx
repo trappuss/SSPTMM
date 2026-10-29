@@ -504,6 +504,12 @@
   <data name="Common_FlagFikaCompatible" xml:space="preserve">
     <value>Совместим с Fika</value>
   </data>
+  <data name="Common_FlagFikaIncompatible" xml:space="preserve">
+    <value>Несовместим с Fika</value>
+  </data>
+  <data name="Common_FlagFikaUnknown" xml:space="preserve">
+    <value>Совместимость с Fika неизвестна</value>
+  </data>
   <data name="Common_FlagSeparator" xml:space="preserve">
     <value> • </value>
   </data>
@@ -1295,6 +1301,12 @@
   </data>
   <data name="Filter_FikaOnly" xml:space="preserve">
     <value>Только совместимые с Fika</value>
+  </data>
+  <data name="Filter_FikaIncompatible" xml:space="preserve">
+    <value>Только несовместимые с Fika</value>
+  </data>
+  <data name="Filter_FikaUnknown" xml:space="preserve">
+    <value>Только с неизвестной совместимостью с Fika</value>
   </data>
   <data name="Filter_HasAddons" xml:space="preserve">
     <value>С аддонами</value>
@@ -8549,6 +8561,42 @@
   </data>
   <data name="Installed_RemoveProfileRemove" xml:space="preserve">
     <value>Удалить</value>
+  </data>
+  <data name="ProfileItems_Title" xml:space="preserve">
+    <value>В ваших профилях есть предметы из этих модов</value>
+  </data>
+  <data name="ProfileItems_Intro" xml:space="preserve">
+    <value>В этих профилях есть предметы или торговцы из модов, которые сейчас будут убраны. Без них SPT не загрузит профиль - или, если включена его очистка профилей, удалит их навсегда:</value>
+  </data>
+  <data name="ProfileItems_LineFormat" xml:space="preserve">
+    <value>{0} - {1}: {2}</value>
+  </data>
+  <data name="ProfileItems_Items_one" xml:space="preserve">
+    <value>{0} предмет</value>
+  </data>
+  <data name="ProfileItems_Items_few" xml:space="preserve">
+    <value>{0} предмета</value>
+  </data>
+  <data name="ProfileItems_Items_many" xml:space="preserve">
+    <value>{0} предметов</value>
+  </data>
+  <data name="ProfileItems_Traders_one" xml:space="preserve">
+    <value>{0} торговец</value>
+  </data>
+  <data name="ProfileItems_Traders_few" xml:space="preserve">
+    <value>{0} торговца</value>
+  </data>
+  <data name="ProfileItems_Traders_many" xml:space="preserve">
+    <value>{0} торговцев</value>
+  </data>
+  <data name="ProfileItems_Outro" xml:space="preserve">
+    <value>Верните мод - и профиль снова загрузится. Копия ваших профилей сохраняется прямо перед этим (Параметры &gt; Резервные копии профилей SPT).</value>
+  </data>
+  <data name="ProfileItems_TurnOffAnyway" xml:space="preserve">
+    <value>Всё равно отключить</value>
+  </data>
+  <data name="ProfileItems_ApplyAnyway" xml:space="preserve">
+    <value>Всё равно применить</value>
   </data>
   <data name="Installed_ReuploadedTag" xml:space="preserve">
     <value>ПЕРЕЗАЛИТ</value>

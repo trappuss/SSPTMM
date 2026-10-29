@@ -498,6 +498,12 @@
   <data name="Common_FlagFikaCompatible" xml:space="preserve">
     <value>Compatibile con Fika</value>
   </data>
+  <data name="Common_FlagFikaIncompatible" xml:space="preserve">
+    <value>Incompatibile con Fika</value>
+  </data>
+  <data name="Common_FlagFikaUnknown" xml:space="preserve">
+    <value>Compatibilità con Fika sconosciuta</value>
+  </data>
   <data name="Common_FlagSeparator" xml:space="preserve">
     <value> • </value>
   </data>
@@ -1262,6 +1268,12 @@ Qualunque cosa scegli, la versione ora sul disco viene prima copiata in {1}.</va
   </data>
   <data name="Filter_FikaOnly" xml:space="preserve">
     <value>Solo compatibili con Fika</value>
+  </data>
+  <data name="Filter_FikaIncompatible" xml:space="preserve">
+    <value>Solo incompatibili con Fika</value>
+  </data>
+  <data name="Filter_FikaUnknown" xml:space="preserve">
+    <value>Solo compatibilità con Fika sconosciuta</value>
   </data>
   <data name="Filter_HasAddons" xml:space="preserve">
     <value>Con addon</value>
@@ -8153,6 +8165,36 @@ Rimuoverli - o disattivarli - può lasciare un profilo che SPT non carica. Se su
   </data>
   <data name="Installed_RemoveProfileRemove" xml:space="preserve">
     <value>Rimuovi</value>
+  </data>
+  <data name="ProfileItems_Title" xml:space="preserve">
+    <value>I tuoi profili contengono oggetti di questi mod</value>
+  </data>
+  <data name="ProfileItems_Intro" xml:space="preserve">
+    <value>Questi profili contengono oggetti o mercanti di mod che stanno per essere tolti. Senza di loro SPT non carica il profilo - oppure, con la pulizia dei profili attiva, li elimina per sempre:</value>
+  </data>
+  <data name="ProfileItems_LineFormat" xml:space="preserve">
+    <value>{0} - {1}: {2}</value>
+  </data>
+  <data name="ProfileItems_Items_one" xml:space="preserve">
+    <value>{0} oggetto</value>
+  </data>
+  <data name="ProfileItems_Items_other" xml:space="preserve">
+    <value>{0} oggetti</value>
+  </data>
+  <data name="ProfileItems_Traders_one" xml:space="preserve">
+    <value>{0} mercante</value>
+  </data>
+  <data name="ProfileItems_Traders_other" xml:space="preserve">
+    <value>{0} mercanti</value>
+  </data>
+  <data name="ProfileItems_Outro" xml:space="preserve">
+    <value>Rimetti il mod e il profilo si carica di nuovo. Una copia dei tuoi profili viene conservata da subito prima (Opzioni &gt; Backup dei profili SPT).</value>
+  </data>
+  <data name="ProfileItems_TurnOffAnyway" xml:space="preserve">
+    <value>Disattiva comunque</value>
+  </data>
+  <data name="ProfileItems_ApplyAnyway" xml:space="preserve">
+    <value>Applica comunque</value>
   </data>
   <data name="Installed_ReuploadedTag" xml:space="preserve">
     <value>RICARICATO</value>

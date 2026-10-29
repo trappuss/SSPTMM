@@ -1247,6 +1247,11 @@ public partial class ModListsViewModel : LocalizedViewModel
     {
         if (_preview is not { } preview) return;
 
+        // Fork (1.4.5): what the profiles hold from the mods this turns off, before any of it happens.
+        var losses = ProfileItemsWarning.For(preview.Plan.Disable
+            .Select(a => (a.Name, (IReadOnlyList<string>)(a.Installed?.Entries ?? []).Select(e => e.FolderPath).ToList())));
+        if (losses.Count > 0 && !ProfileItemsWarning.Confirm(losses, Strings.ProfileItems_ApplyAnyway)) return;
+
         await RunAsync(async () =>
         {
             var result = await _service.ApplyAsync(preview, ModListPrompts.Default);

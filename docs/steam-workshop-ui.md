@@ -2720,8 +2720,38 @@ From another mod manager (trappuss: "research it and see if there's anything cou
   had no case for the Collections tab's own page (the section has opened it since the UI tidy-up).
   Seen while checking the new how-to.
 
+## Round 56: 1.4.5 - profiles checked before mods go, two more Fika filters (2026-10-29)
+
+- **What a profile holds from a mod** (a user's feedback: check every item a mod brought against
+  every profile before cleaning up mods). `ProfileModItems` (Core) reads each profile in
+  `user\profiles` for every `_tpl` anywhere in it and the PMC's `TradersInfo`, keeps those SPT's
+  own `SPT_Data/database/templates/items.json` and `traders\` don't have, and finds the mod by the
+  id in its files: every run of exactly 24 hex digits, as bytes and as UTF-16 (a DLL's strings),
+  remembered per file until it changes; art, sound, archives and symbols are skipped. Server mods
+  only, on both sides - a client plugin can't add an item, and one weapon mod's client half names ten of
+  the guns its server half adds, which hid them until this. An id another staying server mod also
+  carries isn't counted lost. Measured read-only on the user's SPT 4.1.6 install: three profiles,
+  76 modded item ids (79 copies) and three modded traders; removing that weapon mod would cost one
+  profile 71 items, a clothing mod 8, an item-info mod, SVM and a trader mod nothing. A first check
+  took about 0.4 s and a cached one 12 ms, and the Installed scan warms it in the background.
+  Asked by a single removal (as the sp-mod.com profile notice is, whatever Don't ask again says),
+  the check before removing several (named apart from the sp-mod.com ones), turning off (its own
+  Turn off anyway / Cancel before the dependency question), a preset's summary, and a collection's
+  apply (Apply anyway / Cancel before anything starts). The three traders in one profile came from
+  no installed server mod and are not mentioned. Not seen on screen: the hidden-desktop harness
+  went with the old scratch folder.
+- **Fika incompatible / compatibility unknown.** The mod listing's `fika_compatibility` is only
+  true or false; its versions say `compatible`, `incompatible` or `unknown` (asked 2026-10-29:
+  the three mods asked for came back `unknown` on every version). `ModVersionSummary` keeps the
+  field, `Mod.Fika` reads the flag and then the newest version, and the catalog cache's schema is
+  3 so it is fetched once again with it. The three Fika ticks add up rather than each narrowing -
+  a mod is one of the three, so requiring two would show nothing. Subscribed items' filters and
+  Browse's tag rows.
+
 ## Values that could not be measured (marked HUNCH in the source)
 
+- Round 56: that no mod defines its items only in art, sound or archive files, and 64 MiB as the
+  largest file a mod's item ids are looked for in.
 - Round 53: the back and forward arrows' greys and 32x36 box (Steam's are in its client, not on a
   page that can be read), the Add to group submenu's offset, leaving clothing out of the
   profile-cleaning offer, fifteen places in an arrow's list, a hundred item pages' places kept,

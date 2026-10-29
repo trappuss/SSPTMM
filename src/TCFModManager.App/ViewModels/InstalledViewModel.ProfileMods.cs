@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using TCFModManager.App.Localization;
+using TCFModManager.App.Services;
 using TCFModManager.App.Views;
 
 namespace TCFModManager.App.ViewModels;
@@ -13,6 +14,9 @@ namespace TCFModManager.App.ViewModels;
 //
 // Read from the cached catalog's ShowsProfileBindingNotice, the field the item page's notice shows.
 // A mod not in the catalog, or an addon (addons have no such field), is never flagged.
+//
+// 1.4.5: and a mod whose items or traders the install's profiles hold (ProfileModItems), whatever
+// sp-mod.com says - named with the profiles and how much of it each holds.
 //
 public partial class InstalledViewModel
 {
@@ -38,13 +42,20 @@ public partial class InstalledViewModel
     // The mods to remove: all of them, or the ones that don't change the profile. Null when cancelled.
     private static List<InstalledModCardViewModel>? CheckProfileMods(List<InstalledModCardViewModel> targets)
     {
-        var flagged = targets.Where(ChangesProfile).ToList();
+        var losses = ProfileItemsWarning.ForCards(targets);
+        var holding = targets.Where(c => losses.Any(l => l.ModName == c.DisplayTitle)).ToList();
+        var marked = targets.Where(ChangesProfile).Except(holding).ToList();
+        var flagged = holding.Concat(marked).ToList();
         if (flagged.Count == 0) return targets;
 
         var body = new StackPanel { MaxWidth = 640 };
-        body.Children.Add(ProfileWarning(Text(
-            Strings.Installed_RemoveProfileManyFormat,
-            string.Join("\n", flagged.Select(c => c.DisplayTitle)))));
+        if (losses.Count > 0) body.Children.Add(ProfileWarning(ProfileItemsWarning.Text(losses)));
+        if (marked.Count > 0)
+        {
+            body.Children.Add(ProfileWarning(Text(
+                Strings.Installed_RemoveProfileManyFormat,
+                string.Join("\n", marked.Select(c => c.DisplayTitle)))));
+        }
 
         if (flagged.Count == targets.Count)
         {

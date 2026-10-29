@@ -30,8 +30,9 @@ the same details; click a card or row to open it.
 - **Search** by name, or **@name** for the author, or **color:red** for the mods drawn in a
   colour (a colour's name, a hex like `color:#5BA32B`, or `color:none`).
 - **Filters**: update status (updates available, up to date, not on sp-mod.com, recently
-  installed), enabled/disabled, category, group, colour, and Fika compatible, hide ads, has dependencies,
-  has addons, downloaded but not confirmed, has conflicts.
+  installed), enabled/disabled, category, group, colour, and Fika compatible, Fika incompatible,
+  Fika compatibility unknown, hide ads, has dependencies, has addons, downloaded but not confirmed,
+  has conflicts. The three Fika ticks add up: Compatible and Unknown shows both.
 - The page **remembers** its filters, sort, grouping and view: it opens the way you left it. The
   search box is not kept. **Clear filters** puts the filters, sort and grouping back to the app's own.
 

@@ -208,6 +208,14 @@
     <value>Fika compatible</value>
     <comment>Badge on a mod card and one flag on an installed card's summary line. Fika is a mod's name and stays as it is.</comment>
   </data>
+  <data name="Common_FlagFikaIncompatible" xml:space="preserve">
+    <value>Fika incompatible</value>
+    <comment>Tag in the Workshop's tag list. Fika is a mod's name and stays as it is.</comment>
+  </data>
+  <data name="Common_FlagFikaUnknown" xml:space="preserve">
+    <value>Fika compatibility unknown</value>
+    <comment>Tag in the Workshop's tag list: sp-mod.com says nothing about the mod and Fika.</comment>
+  </data>
   <data name="Common_FlagContainsAds" xml:space="preserve">
     <value>Contains ads</value>
     <comment>Badge on a mod card and one flag on an installed or addon card's summary line.</comment>
@@ -2213,6 +2221,14 @@ That happens legitimately if the server was rebuilt or you're reaching it throug
   <data name="Filter_FikaOnly" xml:space="preserve">
     <value>Fika compatible only</value>
     <comment>Fika is a mod's name and stays as it is.</comment>
+  </data>
+  <data name="Filter_FikaIncompatible" xml:space="preserve">
+    <value>Fika incompatible only</value>
+    <comment>Tick box in the filter dropdown: only mods sp-mod.com marks Fika incompatible. Fika is a mod's name and stays as it is.</comment>
+  </data>
+  <data name="Filter_FikaUnknown" xml:space="preserve">
+    <value>Fika compatibility unknown only</value>
+    <comment>Tick box in the filter dropdown: only mods sp-mod.com says nothing about for Fika.</comment>
   </data>
   <data name="Filter_HideAds" xml:space="preserve">
     <value>Hide mods with ads</value>
@@ -10069,6 +10085,46 @@ Removing them - or turning them off - can leave a profile SPT won't load. If tha
   <data name="Installed_RemoveProfileRemove" xml:space="preserve">
     <value>Remove</value>
     <comment>Button: removes them when every selected mod is a profile-changing one.</comment>
+  </data>
+  <data name="ProfileItems_Title" xml:space="preserve">
+    <value>Your profiles hold items from these mods</value>
+    <comment>Title of the warning before mods go whose items or traders the SPT profiles hold.</comment>
+  </data>
+  <data name="ProfileItems_Intro" xml:space="preserve">
+    <value>These profiles hold items or traders from mods that are about to go. Without them SPT won't load the profile - or, with its profile clean-up on, takes them out for good:</value>
+    <comment>First line of that warning, above one line per profile and mod (ProfileItems_LineFormat).</comment>
+  </data>
+  <data name="ProfileItems_LineFormat" xml:space="preserve">
+    <value>{0} - {1}: {2}</value>
+    <comment>One line of that warning. {0} the profile's name, {1} the mod, {2} what it holds from it (ProfileItems_Items / ProfileItems_Traders, joined).</comment>
+  </data>
+  <data name="ProfileItems_Items_one" xml:space="preserve">
+    <value>{0} item</value>
+    <comment>How many items a profile holds from a mod. {0} how many.</comment>
+  </data>
+  <data name="ProfileItems_Items_other" xml:space="preserve">
+    <value>{0} items</value>
+    <comment>How many items a profile holds from a mod. {0} how many.</comment>
+  </data>
+  <data name="ProfileItems_Traders_one" xml:space="preserve">
+    <value>{0} trader</value>
+    <comment>How many traders from a mod a profile has. {0} how many.</comment>
+  </data>
+  <data name="ProfileItems_Traders_other" xml:space="preserve">
+    <value>{0} traders</value>
+    <comment>How many traders from a mod a profile has. {0} how many.</comment>
+  </data>
+  <data name="ProfileItems_Outro" xml:space="preserve">
+    <value>Put the mod back and the profile loads again. A copy of your profiles is kept from just before (Options &gt; SPT profile backups).</value>
+    <comment>Last paragraph of that warning. Options &gt; SPT profile backups is where the copies are listed.</comment>
+  </data>
+  <data name="ProfileItems_TurnOffAnyway" xml:space="preserve">
+    <value>Turn off anyway</value>
+    <comment>Button: turns the mods off despite the warning.</comment>
+  </data>
+  <data name="ProfileItems_ApplyAnyway" xml:space="preserve">
+    <value>Apply anyway</value>
+    <comment>Button: applies the collection despite the warning.</comment>
   </data>
   <data name="Installed_ReuploadedTag" xml:space="preserve">
     <value>RE-UPLOADED</value>

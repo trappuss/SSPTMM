@@ -46,6 +46,8 @@ internal static class Strings
     internal static string Browse_FeaturedFilterToolTip => LocalizationService.Get("Browse_FeaturedFilterToolTip");
     internal static string Browse_ByAuthorFormat => LocalizationService.Get("Browse_ByAuthorFormat");
     internal static string Common_FlagFikaCompatible => LocalizationService.Get("Common_FlagFikaCompatible");
+    internal static string Common_FlagFikaIncompatible => LocalizationService.Get("Common_FlagFikaIncompatible");
+    internal static string Common_FlagFikaUnknown => LocalizationService.Get("Common_FlagFikaUnknown");
     internal static string Common_FlagContainsAds => LocalizationService.Get("Common_FlagContainsAds");
     internal static string Browse_BadgeHasDependencies => LocalizationService.Get("Browse_BadgeHasDependencies");
     internal static string Browse_AddonBadgeToolTip => LocalizationService.Get("Browse_AddonBadgeToolTip");
@@ -637,6 +639,8 @@ internal static class Strings
     internal static string Filter_AnyMod => LocalizationService.Get("Filter_AnyMod");
     internal static string Filter_SelectedCountFormat => LocalizationService.Get("Filter_SelectedCountFormat");
     internal static string Filter_FikaOnly => LocalizationService.Get("Filter_FikaOnly");
+    internal static string Filter_FikaIncompatible => LocalizationService.Get("Filter_FikaIncompatible");
+    internal static string Filter_FikaUnknown => LocalizationService.Get("Filter_FikaUnknown");
     internal static string Filter_HideAds => LocalizationService.Get("Filter_HideAds");
     internal static string Filter_HasDependencies => LocalizationService.Get("Filter_HasDependencies");
     internal static string Filter_HasDependenciesInstalledToolTip => LocalizationService.Get("Filter_HasDependenciesInstalledToolTip");
@@ -2667,6 +2671,16 @@ internal static class Strings
     internal static string Installed_RemoveProfileKeepThese => LocalizationService.Get("Installed_RemoveProfileKeepThese");
     internal static string Installed_RemoveProfileRemoveAll => LocalizationService.Get("Installed_RemoveProfileRemoveAll");
     internal static string Installed_RemoveProfileRemove => LocalizationService.Get("Installed_RemoveProfileRemove");
+    internal static string ProfileItems_Title => LocalizationService.Get("ProfileItems_Title");
+    internal static string ProfileItems_Intro => LocalizationService.Get("ProfileItems_Intro");
+    internal static string ProfileItems_LineFormat => LocalizationService.Get("ProfileItems_LineFormat");
+    internal static string ProfileItems_Items(int count, params object?[] values) =>
+        LocalizationService.Plural("ProfileItems_Items", count, values);
+    internal static string ProfileItems_Traders(int count, params object?[] values) =>
+        LocalizationService.Plural("ProfileItems_Traders", count, values);
+    internal static string ProfileItems_Outro => LocalizationService.Get("ProfileItems_Outro");
+    internal static string ProfileItems_TurnOffAnyway => LocalizationService.Get("ProfileItems_TurnOffAnyway");
+    internal static string ProfileItems_ApplyAnyway => LocalizationService.Get("ProfileItems_ApplyAnyway");
     internal static string Installed_ReuploadedTag => LocalizationService.Get("Installed_ReuploadedTag");
     internal static string Installed_ReuploadNewEntryFormat => LocalizationService.Get("Installed_ReuploadNewEntryFormat");
     internal static string Installed_ReuploadListingChangedFormat => LocalizationService.Get("Installed_ReuploadListingChangedFormat");

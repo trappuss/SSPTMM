@@ -9,6 +9,34 @@ backups** lists them, takes one by hand, and puts one back (it refuses while SPT
 takes a copy of the profiles as they are first, so a put-back can itself be undone). SPT's own
 backups are left out.
 
+## Items and traders your profiles hold
+
+A mod that adds items or traders leaves them in every profile that picked them up - in the stash,
+on your PMC, in insurance or in the mail. Take the mod away and SPT no longer knows them: it won't
+load the profile, or, with its profile clean-up on, takes them out for good.
+
+So before mods go - **Remove**, **Unsubscribe selected**, turning a mod off, applying a
+[preset](Subscribed-Items#presets) or applying a [collection](Collections) - SSPTMM reads your SPT
+profiles and, when one holds something from a mod about to go, says which profile, which mod and how
+much:
+
+```
+Main - Some Weapon Pack: 71 items
+Second - Some Trader Mod: 1 trader
+```
+
+- **Removing** asks even with Don't ask again ticked; removing several lets you **Keep these,
+  remove the rest**.
+- **Turning off** and **applying a collection** ask **Turn off anyway** / **Apply anyway**, or
+  Cancel. A preset shows it in its summary before you apply it.
+- Put the mod back and the profile loads again; a copy of your profiles is taken first either way.
+
+How it knows: an item in a profile that SPT's own item list doesn't have came from a mod, and the
+mod is the server mod whose files carry that item's id. An id another installed server mod also
+carries isn't counted - that mod may add it too. A mod that makes up its ids while it runs isn't
+caught, client plugins are never counted (they can't add items), and only profiles on this PC are
+read - never changed.
+
 ## Mods that change your profile
 
 sp-mod.com marks some mods "may make permanent changes to your profile, and may not be removable

@@ -15,7 +15,9 @@ public sealed class ModCacheStore
     // 2: Mod.EndorsementsCount added. Nothing here expires a cache on age, so a v1 file would keep
     //    being served indefinitely with the new field absent - every mod would read as 0
     //    endorsements and the "Most endorsed" sort would look broken rather than empty.
-    private const int SchemaVersion = 2;
+    // 3: ModVersionSummary.FikaCompatibility added (1.4.5) - without it every mod not flagged
+    //    compatible would read as unknown, and the "Fika incompatible" filter would show nothing.
+    private const int SchemaVersion = 3;
 
     private readonly string _filePath;
 

@@ -181,6 +181,12 @@
   <data name="Common_FlagFikaCompatible" xml:space="preserve">
     <value>兼容 Fika</value>
   </data>
+  <data name="Common_FlagFikaIncompatible" xml:space="preserve">
+    <value>不兼容 Fika</value>
+  </data>
+  <data name="Common_FlagFikaUnknown" xml:space="preserve">
+    <value>Fika 兼容性未知</value>
+  </data>
   <data name="Common_FlagContainsAds" xml:space="preserve">
     <value>含广告</value>
   </data>
@@ -1913,6 +1919,12 @@
   </data>
   <data name="Filter_FikaOnly" xml:space="preserve">
     <value>仅兼容 Fika</value>
+  </data>
+  <data name="Filter_FikaIncompatible" xml:space="preserve">
+    <value>仅不兼容 Fika</value>
+  </data>
+  <data name="Filter_FikaUnknown" xml:space="preserve">
+    <value>仅 Fika 兼容性未知</value>
   </data>
   <data name="Filter_HideAds" xml:space="preserve">
     <value>隐藏含广告的模组</value>
@@ -7736,6 +7748,30 @@
   </data>
   <data name="Installed_RemoveProfileRemove" xml:space="preserve">
     <value>移除</value>
+  </data>
+  <data name="ProfileItems_Title" xml:space="preserve">
+    <value>你的存档中有来自这些模组的物品</value>
+  </data>
+  <data name="ProfileItems_Intro" xml:space="preserve">
+    <value>这些存档中有来自即将移除的模组的物品或商人。没有这些模组，SPT 将无法加载存档；如果开启了它的存档清理，则会永久删除这些物品：</value>
+  </data>
+  <data name="ProfileItems_LineFormat" xml:space="preserve">
+    <value>{0} - {1}：{2}</value>
+  </data>
+  <data name="ProfileItems_Items_other" xml:space="preserve">
+    <value>{0} 件物品</value>
+  </data>
+  <data name="ProfileItems_Traders_other" xml:space="preserve">
+    <value>{0} 个商人</value>
+  </data>
+  <data name="ProfileItems_Outro" xml:space="preserve">
+    <value>把模组装回去，存档就能重新加载。会保留一份之前的存档副本（选项 &gt; SPT 存档备份）。</value>
+  </data>
+  <data name="ProfileItems_TurnOffAnyway" xml:space="preserve">
+    <value>仍然禁用</value>
+  </data>
+  <data name="ProfileItems_ApplyAnyway" xml:space="preserve">
+    <value>仍然应用</value>
   </data>
   <data name="Installed_ReuploadedTag" xml:space="preserve">
     <value>已重新上传</value>
