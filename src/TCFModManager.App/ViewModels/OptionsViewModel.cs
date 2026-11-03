@@ -352,11 +352,32 @@ public partial class OptionsViewModel : LocalizedViewModel
         }
     }
 
+    // Fork (1.4.7): whether closing SSPTMM while the SPT server runs asks first - see
+    // AppSettings.ConfirmCloseWithServer. A plain property for the same reason as ConfirmUnsubscribe.
+    private bool _confirmCloseWithServer;
+
+    public bool ConfirmCloseWithServer
+    {
+        get => _confirmCloseWithServer;
+        set
+        {
+            if (!SetProperty(ref _confirmCloseWithServer, value) || !_loaded) return;
+
+            var settings = _settings.Load();
+            settings.ConfirmCloseWithServer = value;
+            _settings.Save(settings);
+
+            AppLog.Info("Options", value ? "close-with-server question on" : "close-with-server question off");
+        }
+    }
+
     /// <summary>Settings another part of the app can change while this page is open, read again,
     /// and what the kept downloads take up now.</summary>
     public void Reload()
     {
-        SetProperty(ref _confirmUnsubscribe, _settings.Load().ConfirmUnsubscribe, nameof(ConfirmUnsubscribe));
+        var stored = _settings.Load();
+        SetProperty(ref _confirmUnsubscribe, stored.ConfirmUnsubscribe, nameof(ConfirmUnsubscribe));
+        SetProperty(ref _confirmCloseWithServer, stored.ConfirmCloseWithServer, nameof(ConfirmCloseWithServer));
         RefreshKeptDownloads();
     }
 
@@ -621,6 +642,7 @@ public partial class OptionsViewModel : LocalizedViewModel
         _smoothScrolling = settings.SmoothScrolling;
         _cardPictures = settings.CardPictures;
         _confirmUnsubscribe = settings.ConfirmUnsubscribe;
+        _confirmCloseWithServer = settings.ConfirmCloseWithServer;
         _keepDownloads = settings.KeepDownloads;
         _allowChangesWhileRunning = settings.AllowChangesWhileRunning;
         _animations = settings.Animations;

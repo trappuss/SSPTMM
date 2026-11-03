@@ -8,7 +8,9 @@ From 1.3.0 or later: Help > About > **Install update**. From an older version: c
 
 - **Add from GitHub.** Subscribed items' **⋯** menu can now install a mod from its GitHub repository: paste the repository's address, or any page in it, and the newest release's file is installed like any other download. If the release has several archives, you pick one, and updates take the same kind of file. Files on GitHub aren't checked by sp-mod.com, and SSPTMM says so before it installs.
 - **Updates for mods from GitHub.** SSPTMM reads the repository's releases again from time to time (at most every 30 minutes, and an unchanged answer doesn't count against GitHub's hourly limit). When a newer release is out, the card offers **Update**, and Update all includes it. Skip this update and Go back work too. The card shows the repository as a chip that opens its releases, with the owner's picture.
+- **Closing with the server running asks first.** Closing SSPTMM doesn't stop the SPT server, which keeps running, with no window at all if it was started hidden. While it runs, closing the window or **Quit** in the tray now asks first. **Don't ask again** turns the question off, and Options > Play > **Closing SSPTMM** turns it back on.
 
+# SSPTMM 1.4.6
 
 ## Updating
 

@@ -7441,6 +7441,30 @@
   <data name="App_CloseWhileInstallingFormat" xml:space="preserve">
     <value>Сейчас устанавливается {0}. Закрытие прервёт установку на полпути; при следующем запуске приложения всё будет возвращено как было. Всё равно закрыть?</value>
   </data>
+  <data name="App_CloseWithServerTitle" xml:space="preserve">
+    <value>Сервер SPT запущен</value>
+  </data>
+  <data name="App_CloseWithServerBody" xml:space="preserve">
+    <value>Закрытие SSPTMM не останавливает сервер SPT: он продолжит работать, причём совсем без окна, если был запущен скрытым. Остановить его можно кнопкой «Остановить сервер» на странице «Играть». Всё равно закрыть SSPTMM?</value>
+  </data>
+  <data name="App_CloseWithServerClose" xml:space="preserve">
+    <value>Всё равно закрыть</value>
+  </data>
+  <data name="App_CloseWithServerDontAsk" xml:space="preserve">
+    <value>Больше не спрашивать</value>
+  </data>
+  <data name="App_CloseWithServerDontAskNote" xml:space="preserve">
+    <value>Включить этот вопрос снова можно в разделе «Параметры &gt; Игра &gt; Закрытие SSPTMM».</value>
+  </data>
+  <data name="Options_CloseWithServerHeader" xml:space="preserve">
+    <value>Закрытие SSPTMM</value>
+  </data>
+  <data name="Options_CloseWithServerSummary" xml:space="preserve">
+    <value>Спрашивать перед закрытием SSPTMM, пока работает сервер SPT.</value>
+  </data>
+  <data name="Options_CloseWithServerDescription" xml:space="preserve">
+    <value>Закрытие SSPTMM не останавливает сервер SPT - он продолжает работать, причём совсем без окна, если был запущен скрытым. Если включено, закрытие окна или «Выход» в области уведомлений сначала спрашивает, пока сервер работает. Сворачивание в область уведомлений не спрашивает: SSPTMM продолжает там работать. «Больше не спрашивать» в вопросе отключает этот параметр.</value>
+  </data>
   <data name="Installed_WaitForInstallFormat" xml:space="preserve">
     <value>Сейчас устанавливается {0}. Дождитесь окончания (см. «Загрузки») и попробуйте снова.</value>
   </data>

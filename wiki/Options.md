@@ -18,6 +18,7 @@ The gear at the top right. Each setting has a one-line explanation and a **?** w
 | Setting | What it does |
 |---|---|
 | Starting the game | Start server also opens the SPT launcher once the server is up; run the server without its window. |
+| Closing SSPTMM | On by default. Closing SSPTMM doesn't stop the SPT server, so while it runs, closing the window or Quit in the tray asks first. The question's **Don't ask again** turns this off. Closing to the tray doesn't ask: SSPTMM keeps running there. |
 | Start the game from SSPTMM | On by default. Play on the Play page starts the server and the game itself, with no SPT launcher window. See [Play](Play#play-from-ssptmm). Also: leave SSPTMM open when the game starts. While it is on, Start server no longer opens the SPT launcher. |
 
 ## Look

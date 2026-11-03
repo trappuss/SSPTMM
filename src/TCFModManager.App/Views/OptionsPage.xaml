@@ -455,6 +455,18 @@
                                     </StackPanel>
                                 </ui:CardExpander>
 
+                                <!-- Fork (1.4.7): whether closing SSPTMM while the SPT server runs asks first; the question's "Don't ask again" turns this off. -->
+                                <ui:CardControl
+                                    Style="{StaticResource SettingRow}">
+                                    <ui:CardControl.Header>
+                                        <StackPanel>
+                                            <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_CloseWithServerHeader}" />
+                                            <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_CloseWithServerSummary}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_CloseWithServerDescription}" /></InlineUIContainer></TextBlock>
+                                        </StackPanel>
+                                    </ui:CardControl.Header>
+                                    <ui:ToggleSwitch Style="{StaticResource RowSwitch}" IsChecked="{Binding ConfirmCloseWithServer}" />
+                                </ui:CardControl>
+
                                 <!-- Fork: Play starts the game itself instead of opening SPT's launcher (SptDirectLaunch).
                                      On unless switched off; the card says what it is and is not. -->
                                 <ui:CardExpander

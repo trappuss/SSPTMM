@@ -5070,6 +5070,30 @@
   <data name="App_CloseWhileInstallingFormat" xml:space="preserve">
     <value>正在安装 {0}。现在关闭会使安装中途停止；下次启动应用时会将其还原。仍要关闭吗？</value>
   </data>
+  <data name="App_CloseWithServerTitle" xml:space="preserve">
+    <value>SPT 服务端正在运行</value>
+  </data>
+  <data name="App_CloseWithServerBody" xml:space="preserve">
+    <value>关闭 SSPTMM 不会停止 SPT 服务端：服务端会继续运行，如果是以隐藏方式启动的，则完全没有窗口。可在“开始游戏”页面点击“停止服务端”来停止它。仍要关闭 SSPTMM 吗？</value>
+  </data>
+  <data name="App_CloseWithServerClose" xml:space="preserve">
+    <value>仍然关闭</value>
+  </data>
+  <data name="App_CloseWithServerDontAsk" xml:space="preserve">
+    <value>不再询问</value>
+  </data>
+  <data name="App_CloseWithServerDontAskNote" xml:space="preserve">
+    <value>可在“选项 &gt; 开始游戏 &gt; 关闭 SSPTMM”中重新开启此提问。</value>
+  </data>
+  <data name="Options_CloseWithServerHeader" xml:space="preserve">
+    <value>关闭 SSPTMM</value>
+  </data>
+  <data name="Options_CloseWithServerSummary" xml:space="preserve">
+    <value>在 SPT 服务端运行时，关闭 SSPTMM 前先询问。</value>
+  </data>
+  <data name="Options_CloseWithServerDescription" xml:space="preserve">
+    <value>关闭 SSPTMM 不会停止 SPT 服务端——服务端会继续运行，如果是以隐藏方式启动的，则完全没有窗口。开启后，在服务端运行期间关闭窗口或在托盘中退出会先询问。关闭到托盘不会询问：SSPTMM 会在托盘中继续运行。提问中的“不再询问”会关闭此选项。</value>
+  </data>
   <data name="Installed_WaitForInstallFormat" xml:space="preserve">
     <value>正在安装 {0}。请等待安装完成（见“下载”）后再试。</value>
   </data>

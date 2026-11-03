@@ -467,7 +467,7 @@ public partial class MainWindow : FluentWindow
             return;
         }
 
-        if (!MayStopAnInstall(this))
+        if (!MayStopAnInstall(this) || !MayLeaveServerRunning())
         {
             e.Cancel = true;
             return;
@@ -490,6 +490,64 @@ public partial class MainWindow : FluentWindow
             text, Localization.Strings.App_CloseWhileInstallingTitle, System.Windows.MessageBoxButton.YesNo, MessageBoxImage.Warning,
             System.Windows.MessageBoxResult.No);
         return answer == System.Windows.MessageBoxResult.Yes;
+    }
+
+    //
+    // Fork (1.4.7): closing SSPTMM leaves the SPT server running - with no window at all, if it was
+    // started hidden - so while it runs the user is asked first, unless the question's "Don't ask
+    // again" (or Options > Play) turned that off. The tray's Quit asks it too.
+    //
+    public static bool MayLeaveServerRunning()
+    {
+        var settingsService = new SettingsService();
+        if (!settingsService.Load().ConfirmCloseWithServer) return true;
+        if (!SptLaunchService.Describe(AppServices.SptEnvironment.InstallPath, SptLaunchTarget.Server).IsRunning) return true;
+
+        var body = new System.Windows.Controls.StackPanel();
+        body.Children.Add(new System.Windows.Controls.TextBlock
+        {
+            Text = Strings.App_CloseWithServerBody,
+            TextWrapping = TextWrapping.Wrap,
+            MaxWidth = 480,
+            Margin = new Thickness(0, 0, 0, 12),
+        });
+
+        // As the unsubscribe question's tick box: no padding before the box, the dialog's own colours.
+        var dontAsk = new System.Windows.Controls.CheckBox
+        {
+            Content = Strings.App_CloseWithServerDontAsk,
+            Margin = new Thickness(0, 4, 0, 0),
+            Padding = new Thickness(0, 5, 11, 6),
+            Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0xAC, 0xB2, 0xB8)),
+        };
+        body.Children.Add(dontAsk);
+        body.Children.Add(new System.Windows.Controls.TextBlock
+        {
+            Text = Strings.App_CloseWithServerDontAskNote,
+            TextWrapping = TextWrapping.Wrap,
+            MaxWidth = 480,
+            FontSize = 12,
+            Margin = new Thickness(0, 4, 0, 0),
+            Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x8F, 0x98, 0xA0)),
+        });
+
+        var answer = SteamDialog.Show(
+            Strings.App_CloseWithServerTitle,
+            body,
+            new SteamDialogChoice(Strings.App_CloseWithServerClose, SteamDialogButton.Blue, IsDefault: true),
+            new SteamDialogChoice(Strings.Common_Cancel, SteamDialogButton.Grey));
+        if (answer != 0) return false;
+
+        // Ticked and then cancelled changes nothing: the box goes with the answer.
+        if (dontAsk.IsChecked == true)
+        {
+            var settings = settingsService.Load();
+            settings.ConfirmCloseWithServer = false;
+            settingsService.Save(settings);
+            AppLog.Info("Options", "close-with-server question turned off from the question");
+        }
+
+        return true;
     }
 
     // How many SteamDialogs are open over this window; the backdrop shows while any is.

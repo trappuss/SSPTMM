@@ -7054,6 +7054,30 @@ Les fichiers qu'il a ouverts peuvent ne pas se déplacer et laisser un mod à mo
   <data name="App_CloseWhileInstallingFormat" xml:space="preserve">
     <value>{0} est en cours d'installation. Fermer l'interrompt en route ; tout sera remis en l'état au prochain démarrage de l'application. Fermer quand même ?</value>
   </data>
+  <data name="App_CloseWithServerTitle" xml:space="preserve">
+    <value>Le serveur SPT est en cours d'exécution</value>
+  </data>
+  <data name="App_CloseWithServerBody" xml:space="preserve">
+    <value>Fermer SSPTMM n'arrête pas le serveur SPT : il continue de tourner, sans aucune fenêtre s'il a été lancé masqué. Arrêter le serveur, sur la page Jouer, l'arrête. Fermer SSPTMM quand même ?</value>
+  </data>
+  <data name="App_CloseWithServerClose" xml:space="preserve">
+    <value>Fermer quand même</value>
+  </data>
+  <data name="App_CloseWithServerDontAsk" xml:space="preserve">
+    <value>Ne plus demander</value>
+  </data>
+  <data name="App_CloseWithServerDontAskNote" xml:space="preserve">
+    <value>Options &gt; Jouer &gt; Fermeture de SSPTMM réactive cette question.</value>
+  </data>
+  <data name="Options_CloseWithServerHeader" xml:space="preserve">
+    <value>Fermeture de SSPTMM</value>
+  </data>
+  <data name="Options_CloseWithServerSummary" xml:space="preserve">
+    <value>Demander avant de fermer SSPTMM pendant que le serveur SPT tourne.</value>
+  </data>
+  <data name="Options_CloseWithServerDescription" xml:space="preserve">
+    <value>Fermer SSPTMM n'arrête pas le serveur SPT - il continue de tourner, sans aucune fenêtre s'il a été lancé masqué. Activé, fermer la fenêtre ou Quitter dans la zone de notification demande d'abord tant que le serveur tourne. Fermer vers la zone de notification ne demande rien : SSPTMM y continue de tourner. « Ne plus demander » dans la question désactive ceci.</value>
+  </data>
   <data name="Installed_WaitForInstallFormat" xml:space="preserve">
     <value>{0} est en cours d'installation. Attendez la fin (voir Téléchargements), puis réessayez.</value>
   </data>

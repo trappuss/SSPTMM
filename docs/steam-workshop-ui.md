@@ -2806,6 +2806,14 @@ From another mod manager (trappuss: "research it and see if there's anything cou
 - Seen on screen, on a made-up install with a real repository: the dialog, the confirmation, the
   install into BepInEx\plugins, the card and chip, the update shown once the record was set back a
   version, and Update all bringing it to the newest release.
+- **Closing with the server running.** Closing SSPTMM leaves the SPT server running, with no window
+  at all if it was started hidden, so closing the window or Quit in the tray asks first while
+  `SptLaunchService.Describe` says this install's server is up (`MainWindow.MayLeaveServerRunning`,
+  after the install-in-progress question). Its "Don't ask again" clears
+  `AppSettings.ConfirmCloseWithServer`, which Options > Play > Closing SSPTMM switches back on, as
+  the unsubscribe question does. Closing to the tray doesn't ask. Seen on screen with a stand-in
+  server process: the question, Cancel keeping the window, and Don't ask again saving the setting
+  off and showing the switch off.
 
 ## Values that could not be measured (marked HUNCH in the source)
 

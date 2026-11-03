@@ -7054,6 +7054,30 @@ Dateien, die geöffnet sind, lassen sich eventuell nicht verschieben und hinterl
   <data name="App_CloseWhileInstallingFormat" xml:space="preserve">
     <value>{0} wird gerade installiert. Schließen bricht das mittendrin ab; beim nächsten Start der App wird alles wieder so hergestellt, wie es war. Trotzdem schließen?</value>
   </data>
+  <data name="App_CloseWithServerTitle" xml:space="preserve">
+    <value>Der SPT-Server läuft</value>
+  </data>
+  <data name="App_CloseWithServerBody" xml:space="preserve">
+    <value>Das Schließen von SSPTMM stoppt den SPT-Server nicht: Er läuft weiter, ganz ohne Fenster, wenn er versteckt gestartet wurde. Server stoppen auf der Seite Spielen stoppt ihn. SSPTMM trotzdem schließen?</value>
+  </data>
+  <data name="App_CloseWithServerClose" xml:space="preserve">
+    <value>Trotzdem schließen</value>
+  </data>
+  <data name="App_CloseWithServerDontAsk" xml:space="preserve">
+    <value>Nicht mehr fragen</value>
+  </data>
+  <data name="App_CloseWithServerDontAskNote" xml:space="preserve">
+    <value>Unter Optionen &gt; Spielen &gt; SSPTMM schließen lässt sich diese Frage wieder einschalten.</value>
+  </data>
+  <data name="Options_CloseWithServerHeader" xml:space="preserve">
+    <value>SSPTMM schließen</value>
+  </data>
+  <data name="Options_CloseWithServerSummary" xml:space="preserve">
+    <value>Vor dem Schließen von SSPTMM nachfragen, während der SPT-Server läuft.</value>
+  </data>
+  <data name="Options_CloseWithServerDescription" xml:space="preserve">
+    <value>Das Schließen von SSPTMM stoppt den SPT-Server nicht - er läuft weiter, ganz ohne Fenster, wenn er versteckt gestartet wurde. Eingeschaltet fragt das Schließen des Fensters oder Beenden im Infobereich zuerst nach, solange der Server läuft. Schließen in den Infobereich fragt nicht: SSPTMM läuft dort weiter. „Nicht mehr fragen“ in der Frage schaltet dies aus.</value>
+  </data>
   <data name="Installed_WaitForInstallFormat" xml:space="preserve">
     <value>{0} wird gerade installiert. Warte, bis es fertig ist (siehe Downloads), und versuch es dann erneut.</value>
   </data>

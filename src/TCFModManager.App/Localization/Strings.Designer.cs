@@ -1758,6 +1758,14 @@ internal static class Strings
     internal static string App_DataNotKept => LocalizationService.Get("App_DataNotKept");
     internal static string App_CloseWhileInstallingTitle => LocalizationService.Get("App_CloseWhileInstallingTitle");
     internal static string App_CloseWhileInstallingFormat => LocalizationService.Get("App_CloseWhileInstallingFormat");
+    internal static string App_CloseWithServerTitle => LocalizationService.Get("App_CloseWithServerTitle");
+    internal static string App_CloseWithServerBody => LocalizationService.Get("App_CloseWithServerBody");
+    internal static string App_CloseWithServerClose => LocalizationService.Get("App_CloseWithServerClose");
+    internal static string App_CloseWithServerDontAsk => LocalizationService.Get("App_CloseWithServerDontAsk");
+    internal static string App_CloseWithServerDontAskNote => LocalizationService.Get("App_CloseWithServerDontAskNote");
+    internal static string Options_CloseWithServerHeader => LocalizationService.Get("Options_CloseWithServerHeader");
+    internal static string Options_CloseWithServerSummary => LocalizationService.Get("Options_CloseWithServerSummary");
+    internal static string Options_CloseWithServerDescription => LocalizationService.Get("Options_CloseWithServerDescription");
     internal static string Installed_WaitForInstallFormat => LocalizationService.Get("Installed_WaitForInstallFormat");
     internal static string ModLists_ImportClashTitle => LocalizationService.Get("ModLists_ImportClashTitle");
     internal static string ModLists_ImportOwnListFormat => LocalizationService.Get("ModLists_ImportOwnListFormat");

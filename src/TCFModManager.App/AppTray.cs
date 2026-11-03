@@ -136,6 +136,7 @@ internal static class AppTray
         {
             // Fork: asked first while a mod's files are being placed, as closing the window asks.
             if (!MainWindow.MayStopAnInstall(Application.Current?.MainWindow)) return;
+            if (!MainWindow.MayLeaveServerRunning()) return; // Fork (1.4.7)
 
             AppLog.Info("Tray", "quit from the tray menu");
             Quit();

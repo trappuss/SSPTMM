@@ -189,6 +189,13 @@ public sealed class AppSettings
     public bool ConfirmUnsubscribe { get; set; } = true;
 
     //
+    // Fork (1.4.7): whether closing SSPTMM while the SPT server runs asks first - closing does not
+    // stop the server, which goes on running (with no window at all, if it was started hidden). On
+    // by default; the question's "Don't ask again" turns it off.
+    //
+    public bool ConfirmCloseWithServer { get; set; } = true;
+
+    //
     // Fork (1.4.3): with the SPT server or the game running, installing, removing, switching on or
     // off, undoing and applying a list ask "are you sure?" instead of refusing, as Mod Organizer 2
     // does. Off by default: files the game has open may not move. Restoring profiles is refused

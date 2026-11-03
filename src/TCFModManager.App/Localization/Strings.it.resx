@@ -7054,6 +7054,30 @@ I file che tiene aperti potrebbero non spostarsi e lasciare un mod modificato a 
   <data name="App_CloseWhileInstallingFormat" xml:space="preserve">
     <value>{0} è in fase di installazione. Chiudendo, l'installazione si interrompe a metà; verrà rimesso tutto com'era al prossimo avvio dell'app. Chiudere comunque?</value>
   </data>
+  <data name="App_CloseWithServerTitle" xml:space="preserve">
+    <value>Il server SPT è in esecuzione</value>
+  </data>
+  <data name="App_CloseWithServerBody" xml:space="preserve">
+    <value>Chiudere SSPTMM non ferma il server SPT: continua a funzionare, senza alcuna finestra se è stato avviato nascosto. Ferma server nella pagina Gioca lo ferma. Chiudere comunque SSPTMM?</value>
+  </data>
+  <data name="App_CloseWithServerClose" xml:space="preserve">
+    <value>Chiudi comunque</value>
+  </data>
+  <data name="App_CloseWithServerDontAsk" xml:space="preserve">
+    <value>Non chiedere più</value>
+  </data>
+  <data name="App_CloseWithServerDontAskNote" xml:space="preserve">
+    <value>Opzioni &gt; Gioca &gt; Chiusura di SSPTMM riattiva questa domanda.</value>
+  </data>
+  <data name="Options_CloseWithServerHeader" xml:space="preserve">
+    <value>Chiusura di SSPTMM</value>
+  </data>
+  <data name="Options_CloseWithServerSummary" xml:space="preserve">
+    <value>Chiedere prima di chiudere SSPTMM mentre il server SPT è in esecuzione.</value>
+  </data>
+  <data name="Options_CloseWithServerDescription" xml:space="preserve">
+    <value>Chiudere SSPTMM non ferma il server SPT - continua a funzionare, senza alcuna finestra se è stato avviato nascosto. Se attivo, chiudere la finestra o Esci nell'area di notifica chiede prima, finché il server è in esecuzione. Chiudere nell'area di notifica non chiede nulla: SSPTMM continua a funzionare lì. "Non chiedere più" nella domanda disattiva questa opzione.</value>
+  </data>
   <data name="Installed_WaitForInstallFormat" xml:space="preserve">
     <value>{0} è in fase di installazione. Aspetta che finisca (vedi Download), poi riprova.</value>
   </data>

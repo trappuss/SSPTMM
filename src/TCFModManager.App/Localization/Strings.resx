@@ -6606,6 +6606,38 @@ Files it has open may fail to move and leave a mod half changed - Undo puts back
     <value>{0} is being installed right now. Closing stops it part-way; it will be put back as it was the next time the app starts. Close anyway?</value>
     <comment>{0} is the mod.</comment>
   </data>
+  <data name="App_CloseWithServerTitle" xml:space="preserve">
+    <value>The SPT server is running</value>
+    <comment>Title of the question when closing SSPTMM while the SPT server runs.</comment>
+  </data>
+  <data name="App_CloseWithServerBody" xml:space="preserve">
+    <value>Closing SSPTMM doesn't stop the SPT server: it keeps running, with no window at all if it was started hidden. Stop server on the Play page stops it. Close SSPTMM anyway?</value>
+    <comment>Text of the question when closing SSPTMM while the SPT server runs.</comment>
+  </data>
+  <data name="App_CloseWithServerClose" xml:space="preserve">
+    <value>Close anyway</value>
+    <comment>Button that closes SSPTMM and leaves the server running.</comment>
+  </data>
+  <data name="App_CloseWithServerDontAsk" xml:space="preserve">
+    <value>Don't ask again</value>
+    <comment>Tick box in the close question: turns the question off (Options &gt; Play).</comment>
+  </data>
+  <data name="App_CloseWithServerDontAskNote" xml:space="preserve">
+    <value>Options &gt; Play &gt; Closing SSPTMM turns this question back on.</value>
+    <comment>Under the tick box. 'Closing SSPTMM' is Options_CloseWithServerHeader.</comment>
+  </data>
+  <data name="Options_CloseWithServerHeader" xml:space="preserve">
+    <value>Closing SSPTMM</value>
+    <comment>Options card heading (Play section).</comment>
+  </data>
+  <data name="Options_CloseWithServerSummary" xml:space="preserve">
+    <value>Ask before closing SSPTMM while the SPT server is running.</value>
+    <comment>Options, Closing SSPTMM: the line on show. The full explanation is behind the "?".</comment>
+  </data>
+  <data name="Options_CloseWithServerDescription" xml:space="preserve">
+    <value>Closing SSPTMM doesn't stop the SPT server - it keeps running, with no window at all if it was started hidden. Turned on, closing the window or Quit in the tray asks first while the server is running. Closing to the tray doesn't ask: SSPTMM keeps running there. The question's "Don't ask again" turns this off.</value>
+    <comment>Options card text.</comment>
+  </data>
   <data name="Installed_WaitForInstallFormat" xml:space="preserve">
     <value>{0} is being installed right now. Wait for it to finish (see Downloads), then try again.</value>
     <comment>Removing, disabling or sorting out mods while the queue installs one. {0} is the mod being installed.</comment>
