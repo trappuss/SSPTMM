@@ -6816,6 +6816,80 @@ Install it? It can be removed like any other.</value>
     <value>{0} is being installed - see Downloads.</value>
     <comment>{0} the mod.</comment>
   </data>
+  <data name="GitHub_Add" xml:space="preserve">
+    <value>Add from GitHub...</value>
+    <comment>Subscribed items '...' menu: install a mod from a GitHub repository's releases.</comment>
+  </data>
+  <data name="GitHub_AddToolTip" xml:space="preserve">
+    <value>Install a mod from the newest release of its GitHub repository. Its card then says when a newer release is out, and Update installs it.</value>
+    <comment>Tooltip on Add from GitHub.</comment>
+  </data>
+  <data name="GitHub_AddTitle" xml:space="preserve">
+    <value>Add from GitHub</value>
+    <comment>Title of the Add from GitHub dialogs.</comment>
+  </data>
+  <data name="GitHub_AddBody" xml:space="preserve">
+    <value>Paste the address of the mod's GitHub repository, or any page in it. The newest release's file is installed, and its card says when a newer release is out.</value>
+    <comment>Text above the box for a repository's address.</comment>
+  </data>
+  <data name="GitHub_AddHint" xml:space="preserve">
+    <value>github.com/author/mod</value>
+    <comment>Placeholder in the box for a repository's address.</comment>
+  </data>
+  <data name="GitHub_AddButton" xml:space="preserve">
+    <value>Find release</value>
+    <comment>Button that looks up the repository's releases.</comment>
+  </data>
+  <data name="GitHub_NotARepositoryFormat" xml:space="preserve">
+    <value>"{0}" isn't a GitHub repository's address.</value>
+    <comment>{0} is what was typed.</comment>
+  </data>
+  <data name="GitHub_ReadingFormat" xml:space="preserve">
+    <value>Reading {0}'s releases...</value>
+    <comment>{0} is a repository, owner/name.</comment>
+  </data>
+  <data name="GitHub_RateLimited" xml:space="preserve">
+    <value>GitHub has had too many requests from this connection for now. Try again in a while.</value>
+    <comment>GitHub refused because of its hourly limit.</comment>
+  </data>
+  <data name="GitHub_NotFoundFormat" xml:space="preserve">
+    <value>GitHub has no public repository {0}.</value>
+    <comment>{0} is a repository, owner/name.</comment>
+  </data>
+  <data name="GitHub_UnreadableFormat" xml:space="preserve">
+    <value>Couldn't read {0}'s releases: {1}</value>
+    <comment>{0} is a repository, {1} the error.</comment>
+  </data>
+  <data name="GitHub_NoReleasesFormat" xml:space="preserve">
+    <value>{0} has no releases to install from.</value>
+    <comment>{0} is a repository.</comment>
+  </data>
+  <data name="GitHub_NoArchiveFormat" xml:space="preserve">
+    <value>None of {0}'s releases has a .zip, .7z or .rar file to install - only source code.</value>
+    <comment>{0} is a repository.</comment>
+  </data>
+  <data name="GitHub_ChooseFileTitle" xml:space="preserve">
+    <value>Which file?</value>
+    <comment>Title when a release has several files.</comment>
+  </data>
+  <data name="GitHub_ChooseFileFormat" xml:space="preserve">
+    <value>{0} {1} has more than one file. Which one is the mod? Updates will take the same one.</value>
+    <comment>{0} is a repository, {1} a version.</comment>
+  </data>
+  <data name="GitHub_ConfirmFormat" xml:space="preserve">
+    <value>Install {0} {1} ({2}) from github.com/{3}?
+
+Files on GitHub aren't checked by sp-mod.com - install only from authors you trust.</value>
+    <comment>{0} mod name, {1} version, {2} file name, {3} repository.</comment>
+  </data>
+  <data name="GitHub_ChipToolTip" xml:space="preserve">
+    <value>Installed from GitHub - updates come from this repository's releases. Click to open them.</value>
+    <comment>Tooltip on a card's GitHub chip.</comment>
+  </data>
+  <data name="GitHub_DialogNoteFormat" xml:space="preserve">
+    <value>{0} comes from GitHub ({1}). Its card says when a newer release is out, and Update installs it.</value>
+    <comment>{0} mod name, {1} repository.</comment>
+  </data>
   <data name="Downloads_CopyingLocal" xml:space="preserve">
     <value>Copying the archive...</value>
     <comment>Queue status while a local archive is copied before installing.</comment>

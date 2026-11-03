@@ -142,7 +142,7 @@ public sealed class GitHubReleaseCheck : IDisposable
 
     // GitHub's primary limit answers 403 or 429 with x-ratelimit-remaining: 0; its secondary limit
     // answers either with a retry-after header.
-    private static bool IsRateLimited(HttpResponseMessage response)
+    internal static bool IsRateLimited(HttpResponseMessage response)
     {
         if (response.StatusCode is not (HttpStatusCode.Forbidden or HttpStatusCode.TooManyRequests)) return false;
         if (response.Headers.RetryAfter is not null) return true;

@@ -19,8 +19,8 @@ Player Tarkov) mods, laid out and styled like Steam's Workshop. Mods and collect
   pages, and an item page with the description exactly as its author wrote it, change notes,
   versions and comments.
 - **Subscribe** - installs a mod and what it needs, up to three downloads at once. Unsubscribe
-  removes it, with Undo for a while afterwards. Download only, and Install from file for an archive
-  you already have.
+  removes it, with Undo for a while afterwards. Download only, Install from file for an archive
+  you already have, and Add from GitHub for a mod released on GitHub.
 - **Subscribed items** - everything in your SPT install as cards, a list or your own groups: update
   all (libraries first), enable and disable, presets of which mods are on and off (and Disable all
   for troubleshooting), pin, spot re-uploads, and a warning before removing a mod that changes your
@@ -198,6 +198,19 @@ addresses.
 - **Re-upload detection:** spots a mod re-uploaded under the same version number.
 - **SPT upgrade check:** shows which of your mods are ready for a newer SPT.
 - **Install from file:** installs an archive you already have.
+
+### Mods from GitHub
+
+Some mods are released on GitHub, or you'd rather not get them through sp-mod.com. Subscribed
+items' **⋯** menu > **Add from GitHub** takes the repository's address (or any page in it),
+finds its newest release and installs that release's file, like any other download. The card
+then shows the repository and its owner's picture. When a newer release comes out, the card
+offers **Update**, and Update all includes it. Remove, Skip this update and Go back work as
+they do for any other mod.
+
+| | |
+|---|---|
+| ![Add from GitHub](docs/images/20-add-from-github.png) | ![A mod from GitHub with an update](docs/images/20b-github-update.png) |
 
 ### More control from the Play page
 

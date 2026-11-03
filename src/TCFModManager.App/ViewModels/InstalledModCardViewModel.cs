@@ -317,9 +317,12 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
     //
     // An addon's ModId is an addon id, a separate sequence that would match some unrelated mod's
     // listing, so an addon's picture comes from the addon catalog - or, where it has none, its
-    // mod's (1.4.6), as on its Workshop card.
+    // mod's (1.4.6), as on its Workshop card. A mod from GitHub has its repository owner's picture
+    // (1.4.7).
     public string? Thumbnail => ModId is not { } id
         ? null
+        : GitHubRepository is { } repository
+        ? GitHubMods.OwnerPictureOf(repository)
         : !IsAddon
         ? ModThumbnail(id)
         : AppServices.Addons.ById(id)?.Thumbnail is { Length: > 0 } own ? own
@@ -376,6 +379,12 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
                 : Text(Strings.Installed_AddonsChipLineFormat, a.Name, a.Version))
             .Prepend(Strings.Installed_AddonsChipToolTip))
         : null;
+
+    // Fork (1.4.7): "owner/name" for a mod installed from a GitHub repository's releases - the chip
+    // on its card, which opens them. Null for everything else.
+    public string? GitHubRepository { get; init; }
+
+    public string? GitHubReleasesPage => GitHubRepository is { } repository ? GitHubMods.ReleasesPageOf(repository) : null;
 
     // The card's "Addon for X" line, or null for an ordinary mod.
     public string? AddonSubtitle => IsAddon
@@ -993,7 +1002,7 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
             foreach (var (record, _, parts) in others)
             {
                 var mod = LocalArchive.IsLocalId(record.ModId)
-                    ? new Mod { Id = record.ModId, Name = record.Name, Guid = record.Guid }
+                    ? LocalMod(record)
                     : index.ById.GetValueOrDefault(record.ModId)
                         ?? new Mod { Id = record.ModId, Name = record.Name, Guid = record.Guid };
 
@@ -1171,8 +1180,7 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
             // Fork: installed from a file as a local item (LocalArchive): its record is what it is
             // known by - never a listing its plugin GUID happens to match (a pack, or one installed
             // offline), which would split it into hand installs and leave the record behind.
-            if (LocalArchive.IsLocalId(record.ModId))
-                return new Mod { Id = record.ModId, Name = record.Name, Guid = record.Guid };
+            if (LocalArchive.IsLocalId(record.ModId)) return LocalMod(record);
 
             var fromRecord = index.ById.GetValueOrDefault(record.ModId)
                 ?? (string.IsNullOrWhiteSpace(record.Guid) ? null : index.ByGuid.GetValueOrDefault(record.Guid));
@@ -1571,6 +1579,11 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
         return results;
     }
 
+    // What a record under a local id stands for: a GitHub repository's releases when it was installed
+    // from one (Fork 1.4.7), so it has versions to update to - otherwise only its own name.
+    private static Mod LocalMod(InstalledModRecord record) =>
+        AppServices.GitHubMods.ModFor(record.ModId) ?? new Mod { Id = record.ModId, Name = record.Name, Guid = record.Guid };
+
     private static InstalledModCardViewModel BuildCard(
         List<InstalledMod> entries,
         Mod? match,
@@ -1666,8 +1679,11 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
                 isNewer = false;
         }
 
+        // Fork (1.4.7): a GitHub release says nothing about SPT, so a newer one is an update as it is.
         var updateAvailable = isNewer == true
-            ? SptVersionMatcher.IsSatisfiedBy(updateTarget?.SptVersionConstraint, installedSptVersion)
+            ? match is { Id: < 0 } && updateTarget is { SptVersionConstraint: null }
+                ? true
+                : SptVersionMatcher.IsSatisfiedBy(updateTarget?.SptVersionConstraint, installedSptVersion)
             : isNewer;
 
         // Fork (1.4.3): an update you skipped is not one, until a newer version than it comes out.
@@ -1711,6 +1727,7 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
             ServerFolderName = server?.Name,
             FolderPath = client?.FolderPath ?? server!.FolderPath,
             ModId = match?.Id,
+            GitHubRepository = match is { Id: < 0 } ? AppServices.GitHubMods.RepositoryOf(match.Id) : null, // Fork (1.4.7)
             IsAppManaged = record?.IsAppManaged ?? false,
             IsManualOverride = record is not null && !record.IsAppManaged,
             MissingFolders = missingFolders,

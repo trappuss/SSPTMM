@@ -5231,6 +5231,62 @@
   <data name="Installed_LocalQueuedFormat" xml:space="preserve">
     <value>正在安装 {0}，见“下载”。</value>
   </data>
+  <data name="GitHub_Add" xml:space="preserve">
+    <value>从 GitHub 添加...</value>
+  </data>
+  <data name="GitHub_AddToolTip" xml:space="preserve">
+    <value>从 GitHub 仓库的最新发行版安装模组。之后其卡片会在有更新的发行版时提示，点击更新即可安装。</value>
+  </data>
+  <data name="GitHub_AddTitle" xml:space="preserve">
+    <value>从 GitHub 添加</value>
+  </data>
+  <data name="GitHub_AddBody" xml:space="preserve">
+    <value>粘贴模组 GitHub 仓库的地址，或其中任意页面的地址。将安装最新发行版的文件，有更新的发行版时其卡片会提示。</value>
+  </data>
+  <data name="GitHub_AddHint" xml:space="preserve">
+    <value>github.com/作者/模组</value>
+  </data>
+  <data name="GitHub_AddButton" xml:space="preserve">
+    <value>查找发行版</value>
+  </data>
+  <data name="GitHub_NotARepositoryFormat" xml:space="preserve">
+    <value>“{0}”不是 GitHub 仓库的地址。</value>
+  </data>
+  <data name="GitHub_ReadingFormat" xml:space="preserve">
+    <value>正在读取 {0} 的发行版...</value>
+  </data>
+  <data name="GitHub_RateLimited" xml:space="preserve">
+    <value>GitHub 暂时收到了来自此连接的过多请求。请稍后再试。</value>
+  </data>
+  <data name="GitHub_NotFoundFormat" xml:space="preserve">
+    <value>GitHub 上没有公开仓库 {0}。</value>
+  </data>
+  <data name="GitHub_UnreadableFormat" xml:space="preserve">
+    <value>无法读取 {0} 的发行版：{1}</value>
+  </data>
+  <data name="GitHub_NoReleasesFormat" xml:space="preserve">
+    <value>{0} 没有可安装的发行版。</value>
+  </data>
+  <data name="GitHub_NoArchiveFormat" xml:space="preserve">
+    <value>{0} 的发行版中都没有可安装的 .zip、.7z 或 .rar 文件，只有源代码。</value>
+  </data>
+  <data name="GitHub_ChooseFileTitle" xml:space="preserve">
+    <value>选择哪个文件？</value>
+  </data>
+  <data name="GitHub_ChooseFileFormat" xml:space="preserve">
+    <value>{0} {1} 有多个文件。哪个是模组？更新时将使用同一个。</value>
+  </data>
+  <data name="GitHub_ConfirmFormat" xml:space="preserve">
+    <value>从 github.com/{3} 安装 {0} {1}（{2}）？
+
+GitHub 上的文件未经 sp-mod.com 检查，请只安装你信任的作者的文件。</value>
+  </data>
+  <data name="GitHub_ChipToolTip" xml:space="preserve">
+    <value>从 GitHub 安装 - 更新来自此仓库的发行版。点击打开。</value>
+  </data>
+  <data name="GitHub_DialogNoteFormat" xml:space="preserve">
+    <value>{0} 来自 GitHub（{1}）。有更新的发行版时其卡片会提示，点击更新即可安装。</value>
+  </data>
   <data name="Downloads_CopyingLocal" xml:space="preserve">
     <value>正在复制压缩包……</value>
   </data>

@@ -1047,6 +1047,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
                 card.NotForSptNote = card.IsAddon ? null : AppServices.HeldBack.NotForSptNote(card.ModId, card.InstalledVersion);
             }
             _ = CheckHeldBackAsync(cards);
+            _ = CheckGitHubAsync(cards); // Fork (1.4.7)
 
             if (openCards.Count > 0 || openRows.Count > 0)
                 foreach (var card in cards)
@@ -2071,7 +2072,9 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     /// no longer place it.</summary>
     internal static (Mod Mod, string Version)? UpdateTo(InstalledModCardViewModel card)
     {
-        var match = AppServices.ModCache.AllMods.FirstOrDefault(m => m.Id == card.ModId);
+        // Fork (1.4.7): a mod installed from GitHub updates to its repository's newest release.
+        var match = AppServices.ModCache.AllMods.FirstOrDefault(m => m.Id == card.ModId)
+            ?? (card.ModId is < 0 and var id ? AppServices.GitHubMods.ModFor(id) : null);
         var version = match is null
             ? null
             : ModCardViewModel.PickDisplayVersion(match, AppServices.SptEnvironment.InstalledVersion)?.Version;
@@ -2083,6 +2086,15 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     // being held back leaves this one alone.
     private static bool IsHeldBack(InstalledModCardViewModel card) =>
         AppServices.HeldBack.Holds(card.ModId, card.UpdateVersion ?? card.LatestPublishedVersion);
+
+    // Fork (1.4.7): after each scan, the releases of the GitHub repositories mods came from, when
+    // they haven't been read for a while (GitHubMods.RecheckAfter) - and a scan again when a new one
+    // is out, so its card says so.
+    private async Task CheckGitHubAsync(IReadOnlyList<InstalledModCardViewModel> cards)
+    {
+        var ids = cards.Where(c => c.GitHubRepository is not null).Select(c => c.ModId!.Value).ToList();
+        if (ids.Count > 0 && await AppServices.GitHubMods.RefreshAsync(ids)) await ScanAsync();
+    }
 
     // After each scan: ask sp-mod.com about the whole install, then mark what it holds back.
     private async Task CheckHeldBackAsync(IReadOnlyList<InstalledModCardViewModel> cards)

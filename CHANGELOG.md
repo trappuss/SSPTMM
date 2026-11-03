@@ -1,4 +1,14 @@
-# SSPTMM 1.4.6
+# SSPTMM 1.4.7
+
+## Updating
+
+From 1.3.0 or later: Help > About > **Install update**. From an older version: close SSPTMM, download `SSPTMM-1.4.7-win-x64.zip` and copy the contents of its `SSPTMM` folder over your SSPTMM folder. Your settings in `Data` stay as they are.
+
+## New
+
+- **Add from GitHub.** Subscribed items' **⋯** menu can now install a mod from its GitHub repository: paste the repository's address, or any page in it, and the newest release's file is installed like any other download. If the release has several archives, you pick one, and updates take the same kind of file. Files on GitHub aren't checked by sp-mod.com, and SSPTMM says so before it installs.
+- **Updates for mods from GitHub.** SSPTMM reads the repository's releases again from time to time (at most every 30 minutes, and an unchanged answer doesn't count against GitHub's hourly limit). When a newer release is out, the card offers **Update**, and Update all includes it. Skip this update and Go back work too. The card shows the repository as a chip that opens its releases, with the owner's picture.
+
 
 ## Updating
 

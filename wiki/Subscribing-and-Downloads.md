@@ -59,6 +59,24 @@ holds and asks whether it is a client mod (into `BepInEx\plugins`) or a server m
 `user\mods`). A single folder is kept as the mod's folder; loose files go into a folder named for
 the mod. Check the mod's page if you're not sure; Cancel installs nothing.
 
+## Add from GitHub
+
+Subscribed items' **⋯** menu > **Add from GitHub** installs a mod from the newest release of its
+GitHub repository. Paste the repository's address, or any page in it (a release, a file). If the
+release has more than one archive (a client and a server file, say), you pick one, and updates
+take the same kind of file. Files on GitHub aren't checked by sp-mod.com, so install only from
+authors you trust.
+
+![Add from GitHub](https://raw.githubusercontent.com/trappuss/SSPTMM/main/docs/images/20-add-from-github.png)
+
+The mod's card has a chip with the repository's name; click it to open its releases. SSPTMM
+reads the repository's releases again after a scan, at most every 30 minutes. When a newer release
+is out, the card offers **Update** and **Update all** includes it. A release that is only source
+code, with no .zip, .7z or .rar, can't be installed. GitHub doesn't say which SPT a release is
+for, or what else it needs, so check its page.
+
+![A mod from GitHub with an update](https://raw.githubusercontent.com/trappuss/SSPTMM/main/docs/images/20b-github-update.png)
+
 ## Unsubscribe
 
 - **Unsubscribe** asks first: what will be deleted, and whether to keep or delete the mod's config

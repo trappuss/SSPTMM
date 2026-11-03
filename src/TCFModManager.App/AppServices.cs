@@ -70,6 +70,9 @@ internal static class AppServices
     // ModCache because an addon is only ever surfaced under a parent mod from that catalog.
     public static AddonCacheViewModel Addons { get; } = new();
 
+    // Fork (1.4.7): the GitHub repositories mods were installed from, and their releases.
+    public static GitHubMods GitHubMods { get; } = new();
+
     // Shared across every Browse page navigation, not re-created per visit.
     public static BrowseViewModel Browse { get; } = new();
 

@@ -192,7 +192,10 @@ public partial class ModUpdateDialogViewModel : LocalizedViewModel
         // Not a listing (none matched, or installed from a file under a local id): nothing to ask.
         if (_mod.ModId is not { } modId || LocalArchive.IsLocalId(modId))
         {
-            StatusMessage = Text(Strings.ModUpdate_NotMatchedFormat, _mod.DisplayTitle);
+            // Fork (1.4.7): one from GitHub has its updates on its card, from the repository's releases.
+            StatusMessage = _mod.GitHubRepository is { } repository
+                ? Text(Strings.GitHub_DialogNoteFormat, _mod.DisplayTitle, repository)
+                : Text(Strings.ModUpdate_NotMatchedFormat, _mod.DisplayTitle);
             IsLoading = false;
             return;
         }

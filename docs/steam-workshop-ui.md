@@ -2783,7 +2783,34 @@ From another mod manager (trappuss: "research it and see if there's anything cou
   mod's); the chip's " · " join is a resource; card keys are made once, and Home builds cards only
   for the addons that can make its row, by downloads.
 
+## Round 58: 1.4.7 - mods from GitHub (2026-11-03)
+
+- **Add from GitHub** (Subscribed items' ⋯ menu): a repository's address, or any page in it
+  (`GitHubMods.RepositoryFrom`), then GET /repos/{owner}/{repo}/releases. Drafts are left out, and
+  so are pre-releases when there is a full release. Only GitHub's own download address for that
+  repository is taken (as `GitHubReleaseCheck` does). The newest release with an archive is
+  installed through the download queue, under a local id (`LocalArchive.IdFor("github:" + repo)`),
+  with no dependency check, since GitHub says nothing about one. With several archives, the one
+  picked is remembered by its shape (its name with the numbers taken out, keeping the archive type),
+  so updates take the same kind of file.
+- **Updates.** `Data\github_mods.json` keeps each repository's releases and the ETag of the last
+  answer. After each scan, the repositories of installed cards not read for 30 minutes are asked
+  again with If-None-Match: a 304 doesn't count against GitHub's 60 requests an hour without
+  sign-in. A rate limit ends the round. `ModFor` makes the repository a `Mod` whose versions are
+  its releases, so the card, Update, Update all, Skip this update and Go back need nothing of their
+  own. A release has no SPT range, so a newer one counts as an update rather than "unknown". Update
+  all leaves GitHub mods out of the read-the-page gate; they have no sp-mod.com page.
+- **Card.** A chip with the repository, in Steam's light grey text so it doesn't read as an addon;
+  it opens the releases. The picture is the owner's GitHub picture. The mod dialog says the mod
+  comes from GitHub, instead of saying it matches no listing.
+- Seen on screen, on a made-up install with a real repository: the dialog, the confirmation, the
+  install into BepInEx\plugins, the card and chip, the update shown once the record was set back a
+  version, and Update all bringing it to the newest release.
+
 ## Values that could not be measured (marked HUNCH in the source)
+
+- Round 58: 30 minutes between reads of a repository's releases, four archives as the most offered
+  as buttons, and the GitHub chip's shades (#C6D4DF at 20% and 33%).
 
 - Round 57: the addon marks' look - the corner chip (the status chip's #CC000000 with Steam's light
   blue), the fade to black under the mod's name, the Subscribed items chip's hover shade

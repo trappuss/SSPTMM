@@ -7602,6 +7602,62 @@
   <data name="Installed_LocalQueuedFormat" xml:space="preserve">
     <value>{0} устанавливается - см. «Загрузки».</value>
   </data>
+  <data name="GitHub_Add" xml:space="preserve">
+    <value>Добавить с GitHub...</value>
+  </data>
+  <data name="GitHub_AddToolTip" xml:space="preserve">
+    <value>Устанавливает мод из последнего релиза его репозитория на GitHub. Карточка затем показывает, когда выходит новый релиз, а «Обновить» устанавливает его.</value>
+  </data>
+  <data name="GitHub_AddTitle" xml:space="preserve">
+    <value>Добавить с GitHub</value>
+  </data>
+  <data name="GitHub_AddBody" xml:space="preserve">
+    <value>Вставьте адрес репозитория мода на GitHub или любой его страницы. Будет установлен файл последнего релиза, а карточка покажет, когда выйдет новый.</value>
+  </data>
+  <data name="GitHub_AddHint" xml:space="preserve">
+    <value>github.com/автор/мод</value>
+  </data>
+  <data name="GitHub_AddButton" xml:space="preserve">
+    <value>Найти релиз</value>
+  </data>
+  <data name="GitHub_NotARepositoryFormat" xml:space="preserve">
+    <value>«{0}» — не адрес репозитория GitHub.</value>
+  </data>
+  <data name="GitHub_ReadingFormat" xml:space="preserve">
+    <value>Чтение релизов {0}...</value>
+  </data>
+  <data name="GitHub_RateLimited" xml:space="preserve">
+    <value>GitHub пока получил слишком много запросов с этого подключения. Попробуйте позже.</value>
+  </data>
+  <data name="GitHub_NotFoundFormat" xml:space="preserve">
+    <value>На GitHub нет публичного репозитория {0}.</value>
+  </data>
+  <data name="GitHub_UnreadableFormat" xml:space="preserve">
+    <value>Не удалось прочитать релизы {0}: {1}</value>
+  </data>
+  <data name="GitHub_NoReleasesFormat" xml:space="preserve">
+    <value>У {0} нет релизов для установки.</value>
+  </data>
+  <data name="GitHub_NoArchiveFormat" xml:space="preserve">
+    <value>Ни в одном релизе {0} нет файла .zip, .7z или .rar для установки - только исходный код.</value>
+  </data>
+  <data name="GitHub_ChooseFileTitle" xml:space="preserve">
+    <value>Какой файл?</value>
+  </data>
+  <data name="GitHub_ChooseFileFormat" xml:space="preserve">
+    <value>В {0} {1} больше одного файла. Какой из них мод? Обновления будут брать тот же.</value>
+  </data>
+  <data name="GitHub_ConfirmFormat" xml:space="preserve">
+    <value>Установить {0} {1} ({2}) с github.com/{3}?
+
+Файлы на GitHub не проверяются sp-mod.com - устанавливайте только от авторов, которым доверяете.</value>
+  </data>
+  <data name="GitHub_ChipToolTip" xml:space="preserve">
+    <value>Установлено с GitHub - обновления берутся из релизов этого репозитория. Нажмите, чтобы открыть их.</value>
+  </data>
+  <data name="GitHub_DialogNoteFormat" xml:space="preserve">
+    <value>{0} — с GitHub ({1}). Карточка показывает, когда выходит новый релиз, а «Обновить» устанавливает его.</value>
+  </data>
   <data name="Downloads_CopyingLocal" xml:space="preserve">
     <value>Копирование архива...</value>
   </data>

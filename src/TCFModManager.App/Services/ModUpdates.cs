@@ -84,8 +84,10 @@ public static class ModUpdates
 
         // The same dialog a single install goes through, asked once for the batch - each with the
         // change notes of the version it updates to. ConfirmAll honours the Options switch that
-        // turns the dialog off.
+        // turns the dialog off. Fork (1.4.7): not a mod from GitHub, which has no sp-mod.com page -
+        // Add from GitHub said where its files come from when it was installed.
         var links = queue
+            .Where(t => !LocalArchive.IsLocalId(t.Mod.Id))
             .Select(t => new ModPageLink(t.Title, t.Mod.DetailUrl) { ModId = t.Mod.Id, ChangeNotesVersion = t.Version })
             .ToList();
         if (!ReadModPageConfirmationWindow.ConfirmAll(links)) return (Strings.Installed_UpdateCancelledUnread, false);
@@ -142,6 +144,9 @@ public static class ModUpdates
     // The version's own record, for its download link.
     private static async Task<ModVersion?> ResolveVersionLinkAsync(Mod mod, string version)
     {
+        // Fork (1.4.7): a GitHub release's file, from the releases already read.
+        if (LocalArchive.IsLocalId(mod.Id)) return AppServices.GitHubMods.VersionFor(mod.Id, version);
+
         var versions = await AppServices.SpModApi.GetModVersionsAsync(
             mod.Id.ToString(), new ModVersionsQuery { FilterVersion = version, PerPage = 5 });
         return versions.Data.FirstOrDefault(v => v.Version == version) ?? versions.Data.FirstOrDefault();

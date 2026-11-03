@@ -44,9 +44,36 @@
              addon, the puzzle piece and the mod it is for. On a mod, the addons installed for it -
              most go into the mod's own folder and have no card - as a chip that opens the mod's
              dialog, where they update and come off; its tooltip lists them. HUNCH: the hover shade
-             (#5567C1F5) is chosen, not taken from Steam. -->
+             (#5567C1F5) is chosen, not taken from Steam.
+             Fork (1.4.7): on a mod installed from GitHub, its repository, as a chip that opens its
+             releases - in Steam's light grey text rather than the blue, so it doesn't read as an
+             addon. HUNCH: #C6D4DF at 20% and 33% are chosen, not taken from Steam. -->
         <DataTemplate x:Key="AddonLine">
             <StackPanel Orientation="Horizontal">
+                <Button
+                    Margin="0,3,4,0"
+                    Cursor="Hand"
+                    Focusable="False"
+                    ToolTip="{loc:Str GitHub_ChipToolTip}"
+                    AutomationProperties.Name="{Binding GitHubRepository}"
+                    Visibility="{Binding GitHubRepository, Converter={StaticResource NullToCollapsed}}"
+                    Click="GitHubChip_Click">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="Chip" Padding="5,1" CornerRadius="2" Background="{look:Brush #33C6D4DF}">
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon Margin="0,0,4,0" FontSize="11" Symbol="BranchFork24" Foreground="{look:Brush #C6D4DF}" />
+                                    <TextBlock FontSize="11" MaxWidth="240" TextTrimming="CharacterEllipsis" Foreground="{look:Brush #C6D4DF}" Text="{Binding GitHubRepository}" />
+                                </StackPanel>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Chip" Property="Background" Value="{look:Brush #55C6D4DF}" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
                 <Border
                     Margin="0,3,4,0"
                     Padding="5,1"

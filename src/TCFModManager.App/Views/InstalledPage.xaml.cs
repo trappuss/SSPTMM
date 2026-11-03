@@ -368,6 +368,13 @@ public partial class InstalledPage : Page
         ViewModel.UpdateLayoutForWidth(e.NewSize.Width);
     }
 
+    // Fork (1.4.7): the GitHub chip on a card opens the repository's releases.
+    private void GitHubChip_Click(object sender, RoutedEventArgs e)
+    {
+        if ((sender as FrameworkElement)?.DataContext is InstalledModCardViewModel { GitHubReleasesPage: { } page })
+            MarkupActions.OpenInBrowser(page);
+    }
+
     private void CardsView_Click(object sender, RoutedEventArgs e) => ViewModel.ViewMode = InstalledViewMode.Cards;
 
     private void GroupsView_Click(object sender, RoutedEventArgs e) => ViewModel.ViewMode = InstalledViewMode.Groups;
@@ -433,6 +440,12 @@ public partial class InstalledPage : Page
             Header = Strings.Installed_InstallFromFile,
             ToolTip = Strings.Installed_InstallFromFileToolTip,
             Command = vm.InstallFromFileCommand,
+        });
+        menu.Items.Add(new MenuItem
+        {
+            Header = Strings.GitHub_Add,
+            ToolTip = Strings.GitHub_AddToolTip,
+            Command = vm.AddFromGitHubCommand,
         });
         menu.Items.Add(new MenuItem
         {

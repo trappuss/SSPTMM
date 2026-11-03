@@ -131,7 +131,8 @@ Select all, Update selected, Enable selected, Disable selected, Unsubscribe sele
 
 ## The ⋯ menu
 
-Install from file, **SPT upgrade check** (pick a newer SPT release and see which of your mods are
+Install from file, **Add from GitHub** (see [Subscribing and downloads](Subscribing-and-Downloads)),
+**SPT upgrade check** (pick a newer SPT release and see which of your mods are
 ready, need an update first, or have nothing yet), Rescan and more.
 
 ## Undo
