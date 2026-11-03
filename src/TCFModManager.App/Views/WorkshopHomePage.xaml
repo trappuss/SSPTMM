@@ -111,7 +111,7 @@
         <DataTemplate x:Key="SmallCard">
             <behaviors:OpenableCard
                 x:Name="CardRoot"
-                AutomationProperties.Name="{Binding Mod.Name}"
+                AutomationProperties.Name="{Binding Name}"
                 Margin="0,0,16,6"
                 VerticalAlignment="Top"
                 Background="Transparent"
@@ -277,7 +277,7 @@
                                     <DataTemplate>
                                         <behaviors:OpenableCard
                                             x:Name="CardRoot"
-                                            AutomationProperties.Name="{Binding Mod.Name}"
+                                            AutomationProperties.Name="{Binding Name}"
                                             Width="183"
                                             Margin="0,0,16,6"
                                             Background="Transparent"
@@ -534,7 +534,7 @@
                             <DataTemplate>
                                 <behaviors:OpenableCard
                                     x:Name="CardRoot"
-                                    AutomationProperties.Name="{Binding Mod.Name}"
+                                    AutomationProperties.Name="{Binding Name}"
                                     Height="114"
                                     Margin="0,0,16,16"
                                     Background="Transparent"

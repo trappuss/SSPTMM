@@ -1647,6 +1647,9 @@ Quel que soit votre choix, la version actuellement sur le disque est d'abord cop
   <data name="Installed_AddonsChipLineFormat" xml:space="preserve">
     <value>{0} {1}</value>
   </data>
+  <data name="Installed_AddonsChipJoinFormat" xml:space="preserve">
+    <value>{0} · {1}</value>
+  </data>
   <data name="Installed_AddonsChipUpdateLineFormat" xml:space="preserve">
     <value>{0} {1} - mise à jour vers {2}</value>
   </data>

@@ -1647,6 +1647,9 @@ Qualunque cosa scegli, la versione ora sul disco viene prima copiata in {1}.</va
   <data name="Installed_AddonsChipLineFormat" xml:space="preserve">
     <value>{0} {1}</value>
   </data>
+  <data name="Installed_AddonsChipJoinFormat" xml:space="preserve">
+    <value>{0} · {1}</value>
+  </data>
   <data name="Installed_AddonsChipUpdateLineFormat" xml:space="preserve">
     <value>{0} {1} - aggiorna a {2}</value>
   </data>

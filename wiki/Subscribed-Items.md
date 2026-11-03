@@ -43,6 +43,8 @@ the same details; click a card or row to open it.
   how many have an update. Hover it for the list; click it for the mod's dialog, where they update
   and come off. An addon with a folder of its own has a card of its own, straight under its mod's.
 
+  ![Addon chips and an addon's own card](https://raw.githubusercontent.com/trappuss/SSPTMM/main/docs/images/19c-subscribed-addons.png)
+
 - The **switch** enables or disables it. Disabling moves its files aside (nothing is deleted) and
   first checks what else needs it.
 - A blue **Update** when an update for your SPT is out, and **Update all** at the top. An update

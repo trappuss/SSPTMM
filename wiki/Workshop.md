@@ -30,6 +30,8 @@ the other Workshop pages.
   and the mod it is for across its foot. The version line says whether it fits the mod you have.
   Click one to open its mod's page at the Addons tab, with that addon first. The **Addons** tag's
   **+** shows only addons, **-** hides them; an addon goes by its mod's SPT versions and category.
+
+  ![Addons only, each marked with its mod](https://raw.githubusercontent.com/trappuss/SSPTMM/main/docs/images/19-browse-addons.png)
 - **Sort** like Steam: Top Rated All Time (sp-mod.com endorsements), Most Recent, Last Updated,
   Total Unique Subscribers (downloads), Most Favorited.
 - **Search** the title, the description or both (the gear beside the search box); **@name**

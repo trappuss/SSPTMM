@@ -500,7 +500,7 @@
                                      the card itself would render its text without ClearType. -->
                                 <behaviors:OpenableCard
                                     x:Name="CardRoot"
-                                    AutomationProperties.Name="{Binding Mod.Name}"
+                                    AutomationProperties.Name="{Binding Name}"
                                     behaviors:ModContextMenu.Mod="{Binding MenuMod}"
                                     Margin="0,0,16,16"
                                     VerticalAlignment="Top"

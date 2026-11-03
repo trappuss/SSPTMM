@@ -139,6 +139,9 @@ public static class CardHover
 
         try
         {
+            // An addon's card shows its own picture only: its Mod is the mod it is for (1.4.6).
+            if (card.IsAddon) return;
+
             var pictures = await AppServices.ModPictures.ForAsync(card.Mod);
             if (!StillShowing()) return;
 

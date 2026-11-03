@@ -1647,6 +1647,9 @@ Was du auch wählst: Die Version, die gerade auf der Festplatte liegt, wird zuer
   <data name="Installed_AddonsChipLineFormat" xml:space="preserve">
     <value>{0} {1}</value>
   </data>
+  <data name="Installed_AddonsChipJoinFormat" xml:space="preserve">
+    <value>{0} · {1}</value>
+  </data>
   <data name="Installed_AddonsChipUpdateLineFormat" xml:space="preserve">
     <value>{0} {1} - Update auf {2}</value>
   </data>

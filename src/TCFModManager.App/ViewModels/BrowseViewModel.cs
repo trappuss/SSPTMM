@@ -31,7 +31,7 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
     //
     private sealed record BrowseEntry(Mod Mod, Addon? Addon)
     {
-        public string Key => Addon is { } addon ? "addon:" + addon.Id : "mod:" + Mod.Id;
+        public string Key { get; } = Addon is { } addon ? "addon:" + addon.Id : "mod:" + Mod.Id;
     }
 
     // Each installed addon's record on this install, and the ids of those set aside (disabled) -
@@ -1133,7 +1133,8 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
         if (!hideAddons) entries = entries.Concat(MatchingAddons(query, authorQuery, selectedLines, featured));
 
         // An addon has no endorsements or favourites of its own, so under those two orders it sits
-        // with the mods that have none, by its downloads.
+        // with the mods that have none - among them by downloads under endorsements, after them under
+        // favourites, which has no tiebreak.
         _filtered = SelectedSortOption.Value switch
         {
             ModSortOrder.LastUpdated => entries.OrderByDescending(e => LastUpdatedDate(e, installedSptVersion)).ToList(),
@@ -1789,7 +1790,12 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
         _suppressAutoApplyFilter = true;
         try
         {
-            SearchText = string.Empty;
+            // From the start, as a content type is - and without what would show no addons at all,
+            // even where it is saved as the default: Featured only, Has addons, Has dependencies.
+            ResetFilters();
+            if (SelectedFeaturedFilter.Value == FeaturedFilter.Only) SelectedFeaturedFilter = FeaturedFilterOptions[0];
+            Option(ModAttributeFilter.HasAddons).IsSelected = false;
+            Option(ModAttributeFilter.HasDependencies).IsSelected = false;
             Option(ModAttributeFilter.HideAddons).IsSelected = false;
             Option(ModAttributeFilter.AddonsOnly).IsSelected = true;
             ShowSortedBy(ModSortOrder.MostDownloaded);

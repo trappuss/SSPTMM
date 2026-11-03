@@ -30,7 +30,9 @@ public sealed partial class ModCardViewModel : LocalizedViewModel
     public Mod? MenuMod => IsAddon ? null : Mod;
 
     /// <summary>What tells two cards in one list apart - mod and addon ids are separate sequences.</summary>
-    public string Key => Addon is { } addon ? "addon:" + addon.Id : "mod:" + Mod.Id;
+    public string Key => _key ??= Addon is { } addon ? "addon:" + addon.Id : "mod:" + Mod.Id;
+
+    private string? _key;
 
     /// <summary>"For SAIN": the strip across an addon card's picture, which says at a glance which
     /// mod it belongs to. Null on a mod's card.</summary>
@@ -74,10 +76,13 @@ public sealed partial class ModCardViewModel : LocalizedViewModel
 
     /// <summary>True when this card, built afresh for the same mod, would look no different from
     /// <paramref name="other"/> - what Browse's redraw checks before replacing a card. Covers what can
-    /// change without the catalog changing: the install state, the pin and the addon count.</summary>
+    /// change without the catalog changing: the install state, the pin and the addon count - and on
+    /// an addon's card (1.4.6) its version line, which follows its mod being installed or updated.</summary>
     public bool ShowsSameAs(ModCardViewModel other) =>
         ReferenceEquals(Mod, other.Mod)
         && ReferenceEquals(Addon, other.Addon)
+        && SptVersionDisplay == other.SptVersionDisplay
+        && IsCompatibleWithInstalledSpt == other.IsCompatibleWithInstalledSpt
         && IsInstalled == other.IsInstalled
         && IsDisabled == other.IsDisabled
         && UpdateAvailable == other.UpdateAvailable
@@ -164,8 +169,8 @@ public sealed partial class ModCardViewModel : LocalizedViewModel
 
     //
     // How many addons this mod has published. Unlike the dependency badge next to it, this needs no
-    // per-card lookup and no debounce: the whole addon catalog is under a hundred entries and is
-    // already in memory, so the answer is a dictionary hit.
+    // per-card lookup and no debounce: the whole addon catalog is already in memory, counted per mod
+    // once, so the answer is a dictionary hit.
     //
     public int AddonCount { get; private init; }
 

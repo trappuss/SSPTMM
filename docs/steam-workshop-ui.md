@@ -2772,8 +2772,16 @@ From another mod manager (trappuss: "research it and see if there's anything cou
   mod link, with the update counted as an addon card counts one. An addon card with its own folder
   is moved under its mod's card after sorting and pinning. Addons only / Hide addons share the
   filter options with Browse.
-- Not seen on screen: the hidden-desktop harness is still gone. The look below is chosen, not
-  measured.
+- Seen on screen, on a made-up install with real mods' folders and install records: Home's
+  addons row, Browse with addons only, the Subscribed items chips and an addon's own card under its
+  mod's, and an addon card opening its mod's Addons tab with that addon first. The look below is
+  still chosen, not measured.
+- Checked afterwards: an addon card's version line now redraws when its mod is installed or
+  updated (`ShowsSameAs`); its hover shows its own picture, not its mod's slideshow; Home redraws
+  when the addon catalog settles; **View All** starts Browse from no filters, so Featured or Has
+  addons left on can't empty it; an addon card on Subscribed items has a picture (its own, else its
+  mod's); the chip's " · " join is a resource; card keys are made once, and Home builds cards only
+  for the addons that can make its row, by downloads.
 
 ## Values that could not be measured (marked HUNCH in the source)
 

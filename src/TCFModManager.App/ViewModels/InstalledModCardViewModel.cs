@@ -315,11 +315,18 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
     // first draws rather than carried through the scan: the scan does not need it, and the catalog
     // is already in memory by the time anything is on screen.
     //
-    // Mods only: an addon's ModId is an addon id, a separate sequence that would match some
-    // unrelated mod's listing here.
-    public string? Thumbnail => ModId is { } id && !IsAddon
-        ? AppServices.ModCache.AllMods.FirstOrDefault(m => m.Id == id)?.Thumbnail
-        : null;
+    // An addon's ModId is an addon id, a separate sequence that would match some unrelated mod's
+    // listing, so an addon's picture comes from the addon catalog - or, where it has none, its
+    // mod's (1.4.6), as on its Workshop card.
+    public string? Thumbnail => ModId is not { } id
+        ? null
+        : !IsAddon
+        ? ModThumbnail(id)
+        : AppServices.Addons.ById(id)?.Thumbnail is { Length: > 0 } own ? own
+        : ParentModId is { } parent ? ModThumbnail(parent) : null;
+
+    private static string? ModThumbnail(int modId) =>
+        AppServices.ModCache.AllMods.FirstOrDefault(m => m.Id == modId)?.Thumbnail;
 
     //
     // True when this card is an addon rather than a mod. Only ever set from an install record this
@@ -358,7 +365,7 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
             if (!HasInstalledAddons) return null;
             var label = Strings.Installed_AddonsChip(InstalledAddons.Count, InstalledAddons.Count);
             var updates = InstalledAddons.Count(a => a.UpdateVersion is not null);
-            return updates == 0 ? label : label + " · " + Strings.Installed_AddonsChipUpdates(updates, updates);
+            return updates == 0 ? label : Text(Strings.Installed_AddonsChipJoinFormat, label, Strings.Installed_AddonsChipUpdates(updates, updates));
         }
     }
 

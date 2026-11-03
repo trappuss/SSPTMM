@@ -183,6 +183,11 @@ addresses.
 - **Addons:** addons sit among the mods on their own cards, marked with a puzzle piece and the mod
   they're for, with a tag to show only them. Subscribed items lists each mod's installed addons.
 
+| | |
+|---|---|
+| ![Addons for your mods on Workshop Home](docs/images/19b-home-addons.png) | ![Browsing addons only, each marked with its mod](docs/images/19-browse-addons.png) |
+| ![Subscribed items with each mod's addons and updates](docs/images/19c-subscribed-addons.png) | ![An addon opened on its mod's Addons tab](docs/images/19d-addon-on-mod-page.png) |
+
 ### Safer installs
 
 - **Profile backups:** a copy of your SPT profiles before anything changes your install.

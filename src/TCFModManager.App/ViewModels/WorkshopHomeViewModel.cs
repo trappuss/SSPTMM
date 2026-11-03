@@ -101,6 +101,10 @@ public sealed partial class WorkshopHomeViewModel : LocalizedViewModel, IModActi
         // Browse has rebuilt the index the cards are matched against.
         AppServices.Browse.InstalledIndexChanged += (_, _) => Refresh();
         AppServices.Followed.Changed += (_, _) => Refresh();
+
+        // Fork (1.4.6): the addon catalog usually settles after the page is first drawn, and the
+        // addons row and the addons among the others come from it.
+        AppServices.Addons.AddonsChanged += (_, _) => Refresh();
     }
 
     private bool _loaded;
@@ -158,9 +162,9 @@ public sealed partial class WorkshopHomeViewModel : LocalizedViewModel, IModActi
         // installed mod first, then the most downloaded.
         var forYou = addons
             .Where(a => !AppServices.Browse.IsAddonInstalled(a.Addon.Id) && AppServices.Browse.InstalledMatchFor(a.Parent) is not null)
+            .OrderByDescending(a => a.Addon.Downloads ?? 0)
             .Select(a => AppServices.Browse.BuildAddonCard(a.Addon, a.Parent))
-            .OrderByDescending(c => c.IsCompatibleWithInstalledSpt == true)
-            .ThenByDescending(c => c.Downloads ?? 0)
+            .OrderByDescending(c => c.IsCompatibleWithInstalledSpt == true) // stable: by downloads within
             .Take(AddonsForYouSize)
             .ToList();
 

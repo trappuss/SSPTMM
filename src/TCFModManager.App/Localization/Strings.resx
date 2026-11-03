@@ -3183,6 +3183,10 @@ The copy you don't keep is moved into a hidden .tcfmm-duplicates folder in your 
     <value>{0} {1}</value>
     <comment>One line of the chip's tooltip. {0} the addon's name, {1} its installed version.</comment>
   </data>
+  <data name="Installed_AddonsChipJoinFormat" xml:space="preserve">
+    <value>{0} · {1}</value>
+    <comment>Installed_AddonsChip and Installed_AddonsChipUpdates together on the chip. {0} the first, {1} the second.</comment>
+  </data>
   <data name="Installed_AddonsChipUpdateLineFormat" xml:space="preserve">
     <value>{0} {1} - update to {2}</value>
     <comment>One line of the chip's tooltip. {0} the addon's name, {1} its installed version, {2} the version it can update to.</comment>

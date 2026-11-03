@@ -895,6 +895,7 @@ internal static class Strings
     internal static string Installed_AddonsChipUpdates(int count, params object?[] values) =>
         LocalizationService.Plural("Installed_AddonsChipUpdates", count, values);
     internal static string Installed_AddonsChipLineFormat => LocalizationService.Get("Installed_AddonsChipLineFormat");
+    internal static string Installed_AddonsChipJoinFormat => LocalizationService.Get("Installed_AddonsChipJoinFormat");
     internal static string Installed_AddonsChipUpdateLineFormat => LocalizationService.Get("Installed_AddonsChipUpdateLineFormat");
     internal static string Installed_AddonsChipToolTip => LocalizationService.Get("Installed_AddonsChipToolTip");
     internal static string Installed_Addon => LocalizationService.Get("Installed_Addon");
