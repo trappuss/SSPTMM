@@ -62,7 +62,7 @@ public partial class BrowsePage : Page
         if (sender is not FrameworkElement { DataContext: ModCardViewModel card }) return;
 
         e.Handled = true;
-        await ViewModel.LoadDetailsAsync(card.Mod);
+        await ViewModel.OpenCardAsync(card);
     }
 
     // The magnifier: Quick View, stepping through the cards on the page.
@@ -71,6 +71,13 @@ public partial class BrowsePage : Page
         if (sender is not FrameworkElement { DataContext: ModCardViewModel card } button) return;
 
         e.Handled = true;
+        // Quick View is a mod's; an addon's magnifier opens it on its mod's page (1.4.6).
+        if (card.IsAddon)
+        {
+            _ = ViewModel.OpenCardAsync(card);
+            return;
+        }
+
         AppServices.QuickView.Show(card.Mod, ModContextMenu.SequenceAround(button));
     }
 

@@ -501,7 +501,7 @@
                                 <behaviors:OpenableCard
                                     x:Name="CardRoot"
                                     AutomationProperties.Name="{Binding Mod.Name}"
-                                    behaviors:ModContextMenu.Mod="{Binding Mod}"
+                                    behaviors:ModContextMenu.Mod="{Binding MenuMod}"
                                     Margin="0,0,16,16"
                                     VerticalAlignment="Top"
                                     Background="Transparent"
@@ -586,6 +586,9 @@
                                                             Visibility="{Binding IsPinned, Converter={StaticResource TrueToVisible}}" />
                                                     </StackPanel>
                                                 </Border>
+
+                                                <!-- Fork (1.4.6): an addon's puzzle piece and the mod it is for. -->
+                                                <views:AddonCardStrip />
                                             </Grid>
 
                                             <Grid Height="78" Margin="10,0">

@@ -22,7 +22,22 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
         LocalizationService.Text(format, values);
 
     private readonly SpModApiClient _spModApi;
-    private List<Mod> _filtered = [];
+    private List<BrowseEntry> _filtered = [];
+
+    //
+    // Fork (1.4.6): one result - a mod, or an addon with the mod it is for (Addon set, Mod its
+    // parent). Addons are listed among the mods, sorted by the same orders, and the Addons tag row
+    // shows only them or none of them.
+    //
+    private sealed record BrowseEntry(Mod Mod, Addon? Addon)
+    {
+        public string Key => Addon is { } addon ? "addon:" + addon.Id : "mod:" + Mod.Id;
+    }
+
+    // Each installed addon's record on this install, and the ids of those set aside (disabled) -
+    // an addon is known by the record its install wrote, never by its folder (see BuildAddonCard).
+    private Dictionary<int, InstalledModRecord> _installedAddons = [];
+    private HashSet<int> _disabledAddons = [];
 
     /// <summary>The SPT release lines ticked in the version filter, kept so each card can describe
     /// what the mod supports on exactly those lines.</summary>
@@ -149,6 +164,8 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
         // carries it), so the row could never hide anything.
         TagRows =
         [
+            // Fork (1.4.6): first, as Steam's own type rows lead its tags.
+            new(nameof(Strings.Browse_TagAddons), Option(ModAttributeFilter.AddonsOnly), Option(ModAttributeFilter.HideAddons)),
             new(nameof(Strings.Common_FlagFikaCompatible), Option(ModAttributeFilter.FikaCompatible), null),
             new(nameof(Strings.Common_FlagFikaIncompatible), Option(ModAttributeFilter.FikaIncompatible), null),
             new(nameof(Strings.Common_FlagFikaUnknown), Option(ModAttributeFilter.FikaUnknown), null),
@@ -159,10 +176,14 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
         ];
 
         // The addon catalog usually settles after the first page has already rendered, so the
-        // "N addons" badges are redrawn once it does rather than waiting for a page change.
+        // "N addons" badges are redrawn once it does rather than waiting for a page change - and,
+        // addons being results too (1.4.6), the results worked out again first.
         AppServices.Addons.AddonsChanged += (_, _) =>
         {
-            if (HasLoadedResults) Redraw();
+            if (!HasLoadedResults) return;
+
+            Filter();
+            Redraw();
         };
     }
 
@@ -427,7 +448,7 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
     //
     public ObservableCollection<ModAttributeOption> AttributeOptions { get; } =
     [
-        .. ModAttributeOption.Standard(nameof(Strings.Filter_HasDependenciesBrowseToolTip)),
+        .. ModAttributeOption.Standard(nameof(Strings.Filter_HasDependenciesBrowseToolTip), nameof(Strings.Filter_AddonsOnlyBrowseToolTip)),
         new(ModAttributeFilter.HideInstalled,
             nameof(Strings.Filter_HideInstalled),
             nameof(Strings.Filter_HideInstalledToolTip)),
@@ -806,7 +827,7 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
         var pins = AppServices.ModLists.GetPins();
 
         Results.Clear();
-        foreach (var mod in shown) Results.Add(MakeCard(mod, pins));
+        foreach (var entry in shown) Results.Add(MakeCard(entry, pins));
 
         PageLinks.Clear();
         foreach (var link in PageLink.For(CurrentPage, TotalPages)) PageLinks.Add(link);
@@ -830,12 +851,24 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
         if (!IsInfinite || !HasLoadedResults || Results.Count >= _filtered.Count) return false;
 
         var pins = AppServices.ModLists.GetPins();
-        foreach (var mod in _filtered.Skip(Results.Count).Take(PageStep)) Results.Add(MakeCard(mod, pins));
+        foreach (var entry in _filtered.Skip(Results.Count).Take(PageStep)) Results.Add(MakeCard(entry, pins));
 
         CurrentPage = (int)Math.Ceiling(Results.Count / (double)PageStep);
         HasMore = Results.Count < _filtered.Count;
         return true;
     }
+
+    private ModCardViewModel MakeCard(BrowseEntry entry, IReadOnlySet<string> pins) =>
+        entry.Addon is { } addon ? MakeAddonCard(addon, entry.Mod) : MakeCard(entry.Mod, pins);
+
+    // Fork (1.4.6): measured against the parent's installed copy, as the item page's Addons tab is.
+    private ModCardViewModel MakeAddonCard(Addon addon, Mod parent) =>
+        ModCardViewModel.FromAddon(
+            addon,
+            parent,
+            FindInstalledMatch(parent)?.InstalledVersion,
+            _installedAddons.GetValueOrDefault(addon.Id),
+            _disabledAddons.Contains(addon.Id));
 
     private ModCardViewModel MakeCard(Mod mod, IReadOnlySet<string> pins)
     {
@@ -870,6 +903,8 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
         {
             _installedByGuid = new(StringComparer.OrdinalIgnoreCase);
             _installedByName = new(StringComparer.OrdinalIgnoreCase);
+            _installedAddons = [];
+            _disabledAddons = [];
             return;
         }
 
@@ -881,20 +916,31 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
         // Scan and match together off the UI thread. The match is the slow half - InstalledViewModel
         // has run it this way since the matching rewrite, and doing it inline here was the last
         // thing left holding the window blank while Browse loaded.
-        var matched = await Task.Run(() =>
+        var built = await Task.Run(() =>
         {
             var scanned = InstalledModScanner.Scan(installPath);
 
             // The manifest is passed even though Browse ignores IsAppManaged: it's what lets an
             // app-installed mod resolve to its exact catalog listing rather than a folder-name guess.
-            return InstalledModCardViewModel.BuildFrom(scanned, catalog, sptVersion, records, addons)
-                // Browse's cards are mods, so addon cards are left out of both indexes below - an
-                // addon sharing a mod's name would otherwise mark that mod as installed.
-                .Where(m => !m.IsAddon)
-                .ToList();
+            return InstalledModCardViewModel.BuildFrom(scanned, catalog, sptVersion, records, addons);
         });
 
         if (generation != _indexGeneration) return;
+
+        // Mod cards are matched by name and GUID below, so addon cards are left out of both
+        // indexes - an addon sharing a mod's name would otherwise mark that mod as installed.
+        // Addons are known by their install records instead (1.4.6), which also covers the many
+        // that install into their mod's folder and so have no card of their own.
+        var matched = built.Where(m => !m.IsAddon).ToList();
+
+        _installedAddons = records
+            .Where(r => r.IsAddon)
+            .GroupBy(r => r.ModId)
+            .ToDictionary(g => g.Key, g => g.Last());
+        _disabledAddons = built
+            .Where(m => m is { IsAddon: true, IsDisabled: true, ModId: not null })
+            .Select(m => m.ModId!.Value)
+            .ToHashSet();
 
         // Keyed by Guid when available, MatchedModName as a fallback. Only matched entries are indexed.
         // With a mod on disk twice (the install and a copy), the one this app installed speaks for
@@ -947,7 +993,7 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
     {
         var sw = Stopwatch.StartNew();
 
-        List<Mod> target;
+        List<BrowseEntry> target;
         if (IsInfinite)
         {
             // As many as were loaded, so a card leaving the results is followed by the next one.
@@ -962,10 +1008,10 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
         var pins = AppServices.ModLists.GetPins();
         for (var i = 0; i < target.Count; i++)
         {
-            var mod = target[i];
-            var fresh = MakeCard(mod, pins);
+            var entry = target[i];
+            var fresh = MakeCard(entry, pins);
 
-            if (i < Results.Count && Results[i].Mod.Id == mod.Id)
+            if (i < Results.Count && Results[i].Key == entry.Key)
             {
                 if (fresh.ShowsSameAs(Results[i])) continue;
 
@@ -976,7 +1022,7 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
             {
                 // A card whose mod has left the results is dropped; anything else missing here
                 // is new to the list and goes in at its place.
-                if (i < Results.Count && !target.Skip(i).Any(m => m.Id == Results[i].Mod.Id))
+                if (i < Results.Count && !target.Skip(i).Any(m => m.Key == Results[i].Key))
                 {
                     Results.RemoveAt(i);
                     i--;
@@ -1045,7 +1091,12 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
         var selectedLines = _selectedLines;
         var featured = SelectedFeaturedFilter.Value;
 
+        // Fork (1.4.6): the Addons row - [+] addons and nothing else, [-] no addons.
+        var addonsOnly = IsOn(ModAttributeFilter.AddonsOnly);
+        var hideAddons = IsOn(ModAttributeFilter.HideAddons);
+
         var matched = AppServices.ModCache.AllMods
+            .Where(_ => !addonsOnly)
             // This app's own sp-mod.com listing is hidden here rather than dropped from the cached
             // catalog, which the self-updater still needs to be able to read. It just has no
             // business appearing among the mods this app installs into an SPT folder: it isn't a
@@ -1078,22 +1129,29 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
 
         var installedSptVersion = AppServices.SptEnvironment.InstalledVersion;
 
+        var entries = matched.Select(m => new BrowseEntry(m, null));
+        if (!hideAddons) entries = entries.Concat(MatchingAddons(query, authorQuery, selectedLines, featured));
+
+        // An addon has no endorsements or favourites of its own, so under those two orders it sits
+        // with the mods that have none, by its downloads.
         _filtered = SelectedSortOption.Value switch
         {
-            ModSortOrder.LastUpdated => matched.OrderByDescending(m => LastUpdatedDate(m, installedSptVersion)).ToList(),
-            ModSortOrder.MostDownloaded => matched.OrderByDescending(m => m.Downloads ?? 0).ToList(),
-            ModSortOrder.MostFavourited => matched.OrderByDescending(m => m.FavouritesCount ?? 0).ToList(),
+            ModSortOrder.LastUpdated => entries.OrderByDescending(e => LastUpdatedDate(e, installedSptVersion)).ToList(),
+            ModSortOrder.MostDownloaded => entries.OrderByDescending(Downloads).ToList(),
+            ModSortOrder.MostFavourited => entries
+                .OrderByDescending(e => e.Addon is null ? e.Mod.FavouritesCount ?? 0 : 0)
+                .ToList(),
             // Endorsements are new enough that only a few dozen mods have any at all and the counts
             // are in the low tens, so the overwhelming majority tie on 0. Downloads break the tie to
             // keep that long tail in a sensible order instead of an arbitrary one.
-            ModSortOrder.MostEndorsed => matched
-                .OrderByDescending(m => m.EndorsementsCount ?? 0)
-                .ThenByDescending(m => m.Downloads ?? 0)
+            ModSortOrder.MostEndorsed => entries
+                .OrderByDescending(e => e.Addon is null ? e.Mod.EndorsementsCount ?? 0 : 0)
+                .ThenByDescending(Downloads)
                 .ToList(),
             // Newest - by the most recent release that runs on the installed SPT, so a mod that
             // shipped an update today sorts above an older mod that happened to be created more
             // recently, while an update for an SPT line this install isn't on doesn't count as new.
-            _ => matched.OrderByDescending(m => NewestReleaseDate(m, installedSptVersion)).ToList(),
+            _ => entries.OrderByDescending(e => NewestReleaseDate(e, installedSptVersion)).ToList(),
         };
         AppLog.Debug("Browse", $"ApplyFilter: filter/sort took {sw.ElapsedMilliseconds}ms over {AppServices.ModCache.AllMods.Count} cached mods, {_filtered.Count} matched");
 
@@ -1158,6 +1216,101 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
 
         return NewestReleaseDate(mod, installedSptVersion);
     }
+
+    //
+    // Fork (1.4.6): the addons the same filters leave, each with the mod it is for. An addon has no
+    // SPT version, category or Fika flag of its own, so the first two are its mod's - an addon for an
+    // AI mod is listed under AI, and under the SPT lines that mod runs on - and for Fika it counts as
+    // unknown, which is what sp-mod.com says about it. It is never featured, and has no
+    // dependencies or addons, so those filters leave it out. An addon whose mod isn't in the catalog
+    // (or that sp-mod.com marks detached from it) is never listed: there is no page to open it on.
+    //
+    private IEnumerable<BrowseEntry> MatchingAddons(
+        string query, string? authorQuery, List<(int Major, int Minor)> selectedLines, FeaturedFilter featured)
+    {
+        if (featured == FeaturedFilter.Only || IsOn(ModAttributeFilter.HasAddons) || IsOn(ModAttributeFilter.HasDependencies))
+            return [];
+
+        var parents = new Dictionary<int, Mod>();
+        foreach (var mod in AppServices.ModCache.AllMods) parents.TryAdd(mod.Id, mod);
+
+        return AppServices.Addons.AllAddons
+            .Where(a => a.IsDetached != true)
+            .Select(a => (Addon: a, Parent: a.ModId is { } id ? parents.GetValueOrDefault(id) : null))
+            .Where(x => x.Parent is not null && !IsSelf(x.Parent))
+            .Where(x => authorQuery is not null
+                ? MatchesAuthor(x.Addon, authorQuery)
+                : query.Length == 0 || MatchesSearch(x.Addon, x.Parent!, query))
+            .Where(x => InRange(x.Addon.PublishedAt ?? x.Addon.CreatedAt, PostedAfter, PostedBefore))
+            .Where(x => InRange(x.Addon.UpdatedAt, UpdatedAfter, UpdatedBefore))
+            .Where(x => selectedLines.Count == 0 || MatchesSptVersionFilter(x.Parent!, selectedLines))
+            .Where(x => featured != FeaturedFilter.CreatedByFollowed || AppServices.Followed.IsByFollowed(x.Addon))
+            .Where(x => SelectedCategory.Title is not { } category
+                || string.Equals(x.Parent!.Category?.Title, category, StringComparison.OrdinalIgnoreCase))
+            .Where(_ => FikaWanted(FikaStatus.Unknown))
+            .Where(x => !IsOn(ModAttributeFilter.HideAds) || x.Addon.ContainsAds != true)
+            .Where(x => !IsOn(ModAttributeFilter.HideInstalled) || !_installedAddons.ContainsKey(x.Addon.Id))
+            .Select(x => new BrowseEntry(x.Parent!, x.Addon))
+            .ToList();
+    }
+
+    // The search finds an addon by its own name and line, or by the mod it is for - "SAIN" lists
+    // SAIN's addons beside SAIN.
+    private bool MatchesSearch(Addon addon, Mod parent, string query) => SearchScope switch
+    {
+        BrowseSearchScope.TitleOnly => Matches(addon.Name, query) || Matches(addon.Slug, query) || Matches(parent.Name, query),
+        BrowseSearchScope.DescriptionOnly => Matches(addon.Teaser, query),
+        _ => Matches(addon.Name, query) || Matches(addon.Slug, query) || Matches(parent.Name, query) || Matches(addon.Teaser, query),
+    };
+
+    private static bool MatchesAuthor(Addon addon, string authorQuery) =>
+        authorQuery.Length == 0
+        || Matches(addon.Owner?.Name, authorQuery)
+        || (addon.AdditionalAuthors?.Any(a => Matches(a.Name, authorQuery)) ?? false);
+
+    private static int Downloads(BrowseEntry entry) => entry.Addon?.Downloads ?? entry.Mod.Downloads ?? 0;
+
+    // An addon's newest release, measured against nothing: which of its versions the installed mod
+    // takes is the card's to say, and a new release is new either way.
+    private static DateTimeOffset NewestReleaseDate(Addon addon) =>
+        (addon.Versions ?? []).Select(v => v.PublishedAt).Where(d => d is not null).DefaultIfEmpty(null).Max()
+        ?? addon.PublishedAt ?? addon.CreatedAt ?? DateTimeOffset.MinValue;
+
+    private static DateTimeOffset NewestReleaseDate(BrowseEntry entry, string? installedSptVersion) =>
+        entry.Addon is { } addon ? NewestReleaseDate(addon) : NewestReleaseDate(entry.Mod, installedSptVersion);
+
+    private static DateTimeOffset LastUpdatedDate(BrowseEntry entry, string? installedSptVersion) =>
+        entry.Addon is { } addon ? addon.UpdatedAt ?? NewestReleaseDate(addon) : LastUpdatedDate(entry.Mod, installedSptVersion);
+
+    //
+    // Fork (1.4.6): the addons Home ranks beside the mods, each with the mod it is for - every one
+    // Browse could list, before any filter.
+    //
+    public IEnumerable<(Addon Addon, Mod Parent)> AddonCatalog
+    {
+        get
+        {
+            var parents = new Dictionary<int, Mod>();
+            foreach (var mod in Catalog) parents.TryAdd(mod.Id, mod);
+
+            return AppServices.Addons.AllAddons
+                .Where(a => a.IsDetached != true && a.ModId is { } id && parents.ContainsKey(id))
+                .Select(a => (a, parents[a.ModId!.Value]))
+                .ToList();
+        }
+    }
+
+    /// <summary>The installed record of an addon on this install - what Home's "Addons for your
+    /// mods" leaves out.</summary>
+    public bool IsAddonInstalled(int addonId) => _installedAddons.ContainsKey(addonId);
+
+    /// <summary>A card for an addon, matched against the install as Browse's own are.</summary>
+    public ModCardViewModel BuildAddonCard(Addon addon, Mod parent) => MakeAddonCard(addon, parent);
+
+    /// <summary>Home's ranking keys, the same ones this page sorts by.</summary>
+    internal static DateTimeOffset AddonNewestReleaseDate(Addon addon) => NewestReleaseDate(addon);
+
+    internal static DateTimeOffset AddonLastUpdatedDate(Addon addon) => addon.UpdatedAt ?? NewestReleaseDate(addon);
 
     private static bool MatchesSptVersionFilter(Mod mod, List<(int Major, int Minor)> selectedLines)
     {
@@ -1365,6 +1518,12 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
         if (string.IsNullOrWhiteSpace(installPath))
         {
             StatusMessage = AppMessages.NoSptInstallFolder;
+            return;
+        }
+
+        if (card.Addon is { } addon)
+        {
+            StatusMessage = SubscribeAddon(addon, card.Mod, alternate);
             return;
         }
 
@@ -1599,6 +1758,50 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
             ?.DisplayTitle;
     }
 
+    //
+    // Fork (1.4.6): Subscribe on an addon's card - the item page's Addons row for it, pressed. That
+    // row picks the newest version the installed mod takes, asks first when none is known to fit or
+    // the mod isn't installed, and shows the mod-page gate; what it says is the answer.
+    //
+    public string? SubscribeAddon(Addon addon, Mod parent, bool alternate = false)
+    {
+        var row = new AddonRowViewModel(
+            addon, parent.Name, FindInstalledMatch(parent)?.InstalledVersion, _installedAddons.GetValueOrDefault(addon.Id));
+
+        var command = alternate ? row.InstallAlternateCommand : row.InstallCommand;
+        if (!command.CanExecute(null)) return row.BlockedReason;
+
+        command.Execute(null);
+        return row.StatusMessage;
+    }
+
+    /// <summary>Opens an addon: its mod's item page, at the Addons tab, with this addon first.</summary>
+    public Task<string?> OpenAddonAsync(Addon addon, Mod parent) =>
+        LoadDetailsAsync(parent, openAddons: true, focusAddonId: addon.Id);
+
+    /// <summary>Opens what a card stands for - a mod's page, or an addon on its mod's page.</summary>
+    public Task<string?> OpenCardAsync(ModCardViewModel card) =>
+        card.Addon is { } addon ? OpenAddonAsync(addon, card.Mod) : LoadDetailsAsync(card.Mod);
+
+    /// <summary>Opens the addons alone, most downloaded first - Home's "View all" under its addon row.</summary>
+    public void ShowAddons()
+    {
+        _suppressAutoApplyFilter = true;
+        try
+        {
+            SearchText = string.Empty;
+            Option(ModAttributeFilter.HideAddons).IsSelected = false;
+            Option(ModAttributeFilter.AddonsOnly).IsSelected = true;
+            ShowSortedBy(ModSortOrder.MostDownloaded);
+        }
+        finally
+        {
+            _suppressAutoApplyFilter = false;
+        }
+
+        if (HasLoadedResults) ApplyFilter();
+    }
+
     /// <summary>Resolves the full ModVersion (with its download Link) for exactly one version string.
     /// Called lazily from the queue so queueing itself never waits on a network call.</summary>
     private async Task<ModVersion?> ResolveVersionLinkAsync(Mod mod, string version)
@@ -1712,7 +1915,7 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
     /// <summary>Opens a mod's item page. Returns null once it is showing, or what went wrong - which
     /// is also put in this page's status line, and which a caller on another page (Home, the item
     /// page itself) shows in its own, since this page's line is not on screen there.</summary>
-    public async Task<string?> LoadDetailsAsync(Mod mod, bool openAddons = false)
+    public async Task<string?> LoadDetailsAsync(Mod mod, bool openAddons = false, int? focusAddonId = null)
     {
         // The app's own listing never gets an item page, from any link: its Subscribe would install
         // the manager into the SPT folder - see the note in ApplyFilter. It opens on sp-mod.com.
@@ -1726,7 +1929,7 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
         if (details is not null)
         {
             // The installed version is what this mod's addons check their own constraints against.
-            AppServices.ModDetailsOverlay.Show(details, FindInstalledMatch(mod)?.InstalledVersion, openAddons);
+            AppServices.ModDetailsOverlay.Show(details, FindInstalledMatch(mod)?.InstalledVersion, openAddons, focusAddonId);
             return null;
         }
 

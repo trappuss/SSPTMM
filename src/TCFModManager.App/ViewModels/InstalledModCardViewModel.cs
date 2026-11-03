@@ -337,6 +337,39 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
     // measured against. Null for a mod, or when the parent isn't installed.
     public string? ParentInstalledVersion { get; init; }
 
+    // Fork (1.4.6): the mod an addon's card is for - what tucks the card in under that mod's on the
+    // page. Null for a mod, or when the addon isn't in the cached catalog.
+    public int? ParentModId { get; init; }
+
+    //
+    // Fork (1.4.6): the addons this app installed for this mod, into its folder or one of their own,
+    // for the puzzle chip on its card - most install into the mod's folder and have no card of their
+    // own, so this is where they show. Empty on an addon's card and on a mod none were installed for.
+    //
+    public IReadOnlyList<InstalledAddonInfo> InstalledAddons { get; private set; } = [];
+
+    public bool HasInstalledAddons => InstalledAddons.Count > 0;
+
+    // "2 addons", and how many of them have an update that fits this mod's installed version.
+    public string? InstalledAddonsLabel
+    {
+        get
+        {
+            if (!HasInstalledAddons) return null;
+            var label = Strings.Installed_AddonsChip(InstalledAddons.Count, InstalledAddons.Count);
+            var updates = InstalledAddons.Count(a => a.UpdateVersion is not null);
+            return updates == 0 ? label : label + " · " + Strings.Installed_AddonsChipUpdates(updates, updates);
+        }
+    }
+
+    public string? InstalledAddonsToolTip => HasInstalledAddons
+        ? string.Join("\n", InstalledAddons
+            .Select(a => a.UpdateVersion is { } update
+                ? Text(Strings.Installed_AddonsChipUpdateLineFormat, a.Name, a.Version, update)
+                : Text(Strings.Installed_AddonsChipLineFormat, a.Name, a.Version))
+            .Prepend(Strings.Installed_AddonsChipToolTip))
+        : null;
+
     // The card's "Addon for X" line, or null for an ordinary mod.
     public string? AddonSubtitle => IsAddon
         ? ParentModName is not null ? Text(Strings.Installed_AddonForFormat, ParentModName) : Strings.Installed_Addon
@@ -712,6 +745,8 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
 
         AddSharedFolderCards(merged, cards, cardRecords, modRecords, index, installedSptVersion, addonsByParent);
 
+        AttachInstalledAddons(cards, addonRecords, addonCatalog); // Fork (1.4.6)
+
         if (addonFolders.Count == 0) return cards;
 
         // Addon cards come last because an addon's update state is measured against its parent
@@ -738,6 +773,49 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
             }));
 
         return cards;
+    }
+
+    //
+    // Fork (1.4.6): hands each mod's card the addons installed for it. An addon is known for whose
+    // only through the cached catalog - the install record names the addon, not its mod - so one
+    // the catalog doesn't hold is on no mod's chip. Where two cards show the same mod (a copy made by
+    // hand), the first has the chip, as the first is the one the record's folders were matched to.
+    //
+    // An update counts as BuildAddonCard counts one: the newest version this mod's installed version
+    // satisfies, newer than the one installed, and not skipped.
+    //
+    private static void AttachInstalledAddons(
+        List<InstalledModCardViewModel> cards,
+        List<InstalledModRecord> addonRecords,
+        IReadOnlyList<Addon>? addonCatalog)
+    {
+        if (addonRecords.Count == 0) return;
+
+        var addonsById = (addonCatalog ?? []).GroupBy(a => a.Id).ToDictionary(g => g.Key, g => g.First());
+        var byParent = addonRecords
+            .Select(r => (Record: r, Addon: addonsById.GetValueOrDefault(r.ModId)))
+            .Where(x => x.Addon?.ModId is not null)
+            .GroupBy(x => x.Addon!.ModId!.Value)
+            .ToDictionary(g => g.Key, g => g.ToList());
+
+        var given = new HashSet<int>();
+        foreach (var card in cards)
+        {
+            if (card.IsAddon || card.ModId is not { } id || !byParent.TryGetValue(id, out var installed) || !given.Add(id)) continue;
+
+            card.InstalledAddons = installed
+                .Select(x =>
+                {
+                    var latest = (x.Addon!.Versions ?? [])
+                        .OrderByDescending(v => v.PublishedAt ?? DateTimeOffset.MinValue)
+                        .FirstOrDefault(v => ModVersionMatcher.IsSatisfiedBy(v.ModVersionConstraint, card.InstalledVersion) == true);
+                    var update = ModVersionComparer.IsUpdateAvailable(x.Record.Version, latest?.Version) == true
+                        && !SkippedUpdates.Skips(x.Record.ModId, isAddon: true, latest?.Version);
+                    return new InstalledAddonInfo(x.Addon.Id, x.Addon.Name ?? x.Record.Name, x.Record.Version, update ? latest!.Version : null);
+                })
+                .OrderBy(a => a.Name, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+        }
     }
 
     //
@@ -829,6 +907,7 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
             ModId = record.ModId,
             IsAddon = true,
             ParentModName = parentName,
+            ParentModId = addon?.ModId, // Fork (1.4.6)
             ParentInstalledVersion = parentVersion,
             IsAppManaged = record.IsAppManaged,
             IsManualOverride = !record.IsAppManaged,
@@ -1797,3 +1876,7 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
 
 // A download from the ledger and what the last scan made of it.
 public sealed record PendingDownload(DownloadedModRecord Download, DownloadMatch Match);
+
+// Fork (1.4.6): one addon installed for a mod, as its card's addon chip lists it. UpdateVersion is
+// the version to update to, or null when there's none.
+public sealed record InstalledAddonInfo(int AddonId, string Name, string Version, string? UpdateVersion);

@@ -180,6 +180,8 @@ addresses.
 - **Item pages:** sp-mod.com's comments, change notes for every version, and YouTube videos, all
   inside the app.
 - **Badges:** every card shows whether you have the mod, it needs an update, or it's disabled.
+- **Addons:** addons sit among the mods on their own cards, marked with a puzzle piece and the mod
+  they're for, with a tag to show only them. Subscribed items lists each mod's installed addons.
 
 ### Safer installs
 

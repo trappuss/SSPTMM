@@ -227,6 +227,42 @@
   <data name="Browse_AddonBadgeToolTip" xml:space="preserve">
     <value>Open this mod to see and install its addons</value>
   </data>
+  <data name="Browse_AddonForFormat" xml:space="preserve">
+    <value>For {0}</value>
+    <comment>Across the foot of an addon's picture in the Workshop, beside the mod's own small picture. {0} the mod the addon is for.</comment>
+  </data>
+  <data name="Browse_AddonChip" xml:space="preserve">
+    <value>Addon</value>
+    <comment>Small tag in the corner of an addon's picture in the Workshop, by a puzzle piece.</comment>
+  </data>
+  <data name="Browse_AddonParentMissingFormat" xml:space="preserve">
+    <value>For {0} - not installed</value>
+    <comment>An addon card's version line when the mod it is for is not installed. {0} that mod's name.</comment>
+  </data>
+  <data name="Browse_AddonFitsFormat" xml:space="preserve">
+    <value>Fits your {0} {1}</value>
+    <comment>An addon card's version line when it fits the installed mod. {0} the mod's name, {1} its installed version.</comment>
+  </data>
+  <data name="Browse_AddonNeedsFormat" xml:space="preserve">
+    <value>Needs {0} {1}</value>
+    <comment>An addon card's version line when no version fits the installed mod. {0} the mod's name, {1} the versions of it the addon needs (e.g. ^3.2.0).</comment>
+  </data>
+  <data name="Browse_AddonUncheckedFormat" xml:space="preserve">
+    <value>For {0} - fit with {1} unknown</value>
+    <comment>An addon card's version line when it can't be told whether it fits. {0} the mod's name, {1} its installed version.</comment>
+  </data>
+  <data name="Browse_AddonToolTipFormat" xml:space="preserve">
+    <value>An addon for {0}. Opens on that mod's page, under Addons.</value>
+    <comment>First line of the tooltip on an addon card's version line. {0} the mod the addon is for.</comment>
+  </data>
+  <data name="Browse_AddonConstraintFormat" xml:space="preserve">
+    <value>Version {0} needs {1} {2}</value>
+    <comment>Second line of that tooltip. {0} the addon's version, {1} the mod's name, {2} the versions of it that one needs (e.g. ^3.2.0).</comment>
+  </data>
+  <data name="Browse_TagAddons" xml:space="preserve">
+    <value>Addons</value>
+    <comment>Row in the Workshop's tag list: [+] shows only addons, [-] hides them.</comment>
+  </data>
   <data name="Browse_StartupProgressFormat" xml:space="preserve">
     <value>{0:N0} of {1:N0} mods</value>
     <comment>First-run progress while the catalog downloads. {0} is how many have arrived, {1} the total.</comment>
@@ -2250,6 +2286,22 @@ That happens legitimately if the server was rebuilt or you're reaching it throug
   <data name="Filter_HasAddonsToolTip" xml:space="preserve">
     <value>Only mods with addons published for them.</value>
   </data>
+  <data name="Filter_AddonsOnly" xml:space="preserve">
+    <value>Addons only</value>
+    <comment>Tick box in the filter dropdown.</comment>
+  </data>
+  <data name="Filter_HideAddons" xml:space="preserve">
+    <value>Hide addons</value>
+    <comment>Tick box in the filter dropdown.</comment>
+  </data>
+  <data name="Filter_AddonsOnlyBrowseToolTip" xml:space="preserve">
+    <value>Only addons - the extras made for other mods - and no mods.</value>
+    <comment>Tooltip on Filter_AddonsOnly in the Workshop.</comment>
+  </data>
+  <data name="Filter_AddonsOnlyInstalledToolTip" xml:space="preserve">
+    <value>Only your addons, and the mods you have addons installed for.</value>
+    <comment>Tooltip on Filter_AddonsOnly on Subscribed items.</comment>
+  </data>
   <data name="Filter_HideInstalled" xml:space="preserve">
     <value>Hide installed mods</value>
     <comment>Browse only.</comment>
@@ -3110,6 +3162,34 @@ The copy you don't keep is moved into a hidden .tcfmm-duplicates folder in your 
   <data name="Installed_AddonForFormat" xml:space="preserve">
     <value>Addon for {0}</value>
     <comment>{0} is the parent mod's name.</comment>
+  </data>
+  <data name="Installed_AddonsChip_one" xml:space="preserve">
+    <value>{0} addon</value>
+    <comment>Chip on a Subscribed items card: how many addons are installed for the mod. {0} how many.</comment>
+  </data>
+  <data name="Installed_AddonsChip_other" xml:space="preserve">
+    <value>{0} addons</value>
+    <comment>Chip on a Subscribed items card: how many addons are installed for the mod. {0} how many.</comment>
+  </data>
+  <data name="Installed_AddonsChipUpdates_one" xml:space="preserve">
+    <value>{0} update</value>
+    <comment>Added to Installed_AddonsChip after a dot: how many of them have an update. {0} how many.</comment>
+  </data>
+  <data name="Installed_AddonsChipUpdates_other" xml:space="preserve">
+    <value>{0} updates</value>
+    <comment>Added to Installed_AddonsChip after a dot: how many of them have an update. {0} how many.</comment>
+  </data>
+  <data name="Installed_AddonsChipLineFormat" xml:space="preserve">
+    <value>{0} {1}</value>
+    <comment>One line of the chip's tooltip. {0} the addon's name, {1} its installed version.</comment>
+  </data>
+  <data name="Installed_AddonsChipUpdateLineFormat" xml:space="preserve">
+    <value>{0} {1} - update to {2}</value>
+    <comment>One line of the chip's tooltip. {0} the addon's name, {1} its installed version, {2} the version it can update to.</comment>
+  </data>
+  <data name="Installed_AddonsChipToolTip" xml:space="preserve">
+    <value>Addons installed for this mod - click to update or remove them:</value>
+    <comment>First line of the chip's tooltip, above one line per addon. Clicking the chip opens the mod's dialog.</comment>
   </data>
   <data name="Installed_Addon" xml:space="preserve">
     <value>Addon</value>
@@ -5687,6 +5767,14 @@ This was written to:
   <data name="WorkshopHome_FromFollowedNote" xml:space="preserve">
     <value>Recently posted items from authors you follow</value>
     <comment>Under From Followed Authors. Steam's words.</comment>
+  </data>
+  <data name="WorkshopHome_AddonsForYou" xml:space="preserve">
+    <value>Addons for Your Mods</value>
+    <comment>Workshop front page: title of the row of addons for mods the user has installed.</comment>
+  </data>
+  <data name="WorkshopHome_AddonsForYouNote" xml:space="preserve">
+    <value>Made for mods you have, and not installed yet</value>
+    <comment>Under WorkshopHome_AddonsForYou.</comment>
   </data>
   <data name="Browse_CreatedByFollowed" xml:space="preserve">
     <value>Created by Followed</value>

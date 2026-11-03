@@ -51,6 +51,15 @@ internal static class Strings
     internal static string Common_FlagContainsAds => LocalizationService.Get("Common_FlagContainsAds");
     internal static string Browse_BadgeHasDependencies => LocalizationService.Get("Browse_BadgeHasDependencies");
     internal static string Browse_AddonBadgeToolTip => LocalizationService.Get("Browse_AddonBadgeToolTip");
+    internal static string Browse_AddonForFormat => LocalizationService.Get("Browse_AddonForFormat");
+    internal static string Browse_AddonChip => LocalizationService.Get("Browse_AddonChip");
+    internal static string Browse_AddonParentMissingFormat => LocalizationService.Get("Browse_AddonParentMissingFormat");
+    internal static string Browse_AddonFitsFormat => LocalizationService.Get("Browse_AddonFitsFormat");
+    internal static string Browse_AddonNeedsFormat => LocalizationService.Get("Browse_AddonNeedsFormat");
+    internal static string Browse_AddonUncheckedFormat => LocalizationService.Get("Browse_AddonUncheckedFormat");
+    internal static string Browse_AddonToolTipFormat => LocalizationService.Get("Browse_AddonToolTipFormat");
+    internal static string Browse_AddonConstraintFormat => LocalizationService.Get("Browse_AddonConstraintFormat");
+    internal static string Browse_TagAddons => LocalizationService.Get("Browse_TagAddons");
     internal static string Browse_StartupProgressFormat => LocalizationService.Get("Browse_StartupProgressFormat");
     internal static string Browse_FirstLaunchNote => LocalizationService.Get("Browse_FirstLaunchNote");
     internal static string Installed_ExpandAllToolTip => LocalizationService.Get("Installed_ExpandAllToolTip");
@@ -647,6 +656,10 @@ internal static class Strings
     internal static string Filter_HasDependenciesBrowseToolTip => LocalizationService.Get("Filter_HasDependenciesBrowseToolTip");
     internal static string Filter_HasAddons => LocalizationService.Get("Filter_HasAddons");
     internal static string Filter_HasAddonsToolTip => LocalizationService.Get("Filter_HasAddonsToolTip");
+    internal static string Filter_AddonsOnly => LocalizationService.Get("Filter_AddonsOnly");
+    internal static string Filter_HideAddons => LocalizationService.Get("Filter_HideAddons");
+    internal static string Filter_AddonsOnlyBrowseToolTip => LocalizationService.Get("Filter_AddonsOnlyBrowseToolTip");
+    internal static string Filter_AddonsOnlyInstalledToolTip => LocalizationService.Get("Filter_AddonsOnlyInstalledToolTip");
     internal static string Filter_HideInstalled => LocalizationService.Get("Filter_HideInstalled");
     internal static string Filter_HideInstalledToolTip => LocalizationService.Get("Filter_HideInstalledToolTip");
     internal static string Filter_ConfigAll => LocalizationService.Get("Filter_ConfigAll");
@@ -877,6 +890,13 @@ internal static class Strings
     internal static string Installed_LatestPatcherNotListed => LocalizationService.Get("Installed_LatestPatcherNotListed");
     internal static string Installed_LatestNotFound => LocalizationService.Get("Installed_LatestNotFound");
     internal static string Installed_AddonForFormat => LocalizationService.Get("Installed_AddonForFormat");
+    internal static string Installed_AddonsChip(int count, params object?[] values) =>
+        LocalizationService.Plural("Installed_AddonsChip", count, values);
+    internal static string Installed_AddonsChipUpdates(int count, params object?[] values) =>
+        LocalizationService.Plural("Installed_AddonsChipUpdates", count, values);
+    internal static string Installed_AddonsChipLineFormat => LocalizationService.Get("Installed_AddonsChipLineFormat");
+    internal static string Installed_AddonsChipUpdateLineFormat => LocalizationService.Get("Installed_AddonsChipUpdateLineFormat");
+    internal static string Installed_AddonsChipToolTip => LocalizationService.Get("Installed_AddonsChipToolTip");
     internal static string Installed_Addon => LocalizationService.Get("Installed_Addon");
     internal static string Installed_IncompleteMissing(int count, params object?[] values) =>
         LocalizationService.Plural("Installed_IncompleteMissing", count, values);
@@ -1529,6 +1549,8 @@ internal static class Strings
     internal static string Workshop_UnfollowFormat => LocalizationService.Get("Workshop_UnfollowFormat");
     internal static string WorkshopHome_FromFollowed => LocalizationService.Get("WorkshopHome_FromFollowed");
     internal static string WorkshopHome_FromFollowedNote => LocalizationService.Get("WorkshopHome_FromFollowedNote");
+    internal static string WorkshopHome_AddonsForYou => LocalizationService.Get("WorkshopHome_AddonsForYou");
+    internal static string WorkshopHome_AddonsForYouNote => LocalizationService.Get("WorkshopHome_AddonsForYouNote");
     internal static string Browse_CreatedByFollowed => LocalizationService.Get("Browse_CreatedByFollowed");
     internal static string Play_ServerPortTakenFormat => LocalizationService.Get("Play_ServerPortTakenFormat");
     internal static string FileClash_Title => LocalizationService.Get("FileClash_Title");

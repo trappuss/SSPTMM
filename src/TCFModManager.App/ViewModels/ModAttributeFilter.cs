@@ -32,6 +32,12 @@ public enum ModAttributeFilter
     // Only mods that have addons published for them.
     HasAddons,
 
+    // Fork (1.4.6): addons only, and no addons. Browse and Home list addons among the mods; on
+    // Subscribed items "only" also keeps the mods that hold an installed addon in their folder,
+    // since such an addon has no card of its own there.
+    AddonsOnly,
+    HideAddons,
+
     // Mods already installed are hidden. Browse only - on Installed it would empty the page.
     HideInstalled,
 
@@ -75,7 +81,7 @@ public partial class ModAttributeOption(ModAttributeFilter value, string key, st
     // everything installed, while Browse answers from whatever has been looked up so far. So the
     // caller states that one rather than this list pretending they are the same.
     //
-    public static ObservableCollection<ModAttributeOption> Standard(string dependenciesToolTipKey) =>
+    public static ObservableCollection<ModAttributeOption> Standard(string dependenciesToolTipKey, string addonsOnlyToolTipKey) =>
     [
         new(ModAttributeFilter.FikaCompatible, nameof(Strings.Filter_FikaOnly)),
         new(ModAttributeFilter.FikaIncompatible, nameof(Strings.Filter_FikaIncompatible)),
@@ -83,6 +89,8 @@ public partial class ModAttributeOption(ModAttributeFilter value, string key, st
         new(ModAttributeFilter.HideAds, nameof(Strings.Filter_HideAds)),
         new(ModAttributeFilter.HasDependencies, nameof(Strings.Filter_HasDependencies), dependenciesToolTipKey),
         new(ModAttributeFilter.HasAddons, nameof(Strings.Filter_HasAddons), nameof(Strings.Filter_HasAddonsToolTip)),
+        new(ModAttributeFilter.AddonsOnly, nameof(Strings.Filter_AddonsOnly), addonsOnlyToolTipKey),
+        new(ModAttributeFilter.HideAddons, nameof(Strings.Filter_HideAddons)),
     ];
 }
 

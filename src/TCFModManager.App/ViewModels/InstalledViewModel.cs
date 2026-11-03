@@ -151,7 +151,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     // Plus one of Installed's own: Monitor mode downloads that are on disk but unconfirmed (R8).
     public ObservableCollection<ModAttributeOption> AttributeOptions { get; } =
     [
-        .. ModAttributeOption.Standard(nameof(Strings.Filter_HasDependenciesInstalledToolTip)),
+        .. ModAttributeOption.Standard(nameof(Strings.Filter_HasDependenciesInstalledToolTip), nameof(Strings.Filter_AddonsOnlyInstalledToolTip)),
         new(ModAttributeFilter.DownloadedNotConfirmed,
             nameof(Strings.Filter_DownloadedNotConfirmed),
             nameof(Strings.Filter_DownloadedNotConfirmedToolTip)),
@@ -3007,6 +3007,8 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
             .Where(m => !IsOn(ModAttributeFilter.HideAds) || !m.ContainsAds)
             .Where(m => !IsOn(ModAttributeFilter.HasDependencies) || m.HasDependencies)
             .Where(m => !IsOn(ModAttributeFilter.HasAddons) || m.HasAddons)
+            .Where(m => !IsOn(ModAttributeFilter.AddonsOnly) || m.IsAddon || m.HasInstalledAddons) // Fork (1.4.6)
+            .Where(m => !IsOn(ModAttributeFilter.HideAddons) || !m.IsAddon)
             .Where(m => !IsOn(ModAttributeFilter.DownloadedNotConfirmed) || m.HasPendingDownload)
             .Where(m => !IsOn(ModAttributeFilter.HasConflicts) || m.HasConflicts);
 
@@ -3019,6 +3021,9 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
         // Fork: pinned mods first, each run in the order above (OrderBy is stable).
         _filtered = PinnedFirst(_filtered);
+
+        // Fork (1.4.6): an addon's own card straight under its mod's, where both are shown.
+        _filtered = AddonsUnderParents(_filtered);
 
         // Every view now disagrees with _filtered, including the two that aren't on screen - they
         // catch up when switched to.

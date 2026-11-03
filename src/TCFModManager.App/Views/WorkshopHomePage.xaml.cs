@@ -55,6 +55,14 @@ public partial class WorkshopHomePage : Page
         if (sender is not FrameworkElement { DataContext: ModCardViewModel card } button) return;
 
         e.Handled = true;
+
+        // Quick View is a mod's; an addon's magnifier opens it on its mod's page (1.4.6).
+        if (card.IsAddon)
+        {
+            _ = ViewModel.OpenCommand.ExecuteAsync(card);
+            return;
+        }
+
         AppServices.QuickView.Show(card.Mod, Behaviors.ModContextMenu.SequenceAround(button));
     }
 
@@ -67,7 +75,10 @@ public partial class WorkshopHomePage : Page
         e.Handled = true;
         try
         {
-            if (await Services.ModActions.SubscribeAsync(card.Mod) is { } message) ViewModel.Message = message;
+            var message = card.Addon is { } addon
+                ? AppServices.Browse.SubscribeAddon(addon, card.Mod)
+                : await Services.ModActions.SubscribeAsync(card.Mod);
+            if (message is not null) ViewModel.Message = message;
         }
         catch (Exception ex)
         {

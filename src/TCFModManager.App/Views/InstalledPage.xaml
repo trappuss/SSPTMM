@@ -40,6 +40,51 @@
              apart. Membership comes from ModListMembership, which runs the real planner, so a chip
              here and what applying that list would do can't disagree. ShowLists folds in the
              page-wide toggle as well as "is it in any list at all". -->
+        <!-- Fork (1.4.6): the addon line under a card's name, in the list chips' Steam blue. On an
+             addon, the puzzle piece and the mod it is for. On a mod, the addons installed for it -
+             most go into the mod's own folder and have no card - as a chip that opens the mod's
+             dialog, where they update and come off; its tooltip lists them. HUNCH: the hover shade
+             (#5567C1F5) is chosen, not taken from Steam. -->
+        <DataTemplate x:Key="AddonLine">
+            <StackPanel Orientation="Horizontal">
+                <Border
+                    Margin="0,3,4,0"
+                    Padding="5,1"
+                    CornerRadius="2"
+                    Background="{look:Brush #3367C1F5}"
+                    Visibility="{Binding AddonSubtitle, Converter={StaticResource NullToCollapsed}}">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Margin="0,0,4,0" FontSize="11" Symbol="PuzzlePiece24" Foreground="{look:Brush #67C1F5}" />
+                        <TextBlock FontSize="11" MaxWidth="240" TextTrimming="CharacterEllipsis" Foreground="{look:Brush #67C1F5}" Text="{Binding AddonSubtitle}" />
+                    </StackPanel>
+                </Border>
+                <Button
+                    Margin="0,3,4,0"
+                    Cursor="Hand"
+                    Focusable="False"
+                    ToolTip="{Binding InstalledAddonsToolTip}"
+                    Visibility="{Binding HasInstalledAddons, Converter={StaticResource BoolToVis}}"
+                    Command="{Binding DataContext.ShowDetailsCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
+                    CommandParameter="{Binding}">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="Chip" Padding="5,1" CornerRadius="2" Background="{look:Brush #3367C1F5}">
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon Margin="0,0,4,0" FontSize="11" Symbol="PuzzlePiece24" Foreground="{look:Brush #67C1F5}" />
+                                    <TextBlock FontSize="11" Foreground="{look:Brush #67C1F5}" Text="{Binding InstalledAddonsLabel}" />
+                                </StackPanel>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Chip" Property="Background" Value="{look:Brush #5567C1F5}" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </StackPanel>
+        </DataTemplate>
+
         <DataTemplate x:Key="ModListBadges">
             <ItemsControl
                 Focusable="False"
@@ -902,13 +947,7 @@
                             <!-- Says what an addon is attached to; an addon's own name
                                  rarely does, and it decides which versions can be
                                  installed. Kept in the header for that reason. -->
-                            <TextBlock
-                                FontSize="11"
-                                Opacity="{Binding CardOpacity}"
-                                Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"
-                                TextTrimming="CharacterEllipsis"
-                                Text="{Binding AddonSubtitle}"
-                                Visibility="{Binding AddonSubtitle, Converter={StaticResource NullToCollapsed}}" />
+                            <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource AddonLine}" Opacity="{Binding CardOpacity}" />
 
                             <!-- Disabled, pinned, re-uploaded, its group, then its collections:
                                  one line of tags under the facts, in line with the name. They
@@ -1053,12 +1092,7 @@
                                 <!-- Fork (1.4.3): your note on the mod (right-click > Note...). -->
                                 <TextBlock Style="{StaticResource SubscribedNoteLine}" Text="{Binding Note}" ToolTip="{Binding Note}" Visibility="{Binding Note, Converter={StaticResource NullToCollapsed}}" />
 
-                                <TextBlock
-                                    FontSize="11"
-                                    Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"
-                                    TextTrimming="CharacterEllipsis"
-                                    Text="{Binding AddonSubtitle}"
-                                    Visibility="{Binding AddonSubtitle, Converter={StaticResource NullToCollapsed}}" />
+                                <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource AddonLine}" />
 
                                 <ContentPresenter
                                     ContentTemplate="{StaticResource ModListBadges}"
@@ -1764,12 +1798,7 @@
                                                                 <!-- Fork (1.4.3): your note on the mod (right-click > Note...). -->
                                                                 <TextBlock Style="{StaticResource SubscribedNoteLine}" Text="{Binding Note}" ToolTip="{Binding Note}" Visibility="{Binding Note, Converter={StaticResource NullToCollapsed}}" />
 
-                                                                <TextBlock
-                                                                    FontSize="11"
-                                                                    Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"
-                                                                    TextTrimming="CharacterEllipsis"
-                                                                    Text="{Binding AddonSubtitle}"
-                                                                    Visibility="{Binding AddonSubtitle, Converter={StaticResource NullToCollapsed}}" />
+                                                                <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource AddonLine}" />
 
                                                                 <ContentPresenter
                                                                     ContentTemplate="{StaticResource ModListBadges}"

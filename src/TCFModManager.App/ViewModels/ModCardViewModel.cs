@@ -7,12 +7,37 @@ using TCFModManager.Core.Services;
 namespace TCFModManager.App.ViewModels;
 
 // Display wrapper around a Mod for the Browse results grid. Precomputes the fields of the version this card represents.
+//
+// Fork (1.4.6): or around an addon, so addons sit among the mods in Browse and on Home. An addon
+// card's Mod is the mod the addon is FOR - what the strip over its picture names, and whose item
+// page it opens on - and Addon is the addon itself. Anything that acts on a mod (the right-click
+// menu, the dependency lookup, Subscribe) asks IsAddon first; MenuMod is null on an addon's card.
+//
 public sealed partial class ModCardViewModel : LocalizedViewModel
 {
     private static string Text(string format, params object?[] values) =>
         LocalizationService.Text(format, values);
 
     public required Mod Mod { get; init; }
+
+    /// <summary>Fork (1.4.6): the addon this card stands for, or null on a mod's card.</summary>
+    public Addon? Addon { get; private init; }
+
+    public bool IsAddon => Addon is not null;
+
+    /// <summary>The mod the right-click menu and the dependency lookup act on - null for an addon,
+    /// whose Mod is its parent rather than what the card is.</summary>
+    public Mod? MenuMod => IsAddon ? null : Mod;
+
+    /// <summary>What tells two cards in one list apart - mod and addon ids are separate sequences.</summary>
+    public string Key => Addon is { } addon ? "addon:" + addon.Id : "mod:" + Mod.Id;
+
+    /// <summary>"For SAIN": the strip across an addon card's picture, which says at a glance which
+    /// mod it belongs to. Null on a mod's card.</summary>
+    public string? AddonForText => IsAddon ? Text(Strings.Browse_AddonForFormat, Mod.Name) : null;
+
+    /// <summary>The parent's own picture, small, at the start of that strip.</summary>
+    public string? ParentThumbnail => IsAddon && IsNearView && !string.IsNullOrWhiteSpace(Mod.Thumbnail) ? Mod.Thumbnail : null;
 
     // The installed match's pin keys (ModListPlanner.PinKeys), empty when it isn't installed, so
     // IsPinned can be re-read without matching the card again.
@@ -34,12 +59,14 @@ public sealed partial class ModCardViewModel : LocalizedViewModel
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ShownThumbnail))]
     [NotifyPropertyChangedFor(nameof(NearViewMod))]
+    [NotifyPropertyChangedFor(nameof(ParentThumbnail))]
     private bool _isNearView = true;
 
     public string? ShownThumbnail => IsNearView ? Thumbnail : null;
 
     // The mod while the card is near the view, for the dependency lookup that should run only then.
-    public Mod? NearViewMod => IsNearView ? Mod : null;
+    // Never an addon's parent: the lookup is about what the card is.
+    public Mod? NearViewMod => IsNearView && !IsAddon ? Mod : null;
 
     /// <summary>The picture the hover popup is showing, while it is open - see BrowsePage's slideshow.</summary>
     [ObservableProperty]
@@ -50,6 +77,7 @@ public sealed partial class ModCardViewModel : LocalizedViewModel
     /// change without the catalog changing: the install state, the pin and the addon count.</summary>
     public bool ShowsSameAs(ModCardViewModel other) =>
         ReferenceEquals(Mod, other.Mod)
+        && ReferenceEquals(Addon, other.Addon)
         && IsInstalled == other.IsInstalled
         && IsDisabled == other.IsDisabled
         && UpdateAvailable == other.UpdateAvailable
@@ -57,28 +85,31 @@ public sealed partial class ModCardViewModel : LocalizedViewModel
         && IsPinned == other.IsPinned
         && PinKeys.SequenceEqual(other.PinKeys);
 
-    public string? Name => Mod.Name;
-    public string? Guid => Mod.Guid;
-    public string? Teaser => Mod.Teaser;
-    public string? Thumbnail => Mod.Thumbnail;
-    public int? Downloads => Mod.Downloads;
+    public string? Name => Addon is { } addon ? addon.Name : Mod.Name;
+    public string? Guid => IsAddon ? null : Mod.Guid;
+    public string? Teaser => Addon is { } addon ? addon.Teaser : Mod.Teaser;
+
+    // An addon without a picture of its own shows its mod's - the strip over it says it is an addon.
+    public string? Thumbnail => Addon is { Thumbnail: { Length: > 0 } own } ? own : Mod.Thumbnail;
+
+    public int? Downloads => Addon is { } addon ? addon.Downloads : Mod.Downloads;
 
     // Null rather than 0 when the mod has no endorsements, so the card's endorsement line can be
     // collapsed with the same NullToCollapsed converter the author line uses. Almost every mod is
     // on zero while the feature is this new, and a "0 endorsements" row on every card would add
     // height for no information.
-    public int? Endorsements => Mod.EndorsementsCount is > 0 ? Mod.EndorsementsCount : null;
+    public int? Endorsements => !IsAddon && Mod.EndorsementsCount is > 0 ? Mod.EndorsementsCount : null;
 
     public string EndorsementsText => Strings.Browse_Endorsements(Endorsements ?? 0, Endorsements ?? 0);
 
     // The mod's primary owner/author.
-    public string? Author => Mod.Owner?.Name;
+    public string? Author => Addon is { } addon ? addon.Owner?.Name : Mod.Owner?.Name;
 
-    // The mod's category title, shown as a tag chip.
-    public string? CategoryTag => Mod.Category?.Title;
+    // The mod's category title, shown as a tag chip. An addon has none of its own.
+    public string? CategoryTag => IsAddon ? null : Mod.Category?.Title;
 
-    public bool IsFikaCompatible => Mod.FikaCompatibility == true;
-    public bool ContainsAds => Mod.ContainsAds == true;
+    public bool IsFikaCompatible => !IsAddon && Mod.FikaCompatibility == true;
+    public bool ContainsAds => Addon is { } addon ? addon.ContainsAds == true : Mod.ContainsAds == true;
 
     // The raw SPT version constraint of the version this card represents, e.g. "^3.9.0". Shown in the tooltip.
     public string? SptVersionConstraint { get; private init; }
@@ -147,19 +178,19 @@ public sealed partial class ModCardViewModel : LocalizedViewModel
     // publish - endorsements, favourites and downloads - rather than inventing a score. Each is null
     // at zero so its part of the row collapses, the same way Endorsements above does.
     //
-    public int? Favourites => Mod.FavouritesCount is > 0 ? Mod.FavouritesCount : null;
+    public int? Favourites => !IsAddon && Mod.FavouritesCount is > 0 ? Mod.FavouritesCount : null;
 
-    public bool ContainsAiContent => Mod.ContainsAiContent == true;
+    public bool ContainsAiContent => Addon is { } addon ? addon.ContainsAiContent == true : Mod.ContainsAiContent == true;
 
     // "Posted" and "Updated" in the hover popup, as Steam's has. Posted falls back to the record's
     // creation date for a mod that was never given a publish date; Updated is The Forge's own
     // record date, the same one Last Updated sorts by when the newest release runs here.
-    public DateTimeOffset? PostedAt => Mod.PublishedAt ?? Mod.CreatedAt;
+    public DateTimeOffset? PostedAt => Addon is { } addon ? addon.PublishedAt ?? addon.CreatedAt : Mod.PublishedAt ?? Mod.CreatedAt;
 
-    public DateTimeOffset? UpdatedAt => Mod.UpdatedAt;
+    public DateTimeOffset? UpdatedAt => Addon is { } addon ? addon.UpdatedAt : Mod.UpdatedAt;
 
     // Steam's popup shows the description's first line; the teaser is this catalog's one-liner.
-    public bool HasTeaser => !string.IsNullOrWhiteSpace(Mod.Teaser);
+    public bool HasTeaser => !string.IsNullOrWhiteSpace(Teaser);
 
     // 
     // Builds a card. <paramref name="selectedLines"/> is the SPT release lines currently ticked in
@@ -230,6 +261,67 @@ public sealed partial class ModCardViewModel : LocalizedViewModel
             UpdateAvailable = installedMatch?.UpdateAvailable,
             AddonCount = addonCount,
             PinKeys = pinKeys ?? [],
+        };
+    }
+
+    //
+    // Fork (1.4.6): a card for an addon. <paramref name="parent"/> is the mod it is for, and
+    // <paramref name="parentInstalledVersion"/> that mod's version on this install (null when it
+    // isn't installed) - what an addon's versions are measured against, as the item page's Addons
+    // tab measures them. The line the hover popup gives SPT on a mod's card says that here instead.
+    //
+    public static ModCardViewModel FromAddon(
+        Addon addon,
+        Mod parent,
+        string? parentInstalledVersion,
+        InstalledModRecord? installed,
+        bool installedDisabled = false)
+    {
+        var versions = (addon.Versions ?? [])
+            .OrderByDescending(v => v.PublishedAt ?? DateTimeOffset.MinValue)
+            .ToList();
+
+        var fitting = versions.FirstOrDefault(v =>
+            ModVersionMatcher.IsSatisfiedBy(v.ModVersionConstraint, parentInstalledVersion) == true);
+        var shown = fitting ?? versions.FirstOrDefault();
+
+        // True: a version fits the installed mod. False: none does. Null: the mod isn't installed,
+        // or no constraint could be read.
+        var parentInstalled = !string.IsNullOrWhiteSpace(parentInstalledVersion);
+        bool? fits = !parentInstalled ? null
+            : fitting is not null ? true
+            : versions.Any(v => ModVersionMatcher.IsSatisfiedBy(v.ModVersionConstraint, parentInstalledVersion) == false) ? false
+            : null;
+
+        var parentName = parent.Name ?? Strings.Addon_ParentFallback;
+        var display = (parentInstalled, fits) switch
+        {
+            (false, _) => Text(Strings.Browse_AddonParentMissingFormat, parentName),
+            (_, true) => Text(Strings.Browse_AddonFitsFormat, parentName, parentInstalledVersion),
+            (_, false) => Text(Strings.Browse_AddonNeedsFormat, parentName, shown?.ModVersionConstraint),
+            _ => Text(Strings.Browse_AddonUncheckedFormat, parentName, parentInstalledVersion),
+        };
+
+        var tooltip = new List<string> { Text(Strings.Browse_AddonToolTipFormat, parentName) };
+        if (!string.IsNullOrWhiteSpace(shown?.ModVersionConstraint))
+            tooltip.Add(Text(Strings.Browse_AddonConstraintFormat, shown.Version, parentName, shown.ModVersionConstraint));
+
+        // An update is a newer version the installed mod can take, as on Subscribed items.
+        var update = installed is null ? null : ModVersionComparer.IsUpdateAvailable(installed.Version, fitting?.Version);
+        if (update == true && SkippedUpdates.Skips(addon.Id, isAddon: true, fitting?.Version)) update = false;
+
+        return new ModCardViewModel
+        {
+            Mod = parent,
+            Addon = addon,
+            SptVersionConstraint = shown?.ModVersionConstraint,
+            SptVersionDisplay = display,
+            SptVersionTooltip = string.Join(Environment.NewLine, tooltip),
+            DisplayReleaseVersion = shown?.Version,
+            IsCompatibleWithInstalledSpt = fits,
+            IsInstalled = installed is not null,
+            IsDisabled = installedDisabled,
+            UpdateAvailable = update,
         };
     }
 

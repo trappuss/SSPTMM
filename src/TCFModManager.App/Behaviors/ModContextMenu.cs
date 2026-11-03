@@ -343,7 +343,7 @@ public static class ModContextMenu
     private static Mod? ModOf(object item) => item switch
     {
         Mod mod => mod,
-        ViewModels.ModCardViewModel card => card.Mod,
+        ViewModels.ModCardViewModel card => card.MenuMod, // an addon's card has none (1.4.6)
         ViewModels.WorkshopCollectionItem row => row.Mod,
         ViewModels.WorkshopRelatedItem related => related.Mod,
         ViewModels.WorkshopRequiredItem required => AppServices.Browse.FindInCatalog(required.ModId),

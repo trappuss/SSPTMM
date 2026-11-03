@@ -1,3 +1,16 @@
+# SSPTMM 1.4.6
+
+## Updating
+
+From 1.3.0 or later: Help > About > **Install update**. From an older version: close SSPTMM, download `SSPTMM-1.4.6-win-x64.zip` and copy the contents of its `SSPTMM` folder over your SSPTMM folder. Your settings in `Data` stay as they are.
+
+## New
+
+- **Addons are in the Workshop.** Browse and Home now show addons among the mods, each with its own card. A puzzle piece in the picture's corner marks an addon, and across the foot of the picture is the mod it is for, with that mod's own picture beside its name. The version line says whether it fits the mod you have (`Fits your SAIN 3.2.1`), what it needs (`Needs SAIN ^4.0.0`), or that the mod isn't installed. Click an addon and its mod's page opens at the Addons tab, with that addon first and outlined. **Subscribe** on its card installs it, as Install there does.
+- **An Addons tag in Browse**: **+** shows only addons, **-** hides them. An addon is found by its own name, or its mod's. Its SPT versions and category are its mod's.
+- **Addons for Your Mods** on Workshop Home: addons for mods you have that you haven't installed yet, the ones that fit first. **View All** opens every addon in Browse. The past week's row and the list tabs include addons too (not Top Rated - addons have no endorsements).
+- **Addons on Subscribed items.** A mod you've installed addons for has a puzzle chip under its name - `2 addons`, and `1 update` when one has an update that fits. Its tooltip lists them with their versions; click it to open the mod's dialog, where they update and come off. An addon with a folder of its own has its card straight under its mod's, and says which mod it is for in the same blue chip. Filters has **Addons only** (your addons, and the mods you have addons for) and **Hide addons**.
+
 # SSPTMM 1.4.5
 
 ## Updating

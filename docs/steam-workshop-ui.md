@@ -2748,7 +2748,38 @@ From another mod manager (trappuss: "research it and see if there's anything cou
   a mod is one of the three, so requiring two would show nothing. Subscribed items' filters and
   Browse's tag rows.
 
+## Round 57: 1.4.6 - addons in the Workshop and on Subscribed items (2026-11-02)
+
+- **Addon cards.** Browse's results and Home's rows are entries of a mod and, for an addon, the
+  addon itself (`ModCardViewModel.FromAddon`): the card's `Mod` is the addon's mod, so everything
+  that opens or installs by mod finds the right page, and `MenuMod` is null so the right-click menu
+  and the dependency badge, which are a mod's, stay off it. Name, picture (the mod's when the addon
+  has none), downloads, author, dates, ads and AI flags are the addon's; endorsements, favourites,
+  category and Fika are a mod's and are left empty. The version line is the addon measured against
+  the installed mod (`ModVersionMatcher`), as its Install button on the mod's page is. Clicking one
+  opens the mod's page at Addons with that addon first and outlined (`FocusAddonId`); Subscribe
+  goes through the same `AddonRowViewModel` as that row's Install, so Install Anyway and the gates
+  are the same.
+- **What finds an addon.** Search matches its name, slug, teaser and its mod's name; author, dates
+  and Followed are its own; SPT versions and category are its mod's, since an addon has none of
+  either. Featured, Has addons and Has dependencies leave addons out (they are about mods), and so
+  does an addon whose mod is not in the catalog or that is detached from it.
+- **Home.** Addons for Your Mods: not installed, mod installed, fitting first, then downloads.
+  The past week's row and the tabs rank addons among the mods by the same measures; Top Rated
+  doesn't, as addons have no endorsements.
+- **Subscribed items.** Most addons install into their mod's folder and have no card, so the mod's
+  card gets a chip listing them, built from the install records and the cached catalog's addon to
+  mod link, with the update counted as an addon card counts one. An addon card with its own folder
+  is moved under its mod's card after sorting and pinning. Addons only / Hide addons share the
+  filter options with Browse.
+- Not seen on screen: the hidden-desktop harness is still gone. The look below is chosen, not
+  measured.
+
 ## Values that could not be measured (marked HUNCH in the source)
+
+- Round 57: the addon marks' look - the corner chip (the status chip's #CC000000 with Steam's light
+  blue), the fade to black under the mod's name, the Subscribed items chip's hover shade
+  (#5567C1F5).
 
 - Round 56: that no mod defines its items only in art, sound or archive files, and 64 MiB as the
   largest file a mod's item ids are looked for in.

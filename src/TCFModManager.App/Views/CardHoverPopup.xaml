@@ -83,7 +83,7 @@
                 <TextBlock FontSize="12" Foreground="{StaticResource SteamWhite}" Text="{Binding AddonBadgeText}" />
             </Border>
             <!-- Resolved per card in the background, like the badge it replaces. -->
-            <Border Style="{StaticResource SteamChip}" Visibility="Collapsed" behaviors:DependencyBadgeLoader.Mod="{Binding Mod}">
+            <Border Style="{StaticResource SteamChip}" Visibility="Collapsed" behaviors:DependencyBadgeLoader.Mod="{Binding MenuMod}">
                 <TextBlock FontSize="12" Foreground="{StaticResource SteamWhite}" Text="{loc:Str Browse_BadgeHasDependencies}" />
             </Border>
         </WrapPanel>

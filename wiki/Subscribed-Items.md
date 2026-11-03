@@ -31,12 +31,17 @@ the same details; click a card or row to open it.
   colour (a colour's name, a hex like `color:#5BA32B`, or `color:none`).
 - **Filters**: update status (updates available, up to date, not on sp-mod.com, recently
   installed), enabled/disabled, category, group, colour, and Fika compatible, Fika incompatible,
-  Fika compatibility unknown, hide ads, has dependencies, has addons, downloaded but not confirmed,
+  Fika compatibility unknown, hide ads, has dependencies, has addons, **addons only** (your addons,
+  and the mods you have addons installed for), **hide addons**, downloaded but not confirmed,
   has conflicts. The three Fika ticks add up: Compatible and Unknown shows both.
 - The page **remembers** its filters, sort, grouping and view: it opens the way you left it. The
   search box is not kept. **Clear filters** puts the filters, sort and grouping back to the app's own.
 
 ## On each mod
+
+- **Addons**: a mod you've installed addons for has a puzzle chip under its name with how many, and
+  how many have an update. Hover it for the list; click it for the mod's dialog, where they update
+  and come off. An addon with a folder of its own has a card of its own, straight under its mod's.
 
 - The **switch** enables or disables it. Disabling moves its files aside (nothing is deleted) and
   first checks what else needs it.

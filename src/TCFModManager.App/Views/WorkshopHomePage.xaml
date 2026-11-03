@@ -105,6 +105,115 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- One of the six small cards across - From Followed Authors, and Addons for your mods
+             (1.4.6), which share it so they can't drift apart. -->
+        <DataTemplate x:Key="SmallCard">
+            <behaviors:OpenableCard
+                x:Name="CardRoot"
+                AutomationProperties.Name="{Binding Mod.Name}"
+                Margin="0,0,16,6"
+                VerticalAlignment="Top"
+                Background="Transparent"
+                Cursor="Hand"
+                behaviors:ModContextMenu.Mod="{Binding MenuMod}"
+                behaviors:CardHover.Enabled="True"
+                MouseLeftButtonUp="Card_MouseLeftButtonUp">
+                <Grid.RenderTransform>
+                    <TranslateTransform Y="0" />
+                </Grid.RenderTransform>
+                <Border x:Name="Shadow" Background="{look:Brush #1B1D21}">
+                    <Border.CacheMode>
+                        <BitmapCache />
+                    </Border.CacheMode>
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="10" Direction="315" Opacity="0.58" ShadowDepth="1.4" Color="Black" />
+                    </Border.Effect>
+                </Border>
+                <Border x:Name="Glow" Background="{look:Brush #1B1D21}" Visibility="Hidden">
+                    <Border.CacheMode>
+                        <BitmapCache />
+                    </Border.CacheMode>
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="10" Direction="315" Opacity="0.25" ShadowDepth="1.4" Color="White" />
+                    </Border.Effect>
+                </Border>
+                <Border Background="{StaticResource SteamCardBackground}">
+                    <Border.CacheMode>
+                        <BitmapCache EnableClearType="True" SnapsToDevicePixels="True" />
+                    </Border.CacheMode>
+                    <StackPanel>
+                        <Grid
+                            Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
+                            Background="{StaticResource SteamPreviewBackground}"
+                            ClipToBounds="True">
+                            <Image Stretch="UniformToFill" behaviors:ThumbnailLoader.DecodeWidth="205" behaviors:ThumbnailLoader.Source="{Binding Thumbnail}" />
+                            <Border
+                                Margin="6"
+                                Padding="4,3"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Top"
+                                Background="#CC000000"
+                                CornerRadius="2"
+                                Visibility="{Binding IsInstalled, Converter={StaticResource TrueToVisible}}">
+                                <ui:SymbolIcon FontSize="16" Symbol="{Binding StatusGlyph}" Style="{StaticResource StatusIcon}" ToolTip="{Binding StatusTooltip}" />
+                            </Border>
+                            <views:AddonCardStrip />
+                        </Grid>
+                        <Grid Height="62">
+                            <StackPanel Margin="8,6,8,0">
+                                <StackPanel Height="14" Orientation="Horizontal">
+                                    <ui:SymbolIcon FontSize="13" Foreground="{StaticResource SteamBlue}" Symbol="ArrowDownload16" />
+                                    <TextBlock Margin="3,0,0,0" FontSize="12" Foreground="{StaticResource SteamBlue}" Text="{Binding Downloads, StringFormat=N0}" />
+                                </StackPanel>
+                                <TextBlock Margin="0,3,0,0" FontSize="15" Foreground="{StaticResource SteamWhite}" TextTrimming="CharacterEllipsis" Text="{Binding Name}" />
+                                <TextBlock
+                                    FontSize="12"
+                                    Foreground="{StaticResource SteamAuthorText}"
+                                    TextTrimming="CharacterEllipsis"
+                                    Text="{Binding Author, StringFormat={loc:Str Browse_ByAuthorFormat}}"
+                                    Visibility="{Binding Author, Converter={StaticResource NullToCollapsed}}" />
+                            </StackPanel>
+                            <Button
+                                x:Name="QuickViewButton"
+                                Margin="0,0,6,4"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Bottom"
+                                Style="{StaticResource SteamQuickViewButton}"
+                                Click="QuickView_Click" />
+                            <Button
+                                x:Name="QuickSubscribe"
+                                Margin="0,0,38,7"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Bottom"
+                                Style="{StaticResource SteamQuickSubscribeButton}"
+                                ToolTip="{Binding InstallToolTip, Source={x:Static app:AppServices.ModPageGate}}"
+                                Click="QuickSubscribe_Click" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </behaviors:OpenableCard>
+            <DataTemplate.Triggers>
+                <Trigger SourceName="CardRoot" Property="IsMouseOver" Value="True">
+                    <Trigger.EnterActions>
+                        <BeginStoryboard Storyboard="{StaticResource CardLift}" />
+                    </Trigger.EnterActions>
+                    <Trigger.ExitActions>
+                        <BeginStoryboard Storyboard="{StaticResource CardDrop}" />
+                    </Trigger.ExitActions>
+                    <Setter TargetName="Shadow" Property="Visibility" Value="Hidden" />
+                    <Setter TargetName="Glow" Property="Visibility" Value="Visible" />
+                    <Setter TargetName="QuickViewButton" Property="Visibility" Value="Visible" />
+                </Trigger>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding IsMouseOver, ElementName=CardRoot}" Value="True" />
+                        <Condition Binding="{Binding IsInstalled}" Value="False" />
+                    </MultiDataTrigger.Conditions>
+                    <Setter TargetName="QuickSubscribe" Property="Visibility" Value="Visible" />
+                </MultiDataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
     </Page.Resources>
 
     <ScrollViewer FocusVisualStyle="{x:Null}" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
@@ -173,7 +282,7 @@
                                             Margin="0,0,16,6"
                                             Background="Transparent"
                                             Cursor="Hand"
-                                            behaviors:ModContextMenu.Mod="{Binding Mod}"
+                                            behaviors:ModContextMenu.Mod="{Binding MenuMod}"
                                             behaviors:CardHover.Enabled="True"
                                             MouseLeftButtonUp="Card_MouseLeftButtonUp">
                                             <Grid.RenderTransform>
@@ -212,6 +321,7 @@
                                                             Visibility="{Binding IsInstalled, Converter={StaticResource TrueToVisible}}">
                                                             <ui:SymbolIcon FontSize="16" Symbol="{Binding StatusGlyph}" Style="{StaticResource StatusIcon}" ToolTip="{Binding StatusTooltip}" />
                                                         </Border>
+                                                        <views:AddonCardStrip />
                                                     </Grid>
                                                     <Grid Height="75">
                                                         <StackPanel Margin="10,8,10,0">
@@ -361,119 +471,40 @@
                                 <TextBlock FontSize="15" Foreground="{StaticResource SteamText}" Text="{loc:Str WorkshopHome_FromFollowedNote}" />
                             </StackPanel>
                         </DockPanel>
-                        <ItemsControl Focusable="False" Margin="0,16,-16,0" ItemsSource="{Binding FromFollowed}">
+                        <ItemsControl Focusable="False" Margin="0,16,-16,0" ItemsSource="{Binding FromFollowed}" ItemTemplate="{StaticResource SmallCard}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <UniformGrid Columns="6" Rows="1" />
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <behaviors:OpenableCard
-                                        x:Name="CardRoot"
-                                        AutomationProperties.Name="{Binding Mod.Name}"
-                                        Margin="0,0,16,6"
-                                        VerticalAlignment="Top"
-                                        Background="Transparent"
-                                        Cursor="Hand"
-                                        behaviors:ModContextMenu.Mod="{Binding Mod}"
-                                        behaviors:CardHover.Enabled="True"
-                                        MouseLeftButtonUp="Card_MouseLeftButtonUp">
-                                        <Grid.RenderTransform>
-                                            <TranslateTransform Y="0" />
-                                        </Grid.RenderTransform>
-                                        <Border x:Name="Shadow" Background="{look:Brush #1B1D21}">
-                                            <Border.CacheMode>
-                                                <BitmapCache />
-                                            </Border.CacheMode>
-                                            <Border.Effect>
-                                                <DropShadowEffect BlurRadius="10" Direction="315" Opacity="0.58" ShadowDepth="1.4" Color="Black" />
-                                            </Border.Effect>
-                                        </Border>
-                                        <Border x:Name="Glow" Background="{look:Brush #1B1D21}" Visibility="Hidden">
-                                            <Border.CacheMode>
-                                                <BitmapCache />
-                                            </Border.CacheMode>
-                                            <Border.Effect>
-                                                <DropShadowEffect BlurRadius="10" Direction="315" Opacity="0.25" ShadowDepth="1.4" Color="White" />
-                                            </Border.Effect>
-                                        </Border>
-                                        <Border Background="{StaticResource SteamCardBackground}">
-                                            <Border.CacheMode>
-                                                <BitmapCache EnableClearType="True" SnapsToDevicePixels="True" />
-                                            </Border.CacheMode>
-                                            <StackPanel>
-                                                <Grid
-                                                    Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
-                                                    Background="{StaticResource SteamPreviewBackground}"
-                                                    ClipToBounds="True">
-                                                    <Image Stretch="UniformToFill" behaviors:ThumbnailLoader.DecodeWidth="205" behaviors:ThumbnailLoader.Source="{Binding Thumbnail}" />
-                                                    <Border
-                                                        Margin="6"
-                                                        Padding="4,3"
-                                                        HorizontalAlignment="Left"
-                                                        VerticalAlignment="Top"
-                                                        Background="#CC000000"
-                                                        CornerRadius="2"
-                                                        Visibility="{Binding IsInstalled, Converter={StaticResource TrueToVisible}}">
-                                                        <ui:SymbolIcon FontSize="16" Symbol="{Binding StatusGlyph}" Style="{StaticResource StatusIcon}" ToolTip="{Binding StatusTooltip}" />
-                                                    </Border>
-                                                </Grid>
-                                                <Grid Height="62">
-                                                    <StackPanel Margin="8,6,8,0">
-                                                        <StackPanel Height="14" Orientation="Horizontal">
-                                                            <ui:SymbolIcon FontSize="13" Foreground="{StaticResource SteamBlue}" Symbol="ArrowDownload16" />
-                                                            <TextBlock Margin="3,0,0,0" FontSize="12" Foreground="{StaticResource SteamBlue}" Text="{Binding Downloads, StringFormat=N0}" />
-                                                        </StackPanel>
-                                                        <TextBlock Margin="0,3,0,0" FontSize="15" Foreground="{StaticResource SteamWhite}" TextTrimming="CharacterEllipsis" Text="{Binding Name}" />
-                                                        <TextBlock
-                                                            FontSize="12"
-                                                            Foreground="{StaticResource SteamAuthorText}"
-                                                            TextTrimming="CharacterEllipsis"
-                                                            Text="{Binding Author, StringFormat={loc:Str Browse_ByAuthorFormat}}"
-                                                            Visibility="{Binding Author, Converter={StaticResource NullToCollapsed}}" />
-                                                    </StackPanel>
-                                                    <Button
-                                                        x:Name="QuickViewButton"
-                                                        Margin="0,0,6,4"
-                                                        HorizontalAlignment="Right"
-                                                        VerticalAlignment="Bottom"
-                                                        Style="{StaticResource SteamQuickViewButton}"
-                                                        Click="QuickView_Click" />
-                                                    <Button
-                                                        x:Name="QuickSubscribe"
-                                                        Margin="0,0,38,7"
-                                                        HorizontalAlignment="Right"
-                                                        VerticalAlignment="Bottom"
-                                                        Style="{StaticResource SteamQuickSubscribeButton}"
-                                                        ToolTip="{Binding InstallToolTip, Source={x:Static app:AppServices.ModPageGate}}"
-                                                        Click="QuickSubscribe_Click" />
-                                                </Grid>
-                                            </StackPanel>
-                                        </Border>
-                                    </behaviors:OpenableCard>
-                                    <DataTemplate.Triggers>
-                                        <Trigger SourceName="CardRoot" Property="IsMouseOver" Value="True">
-                                            <Trigger.EnterActions>
-                                                <BeginStoryboard Storyboard="{StaticResource CardLift}" />
-                                            </Trigger.EnterActions>
-                                            <Trigger.ExitActions>
-                                                <BeginStoryboard Storyboard="{StaticResource CardDrop}" />
-                                            </Trigger.ExitActions>
-                                            <Setter TargetName="Shadow" Property="Visibility" Value="Hidden" />
-                                            <Setter TargetName="Glow" Property="Visibility" Value="Visible" />
-                                            <Setter TargetName="QuickViewButton" Property="Visibility" Value="Visible" />
-                                        </Trigger>
-                                        <MultiDataTrigger>
-                                            <MultiDataTrigger.Conditions>
-                                                <Condition Binding="{Binding IsMouseOver, ElementName=CardRoot}" Value="True" />
-                                                <Condition Binding="{Binding IsInstalled}" Value="False" />
-                                            </MultiDataTrigger.Conditions>
-                                            <Setter TargetName="QuickSubscribe" Property="Visibility" Value="Visible" />
-                                        </MultiDataTrigger>
-                                    </DataTemplate.Triggers>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+
+                    <!-- Fork (1.4.6): addons made for the mods you have, and don't have yet -
+                         six, the most downloaded first. View All is every addon in Browse. -->
+                    <StackPanel Margin="0,0,0,48" Visibility="{Binding HasAddonsForYou, Converter={StaticResource TrueToVisible}}">
+                        <DockPanel>
+                            <Button
+                                DockPanel.Dock="Right"
+                                VerticalAlignment="Center"
+                                Style="{StaticResource ViewAllButton}"
+                                Command="{Binding ViewAllAddonsCommand}">
+                                <TextBlock Text="{loc:Str WorkshopHome_ViewAll}" />
+                            </Button>
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon Margin="0,2,8,0" FontSize="20" Foreground="{StaticResource SteamLegacyBlue}" Symbol="PuzzlePiece24" />
+                                    <TextBlock FontFamily="{StaticResource SteamFontMedium}" FontWeight="Medium" FontSize="20" Foreground="{StaticResource SteamWhite}" Text="{loc:Str WorkshopHome_AddonsForYou}" />
+                                </StackPanel>
+                                <TextBlock FontSize="15" Foreground="{StaticResource SteamText}" Text="{loc:Str WorkshopHome_AddonsForYouNote}" />
+                            </StackPanel>
+                        </DockPanel>
+                        <ItemsControl Focusable="False" Margin="0,16,-16,0" ItemsSource="{Binding AddonsForYou}" ItemTemplate="{StaticResource SmallCard}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Columns="6" Rows="1" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
                         </ItemsControl>
                     </StackPanel>
 
@@ -508,7 +539,7 @@
                                     Margin="0,0,16,16"
                                     Background="Transparent"
                                     Cursor="Hand"
-                                    behaviors:ModContextMenu.Mod="{Binding Mod}"
+                                    behaviors:ModContextMenu.Mod="{Binding MenuMod}"
                                     behaviors:CardHover.Enabled="True"
                                     MouseLeftButtonUp="Card_MouseLeftButtonUp">
                                     <Grid.RenderTransform>
@@ -553,6 +584,7 @@
                                                     Visibility="{Binding IsInstalled, Converter={StaticResource TrueToVisible}}">
                                                     <ui:SymbolIcon FontSize="15" Symbol="{Binding StatusGlyph}" Style="{StaticResource StatusIcon}" ToolTip="{Binding StatusTooltip}" />
                                                 </Border>
+                                                <views:AddonCardStrip />
                                             </Grid>
                                             <StackPanel Grid.Column="1" Margin="4,8,0,0">
                                                 <TextBlock FontSize="19" Foreground="{StaticResource SteamWhite}" TextTrimming="CharacterEllipsis" Text="{Binding Name}" />

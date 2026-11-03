@@ -9,6 +9,9 @@ public sealed record ModDetailsRequest(Mod Mod, string? InstalledVersion)
 {
     /// <summary>Opens the page at the mod's Addons tab - it was reached from one of its addons.</summary>
     public bool OpenAddons { get; init; }
+
+    /// <summary>Fork (1.4.6): the addon that was opened - listed first on the Addons tab and lit.</summary>
+    public int? FocusAddonId { get; init; }
 }
 
 // Shared, app-lifetime signal for showing mod details. MainWindow subscribes to Requested and displays the details dialog.
@@ -16,6 +19,10 @@ public sealed class ModDetailsOverlayViewModel
 {
     public event EventHandler<ModDetailsRequest>? Requested;
 
-    public void Show(Mod mod, string? installedVersion = null, bool openAddons = false) =>
-        Requested?.Invoke(this, new ModDetailsRequest(mod, installedVersion) { OpenAddons = openAddons });
+    public void Show(Mod mod, string? installedVersion = null, bool openAddons = false, int? focusAddonId = null) =>
+        Requested?.Invoke(this, new ModDetailsRequest(mod, installedVersion)
+        {
+            OpenAddons = openAddons || focusAddonId is not null,
+            FocusAddonId = focusAddonId,
+        });
 }

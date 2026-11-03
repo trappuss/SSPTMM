@@ -29,6 +29,10 @@ public sealed partial class AddonsSectionViewModel : LocalizedViewModel
 
     public ObservableCollection<AddonRowViewModel> Addons { get; } = [];
 
+    // Fork (1.4.6): the addon the page was opened from - a card in Browse, Home or Subscribed
+    // items. Listed first and lit, so it is the row the eye lands on.
+    public int? FocusAddonId { get; init; }
+
     public int Count => _all.Count;
 
     public bool HasAddons => _all.Count > 0;
@@ -97,10 +101,15 @@ public sealed partial class AddonsSectionViewModel : LocalizedViewModel
 
         _all.Clear();
         _all.AddRange(addons
-            .Select(a => new AddonRowViewModel(a, _parentModName, parentInstalledVersion, records.FirstOrDefault(r => r.ModId == a.Id)))
+            .Select(a => new AddonRowViewModel(a, _parentModName, parentInstalledVersion, records.FirstOrDefault(r => r.ModId == a.Id))
+            {
+                IsFocused = a.Id == FocusAddonId,
+            })
 
-            // What is installed first, then what fits the installed mod, each most downloaded first.
-            .OrderByDescending(r => r.IsInstalled)
+            // The one opened, then what is installed, then what fits the installed mod, each most
+            // downloaded first.
+            .OrderByDescending(r => r.IsFocused)
+            .ThenByDescending(r => r.IsInstalled)
             .ThenByDescending(r => r.FitsParent)
             .ThenByDescending(r => r.Downloads)
             .ThenBy(r => r.Name, StringComparer.CurrentCultureIgnoreCase));

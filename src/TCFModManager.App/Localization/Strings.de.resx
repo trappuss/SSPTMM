@@ -303,6 +303,33 @@ Das wurde hier hingeschrieben:
   <data name="Browse_AddonBadgeToolTip" xml:space="preserve">
     <value>Diesen Mod öffnen, um seine Addons zu sehen und zu installieren</value>
   </data>
+  <data name="Browse_AddonForFormat" xml:space="preserve">
+    <value>Für {0}</value>
+  </data>
+  <data name="Browse_AddonChip" xml:space="preserve">
+    <value>Addon</value>
+  </data>
+  <data name="Browse_AddonParentMissingFormat" xml:space="preserve">
+    <value>Für {0} - nicht installiert</value>
+  </data>
+  <data name="Browse_AddonFitsFormat" xml:space="preserve">
+    <value>Passt zu deinem {0} {1}</value>
+  </data>
+  <data name="Browse_AddonNeedsFormat" xml:space="preserve">
+    <value>Braucht {0} {1}</value>
+  </data>
+  <data name="Browse_AddonUncheckedFormat" xml:space="preserve">
+    <value>Für {0} - ob es zu {1} passt, ist unbekannt</value>
+  </data>
+  <data name="Browse_AddonToolTipFormat" xml:space="preserve">
+    <value>Ein Addon für {0}. Öffnet sich auf der Seite dieses Mods, unter Addons.</value>
+  </data>
+  <data name="Browse_AddonConstraintFormat" xml:space="preserve">
+    <value>Version {0} braucht {1} {2}</value>
+  </data>
+  <data name="Browse_TagAddons" xml:space="preserve">
+    <value>Addons</value>
+  </data>
   <data name="Browse_AllSptVersions" xml:space="preserve">
     <value>Alle SPT-Versionen</value>
   </data>
@@ -1281,6 +1308,18 @@ Was du auch wählst: Die Version, die gerade auf der Festplatte liegt, wird zuer
   <data name="Filter_HasAddonsToolTip" xml:space="preserve">
     <value>Nur Mods, für die Addons veröffentlicht wurden.</value>
   </data>
+  <data name="Filter_AddonsOnly" xml:space="preserve">
+    <value>Nur Addons</value>
+  </data>
+  <data name="Filter_HideAddons" xml:space="preserve">
+    <value>Addons ausblenden</value>
+  </data>
+  <data name="Filter_AddonsOnlyBrowseToolTip" xml:space="preserve">
+    <value>Nur Addons - die Extras für andere Mods - und keine Mods.</value>
+  </data>
+  <data name="Filter_AddonsOnlyInstalledToolTip" xml:space="preserve">
+    <value>Nur deine Addons und die Mods, für die du Addons installiert hast.</value>
+  </data>
   <data name="Filter_HasDependencies" xml:space="preserve">
     <value>Hat Abhängigkeiten</value>
   </data>
@@ -1592,6 +1631,27 @@ Was du auch wählst: Die Version, die gerade auf der Festplatte liegt, wird zuer
   </data>
   <data name="Installed_AddonForFormat" xml:space="preserve">
     <value>Addon für {0}</value>
+  </data>
+  <data name="Installed_AddonsChip_one" xml:space="preserve">
+    <value>{0} Addon</value>
+  </data>
+  <data name="Installed_AddonsChip_other" xml:space="preserve">
+    <value>{0} Addons</value>
+  </data>
+  <data name="Installed_AddonsChipUpdates_one" xml:space="preserve">
+    <value>{0} Update</value>
+  </data>
+  <data name="Installed_AddonsChipUpdates_other" xml:space="preserve">
+    <value>{0} Updates</value>
+  </data>
+  <data name="Installed_AddonsChipLineFormat" xml:space="preserve">
+    <value>{0} {1}</value>
+  </data>
+  <data name="Installed_AddonsChipUpdateLineFormat" xml:space="preserve">
+    <value>{0} {1} - Update auf {2}</value>
+  </data>
+  <data name="Installed_AddonsChipToolTip" xml:space="preserve">
+    <value>Für diesen Mod installierte Addons - klicken, um sie zu aktualisieren oder zu entfernen:</value>
   </data>
   <data name="Installed_CardDisableToolTip" xml:space="preserve">
     <value>Deaktivieren - in einen .disabled-Ordner verschieben, ohne etwas zu löschen</value>
@@ -6364,6 +6424,12 @@ Trotzdem installieren?</value>
   </data>
   <data name="WorkshopHome_FromFollowedNote" xml:space="preserve">
     <value>Kürzlich veröffentlichte Inhalte von Autoren, denen du folgst</value>
+  </data>
+  <data name="WorkshopHome_AddonsForYou" xml:space="preserve">
+    <value>Addons für deine Mods</value>
+  </data>
+  <data name="WorkshopHome_AddonsForYouNote" xml:space="preserve">
+    <value>Für Mods, die du hast, und noch nicht installiert</value>
   </data>
   <data name="Browse_CreatedByFollowed" xml:space="preserve">
     <value>Von gefolgten Autoren erstellt</value>

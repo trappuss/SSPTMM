@@ -32,6 +32,10 @@ public sealed class FollowedAuthors
     public bool IsByFollowed(Mod mod) =>
         IsFollowing(mod.Owner?.Id) || (mod.AdditionalAuthors ?? []).Any(a => IsFollowing(a.Id));
 
+    // Fork (1.4.6): Browse lists addons beside mods, and Created by Followed covers them too.
+    public bool IsByFollowed(Addon addon) =>
+        IsFollowing(addon.Owner?.Id) || (addon.AdditionalAuthors ?? []).Any(a => IsFollowing(a.Id));
+
     /// <summary>Follows (or stops following) this author; true when now following. Asked for
     /// explicitly rather than flipped, so a button showing an out-of-date state still does what it
     /// says.</summary>

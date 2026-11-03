@@ -92,6 +92,9 @@ public sealed partial class AddonRowViewModel : LocalizedViewModel
 
     public int AddonId => _addon.Id;
 
+    /// <summary>Fork (1.4.6): the addon this page was opened from - see AddonsSectionViewModel.FocusAddonId.</summary>
+    public bool IsFocused { get; init; }
+
     public string Name => _addon.Name ?? Text(Strings.Addon_NameFormat, _addon.Id);
 
     public string? Teaser => _addon.Teaser;

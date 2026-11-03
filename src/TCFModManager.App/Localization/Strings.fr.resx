@@ -303,6 +303,33 @@ Il a été écrit dans :
   <data name="Browse_AddonBadgeToolTip" xml:space="preserve">
     <value>Ouvrir ce mod pour voir et installer ses addons</value>
   </data>
+  <data name="Browse_AddonForFormat" xml:space="preserve">
+    <value>Pour {0}</value>
+  </data>
+  <data name="Browse_AddonChip" xml:space="preserve">
+    <value>Addon</value>
+  </data>
+  <data name="Browse_AddonParentMissingFormat" xml:space="preserve">
+    <value>Pour {0} - non installé</value>
+  </data>
+  <data name="Browse_AddonFitsFormat" xml:space="preserve">
+    <value>Compatible avec votre {0} {1}</value>
+  </data>
+  <data name="Browse_AddonNeedsFormat" xml:space="preserve">
+    <value>Nécessite {0} {1}</value>
+  </data>
+  <data name="Browse_AddonUncheckedFormat" xml:space="preserve">
+    <value>Pour {0} - compatibilité avec {1} inconnue</value>
+  </data>
+  <data name="Browse_AddonToolTipFormat" xml:space="preserve">
+    <value>Un addon pour {0}. S'ouvre sur la page de ce mod, sous Addons.</value>
+  </data>
+  <data name="Browse_AddonConstraintFormat" xml:space="preserve">
+    <value>La version {0} nécessite {1} {2}</value>
+  </data>
+  <data name="Browse_TagAddons" xml:space="preserve">
+    <value>Addons</value>
+  </data>
   <data name="Browse_AllSptVersions" xml:space="preserve">
     <value>Toutes les versions SPT</value>
   </data>
@@ -1281,6 +1308,18 @@ Quel que soit votre choix, la version actuellement sur le disque est d'abord cop
   <data name="Filter_HasAddonsToolTip" xml:space="preserve">
     <value>Uniquement les mods pour lesquels des addons ont été publiés.</value>
   </data>
+  <data name="Filter_AddonsOnly" xml:space="preserve">
+    <value>Addons uniquement</value>
+  </data>
+  <data name="Filter_HideAddons" xml:space="preserve">
+    <value>Masquer les addons</value>
+  </data>
+  <data name="Filter_AddonsOnlyBrowseToolTip" xml:space="preserve">
+    <value>Uniquement les addons - les extras conçus pour d'autres mods - et aucun mod.</value>
+  </data>
+  <data name="Filter_AddonsOnlyInstalledToolTip" xml:space="preserve">
+    <value>Uniquement vos addons, et les mods pour lesquels vous avez installé des addons.</value>
+  </data>
   <data name="Filter_HasDependencies" xml:space="preserve">
     <value>Avec dépendances</value>
   </data>
@@ -1592,6 +1631,27 @@ Quel que soit votre choix, la version actuellement sur le disque est d'abord cop
   </data>
   <data name="Installed_AddonForFormat" xml:space="preserve">
     <value>Addon pour {0}</value>
+  </data>
+  <data name="Installed_AddonsChip_one" xml:space="preserve">
+    <value>{0} addon</value>
+  </data>
+  <data name="Installed_AddonsChip_other" xml:space="preserve">
+    <value>{0} addons</value>
+  </data>
+  <data name="Installed_AddonsChipUpdates_one" xml:space="preserve">
+    <value>{0} mise à jour</value>
+  </data>
+  <data name="Installed_AddonsChipUpdates_other" xml:space="preserve">
+    <value>{0} mises à jour</value>
+  </data>
+  <data name="Installed_AddonsChipLineFormat" xml:space="preserve">
+    <value>{0} {1}</value>
+  </data>
+  <data name="Installed_AddonsChipUpdateLineFormat" xml:space="preserve">
+    <value>{0} {1} - mise à jour vers {2}</value>
+  </data>
+  <data name="Installed_AddonsChipToolTip" xml:space="preserve">
+    <value>Addons installés pour ce mod - cliquez pour les mettre à jour ou les retirer :</value>
   </data>
   <data name="Installed_CardDisableToolTip" xml:space="preserve">
     <value>Désactiver - le déplacer dans un dossier .disabled, sans rien supprimer</value>
@@ -6364,6 +6424,12 @@ L'installer quand même ?</value>
   </data>
   <data name="WorkshopHome_FromFollowedNote" xml:space="preserve">
     <value>Articles publiés récemment par les auteurs que vous suivez</value>
+  </data>
+  <data name="WorkshopHome_AddonsForYou" xml:space="preserve">
+    <value>Addons pour vos mods</value>
+  </data>
+  <data name="WorkshopHome_AddonsForYouNote" xml:space="preserve">
+    <value>Conçus pour des mods que vous avez, pas encore installés</value>
   </data>
   <data name="Browse_CreatedByFollowed" xml:space="preserve">
     <value>Créés par des auteurs suivis</value>

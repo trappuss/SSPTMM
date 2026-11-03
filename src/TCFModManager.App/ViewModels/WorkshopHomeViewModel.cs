@@ -27,7 +27,9 @@ public sealed record WorkshopCategoryCount(string Title, int Count);
 // content types.
 //
 // Everything is ranked from the same cached catalog and turned into the same cards Browse uses, so a
-// mod looks and installs the same wherever it is opened from. Ranking is only ever by what
+// mod looks and installs the same wherever it is opened from. Fork (1.4.6): addons too - they are
+// ranked among the mods wherever what they are ranked by is theirs as much as a mod's (released this
+// week, downloads, dates), and have a row of their own: the ones made for the mods you have. Ranking is only ever by what
 // sp-mod.com actually records: Steam's "Most Popular" is a weekly popularity measure the catalog does
 // not have, so the first tab is Top Rated (endorsements), labelled as what it is.
 //
@@ -50,6 +52,16 @@ public sealed partial class WorkshopHomeViewModel : LocalizedViewModel, IModActi
     public bool HasFromFollowed => FromFollowed.Count > 0;
 
     private const int FollowedSize = 6;
+
+    // Fork (1.4.6): "Addons for your mods" - six across, as the followed row.
+    public ObservableCollection<ModCardViewModel> AddonsForYou { get; } = [];
+
+    public bool HasAddonsForYou => AddonsForYou.Count > 0;
+
+    private const int AddonsForYouSize = 6;
+
+    // A result on this page: a mod, or an addon with the mod it is for.
+    private sealed record HomeItem(Mod Mod, Addon? Addon);
 
     public ObservableCollection<WorkshopCategoryCount> Categories { get; } = [];
 
@@ -123,6 +135,7 @@ public sealed partial class WorkshopHomeViewModel : LocalizedViewModel, IModActi
         if (!AppServices.Browse.HasLoadedResults) return;
 
         var catalog = AppServices.Browse.Catalog.ToList();
+        var addons = AppServices.Browse.AddonCatalog.ToList();
         var installedSpt = AppServices.SptEnvironment.InstalledVersion;
         var since = DateTimeOffset.Now - FeaturedWindow;
 
@@ -130,11 +143,30 @@ public sealed partial class WorkshopHomeViewModel : LocalizedViewModel, IModActi
         // Steam's "in the past week" row the catalog allows.
         var featured = catalog
             .Where(m => BrowseViewModel.NewestReleaseDate(m, installedSpt) >= since)
-            .OrderByDescending(m => m.Downloads ?? 0)
+            .Select(m => (Item: new HomeItem(m, null), Downloads: m.Downloads ?? 0))
+            .Concat(addons
+                .Where(a => BrowseViewModel.AddonNewestReleaseDate(a.Addon) >= since)
+                .Select(a => (Item: new HomeItem(a.Parent, a.Addon), Downloads: a.Addon.Downloads ?? 0)))
+            .OrderByDescending(x => x.Downloads)
+            .Select(x => x.Item)
             .Take(FeaturedSize);
 
         Replace(Featured, featured);
         OnPropertyChanged(nameof(HasFeatured));
+
+        // Addons for mods this install has, that it doesn't have yet: the ones that fit the
+        // installed mod first, then the most downloaded.
+        var forYou = addons
+            .Where(a => !AppServices.Browse.IsAddonInstalled(a.Addon.Id) && AppServices.Browse.InstalledMatchFor(a.Parent) is not null)
+            .Select(a => AppServices.Browse.BuildAddonCard(a.Addon, a.Parent))
+            .OrderByDescending(c => c.IsCompatibleWithInstalledSpt == true)
+            .ThenByDescending(c => c.Downloads ?? 0)
+            .Take(AddonsForYouSize)
+            .ToList();
+
+        AddonsForYou.Clear();
+        foreach (var card in forYou) AddonsForYou.Add(card);
+        OnPropertyChanged(nameof(HasAddonsForYou));
 
         // "Recently posted items from authors you follow": by when they were posted, not updated.
         var followed = AppServices.Followed.HasAny
@@ -144,7 +176,7 @@ public sealed partial class WorkshopHomeViewModel : LocalizedViewModel, IModActi
                 .Take(FollowedSize)
             : [];
 
-        Replace(FromFollowed, followed);
+        Replace(FromFollowed, followed.Select(m => new HomeItem(m, null)));
         OnPropertyChanged(nameof(HasFromFollowed));
 
         var categories = catalog
@@ -166,24 +198,39 @@ public sealed partial class WorkshopHomeViewModel : LocalizedViewModel, IModActi
         var catalog = AppServices.Browse.Catalog;
         var installedSpt = AppServices.SptEnvironment.InstalledVersion;
 
-        // The same orderings Browse sorts by, so "View all" continues exactly this list.
+        // The same orderings Browse sorts by, so "View all" continues exactly this list - addons
+        // among the mods, as there. Top Rated has none: an addon has no endorsements.
+        var mods = catalog.Select(m => new HomeItem(m, null));
+        var all = mods.Concat(AppServices.Browse.AddonCatalog.Select(a => new HomeItem(a.Parent, a.Addon)));
         var ranked = SelectedTab switch
         {
-            WorkshopHomeTab.MostSubscribed => catalog.OrderByDescending(m => m.Downloads ?? 0),
-            WorkshopHomeTab.LastUpdated => catalog.OrderByDescending(m => BrowseViewModel.LastUpdatedDate(m, installedSpt)),
-            WorkshopHomeTab.New => catalog.OrderByDescending(m => BrowseViewModel.NewestReleaseDate(m, installedSpt)),
-            _ => catalog
-                .OrderByDescending(m => m.EndorsementsCount ?? 0)
-                .ThenByDescending(m => m.Downloads ?? 0),
+            WorkshopHomeTab.MostSubscribed => all.OrderByDescending(i => i.Addon?.Downloads ?? i.Mod.Downloads ?? 0),
+            WorkshopHomeTab.LastUpdated => all.OrderByDescending(i => i.Addon is { } addon
+                ? BrowseViewModel.AddonLastUpdatedDate(addon)
+                : BrowseViewModel.LastUpdatedDate(i.Mod, installedSpt)),
+            WorkshopHomeTab.New => all.OrderByDescending(i => i.Addon is { } addon
+                ? BrowseViewModel.AddonNewestReleaseDate(addon)
+                : BrowseViewModel.NewestReleaseDate(i.Mod, installedSpt)),
+            _ => mods
+                .OrderByDescending(i => i.Mod.EndorsementsCount ?? 0)
+                .ThenByDescending(i => i.Mod.Downloads ?? 0),
         };
 
         Replace(TabItems, ranked.Take(ListSize));
     }
 
-    private static void Replace(ObservableCollection<ModCardViewModel> target, IEnumerable<Mod> mods)
+    private static void Replace(ObservableCollection<ModCardViewModel> target, IEnumerable<HomeItem> items)
     {
+        var list = items.ToList();
+
+        // The mods' cards in one go, for the pins read once (BuildCards); each addon's in its place.
+        var modCards = new Queue<ModCardViewModel>(AppServices.Browse.BuildCards(list.Where(i => i.Addon is null).Select(i => i.Mod)));
+
         target.Clear();
-        foreach (var card in AppServices.Browse.BuildCards(mods)) target.Add(card);
+        foreach (var item in list)
+        {
+            target.Add(item.Addon is { } addon ? AppServices.Browse.BuildAddonCard(addon, item.Mod) : modCards.Dequeue());
+        }
     }
 
     [RelayCommand]
@@ -218,8 +265,12 @@ public sealed partial class WorkshopHomeViewModel : LocalizedViewModel, IModActi
         if (card is null) return;
 
         // Browse's status line, where a failure also goes, is not on this page.
-        Message = await AppServices.Browse.LoadDetailsAsync(card.Mod);
+        Message = await AppServices.Browse.OpenCardAsync(card);
     }
+
+    // Fork (1.4.6): "View All" on the addons row - every addon in Browse, the most downloaded first.
+    [RelayCommand]
+    private static void ViewAllAddons() => OpenBrowse(AppServices.Browse.ShowAddons);
 
     // The followed row's View All: Browse, Created by Followed, newest first.
     [RelayCommand]

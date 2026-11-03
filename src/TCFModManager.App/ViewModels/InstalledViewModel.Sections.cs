@@ -15,6 +15,30 @@ public partial class InstalledViewModel
     private static List<InstalledModCardViewModel> PinnedFirst(List<InstalledModCardViewModel> mods) =>
         mods.Any(m => m.IsPinned) ? [.. mods.OrderBy(m => !m.IsPinned)] : mods;
 
+    //
+    // Fork (1.4.6): each addon card that has its mod's card in the list moves to just after it, the
+    // addons of one mod in the order they were in. One whose mod isn't shown (filtered out, or not
+    // installed) stays where the sort put it. Pinning an addon doesn't lift it away from its mod.
+    //
+    private static List<InstalledModCardViewModel> AddonsUnderParents(List<InstalledModCardViewModel> mods)
+    {
+        var parents = mods.Where(m => !m.IsAddon && m.ModId is not null).Select(m => m.ModId!.Value).ToHashSet();
+        var tucked = mods.Where(m => m.IsAddon && m.ParentModId is { } p && parents.Contains(p)).ToHashSet();
+        if (tucked.Count == 0) return mods;
+
+        var under = tucked.ToLookup(m => m.ParentModId!.Value);
+        var result = new List<InstalledModCardViewModel>(mods.Count);
+        var placed = new HashSet<int>();
+        foreach (var mod in mods)
+        {
+            if (tucked.Contains(mod)) continue;
+            result.Add(mod);
+            if (!mod.IsAddon && mod.ModId is { } id && placed.Add(id)) result.AddRange(under[id]);
+        }
+
+        return result;
+    }
+
     private static string StateSectionKey(string state) => "s:" + state;
 
     // Enabled, then Disabled - each in the page's sort order, and only when it has mods in it.

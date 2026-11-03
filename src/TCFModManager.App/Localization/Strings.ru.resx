@@ -306,6 +306,33 @@
   <data name="Browse_AddonBadgeToolTip" xml:space="preserve">
     <value>Откройте мод, чтобы посмотреть и установить его аддоны</value>
   </data>
+  <data name="Browse_AddonForFormat" xml:space="preserve">
+    <value>Для {0}</value>
+  </data>
+  <data name="Browse_AddonChip" xml:space="preserve">
+    <value>Аддон</value>
+  </data>
+  <data name="Browse_AddonParentMissingFormat" xml:space="preserve">
+    <value>Для {0} - не установлен</value>
+  </data>
+  <data name="Browse_AddonFitsFormat" xml:space="preserve">
+    <value>Подходит к вашему {0} {1}</value>
+  </data>
+  <data name="Browse_AddonNeedsFormat" xml:space="preserve">
+    <value>Нужен {0} {1}</value>
+  </data>
+  <data name="Browse_AddonUncheckedFormat" xml:space="preserve">
+    <value>Для {0} - подходит ли к {1}, неизвестно</value>
+  </data>
+  <data name="Browse_AddonToolTipFormat" xml:space="preserve">
+    <value>Аддон для {0}. Открывается на странице этого мода, во вкладке «Аддоны».</value>
+  </data>
+  <data name="Browse_AddonConstraintFormat" xml:space="preserve">
+    <value>Версии {0} нужен {1} {2}</value>
+  </data>
+  <data name="Browse_TagAddons" xml:space="preserve">
+    <value>Аддоны</value>
+  </data>
   <data name="Browse_AllSptVersions" xml:space="preserve">
     <value>Все версии SPT</value>
   </data>
@@ -1314,6 +1341,18 @@
   <data name="Filter_HasAddonsToolTip" xml:space="preserve">
     <value>Только моды, для которых опубликованы аддоны.</value>
   </data>
+  <data name="Filter_AddonsOnly" xml:space="preserve">
+    <value>Только аддоны</value>
+  </data>
+  <data name="Filter_HideAddons" xml:space="preserve">
+    <value>Скрыть аддоны</value>
+  </data>
+  <data name="Filter_AddonsOnlyBrowseToolTip" xml:space="preserve">
+    <value>Только аддоны - дополнения к другим модам - без самих модов.</value>
+  </data>
+  <data name="Filter_AddonsOnlyInstalledToolTip" xml:space="preserve">
+    <value>Только ваши аддоны и моды, для которых установлены аддоны.</value>
+  </data>
   <data name="Filter_HasDependencies" xml:space="preserve">
     <value>С зависимостями</value>
   </data>
@@ -1667,6 +1706,33 @@
   </data>
   <data name="Installed_AddonForFormat" xml:space="preserve">
     <value>Аддон для {0}</value>
+  </data>
+  <data name="Installed_AddonsChip_one" xml:space="preserve">
+    <value>{0} аддон</value>
+  </data>
+  <data name="Installed_AddonsChip_few" xml:space="preserve">
+    <value>{0} аддона</value>
+  </data>
+  <data name="Installed_AddonsChip_many" xml:space="preserve">
+    <value>{0} аддонов</value>
+  </data>
+  <data name="Installed_AddonsChipUpdates_one" xml:space="preserve">
+    <value>{0} обновление</value>
+  </data>
+  <data name="Installed_AddonsChipUpdates_few" xml:space="preserve">
+    <value>{0} обновления</value>
+  </data>
+  <data name="Installed_AddonsChipUpdates_many" xml:space="preserve">
+    <value>{0} обновлений</value>
+  </data>
+  <data name="Installed_AddonsChipLineFormat" xml:space="preserve">
+    <value>{0} {1}</value>
+  </data>
+  <data name="Installed_AddonsChipUpdateLineFormat" xml:space="preserve">
+    <value>{0} {1} - обновление до {2}</value>
+  </data>
+  <data name="Installed_AddonsChipToolTip" xml:space="preserve">
+    <value>Аддоны, установленные для этого мода - нажмите, чтобы обновить или удалить их:</value>
   </data>
   <data name="Installed_CardDisableToolTip" xml:space="preserve">
     <value>Отключить - перенести в папку .disabled, ничего не удаляя</value>
@@ -6703,6 +6769,12 @@
   </data>
   <data name="WorkshopHome_FromFollowedNote" xml:space="preserve">
     <value>Недавно добавленные предметы авторов, которых вы отслеживаете</value>
+  </data>
+  <data name="WorkshopHome_AddonsForYou" xml:space="preserve">
+    <value>Аддоны для ваших модов</value>
+  </data>
+  <data name="WorkshopHome_AddonsForYouNote" xml:space="preserve">
+    <value>Сделаны для ваших модов и ещё не установлены</value>
   </data>
   <data name="Browse_CreatedByFollowed" xml:space="preserve">
     <value>От отслеживаемых авторов</value>

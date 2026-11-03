@@ -303,6 +303,33 @@
   <data name="Browse_AddonBadgeToolTip" xml:space="preserve">
     <value>Apri questo mod per vedere e installare i suoi addon</value>
   </data>
+  <data name="Browse_AddonForFormat" xml:space="preserve">
+    <value>Per {0}</value>
+  </data>
+  <data name="Browse_AddonChip" xml:space="preserve">
+    <value>Addon</value>
+  </data>
+  <data name="Browse_AddonParentMissingFormat" xml:space="preserve">
+    <value>Per {0} - non installato</value>
+  </data>
+  <data name="Browse_AddonFitsFormat" xml:space="preserve">
+    <value>Compatibile con il tuo {0} {1}</value>
+  </data>
+  <data name="Browse_AddonNeedsFormat" xml:space="preserve">
+    <value>Richiede {0} {1}</value>
+  </data>
+  <data name="Browse_AddonUncheckedFormat" xml:space="preserve">
+    <value>Per {0} - compatibilità con {1} sconosciuta</value>
+  </data>
+  <data name="Browse_AddonToolTipFormat" xml:space="preserve">
+    <value>Un addon per {0}. Si apre sulla pagina di quel mod, sotto Addon.</value>
+  </data>
+  <data name="Browse_AddonConstraintFormat" xml:space="preserve">
+    <value>La versione {0} richiede {1} {2}</value>
+  </data>
+  <data name="Browse_TagAddons" xml:space="preserve">
+    <value>Addon</value>
+  </data>
   <data name="Browse_AllSptVersions" xml:space="preserve">
     <value>Tutte le versioni SPT</value>
   </data>
@@ -1281,6 +1308,18 @@ Qualunque cosa scegli, la versione ora sul disco viene prima copiata in {1}.</va
   <data name="Filter_HasAddonsToolTip" xml:space="preserve">
     <value>Solo i mod con addon pubblicati per loro.</value>
   </data>
+  <data name="Filter_AddonsOnly" xml:space="preserve">
+    <value>Solo addon</value>
+  </data>
+  <data name="Filter_HideAddons" xml:space="preserve">
+    <value>Nascondi addon</value>
+  </data>
+  <data name="Filter_AddonsOnlyBrowseToolTip" xml:space="preserve">
+    <value>Solo addon - gli extra fatti per altri mod - e nessun mod.</value>
+  </data>
+  <data name="Filter_AddonsOnlyInstalledToolTip" xml:space="preserve">
+    <value>Solo i tuoi addon, e i mod per cui hai installato degli addon.</value>
+  </data>
   <data name="Filter_HasDependencies" xml:space="preserve">
     <value>Con dipendenze</value>
   </data>
@@ -1592,6 +1631,27 @@ Qualunque cosa scegli, la versione ora sul disco viene prima copiata in {1}.</va
   </data>
   <data name="Installed_AddonForFormat" xml:space="preserve">
     <value>Addon per {0}</value>
+  </data>
+  <data name="Installed_AddonsChip_one" xml:space="preserve">
+    <value>{0} addon</value>
+  </data>
+  <data name="Installed_AddonsChip_other" xml:space="preserve">
+    <value>{0} addon</value>
+  </data>
+  <data name="Installed_AddonsChipUpdates_one" xml:space="preserve">
+    <value>{0} aggiornamento</value>
+  </data>
+  <data name="Installed_AddonsChipUpdates_other" xml:space="preserve">
+    <value>{0} aggiornamenti</value>
+  </data>
+  <data name="Installed_AddonsChipLineFormat" xml:space="preserve">
+    <value>{0} {1}</value>
+  </data>
+  <data name="Installed_AddonsChipUpdateLineFormat" xml:space="preserve">
+    <value>{0} {1} - aggiorna a {2}</value>
+  </data>
+  <data name="Installed_AddonsChipToolTip" xml:space="preserve">
+    <value>Addon installati per questo mod - clicca per aggiornarli o rimuoverli:</value>
   </data>
   <data name="Installed_CardDisableToolTip" xml:space="preserve">
     <value>Disattiva - lo sposta in una cartella .disabled, senza eliminare nulla</value>
@@ -6364,6 +6424,12 @@ Vuoi installarlo comunque?</value>
   </data>
   <data name="WorkshopHome_FromFollowedNote" xml:space="preserve">
     <value>Oggetti pubblicati di recente dagli autori che segui</value>
+  </data>
+  <data name="WorkshopHome_AddonsForYou" xml:space="preserve">
+    <value>Addon per i tuoi mod</value>
+  </data>
+  <data name="WorkshopHome_AddonsForYouNote" xml:space="preserve">
+    <value>Fatti per mod che hai, non ancora installati</value>
   </data>
   <data name="Browse_CreatedByFollowed" xml:space="preserve">
     <value>Creati da autori seguiti</value>

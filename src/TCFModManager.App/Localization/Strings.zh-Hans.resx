@@ -196,6 +196,33 @@
   <data name="Browse_AddonBadgeToolTip" xml:space="preserve">
     <value>打开此模组以查看并安装其附加组件</value>
   </data>
+  <data name="Browse_AddonForFormat" xml:space="preserve">
+    <value>适用于 {0}</value>
+  </data>
+  <data name="Browse_AddonChip" xml:space="preserve">
+    <value>附加组件</value>
+  </data>
+  <data name="Browse_AddonParentMissingFormat" xml:space="preserve">
+    <value>适用于 {0} - 未安装</value>
+  </data>
+  <data name="Browse_AddonFitsFormat" xml:space="preserve">
+    <value>适配你的 {0} {1}</value>
+  </data>
+  <data name="Browse_AddonNeedsFormat" xml:space="preserve">
+    <value>需要 {0} {1}</value>
+  </data>
+  <data name="Browse_AddonUncheckedFormat" xml:space="preserve">
+    <value>适用于 {0} - 是否适配 {1} 未知</value>
+  </data>
+  <data name="Browse_AddonToolTipFormat" xml:space="preserve">
+    <value>{0} 的附加组件。在该模组页面的“附加组件”下打开。</value>
+  </data>
+  <data name="Browse_AddonConstraintFormat" xml:space="preserve">
+    <value>版本 {0} 需要 {1} {2}</value>
+  </data>
+  <data name="Browse_TagAddons" xml:space="preserve">
+    <value>附加组件</value>
+  </data>
   <data name="Browse_StartupProgressFormat" xml:space="preserve">
     <value>{0:N0} / {1:N0} 个模组</value>
   </data>
@@ -1944,6 +1971,18 @@
   <data name="Filter_HasAddonsToolTip" xml:space="preserve">
     <value>仅显示有为其发布附加组件的模组。</value>
   </data>
+  <data name="Filter_AddonsOnly" xml:space="preserve">
+    <value>仅附加组件</value>
+  </data>
+  <data name="Filter_HideAddons" xml:space="preserve">
+    <value>隐藏附加组件</value>
+  </data>
+  <data name="Filter_AddonsOnlyBrowseToolTip" xml:space="preserve">
+    <value>仅显示附加组件（为其他模组制作的扩展），不显示模组。</value>
+  </data>
+  <data name="Filter_AddonsOnlyInstalledToolTip" xml:space="preserve">
+    <value>仅显示你的附加组件，以及已为其安装附加组件的模组。</value>
+  </data>
   <data name="Filter_HideInstalled" xml:space="preserve">
     <value>隐藏已安装的模组</value>
   </data>
@@ -2547,6 +2586,21 @@
   </data>
   <data name="Installed_AddonForFormat" xml:space="preserve">
     <value>{0} 的附加组件</value>
+  </data>
+  <data name="Installed_AddonsChip_other" xml:space="preserve">
+    <value>{0} 个附加组件</value>
+  </data>
+  <data name="Installed_AddonsChipUpdates_other" xml:space="preserve">
+    <value>{0} 个更新</value>
+  </data>
+  <data name="Installed_AddonsChipLineFormat" xml:space="preserve">
+    <value>{0} {1}</value>
+  </data>
+  <data name="Installed_AddonsChipUpdateLineFormat" xml:space="preserve">
+    <value>{0} {1} - 可更新到 {2}</value>
+  </data>
+  <data name="Installed_AddonsChipToolTip" xml:space="preserve">
+    <value>为此模组安装的附加组件 - 点击以更新或移除：</value>
   </data>
   <data name="Installed_Addon" xml:space="preserve">
     <value>附加组件</value>
@@ -4428,6 +4482,12 @@
   </data>
   <data name="WorkshopHome_FromFollowedNote" xml:space="preserve">
     <value>你关注的作者最近发布的物品</value>
+  </data>
+  <data name="WorkshopHome_AddonsForYou" xml:space="preserve">
+    <value>适用于你的模组的附加组件</value>
+  </data>
+  <data name="WorkshopHome_AddonsForYouNote" xml:space="preserve">
+    <value>为你已有的模组制作，尚未安装</value>
   </data>
   <data name="Browse_CreatedByFollowed" xml:space="preserve">
     <value>由关注的作者创作</value>

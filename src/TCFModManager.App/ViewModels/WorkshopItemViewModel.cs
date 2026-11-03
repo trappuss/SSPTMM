@@ -179,7 +179,7 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel, IModActi
     {
         Mod = request.Mod;
         InstalledVersion = request.InstalledVersion;
-        Addons = new AddonsSectionViewModel();
+        Addons = new AddonsSectionViewModel { FocusAddonId = request.FocusAddonId };
         Addons.PropertyChanged += OnAddonsChanged;
         if (request.OpenAddons) Tab = WorkshopItemTab.Addons;
 

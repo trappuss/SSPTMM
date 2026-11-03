@@ -12,8 +12,10 @@ Cards open from the keyboard too: Tab to one, then Enter or Space.
 
 ![Workshop Home](https://raw.githubusercontent.com/trappuss/SSPTMM/main/docs/images/02b-workshop-home.png)
 
-The past week's new mods, mods from authors you follow, list tabs (Top Rated, Most Subscribed, Last
-Updated, New) and content types with counts. **Browse ▾** and **Your Items ▾** under the banner open
+The past week's new mods, mods from authors you follow, **Addons for Your Mods** (addons for mods
+you have, not installed yet - **View All** opens every addon in Browse), list tabs (Top Rated, Most
+Subscribed, Last Updated, New) and content types with counts. Addons are in the past week's row and
+the tabs too, except Top Rated. **Browse ▾** and **Your Items ▾** under the banner open
 the other Workshop pages.
 
 ## Browse
@@ -22,8 +24,12 @@ the other Workshop pages.
 
 - **Filters** in Steam's sidebar: SPT version (tick **+** to show mods for that release), Content
   Type, Special Filters (Featured, Created by Followed), tags (**+** to include, **-** to leave out:
-  Fika compatible, Fika incompatible, Fika compatibility unknown, Has dependencies, Has addons,
-  Contains ads, Subscribed) and **Filter by Date**.
+  Addons, Fika compatible, Fika incompatible, Fika compatibility unknown, Has dependencies, Has
+  addons, Contains ads, Subscribed) and **Filter by Date**.
+- **Addons** are among the results, each on its own card: a puzzle piece in the picture's corner,
+  and the mod it is for across its foot. The version line says whether it fits the mod you have.
+  Click one to open its mod's page at the Addons tab, with that addon first. The **Addons** tag's
+  **+** shows only addons, **-** hides them; an addon goes by its mod's SPT versions and category.
 - **Sort** like Steam: Top Rated All Time (sp-mod.com endorsements), Most Recent, Last Updated,
   Total Unique Subscribers (downloads), Most Favorited.
 - **Search** the title, the description or both (the gear beside the search box); **@name**

@@ -1,0 +1,81 @@
+<!--
+    Fork (1.4.6): what marks an addon's card in Browse and on Home, laid over the card's picture -
+    a puzzle piece in the top right corner, and across the foot of the picture the mod the addon
+    belongs to, with that mod's own picture beside its name. So an addon reads as an addon, and as
+    whose, before anything is opened. DataContext is the card's ModCardViewModel; on a mod's card
+    the whole thing collapses.
+
+    Steam has no addons; its nearest is DLC, which the store marks with its base game's name. The
+    look is this app's on Steam's palette (HUNCH): the corner chip is the status chip's #CC000000
+    with Steam's light blue, the strip a fade to black so the name reads over any picture.
+
+    Not hit-testable: a click anywhere on the picture opens the card, as on a mod's.
+-->
+<UserControl
+    x:Class="TCFModManager.App.Views.AddonCardStrip"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:converters="clr-namespace:TCFModManager.App.Converters"
+    xmlns:behaviors="clr-namespace:TCFModManager.App.Behaviors"
+    xmlns:loc="clr-namespace:TCFModManager.App.Localization"
+    IsHitTestVisible="False">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisible" />
+        <converters:NullToVisibilityConverter x:Key="NullToCollapsed" />
+    </UserControl.Resources>
+    <UserControl.Style>
+        <Style TargetType="UserControl">
+            <Setter Property="Visibility" Value="{Binding IsAddon, Converter={StaticResource BoolToVisible}}" />
+        </Style>
+    </UserControl.Style>
+
+    <Grid>
+        <Border
+            Margin="6"
+            Padding="5,3"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Top"
+            Background="#CC000000"
+            CornerRadius="2">
+            <StackPanel Orientation="Horizontal">
+                <ui:SymbolIcon FontSize="13" Foreground="{StaticResource SteamLegacyBlue}" Symbol="PuzzlePiece24" />
+                <TextBlock
+                    Margin="4,0,0,0"
+                    VerticalAlignment="Center"
+                    FontSize="11"
+                    Foreground="{StaticResource SteamLegacyBlue}"
+                    Text="{loc:Str Browse_AddonChip}" />
+            </StackPanel>
+        </Border>
+
+        <Border VerticalAlignment="Bottom" Padding="6,14,6,5">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Offset="0" Color="#00000000" />
+                    <GradientStop Offset="0.45" Color="#B0000000" />
+                    <GradientStop Offset="1" Color="#E6000000" />
+                </LinearGradientBrush>
+            </Border.Background>
+            <DockPanel>
+                <Border
+                    Width="20"
+                    Height="20"
+                    Margin="0,0,6,0"
+                    DockPanel.Dock="Left"
+                    Background="{StaticResource SteamPreviewBackground}"
+                    BorderBrush="#40FFFFFF"
+                    BorderThickness="1"
+                    Visibility="{Binding ParentThumbnail, Converter={StaticResource NullToCollapsed}}">
+                    <Image Stretch="UniformToFill" behaviors:ThumbnailLoader.DecodeWidth="40" behaviors:ThumbnailLoader.Source="{Binding ParentThumbnail}" />
+                </Border>
+                <TextBlock
+                    VerticalAlignment="Center"
+                    FontSize="12"
+                    Foreground="{StaticResource SteamTextBright}"
+                    TextTrimming="CharacterEllipsis"
+                    Text="{Binding AddonForText}" />
+            </DockPanel>
+        </Border>
+    </Grid>
+</UserControl>
