@@ -123,6 +123,9 @@ public sealed partial class DiagnoseViewModel : LocalizedViewModel
 {
     public ObservableCollection<LogFindingRow> Findings { get; } = [];
 
+    // Fork (1.4.7): Find the broken mod - the app's one search, shown at the top of the page.
+    public BrokenModFinder Search => AppServices.BrokenModFinder;
+
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsNotBusy))]
     private bool _isBusy;

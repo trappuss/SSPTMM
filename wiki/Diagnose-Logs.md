@@ -45,6 +45,40 @@ Each card has the line it was read from (file and line number), and buttons: **S
 items**, **Open its folder**, **Open the log** - plus **Go to Play** or **Profile backups** where they
 help. Errors no card knows are counted under the list.
 
+## Find the broken mod
+
+When the server won't start, or its log fills with errors, and the cards above don't name a mod,
+**Start search** at the top of the page finds the server mod by trying without some of them.
+
+It starts the SPT server several times with no window. The first start has every server mod on, to
+see what is wrong. The second has them all off, to check that it is one of the mods. Each start after
+that has half of the remaining suspects on, until one mod is left. Sixty mods take about seven starts.
+If that mod is fine by itself, the fault needs a second mod, and the search goes on to find it.
+
+| It says | Means |
+|---|---|
+| Found: a mod | With it on, the server doesn't start (or logs the errors shown). Without it, it does. |
+| Found: two mods | Each is fine without the other; the fault shows only with both on. |
+| It isn't one of the server mods | The same thing happens with every server mod off. |
+| Nothing wrong with the server | The server starts and logs no errors with every mod on. |
+
+**Show** opens the mod in Subscribed items, where it can be turned off, updated or removed.
+
+What it does and doesn't touch:
+
+- Only **server mods** that are on are tried. Game (BepInEx) mods, and mods that are already off, stay
+  as they are. It tests the server only: a fault that shows in the game is not found.
+- A mod is never tried without the mods it says it needs.
+- Mods are turned off the same way Subscribed items does it (moved to `user\mods.disabled`), and
+  **every one is turned back on at the end**, also when you press **Stop**.
+- Your **profiles are copied first** (Options > **SPT profile backups**). If the test starts changed a profile,
+  the copy is put back, since nothing was played in between.
+- It won't start while the server or game is running, or while downloads are queued, and downloads
+  are paused until it is done. Don't start SPT or change mods while it runs.
+- If SSPTMM is closed or crashes part way, the next start turns the mods back on and says so. If the
+  server is still running then, the page shows **Turn them back on**, which stops it first.
+- Errors the server logs even with every mod off (a profile problem, for example) are not looked for.
+
 ## Copy a report for help
 
 **Copy a report for help** copies what was found, the lines behind it and up to 50 other errors - not

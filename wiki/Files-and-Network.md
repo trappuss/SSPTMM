@@ -39,6 +39,7 @@ GitHub (the repository, releases, this wiki, Issues), and links you click in a d
 | `Data\installed-mods.json` | What SSPTMM installed, and every file it placed |
 | `Data\mod_cache.json`, `addon_cache.json`, `spt_versions.json`, `collections_index.json`, `dependency_flags.json` | Cached sp-mod.com data |
 | `Data\mod_presets.json` | Your presets, per SPT install, and how the mods were before the last one was applied |
+| `Data\broken_mod_search.json` | Only while **Find the broken mod** runs: the server mods it switches, so they can be turned back on if it is cut short |
 | `Data\mod_lists.json`, `mod_groups.json` | Your collections and groups |
 | `Data\mod_configs.json`, `config_updates.json` | Your per-mod config choices, and what updates did to configs |
 | `Data\downloads.json`, `update_notifications.json`, `mod_footprints.json` | Monitor mode's saved archives, announced updates, footprint readings |

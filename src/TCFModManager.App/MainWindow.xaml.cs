@@ -268,6 +268,9 @@ public partial class MainWindow : FluentWindow
 
             Services.GameCloser.Start(); // Fork: close the game when the server stops, if ticked
 
+            // Fork (1.4.7): a Find the broken mod search the last run did not finish - its mods go back on.
+            Dispatcher.BeginInvoke(() => _ = AppServices.BrokenModFinder.RecoverAsync(), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+
             // A data file found damaged while the app was starting: said now the window is up.
             Dispatcher.BeginInvoke(App.ReportDataProblems, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
         };
@@ -467,7 +470,7 @@ public partial class MainWindow : FluentWindow
             return;
         }
 
-        if (!MayStopAnInstall(this) || !MayLeaveServerRunning())
+        if (!AppServices.BrokenModFinder.MayClose() || !MayStopAnInstall(this) || !MayLeaveServerRunning()) // Fork (1.4.7): a search first
         {
             e.Cancel = true;
             return;

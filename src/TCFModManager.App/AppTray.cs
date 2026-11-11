@@ -135,6 +135,7 @@ internal static class AppTray
         quit.Click += (_, _) =>
         {
             // Fork: asked first while a mod's files are being placed, as closing the window asks.
+            if (!AppServices.BrokenModFinder.MayClose()) return; // Fork (1.4.7): a search turns its mods back on first
             if (!MainWindow.MayStopAnInstall(Application.Current?.MainWindow)) return;
             if (!MainWindow.MayLeaveServerRunning()) return; // Fork (1.4.7)
 

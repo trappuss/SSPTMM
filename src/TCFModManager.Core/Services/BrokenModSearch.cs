@@ -1,0 +1,240 @@
+using System.Text.Json;
+using TCFModManager.Core.Models;
+
+namespace TCFModManager.Core.Services;
+
+/// <summary>What is wrong with the server, as the first try with every mod on showed it.</summary>
+public enum BrokenModSymptom
+{
+    ServerDoesNotStart,
+    ServerLogsErrors,
+}
+
+public enum BrokenModVerdict
+{
+    /// <summary>The server starts and logs no error with every mod on.</summary>
+    NothingWrong,
+
+    /// <summary>The same thing happens with every server mod off.</summary>
+    NotTheMods,
+
+    Found,
+}
+
+/// <summary>How a search ended. Culprit and Partner number the mods as they were given.</summary>
+public sealed record BrokenModResult(
+    BrokenModVerdict Verdict,
+    BrokenModSymptom? Symptom,
+    int? Culprit,
+    int? Partner,
+    IReadOnlyList<LogEntry> Errors,
+    int Tries);
+
+/// <summary>One try about to be made: which it is, about how many there will be, how many mods are on.</summary>
+public sealed record BrokenModProgress(int Try, int About, int ModsOn, int Mods);
+
+//
+// Fork (1.4.7): Find the broken mod, for the SPT server. The mods are the install's enabled server
+// mods, each after what it needs (ModBisect); a try is the server started with some of them on.
+//
+// First with all of them on, to see what is wrong: the server does not come up, or it does and logs
+// errors. Then with none, to see that it is the mods: errors logged even then are not theirs, and
+// are not looked for afterwards. Then ModBisect, where a try fails when it shows what the first one
+// showed - the server down, or one of those errors.
+//
+public static class BrokenModSearch
+{
+    public static async Task<BrokenModResult> RunAsync(
+        int mods,
+        Func<int, IEnumerable<int>> needs,
+        Func<IReadOnlyList<int>, CancellationToken, Task<ServerTrialOutcome>> tryWith,
+        IProgress<BrokenModProgress>? progress = null,
+        CancellationToken ct = default)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(mods, 1);
+
+        var tries = 0;
+
+        async Task<ServerTrialOutcome> Try(IReadOnlyList<int> on, int left)
+        {
+            ct.ThrowIfCancellationRequested();
+            tries++;
+            progress?.Report(new BrokenModProgress(tries, tries + left, on.Count, mods));
+            return await tryWith(on, ct).ConfigureAwait(false);
+        }
+
+        var all = Enumerable.Range(0, mods).ToList();
+        var search = new ModBisect(mods, needs);
+
+        var first = await Try(all, 1 + search.TriesLeft).ConfigureAwait(false);
+        if (first.Started && first.Errors.Count == 0)
+            return new BrokenModResult(BrokenModVerdict.NothingWrong, null, null, null, [], tries);
+
+        var symptom = first.Started ? BrokenModSymptom.ServerLogsErrors : BrokenModSymptom.ServerDoesNotStart;
+
+        var none = await Try([], search.TriesLeft).ConfigureAwait(false);
+        var theirs = first.Errors.Select(ServerTrial.Signature)
+            .Except(none.Errors.Select(ServerTrial.Signature), StringComparer.Ordinal)
+            .ToHashSet(StringComparer.Ordinal);
+
+        var stillWrong = symptom == BrokenModSymptom.ServerDoesNotStart ? !none.Started : !none.Started || theirs.Count == 0;
+        if (stillWrong)
+            return new BrokenModResult(BrokenModVerdict.NotTheMods, symptom, null, null, none.Errors, tries);
+
+        IReadOnlyList<LogEntry> Shown(ServerTrialOutcome outcome) =>
+            symptom == BrokenModSymptom.ServerDoesNotStart
+                ? outcome.Errors
+                : [.. outcome.Errors.Where(e => theirs.Contains(ServerTrial.Signature(e)))];
+
+        bool Fails(ServerTrialOutcome outcome) => !outcome.Started || (symptom == BrokenModSymptom.ServerLogsErrors && Shown(outcome).Count > 0);
+
+        // The errors of the last try that failed with the fewest mods on - the closest to the fault.
+        var errors = Shown(first);
+        var fewest = mods;
+
+        while (search.Next is { } on)
+        {
+            var outcome = await Try(on, search.TriesLeft - 1).ConfigureAwait(false);
+            var failed = Fails(outcome);
+
+            if (failed && on.Count <= fewest)
+            {
+                fewest = on.Count;
+                errors = Shown(outcome);
+            }
+
+            search.Report(failed);
+        }
+
+        return new BrokenModResult(BrokenModVerdict.Found, symptom, search.Culprit, search.Partner, errors, tries);
+    }
+
+    //
+    // The install's enabled server mods, each after what it needs among them - the order ModBisect
+    // wants. A mod that is in the install twice (a copy in user/mods and one in user/mods.disabled)
+    // is left as it is and not searched: which copy is meant is Subscribed items' question.
+    //
+    public static (IReadOnlyList<InstalledMod> Mods, Func<int, IEnumerable<int>> Needs) Suspects(IReadOnlyList<InstalledMod> scanned)
+    {
+        var twice = ModDisableService.DuplicatePairs(scanned).Select(p => p.Enabled).ToHashSet();
+        var graph = ModDependencyGraph.Build(scanned);
+
+        var enabled = scanned.Where(m => m.Target == InstalledModTarget.Server && !m.IsDisabled && !twice.Contains(m)).ToList();
+        var ordered = graph.DependencyOrder(enabled, m => [m]);
+
+        var number = new Dictionary<InstalledMod, int>();
+        for (var i = 0; i < ordered.Count; i++) number[ordered[i]] = i;
+
+        return (ordered, i => graph.DependenciesOf(ordered[i])
+            .Where(link => !link.IsSoft && number.ContainsKey(link.Dependency))
+            .Select(link => number[link.Dependency]));
+    }
+}
+
+/// <summary>A search under way, as kept on disk until every mod is back on.</summary>
+public sealed class BrokenModSession
+{
+    public string InstallPath { get; set; } = "";
+
+    public DateTimeOffset StartedAt { get; set; }
+
+    /// <summary>The searched mods' folders, as their paths read when enabled - all on when it began.</summary>
+    public List<string> Mods { get; set; } = [];
+}
+
+//
+// Data\broken_mod_search.json: written before the search turns its first mod off and deleted once
+// they are all back on, so a search cut short - the app closed or crashed, the PC turned off - is
+// found at the next start and the mods are put back then.
+//
+public sealed class BrokenModSessionStore
+{
+    private static readonly JsonSerializerOptions Options = new() { WriteIndented = true };
+
+    private readonly string _filePath;
+
+    public BrokenModSessionStore() : this(Path.Combine(AppPaths.DataDirectory, "broken_mod_search.json"))
+    {
+    }
+
+    // A file of its own - for the tests.
+    public BrokenModSessionStore(string filePath) => _filePath = filePath;
+
+    public void Save(BrokenModSession session) =>
+        SafeFile.WriteText(_filePath, JsonSerializer.Serialize(session, Options));
+
+    /// <summary>The search that was not finished, or null.</summary>
+    public BrokenModSession? Load()
+    {
+        if (!File.Exists(_filePath)) return null;
+
+        try
+        {
+            var session = JsonSerializer.Deserialize<BrokenModSession>(File.ReadAllText(_filePath));
+            return session is { InstallPath.Length: > 0, Mods: not null } ? session : null;
+        }
+        catch (Exception ex) when (ex is JsonException or IOException or UnauthorizedAccessException or NotSupportedException)
+        {
+            AppLog.Warn("Search", $"broken_mod_search.json couldn't be read: {ex.Message}");
+            return null;
+        }
+    }
+
+    public void Clear()
+    {
+        try
+        {
+            File.Delete(_filePath);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            AppLog.Warn("Search", $"broken_mod_search.json couldn't be deleted: {ex.Message}");
+        }
+    }
+
+    //
+    // Turns the session's mods on or off so that exactly <paramref name="on"/> of them are on -
+    // ModDisableService's own move, between user/mods and user/mods.disabled. A mod found in
+    // neither place is skipped, and one in both is left as it is.
+    //
+    public static ModDisableOutcome Set(BrokenModSession session, IReadOnlySet<string> on)
+    {
+        var turnOff = new List<InstalledMod>();
+        var turnOn = new List<InstalledMod>();
+
+        foreach (var enabledPath in session.Mods)
+        {
+            if (DisabledModPaths.Counterpart(enabledPath) is not { } disabledPath) continue;
+
+            var isOn = Exists(enabledPath);
+            var isOff = Exists(disabledPath);
+            if (isOn == isOff) continue;
+
+            var wanted = on.Contains(enabledPath);
+            if (isOn && !wanted) turnOff.Add(Entry(enabledPath, disabled: false));
+            else if (isOff && wanted) turnOn.Add(Entry(disabledPath, disabled: true));
+        }
+
+        var off = ModDisableService.Apply(turnOff, disable: true, session.InstallPath);
+        var back = ModDisableService.Apply(turnOn, disable: false, session.InstallPath);
+        return new ModDisableOutcome([.. off.Moved, .. back.Moved], [.. off.Failed, .. back.Failed]);
+    }
+
+    /// <summary>Every mod of the session back on.</summary>
+    public static ModDisableOutcome PutBack(BrokenModSession session) =>
+        Set(session, session.Mods.ToHashSet(StringComparer.OrdinalIgnoreCase));
+
+    /// <summary>The session's mods that are off right now.</summary>
+    public static int TurnedOff(BrokenModSession session) =>
+        session.Mods.Count(path => !Exists(path) && DisabledModPaths.Counterpart(path) is { } off && Exists(off));
+
+    private static bool Exists(string path) => Directory.Exists(path) || File.Exists(path);
+
+    private static InstalledMod Entry(string path, bool disabled) => new()
+    {
+        Name = Path.GetFileName(path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)),
+        Target = InstalledModTarget.Server,
+        FolderPath = path,
+        IsDisabled = disabled,
+    };
+}

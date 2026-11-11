@@ -32,8 +32,9 @@ A wrong setting can break the mod or your game, and the mod's author isn't the o
 
 ## Diagnose logs
 
-Reads SPT's logs and says what went wrong and which mod it came from. See
-[Diagnose logs](Diagnose-Logs).
+Reads SPT's logs and says what went wrong and which mod it came from. **Find the broken mod** on the
+same page finds the server mod that keeps the server from starting, by trying without some of them.
+See [Diagnose logs](Diagnose-Logs).
 
 ## Mod footprint (optional)
 

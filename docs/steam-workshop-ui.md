@@ -2814,11 +2814,39 @@ From another mod manager (trappuss: "research it and see if there's anything cou
   the unsubscribe question does. Closing to the tray doesn't ask. Seen on screen with a stand-in
   server process: the question, Cancel keeping the window, and Don't ask again saving the setting
   off and showing the switch off.
+- **Find the broken mod** (Tools > Diagnose logs, `BrokenModFinder`): which enabled server mod keeps
+  the server from starting, or logs errors, found by halving. The mods are put in an order where
+  each comes after what it needs (`ModDependencyGraph.DependencyOrder`), so the first k of them is
+  always a set that can load; `ModBisect` looks for the shortest such run that fails. The mod ending
+  it is then tried with only what it needs, and when that works, a second mod is looked for the same
+  way among the ones before it. Every set is tried once, so answers that contradict each other
+  still end the search.
+  - A try is `ServerTrial`: the server started hidden, watched until it listens on its port (ports
+    something else already listens on are left out) or its process ends, then stopped. What it
+    logged is read from where its log files ended before the start.
+  - `BrokenModSearch` runs every mod on first (what is wrong: down, or up with errors), then none
+    (errors logged even then are not looked for; still down means it isn't the mods), then the
+    halving. Errors are compared by source and message with the numbers taken out.
+  - Safety: refused while SPT runs or downloads are queued, and downloads are paused meanwhile. The
+    profiles are copied first, and put back if a start changed them. The mods switched are written
+    to `Data\broken_mod_search.json` before the first move and all turned back on at the end;
+    a search cut short is put back at the next start (`RecoverAsync`), or from the page when the
+    server still runs. Closing the app during a search stops the search instead.
+  - Only server mods: the game half cannot be judged without someone playing, and turning game
+    mods off changes what a profile can load.
+  - Seen on screen, on a made-up install with a stand-in server that fails by its mod folders'
+    names: the confirmation, the progress line, a mod found in 7 starts of 12 mods, Stop, the app
+    killed part way with every mod off (put back at the next start), the same with the server left
+    running (Turn them back on stopping it first), and closing during a search. The stand-in also
+    ran a mod that only logs errors and two mods that only fail together, through the same code
+    without the window.
 
 ## Values that could not be measured (marked HUNCH in the source)
 
 - Round 58: 30 minutes between reads of a repository's releases, four archives as the most offered
-  as buttons, and the GitHub chip's shades (#C6D4DF at 20% and 33%).
+  as buttons, and the GitHub chip's shades (#C6D4DF at 20% and 33%). For Find the broken mod: five
+  minutes for a server to come up, three seconds after its port opens for mods to finish logging,
+  and twenty seconds for its process to appear or go.
 
 - Round 57: the addon marks' look - the corner chip (the status chip's #CC000000 with Steam's light
   blue), the fade to black under the mod's name, the Subscribed items chip's hover shade

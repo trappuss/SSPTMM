@@ -8756,6 +8756,137 @@ GitHub 上的文件未经 sp-mod.com 检查，请只安装你信任的作者的�
   <data name="Diagnose_ProfileFixDone" xml:space="preserve">
     <value>已在 core.json 中开启。请重启 SPT 服务端以清理存档，然后重新读取日志。</value>
   </data>
+  <data name="Search_Title" xml:space="preserve">
+    <value>找出有问题的模组</value>
+  </data>
+  <data name="Search_Description" xml:space="preserve">
+    <value>多次启动 SPT 服务端，每次关闭一部分服务端模组，找出导致服务端无法启动或在日志中不断报错的那个模组。结束后所有模组都会重新启用。只测试服务端，不测试游戏。</value>
+  </data>
+  <data name="Search_Start" xml:space="preserve">
+    <value>开始查找</value>
+  </data>
+  <data name="Search_Stop" xml:space="preserve">
+    <value>停止</value>
+  </data>
+  <data name="Search_Stopping" xml:space="preserve">
+    <value>正在停止…</value>
+  </data>
+  <data name="Search_ConfirmFormat" xml:space="preserve">
+    <value>已启用的服务端模组：{0}。SPT 服务端将在无窗口的情况下启动约 {1} 次，每次关闭其中一部分，并读取它的日志。这可能需要几分钟。
+
+开始前会先复制存档，结束时所有模组都会重新启用。完成之前不要启动 SPT，也不要更改模组。</value>
+  </data>
+  <data name="Search_NoServerMods" xml:space="preserve">
+    <value>没有启用的服务端模组，无需查找。</value>
+  </data>
+  <data name="Search_WaitForDownloads" xml:space="preserve">
+    <value>请先等待下载完成。</value>
+  </data>
+  <data name="Search_BackupFailed" xml:space="preserve">
+    <value>无法保留存档副本，因此未开始查找。应用的日志中说明了原因。</value>
+  </data>
+  <data name="Search_Preparing" xml:space="preserve">
+    <value>正在准备…</value>
+  </data>
+  <data name="Search_ProgressFormat" xml:space="preserve">
+    <value>第 {0} 次启动，共约 {1} 次：已启用 {2}/{3} 个服务端模组。</value>
+  </data>
+  <data name="Search_PuttingBack" xml:space="preserve">
+    <value>正在重新启用所有模组…</value>
+  </data>
+  <data name="Search_Stopped" xml:space="preserve">
+    <value>查找已停止。所有模组都已重新启用。</value>
+  </data>
+  <data name="Search_AllBack" xml:space="preserve">
+    <value>所有模组都已恢复启用，与之前一样。</value>
+  </data>
+  <data name="Search_FailedFormat" xml:space="preserve">
+    <value>查找未能完成：{0}</value>
+  </data>
+  <data name="Search_NothingWrongTitle" xml:space="preserve">
+    <value>服务端没有问题</value>
+  </data>
+  <data name="Search_NothingWrongBody" xml:space="preserve">
+    <value>启用所有模组时，服务端可以启动且日志中没有错误。如果出问题的是游戏，这项查找无法判断：它只测试服务端。</value>
+  </data>
+  <data name="Search_NotTheModsTitle" xml:space="preserve">
+    <value>问题不在服务端模组</value>
+  </data>
+  <data name="Search_NotTheModsDownBody" xml:space="preserve">
+    <value>即使关闭所有服务端模组，服务端也无法启动。</value>
+  </data>
+  <data name="Search_NotTheModsErrorsBody" xml:space="preserve">
+    <value>关闭所有服务端模组后，服务端日志中仍有同样的错误。</value>
+  </data>
+  <data name="Search_FoundTitleFormat" xml:space="preserve">
+    <value>已找到：{0}</value>
+  </data>
+  <data name="Search_FoundPairTitleFormat" xml:space="preserve">
+    <value>已找到：{0} 和 {1}</value>
+  </data>
+  <data name="Search_FoundDownBody" xml:space="preserve">
+    <value>启用它时服务端无法启动，关闭后可以启动。</value>
+  </data>
+  <data name="Search_FoundErrorsBody" xml:space="preserve">
+    <value>启用它时服务端日志中出现这些错误，关闭后没有。</value>
+  </data>
+  <data name="Search_FoundPairDownBody" xml:space="preserve">
+    <value>两者单独启用都正常。同时启用时服务端无法启动。</value>
+  </data>
+  <data name="Search_FoundPairErrorsBody" xml:space="preserve">
+    <value>两者单独启用都正常。同时启用时服务端日志中出现这些错误。</value>
+  </data>
+  <data name="Search_TriesFormat" xml:space="preserve">
+    <value>服务端启动次数：{0}。</value>
+  </data>
+  <data name="Search_ProfilesPutBack" xml:space="preserve">
+    <value>这些启动更改了存档，因此已将存档恢复原状。</value>
+  </data>
+  <data name="Search_ShowModFormat" xml:space="preserve">
+    <value>显示 {0}</value>
+  </data>
+  <data name="Search_Dismiss" xml:space="preserve">
+    <value>完成</value>
+  </data>
+  <data name="Search_InterruptedFormat" xml:space="preserve">
+    <value>一次查找被中断。仍处于关闭状态的服务端模组：{0}。</value>
+  </data>
+  <data name="Search_TurnBackOn" xml:space="preserve">
+    <value>重新启用</value>
+  </data>
+  <data name="Search_PutBackDoneFormat" xml:space="preserve">
+    <value>一次查找被中断。它关闭的服务端模组已重新启用（{0}）。</value>
+  </data>
+  <data name="Search_StopServerFirst" xml:space="preserve">
+    <value>SPT 服务端正在运行，停止后才能重新启用这些模组。</value>
+  </data>
+  <data name="Search_StopServerAndTurnOn" xml:space="preserve">
+    <value>停止服务端并启用</value>
+  </data>
+  <data name="Search_CloseWhileRunning" xml:space="preserve">
+    <value>正在查找有问题的模组。查找正在停止，模组正在重新启用。请稍后再次关闭 SSPTMM。</value>
+  </data>
+  <data name="Search_ProblemAlreadyRunning" xml:space="preserve">
+    <value>SPT 服务端已在运行。</value>
+  </data>
+  <data name="Search_ProblemPortTaken" xml:space="preserve">
+    <value>服务端的端口已被其他程序占用。</value>
+  </data>
+  <data name="Search_ProblemCouldNotStop" xml:space="preserve">
+    <value>无法停止 SPT 服务端。</value>
+  </data>
+  <data name="Search_ProblemCouldNotStartFormat" xml:space="preserve">
+    <value>无法启动 SPT 服务端（{0}）。</value>
+  </data>
+  <data name="Search_MoveFailedFormat" xml:space="preserve">
+    <value>无法移动 {0}：{1}。</value>
+  </data>
+  <data name="Profiles_ReasonSearch" xml:space="preserve">
+    <value>查找有问题的模组之前</value>
+  </data>
+  <data name="Search_InterruptedWhere" xml:space="preserve">
+    <value>可在 工具 &gt; 诊断日志 中重新启用。</value>
+  </data>
   <data name="Diagnose_ProfileFixNotFound" xml:space="preserve">
     <value>core.json 中没有按预期找到这两个开关，因此未做更改。</value>
   </data>

@@ -173,6 +173,10 @@ wrong. When the log shows it, it also says which mod caused it. Examples:
 **Copy a report for help** takes out your user name, user folder, profile ids and players' IP
 addresses.
 
+**Find the broken mod** is for when the logs don't name a mod. It starts the SPT server a few times
+with some server mods off, halving the suspects until it finds the one that keeps the server from
+starting or fills its log with errors. Every mod is turned back on afterwards.
+
 ### A Steam Workshop to browse
 
 - **Browsing:** hover previews with each mod's pictures, Quick View, authors' pages, and following

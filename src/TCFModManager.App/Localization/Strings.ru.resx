@@ -9641,6 +9641,137 @@
   <data name="Diagnose_ProfileFixDone" xml:space="preserve">
     <value>Включено в core.json. Перезапустите сервер SPT, чтобы он почистил профиль, затем снова прочитайте логи.</value>
   </data>
+  <data name="Search_Title" xml:space="preserve">
+    <value>Найти сломанный мод</value>
+  </data>
+  <data name="Search_Description" xml:space="preserve">
+    <value>Запускает сервер SPT несколько раз, каждый раз с частью серверных модов выключенной, чтобы найти мод, который не даёт серверу запуститься или заполняет лог ошибками. После этого все моды снова включаются. Проверяется только сервер, не игра.</value>
+  </data>
+  <data name="Search_Start" xml:space="preserve">
+    <value>Начать поиск</value>
+  </data>
+  <data name="Search_Stop" xml:space="preserve">
+    <value>Остановить</value>
+  </data>
+  <data name="Search_Stopping" xml:space="preserve">
+    <value>Останавливается…</value>
+  </data>
+  <data name="Search_ConfirmFormat" xml:space="preserve">
+    <value>Включено серверных модов: {0}. Сервер SPT будет запущен около {1} раз, без окна, каждый раз с частью из них выключенной, и его лог будет прочитан. Это может занять несколько минут.
+
+Сначала копируются профили, а в конце все моды снова включаются. Не запускать SPT и не менять моды до окончания поиска.</value>
+  </data>
+  <data name="Search_NoServerMods" xml:space="preserve">
+    <value>Ни один серверный мод не включён, искать нечего.</value>
+  </data>
+  <data name="Search_WaitForDownloads" xml:space="preserve">
+    <value>Сначала дождаться окончания загрузок.</value>
+  </data>
+  <data name="Search_BackupFailed" xml:space="preserve">
+    <value>Не удалось сделать копию профилей, поэтому поиск не начат. Причина - в логе приложения.</value>
+  </data>
+  <data name="Search_Preparing" xml:space="preserve">
+    <value>Подготовка…</value>
+  </data>
+  <data name="Search_ProgressFormat" xml:space="preserve">
+    <value>Запуск {0} из примерно {1}: включено {2} из {3} серверных модов.</value>
+  </data>
+  <data name="Search_PuttingBack" xml:space="preserve">
+    <value>Все моды снова включаются…</value>
+  </data>
+  <data name="Search_Stopped" xml:space="preserve">
+    <value>Поиск остановлен. Все моды снова включены.</value>
+  </data>
+  <data name="Search_AllBack" xml:space="preserve">
+    <value>Все моды снова включены, как было.</value>
+  </data>
+  <data name="Search_FailedFormat" xml:space="preserve">
+    <value>Поиск не удалось завершить: {0}</value>
+  </data>
+  <data name="Search_NothingWrongTitle" xml:space="preserve">
+    <value>С сервером всё в порядке</value>
+  </data>
+  <data name="Search_NothingWrongBody" xml:space="preserve">
+    <value>Сервер запускается и не пишет ошибок со всеми включёнными модами. Если не работает игра, этот поиск этого не увидит: он проверяет только сервер.</value>
+  </data>
+  <data name="Search_NotTheModsTitle" xml:space="preserve">
+    <value>Дело не в серверных модах</value>
+  </data>
+  <data name="Search_NotTheModsDownBody" xml:space="preserve">
+    <value>Сервер не запускается даже со всеми выключенными серверными модами.</value>
+  </data>
+  <data name="Search_NotTheModsErrorsBody" xml:space="preserve">
+    <value>Сервер пишет те же ошибки со всеми выключенными серверными модами.</value>
+  </data>
+  <data name="Search_FoundTitleFormat" xml:space="preserve">
+    <value>Найдено: {0}</value>
+  </data>
+  <data name="Search_FoundPairTitleFormat" xml:space="preserve">
+    <value>Найдено: {0} и {1}</value>
+  </data>
+  <data name="Search_FoundDownBody" xml:space="preserve">
+    <value>С ним сервер не запускается. Без него - запускается.</value>
+  </data>
+  <data name="Search_FoundErrorsBody" xml:space="preserve">
+    <value>С ним сервер пишет эти ошибки. Без него - нет.</value>
+  </data>
+  <data name="Search_FoundPairDownBody" xml:space="preserve">
+    <value>Каждый работает без другого. Когда включены оба, сервер не запускается.</value>
+  </data>
+  <data name="Search_FoundPairErrorsBody" xml:space="preserve">
+    <value>Каждый работает без другого. Когда включены оба, сервер пишет эти ошибки.</value>
+  </data>
+  <data name="Search_TriesFormat" xml:space="preserve">
+    <value>Запусков сервера: {0}.</value>
+  </data>
+  <data name="Search_ProfilesPutBack" xml:space="preserve">
+    <value>Запуски изменили профили, поэтому они возвращены в прежнее состояние.</value>
+  </data>
+  <data name="Search_ShowModFormat" xml:space="preserve">
+    <value>Показать {0}</value>
+  </data>
+  <data name="Search_Dismiss" xml:space="preserve">
+    <value>Готово</value>
+  </data>
+  <data name="Search_InterruptedFormat" xml:space="preserve">
+    <value>Поиск был прерван. Серверных модов ещё выключено: {0}.</value>
+  </data>
+  <data name="Search_TurnBackOn" xml:space="preserve">
+    <value>Включить снова</value>
+  </data>
+  <data name="Search_PutBackDoneFormat" xml:space="preserve">
+    <value>Поиск был прерван. Выключенные им серверные моды снова включены ({0}).</value>
+  </data>
+  <data name="Search_StopServerFirst" xml:space="preserve">
+    <value>Сервер SPT запущен, и моды нельзя включить, пока он не остановлен.</value>
+  </data>
+  <data name="Search_StopServerAndTurnOn" xml:space="preserve">
+    <value>Остановить сервер и включить</value>
+  </data>
+  <data name="Search_CloseWhileRunning" xml:space="preserve">
+    <value>Идёт поиск сломанного мода. Он останавливается, и его моды снова включаются. Закрыть SSPTMM ещё раз через мгновение.</value>
+  </data>
+  <data name="Search_ProblemAlreadyRunning" xml:space="preserve">
+    <value>Сервер SPT уже запущен.</value>
+  </data>
+  <data name="Search_ProblemPortTaken" xml:space="preserve">
+    <value>Порт сервера занят чем-то другим.</value>
+  </data>
+  <data name="Search_ProblemCouldNotStop" xml:space="preserve">
+    <value>Не удалось остановить сервер SPT.</value>
+  </data>
+  <data name="Search_ProblemCouldNotStartFormat" xml:space="preserve">
+    <value>Не удалось запустить сервер SPT ({0}).</value>
+  </data>
+  <data name="Search_MoveFailedFormat" xml:space="preserve">
+    <value>Не удалось переместить {0}: {1}.</value>
+  </data>
+  <data name="Profiles_ReasonSearch" xml:space="preserve">
+    <value>Перед поиском сломанного мода</value>
+  </data>
+  <data name="Search_InterruptedWhere" xml:space="preserve">
+    <value>Инструменты &gt; Диагностика логов включает их снова.</value>
+  </data>
   <data name="Diagnose_ProfileFixNotFound" xml:space="preserve">
     <value>В core.json нет обоих переключателей в ожидаемом виде, поэтому он не изменён.</value>
   </data>

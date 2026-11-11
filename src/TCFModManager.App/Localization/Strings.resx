@@ -11482,6 +11482,180 @@ The file as it is now is kept beside it ({1}). Turn them on?</value>
     <value>Turned on in core.json. Restart the SPT server so it cleans the profile, then read the logs again.</value>
     <comment>Status line after the change.</comment>
   </data>
+  <data name="Search_Title" xml:space="preserve">
+    <value>Find the broken mod</value>
+    <comment>Diagnose logs: the card's title, and the title of its dialogs.</comment>
+  </data>
+  <data name="Search_Description" xml:space="preserve">
+    <value>Starts the SPT server a few times, each time with some server mods off, to find the one that keeps it from starting or fills its log with errors. Every mod is turned back on afterwards. It tests the server only, not the game.</value>
+    <comment>Diagnose logs: what Find the broken mod does.</comment>
+  </data>
+  <data name="Search_Start" xml:space="preserve">
+    <value>Start search</value>
+    <comment>Button: start a Find the broken mod search.</comment>
+  </data>
+  <data name="Search_Stop" xml:space="preserve">
+    <value>Stop</value>
+    <comment>Button: stop the running search.</comment>
+  </data>
+  <data name="Search_Stopping" xml:space="preserve">
+    <value>Stopping…</value>
+    <comment>Progress line after Stop was pressed.</comment>
+  </data>
+  <data name="Search_ConfirmFormat" xml:space="preserve">
+    <value>Server mods on: {0}. The SPT server will be started about {1} times, with no window, each time with some of them off, and its log read. This can take several minutes.
+
+The profiles are copied first, and every mod is turned back on at the end. Don't start SPT or change mods until it is done.</value>
+    <comment>The question before a search. {0}: how many server mods are on; {1}: about how many times the server will be started.</comment>
+  </data>
+  <data name="Search_NoServerMods" xml:space="preserve">
+    <value>No server mods are on, so there is nothing to search.</value>
+    <comment>Status: nothing to search.</comment>
+  </data>
+  <data name="Search_WaitForDownloads" xml:space="preserve">
+    <value>Wait for the downloads to finish first.</value>
+    <comment>Status: a search can't start while downloads are queued.</comment>
+  </data>
+  <data name="Search_BackupFailed" xml:space="preserve">
+    <value>A copy of the profiles couldn't be taken, so the search wasn't started. The app's log says why.</value>
+    <comment>Status: the profiles couldn't be copied, so nothing was done.</comment>
+  </data>
+  <data name="Search_Preparing" xml:space="preserve">
+    <value>Getting ready…</value>
+    <comment>Progress line before the first start.</comment>
+  </data>
+  <data name="Search_ProgressFormat" xml:space="preserve">
+    <value>Start {0} of about {1}: {2} of {3} server mods on.</value>
+    <comment>Progress line. {0}: which start this is; {1}: about how many there will be; {2}: server mods on for it; {3}: server mods searched.</comment>
+  </data>
+  <data name="Search_PuttingBack" xml:space="preserve">
+    <value>Turning every mod back on…</value>
+    <comment>Progress line at the end.</comment>
+  </data>
+  <data name="Search_Stopped" xml:space="preserve">
+    <value>Search stopped. Every mod is back on.</value>
+    <comment>Status after Stop.</comment>
+  </data>
+  <data name="Search_AllBack" xml:space="preserve">
+    <value>Every mod is back on, as it was.</value>
+    <comment>Note under a result.</comment>
+  </data>
+  <data name="Search_FailedFormat" xml:space="preserve">
+    <value>The search couldn't finish: {0}</value>
+    <comment>Status: the search stopped on a problem. {0}: the problem, a sentence.</comment>
+  </data>
+  <data name="Search_NothingWrongTitle" xml:space="preserve">
+    <value>Nothing wrong with the server</value>
+    <comment>Result title.</comment>
+  </data>
+  <data name="Search_NothingWrongBody" xml:space="preserve">
+    <value>The server starts and logs no errors with every mod on. If it is the game that fails, this search can't tell: it only tests the server.</value>
+    <comment>Result text.</comment>
+  </data>
+  <data name="Search_NotTheModsTitle" xml:space="preserve">
+    <value>It isn't one of the server mods</value>
+    <comment>Result title.</comment>
+  </data>
+  <data name="Search_NotTheModsDownBody" xml:space="preserve">
+    <value>The server doesn't start even with every server mod off.</value>
+    <comment>Result text.</comment>
+  </data>
+  <data name="Search_NotTheModsErrorsBody" xml:space="preserve">
+    <value>The server logs the same errors with every server mod off.</value>
+    <comment>Result text.</comment>
+  </data>
+  <data name="Search_FoundTitleFormat" xml:space="preserve">
+    <value>Found: {0}</value>
+    <comment>Result title. {0}: the mod.</comment>
+  </data>
+  <data name="Search_FoundPairTitleFormat" xml:space="preserve">
+    <value>Found: {0} and {1}</value>
+    <comment>Result title. {0}, {1}: the two mods.</comment>
+  </data>
+  <data name="Search_FoundDownBody" xml:space="preserve">
+    <value>With it on, the server doesn't start. Without it, it does.</value>
+    <comment>Result text for one mod.</comment>
+  </data>
+  <data name="Search_FoundErrorsBody" xml:space="preserve">
+    <value>With it on, the server logs these errors. Without it, it doesn't.</value>
+    <comment>Result text for one mod; the log lines follow.</comment>
+  </data>
+  <data name="Search_FoundPairDownBody" xml:space="preserve">
+    <value>Each is fine without the other. With both on, the server doesn't start.</value>
+    <comment>Result text for two mods.</comment>
+  </data>
+  <data name="Search_FoundPairErrorsBody" xml:space="preserve">
+    <value>Each is fine without the other. With both on, the server logs these errors.</value>
+    <comment>Result text for two mods; the log lines follow.</comment>
+  </data>
+  <data name="Search_TriesFormat" xml:space="preserve">
+    <value>Starts of the server: {0}.</value>
+    <comment>Note under a result. {0}: how many times the server was started.</comment>
+  </data>
+  <data name="Search_ProfilesPutBack" xml:space="preserve">
+    <value>The starts changed the profiles, so they were put back as they were.</value>
+    <comment>Note under a result.</comment>
+  </data>
+  <data name="Search_ShowModFormat" xml:space="preserve">
+    <value>Show {0}</value>
+    <comment>Button under a result: shows the mod in Subscribed items. {0}: the mod.</comment>
+  </data>
+  <data name="Search_Dismiss" xml:space="preserve">
+    <value>Done</value>
+    <comment>Button: clears the result.</comment>
+  </data>
+  <data name="Search_InterruptedFormat" xml:space="preserve">
+    <value>A search was cut short. Server mods still off: {0}.</value>
+    <comment>A search did not finish and left mods off. {0}: how many.</comment>
+  </data>
+  <data name="Search_TurnBackOn" xml:space="preserve">
+    <value>Turn them back on</value>
+    <comment>Button: turns the mods an interrupted search left off back on.</comment>
+  </data>
+  <data name="Search_PutBackDoneFormat" xml:space="preserve">
+    <value>A search was cut short. The server mods it had turned off are back on ({0}).</value>
+    <comment>Said once the mods an interrupted search left off are back on. {0}: how many.</comment>
+  </data>
+  <data name="Search_StopServerFirst" xml:space="preserve">
+    <value>The SPT server is running, and the mods can't be turned back on until it stops.</value>
+    <comment>Question: the server runs, so the mods can't be turned back on yet.</comment>
+  </data>
+  <data name="Search_StopServerAndTurnOn" xml:space="preserve">
+    <value>Stop the server and turn them on</value>
+    <comment>Button of that question.</comment>
+  </data>
+  <data name="Search_CloseWhileRunning" xml:space="preserve">
+    <value>A search for the broken mod is running. It is being stopped and its mods turned back on. Close SSPTMM again in a moment.</value>
+    <comment>Said when the app is closed during a search.</comment>
+  </data>
+  <data name="Search_ProblemAlreadyRunning" xml:space="preserve">
+    <value>The SPT server is already running.</value>
+    <comment>Why a search couldn't go on.</comment>
+  </data>
+  <data name="Search_ProblemPortTaken" xml:space="preserve">
+    <value>Something else is using the server's port.</value>
+    <comment>Why a search couldn't go on.</comment>
+  </data>
+  <data name="Search_ProblemCouldNotStop" xml:space="preserve">
+    <value>The SPT server couldn't be stopped.</value>
+    <comment>Why a search couldn't go on.</comment>
+  </data>
+  <data name="Search_ProblemCouldNotStartFormat" xml:space="preserve">
+    <value>The SPT server couldn't be started ({0}).</value>
+    <comment>Why a search couldn't go on. {0}: what Windows said.</comment>
+  </data>
+  <data name="Search_MoveFailedFormat" xml:space="preserve">
+    <value>{0} couldn't be moved: {1}.</value>
+    <comment>A mod folder the search couldn't move. {0}: the mod; {1}: why, in English.</comment>
+  </data>
+  <data name="Profiles_ReasonSearch" xml:space="preserve">
+    <value>Before Find the broken mod</value>
+    <comment>Why a copy of the profiles was taken: before a Find the broken mod search.</comment>
+  </data>
+  <data name="Search_InterruptedWhere" xml:space="preserve">
+    <value>Tools &gt; Diagnose logs turns them back on.</value>
+    <comment>Where an interrupted search's mods are turned back on. {0} &gt; {1}: the menu path.</comment>
+  </data>
   <data name="Diagnose_ProfileFixNotFound" xml:space="preserve">
     <value>core.json doesn't hold both switches as expected, so it wasn't changed.</value>
     <comment>Status line when core.json couldn't be changed safely.</comment>

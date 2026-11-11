@@ -40,6 +40,9 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     /// Browse's installed ticks follow - a set-aside mod is not installed as far as the game goes.</summary>
     public static event EventHandler? ModsMoved;
 
+    // Fork (1.4.7): for a change made off this page - Find the broken mod turning mods off and on.
+    public static void NotifyModsMoved() => ModsMoved?.Invoke(null, EventArgs.Empty);
+
     private List<InstalledModCardViewModel> _all = [];
 
     private readonly System.Windows.Threading.DispatcherTimer _rescanAfterInstall;

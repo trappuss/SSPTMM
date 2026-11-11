@@ -20,7 +20,21 @@ public partial class DiagnosePage : Page
         AddHandler(PreviewMouseWheelEvent, new MouseWheelEventHandler(Page_PreviewMouseWheel), true);
     }
 
-    private async void DiagnosePage_Loaded(object sender, RoutedEventArgs e) =>
+    private async void DiagnosePage_Loaded(object sender, RoutedEventArgs e)
+    {
+        // Fork (1.4.7): a Find the broken mod search starts the server many times - read again after.
+        AppServices.BrokenModFinder.Ended -= Search_Ended;
+        AppServices.BrokenModFinder.Ended += Search_Ended;
+        Unloaded -= DiagnosePage_Unloaded;
+        Unloaded += DiagnosePage_Unloaded;
+
+        await ViewModel.RefreshCommand.ExecuteAsync(null);
+    }
+
+    private void DiagnosePage_Unloaded(object sender, RoutedEventArgs e) =>
+        AppServices.BrokenModFinder.Ended -= Search_Ended;
+
+    private async void Search_Ended(object? sender, EventArgs e) =>
         await ViewModel.RefreshCommand.ExecuteAsync(null);
 
     private void Page_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
