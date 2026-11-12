@@ -634,7 +634,7 @@ public partial class PlayViewModel
         var answer = SteamDialog.Show(
             Strings.Play_InviteTitle,
             new StackPanel { Width = 420, Children = { new TextBlock { Text = Strings.Play_InviteHint }, box } },
-            new SteamDialogChoice(Strings.Common_Save, SteamDialogButton.Green),
+            new SteamDialogChoice(Strings.Play_InviteJoinButton, SteamDialogButton.Green),
             new SteamDialogChoice(Strings.Common_Cancel, SteamDialogButton.Grey));
 
         return answer == 0 && box.Text.Trim() is { Length: > 0 } text ? text : null;

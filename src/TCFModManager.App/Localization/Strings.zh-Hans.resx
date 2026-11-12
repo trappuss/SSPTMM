@@ -9362,6 +9362,9 @@ GitHub 上的文件未经 sp-mod.com 检查，请只安装你信任的作者的�
   <data name="Play_InviteTitle" xml:space="preserve">
     <value>通过邀请加入</value>
   </data>
+  <data name="Play_InviteJoinButton" xml:space="preserve">
+    <value>加入</value>
+  </data>
   <data name="Play_InviteHint" xml:space="preserve">
     <value>在此粘贴邀请：</value>
   </data>

@@ -9806,6 +9806,9 @@ No mantiene questo gruppo con il suo vecchio nome.</value>
   <data name="Play_InviteTitle" xml:space="preserve">
     <value>Unisciti da un invito</value>
   </data>
+  <data name="Play_InviteJoinButton" xml:space="preserve">
+    <value>Unisciti</value>
+  </data>
   <data name="Play_InviteHint" xml:space="preserve">
     <value>Incolla qui l'invito:</value>
   </data>

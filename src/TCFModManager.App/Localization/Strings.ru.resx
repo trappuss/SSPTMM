@@ -10241,6 +10241,9 @@
   <data name="Play_InviteTitle" xml:space="preserve">
     <value>Вход по приглашению</value>
   </data>
+  <data name="Play_InviteJoinButton" xml:space="preserve">
+    <value>Присоединиться</value>
+  </data>
   <data name="Play_InviteHint" xml:space="preserve">
     <value>Вставить приглашение сюда:</value>
   </data>

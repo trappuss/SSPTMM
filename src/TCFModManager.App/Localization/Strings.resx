@@ -12223,6 +12223,10 @@ No keeps this group under its old name.</value>
     <value>Join from an invite</value>
     <comment>Title of the Join from an invite dialog.</comment>
   </data>
+  <data name="Play_InviteJoinButton" xml:space="preserve">
+    <value>Join</value>
+    <comment>Green button of the Join from an invite dialog: tries the invite's addresses and picks the server.</comment>
+  </data>
   <data name="Play_InviteHint" xml:space="preserve">
     <value>Paste the invite here:</value>
     <comment>Label over the dialog's text box.</comment>

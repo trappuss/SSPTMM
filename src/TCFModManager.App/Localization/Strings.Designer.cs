@@ -3217,6 +3217,7 @@ internal static class Strings
     internal static string Play_InviteJoin => LocalizationService.Get("Play_InviteJoin");
     internal static string Play_InviteJoinToolTip => LocalizationService.Get("Play_InviteJoinToolTip");
     internal static string Play_InviteTitle => LocalizationService.Get("Play_InviteTitle");
+    internal static string Play_InviteJoinButton => LocalizationService.Get("Play_InviteJoinButton");
     internal static string Play_InviteHint => LocalizationService.Get("Play_InviteHint");
     internal static string Play_InviteNoAddress => LocalizationService.Get("Play_InviteNoAddress");
     internal static string Play_InviteTrying => LocalizationService.Get("Play_InviteTrying");

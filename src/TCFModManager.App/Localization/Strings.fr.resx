@@ -9806,6 +9806,9 @@ Non garde ce groupe sous son ancien nom.</value>
   <data name="Play_InviteTitle" xml:space="preserve">
     <value>Rejoindre depuis une invitation</value>
   </data>
+  <data name="Play_InviteJoinButton" xml:space="preserve">
+    <value>Rejoindre</value>
+  </data>
   <data name="Play_InviteHint" xml:space="preserve">
     <value>Coller l'invitation ici :</value>
   </data>

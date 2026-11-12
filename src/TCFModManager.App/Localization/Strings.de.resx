@@ -9806,6 +9806,9 @@ Mit Nein behält diese Gruppe ihren alten Namen.</value>
   <data name="Play_InviteTitle" xml:space="preserve">
     <value>Per Einladung beitreten</value>
   </data>
+  <data name="Play_InviteJoinButton" xml:space="preserve">
+    <value>Beitreten</value>
+  </data>
   <data name="Play_InviteHint" xml:space="preserve">
     <value>Einladung hier einfügen:</value>
   </data>
