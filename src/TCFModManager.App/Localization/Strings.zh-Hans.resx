@@ -8833,20 +8833,32 @@ GitHub 上的文件未经 sp-mod.com 检查，请只安装你信任的作者的�
   <data name="Search_FoundPairTitleFormat" xml:space="preserve">
     <value>已找到：{0} 和 {1}</value>
   </data>
-  <data name="Search_FoundDownBody" xml:space="preserve">
-    <value>启用它时服务端无法启动，关闭后可以启动。</value>
+  <data name="Search_FoundDownFormat" xml:space="preserve">
+    <value>{0} 就是导致 SPT 服务端无法启动的模组。启用它时，服务端在启动过程中停止；关闭它后，服务端可以启动。</value>
   </data>
-  <data name="Search_FoundErrorsBody" xml:space="preserve">
-    <value>启用它时服务端日志中出现这些错误，关闭后没有。</value>
+  <data name="Search_FoundErrorsFormat" xml:space="preserve">
+    <value>{0} 就是造成这些错误的模组。启用它时，服务端日志中出现这些错误；关闭它后没有。</value>
   </data>
-  <data name="Search_FoundPairDownBody" xml:space="preserve">
-    <value>两者单独启用都正常。同时启用时服务端无法启动。</value>
+  <data name="Search_FoundPairDownFormat" xml:space="preserve">
+    <value>{0} 和 {1} 无法同时使用。两者单独启用都正常，但同时启用时 SPT 服务端无法启动。</value>
   </data>
-  <data name="Search_FoundPairErrorsBody" xml:space="preserve">
-    <value>两者单独启用都正常。同时启用时服务端日志中出现这些错误。</value>
+  <data name="Search_FoundPairErrorsFormat" xml:space="preserve">
+    <value>{0} 和 {1} 无法同时使用。两者单独启用都正常，但同时启用时服务端日志中出现这些错误。</value>
   </data>
-  <data name="Search_TriesFormat" xml:space="preserve">
-    <value>服务端启动次数：{0}。</value>
+  <data name="Search_WhatToDo" xml:space="preserve">
+    <value>处理方法：在“已订阅的物品”中关闭、更新或移除它，然后重新启动服务端。</value>
+  </data>
+  <data name="Search_WhatToDoPair" xml:space="preserve">
+    <value>处理方法：在“已订阅的物品”中关闭其中一个，或查找其中任一模组的更新，然后重新启动服务端。</value>
+  </data>
+  <data name="Search_SummaryFormat" xml:space="preserve">
+    <value>已检查 {0} 个服务端模组，启动服务端 {1} 次，用时 {2}。</value>
+  </data>
+  <data name="Search_DurationMinutesFormat" xml:space="preserve">
+    <value>{0} 分 {1} 秒</value>
+  </data>
+  <data name="Search_DurationSecondsFormat" xml:space="preserve">
+    <value>{0} 秒</value>
   </data>
   <data name="Search_ProfilesPutBack" xml:space="preserve">
     <value>这些启动更改了存档，因此已将存档恢复原状。</value>

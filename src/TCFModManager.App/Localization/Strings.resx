@@ -11584,25 +11584,41 @@ The profiles are copied first, and every mod is turned back on at the end. Don't
     <value>Found: {0} and {1}</value>
     <comment>Result title. {0}, {1}: the two mods.</comment>
   </data>
-  <data name="Search_FoundDownBody" xml:space="preserve">
-    <value>With it on, the server doesn't start. Without it, it does.</value>
-    <comment>Result text for one mod.</comment>
+  <data name="Search_FoundDownFormat" xml:space="preserve">
+    <value>{0} is the mod that keeps the SPT server from starting. With it on, the server stops while it starts. With it off, the server starts.</value>
+    <comment>Result summary for one mod. {0}: the mod.</comment>
   </data>
-  <data name="Search_FoundErrorsBody" xml:space="preserve">
-    <value>With it on, the server logs these errors. Without it, it doesn't.</value>
-    <comment>Result text for one mod; the log lines follow.</comment>
+  <data name="Search_FoundErrorsFormat" xml:space="preserve">
+    <value>{0} is the mod behind these errors. With it on, the server logs them. With it off, it doesn't.</value>
+    <comment>Result summary for one mod; the log lines follow. {0}: the mod.</comment>
   </data>
-  <data name="Search_FoundPairDownBody" xml:space="preserve">
-    <value>Each is fine without the other. With both on, the server doesn't start.</value>
-    <comment>Result text for two mods.</comment>
+  <data name="Search_FoundPairDownFormat" xml:space="preserve">
+    <value>{0} and {1} don't work together. Each is fine without the other, but with both on the SPT server doesn't start.</value>
+    <comment>Result summary for two mods. {0}, {1}: the mods.</comment>
   </data>
-  <data name="Search_FoundPairErrorsBody" xml:space="preserve">
-    <value>Each is fine without the other. With both on, the server logs these errors.</value>
-    <comment>Result text for two mods; the log lines follow.</comment>
+  <data name="Search_FoundPairErrorsFormat" xml:space="preserve">
+    <value>{0} and {1} don't work together. Each is fine without the other, but with both on the server logs these errors.</value>
+    <comment>Result summary for two mods; the log lines follow. {0}, {1}: the mods.</comment>
   </data>
-  <data name="Search_TriesFormat" xml:space="preserve">
-    <value>Starts of the server: {0}.</value>
-    <comment>Note under a result. {0}: how many times the server was started.</comment>
+  <data name="Search_WhatToDo" xml:space="preserve">
+    <value>What to do: turn it off, update it or remove it in Subscribed items, then start the server again.</value>
+    <comment>Under the summary for one mod: what to do next.</comment>
+  </data>
+  <data name="Search_WhatToDoPair" xml:space="preserve">
+    <value>What to do: turn one of them off in Subscribed items, or look for an update to either, then start the server again.</value>
+    <comment>Under the summary for two mods: what to do next.</comment>
+  </data>
+  <data name="Search_SummaryFormat" xml:space="preserve">
+    <value>Searched {0} server mods with {1} starts of the server, in {2}.</value>
+    <comment>Note under a result. {0}: server mods searched; {1}: times the server was started; {2}: how long it took (Search_Duration...).</comment>
+  </data>
+  <data name="Search_DurationMinutesFormat" xml:space="preserve">
+    <value>{0} min {1} s</value>
+    <comment>How long a search took. {0}: minutes; {1}: seconds.</comment>
+  </data>
+  <data name="Search_DurationSecondsFormat" xml:space="preserve">
+    <value>{0} s</value>
+    <comment>How long a search took, under a minute. {0}: seconds.</comment>
   </data>
   <data name="Search_ProfilesPutBack" xml:space="preserve">
     <value>The starts changed the profiles, so they were put back as they were.</value>

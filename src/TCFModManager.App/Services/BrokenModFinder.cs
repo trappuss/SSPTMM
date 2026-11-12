@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Text.Json;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -10,6 +11,23 @@ using TCFModManager.Core.Models;
 using TCFModManager.Core.Services;
 
 namespace TCFModManager.App.Services;
+
+/// <summary>How the last search ended, as worded then - kept in Data\broken_mod_result.json so it is
+/// still on the page after the app was closed, until Done clears it.</summary>
+public sealed class SavedSearchResult
+{
+    public string Title { get; set; } = "";
+
+    public string? Body { get; set; }
+
+    public string? Next { get; set; }
+
+    public string? Lines { get; set; }
+
+    public string? Note { get; set; }
+
+    public List<string[]> Found { get; set; } = [];
+}
 
 /// <summary>A mod a search ended on, with the button that shows it in Subscribed items.</summary>
 public sealed class FoundMod(string name, string title)
@@ -42,6 +60,10 @@ public sealed partial class BrokenModFinder : LocalizedViewModel
     private readonly BrokenModSessionStore _store = new();
     private CancellationTokenSource? _cancel;
 
+    private static string ResultFile => Path.Combine(AppPaths.DataDirectory, "broken_mod_result.json");
+
+    public BrokenModFinder() => LoadResult();
+
     /// <summary>Raised when a search ends and the mods are back - the logs have changed.</summary>
     public event EventHandler? Ended;
 
@@ -71,6 +93,10 @@ public sealed partial class BrokenModFinder : LocalizedViewModel
 
     [ObservableProperty]
     private string? _resultBody;
+
+    /// <summary>What to do about it, when a mod was found.</summary>
+    [ObservableProperty]
+    private string? _resultNext;
 
     [ObservableProperty]
     private string? _resultLines;
@@ -149,6 +175,7 @@ public sealed partial class BrokenModFinder : LocalizedViewModel
         ClearResult();
         StatusMessage = null;
         IsRunning = true;
+        var clock = System.Diagnostics.Stopwatch.StartNew();
         Progress = 0;
         ProgressText = Strings.Search_Preparing;
 
@@ -248,7 +275,12 @@ public sealed partial class BrokenModFinder : LocalizedViewModel
         }
         else if (result is not null)
         {
-            Show(result, mods, back);
+            Show(result, mods, back, clock.Elapsed);
+            SaveResult();
+
+            // A search takes minutes, and the window is seldom the one in front when it ends.
+            if (Application.Current?.MainWindow is not { IsActive: true })
+                UpdateToasts.ShowMessage("search", Strings.Search_Title, Sentences(ResultTitle, ResultBody));
         }
 
         InstalledViewModel.NotifyModsMoved();
@@ -283,9 +315,61 @@ public sealed partial class BrokenModFinder : LocalizedViewModel
     {
         ResultTitle = null;
         ResultBody = null;
+        ResultNext = null;
         ResultLines = null;
         ResultNote = null;
         Found.Clear();
+
+        try
+        {
+            File.Delete(ResultFile);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            AppLog.Debug("Search", $"couldn't clear the kept result: {ex.Message}");
+        }
+    }
+
+    private void SaveResult()
+    {
+        if (ResultTitle is null) return;
+
+        try
+        {
+            SafeFile.WriteText(ResultFile, JsonSerializer.Serialize(new SavedSearchResult
+            {
+                Title = ResultTitle,
+                Body = ResultBody,
+                Next = ResultNext,
+                Lines = ResultLines,
+                Note = ResultNote,
+                Found = [.. Found.Select(f => new[] { f.Name, f.Title })],
+            }));
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            AppLog.Warn("Search", $"couldn't keep the result: {ex.Message}");
+        }
+    }
+
+    private void LoadResult()
+    {
+        try
+        {
+            if (!File.Exists(ResultFile)) return;
+            if (JsonSerializer.Deserialize<SavedSearchResult>(File.ReadAllText(ResultFile)) is not { Title.Length: > 0 } saved) return;
+
+            ResultTitle = saved.Title;
+            ResultBody = saved.Body;
+            ResultNext = saved.Next;
+            ResultLines = saved.Lines;
+            ResultNote = saved.Note;
+            foreach (var mod in saved.Found.Where(f => f is { Length: 2 })) Found.Add(new FoundMod(mod[0], mod[1]));
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException)
+        {
+            AppLog.Debug("Search", $"couldn't read the kept result: {ex.Message}");
+        }
     }
 
     // ---- the end ---------------------------------------------------------------------------------
@@ -347,7 +431,7 @@ public sealed partial class BrokenModFinder : LocalizedViewModel
         return new PutBack(false, restored);
     }
 
-    private void Show(BrokenModResult result, IReadOnlyList<InstalledMod> mods, PutBack back)
+    private void Show(BrokenModResult result, IReadOnlyList<InstalledMod> mods, PutBack back, TimeSpan took)
     {
         var down = result.Symptom == BrokenModSymptom.ServerDoesNotStart;
 
@@ -372,12 +456,14 @@ public sealed partial class BrokenModFinder : LocalizedViewModel
                     var partner = mods[other];
                     Found.Add(new FoundMod(partner.Name, TitleOf(partner)));
                     ResultTitle = T(Strings.Search_FoundPairTitleFormat, TitleOf(culprit), TitleOf(partner));
-                    ResultBody = down ? Strings.Search_FoundPairDownBody : Strings.Search_FoundPairErrorsBody;
+                    ResultBody = T(down ? Strings.Search_FoundPairDownFormat : Strings.Search_FoundPairErrorsFormat, TitleOf(culprit), TitleOf(partner));
+                    ResultNext = Strings.Search_WhatToDoPair;
                 }
                 else
                 {
                     ResultTitle = T(Strings.Search_FoundTitleFormat, TitleOf(culprit));
-                    ResultBody = down ? Strings.Search_FoundDownBody : Strings.Search_FoundErrorsBody;
+                    ResultBody = T(down ? Strings.Search_FoundDownFormat : Strings.Search_FoundErrorsFormat, TitleOf(culprit));
+                    ResultNext = Strings.Search_WhatToDo;
                 }
 
                 break;
@@ -389,12 +475,16 @@ public sealed partial class BrokenModFinder : LocalizedViewModel
             .ToList();
         ResultLines = lines.Count > 0 ? string.Join("\n", lines) : null;
 
+        var time = took.TotalMinutes >= 1
+            ? T(Strings.Search_DurationMinutesFormat, (int)took.TotalMinutes, took.Seconds)
+            : T(Strings.Search_DurationSecondsFormat, Math.Max(1, (int)Math.Round(took.TotalSeconds)));
+
         ResultNote = Sentences(
-            T(Strings.Search_TriesFormat, result.Tries),
+            T(Strings.Search_SummaryFormat, mods.Count, result.Tries, time),
             back.AllBack ? Strings.Search_AllBack : null,
             back.ProfilesRestored ? Strings.Search_ProfilesPutBack : null);
 
-        AppLog.Info("Search", $"{result.Verdict} after {result.Tries} start(s): {ResultTitle}");
+        AppLog.Info("Search", $"{result.Verdict} after {result.Tries} start(s) in {took.TotalSeconds:0} s: {ResultTitle}");
     }
 
     // ---- a search cut short ----------------------------------------------------------------------

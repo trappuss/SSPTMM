@@ -2840,6 +2840,11 @@ From another mod manager (trappuss: "research it and see if there's anything cou
     line from `SPTarkov.Server.Core`), with the error under it and the mod of the first stack
     frame in a mod's code. The crash bar looks for that line, not any Critical one: a failed
     request is Critical too and the server goes on.
+  - The result is a box of its own: the mod in a 20px title, a sentence naming it and what it
+    does, what to do next, the lines, then mods searched, starts and the time taken. Kept in
+    `Data\broken_mod_result.json` until Done, so it outlives a restart (a first run on a real
+    install left the user looking at the findings list for which mod it was). A Windows
+    notification says it when the window is not in front.
   - Only server mods: the game half cannot be judged without someone playing, and turning game
     mods off changes what a profile can load.
   - Seen on screen, on a made-up install with a stand-in server that fails by its mod folders'

@@ -74,6 +74,11 @@ If that mod is fine by itself, the fault needs a second mod, and the search goes
 | It isn't one of the server mods | The same thing happens with every server mod off. |
 | Nothing wrong with the server | The server starts and logs no errors with every mod on. |
 
+The result is a box under the description: the mod's name, a sentence saying what it does to the
+server, what to do next, the log lines, and how many mods were searched in how many starts and how
+long that took. It stays there until you press **Done**, also after SSPTMM is restarted. If SSPTMM
+isn't the window in front when the search ends, a Windows notification says the result.
+
 **Show** opens the mod in Subscribed items, where it can be turned off, updated or removed.
 
 What it does and doesn't touch:

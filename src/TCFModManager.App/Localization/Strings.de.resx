@@ -9280,20 +9280,32 @@ Vorher werden die Profile kopiert, und am Ende sind alle Mods wieder an. Starte 
   <data name="Search_FoundPairTitleFormat" xml:space="preserve">
     <value>Gefunden: {0} und {1}</value>
   </data>
-  <data name="Search_FoundDownBody" xml:space="preserve">
-    <value>Ist sie an, startet der Server nicht. Ohne sie startet er.</value>
+  <data name="Search_FoundDownFormat" xml:space="preserve">
+    <value>{0} ist die Mod, die den Start des SPT-Servers verhindert. Ist sie an, bricht der Server beim Start ab. Ist sie aus, startet er.</value>
   </data>
-  <data name="Search_FoundErrorsBody" xml:space="preserve">
-    <value>Ist sie an, loggt der Server diese Fehler. Ohne sie nicht.</value>
+  <data name="Search_FoundErrorsFormat" xml:space="preserve">
+    <value>{0} ist die Mod hinter diesen Fehlern. Ist sie an, loggt der Server sie. Ist sie aus, nicht.</value>
   </data>
-  <data name="Search_FoundPairDownBody" xml:space="preserve">
-    <value>Jede funktioniert ohne die andere. Sind beide an, startet der Server nicht.</value>
+  <data name="Search_FoundPairDownFormat" xml:space="preserve">
+    <value>{0} und {1} vertragen sich nicht. Jede funktioniert ohne die andere, aber wenn beide an sind, startet der SPT-Server nicht.</value>
   </data>
-  <data name="Search_FoundPairErrorsBody" xml:space="preserve">
-    <value>Jede funktioniert ohne die andere. Sind beide an, loggt der Server diese Fehler.</value>
+  <data name="Search_FoundPairErrorsFormat" xml:space="preserve">
+    <value>{0} und {1} vertragen sich nicht. Jede funktioniert ohne die andere, aber wenn beide an sind, loggt der Server diese Fehler.</value>
   </data>
-  <data name="Search_TriesFormat" xml:space="preserve">
-    <value>Serverstarts: {0}.</value>
+  <data name="Search_WhatToDo" xml:space="preserve">
+    <value>Was tun: Unter „Abonnierte Inhalte“ ausschalten, aktualisieren oder entfernen, dann den Server neu starten.</value>
+  </data>
+  <data name="Search_WhatToDoPair" xml:space="preserve">
+    <value>Was tun: Unter „Abonnierte Inhalte“ eine der beiden ausschalten oder nach einem Update für eine der beiden suchen, dann den Server neu starten.</value>
+  </data>
+  <data name="Search_SummaryFormat" xml:space="preserve">
+    <value>{0} Server-Mods mit {1} Serverstarts durchsucht, in {2}.</value>
+  </data>
+  <data name="Search_DurationMinutesFormat" xml:space="preserve">
+    <value>{0} Min. {1} Sek.</value>
+  </data>
+  <data name="Search_DurationSecondsFormat" xml:space="preserve">
+    <value>{0} Sek.</value>
   </data>
   <data name="Search_ProfilesPutBack" xml:space="preserve">
     <value>Die Starts haben die Profile verändert, daher wurden sie wiederhergestellt.</value>

@@ -9718,20 +9718,32 @@
   <data name="Search_FoundPairTitleFormat" xml:space="preserve">
     <value>Найдено: {0} и {1}</value>
   </data>
-  <data name="Search_FoundDownBody" xml:space="preserve">
-    <value>С ним сервер не запускается. Без него - запускается.</value>
+  <data name="Search_FoundDownFormat" xml:space="preserve">
+    <value>{0} - мод, который не даёт серверу SPT запуститься. Когда он включён, сервер останавливается при запуске. Когда выключен, сервер запускается.</value>
   </data>
-  <data name="Search_FoundErrorsBody" xml:space="preserve">
-    <value>С ним сервер пишет эти ошибки. Без него - нет.</value>
+  <data name="Search_FoundErrorsFormat" xml:space="preserve">
+    <value>{0} - мод, из-за которого появляются эти ошибки. Когда он включён, сервер их пишет. Когда выключен - нет.</value>
   </data>
-  <data name="Search_FoundPairDownBody" xml:space="preserve">
-    <value>Каждый работает без другого. Когда включены оба, сервер не запускается.</value>
+  <data name="Search_FoundPairDownFormat" xml:space="preserve">
+    <value>{0} и {1} не работают вместе. Каждый работает без другого, но когда включены оба, сервер SPT не запускается.</value>
   </data>
-  <data name="Search_FoundPairErrorsBody" xml:space="preserve">
-    <value>Каждый работает без другого. Когда включены оба, сервер пишет эти ошибки.</value>
+  <data name="Search_FoundPairErrorsFormat" xml:space="preserve">
+    <value>{0} и {1} не работают вместе. Каждый работает без другого, но когда включены оба, сервер пишет эти ошибки.</value>
   </data>
-  <data name="Search_TriesFormat" xml:space="preserve">
-    <value>Запусков сервера: {0}.</value>
+  <data name="Search_WhatToDo" xml:space="preserve">
+    <value>Что делать: выключить, обновить или удалить его в разделе «Ваши подписки», затем снова запустить сервер.</value>
+  </data>
+  <data name="Search_WhatToDoPair" xml:space="preserve">
+    <value>Что делать: выключить один из них в разделе «Ваши подписки» или поискать обновление для любого из них, затем снова запустить сервер.</value>
+  </data>
+  <data name="Search_SummaryFormat" xml:space="preserve">
+    <value>Проверено серверных модов: {0}, запусков сервера: {1}, время: {2}.</value>
+  </data>
+  <data name="Search_DurationMinutesFormat" xml:space="preserve">
+    <value>{0} мин {1} с</value>
+  </data>
+  <data name="Search_DurationSecondsFormat" xml:space="preserve">
+    <value>{0} с</value>
   </data>
   <data name="Search_ProfilesPutBack" xml:space="preserve">
     <value>Запуски изменили профили, поэтому они возвращены в прежнее состояние.</value>

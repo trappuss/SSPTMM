@@ -9280,20 +9280,32 @@ Les profils sont copiés d'abord, et tous les mods sont réactivés à la fin. N
   <data name="Search_FoundPairTitleFormat" xml:space="preserve">
     <value>Trouvé : {0} et {1}</value>
   </data>
-  <data name="Search_FoundDownBody" xml:space="preserve">
-    <value>Activé, le serveur ne démarre pas. Sans lui, il démarre.</value>
+  <data name="Search_FoundDownFormat" xml:space="preserve">
+    <value>{0} est le mod qui empêche le serveur SPT de démarrer. Activé, le serveur s'arrête pendant son démarrage. Désactivé, le serveur démarre.</value>
   </data>
-  <data name="Search_FoundErrorsBody" xml:space="preserve">
-    <value>Activé, le serveur journalise ces erreurs. Sans lui, non.</value>
+  <data name="Search_FoundErrorsFormat" xml:space="preserve">
+    <value>{0} est le mod à l'origine de ces erreurs. Activé, le serveur les journalise. Désactivé, non.</value>
   </data>
-  <data name="Search_FoundPairDownBody" xml:space="preserve">
-    <value>Chacun fonctionne sans l'autre. Avec les deux activés, le serveur ne démarre pas.</value>
+  <data name="Search_FoundPairDownFormat" xml:space="preserve">
+    <value>{0} et {1} ne fonctionnent pas ensemble. Chacun fonctionne sans l'autre, mais avec les deux activés le serveur SPT ne démarre pas.</value>
   </data>
-  <data name="Search_FoundPairErrorsBody" xml:space="preserve">
-    <value>Chacun fonctionne sans l'autre. Avec les deux activés, le serveur journalise ces erreurs.</value>
+  <data name="Search_FoundPairErrorsFormat" xml:space="preserve">
+    <value>{0} et {1} ne fonctionnent pas ensemble. Chacun fonctionne sans l'autre, mais avec les deux activés le serveur journalise ces erreurs.</value>
   </data>
-  <data name="Search_TriesFormat" xml:space="preserve">
-    <value>Démarrages du serveur : {0}.</value>
+  <data name="Search_WhatToDo" xml:space="preserve">
+    <value>À faire : le désactiver, le mettre à jour ou le supprimer dans « Articles faisant l'objet d'un abonnement », puis redémarrer le serveur.</value>
+  </data>
+  <data name="Search_WhatToDoPair" xml:space="preserve">
+    <value>À faire : désactiver l'un des deux dans « Articles faisant l'objet d'un abonnement », ou chercher une mise à jour pour l'un ou l'autre, puis redémarrer le serveur.</value>
+  </data>
+  <data name="Search_SummaryFormat" xml:space="preserve">
+    <value>{0} mods serveur examinés en {1} démarrages du serveur, en {2}.</value>
+  </data>
+  <data name="Search_DurationMinutesFormat" xml:space="preserve">
+    <value>{0} min {1} s</value>
+  </data>
+  <data name="Search_DurationSecondsFormat" xml:space="preserve">
+    <value>{0} s</value>
   </data>
   <data name="Search_ProfilesPutBack" xml:space="preserve">
     <value>Les démarrages ont modifié les profils, ils ont donc été remis comme avant.</value>

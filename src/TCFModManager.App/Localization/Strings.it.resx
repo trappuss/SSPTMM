@@ -9280,20 +9280,32 @@ Prima vengono copiati i profili, e alla fine tutti i mod vengono riattivati. Non
   <data name="Search_FoundPairTitleFormat" xml:space="preserve">
     <value>Trovato: {0} e {1}</value>
   </data>
-  <data name="Search_FoundDownBody" xml:space="preserve">
-    <value>Con questo mod attivo il server non si avvia. Senza, si avvia.</value>
+  <data name="Search_FoundDownFormat" xml:space="preserve">
+    <value>{0} è il mod che impedisce al server SPT di avviarsi. Con questo mod attivo il server si ferma durante l'avvio. Disattivato, il server si avvia.</value>
   </data>
-  <data name="Search_FoundErrorsBody" xml:space="preserve">
-    <value>Con questo mod attivo il server registra questi errori. Senza, no.</value>
+  <data name="Search_FoundErrorsFormat" xml:space="preserve">
+    <value>{0} è il mod all'origine di questi errori. Con questo mod attivo il server li registra. Disattivato, no.</value>
   </data>
-  <data name="Search_FoundPairDownBody" xml:space="preserve">
-    <value>Ognuno funziona senza l'altro. Con entrambi attivi il server non si avvia.</value>
+  <data name="Search_FoundPairDownFormat" xml:space="preserve">
+    <value>{0} e {1} non funzionano insieme. Ognuno funziona senza l'altro, ma con entrambi attivi il server SPT non si avvia.</value>
   </data>
-  <data name="Search_FoundPairErrorsBody" xml:space="preserve">
-    <value>Ognuno funziona senza l'altro. Con entrambi attivi il server registra questi errori.</value>
+  <data name="Search_FoundPairErrorsFormat" xml:space="preserve">
+    <value>{0} e {1} non funzionano insieme. Ognuno funziona senza l'altro, ma con entrambi attivi il server registra questi errori.</value>
   </data>
-  <data name="Search_TriesFormat" xml:space="preserve">
-    <value>Avvii del server: {0}.</value>
+  <data name="Search_WhatToDo" xml:space="preserve">
+    <value>Cosa fare: disattivarlo, aggiornarlo o rimuoverlo in «Oggetti sottoscritti», poi riavviare il server.</value>
+  </data>
+  <data name="Search_WhatToDoPair" xml:space="preserve">
+    <value>Cosa fare: disattivarne uno in «Oggetti sottoscritti», o cercare un aggiornamento per uno dei due, poi riavviare il server.</value>
+  </data>
+  <data name="Search_SummaryFormat" xml:space="preserve">
+    <value>{0} mod server esaminati con {1} avvii del server, in {2}.</value>
+  </data>
+  <data name="Search_DurationMinutesFormat" xml:space="preserve">
+    <value>{0} min {1} s</value>
+  </data>
+  <data name="Search_DurationSecondsFormat" xml:space="preserve">
+    <value>{0} s</value>
   </data>
   <data name="Search_ProfilesPutBack" xml:space="preserve">
     <value>Gli avvii hanno modificato i profili, che sono stati quindi ripristinati.</value>

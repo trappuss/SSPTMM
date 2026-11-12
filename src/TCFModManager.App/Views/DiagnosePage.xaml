@@ -124,22 +124,39 @@
                         </StackPanel>
 
                         <!-- How the last search ended. -->
-                        <StackPanel Margin="28,10,0,0" Visibility="{Binding HasResult, Converter={StaticResource BoolToVisibility}}">
+                        <Border
+                            Margin="28,12,0,0"
+                            Padding="14,12"
+                            CornerRadius="4"
+                            BorderThickness="3,0,0,0"
+                            BorderBrush="{DynamicResource AccentTextFillColorPrimaryBrush}"
+                            Background="{DynamicResource ControlFillColorInputActiveBrush}"
+                            Visibility="{Binding HasResult, Converter={StaticResource BoolToVisibility}}">
+                        <StackPanel>
                             <TextBlock
+                                FontSize="20"
                                 FontWeight="SemiBold"
                                 TextWrapping="Wrap"
                                 Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"
                                 Text="{Binding ResultTitle}" />
                             <TextBlock
-                                Margin="0,4,0,0"
+                                Margin="0,6,0,0"
+                                FontSize="14"
                                 TextWrapping="Wrap"
-                                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                Foreground="{DynamicResource TextFillColorPrimaryBrush}"
                                 Text="{Binding ResultBody}" />
+                            <TextBlock
+                                Margin="0,6,0,0"
+                                FontSize="14"
+                                TextWrapping="Wrap"
+                                Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                Text="{Binding ResultNext}"
+                                Visibility="{Binding ResultNext, Converter={StaticResource NullToCollapsed}}" />
                             <Border
                                 Margin="0,8,0,0"
                                 Padding="8,6"
                                 CornerRadius="3"
-                                Background="{DynamicResource ControlFillColorInputActiveBrush}"
+                                Background="{DynamicResource ControlFillColorDefaultBrush}"
                                 Visibility="{Binding ResultLines, Converter={StaticResource NullToCollapsed}}">
                                 <TextBlock
                                     FontFamily="Consolas"
@@ -178,6 +195,7 @@
                                     Command="{Binding DismissCommand}" />
                             </WrapPanel>
                         </StackPanel>
+                        </Border>
                     </StackPanel>
                 </ui:Card>
 
