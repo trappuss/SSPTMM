@@ -9796,7 +9796,7 @@ Non garde ce groupe sous son ancien nom.</value>
     <value>Mods sur {0}</value>
   </data>
   <data name="Play_RemoteModsMatchFormat" xml:space="preserve">
-    <value>Les mods d'ici correspondent à {0} : ses {1} mods serveur sont installés dans la même version.</value>
+    <value>Les mods d'ici correspondent à {0} : chaque mod serveur chargé ({1}) est installé dans la même version.</value>
   </data>
   <data name="Play_RemoteModsManualFormat" xml:space="preserve">
     <value>{0} utilise des mods serveur introuvables sur sp-mod.com ; ils ne peuvent être ni comparés ni installés d'ici : {1}.</value>

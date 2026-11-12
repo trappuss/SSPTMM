@@ -12198,7 +12198,7 @@ No keeps this group under its old name.</value>
     <comment>Name of the collection made from another PC's server's mods. {0}: the server's name.</comment>
   </data>
   <data name="Play_RemoteModsMatchFormat" xml:space="preserve">
-    <value>The mods here match {0}: all {1} of its server mods are installed in the same version.</value>
+    <value>The mods here match {0}: every server mod it has loaded ({1}) is installed in the same version.</value>
     <comment>Play status: nothing to do. {0}: the server; {1}: how many server mods it has loaded.</comment>
   </data>
   <data name="Play_RemoteModsManualFormat" xml:space="preserve">

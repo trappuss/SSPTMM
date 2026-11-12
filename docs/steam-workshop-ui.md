@@ -2940,6 +2940,21 @@ From another mod manager (trappuss: "research it and see if there's anything cou
     server's `"ip"` only, kept the file beside it and left the comment - and the firewall line.
     Not seen: the tick boxes being ticked, and anything that needs a second server, since a
     server on this PC's own addresses is refused as "another PC's".
+  - **Run against a real Fika** (2026-11-12): a private copy of a 4.1.6 server with Fika's server
+    mod 2.4.2 from its GitHub release, on a loopback port, and a real catalogue server mod (FIR
+    Fence Purchases) beside it. Asked through `SptLauncherApi`: the mods list (Fika is ModGuid
+    "Fika", named "server"), a profile registered and downloaded with its id as `PHPSESSID`, an
+    unknown id answered with nothing. `fika.jsonc` as Fika writes it parsed, each switch found
+    once, a changed switch served back by `/fika/client/config` after a restart. On screen, with
+    a debug build that takes this PC's addresses for another PC's (`SSPTMM_TEST_LOCAL_AS_REMOTE`,
+    compiled out of release): Join from an invite, the server's profiles, "1 to install", Review
+    and install through to the mod downloaded and placed, the line turning to "match", Fika's two
+    versions said, the profile copy written, the menu's Compare. On the host's side: the card on
+    the real install, a switch ticked into the real file, the headless client started once the
+    server Start server launched was up. The five lines the Diagnose cards read are in
+    Fika.Core.dll 2.4.6 word for word. What it showed, kept as tests: `ForkFikaRealShapesTests`.
+  - Still not run: a game with Fika's plugin joining (the cards' lines in a real log, a raid's
+    profile copy after the game closes), a server on another PC, and the two notifications.
   - Not known: the host's game plugins (the server takes `/singleplayer/clientmods` from a game,
     it does not hand them out), and which server mods a player needs no part of.
   - The answer's shape is read from the 4.1.6 server's code (`LauncherV2Callbacks.Mods`, routed

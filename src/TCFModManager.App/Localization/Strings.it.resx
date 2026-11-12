@@ -9796,7 +9796,7 @@ No mantiene questo gruppo con il suo vecchio nome.</value>
     <value>Mod su {0}</value>
   </data>
   <data name="Play_RemoteModsMatchFormat" xml:space="preserve">
-    <value>I mod qui corrispondono a {0}: tutti i suoi {1} mod server sono installati nella stessa versione.</value>
+    <value>I mod qui corrispondono a {0}: ogni mod server caricato ({1}) è installato nella stessa versione.</value>
   </data>
   <data name="Play_RemoteModsManualFormat" xml:space="preserve">
     <value>{0} usa mod server che SSPTMM non trova su sp-mod.com, quindi da qui non si possono confrontare né installare: {1}.</value>

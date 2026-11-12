@@ -10234,7 +10234,7 @@
     <value>Моды на {0}</value>
   </data>
   <data name="Play_RemoteModsMatchFormat" xml:space="preserve">
-    <value>Моды здесь совпадают с {0}: все {1} его серверных модов установлены в той же версии.</value>
+    <value>Моды здесь совпадают с {0}: каждый загруженный серверный мод ({1}) установлен в той же версии.</value>
   </data>
   <data name="Play_RemoteModsManualFormat" xml:space="preserve">
     <value>На {0} есть серверные моды, которых SSPTMM не находит на sp-mod.com, поэтому отсюда их нельзя ни сравнить, ни установить: {1}.</value>

@@ -165,6 +165,11 @@ public sealed class SptLauncherApi : IDisposable
     /// </summary>
     public static bool IsLocalAddress(string address)
     {
+#if DEBUG
+        // Fork (1.4.7), debug builds only: a server on this PC stands in for another PC's, so the
+        // Play page's remote paths can be run against one. Not in a release build.
+        if (Environment.GetEnvironmentVariable("SSPTMM_TEST_LOCAL_AS_REMOTE") == "1") return false;
+#endif
         var host = address;
         if (host.StartsWith('[')) host = host[1..Math.Max(1, host.IndexOf(']'))];
         else if (host.IndexOf(':') is var colon and >= 0) host = host[..colon];

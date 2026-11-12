@@ -9796,7 +9796,7 @@ Mit Nein behält diese Gruppe ihren alten Namen.</value>
     <value>Mods auf {0}</value>
   </data>
   <data name="Play_RemoteModsMatchFormat" xml:space="preserve">
-    <value>Die Mods hier passen zu {0}: Alle {1} Server-Mods sind in derselben Version installiert.</value>
+    <value>Die Mods hier passen zu {0}: Jede geladene Server-Mod ({1}) ist in derselben Version installiert.</value>
   </data>
   <data name="Play_RemoteModsManualFormat" xml:space="preserve">
     <value>{0} nutzt Server-Mods, die SSPTMM auf sp-mod.com nicht findet. Sie lassen sich von hier aus weder vergleichen noch installieren: {1}.</value>

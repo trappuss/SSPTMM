@@ -9349,7 +9349,7 @@ GitHub 上的文件未经 sp-mod.com 检查，请只安装你信任的作者的�
     <value>{0} 上的模组</value>
   </data>
   <data name="Play_RemoteModsMatchFormat" xml:space="preserve">
-    <value>这里的模组与 {0} 一致：它的 {1} 个服务端模组都已安装且版本相同。</value>
+    <value>这里的模组与 {0} 一致：它加载的每个服务端模组（{1} 个）都已安装且版本相同。</value>
   </data>
   <data name="Play_RemoteModsManualFormat" xml:space="preserve">
     <value>{0} 使用了 SSPTMM 在 sp-mod.com 上找不到的服务端模组，无法在这里比较或安装：{1}。</value>

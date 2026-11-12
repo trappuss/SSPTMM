@@ -305,8 +305,9 @@ public partial class PlayViewModel
 
         if (plan.IsNoOp)
         {
-            ServerModsNote = string.Join(" ", new[] { manual ?? Text(Strings.Play_RemoteModsMatchFormat, server.Title, mods.Count), fika }
-                .Where(part => part is not null));
+            // A server with Fika and nothing else has no mods to match: only Fika's line is said.
+            var match = manual ?? (mods.Count > 0 ? Text(Strings.Play_RemoteModsMatchFormat, server.Title, mods.Count) : null);
+            ServerModsNote = string.Join(" ", new[] { match, fika }.Where(part => part is not null)) is { Length: > 0 } note ? note : null;
             return true;
         }
 

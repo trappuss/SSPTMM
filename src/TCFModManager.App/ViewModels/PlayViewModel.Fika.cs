@@ -346,10 +346,18 @@ public partial class PlayViewModel
     {
         if (_fikaHostAddresses.Count == 0 || AppServices.SptEnvironment.InstallPath is not { Length: > 0 } install) return;
 
-        var fika = await Task.Run(() => InstalledModScanner.Scan(install)
-            .Where(m => m.Target == InstalledModTarget.Server && !m.IsDisabled)
-            .FirstOrDefault(m => m.Name.StartsWith("fika", StringComparison.OrdinalIgnoreCase)
-                || m.AllGuids.Any(g => g.Contains("fika", StringComparison.OrdinalIgnoreCase)))?.Version);
+        // Fika's version as a friend has to match it: the game plugin's (com.fika.core), which is
+        // what they install. The server mod carries a number of its own (seen: plugin 2.4.6 beside
+        // server mod 2.4.2); it is given only when this PC has no plugin.
+        var fika = await Task.Run(() =>
+        {
+            var mods = InstalledModScanner.Scan(install).Where(m => !m.IsDisabled).ToList();
+            return mods.FirstOrDefault(m => m.Target == InstalledModTarget.Client
+                    && m.AllGuids.Any(g => g.Equals("com.fika.core", StringComparison.OrdinalIgnoreCase)))?.Version
+                ?? mods.FirstOrDefault(m => m.Target == InstalledModTarget.Server
+                    && (m.Name.StartsWith("fika", StringComparison.OrdinalIgnoreCase)
+                        || m.AllGuids.Any(g => g.Equals("Fika", StringComparison.OrdinalIgnoreCase))))?.Version;
+        });
 
         // The mods as a share code, when it fits a chat message: with it a friend's SSPTMM gets the
         // game-only mods too, which the server cannot tell it. 1500 characters is HUNCH.
