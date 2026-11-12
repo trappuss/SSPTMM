@@ -47,7 +47,7 @@ public static class BrokenModSearch
     public static async Task<BrokenModResult> RunAsync(
         int mods,
         Func<int, IEnumerable<int>> needs,
-        Func<IReadOnlyList<int>, CancellationToken, Task<ServerTrialOutcome>> tryWith,
+        Func<IReadOnlyList<int>, bool, CancellationToken, Task<ServerTrialOutcome>> tryWith,
         IProgress<BrokenModProgress>? progress = null,
         CancellationToken ct = default)
     {
@@ -55,24 +55,28 @@ public static class BrokenModSearch
 
         var tries = 0;
 
-        async Task<ServerTrialOutcome> Try(IReadOnlyList<int> on, int left)
+        // errors: whether what a server that came up logs is wanted - when it is not, the try
+        // need not wait for it.
+        async Task<ServerTrialOutcome> Try(IReadOnlyList<int> on, int left, bool errors)
         {
             ct.ThrowIfCancellationRequested();
             tries++;
             progress?.Report(new BrokenModProgress(tries, tries + left, on.Count, mods));
-            return await tryWith(on, ct).ConfigureAwait(false);
+            return await tryWith(on, errors, ct).ConfigureAwait(false);
         }
 
         var all = Enumerable.Range(0, mods).ToList();
         var search = new ModBisect(mods, needs);
 
-        var first = await Try(all, 1 + search.TriesLeft).ConfigureAwait(false);
+        var first = await Try(all, 1 + search.TriesLeft, errors: true).ConfigureAwait(false);
         if (first.Started && first.Errors.Count == 0)
             return new BrokenModResult(BrokenModVerdict.NothingWrong, null, null, null, [], tries);
 
         var symptom = first.Started ? BrokenModSymptom.ServerLogsErrors : BrokenModSymptom.ServerDoesNotStart;
 
-        var none = await Try([], search.TriesLeft).ConfigureAwait(false);
+        var errorsMatter = symptom == BrokenModSymptom.ServerLogsErrors;
+
+        var none = await Try([], search.TriesLeft, errorsMatter).ConfigureAwait(false);
         var theirs = first.Errors.Select(ServerTrial.Signature)
             .Except(none.Errors.Select(ServerTrial.Signature), StringComparer.Ordinal)
             .ToHashSet(StringComparer.Ordinal);
@@ -94,7 +98,7 @@ public static class BrokenModSearch
 
         while (search.Next is { } on)
         {
-            var outcome = await Try(on, search.TriesLeft - 1).ConfigureAwait(false);
+            var outcome = await Try(on, search.TriesLeft - 1, errorsMatter).ConfigureAwait(false);
             var failed = Fails(outcome);
 
             if (failed && on.Count <= fewest)
@@ -140,6 +144,10 @@ public sealed class BrokenModSession
 
     /// <summary>The searched mods' folders, as their paths read when enabled - all on when it began.</summary>
     public List<string> Mods { get; set; } = [];
+
+    /// <summary>How long each of the server's log files was when it began (ServerTrial.LogLengths),
+    /// so the search's lines can be taken out again also by the start that finds it cut short.</summary>
+    public Dictionary<string, long>? Logs { get; set; }
 }
 
 //

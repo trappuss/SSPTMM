@@ -2835,7 +2835,13 @@ From another mod manager (trappuss: "research it and see if there's anything cou
   - The search's starts are cut back out of the server's logs at the end (`ServerTrial.TrimLogs`:
     each file to the length it had, new files deleted). Left in, the last of them - most mods off
     - was the "last run" Diagnose logs read, and every other mod was reported as not running (seen
-    on a real install with 70 server mods).
+    on a real install with 70 server mods). The lengths are kept in the session file, so the start
+    that finds a search cut short trims too - but not when the server was found running then, since
+    that run may be the user's own.
+  - Audit: a try waits the three seconds after the port opens only when errors are what is wrong
+    (a server that does not start is answered by the port alone), and looks every 200 ms, not 500.
+    Any exception in the search or in putting back now ends in the mods going back on, and the
+    crash watcher's look catches everything; it reads the settings off the UI thread.
   - Diagnose logs has a card for SPT's own giving up (`LogFindingKind.ServerStopped`, the Critical
     line from `SPTarkov.Server.Core`), with the error under it and the mod of the first stack
     frame in a mod's code. The crash bar looks for that line, not any Critical one: a failed
@@ -2872,7 +2878,7 @@ From another mod manager (trappuss: "research it and see if there's anything cou
 - Round 58: 30 minutes between reads of a repository's releases, four archives as the most offered
   as buttons, and the GitHub chip's shades (#C6D4DF at 20% and 33%). For Find the broken mod: five
   minutes for a server to come up, three seconds after its port opens for mods to finish logging,
-  and twenty seconds for its process to appear or go. For the crash bar: that the game leaves
+  twenty seconds for its process to appear or go, and 200 ms between looks. For the crash bar: that the game leaves
   no fault code when it quits by itself (not seen with the real game), three seconds between
   looks, and thirty seconds after the app closes the game.
 

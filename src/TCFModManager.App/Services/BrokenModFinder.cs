@@ -194,7 +194,6 @@ public sealed partial class BrokenModFinder : LocalizedViewModel
         string? problem = null;
         var stopped = false;
         ProfileBackup? profiles = null;
-        Dictionary<string, long>? logs = null;
 
         try
         {
@@ -209,8 +208,8 @@ public sealed partial class BrokenModFinder : LocalizedViewModel
             }
             else
             {
+                session.Logs = ServerTrial.LogLengths(install);
                 _store.Save(session);
-                logs = ServerTrial.LogLengths(install);
                 AppLog.Info("Search", $"searching {mods.Count} server mod(s) of {install}");
 
                 var progress = new Progress<BrokenModProgress>(p =>
@@ -219,13 +218,13 @@ public sealed partial class BrokenModFinder : LocalizedViewModel
                     ProgressText = T(Strings.Search_ProgressFormat, p.Try, p.About, p.ModsOn, p.Mods);
                 });
 
-                result = await Task.Run(() => BrokenModSearch.RunAsync(mods.Count, needs, async (on, ct) =>
+                result = await Task.Run(() => BrokenModSearch.RunAsync(mods.Count, needs, async (on, errors, ct) =>
                 {
                     var wanted = on.Select(i => session.Mods[i]).ToHashSet(StringComparer.OrdinalIgnoreCase);
                     var moved = BrokenModSessionStore.Set(session, wanted);
                     if (moved.Failed.Count > 0) throw new SearchFailed(Failures(moved.Failed));
 
-                    var outcome = await ServerTrial.RunAsync(install, ct).ConfigureAwait(false);
+                    var outcome = await ServerTrial.RunAsync(install, ct, settle: errors).ConfigureAwait(false);
                     AppLog.Info("Search", $"{on.Count} on: {(outcome.Started ? "started" : outcome.TimedOut ? "timed out" : "did not start")}, {outcome.Errors.Count} error(s)");
                     return outcome;
                 }, progress, cancel.Token));
@@ -247,15 +246,17 @@ public sealed partial class BrokenModFinder : LocalizedViewModel
         {
             problem = ex.Message;
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        catch (Exception ex)
         {
+            // Whatever it was: the mods still go back on below.
+            AppLog.Error("Search", $"the search failed: {ex}");
             problem = ex.Message;
         }
 
         ProgressText = Strings.Search_PuttingBack;
         Progress = 100;
 
-        var back = await PutBackAsync(session, profiles == NoProfiles ? null : profiles, logs);
+        var back = await PutBackAsync(session, profiles == NoProfiles ? null : profiles, trimLogs: true);
 
         AppServices.DownloadQueue.IsPaused = queueWasPaused;
         _cancel = null;
@@ -378,8 +379,10 @@ public sealed partial class BrokenModFinder : LocalizedViewModel
 
     // Every mod of the session back on and, when the starts changed a profile, the profiles as
     // they were. The session's file goes only when every mod is back.
-    private async Task<PutBack> PutBackAsync(
-        BrokenModSession session, ProfileBackup? profiles, IReadOnlyDictionary<string, long>? logs = null)
+    //
+    // trimLogs: whether what the server logged since the search began is its own. Not when the
+    // server was found running afterwards - that run may be the user's.
+    private async Task<PutBack> PutBackAsync(BrokenModSession session, ProfileBackup? profiles, bool trimLogs)
     {
         var (problem, restored) = await Task.Run(async () =>
         {
@@ -391,7 +394,7 @@ public sealed partial class BrokenModFinder : LocalizedViewModel
                 if (outcome.Failed.Count > 0) return (Failures(outcome.Failed), false);
 
                 // The search's own starts are not the server's last run: out of its log again.
-                if (logs is not null) ServerTrial.TrimLogs(session.InstallPath, logs);
+                if (trimLogs && session.Logs is { } logs) ServerTrial.TrimLogs(session.InstallPath, logs);
 
                 var changed = profiles is not null
                     && AppServices.ProfileBackups.BackupIfChanged(session.InstallPath, ProfileBackups.BeforeSearch) is not null;
@@ -411,8 +414,9 @@ public sealed partial class BrokenModFinder : LocalizedViewModel
             {
                 return (ModInstallProblems.Describe(ex), false);
             }
-            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidDataException)
+            catch (Exception ex)
             {
+                AppLog.Error("Search", $"putting back failed: {ex}");
                 return (ex.Message, false);
             }
         });
@@ -511,7 +515,9 @@ public sealed partial class BrokenModFinder : LocalizedViewModel
             return;
         }
 
-        var back = await PutBackAsync(session, null);
+        // Nothing of SPT runs, and the app was not there to see anything else start: the lines
+        // since are taken to be the search's.
+        var back = await PutBackAsync(session, null, trimLogs: true);
         SteamMessageBox.Show(
             back.AllBack ? T(Strings.Search_PutBackDoneFormat, left) : Sentences(InterruptedText, Strings.Search_InterruptedWhere),
             Strings.Search_Title);
@@ -548,7 +554,7 @@ public sealed partial class BrokenModFinder : LocalizedViewModel
         }
 
         var left = BrokenModSessionStore.TurnedOff(session);
-        var back = await PutBackAsync(session, null);
+        var back = await PutBackAsync(session, null, trimLogs: !serverOnly);
         if (back.AllBack) StatusMessage = T(Strings.Search_PutBackDoneFormat, left);
 
         InstalledViewModel.NotifyModsMoved();

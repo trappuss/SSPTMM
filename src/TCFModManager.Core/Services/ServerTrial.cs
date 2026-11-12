@@ -42,9 +42,12 @@ public static partial class ServerTrial
     // HUNCH: for the process to be found after it was started, and to go after it was stopped.
     private static readonly TimeSpan ProcessGrace = TimeSpan.FromSeconds(20);
 
-    private static readonly TimeSpan Poll = TimeSpan.FromMilliseconds(500);
+    // HUNCH: a look costs a list of processes and of listening ports - little next to a server start.
+    private static readonly TimeSpan Poll = TimeSpan.FromMilliseconds(200);
 
-    public static async Task<ServerTrialOutcome> RunAsync(string installPath, CancellationToken ct = default)
+    /// <param name="settle">Whether to wait, once the server is up, for what its mods log just
+    /// after. Not needed when all that is asked is whether it comes up.</param>
+    public static async Task<ServerTrialOutcome> RunAsync(string installPath, CancellationToken ct = default, bool settle = true)
     {
         var info = SptLaunchService.Describe(installPath, SptLaunchTarget.Server);
         if (info.IsRunning) throw new ServerTrialException(ServerTrialProblem.AlreadyRunning);
@@ -91,7 +94,7 @@ public static partial class ServerTrial
                 await Task.Delay(Poll, ct).ConfigureAwait(false);
             }
 
-            if (started) await Task.Delay(SettleAfterStart, ct).ConfigureAwait(false);
+            if (started && settle) await Task.Delay(SettleAfterStart, ct).ConfigureAwait(false);
         }
         finally
         {

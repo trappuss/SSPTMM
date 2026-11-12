@@ -92,8 +92,9 @@ What it does and doesn't touch:
   the copy is put back, since nothing was played in between.
 - It won't start while the server or game is running, or while downloads are queued, and downloads
   are paused until it is done. Don't start SPT or change mods while it runs.
-- If SSPTMM is closed or crashes part way, the next start turns the mods back on and says so. If the
-  server is still running then, the page shows **Turn them back on**, which stops it first.
+- If SSPTMM is closed or crashes part way, the next start turns the mods back on, takes the
+  search's lines out of the server log and says so. If the server is still running then, the page
+  shows **Turn them back on**, which stops it first and leaves the log as it is.
 - Errors the server logs even with every mod off (a profile problem, for example) are not looked for.
 - What the test starts wrote to the server's log is taken out again when the search ends, so the log
   still ends with your own last run and the cards above read that. (Not after a search that was cut

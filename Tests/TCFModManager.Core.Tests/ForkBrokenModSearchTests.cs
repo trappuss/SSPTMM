@@ -100,7 +100,7 @@ public class ForkBrokenModSearchTests : IDisposable
         new(LogKind.Server, "spt.log", 1, null, "Error", source, message, []);
 
     private static Task<BrokenModResult> Search(int mods, Func<IReadOnlyList<int>, ServerTrialOutcome> server) =>
-        BrokenModSearch.RunAsync(mods, _ => [], (on, _) => Task.FromResult(server(on)));
+        BrokenModSearch.RunAsync(mods, _ => [], (on, _, _) => Task.FromResult(server(on)));
 
     [Fact]
     public async Task A_server_that_starts_clean_has_nothing_wrong()
@@ -168,13 +168,39 @@ public class ForkBrokenModSearchTests : IDisposable
         var progress = new Collect(seen);
 
         var result = await BrokenModSearch.RunAsync(16, _ => [],
-            (on, _) => Task.FromResult(new ServerTrialOutcome(!on.Contains(9), false, [])), progress);
+            (on, _, _) => Task.FromResult(new ServerTrialOutcome(!on.Contains(9), false, [])), progress);
 
         Assert.Equal(result.Tries, seen.Count);
         Assert.Equal([.. Enumerable.Range(1, seen.Count)], seen.Select(p => p.Try));
         Assert.All(seen, p => Assert.True(p.About >= p.Try));
         Assert.Equal(16, seen[0].ModsOn);
         Assert.Equal(0, seen[1].ModsOn);
+    }
+
+    [Fact]
+    public async Task Errors_are_waited_for_only_when_they_are_what_is_wrong()
+    {
+        // The server does not start with mod 5 on: after the first try, coming up is the answer.
+        var asked = new List<bool>();
+        await BrokenModSearch.RunAsync(8, _ => [], (on, errors, _) =>
+        {
+            asked.Add(errors);
+            return Task.FromResult(new ServerTrialOutcome(!on.Contains(5), false, []));
+        });
+
+        Assert.True(asked[0]);
+        Assert.All(asked.Skip(1), Assert.False);
+
+        // It starts and mod 5 logs an error: every try waits for the errors.
+        asked.Clear();
+        var error = new LogEntry(LogKind.Server, "spt.log", 1, null, "Error", "Five", "broke", []);
+        await BrokenModSearch.RunAsync(8, _ => [], (on, errors, _) =>
+        {
+            asked.Add(errors);
+            return Task.FromResult(new ServerTrialOutcome(true, false, on.Contains(5) ? [error] : []));
+        });
+
+        Assert.All(asked, Assert.True);
     }
 
     private sealed class Collect(List<BrokenModProgress> into) : IProgress<BrokenModProgress>
@@ -275,6 +301,7 @@ public class ForkBrokenModSearchTests : IDisposable
             InstallPath = install,
             StartedAt = DateTimeOffset.Now,
             Mods = [.. names.Select(n => Path.Combine(mods, n))],
+            Logs = new() { [Path.Combine(install, "user", "logs", "spt", "spt.log")] = 1234 },
         };
 
         var store = new BrokenModSessionStore(Path.Combine(_dir, "broken_mod_search.json"));
@@ -291,6 +318,7 @@ public class ForkBrokenModSearchTests : IDisposable
         // As the next start of the app finds it.
         var found = new BrokenModSessionStore(Path.Combine(_dir, "broken_mod_search.json")).Load()!;
         Assert.Equal(session.Mods, found.Mods);
+        Assert.Equal(session.Logs, found.Logs);
 
         Assert.Empty(BrokenModSessionStore.PutBack(found).Failed);
         Assert.All(names, n => Assert.True(File.Exists(Path.Combine(mods, n, "mod.dll"))));

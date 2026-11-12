@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Threading;
@@ -63,12 +62,12 @@ public sealed partial class CrashWatch : LocalizedViewModel
 
         var install = AppServices.SptEnvironment.InstallPath;
         var searching = AppServices.BrokenModFinder.IsRunning;
-        var spares = GameCloser.SparesWindowless(new SettingsService().Load(), install);
 
         _checking = true;
         try
         {
-            var (serverLine, gameCode) = await Task.Run(() => Look(install, searching, spares));
+            var (serverLine, gameCode) = await Task.Run(() =>
+                Look(install, searching, GameCloser.SparesWindowless(new SettingsService().Load(), install)));
 
             if (serverLine is not null)
             {
@@ -80,8 +79,9 @@ public sealed partial class CrashWatch : LocalizedViewModel
                 Raise(server: false);
             }
         }
-        catch (Exception ex) when (ex is System.IO.IOException or UnauthorizedAccessException or Win32Exception or InvalidOperationException)
+        catch (Exception ex)
         {
+            // A watcher in the background: nothing it trips over is worth the app.
             AppLog.Debug("Crash", $"couldn't look: {ex.Message}");
         }
         finally
