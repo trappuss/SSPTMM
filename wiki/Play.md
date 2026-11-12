@@ -108,11 +108,12 @@ With another PC's server picked:
   sets SPT up again, and **Trust the new certificate** takes the new one; otherwise it may not be
   the same server.
 - **Close the game when the server stops** is hidden: it watches this PC's server only.
-- **Compare mods with this server** on **...** asks the server which server mods it has loaded and
-  compares them with what is installed here, by version. When they match, it says so. Otherwise it
-  makes a collection named **Mods on** and the server's name, and opens it in
-  [Collections](Collections) with the preview of what would be installed, updated or turned on.
-  Nothing changes until you press **Apply**, and applying it never turns a mod off.
+- **The server's mods are compared with yours** when its profiles are read, and again each time
+  you come back to Play: the card says that they match, or how many are to install, update or
+  turn on, with **Review and install** beside it. That makes a collection named **Mods on** and
+  the server's name, and opens it in [Collections](Collections) with the preview. Nothing changes
+  until you press **Apply**, and applying it never turns a mod off. **Compare mods with this
+  server** on **...** asks again and goes straight to the preview.
   - The host needs nothing for this: any SPT 4.1 server answers.
   - It knows the host's **server mods** only. An SPT server can't see its own game's BepInEx
     plugins, so game-only mods are not compared.
@@ -131,6 +132,9 @@ With Fika's server mod installed and **This PC** picked, the card tells you what
 
 - this PC's addresses on your network (and on Tailscale, if you use it), with the port from Fika's
   `fika.jsonc` - Fika ignores `http.json`'s address and port. **Copy address** copies the first.
+- **Copy invite** copies a message to paste to friends: the addresses, the port to use from outside
+  your network, your SPT and Fika versions, and how SSPTMM gets them the same mods (add the
+  address on Play, then **Compare mods with this server**).
 - From outside your network, friends use your public address instead, and your router forwards
   **TCP** on that port to this PC. Whoever hosts a raid also needs **UDP 25565** (Fika's default)
   forwarded to their own PC - the raid runs in the host's game, not in the server.

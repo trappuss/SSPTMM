@@ -9774,6 +9774,36 @@ No mantiene questo gruppo con il suo vecchio nome.</value>
   <data name="Play_RemoteModsCatalogLoading" xml:space="preserve">
     <value>Il catalogo dei mod è ancora in caricamento. Riprova tra un momento.</value>
   </data>
+  <data name="Play_RemoteModsDifferFormat" xml:space="preserve">
+    <value>I mod sono diversi da {0}: {1} da installare, {2} da aggiornare, {3} da attivare.</value>
+  </data>
+  <data name="Play_FikaInvite" xml:space="preserve">
+    <value>Copia invito</value>
+  </data>
+  <data name="Play_FikaInviteToolTip" xml:space="preserve">
+    <value>Copia un messaggio per gli amici: l'indirizzo, le versioni di SPT e Fika e come avere gli stessi mod.</value>
+  </data>
+  <data name="Play_FikaInviteIntro" xml:space="preserve">
+    <value>Unisciti al mio server SPT (Fika).</value>
+  </data>
+  <data name="Play_FikaInviteAddressFormat" xml:space="preserve">
+    <value>Indirizzo: {0}</value>
+  </data>
+  <data name="Play_FikaInviteOutsideFormat" xml:space="preserve">
+    <value>Da fuori dalla mia rete: il mio indirizzo pubblico, porta {0}.</value>
+  </data>
+  <data name="Play_FikaInviteVersionsFormat" xml:space="preserve">
+    <value>Versioni: SPT {0}, Fika {1}</value>
+  </data>
+  <data name="Play_FikaInviteSptFormat" xml:space="preserve">
+    <value>Versione: SPT {0}</value>
+  </data>
+  <data name="Play_FikaInviteHowFormat" xml:space="preserve">
+    <value>Con SSPTMM: in Gioca, "{0}" con questo indirizzo, poi "{1}" per avere gli stessi mod.</value>
+  </data>
+  <data name="Play_FikaInviteCopied" xml:space="preserve">
+    <value>Invito copiato. Incollalo agli amici.</value>
+  </data>
   <data name="Play_RemoteAddServer" xml:space="preserve">
     <value>Aggiungi un server...</value>
   </data>

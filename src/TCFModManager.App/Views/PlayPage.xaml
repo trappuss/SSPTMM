@@ -308,6 +308,30 @@
                         Foreground="{DynamicResource TextFillColorSecondaryBrush}"
                         Text="{Binding RemoteServerNote}"
                         Visibility="{Binding RemoteServerNote, Converter={StaticResource NullToCollapsed}}" />
+                    <!-- Fork (1.4.7): the picked server's mods against the ones here. -->
+                    <Grid
+                        MaxWidth="640"
+                        Margin="0,0,0,8"
+                        HorizontalAlignment="Left"
+                        Visibility="{Binding ServerModsNote, Converter={StaticResource NullToCollapsed}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock
+                            VerticalAlignment="Center"
+                            TextWrapping="Wrap"
+                            Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                            Text="{Binding ServerModsNote}" />
+                        <ui:Button
+                            Grid.Column="1"
+                            Margin="12,0,0,0"
+                            VerticalAlignment="Center"
+                            Appearance="Primary"
+                            Content="{loc:Str Common_ReviewAndInstall}"
+                            Command="{Binding ReviewServerModsCommand}"
+                            Visibility="{Binding ServerModsDiffer, Converter={StaticResource BoolToVisibility}}" />
+                    </Grid>
                     <!-- Fork (1.4.3, experimental): Fika's notes - PlayViewModel.Fika. -->
                     <TextBlock
                         MaxWidth="640"
@@ -325,6 +349,7 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <TextBlock
                             VerticalAlignment="Center"
@@ -339,6 +364,16 @@
                             Icon="{ui:SymbolIcon Copy24}"
                             ToolTip="{loc:Str Play_FikaHostCopyToolTip}"
                             Command="{Binding CopyFikaAddressCommand}"
+                            Visibility="{Binding FikaHostAddress, Converter={StaticResource NullToCollapsed}}" />
+                        <ui:Button
+                            Grid.Column="2"
+                            Margin="8,0,0,0"
+                            VerticalAlignment="Center"
+                            Appearance="Primary"
+                            Content="{loc:Str Play_FikaInvite}"
+                            Icon="{ui:SymbolIcon PeopleAdd24}"
+                            ToolTip="{loc:Str Play_FikaInviteToolTip}"
+                            Command="{Binding CopyFikaInviteCommand}"
                             Visibility="{Binding FikaHostAddress, Converter={StaticResource NullToCollapsed}}" />
                     </Grid>
                     <TextBlock

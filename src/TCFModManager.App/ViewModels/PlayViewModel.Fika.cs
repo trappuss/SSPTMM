@@ -30,6 +30,7 @@ public partial class PlayViewModel
     // The first of the addresses, for Copy address.
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(CopyFikaAddressCommand))]
+    [NotifyCanExecuteChangedFor(nameof(CopyFikaInviteCommand))]
     private string? _fikaHostAddress;
 
     // Fika's settings say something that keeps friends out, or are not written yet.
@@ -116,6 +117,8 @@ public partial class PlayViewModel
         var port = config.Port?.ToString() ?? SptDirectLaunch.ServerAddress(exe).Split(':')[^1];
         var addresses = read.Addresses.Select(a => a + ":" + port).ToList();
         FikaHostAddress = addresses.FirstOrDefault();
+        _fikaHostAddresses = addresses;
+        _fikaHostPort = port;
         FikaHostNote = addresses.Count == 0
             ? Text(Strings.Play_FikaHostNoAddressFormat, port)
             : Text(Strings.Play_FikaHostFormat, TextLists.Join(addresses), port);
@@ -140,4 +143,49 @@ public partial class PlayViewModel
     }
 
     private bool CanCopyFikaAddress() => FikaHostAddress is not null;
+
+    // Fork (1.4.7): everything a friend needs, in one message - the addresses, the versions that
+    // have to match, and how SSPTMM gets them the same mods (Compare mods with this server).
+    private IReadOnlyList<string> _fikaHostAddresses = [];
+    private string? _fikaHostPort;
+
+    [RelayCommand(CanExecute = nameof(CanCopyFikaAddress))]
+    private async Task CopyFikaInviteAsync()
+    {
+        if (_fikaHostAddresses.Count == 0 || AppServices.SptEnvironment.InstallPath is not { Length: > 0 } install) return;
+
+        var fika = await Task.Run(() => InstalledModScanner.Scan(install)
+            .Where(m => m.Target == InstalledModTarget.Server && !m.IsDisabled)
+            .FirstOrDefault(m => m.Name.StartsWith("fika", StringComparison.OrdinalIgnoreCase)
+                || m.AllGuids.Any(g => g.Contains("fika", StringComparison.OrdinalIgnoreCase)))?.Version);
+
+        var invite = FikaInvite(_fikaHostAddresses, _fikaHostPort, AppServices.SptEnvironment.InstalledVersion, fika);
+
+        try
+        {
+            Clipboard.SetText(invite);
+            PlayStatusIsError = false;
+            PlayStatus = Strings.Play_FikaInviteCopied;
+        }
+        catch (COMException ex)
+        {
+            AppLog.Warn("Fika", $"couldn't copy the invite: {ex.Message}");
+        }
+    }
+
+    internal static string FikaInvite(IReadOnlyList<string> addresses, string? port, string? spt, string? fika)
+    {
+        var lines = new List<string>
+        {
+            Strings.Play_FikaInviteIntro,
+            Text(Strings.Play_FikaInviteAddressFormat, TextLists.Join(addresses)),
+        };
+
+        if (port is not null) lines.Add(Text(Strings.Play_FikaInviteOutsideFormat, port));
+        if (spt is { Length: > 0 })
+            lines.Add(fika is { Length: > 0 } ? Text(Strings.Play_FikaInviteVersionsFormat, spt, fika) : Text(Strings.Play_FikaInviteSptFormat, spt));
+        lines.Add(Text(Strings.Play_FikaInviteHowFormat, Strings.Play_RemoteAddServer.TrimEnd('.', '\u2026'), Strings.Play_RemoteCompareMods));
+
+        return string.Join(Environment.NewLine, lines);
+    }
 }

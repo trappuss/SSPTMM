@@ -1,3 +1,5 @@
+using System.Net.Http;
+using System.IO;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
@@ -162,6 +164,9 @@ public partial class PlayViewModel
     {
         _remoteProfilesFor = null;
         _remoteProfilesRead = false;
+        _serverModsPreview = null;
+        ServerModsDiffer = false;
+        ServerModsNote = null;
         _readingProfile = true;
         try
         {
@@ -202,14 +207,32 @@ public partial class PlayViewModel
             ShowProfiles(found, SelectedProfile?.Profile.ProfileId ?? new SettingsService().Load().DirectLaunchProfileId);
             OnPropertyChanged(nameof(HasNoProfiles));
             AppLog.Info("DirectLaunch", $"{found.Count} profile(s) on {address}");
+
+            // Fork (1.4.7): and its mods against the ones here, while it is answering.
+            if (AppServices.ModCache.AllMods.Count > 0 && SelectedPlayServer is { } picked)
+                await CheckServerModsAsync(api, picked, address, ct);
         });
     }
 
     //
-    // Fork (1.4.7): "Compare mods with this server" - the server mods the picked server has loaded,
-    // as a collection (HostMods), and the Collections page's preview of what applying it would do.
-    // Nothing is installed from here. When nothing would be, it only says so and keeps no collection.
+    // Fork (1.4.7): another PC's server's mods against the ones here. The server mods it has loaded
+    // become a collection (HostMods), and the Collections page's preview says what applying it
+    // would do; nothing is installed from here.
     //
+    // Asked without being asked for when the server's profiles are read and each time the page is
+    // shown, so a mismatch is said before Play is pressed, not found in the game. The collection is
+    // kept only once Review is pressed.
+    //
+    [ObservableProperty]
+    private string? _serverModsNote;
+
+    // Something to install, update or turn on: Review and install is offered.
+    [ObservableProperty]
+    private bool _serverModsDiffer;
+
+    private ModListPreview? _serverModsPreview;
+
+    // The menu's "Compare mods with this server": the same, said aloud, and straight to the preview.
     [RelayCommand]
     private async Task CompareServerModsAsync()
     {
@@ -223,39 +246,78 @@ public partial class PlayViewModel
 
         await WithServerAsync(async (api, ct) =>
         {
-            var mods = await api.ModsAsync(ct);
-            AppLog.Info("DirectLaunch", $"{mods.Count} server mod(s) loaded on {address}");
-
-            if (mods.Count == 0)
+            if (!await CheckServerModsAsync(api, server, address, ct))
             {
                 PlayStatus = Text(Strings.Play_RemoteNoModsFormat, server.Title);
                 return;
             }
 
-            var preview = await AppServices.ModListWorkflow.FromServerAsync(
-                Text(Strings.Play_RemoteModsListNameFormat, server.Title), address, mods);
-            if (preview is null)
-            {
-                PlayStatus = AppMessages.NoSptInstallFolder;
-                return;
-            }
-
-            var plan = preview.Plan;
-            AppLog.Info("DirectLaunch", $"against {address}: {plan.Install.Count()} to install, {plan.Update.Count()} to update, "
-                + $"{plan.Enable.Count()} to turn on, {plan.Manual.Count()} not on the catalog, {plan.Keep.Count()} the same");
-
-            if (plan.IsNoOp)
-            {
-                var byHand = plan.Manual.Select(a => a.Name).ToList();
-                PlayStatus = byHand.Count == 0
-                    ? Text(Strings.Play_RemoteModsMatchFormat, server.Title, mods.Count)
-                    : Text(Strings.Play_RemoteModsManualFormat, server.Title, TextLists.Join(byHand));
-                return;
-            }
-
-            AppServices.ModLists.Add(preview.List);
-            AppNavigation.ReviewList(preview.List.Id);
+            if (ServerModsDiffer) ReviewServerMods();
         });
+    }
+
+    // False when the server has no mods to say (none loaded, or an SPT that is not asked this way).
+    private async Task<bool> CheckServerModsAsync(SptLauncherApi api, PlayServerItem server, string address, CancellationToken ct)
+    {
+        var mods = await api.ModsAsync(ct);
+        if (SelectedPlayServer?.Address != address) return true;
+
+        AppLog.Info("DirectLaunch", $"{mods.Count} server mod(s) loaded on {address}");
+
+        _serverModsPreview = null;
+        ServerModsDiffer = false;
+        ServerModsNote = null;
+        if (mods.Count == 0) return false;
+
+        var preview = await AppServices.ModListWorkflow.FromServerAsync(
+            Text(Strings.Play_RemoteModsListNameFormat, server.Title), address, mods);
+        if (preview is null || SelectedPlayServer?.Address != address) return true;
+
+        var plan = preview.Plan;
+        int install = plan.Install.Count(), update = plan.Update.Count(), enable = plan.Enable.Count();
+        var byHand = plan.Manual.Select(a => a.Name).ToList();
+        AppLog.Info("DirectLaunch", $"against {address}: {install} to install, {update} to update, {enable} to turn on, "
+            + $"{byHand.Count} not on the catalog, {plan.Keep.Count()} the same");
+
+        var manual = byHand.Count > 0 ? Text(Strings.Play_RemoteModsManualFormat, server.Title, TextLists.Join(byHand)) : null;
+
+        if (plan.IsNoOp)
+        {
+            ServerModsNote = manual ?? Text(Strings.Play_RemoteModsMatchFormat, server.Title, mods.Count);
+            return true;
+        }
+
+        _serverModsPreview = preview;
+        ServerModsDiffer = true;
+        ServerModsNote = string.Join(" ", new[] { Text(Strings.Play_RemoteModsDifferFormat, server.Title, install, update, enable), manual }
+            .Where(part => part is not null));
+        return true;
+    }
+
+    // Quietly: after the profiles, and when the page comes back - from applying the collection, say.
+    private async Task RecheckServerModsAsync()
+    {
+        if (SelectedPlayServer is not { Address: { } address } server || IsPlaying || AppServices.ModCache.AllMods.Count == 0) return;
+        if (CreateApi() is not { } created) return;
+
+        try
+        {
+            using var api = created;
+            await CheckServerModsAsync(api, server, address, CancellationToken.None);
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or System.Text.Json.JsonException or IOException)
+        {
+            AppLog.Debug("DirectLaunch", $"couldn't compare mods with {address}: {ex.Message}");
+        }
+    }
+
+    [RelayCommand]
+    private void ReviewServerMods()
+    {
+        if (_serverModsPreview is not { } preview) return;
+
+        AppServices.ModLists.Add(preview.List);
+        AppNavigation.ReviewList(preview.List.Id);
     }
 
     // The api for the server picked: this PC's at its http.json address, or another PC's, pinned.

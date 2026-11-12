@@ -2881,6 +2881,12 @@ From another mod manager (trappuss: "research it and see if there's anything cou
   catalogue by GUID, pinned to the host's version where sp-mod.com has it - and the Collections
   preview says what applying would do. Kept only when there is something to do; asked again, the
   same collection is replaced (found by its Source, the server's address).
+  - Asked without being asked for: after the remote profiles are read, in the same answer, and
+    when the Play page is shown again (`RecheckServerModsAsync`), so the line is right after the
+    collection was applied. The collection is saved only when Review and install is pressed.
+  - A Fika host's **Copy invite** (`PlayViewModel.FikaInvite`): addresses, port, SPT and Fika
+    versions (the enabled server mod whose name or GUID has "fika"), and the two menu items a
+    friend uses. No share code: the comparison needs nothing from the host.
   - Not known: the host's game plugins (the server takes `/singleplayer/clientmods` from a game,
     it does not hand them out), and which server mods a player needs no part of.
   - The answer's shape is read from the 4.1.6 server's code (`LauncherV2Callbacks.Mods`, routed

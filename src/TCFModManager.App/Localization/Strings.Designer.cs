@@ -3205,6 +3205,16 @@ internal static class Strings
     internal static string Play_RemoteModsManualFormat => LocalizationService.Get("Play_RemoteModsManualFormat");
     internal static string Play_RemoteNoModsFormat => LocalizationService.Get("Play_RemoteNoModsFormat");
     internal static string Play_RemoteModsCatalogLoading => LocalizationService.Get("Play_RemoteModsCatalogLoading");
+    internal static string Play_RemoteModsDifferFormat => LocalizationService.Get("Play_RemoteModsDifferFormat");
+    internal static string Play_FikaInvite => LocalizationService.Get("Play_FikaInvite");
+    internal static string Play_FikaInviteToolTip => LocalizationService.Get("Play_FikaInviteToolTip");
+    internal static string Play_FikaInviteIntro => LocalizationService.Get("Play_FikaInviteIntro");
+    internal static string Play_FikaInviteAddressFormat => LocalizationService.Get("Play_FikaInviteAddressFormat");
+    internal static string Play_FikaInviteOutsideFormat => LocalizationService.Get("Play_FikaInviteOutsideFormat");
+    internal static string Play_FikaInviteVersionsFormat => LocalizationService.Get("Play_FikaInviteVersionsFormat");
+    internal static string Play_FikaInviteSptFormat => LocalizationService.Get("Play_FikaInviteSptFormat");
+    internal static string Play_FikaInviteHowFormat => LocalizationService.Get("Play_FikaInviteHowFormat");
+    internal static string Play_FikaInviteCopied => LocalizationService.Get("Play_FikaInviteCopied");
     internal static string Play_RemoteAddServer => LocalizationService.Get("Play_RemoteAddServer");
     internal static string Play_RemoteAddServerToolTip => LocalizationService.Get("Play_RemoteAddServerToolTip");
     internal static string Play_RemoteRemoveServer => LocalizationService.Get("Play_RemoteRemoveServer");

@@ -326,6 +326,7 @@ public partial class PlayViewModel : LocalizedViewModel
     {
         Refresh();
         _poll.Start();
+        if (IsRemoteServer && _remoteProfilesRead) _ = RecheckServerModsAsync(); // Fork (1.4.7)
         _ = RefreshToolsAsync(); // Fork: the Mod tools card
     }
 
