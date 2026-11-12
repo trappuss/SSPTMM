@@ -207,6 +207,31 @@ public class ForkBrokenModSearchTests : IDisposable
         Assert.Equal("BadMod|could not load # items", ServerTrial.Signature(error));
     }
 
+    // ---- crash signs ---------------------------------------------------------------------------
+
+    [Theory]
+    [InlineData(0, false)]
+    [InlineData(1, false)]
+    [InlineData(-1, false)]
+    [InlineData(unchecked((int)0xC0000005), true)]
+    [InlineData(unchecked((int)0xC0000409), true)]
+    [InlineData(unchecked((int)0xE0434352), true)]
+    public void A_fault_code_is_a_crash_and_an_ordinary_end_is_not(int exitCode, bool crash) =>
+        Assert.Equal(crash, CrashSigns.IsCrashExitCode(exitCode));
+
+    [Fact]
+    public void The_server_giving_up_is_its_critical_line()
+    {
+        LogEntry[] entries =
+        [
+            Error("BadMod", "could not load"),
+            new(LogKind.Server, "spt.log", 2, null, "Critical", "SPTarkov.Server.Core", "The server has unexpectedly stopped", []),
+        ];
+
+        Assert.Equal("SPTarkov.Server.Core", CrashSigns.ServerCrash(entries)!.Source);
+        Assert.Null(CrashSigns.ServerCrash(entries.Take(1)));
+    }
+
     // ---- the session ---------------------------------------------------------------------------
 
     [Fact]

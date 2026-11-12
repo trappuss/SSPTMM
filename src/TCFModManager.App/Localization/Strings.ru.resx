@@ -9769,6 +9769,15 @@
   <data name="Profiles_ReasonSearch" xml:space="preserve">
     <value>Перед поиском сломанного мода</value>
   </data>
+  <data name="Crash_ServerTitle" xml:space="preserve">
+    <value>Сервер SPT неожиданно остановился</value>
+  </data>
+  <data name="Crash_GameTitle" xml:space="preserve">
+    <value>Игра неожиданно закрылась</value>
+  </data>
+  <data name="Crash_Message" xml:space="preserve">
+    <value>Диагностика логов читает логи SPT и говорит, что пошло не так и от какого мода это идёт.</value>
+  </data>
   <data name="Search_InterruptedWhere" xml:space="preserve">
     <value>Инструменты &gt; Диагностика логов включает их снова.</value>
   </data>

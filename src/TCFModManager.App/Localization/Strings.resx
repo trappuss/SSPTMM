@@ -11652,6 +11652,18 @@ The profiles are copied first, and every mod is turned back on at the end. Don't
     <value>Before Find the broken mod</value>
     <comment>Why a copy of the profiles was taken: before a Find the broken mod search.</comment>
   </data>
+  <data name="Crash_ServerTitle" xml:space="preserve">
+    <value>The SPT server stopped unexpectedly</value>
+    <comment>Bar and notification title when the SPT server crashed or failed to start.</comment>
+  </data>
+  <data name="Crash_GameTitle" xml:space="preserve">
+    <value>The game closed unexpectedly</value>
+    <comment>Bar and notification title when the game crashed.</comment>
+  </data>
+  <data name="Crash_Message" xml:space="preserve">
+    <value>Diagnose logs reads SPT's logs and says what went wrong, and which mod it came from.</value>
+    <comment>Under either title; the button beside it opens Diagnose logs.</comment>
+  </data>
   <data name="Search_InterruptedWhere" xml:space="preserve">
     <value>Tools &gt; Diagnose logs turns them back on.</value>
     <comment>Where an interrupted search's mods are turned back on. {0} &gt; {1}: the menu path.</comment>

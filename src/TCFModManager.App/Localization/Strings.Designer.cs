@@ -3058,6 +3058,9 @@ internal static class Strings
     internal static string Search_ProblemCouldNotStartFormat => LocalizationService.Get("Search_ProblemCouldNotStartFormat");
     internal static string Search_MoveFailedFormat => LocalizationService.Get("Search_MoveFailedFormat");
     internal static string Profiles_ReasonSearch => LocalizationService.Get("Profiles_ReasonSearch");
+    internal static string Crash_ServerTitle => LocalizationService.Get("Crash_ServerTitle");
+    internal static string Crash_GameTitle => LocalizationService.Get("Crash_GameTitle");
+    internal static string Crash_Message => LocalizationService.Get("Crash_Message");
     internal static string Search_InterruptedWhere => LocalizationService.Get("Search_InterruptedWhere");
     internal static string Diagnose_ProfileFixNotFound => LocalizationService.Get("Diagnose_ProfileFixNotFound");
     internal static string Diagnose_ProfileFixFailedFormat => LocalizationService.Get("Diagnose_ProfileFixFailedFormat");

@@ -74,6 +74,36 @@ public static partial class SptLaunchService
         }
     }
 
+    //
+    // Fork (1.4.7): the install's game, to be watched until it ends - with its handle taken now,
+    // while it runs, so its exit code can still be read afterwards (CrashSigns.IsCrashExitCode).
+    // Null when it is not running, or Windows will not open it. The caller disposes it.
+    //
+    public static Process? WatchGame(string? installPath, bool sparesWindowless)
+    {
+        Process? watched = null;
+        foreach (var process in GameProcesses(installPath, sparesWindowless))
+        {
+            if (watched is not null)
+            {
+                process.Dispose();
+                continue;
+            }
+
+            try
+            {
+                _ = process.SafeHandle;
+                watched = process;
+            }
+            catch (Exception ex) when (ex is Win32Exception or InvalidOperationException or NotSupportedException)
+            {
+                process.Dispose();
+            }
+        }
+
+        return watched;
+    }
+
     // The caller disposes what it is given.
     private static IEnumerable<Process> GameProcesses(string? installPath, bool sparesWindowless)
     {

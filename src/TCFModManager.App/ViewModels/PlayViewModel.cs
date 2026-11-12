@@ -453,6 +453,7 @@ public partial class PlayViewModel : LocalizedViewModel
                 HasError = true;
                 Message = openLauncher ? Strings.Play_ServerStoppedStarting : Strings.Play_ServerStoppedStartingOnly;
                 ShowServerLog = true;
+                AppServices.CrashWatch.ServerStopped(); // Fork (1.4.7): the way to Diagnose logs
             }
             else if (!up && !openLauncher)
             {

@@ -73,6 +73,9 @@ internal static class AppServices
     // Fork (1.4.7): the GitHub repositories mods were installed from, and their releases.
     public static GitHubMods GitHubMods { get; } = new();
 
+    // Fork (1.4.7): notices the server or the game crashing, and points at Diagnose logs.
+    public static CrashWatch CrashWatch { get; } = new();
+
     // Fork (1.4.7): Find the broken mod - one search for the whole app, shown on Diagnose logs.
     public static BrokenModFinder BrokenModFinder { get; } = new();
 

@@ -8884,6 +8884,15 @@ GitHub 上的文件未经 sp-mod.com 检查，请只安装你信任的作者的�
   <data name="Profiles_ReasonSearch" xml:space="preserve">
     <value>查找有问题的模组之前</value>
   </data>
+  <data name="Crash_ServerTitle" xml:space="preserve">
+    <value>SPT 服务端意外停止</value>
+  </data>
+  <data name="Crash_GameTitle" xml:space="preserve">
+    <value>游戏意外关闭</value>
+  </data>
+  <data name="Crash_Message" xml:space="preserve">
+    <value>诊断日志会读取 SPT 的日志，指出问题所在以及来自哪个模组。</value>
+  </data>
   <data name="Search_InterruptedWhere" xml:space="preserve">
     <value>可在 工具 &gt; 诊断日志 中重新启用。</value>
   </data>

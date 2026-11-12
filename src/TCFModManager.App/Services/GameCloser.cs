@@ -145,6 +145,7 @@ public static class GameCloser
         try
         {
             AppLog.Info("Launch", "the server stopped; closing the game, as ticked on the Play page");
+            AppServices.CrashWatch.GameClosedByApp(); // Fork (1.4.7)
             var result = await Task.Run(() => SptLaunchService.CloseGame(installPath, spares, ServerGoneGrace));
 
             var closed = result.Problem is SptLaunchProblem.None or SptLaunchProblem.NotRunning;

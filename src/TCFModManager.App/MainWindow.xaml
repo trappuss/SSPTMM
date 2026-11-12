@@ -162,6 +162,34 @@
                     Icon="{ui:SymbolIcon ArrowCircleUp24}"
                     Click="AppUpdateBanner_Click" />
             </Grid>
+
+            <!-- Fork (1.4.7): the server or the game crashed - the way to Diagnose logs (CrashWatch). -->
+            <Grid
+                Margin="12,8,12,0"
+                DataContext="{x:Static app:AppServices.CrashWatch}"
+                Visibility="{Binding IsOpen, Converter={StaticResource BoolToVis}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <ui:InfoBar
+                    Grid.Column="0"
+                    IsClosable="True"
+                    Severity="Error"
+                    Title="{Binding Title}"
+                    Message="{loc:Str Crash_Message}"
+                    IsOpen="{Binding IsOpen, Mode=TwoWay}" />
+
+                <ui:Button
+                    Grid.Column="1"
+                    Margin="8,0,0,0"
+                    VerticalAlignment="Center"
+                    Appearance="Primary"
+                    Content="{loc:Str Nav_Diagnose}"
+                    Icon="{ui:SymbolIcon Stethoscope24}"
+                    Click="CrashBanner_Click" />
+            </Grid>
         </StackPanel>
 
         <!--

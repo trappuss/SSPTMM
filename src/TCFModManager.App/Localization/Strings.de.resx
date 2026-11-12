@@ -9331,6 +9331,15 @@ Vorher werden die Profile kopiert, und am Ende sind alle Mods wieder an. Starte 
   <data name="Profiles_ReasonSearch" xml:space="preserve">
     <value>Vor „Die kaputte Mod finden“</value>
   </data>
+  <data name="Crash_ServerTitle" xml:space="preserve">
+    <value>Der SPT-Server wurde unerwartet beendet</value>
+  </data>
+  <data name="Crash_GameTitle" xml:space="preserve">
+    <value>Das Spiel wurde unerwartet beendet</value>
+  </data>
+  <data name="Crash_Message" xml:space="preserve">
+    <value>Die Log-Diagnose liest die Logs von SPT und sagt, was schiefging und von welcher Mod es kam.</value>
+  </data>
   <data name="Search_InterruptedWhere" xml:space="preserve">
     <value>Werkzeuge &gt; Log-Diagnose schaltet sie wieder ein.</value>
   </data>

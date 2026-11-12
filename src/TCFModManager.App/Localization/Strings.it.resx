@@ -9331,6 +9331,15 @@ Prima vengono copiati i profili, e alla fine tutti i mod vengono riattivati. Non
   <data name="Profiles_ReasonSearch" xml:space="preserve">
     <value>Prima di «Trova il mod difettoso»</value>
   </data>
+  <data name="Crash_ServerTitle" xml:space="preserve">
+    <value>Il server SPT si è arrestato in modo imprevisto</value>
+  </data>
+  <data name="Crash_GameTitle" xml:space="preserve">
+    <value>Il gioco si è chiuso in modo imprevisto</value>
+  </data>
+  <data name="Crash_Message" xml:space="preserve">
+    <value>La diagnostica log legge i log di SPT e dice cosa è andato storto e da quale mod proviene.</value>
+  </data>
   <data name="Search_InterruptedWhere" xml:space="preserve">
     <value>Strumenti &gt; Diagnostica log li riattiva.</value>
   </data>

@@ -9331,6 +9331,15 @@ Les profils sont copiés d'abord, et tous les mods sont réactivés à la fin. N
   <data name="Profiles_ReasonSearch" xml:space="preserve">
     <value>Avant « Trouver le mod défectueux »</value>
   </data>
+  <data name="Crash_ServerTitle" xml:space="preserve">
+    <value>Le serveur SPT s'est arrêté de façon inattendue</value>
+  </data>
+  <data name="Crash_GameTitle" xml:space="preserve">
+    <value>Le jeu s'est fermé de façon inattendue</value>
+  </data>
+  <data name="Crash_Message" xml:space="preserve">
+    <value>Le diagnostic des journaux lit les journaux de SPT et indique ce qui s'est mal passé, et de quel mod cela vient.</value>
+  </data>
   <data name="Search_InterruptedWhere" xml:space="preserve">
     <value>Outils &gt; Diagnostic des journaux les réactive.</value>
   </data>

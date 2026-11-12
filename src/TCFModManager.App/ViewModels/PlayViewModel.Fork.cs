@@ -109,6 +109,7 @@ public partial class PlayViewModel
         {
             var installPath = AppServices.SptEnvironment.InstallPath;
             var spares = GameCloser.SparesWindowless(new SettingsService().Load(), installPath);
+            AppServices.CrashWatch.GameClosedByApp(); // Fork (1.4.7): closed here, not crashed
             var result = await Task.Run(() => SptLaunchService.CloseGame(installPath, spares));
 
             HasError = result.Problem is not (SptLaunchProblem.None or SptLaunchProblem.NotRunning);

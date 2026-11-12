@@ -268,6 +268,8 @@ public partial class MainWindow : FluentWindow
 
             Services.GameCloser.Start(); // Fork: close the game when the server stops, if ticked
 
+            AppServices.CrashWatch.Start(); // Fork (1.4.7): a crash points at Diagnose logs
+
             // Fork (1.4.7): a Find the broken mod search the last run did not finish - its mods go back on.
             Dispatcher.BeginInvoke(() => _ = AppServices.BrokenModFinder.RecoverAsync(), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
 
@@ -883,4 +885,7 @@ public partial class MainWindow : FluentWindow
     // rather than starting a download straight off a banner.
     private void AppUpdateBanner_Click(object sender, RoutedEventArgs e) =>
         AppNavigation.Navigate(typeof(AppUpdatePage));
+
+    // Fork (1.4.7): the crash bar's button.
+    private void CrashBanner_Click(object sender, RoutedEventArgs e) => AppServices.CrashWatch.OpenDiagnose();
 }

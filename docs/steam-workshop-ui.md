@@ -2840,13 +2840,28 @@ From another mod manager (trappuss: "research it and see if there's anything cou
     running (Turn them back on stopping it first), and closing during a search. The stand-in also
     ran a mod that only logs errors and two mods that only fail together, through the same code
     without the window.
+- **A crash points at Diagnose logs** (`CrashWatch`, a bar in MainWindow's banner row and a
+  Windows notification when the window is not in front). Diagnose logs is under Tools, where
+  someone who has just lost a raid has no reason to look.
+  - The server: SPT logs its giving up as Critical ("The server has unexpectedly stopped", seen on
+    a 4.1.6 server with a mod that throws while loading), so the server's log is read from where it
+    ended at the app's start, every three seconds, for a Critical or Fatal line. That covers a
+    server that fails to start and one started outside the app. Not during Find the broken mod. The
+    Play page's two "stopped before it was ready" messages raise it as well.
+  - The game: its process is held from when it is first seen (`SptLaunchService.WatchGame`), and
+    its exit code is read when it ends: a fault code (0xC... or 0xE..., `CrashSigns`) is a crash.
+    Not counted for 30 seconds after this app closes the game.
+  - Seen on screen with stand-ins: the bar for a server that logs Critical and stops, its button
+    opening Diagnose logs, no bar for a game ending with 0, the bar for one ending with 0xC0000005.
 
 ## Values that could not be measured (marked HUNCH in the source)
 
 - Round 58: 30 minutes between reads of a repository's releases, four archives as the most offered
   as buttons, and the GitHub chip's shades (#C6D4DF at 20% and 33%). For Find the broken mod: five
   minutes for a server to come up, three seconds after its port opens for mods to finish logging,
-  and twenty seconds for its process to appear or go.
+  and twenty seconds for its process to appear or go. For the crash bar: that the game leaves
+  no fault code when it quits by itself (not seen with the real game), three seconds between
+  looks, and thirty seconds after the app closes the game.
 
 - Round 57: the addon marks' look - the corner chip (the status chip's #CC000000 with Steam's light
   blue), the fade to black under the mod's name, the Subscribed items chip's hover shade
