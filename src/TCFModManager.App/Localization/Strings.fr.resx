@@ -9313,6 +9313,21 @@ Les profils sont copiés d'abord, et tous les mods sont réactivés à la fin. N
   <data name="Search_ShowModFormat" xml:space="preserve">
     <value>Afficher {0}</value>
   </data>
+  <data name="Search_TurnOffFormat" xml:space="preserve">
+    <value>Désactiver {0}</value>
+  </data>
+  <data name="Search_TurnedOffFormat" xml:space="preserve">
+    <value>Désactivé : {0}. Démarrer le serveur pour vérifier qu'il se lance.</value>
+  </data>
+  <data name="Search_ElapsedFormat" xml:space="preserve">
+    <value>Temps écoulé : {0}.</value>
+  </data>
+  <data name="Search_LeftMinutesFormat" xml:space="preserve">
+    <value>Environ {0} min restantes.</value>
+  </data>
+  <data name="Search_LeftUnderMinute" xml:space="preserve">
+    <value>Moins d'une minute restante.</value>
+  </data>
   <data name="Search_Dismiss" xml:space="preserve">
     <value>Terminé</value>
   </data>

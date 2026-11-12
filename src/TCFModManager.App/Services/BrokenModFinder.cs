@@ -30,13 +30,24 @@ public sealed class SavedSearchResult
 }
 
 /// <summary>A mod a search ended on, with the button that shows it in Subscribed items.</summary>
-public sealed class FoundMod(string name, string title)
+public sealed partial class FoundMod(string name, string title, string? path) : ObservableObject
 {
     public string Name { get; } = name;
 
     public string Title { get; } = title;
 
+    /// <summary>Its folder as it reads when the mod is on; null for a result kept by an older build.</summary>
+    public string? Path { get; } = path;
+
     public string ShowText => LocalizationService.Text(Strings.Search_ShowModFormat, Title);
+
+    public string TurnOffText => LocalizationService.Text(Strings.Search_TurnOffFormat, Title);
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanTurnOff))]
+    private bool _isOff = path is not null && !Directory.Exists(path) && !File.Exists(path);
+
+    public bool CanTurnOff => Path is not null && !IsOff;
 }
 
 //
@@ -60,9 +71,20 @@ public sealed partial class BrokenModFinder : LocalizedViewModel
     private readonly BrokenModSessionStore _store = new();
     private CancellationTokenSource? _cancel;
 
+    // The progress line: which start it is on, how long the ones before it took.
+    private readonly System.Diagnostics.Stopwatch _clock = new();
+    private readonly List<TimeSpan> _starts = [];
+    private readonly System.Windows.Threading.DispatcherTimer _tick = new() { Interval = TimeSpan.FromSeconds(1) };
+    private BrokenModProgress? _now;
+    private TimeSpan _nowBegan;
+
     private static string ResultFile => Path.Combine(AppPaths.DataDirectory, "broken_mod_result.json");
 
-    public BrokenModFinder() => LoadResult();
+    public BrokenModFinder()
+    {
+        _tick.Tick += (_, _) => SayProgress();
+        LoadResult();
+    }
 
     /// <summary>Raised when a search ends and the mods are back - the logs have changed.</summary>
     public event EventHandler? Ended;
@@ -103,6 +125,13 @@ public sealed partial class BrokenModFinder : LocalizedViewModel
 
     [ObservableProperty]
     private string? _resultNote;
+
+    /// <summary>Said once a found mod was turned off from here, with Start server beside it.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasResultDone))]
+    private string? _resultDone;
+
+    public bool HasResultDone => ResultDone is not null;
 
     public ObservableCollection<FoundMod> Found { get; } = [];
 
@@ -175,7 +204,9 @@ public sealed partial class BrokenModFinder : LocalizedViewModel
         ClearResult();
         StatusMessage = null;
         IsRunning = true;
-        var clock = System.Diagnostics.Stopwatch.StartNew();
+        _clock.Restart();
+        _starts.Clear();
+        _now = null;
         Progress = 0;
         ProgressText = Strings.Search_Preparing;
 
@@ -214,8 +245,16 @@ public sealed partial class BrokenModFinder : LocalizedViewModel
 
                 var progress = new Progress<BrokenModProgress>(p =>
                 {
+                    // Posted here: one may arrive after the search is over.
+                    if (!_tick.IsEnabled && _now is not null) return;
+
+                    if (_now is not null) _starts.Add(_clock.Elapsed - _nowBegan);
+                    _now = p;
+                    _nowBegan = _clock.Elapsed;
+                    _tick.Start();
+
                     Progress = 100.0 * (p.Try - 1) / Math.Max(p.About, p.Try);
-                    ProgressText = T(Strings.Search_ProgressFormat, p.Try, p.About, p.ModsOn, p.Mods);
+                    SayProgress();
                 });
 
                 result = await Task.Run(() => BrokenModSearch.RunAsync(mods.Count, needs, async (on, errors, ct) =>
@@ -253,6 +292,7 @@ public sealed partial class BrokenModFinder : LocalizedViewModel
             problem = ex.Message;
         }
 
+        _tick.Stop();
         ProgressText = Strings.Search_PuttingBack;
         Progress = 100;
 
@@ -276,7 +316,7 @@ public sealed partial class BrokenModFinder : LocalizedViewModel
         }
         else if (result is not null)
         {
-            Show(result, mods, back, clock.Elapsed);
+            Show(result, mods, back, _clock.Elapsed);
             SaveResult();
 
             // A search takes minutes, and the window is seldom the one in front when it ends.
@@ -287,6 +327,24 @@ public sealed partial class BrokenModFinder : LocalizedViewModel
         InstalledViewModel.NotifyModsMoved();
         Ended?.Invoke(this, EventArgs.Empty);
     }
+
+    // The progress line, again every second: which start, the time so far and about how much is left.
+    private void SayProgress()
+    {
+        if (_now is not { } p || IsStopping || !_tick.IsEnabled) return;
+
+        var left = BrokenModSearch.TimeLeft(_starts, p.About - p.Try + 1, _clock.Elapsed - _nowBegan);
+        ProgressText = Sentences(
+            T(Strings.Search_ProgressFormat, p.Try, p.About, p.ModsOn, p.Mods),
+            T(Strings.Search_ElapsedFormat, Duration(_clock.Elapsed)),
+            left is not { } time ? null
+                : time.TotalSeconds < 60 ? Strings.Search_LeftUnderMinute
+                : T(Strings.Search_LeftMinutesFormat, (int)Math.Ceiling(time.TotalMinutes)));
+    }
+
+    private static string Duration(TimeSpan took) => took.TotalMinutes >= 1
+        ? T(Strings.Search_DurationMinutesFormat, (int)took.TotalMinutes, took.Seconds)
+        : T(Strings.Search_DurationSecondsFormat, Math.Max(1, (int)Math.Round(took.TotalSeconds)));
 
     // Stands for "there are no profiles to copy" - the search goes ahead, with nothing to put back.
     private static readonly ProfileBackup NoProfiles = new("", default, "", 0, 0);
@@ -312,6 +370,46 @@ public sealed partial class BrokenModFinder : LocalizedViewModel
         if (mod is not null) AppNavigation.ShowInSubscribedItems(mod.Name);
     }
 
+    //
+    // The result's "Turn off": Subscribed items' own Disable, with what it asks - the mods that
+    // need this one, a profile holding its items - and its undo.
+    //
+    [RelayCommand]
+    private async Task TurnOffModAsync(FoundMod? mod)
+    {
+        if (IsRunning || mod is not { Path: { } path, IsOff: false }) return;
+
+        var (done, said) = await InstalledViewModel.ForActions.DisableModFolderAsync(path);
+        if (!done)
+        {
+            StatusMessage = said;
+            return;
+        }
+
+        AppLog.Info("Search", $"turned off {mod.Name} from the result");
+        StatusMessage = null;
+        mod.IsOff = true;
+        SayTurnedOff();
+    }
+
+    private void SayTurnedOff()
+    {
+        var off = Found.Where(f => f.IsOff).Select(f => f.Title).ToList();
+        ResultDone = off.Count > 0 ? T(Strings.Search_TurnedOffFormat, TextLists.Join(off)) : null;
+    }
+
+    [RelayCommand]
+    private static void StartServer() => AppNavigation.StartServerOnPlay();
+
+    /// <summary>Diagnose logs with the search's question open - from where a server was seen to stop.</summary>
+    public void OpenAndStart()
+    {
+        AppNavigation.Navigate(typeof(DiagnosePage));
+        Application.Current?.Dispatcher.BeginInvoke(
+            System.Windows.Threading.DispatcherPriority.ApplicationIdle,
+            () => { if (CanStart) StartCommand.Execute(null); });
+    }
+
     private void ClearResult()
     {
         ResultTitle = null;
@@ -319,6 +417,7 @@ public sealed partial class BrokenModFinder : LocalizedViewModel
         ResultNext = null;
         ResultLines = null;
         ResultNote = null;
+        ResultDone = null;
         Found.Clear();
 
         try
@@ -344,7 +443,7 @@ public sealed partial class BrokenModFinder : LocalizedViewModel
                 Next = ResultNext,
                 Lines = ResultLines,
                 Note = ResultNote,
-                Found = [.. Found.Select(f => new[] { f.Name, f.Title })],
+                Found = [.. Found.Select(f => new[] { f.Name, f.Title, f.Path ?? string.Empty })],
             }));
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
@@ -365,7 +464,10 @@ public sealed partial class BrokenModFinder : LocalizedViewModel
             ResultNext = saved.Next;
             ResultLines = saved.Lines;
             ResultNote = saved.Note;
-            foreach (var mod in saved.Found.Where(f => f is { Length: 2 })) Found.Add(new FoundMod(mod[0], mod[1]));
+            foreach (var mod in saved.Found.Where(f => f is { Length: >= 2 }))
+                Found.Add(new FoundMod(mod[0], mod[1], mod.Length > 2 && mod[2].Length > 0 ? mod[2] : null));
+
+            SayTurnedOff();
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException)
         {
@@ -453,12 +555,12 @@ public sealed partial class BrokenModFinder : LocalizedViewModel
 
             default:
                 var culprit = mods[result.Culprit!.Value];
-                Found.Add(new FoundMod(culprit.Name, TitleOf(culprit)));
+                Found.Add(new FoundMod(culprit.Name, TitleOf(culprit), culprit.FolderPath));
 
                 if (result.Partner is { } other)
                 {
                     var partner = mods[other];
-                    Found.Add(new FoundMod(partner.Name, TitleOf(partner)));
+                    Found.Add(new FoundMod(partner.Name, TitleOf(partner), partner.FolderPath));
                     ResultTitle = T(Strings.Search_FoundPairTitleFormat, TitleOf(culprit), TitleOf(partner));
                     ResultBody = T(down ? Strings.Search_FoundPairDownFormat : Strings.Search_FoundPairErrorsFormat, TitleOf(culprit), TitleOf(partner));
                     ResultNext = Strings.Search_WhatToDoPair;
@@ -479,12 +581,8 @@ public sealed partial class BrokenModFinder : LocalizedViewModel
             .ToList();
         ResultLines = lines.Count > 0 ? string.Join("\n", lines) : null;
 
-        var time = took.TotalMinutes >= 1
-            ? T(Strings.Search_DurationMinutesFormat, (int)took.TotalMinutes, took.Seconds)
-            : T(Strings.Search_DurationSecondsFormat, Math.Max(1, (int)Math.Round(took.TotalSeconds)));
-
         ResultNote = Sentences(
-            T(Strings.Search_SummaryFormat, mods.Count, result.Tries, time),
+            T(Strings.Search_SummaryFormat, mods.Count, result.Tries, Duration(took)),
             back.AllBack ? Strings.Search_AllBack : null,
             back.ProfilesRestored ? Strings.Search_ProfilesPutBack : null);
 

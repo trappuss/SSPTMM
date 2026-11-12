@@ -114,6 +114,23 @@ public static class BrokenModSearch
     }
 
     //
+    // About how long the search still has, from how long its starts took so far. Null until two
+    // are done: the first, with every mod on, is the slowest, and the second, with none, the
+    // quickest.
+    //
+    // HUNCH: that a start still to come takes the average of those done. The ones left have about
+    // half the mods on, between the two it begins with - not measured on a real install.
+    //
+    public static TimeSpan? TimeLeft(IReadOnlyList<TimeSpan> finished, int triesLeft, TimeSpan intoCurrent)
+    {
+        if (finished.Count < 2 || triesLeft <= 0) return null;
+
+        var average = TimeSpan.FromTicks((long)finished.Average(t => t.Ticks));
+        var left = average * triesLeft - intoCurrent;
+        return left > TimeSpan.Zero ? left : TimeSpan.Zero;
+    }
+
+    //
     // The install's enabled server mods, each after what it needs among them - the order ModBisect
     // wants. A mod that is in the install twice (a copy in user/mods and one in user/mods.disabled)
     // is left as it is and not searched: which copy is meant is Subscribed items' question.

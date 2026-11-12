@@ -8866,6 +8866,21 @@ GitHub 上的文件未经 sp-mod.com 检查，请只安装你信任的作者的�
   <data name="Search_ShowModFormat" xml:space="preserve">
     <value>显示 {0}</value>
   </data>
+  <data name="Search_TurnOffFormat" xml:space="preserve">
+    <value>关闭 {0}</value>
+  </data>
+  <data name="Search_TurnedOffFormat" xml:space="preserve">
+    <value>现已关闭：{0}。启动服务端，确认它能正常启动。</value>
+  </data>
+  <data name="Search_ElapsedFormat" xml:space="preserve">
+    <value>已用时 {0}。</value>
+  </data>
+  <data name="Search_LeftMinutesFormat" xml:space="preserve">
+    <value>大约还需 {0} 分钟。</value>
+  </data>
+  <data name="Search_LeftUnderMinute" xml:space="preserve">
+    <value>剩余不到一分钟。</value>
+  </data>
   <data name="Search_Dismiss" xml:space="preserve">
     <value>完成</value>
   </data>

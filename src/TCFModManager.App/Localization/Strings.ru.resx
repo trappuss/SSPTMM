@@ -9751,6 +9751,21 @@
   <data name="Search_ShowModFormat" xml:space="preserve">
     <value>Показать {0}</value>
   </data>
+  <data name="Search_TurnOffFormat" xml:space="preserve">
+    <value>Выключить {0}</value>
+  </data>
+  <data name="Search_TurnedOffFormat" xml:space="preserve">
+    <value>Теперь выключено: {0}. Запустить сервер, чтобы проверить, что он поднимается.</value>
+  </data>
+  <data name="Search_ElapsedFormat" xml:space="preserve">
+    <value>Прошло {0}.</value>
+  </data>
+  <data name="Search_LeftMinutesFormat" xml:space="preserve">
+    <value>Осталось около {0} мин.</value>
+  </data>
+  <data name="Search_LeftUnderMinute" xml:space="preserve">
+    <value>Осталось меньше минуты.</value>
+  </data>
   <data name="Search_Dismiss" xml:space="preserve">
     <value>Готово</value>
   </data>

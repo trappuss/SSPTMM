@@ -171,6 +171,19 @@
                                 TextWrapping="Wrap"
                                 Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                 Text="{Binding ResultNote}" />
+                            <StackPanel Margin="0,8,0,0" Visibility="{Binding HasResultDone, Converter={StaticResource BoolToVisibility}}">
+                                <TextBlock
+                                    FontSize="14"
+                                    TextWrapping="Wrap"
+                                    Foreground="{DynamicResource SystemFillColorSuccessBrush}"
+                                    Text="{Binding ResultDone}" />
+                                <ui:Button
+                                    Margin="0,6,0,0"
+                                    Appearance="Primary"
+                                    Content="{loc:Str Play_StartServer}"
+                                    Icon="{ui:SymbolIcon Play24}"
+                                    Command="{Binding StartServerCommand}" />
+                            </StackPanel>
                             <WrapPanel Margin="0,8,0,0">
                                 <ItemsControl Focusable="False" ItemsSource="{Binding Found}">
                                     <ItemsControl.ItemsPanel>
@@ -180,12 +193,22 @@
                                     </ItemsControl.ItemsPanel>
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <ui:Button
-                                                Margin="0,0,8,0"
-                                                Content="{Binding ShowText}"
-                                                Icon="{ui:SymbolIcon Apps24}"
-                                                Command="{Binding DataContext.ShowModCommand, RelativeSource={RelativeSource AncestorType={x:Type ui:Card}}}"
-                                                CommandParameter="{Binding}" />
+                                            <StackPanel Orientation="Horizontal">
+                                                <ui:Button
+                                                    Margin="0,0,8,4"
+                                                    Appearance="Primary"
+                                                    Content="{Binding TurnOffText}"
+                                                    Icon="{ui:SymbolIcon Power24}"
+                                                    Visibility="{Binding CanTurnOff, Converter={StaticResource BoolToVisibility}}"
+                                                    Command="{Binding DataContext.TurnOffModCommand, RelativeSource={RelativeSource AncestorType={x:Type ui:Card}}}"
+                                                    CommandParameter="{Binding}" />
+                                                <ui:Button
+                                                    Margin="0,0,8,4"
+                                                    Content="{Binding ShowText}"
+                                                    Icon="{ui:SymbolIcon Apps24}"
+                                                    Command="{Binding DataContext.ShowModCommand, RelativeSource={RelativeSource AncestorType={x:Type ui:Card}}}"
+                                                    CommandParameter="{Binding}" />
+                                            </StackPanel>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
@@ -269,6 +292,13 @@
                                             Icon="{ui:SymbolIcon Wrench24}"
                                             Visibility="{Binding CanTurnOnProfileFix, Converter={StaticResource BoolToVisibility}}"
                                             Command="{Binding DataContext.TurnOnProfileFixCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}" />
+                                        <ui:Button
+                                            Margin="0,0,8,0"
+                                            Appearance="Primary"
+                                            Content="{loc:Str Search_Title}"
+                                            Icon="{ui:SymbolIcon Search24}"
+                                            Visibility="{Binding CanSearch, Converter={StaticResource BoolToVisibility}}"
+                                            Click="FindBroken_Click" />
                                         <ui:Button
                                             Margin="0,0,8,0"
                                             Content="{loc:Str Diagnose_ShowMod}"

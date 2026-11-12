@@ -203,6 +203,23 @@ public class ForkBrokenModSearchTests : IDisposable
         Assert.All(asked, Assert.True);
     }
 
+    [Fact]
+    public void Time_left_is_the_average_start_times_the_starts_left()
+    {
+        TimeSpan S(double seconds) => TimeSpan.FromSeconds(seconds);
+
+        // Not before two are done.
+        Assert.Null(BrokenModSearch.TimeLeft([], 8, S(5)));
+        Assert.Null(BrokenModSearch.TimeLeft([S(60)], 7, S(5)));
+
+        // 60 s and 10 s: 35 s each, five left, ten seconds into this one.
+        Assert.Equal(S(165), BrokenModSearch.TimeLeft([S(60), S(10)], 5, S(10)));
+
+        // Never less than nothing, and nothing to say once none are left.
+        Assert.Equal(TimeSpan.Zero, BrokenModSearch.TimeLeft([S(10), S(10)], 1, S(40)));
+        Assert.Null(BrokenModSearch.TimeLeft([S(10), S(10)], 0, S(0)));
+    }
+
     private sealed class Collect(List<BrokenModProgress> into) : IProgress<BrokenModProgress>
     {
         public void Report(BrokenModProgress value) => into.Add(value);

@@ -79,7 +79,19 @@ server, what to do next, the log lines, and how many mods were searched in how m
 long that took. It stays there until you press **Done**, also after SSPTMM is restarted. If SSPTMM
 isn't the window in front when the search ends, a Windows notification says the result.
 
-**Show** opens the mod in Subscribed items, where it can be turned off, updated or removed.
+While it runs, the line under the bar says which start it is on, how long the search has taken and,
+after the first two starts, about how long is left.
+
+Under the result:
+
+- **Turn off** turns the found mod off right there, the way Subscribed items does (it asks first
+  if other mods need it, or a profile holds its items). **Start server** then opens Play and starts
+  the server, to see that it comes up.
+- **Show** opens the mod in Subscribed items, where it can also be updated or removed.
+
+The search is also offered where a server is seen to fail: on the **The server stopped on an error**
+card when the log doesn't name a mod, and under the server log on Play when the server closed
+before it was ready. **Copy a report for help** includes the result while it is on the page.
 
 What it does and doesn't touch:
 
@@ -97,8 +109,7 @@ What it does and doesn't touch:
   shows **Turn them back on**, which stops it first and leaves the log as it is.
 - Errors the server logs even with every mod off (a profile problem, for example) are not looked for.
 - What the test starts wrote to the server's log is taken out again when the search ends, so the log
-  still ends with your own last run and the cards above read that. (Not after a search that was cut
-  short: start the server once and read the logs again.)
+  still ends with your own last run and the cards above read that.
 
 ## Copy a report for help
 

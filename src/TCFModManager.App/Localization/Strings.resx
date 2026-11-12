@@ -11628,6 +11628,26 @@ The profiles are copied first, and every mod is turned back on at the end. Don't
     <value>Show {0}</value>
     <comment>Button under a result: shows the mod in Subscribed items. {0}: the mod.</comment>
   </data>
+  <data name="Search_TurnOffFormat" xml:space="preserve">
+    <value>Turn off {0}</value>
+    <comment>Button under a result: turns the found mod off. {0}: the mod.</comment>
+  </data>
+  <data name="Search_TurnedOffFormat" xml:space="preserve">
+    <value>Off now: {0}. Start the server to see that it comes up.</value>
+    <comment>Under a result, once the found mod was turned off. {0}: the mod, or the two.</comment>
+  </data>
+  <data name="Search_ElapsedFormat" xml:space="preserve">
+    <value>{0} so far.</value>
+    <comment>Progress line, after the start count. {0}: a duration, as Search_DurationMinutesFormat.</comment>
+  </data>
+  <data name="Search_LeftMinutesFormat" xml:space="preserve">
+    <value>About {0} min left.</value>
+    <comment>Progress line: a rough guess at the time left. {0}: minutes.</comment>
+  </data>
+  <data name="Search_LeftUnderMinute" xml:space="preserve">
+    <value>Less than a minute left.</value>
+    <comment>Progress line: a rough guess at the time left.</comment>
+  </data>
   <data name="Search_Dismiss" xml:space="preserve">
     <value>Done</value>
     <comment>Button: clears the result.</comment>

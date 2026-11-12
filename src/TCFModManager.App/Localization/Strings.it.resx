@@ -9313,6 +9313,21 @@ Prima vengono copiati i profili, e alla fine tutti i mod vengono riattivati. Non
   <data name="Search_ShowModFormat" xml:space="preserve">
     <value>Mostra {0}</value>
   </data>
+  <data name="Search_TurnOffFormat" xml:space="preserve">
+    <value>Disattiva {0}</value>
+  </data>
+  <data name="Search_TurnedOffFormat" xml:space="preserve">
+    <value>Ora disattivato: {0}. Avvia il server per vedere se parte.</value>
+  </data>
+  <data name="Search_ElapsedFormat" xml:space="preserve">
+    <value>Finora {0}.</value>
+  </data>
+  <data name="Search_LeftMinutesFormat" xml:space="preserve">
+    <value>Circa {0} min rimanenti.</value>
+  </data>
+  <data name="Search_LeftUnderMinute" xml:space="preserve">
+    <value>Meno di un minuto rimanente.</value>
+  </data>
   <data name="Search_Dismiss" xml:space="preserve">
     <value>Fatto</value>
   </data>

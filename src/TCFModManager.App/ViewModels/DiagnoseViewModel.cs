@@ -67,6 +67,9 @@ public sealed class LogFindingRow
 
     public bool IsAboutPort => Finding.Kind == LogFindingKind.PortInUse;
 
+    // Fork (1.4.7): the server gave up and the log does not say whose error it was - Find the broken mod.
+    public bool CanSearch => Finding.Kind == LogFindingKind.ServerStopped && Finding.Mod is null;
+
     public bool IsAboutProfile => Finding.Kind is LogFindingKind.ProfileInvalid or LogFindingKind.ProfileClothingMissing
         or LogFindingKind.ProfileItemMissing or LogFindingKind.ProfileTraderMissing;
 
@@ -327,6 +330,17 @@ public sealed partial class DiagnoseViewModel : LocalizedViewModel
             files.BepInEx is null ? "-" : Path.GetFileName(files.BepInEx),
             Path.GetFileName(Path.GetDirectoryName(files.GameErrors)) ?? "-"));
         text.AppendLine();
+
+        // Fork (1.4.7): how the last Find the broken mod search ended, while it is still on the page.
+        if (AppServices.BrokenModFinder is { HasResult: true } search)
+        {
+            text.Append(Strings.Search_Title).Append(": ").AppendLine(search.ResultTitle);
+            foreach (var part in new[] { search.ResultBody, search.ResultNote, search.ResultDone })
+                if (!string.IsNullOrEmpty(part)) text.Append("  ").AppendLine(part);
+            foreach (var line in (search.ResultLines ?? string.Empty).Split('\n', StringSplitOptions.RemoveEmptyEntries))
+                text.Append("    ").AppendLine(line);
+            text.AppendLine();
+        }
 
         foreach (var finding in diagnosis.Findings)
         {

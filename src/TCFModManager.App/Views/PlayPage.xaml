@@ -235,6 +235,14 @@
                         <DockPanel Margin="0,6,0,0">
                             <ui:Button
                                 DockPanel.Dock="Right"
+                                Margin="8,0,0,0"
+                                Appearance="Primary"
+                                Content="{loc:Str Search_Title}"
+                                Icon="{ui:SymbolIcon Search24}"
+                                Command="{Binding FindBrokenModCommand}"
+                                Visibility="{Binding CanFindBrokenMod, Converter={StaticResource BoolToVisibility}}" />
+                            <ui:Button
+                                DockPanel.Dock="Right"
                                 Content="{loc:Str Play_ServerLogOpenFolder}"
                                 Command="{Binding OpenServerLogFolderCommand}" />
                             <TextBlock

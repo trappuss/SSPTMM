@@ -21,6 +21,11 @@ public partial class PlayPage : Page
         {
             ViewModel.StartPolling();
 
+            // Fork (1.4.7): asked for from Find the broken mod's result.
+            if (AppNavigation.TakeStartServer() && ViewModel.Server is { IsRunning: false }
+                && ViewModel.StartServerCommand.CanExecute(null))
+                ViewModel.StartServerCommand.Execute(null);
+
             //
             // Fire-and-forget, and deliberately not part of the poll: the check reads the whole
             // install to compare it against the server's list, which is far too much to do every two

@@ -341,6 +341,7 @@ public partial class PlayViewModel : LocalizedViewModel
         var settings = new SettingsService().Load();
 
         Server = SptLaunchService.Describe(installPath, SptLaunchTarget.Server);
+        if (Server.IsRunning) CanFindBrokenMod = false; // Fork (1.4.7)
         Client = SptLaunchService.Describe(installPath, SptLaunchTarget.Client);
         Headless = SptLaunchService.Describe(
             installPath, SptLaunchTarget.Headless, settings.HeadlessLauncherPath);
@@ -454,6 +455,7 @@ public partial class PlayViewModel : LocalizedViewModel
                 Message = openLauncher ? Strings.Play_ServerStoppedStarting : Strings.Play_ServerStoppedStartingOnly;
                 ShowServerLog = true;
                 AppServices.CrashWatch.ServerStopped(); // Fork (1.4.7): the way to Diagnose logs
+                CanFindBrokenMod = true;
             }
             else if (!up && !openLauncher)
             {

@@ -9313,6 +9313,21 @@ Vorher werden die Profile kopiert, und am Ende sind alle Mods wieder an. Starte 
   <data name="Search_ShowModFormat" xml:space="preserve">
     <value>{0} anzeigen</value>
   </data>
+  <data name="Search_TurnOffFormat" xml:space="preserve">
+    <value>{0} ausschalten</value>
+  </data>
+  <data name="Search_TurnedOffFormat" xml:space="preserve">
+    <value>Jetzt aus: {0}. Starte den Server, um zu sehen, ob er hochfährt.</value>
+  </data>
+  <data name="Search_ElapsedFormat" xml:space="preserve">
+    <value>Bisher {0}.</value>
+  </data>
+  <data name="Search_LeftMinutesFormat" xml:space="preserve">
+    <value>Noch etwa {0} Min.</value>
+  </data>
+  <data name="Search_LeftUnderMinute" xml:space="preserve">
+    <value>Noch weniger als eine Minute.</value>
+  </data>
   <data name="Search_Dismiss" xml:space="preserve">
     <value>Fertig</value>
   </data>

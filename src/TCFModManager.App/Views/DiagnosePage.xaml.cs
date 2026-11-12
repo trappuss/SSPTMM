@@ -37,6 +37,13 @@ public partial class DiagnosePage : Page
     private async void Search_Ended(object? sender, EventArgs e) =>
         await ViewModel.RefreshCommand.ExecuteAsync(null);
 
+    // Fork (1.4.7): the "server stopped" card's Find the broken mod - the search's card is at the top.
+    private void FindBroken_Click(object sender, RoutedEventArgs e)
+    {
+        FindingsScrollViewer.ScrollToTop();
+        if (ViewModel.Search.CanStart) ViewModel.Search.StartCommand.Execute(null);
+    }
+
     private void Page_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
     {
         Behaviors.SmoothScrolling.Glide(FindingsScrollViewer, e.Delta);

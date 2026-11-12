@@ -403,6 +403,7 @@ public partial class PlayViewModel
                 Fail(Strings.Play_DirectServerStopped);
                 ShowServerLog = true;
                 AppServices.CrashWatch.ServerStopped(); // Fork (1.4.7): the way to Diagnose logs
+                CanFindBrokenMod = true;
                 return false;
             }
         }

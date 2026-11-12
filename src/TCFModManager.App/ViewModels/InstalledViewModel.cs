@@ -2321,6 +2321,20 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         return StatusMessage;
     }
 
+    /// <summary>Fork (1.4.7): turns off the mod in this folder (as its path reads when it is on),
+    /// through the same path - for Find the broken mod's result. Whether it is off now, and what
+    /// was said.</summary>
+    public async Task<(bool Done, string? Said)> DisableModFolderAsync(string folderPath)
+    {
+        await ScanAsync(); // the search has just moved every one of them and back
+
+        var card = _all.FirstOrDefault(c => c.Entries.Any(e => string.Equals(e.FolderPath, folderPath, StringComparison.OrdinalIgnoreCase)));
+        if (card is null) return (false, Strings.Installed_NothingToDisable);
+
+        var moves = await ApplyDisableAsync([card], disable: true);
+        return (moves is not null, StatusMessage);
+    }
+
     //
     // The one path every disable/enable goes through: works out what else the change reaches, asks
     // about it, moves the folders, then rescans. Returns the moves it made so a caller running two

@@ -209,6 +209,23 @@ public static class AppNavigation
         return pending;
     }
 
+    // Fork (1.4.7): Play opened to start the server - Find the broken mod's "Start server", once
+    // the mod it found is off. Taken by the Play page when it loads.
+    private static bool _startServerPending;
+
+    public static void StartServerOnPlay()
+    {
+        _startServerPending = true;
+        Navigate(typeof(PlayPage));
+    }
+
+    public static bool TakeStartServer()
+    {
+        var pending = _startServerPending;
+        _startServerPending = false;
+        return pending;
+    }
+
     // Fork: Subscribed items opened with its search set to one mod - Diagnose logs' "Show in
     // Subscribed items". Taken by a page built by the navigation; an existing one hears the event.
     private static string? _searchPending;
