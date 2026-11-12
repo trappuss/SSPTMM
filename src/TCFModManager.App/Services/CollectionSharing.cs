@@ -117,6 +117,29 @@ public static class CollectionSharing
         return WriteSharedFile(id, path, force: true);
     }
 
+    //
+    // Fork (1.4.7): the collection as a file, once - to send as an attachment. What Export on the
+    // Manage page wrote, now beside the code and the folder, and with the name it is shared under.
+    // Returns the error, if any.
+    //
+    public static string? SaveToFile(Guid id, string path)
+    {
+        if (AppServices.ModLists.Find(id) is not { } list) return null;
+
+        try
+        {
+            list = ReadyToShare(list);
+            ModListFile.Save(list, path, AuthorOf(list));
+            AppLog.Info("Sharing", $"saved \"{list.Name}\" revision {list.Revision} as {path}");
+            return null;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            AppLog.Warn("Sharing", $"couldn't save \"{list.Name}\" as {path}: {ex.Message}");
+            return ex.Message;
+        }
+    }
+
     public static void StopSharingToFolder(Guid id)
     {
         var settings = Settings.Load();

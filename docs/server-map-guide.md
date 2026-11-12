@@ -134,8 +134,9 @@ The server picks the change up on its own. **It does not need restarting.**
 
 ## Publish a mod list to my server?
 
-1. Get the server's install the way you want it, then on **Mod lists** press **Capture** to make a
-   list of what is there. (Or pick an existing list.)
+1. Get the server's install the way you want it, then on **Collections** press **Create from
+   installed mods** to make a list of what is there (or open an existing one), and on its page
+   press **Manage in Collections**.
 2. Check the scopes see the next question. This is the step people skip and regret.
 3. With the list selected, press **Publish to this server**.
 
@@ -198,7 +199,7 @@ player's list it installs a pile of HUD tweaks and sound packs it will never sho
 
 One list still covers everybody. The machine reading it takes the entries scoped to it.
 
-- **Capture gives every plugin to the headless** (`Client + Headless`) and you take away what it does
+- **Create from installed mods gives every plugin to the headless** (`Client + Headless`) and you take away what it does
   not need. Nothing on disk separates a bot overhaul from a HUD widget, so the guess goes the safe
   way: a headless carrying a spare mod costs nothing anyone can see, while one missing an item or bot
   mod is felt by everybody in the raid it is hosting.

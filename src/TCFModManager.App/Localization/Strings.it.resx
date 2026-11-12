@@ -2542,21 +2542,6 @@ La copia che non conservi viene spostata in una cartella nascosta .tcfmm-duplica
   <data name="ModLists_BackToModsToolTip" xml:space="preserve">
     <value>Smetti di mostrare il piano e torna ai mod che questa lista nomina. Non cambia niente.</value>
   </data>
-  <data name="ModLists_Capture" xml:space="preserve">
-    <value>Cattura</value>
-  </data>
-  <data name="ModLists_Captured_one" xml:space="preserve">
-    <value>Catturato un mod attivo come "{1}".</value>
-  </data>
-  <data name="ModLists_Captured_other" xml:space="preserve">
-    <value>Catturati {0} mod attivi come "{1}".</value>
-  </data>
-  <data name="ModLists_CaptureDescription" xml:space="preserve">
-    <value>Registra i mod attualmente attivati, nelle versioni che hai.</value>
-  </data>
-  <data name="ModLists_CaptureHeader" xml:space="preserve">
-    <value>Salva ciò che è installato adesso</value>
-  </data>
   <data name="ModLists_CloseSptBeforeApply" xml:space="preserve">
     <value>Chiudi SPT prima di applicare - non si può disattivare un mod mentre è in esecuzione.</value>
   </data>
@@ -2692,9 +2677,6 @@ La copia che non conservi viene spostata in una cartella nascosta .tcfmm-duplica
   <data name="ModLists_EntryVersionUnlockedFormat" xml:space="preserve">
     <value>versione {0}, non bloccata</value>
   </data>
-  <data name="ModLists_Export" xml:space="preserve">
-    <value>Esporta</value>
-  </data>
   <data name="ModLists_ExportDialogTitle" xml:space="preserve">
     <value>Condividi questa lista mod</value>
   </data>
@@ -2703,9 +2685,6 @@ La copia che non conservi viene spostata in una cartella nascosta .tcfmm-duplica
   </data>
   <data name="ModLists_ExportFailedFormat" xml:space="preserve">
     <value>Non è stato possibile scrivere il file - {0}</value>
-  </data>
-  <data name="ModLists_ExportToolTip" xml:space="preserve">
-    <value>Salva questa lista in un file che puoi mandare a qualcuno. Contiene quali mod e quali versioni - mai i file dei mod.</value>
   </data>
   <data name="ModLists_FetchFailureFormat" xml:space="preserve">
     <value>{0}: {1}</value>
@@ -2731,26 +2710,14 @@ La copia che non conservi viene spostata in una cartella nascosta .tcfmm-duplica
   <data name="ModLists_FromServerToolTip" xml:space="preserve">
     <value>Un server ti ha passato questa lista. Resta esattamente come l'ha scritta quel server - fanne una copia per cambiarne il contenuto.</value>
   </data>
-  <data name="ModLists_Import" xml:space="preserve">
-    <value>Importa</value>
-  </data>
   <data name="ModLists_ImportDialogTitle" xml:space="preserve">
     <value>Apri una lista mod condivisa</value>
-  </data>
-  <data name="ModLists_ImportedFormat" xml:space="preserve">
-    <value>"{0}" importata - guarda l'anteprima per vedere cosa farebbe applicarla.</value>
   </data>
   <data name="ModLists_ImportedNotice" xml:space="preserve">
     <value>Questa lista arriva da qualcun altro, quindi resta esattamente come l'ha scritta. Fanne una copia per cambiarne il contenuto.</value>
   </data>
   <data name="ModLists_ImportReadFailedFormat" xml:space="preserve">
     <value>Non è stato possibile leggere quel file - {0}</value>
-  </data>
-  <data name="ModLists_ImportToolTip" xml:space="preserve">
-    <value>Apri una lista mod che qualcuno ha condiviso con te</value>
-  </data>
-  <data name="ModLists_ImportUpdatedFormat" xml:space="preserve">
-    <value>"{0}" aggiornata dalla revisione {1} alla {2}.</value>
   </data>
   <data name="ModLists_ListNotFetchedFormat" xml:space="preserve">
     <value>La lista non è stata scaricata. {0}</value>
@@ -2760,12 +2727,6 @@ La copia che non conservi viene spostata in una cartella nascosta .tcfmm-duplica
   </data>
   <data name="ModLists_MakeCopyToolTip" xml:space="preserve">
     <value>Le liste importate sono in sola lettura. Così ne crei una tua copia.</value>
-  </data>
-  <data name="ModLists_NameFirst" xml:space="preserve">
-    <value>Prima dai un nome alla lista.</value>
-  </data>
-  <data name="ModLists_NamePlaceholder" xml:space="preserve">
-    <value>Nome della lista</value>
   </data>
   <data name="ModLists_NoEntries" xml:space="preserve">
     <value>Questa lista non nomina ancora nessun mod. Aggiungine qualcuno, oppure cattura ciò che hai installato come nuova lista.</value>
@@ -4986,7 +4947,7 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
     <value>Pubblicare la mia lista mod dal mio server</value>
   </data>
   <data name="Help_ServerMap_Publish_Step1" xml:space="preserve">
-    <value>Sulla macchina dove gira il server, apri {0}, scrivi un nome e premi {1}.</value>
+    <value>Sulla macchina dove gira il server, apri {0}, premi {1}, poi {2} nella pagina della collezione.</value>
   </data>
   <data name="Help_ServerMap_Publish_Step2" xml:space="preserve">
     <value>Togli ciò che non serve ai giocatori. Il pulsante di ambito di ogni riga dice per quali macchine è.</value>
@@ -7081,19 +7042,6 @@ I file che tiene aperti potrebbero non spostarsi e lasciare un mod modificato a 
   <data name="Installed_WaitForInstallFormat" xml:space="preserve">
     <value>{0} è in fase di installazione. Aspetta che finisca (vedi Download), poi riprova.</value>
   </data>
-  <data name="ModLists_ImportClashTitle" xml:space="preserve">
-    <value>Importa lista mod</value>
-  </data>
-  <data name="ModLists_ImportOwnListFormat" xml:space="preserve">
-    <value>Questo file contiene "{0}", una lista che hai creato in questa app. Importarlo sopra la tua la renderebbe di sola lettura e annullerebbe le modifiche fatte dopo il salvataggio del file.
-
-Sì - importala come lista separata e lascia la tua com'è
-No - sostituisci la tua con il file
-Annulla - non importare</value>
-  </data>
-  <data name="ModLists_ImportOlderFormat" xml:space="preserve">
-    <value>Questo file contiene una revisione più vecchia di "{0}" (revisione {1}; tu hai la revisione {2}). Sostituire la tua con quella più vecchia?</value>
-  </data>
   <data name="ModLists_ImportedCopyNameFormat" xml:space="preserve">
     <value>{0} (importata)</value>
   </data>
@@ -7524,7 +7472,7 @@ Installare comunque il file così com'è?</value>
     <value>Lo aprono e premono {0}. La loro app scarica ogni mod direttamente da sp-mod.com.</value>
   </data>
   <data name="Help_ModLists_Share_Note" xml:space="preserve">
-    <value>Hai cambiato la collezione? Manda di nuovo il codice - la loro copia si aggiorna e vedono cosa è cambiato. Funziona anche un file da Esporta.</value>
+    <value>Hai cambiato la collezione? Manda di nuovo il codice - la loro copia si aggiorna e vedono cosa è cambiato. Funziona anche un file da Salva come file.</value>
   </data>
   <data name="Help_ModLists_Suggest_Title" xml:space="preserve">
     <value>Suggerire mod per la collezione di un amico</value>
@@ -7929,6 +7877,15 @@ Installare comunque il file così com'è?</value>
   </data>
   <data name="Sharing_StopSharing" xml:space="preserve">
     <value>Smetti di tenerla lì</value>
+  </data>
+  <data name="Sharing_FileHeading" xml:space="preserve">
+    <value>File</value>
+  </data>
+  <data name="Sharing_FileIntroFormat" xml:space="preserve">
+    <value>Salva la collezione come file da mandare come allegato. Gli amici lo aprono con {0}.</value>
+  </data>
+  <data name="Sharing_SaveFile" xml:space="preserve">
+    <value>Salva come file...</value>
   </data>
   <data name="Sharing_FolderDone" xml:space="preserve">
     <value>Salvata lì. Di' ai tuoi amici di seguire quel file con Segui un file condiviso.</value>
@@ -9797,6 +9754,9 @@ No mantiene questo gruppo con il suo vecchio nome.</value>
   </data>
   <data name="Play_RemoteModsMatchFormat" xml:space="preserve">
     <value>I mod qui corrispondono a {0}: ogni mod server caricato ({1}) è installato nella stessa versione.</value>
+  </data>
+  <data name="Play_RemoteModsServerMapFormat" xml:space="preserve">
+    <value>{0} distribuisce il proprio elenco di mod tramite Server Map, quindi il controllo qui sopra usa quell'elenco.</value>
   </data>
   <data name="Play_RemoteModsManualFormat" xml:space="preserve">
     <value>{0} usa mod server che SSPTMM non trova su sp-mod.com, quindi da qui non si possono confrontare né installare: {1}.</value>

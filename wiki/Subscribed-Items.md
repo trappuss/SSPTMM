@@ -108,7 +108,8 @@ ones installed after the preset was saved (those stay as they are). Then:
 Two mods installed into one folder are kept each by itself, and switched by their own files, as
 their cards are.
 
-Presets are kept per SPT install, in `Data\mod_presets.json`.
+Presets are kept per SPT install, in `Data\mod_presets.json`. To keep a setup at its versions, or
+to share it, make a [collection](Collections) of it instead.
 
 ## Pinned mods
 

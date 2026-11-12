@@ -44,6 +44,8 @@ Open one for its page: **Manage in Collections** and **Share with friends**.
 
 - **Share code** - one line of text that fits in a Discord message.
 - **Shared folder** - a file in a folder you both sync; your friends' copies follow it.
+- **Save as file...** - the collection as a file, once, to send as an attachment. Friends open it
+  with **Add from file**.
 
 When a friend's collection changes, a notice says exactly what was added or removed and offers
 **Sync** or **Later**. A share code you copy is noticed when you switch to the app.
@@ -57,7 +59,7 @@ for it:
    copy of your own.
 2. Add the mods you'd like to your copy - **Add to Collection** on any mod, or **Add mods** under
    **Manage in Collections**.
-3. Press **Share with friends** on your copy and send them its code (or the file from **Export**).
+3. Press **Share with friends** on your copy and send them its code (or a file from **Save as file...**).
 
 When they add it - **Add from code**, the clipboard notice, or **Add from file** - their SSPTMM sees
 it is a copy of one of their collections and shows **Mods from a friend's copy**: each mod your
@@ -78,13 +80,22 @@ long as the one adding it has 1.4.4.
 
 ![Manage](https://raw.githubusercontent.com/trappuss/SSPTMM/main/docs/images/08c-collection-manage.png)
 
-- **Capture** saves what is installed now; **Import** reads a list file.
+Manage edits the collection you opened it from. New collections are made on the Collections tab
+(**Create from installed mods**, **Add from code**, **Add from file**), and sending one is
+**Share with friends**.
+
 - **Preview** shows what applying the collection would install, update, enable and disable;
   **Apply** does it. Mods you [pinned](Subscribed-Items#pinned-mods) are never disabled.
 - Per mod: where it applies (Server, Client, Headless), and remove.
-- **Add mods**, **Refresh versions**, **Export**, **Rename**, **Delete**.
+- **Add mods**, **Refresh versions**, **Rename**, **Delete**.
 - **Publish to this server** hands the list out to players joining your server through the Server
   Map mod (see [Tools](Tools)).
 
 A copy of your SPT profiles is taken before a collection is applied - see
 [Safety and backups](Safety-and-Backups).
+
+## Collections or presets?
+
+Both can set which mods are on. A [preset](Subscribed-Items#presets) only switches mods you already
+have on and off: instant, offline, nothing downloaded. A collection names versions: applying it
+downloads, updates and turns mods on, so it is what you share, or keep for a whole setup.

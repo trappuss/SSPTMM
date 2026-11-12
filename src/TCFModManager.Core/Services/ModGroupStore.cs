@@ -4,10 +4,10 @@ using TCFModManager.Core.Models;
 namespace TCFModManager.Core.Services;
 
 //
-// Loads/saves ModGroupData as JSON under <app folder>\Data\mod_groups.json - the Mod Groups
-// window's separators and which installed mod (by name) sits in which one. Purely organizational;
-// nothing here is read by the Installed page or by installing/removing mods. A corrupt or
-// hand-edited file falls back to an empty set rather than blocking the window from opening.
+// Loads/saves ModGroupData as JSON under <app folder>\Data\mod_groups.json - the groups on
+// Subscribed items (its Groups view, grouping, Add to group) and which installed mod (by name) sits
+// in which one. Purely organizational: installing and removing mods never read it. A corrupt or
+// hand-edited file falls back to an empty set rather than blocking the page.
 //
 public sealed class ModGroupStore
 {

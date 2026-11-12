@@ -434,26 +434,6 @@
   <data name="Installed_GroupRowToolTip" xml:space="preserve">
     <value>Click for details - drag onto another group to move it there</value>
   </data>
-  <data name="ModLists_CaptureHeader" xml:space="preserve">
-    <value>Save what's installed now</value>
-  </data>
-  <data name="ModLists_CaptureDescription" xml:space="preserve">
-    <value>Records the mods that are currently enabled, at the versions you have.</value>
-  </data>
-  <data name="ModLists_NamePlaceholder" xml:space="preserve">
-    <value>List name</value>
-    <comment>Placeholder in the box for naming a new list.</comment>
-  </data>
-  <data name="ModLists_Capture" xml:space="preserve">
-    <value>Capture</value>
-    <comment>Button label - makes a list out of what is installed now.</comment>
-  </data>
-  <data name="ModLists_Import" xml:space="preserve">
-    <value>Import</value>
-  </data>
-  <data name="ModLists_ImportToolTip" xml:space="preserve">
-    <value>Open a mod list someone shared with you</value>
-  </data>
   <data name="ModLists_SavedHeader" xml:space="preserve">
     <value>Saved lists</value>
   </data>
@@ -506,12 +486,6 @@
   </data>
   <data name="ModLists_BackToModsToolTip" xml:space="preserve">
     <value>Stop showing the plan and go back to what this list names. Changes nothing.</value>
-  </data>
-  <data name="ModLists_Export" xml:space="preserve">
-    <value>Export</value>
-  </data>
-  <data name="ModLists_ExportToolTip" xml:space="preserve">
-    <value>Save this list to a file you can send to someone. It carries which mods and versions - never the mod files themselves.</value>
   </data>
   <data name="ModLists_RefreshFromServer" xml:space="preserve">
     <value>Refresh from server</value>
@@ -1955,16 +1929,6 @@ That happens legitimately if the server was rebuilt or you're reaching it throug
   <data name="ModLists_FollowingFormat" xml:space="preserve">
     <value>Following "{0}".</value>
   </data>
-  <data name="ModLists_NameFirst" xml:space="preserve">
-    <value>Give the list a name first.</value>
-  </data>
-  <data name="ModLists_Captured_one" xml:space="preserve">
-    <value>Captured 1 enabled mod as "{1}".</value>
-    <comment>{0} is the new list's name. See the Many form; these become one plural key in S5.</comment>
-  </data>
-  <data name="ModLists_Captured_other" xml:space="preserve">
-    <value>Captured {0} enabled mods as "{1}".</value>
-  </data>
   <data name="ModLists_CloseSptBeforeApply" xml:space="preserve">
     <value>Close SPT before applying - disabling a mod can't happen while it's running.</value>
   </data>
@@ -2183,12 +2147,6 @@ That happens legitimately if the server was rebuilt or you're reaching it throug
   </data>
   <data name="ModLists_ImportReadFailedFormat" xml:space="preserve">
     <value>Couldn't read that file - {0}</value>
-  </data>
-  <data name="ModLists_ImportedFormat" xml:space="preserve">
-    <value>Imported "{0}" - preview it to see what applying it would do.</value>
-  </data>
-  <data name="ModLists_ImportUpdatedFormat" xml:space="preserve">
-    <value>Updated "{0}" from revision {1} to {2}.</value>
   </data>
   <data name="ModLists_SomethingWentWrongFormat" xml:space="preserve">
     <value>Something went wrong - {0}</value>
@@ -6642,22 +6600,6 @@ Files it has open may fail to move and leave a mod half changed - Undo puts back
     <value>{0} is being installed right now. Wait for it to finish (see Downloads), then try again.</value>
     <comment>Removing, disabling or sorting out mods while the queue installs one. {0} is the mod being installed.</comment>
   </data>
-  <data name="ModLists_ImportClashTitle" xml:space="preserve">
-    <value>Import mod list</value>
-    <comment>Title of the question asked when an imported file would replace a list already here.</comment>
-  </data>
-  <data name="ModLists_ImportOwnListFormat" xml:space="preserve">
-    <value>This file holds "{0}", a list you made in this app. Importing it over yours would make yours read-only and undo any changes made since the file was saved.
-
-Yes - import it as a separate list, and keep yours as it is
-No - replace yours with the file
-Cancel - don't import</value>
-    <comment>Asked when importing a file of one of the user's own lists. {0} is the list. The three lines name the buttons Yes, No and Cancel.</comment>
-  </data>
-  <data name="ModLists_ImportOlderFormat" xml:space="preserve">
-    <value>This file holds an older revision of "{0}" (revision {1}; you have revision {2}). Replace yours with the older one?</value>
-    <comment>{0} the list, {1} the file's revision, {2} the stored one.</comment>
-  </data>
   <data name="ModLists_ImportedCopyNameFormat" xml:space="preserve">
     <value>{0} (imported)</value>
     <comment>Name of a list imported beside one of the user's own with the same identity. {0} is the list's name.</comment>
@@ -8138,7 +8080,7 @@ Install the file as it is anyway?</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_ModLists_Share_Note" xml:space="preserve">
-    <value>Changed the collection? Send the code again - their copy is updated and they are shown what changed. A file from Export works too.</value>
+    <value>Changed the collection? Send the code again - their copy is updated and they are shown what changed. A file from Save as file works too.</value>
   </data>
   <data name="Help_ModLists_Suggest_Title" xml:space="preserve">
     <value>Suggest mods for a friend's collection</value>
@@ -8416,7 +8358,7 @@ Install the file as it is anyway?</value>
     <comment>How-to title. For the person running the server.</comment>
   </data>
   <data name="Help_ServerMap_Publish_Step1" xml:space="preserve">
-    <value>On the machine the server runs on, open {0}, type a name and press {1}.</value>
+    <value>On the machine the server runs on, open {0}, press {1}, then {2} on the collection's page.</value>
     <comment>Each {n} is the label of a control, filled in by the app and shown in bold - keep every placeholder, move it wherever the sentence needs it.</comment>
   </data>
   <data name="Help_ServerMap_Publish_Step2" xml:space="preserve">
@@ -9776,6 +9718,18 @@ See Dependencies and Conflicts.</value>
   <data name="Sharing_StopSharing" xml:space="preserve">
     <value>Stop keeping it there</value>
     <comment>Share dialog: stops writing the collection to the shared folder. The file already there is left.</comment>
+  </data>
+  <data name="Sharing_FileHeading" xml:space="preserve">
+    <value>File</value>
+    <comment>Share with friends dialog: heading of the one-off file section.</comment>
+  </data>
+  <data name="Sharing_FileIntroFormat" xml:space="preserve">
+    <value>Save the collection as a file to send as an attachment. Friends open it with {0}.</value>
+    <comment>{0} = the Add from file button.</comment>
+  </data>
+  <data name="Sharing_SaveFile" xml:space="preserve">
+    <value>Save as file...</value>
+    <comment>Button: save the collection as a file.</comment>
   </data>
   <data name="Sharing_FolderDone" xml:space="preserve">
     <value>Saved there. Tell your friends to follow that file with Follow a shared file.</value>
@@ -12200,6 +12154,10 @@ No keeps this group under its old name.</value>
   <data name="Play_RemoteModsMatchFormat" xml:space="preserve">
     <value>The mods here match {0}: every server mod it has loaded ({1}) is installed in the same version.</value>
     <comment>Play status: nothing to do. {0}: the server; {1}: how many server mods it has loaded.</comment>
+  </data>
+  <data name="Play_RemoteModsServerMapFormat" xml:space="preserve">
+    <value>{0} hands out its own mod list through Server Map, so the check above uses that list.</value>
+    <comment>{0} = the server's name. Said instead of the mods line when Server Map hands out this server's list.</comment>
   </data>
   <data name="Play_RemoteModsManualFormat" xml:space="preserve">
     <value>{0} runs server mods SSPTMM can't find on sp-mod.com, so they can't be compared or installed from here: {1}.</value>

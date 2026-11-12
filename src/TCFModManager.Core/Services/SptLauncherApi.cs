@@ -160,6 +160,20 @@ public sealed class SptLauncherApi : IDisposable
     }
 
     /// <summary>
+    /// Fork (1.4.7): whether a host and port as Server Map's settings keep them name this server.
+    /// </summary>
+    public static bool IsSameServer(string? host, string? port, string address)
+    {
+        var trimmed = host?.Trim().TrimEnd('/');
+        if (string.IsNullOrEmpty(trimmed)) return false;
+
+        var text = string.IsNullOrWhiteSpace(port) ? trimmed : $"{trimmed}:{port.Trim()}";
+        return TryNormalizeAddress(text, out var mine)
+            && TryNormalizeAddress(address, out var theirs)
+            && string.Equals(mine, theirs, StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
     /// Fork (1.4.3): whether the address is this PC's - localhost, a loopback address or one of its
     /// own. A name other than localhost is not looked up here, and so counts as another PC's.
     /// </summary>

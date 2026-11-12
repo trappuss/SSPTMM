@@ -150,6 +150,10 @@ With Fika's server mod installed and **This PC** picked, the card tells you what
   and what a friend does with it in SSPTMM (**Join from an invite...**). When your mod list fits
   in a message, the invite ends with a share code for it: a friend's SSPTMM then opens the
   preview for all of your mods, the game-only ones too - which a server can't tell it.
+- A server that hands out its mod list through [Server Map](Tools) is checked against that list,
+  in the check above the launch buttons, rather than against the mods it reports: that list names
+  the host's game mods too. The mods line then says so, and only Fika's versions are compared
+  there.
 - From outside your network, friends use your public address instead, and your router forwards
   **TCP** on that port to this PC. Whoever hosts a raid also needs **UDP 25565** (Fika's default)
   forwarded to their own PC - the raid runs in the host's game, not in the server.

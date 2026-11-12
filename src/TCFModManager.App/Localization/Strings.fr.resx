@@ -2542,21 +2542,6 @@ La copie que vous ne gardez pas est déplacée dans un dossier caché .tcfmm-dup
   <data name="ModLists_BackToModsToolTip" xml:space="preserve">
     <value>Cesser d'afficher le plan et revenir à ce que cette liste nomme. Ne change rien.</value>
   </data>
-  <data name="ModLists_Capture" xml:space="preserve">
-    <value>Capturer</value>
-  </data>
-  <data name="ModLists_Captured_one" xml:space="preserve">
-    <value>{0} mod activé capturé dans « {1} ».</value>
-  </data>
-  <data name="ModLists_Captured_other" xml:space="preserve">
-    <value>{0} mods activés capturés dans « {1} ».</value>
-  </data>
-  <data name="ModLists_CaptureDescription" xml:space="preserve">
-    <value>Enregistre les mods actuellement activés, dans les versions que vous avez.</value>
-  </data>
-  <data name="ModLists_CaptureHeader" xml:space="preserve">
-    <value>Enregistrer ce qui est installé</value>
-  </data>
   <data name="ModLists_CloseSptBeforeApply" xml:space="preserve">
     <value>Fermez SPT avant d'appliquer - un mod ne peut pas être désactivé pendant qu'il tourne.</value>
   </data>
@@ -2692,9 +2677,6 @@ La copie que vous ne gardez pas est déplacée dans un dossier caché .tcfmm-dup
   <data name="ModLists_EntryVersionUnlockedFormat" xml:space="preserve">
     <value>version {0}, non verrouillée</value>
   </data>
-  <data name="ModLists_Export" xml:space="preserve">
-    <value>Exporter</value>
-  </data>
   <data name="ModLists_ExportDialogTitle" xml:space="preserve">
     <value>Partager cette liste de mods</value>
   </data>
@@ -2703,9 +2685,6 @@ La copie que vous ne gardez pas est déplacée dans un dossier caché .tcfmm-dup
   </data>
   <data name="ModLists_ExportFailedFormat" xml:space="preserve">
     <value>Impossible d'écrire le fichier - {0}</value>
-  </data>
-  <data name="ModLists_ExportToolTip" xml:space="preserve">
-    <value>Enregistre cette liste dans un fichier que vous pouvez envoyer à quelqu'un. Il contient les mods et les versions - jamais les fichiers des mods eux-mêmes.</value>
   </data>
   <data name="ModLists_FetchFailureFormat" xml:space="preserve">
     <value>{0} : {1}</value>
@@ -2731,26 +2710,14 @@ La copie que vous ne gardez pas est déplacée dans un dossier caché .tcfmm-dup
   <data name="ModLists_FromServerToolTip" xml:space="preserve">
     <value>Un serveur vous a transmis cette liste. Elle reste exactement telle que ce serveur l'a écrite - faites-en une copie pour en changer le contenu.</value>
   </data>
-  <data name="ModLists_Import" xml:space="preserve">
-    <value>Importer</value>
-  </data>
   <data name="ModLists_ImportDialogTitle" xml:space="preserve">
     <value>Ouvrir une liste de mods partagée</value>
-  </data>
-  <data name="ModLists_ImportedFormat" xml:space="preserve">
-    <value>« {0} » importée - affichez un aperçu pour voir ce que son application ferait.</value>
   </data>
   <data name="ModLists_ImportedNotice" xml:space="preserve">
     <value>Cette liste vient de quelqu'un d'autre, elle reste donc exactement telle qu'il l'a écrite. Faites-en une copie pour en changer le contenu.</value>
   </data>
   <data name="ModLists_ImportReadFailedFormat" xml:space="preserve">
     <value>Impossible de lire ce fichier - {0}</value>
-  </data>
-  <data name="ModLists_ImportToolTip" xml:space="preserve">
-    <value>Ouvrir une liste de mods que quelqu'un a partagée avec vous</value>
-  </data>
-  <data name="ModLists_ImportUpdatedFormat" xml:space="preserve">
-    <value>« {0} » mise à jour de la révision {1} vers {2}.</value>
   </data>
   <data name="ModLists_ListNotFetchedFormat" xml:space="preserve">
     <value>La liste n'a pas été récupérée. {0}</value>
@@ -2760,12 +2727,6 @@ La copie que vous ne gardez pas est déplacée dans un dossier caché .tcfmm-dup
   </data>
   <data name="ModLists_MakeCopyToolTip" xml:space="preserve">
     <value>Les listes importées sont en lecture seule. Ceci en crée votre propre copie.</value>
-  </data>
-  <data name="ModLists_NameFirst" xml:space="preserve">
-    <value>Donnez d'abord un nom à la liste.</value>
-  </data>
-  <data name="ModLists_NamePlaceholder" xml:space="preserve">
-    <value>Nom de la liste</value>
   </data>
   <data name="ModLists_NoEntries" xml:space="preserve">
     <value>Cette liste ne nomme encore aucun mod. Ajoutez-en, ou capturez ce que vous avez installé comme nouvelle liste.</value>
@@ -4986,7 +4947,7 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
     <value>Publier ma liste de mods depuis mon serveur</value>
   </data>
   <data name="Help_ServerMap_Publish_Step1" xml:space="preserve">
-    <value>Sur la machine où tourne le serveur, ouvrez {0}, tapez un nom et cliquez sur {1}.</value>
+    <value>Sur la machine où tourne le serveur, ouvrez {0}, cliquez sur {1}, puis sur {2} dans la page de la collection.</value>
   </data>
   <data name="Help_ServerMap_Publish_Step2" xml:space="preserve">
     <value>Retirez ce dont les joueurs n'ont pas besoin. Le bouton de portée de chaque ligne indique pour quelles machines elle est.</value>
@@ -7081,19 +7042,6 @@ Les fichiers qu'il a ouverts peuvent ne pas se déplacer et laisser un mod à mo
   <data name="Installed_WaitForInstallFormat" xml:space="preserve">
     <value>{0} est en cours d'installation. Attendez la fin (voir Téléchargements), puis réessayez.</value>
   </data>
-  <data name="ModLists_ImportClashTitle" xml:space="preserve">
-    <value>Importer une liste de mods</value>
-  </data>
-  <data name="ModLists_ImportOwnListFormat" xml:space="preserve">
-    <value>Ce fichier contient « {0} », une liste que vous avez créée dans cette application. L'importer par-dessus la vôtre rendrait la vôtre en lecture seule et annulerait toutes les modifications faites depuis l'enregistrement du fichier.
-
-Oui - l'importer comme liste séparée et garder la vôtre telle quelle
-Non - remplacer la vôtre par le fichier
-Annuler - ne pas importer</value>
-  </data>
-  <data name="ModLists_ImportOlderFormat" xml:space="preserve">
-    <value>Ce fichier contient une révision plus ancienne de « {0} » (révision {1} ; vous avez la révision {2}). Remplacer la vôtre par l'ancienne ?</value>
-  </data>
   <data name="ModLists_ImportedCopyNameFormat" xml:space="preserve">
     <value>{0} (importée)</value>
   </data>
@@ -7524,7 +7472,7 @@ Installer quand même le fichier tel quel ?</value>
     <value>Ils l'ouvrent et cliquent sur {0}. Leur application télécharge elle-même chaque mod depuis sp-mod.com.</value>
   </data>
   <data name="Help_ModLists_Share_Note" xml:space="preserve">
-    <value>Vous avez modifié la collection ? Renvoyez le code - leur copie est mise à jour et on leur montre ce qui a changé. Un fichier obtenu avec Exporter fonctionne aussi.</value>
+    <value>Vous avez modifié la collection ? Renvoyez le code - leur copie est mise à jour et on leur montre ce qui a changé. Un fichier obtenu avec Enregistrer dans un fichier fonctionne aussi.</value>
   </data>
   <data name="Help_ModLists_Suggest_Title" xml:space="preserve">
     <value>Suggérer des mods pour la collection d'un ami</value>
@@ -7929,6 +7877,15 @@ Installer quand même le fichier tel quel ?</value>
   </data>
   <data name="Sharing_StopSharing" xml:space="preserve">
     <value>Ne plus la conserver là</value>
+  </data>
+  <data name="Sharing_FileHeading" xml:space="preserve">
+    <value>Fichier</value>
+  </data>
+  <data name="Sharing_FileIntroFormat" xml:space="preserve">
+    <value>Enregistrez la collection dans un fichier à envoyer en pièce jointe. Vos amis l'ouvrent avec {0}.</value>
+  </data>
+  <data name="Sharing_SaveFile" xml:space="preserve">
+    <value>Enregistrer dans un fichier...</value>
   </data>
   <data name="Sharing_FolderDone" xml:space="preserve">
     <value>Enregistrée là. Dites à vos amis de suivre ce fichier avec Suivre un fichier partagé.</value>
@@ -9797,6 +9754,9 @@ Non garde ce groupe sous son ancien nom.</value>
   </data>
   <data name="Play_RemoteModsMatchFormat" xml:space="preserve">
     <value>Les mods d'ici correspondent à {0} : chaque mod serveur chargé ({1}) est installé dans la même version.</value>
+  </data>
+  <data name="Play_RemoteModsServerMapFormat" xml:space="preserve">
+    <value>{0} distribue sa propre liste de mods via Server Map : la vérification ci-dessus utilise donc cette liste.</value>
   </data>
   <data name="Play_RemoteModsManualFormat" xml:space="preserve">
     <value>{0} utilise des mods serveur introuvables sur sp-mod.com ; ils ne peuvent être ni comparés ni installés d'ici : {1}.</value>

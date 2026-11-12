@@ -14,6 +14,7 @@ namespace TCFModManager.App.Views;
 //  - Copy share code, with the name it says it is from. Pasted in a chat; sent again after a change.
 //  - For your own collection, a shared folder: kept there as a file, rewritten on every change, for
 //    friends to follow. For a friend's that you follow, where from - and Stop following.
+//  - Fork (1.4.7): Save as file, once, to send as an attachment (was Export on the Manage page).
 //
 // The buttons inside act straight away and say what they did underneath; Done closes it.
 //
@@ -127,6 +128,31 @@ public static class ShareCollectionDialog
             body.Children.Add(where);
             body.Children.Add(unfollow);
         }
+
+        // ---- a file, once
+        body.Children.Add(Heading(Strings.Sharing_FileHeading));
+        body.Children.Add(Paragraph(LocalizationService.Text(Strings.Sharing_FileIntroFormat, Strings.Sharing_AddFromFile), top: 4));
+        var save = Button(Strings.Sharing_SaveFile, blue: false);
+        save.Click += (_, _) =>
+        {
+            if (name is not null) CollectionSharing.ShareName = name.Text;
+            var dialog = new SaveFileDialog
+            {
+                Title = Strings.ModLists_ExportDialogTitle,
+                Filter = ModListFileDialog.Filter,
+                FileName = TCFModManager.Core.Services.ModListFile.SuggestedFileName(list),
+                AddExtension = true,
+                DefaultExt = TCFModManager.Core.Services.ModListFile.Extension,
+            };
+            if (dialog.ShowDialog() != true) return;
+
+            var error = CollectionSharing.SaveToFile(id, dialog.FileName);
+            said.Foreground = Brush(error is null ? "#A4D007" : "#E05A5A");
+            said.Text = error is null
+                ? LocalizationService.Text(Strings.ModLists_ExportedFormat, System.IO.Path.GetFileName(dialog.FileName))
+                : LocalizationService.Text(Strings.ModLists_ExportFailedFormat, error);
+        };
+        body.Children.Add(save);
 
         body.Children.Add(said);
 

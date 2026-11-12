@@ -110,12 +110,6 @@ internal static class Strings
     internal static string Installed_GroupDeleteToolTip => LocalizationService.Get("Installed_GroupDeleteToolTip");
     internal static string Installed_GroupDropHint => LocalizationService.Get("Installed_GroupDropHint");
     internal static string Installed_GroupRowToolTip => LocalizationService.Get("Installed_GroupRowToolTip");
-    internal static string ModLists_CaptureHeader => LocalizationService.Get("ModLists_CaptureHeader");
-    internal static string ModLists_CaptureDescription => LocalizationService.Get("ModLists_CaptureDescription");
-    internal static string ModLists_NamePlaceholder => LocalizationService.Get("ModLists_NamePlaceholder");
-    internal static string ModLists_Capture => LocalizationService.Get("ModLists_Capture");
-    internal static string ModLists_Import => LocalizationService.Get("ModLists_Import");
-    internal static string ModLists_ImportToolTip => LocalizationService.Get("ModLists_ImportToolTip");
     internal static string ModLists_SavedHeader => LocalizationService.Get("ModLists_SavedHeader");
     internal static string ModLists_SavedEmpty => LocalizationService.Get("ModLists_SavedEmpty");
     internal static string ModLists_ServingBadge => LocalizationService.Get("ModLists_ServingBadge");
@@ -133,8 +127,6 @@ internal static class Strings
     internal static string ModLists_ApplyToolTip => LocalizationService.Get("ModLists_ApplyToolTip");
     internal static string ModLists_BackToMods => LocalizationService.Get("ModLists_BackToMods");
     internal static string ModLists_BackToModsToolTip => LocalizationService.Get("ModLists_BackToModsToolTip");
-    internal static string ModLists_Export => LocalizationService.Get("ModLists_Export");
-    internal static string ModLists_ExportToolTip => LocalizationService.Get("ModLists_ExportToolTip");
     internal static string ModLists_RefreshFromServer => LocalizationService.Get("ModLists_RefreshFromServer");
     internal static string ModLists_RefreshFromServerToolTip => LocalizationService.Get("ModLists_RefreshFromServerToolTip");
     internal static string ModLists_MakeCopy => LocalizationService.Get("ModLists_MakeCopy");
@@ -559,9 +551,6 @@ internal static class Strings
     internal static string ModLists_NoneFollowed => LocalizationService.Get("ModLists_NoneFollowed");
     internal static string ModLists_UndoLabelFormat => LocalizationService.Get("ModLists_UndoLabelFormat");
     internal static string ModLists_FollowingFormat => LocalizationService.Get("ModLists_FollowingFormat");
-    internal static string ModLists_NameFirst => LocalizationService.Get("ModLists_NameFirst");
-    internal static string ModLists_Captured(int count, params object?[] values) =>
-        LocalizationService.Plural("ModLists_Captured", count, values);
     internal static string ModLists_CloseSptBeforeApply => LocalizationService.Get("ModLists_CloseSptBeforeApply");
     internal static string ModLists_PreviewedFormat => LocalizationService.Get("ModLists_PreviewedFormat");
     internal static string ModLists_PinnedFormat => LocalizationService.Get("ModLists_PinnedFormat");
@@ -627,8 +616,6 @@ internal static class Strings
     internal static string ModLists_ExportedFormat => LocalizationService.Get("ModLists_ExportedFormat");
     internal static string ModLists_ExportFailedFormat => LocalizationService.Get("ModLists_ExportFailedFormat");
     internal static string ModLists_ImportReadFailedFormat => LocalizationService.Get("ModLists_ImportReadFailedFormat");
-    internal static string ModLists_ImportedFormat => LocalizationService.Get("ModLists_ImportedFormat");
-    internal static string ModLists_ImportUpdatedFormat => LocalizationService.Get("ModLists_ImportUpdatedFormat");
     internal static string ModLists_SomethingWentWrongFormat => LocalizationService.Get("ModLists_SomethingWentWrongFormat");
     internal static string ModLists_Dropped(int count, params object?[] values) =>
         LocalizationService.Plural("ModLists_Dropped", count, values);
@@ -1767,9 +1754,6 @@ internal static class Strings
     internal static string Options_CloseWithServerSummary => LocalizationService.Get("Options_CloseWithServerSummary");
     internal static string Options_CloseWithServerDescription => LocalizationService.Get("Options_CloseWithServerDescription");
     internal static string Installed_WaitForInstallFormat => LocalizationService.Get("Installed_WaitForInstallFormat");
-    internal static string ModLists_ImportClashTitle => LocalizationService.Get("ModLists_ImportClashTitle");
-    internal static string ModLists_ImportOwnListFormat => LocalizationService.Get("ModLists_ImportOwnListFormat");
-    internal static string ModLists_ImportOlderFormat => LocalizationService.Get("ModLists_ImportOlderFormat");
     internal static string ModLists_ImportedCopyNameFormat => LocalizationService.Get("ModLists_ImportedCopyNameFormat");
     internal static string ModInstall_InUseRestoreProfilesFormat => LocalizationService.Get("ModInstall_InUseRestoreProfilesFormat");
     internal static string Profiles_Header => LocalizationService.Get("Profiles_Header");
@@ -2598,6 +2582,9 @@ internal static class Strings
     internal static string Sharing_ChooseFolder => LocalizationService.Get("Sharing_ChooseFolder");
     internal static string Sharing_ChooseFolderTitle => LocalizationService.Get("Sharing_ChooseFolderTitle");
     internal static string Sharing_StopSharing => LocalizationService.Get("Sharing_StopSharing");
+    internal static string Sharing_FileHeading => LocalizationService.Get("Sharing_FileHeading");
+    internal static string Sharing_FileIntroFormat => LocalizationService.Get("Sharing_FileIntroFormat");
+    internal static string Sharing_SaveFile => LocalizationService.Get("Sharing_SaveFile");
     internal static string Sharing_FolderDone => LocalizationService.Get("Sharing_FolderDone");
     internal static string Sharing_FolderFailedFormat => LocalizationService.Get("Sharing_FolderFailedFormat");
     internal static string Sharing_FolderStopped => LocalizationService.Get("Sharing_FolderStopped");
@@ -3213,6 +3200,7 @@ internal static class Strings
     internal static string Play_RemoteCompareModsToolTip => LocalizationService.Get("Play_RemoteCompareModsToolTip");
     internal static string Play_RemoteModsListNameFormat => LocalizationService.Get("Play_RemoteModsListNameFormat");
     internal static string Play_RemoteModsMatchFormat => LocalizationService.Get("Play_RemoteModsMatchFormat");
+    internal static string Play_RemoteModsServerMapFormat => LocalizationService.Get("Play_RemoteModsServerMapFormat");
     internal static string Play_RemoteModsManualFormat => LocalizationService.Get("Play_RemoteModsManualFormat");
     internal static string Play_RemoteNoModsFormat => LocalizationService.Get("Play_RemoteNoModsFormat");
     internal static string Play_RemoteModsCatalogLoading => LocalizationService.Get("Play_RemoteModsCatalogLoading");

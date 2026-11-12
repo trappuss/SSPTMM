@@ -648,6 +648,18 @@ public class ForkDirectLaunchTests : IDisposable
         if (expected is not null) Assert.Equal(expected, address);
     }
 
+    // Fork (1.4.7): Server Map's host and port against a server on Play.
+    [Theory]
+    [InlineData("192.168.1.5", "6969", "192.168.1.5:6969", true)]
+    [InlineData("https://192.168.1.5/", "6969", "192.168.1.5:6969", true)]
+    [InlineData("Fika.Example.org", "", "fika.example.org:6969", true)]
+    [InlineData("192.168.1.5", "6970", "192.168.1.5:6969", false)]
+    [InlineData("192.168.1.6", "6969", "192.168.1.5:6969", false)]
+    [InlineData("", "6969", "192.168.1.5:6969", false)]
+    [InlineData(null, null, "192.168.1.5:6969", false)]
+    public void Server_maps_server_is_told_from_another(string? host, string? port, string address, bool same) =>
+        Assert.Equal(same, SptLauncherApi.IsSameServer(host, port, address));
+
     [Theory]
     [InlineData("127.0.0.1:6969", true)]
     [InlineData("localhost:6969", true)]

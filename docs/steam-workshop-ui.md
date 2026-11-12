@@ -2961,6 +2961,18 @@ From another mod manager (trappuss: "research it and see if there's anything cou
     any case.
   - Still not run: a game with Fika's plugin joining (the cards' lines in a real log, a raid's
     profile copy after the game closes), a server on another PC, and the two notifications.
+  - Redundancy audit (1.4.7). Ways a mod list moves: collections, share code, file, shared folder,
+    Server Map's published list, the Fika invite's share code, Play's look at a server's mods, and
+    presets. Each does its own job; the duplicates were in how they were reached. The Manage
+    page's Capture and Import went (Your collections has Create from installed mods and Add from
+    file, and the Import there was an older copy that missed `ModListCopyBack`); its Export became
+    Save as file in Share with friends (`CollectionSharing.SaveToFile`, with the name it is shared
+    under). Play's look at a server's mods steps aside when Server Map is set to that server and
+    holds its list (`SptLauncherApi.IsSameServer` on Server Map's host and port), so one server no
+    longer gets two cards and two collections; Fika's line stays. Kept as they are: presets beside
+    collections (on and off only, offline), and the invite's share code beside Play's look (the
+    only way the host's game mods travel without Server Map). No unused strings or types were
+    found; the plural forms a scan flags are reached through their base name.
   - Not known: the host's game plugins (the server takes `/singleplayer/clientmods` from a game,
     it does not hand them out), and which server mods a player needs no part of.
   - The answer's shape is read from the 4.1.6 server's code (`LauncherV2Callbacks.Mods`, routed

@@ -2704,24 +2704,6 @@
   <data name="ModLists_BackToModsToolTip" xml:space="preserve">
     <value>Закрыть план и вернуться к составу этого списка. Ничего не меняет.</value>
   </data>
-  <data name="ModLists_Capture" xml:space="preserve">
-    <value>Записать</value>
-  </data>
-  <data name="ModLists_Captured_few" xml:space="preserve">
-    <value>{0} включённых мода сохранены как «{1}».</value>
-  </data>
-  <data name="ModLists_Captured_many" xml:space="preserve">
-    <value>{0} включённых модов сохранено как «{1}».</value>
-  </data>
-  <data name="ModLists_Captured_one" xml:space="preserve">
-    <value>{0} включённый мод сохранён как «{1}».</value>
-  </data>
-  <data name="ModLists_CaptureDescription" xml:space="preserve">
-    <value>Записывает моды, которые сейчас включены, с теми версиями, что у вас стоят.</value>
-  </data>
-  <data name="ModLists_CaptureHeader" xml:space="preserve">
-    <value>Сохранить то, что установлено сейчас</value>
-  </data>
   <data name="ModLists_CloseSptBeforeApply" xml:space="preserve">
     <value>Закройте SPT перед применением - отключить мод, пока он запущен, нельзя.</value>
   </data>
@@ -2860,9 +2842,6 @@
   <data name="ModLists_EntryVersionUnlockedFormat" xml:space="preserve">
     <value>версия {0}, не зафиксирована</value>
   </data>
-  <data name="ModLists_Export" xml:space="preserve">
-    <value>Экспорт</value>
-  </data>
   <data name="ModLists_ExportDialogTitle" xml:space="preserve">
     <value>Поделиться этим списком модов</value>
   </data>
@@ -2871,9 +2850,6 @@
   </data>
   <data name="ModLists_ExportFailedFormat" xml:space="preserve">
     <value>Не удалось записать файл - {0}</value>
-  </data>
-  <data name="ModLists_ExportToolTip" xml:space="preserve">
-    <value>Сохранить этот список в файл, который можно кому-нибудь отправить. В нём только моды и версии - самих файлов модов в нём нет.</value>
   </data>
   <data name="ModLists_FetchFailureFormat" xml:space="preserve">
     <value>{0}: {1}</value>
@@ -2899,26 +2875,14 @@
   <data name="ModLists_FromServerToolTip" xml:space="preserve">
     <value>Этот список передал вам сервер. Он остаётся ровно таким, каким его составил сервер - сделайте копию, чтобы менять его состав.</value>
   </data>
-  <data name="ModLists_Import" xml:space="preserve">
-    <value>Импорт</value>
-  </data>
   <data name="ModLists_ImportDialogTitle" xml:space="preserve">
     <value>Открыть присланный список модов</value>
-  </data>
-  <data name="ModLists_ImportedFormat" xml:space="preserve">
-    <value>Импортировано «{0}» - откройте предпросмотр, чтобы увидеть, что даст применение.</value>
   </data>
   <data name="ModLists_ImportedNotice" xml:space="preserve">
     <value>Этот список пришёл от другого человека, поэтому остаётся ровно таким, каким его составили. Сделайте копию, чтобы менять его состав.</value>
   </data>
   <data name="ModLists_ImportReadFailedFormat" xml:space="preserve">
     <value>Не удалось прочитать этот файл - {0}</value>
-  </data>
-  <data name="ModLists_ImportToolTip" xml:space="preserve">
-    <value>Открыть список модов, которым с вами поделились</value>
-  </data>
-  <data name="ModLists_ImportUpdatedFormat" xml:space="preserve">
-    <value>«{0}» обновлён с ревизии {1} до {2}.</value>
   </data>
   <data name="ModLists_ListNotFetchedFormat" xml:space="preserve">
     <value>Список не получен. {0}</value>
@@ -2928,12 +2892,6 @@
   </data>
   <data name="ModLists_MakeCopyToolTip" xml:space="preserve">
     <value>Импортированные списки доступны только для чтения. Так создаётся ваша собственная копия.</value>
-  </data>
-  <data name="ModLists_NameFirst" xml:space="preserve">
-    <value>Сначала дайте списку название.</value>
-  </data>
-  <data name="ModLists_NamePlaceholder" xml:space="preserve">
-    <value>Название списка</value>
   </data>
   <data name="ModLists_NoEntries" xml:space="preserve">
     <value>В этом списке пока нет модов. Добавьте их или запишите то, что у вас установлено, как новый список.</value>
@@ -5283,7 +5241,7 @@
     <value>Опубликовать мой список модов со своего сервера</value>
   </data>
   <data name="Help_ServerMap_Publish_Step1" xml:space="preserve">
-    <value>На машине, где работает сервер, откройте {0}, введите название и нажмите {1}.</value>
+    <value>На машине, где работает сервер, откройте {0}, нажмите {1}, а затем {2} на странице коллекции.</value>
   </data>
   <data name="Help_ServerMap_Publish_Step2" xml:space="preserve">
     <value>Уберите всё, что не нужно игрокам. Кнопка области в каждой строке показывает, для каких машин она.</value>
@@ -7468,19 +7426,6 @@
   <data name="Installed_WaitForInstallFormat" xml:space="preserve">
     <value>Сейчас устанавливается {0}. Дождитесь окончания (см. «Загрузки») и попробуйте снова.</value>
   </data>
-  <data name="ModLists_ImportClashTitle" xml:space="preserve">
-    <value>Импорт списка модов</value>
-  </data>
-  <data name="ModLists_ImportOwnListFormat" xml:space="preserve">
-    <value>В этом файле - «{0}», список, который вы создали в этом приложении. Если импортировать его поверх вашего, ваш станет доступен только для чтения, а все изменения, сделанные после сохранения файла, пропадут.
-
-Да - импортировать как отдельный список, а ваш оставить как есть
-Нет - заменить ваш файлом
-Отмена - не импортировать</value>
-  </data>
-  <data name="ModLists_ImportOlderFormat" xml:space="preserve">
-    <value>В этом файле более старая редакция «{0}» (редакция {1}; у вас редакция {2}). Заменить вашу более старой?</value>
-  </data>
   <data name="ModLists_ImportedCopyNameFormat" xml:space="preserve">
     <value>{0} (импорт)</value>
   </data>
@@ -7911,7 +7856,7 @@
     <value>Они открывают её и нажимают {0}. Их приложение само скачивает каждый мод с sp-mod.com.</value>
   </data>
   <data name="Help_ModLists_Share_Note" xml:space="preserve">
-    <value>Изменили коллекцию? Отправьте код ещё раз - их копия обновится, и им покажут, что изменилось. Подойдёт и файл из «Экспорта».</value>
+    <value>Изменили коллекцию? Отправьте код ещё раз - их копия обновится, и им покажут, что изменилось. Подойдёт и файл из «Сохранить в файл».</value>
   </data>
   <data name="Help_ModLists_Suggest_Title" xml:space="preserve">
     <value>Предложить моды для коллекции друга</value>
@@ -8322,6 +8267,15 @@
   </data>
   <data name="Sharing_StopSharing" xml:space="preserve">
     <value>Больше не хранить там</value>
+  </data>
+  <data name="Sharing_FileHeading" xml:space="preserve">
+    <value>Файл</value>
+  </data>
+  <data name="Sharing_FileIntroFormat" xml:space="preserve">
+    <value>Сохраните коллекцию в файл, чтобы отправить его вложением. Друзья откроют его через «{0}».</value>
+  </data>
+  <data name="Sharing_SaveFile" xml:space="preserve">
+    <value>Сохранить в файл...</value>
   </data>
   <data name="Sharing_FolderDone" xml:space="preserve">
     <value>Сохранено. Попросите друзей следить за этим файлом через «Следить за общим файлом».</value>
@@ -10235,6 +10189,9 @@
   </data>
   <data name="Play_RemoteModsMatchFormat" xml:space="preserve">
     <value>Моды здесь совпадают с {0}: каждый загруженный серверный мод ({1}) установлен в той же версии.</value>
+  </data>
+  <data name="Play_RemoteModsServerMapFormat" xml:space="preserve">
+    <value>{0} раздаёт собственный список модов через Server Map, поэтому проверка выше использует этот список.</value>
   </data>
   <data name="Play_RemoteModsManualFormat" xml:space="preserve">
     <value>На {0} есть серверные моды, которых SSPTMM не находит на sp-mod.com, поэтому отсюда их нельзя ни сравнить, ни установить: {1}.</value>

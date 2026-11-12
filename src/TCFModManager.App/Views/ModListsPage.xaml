@@ -197,52 +197,13 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <ui:Card Grid.Row="0" Padding="16">
-                <StackPanel>
-                    <TextBlock
-                        FontWeight="SemiBold"
-                        Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                        Text="{loc:Str ModLists_CaptureHeader}" />
-
-                    <TextBlock
-                        TextWrapping="Wrap"
-                        Margin="0,4,0,12"
-                        Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                        Text="{loc:Str ModLists_CaptureDescription}" />
-
-                    <ui:TextBox
-                        PlaceholderText="{loc:Str ModLists_NamePlaceholder}"
-                        Text="{Binding NewListName, UpdateSourceTrigger=PropertyChanged}" />
-
-                    <Grid Margin="0,12,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-
-                        <ui:Button
-                            Grid.Column="0"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Center"
-                            Appearance="Primary"
-                            Icon="{ui:SymbolIcon AppsList24}"
-                            Content="{loc:Str ModLists_Capture}"
-                            Command="{Binding CaptureCommand}" />
-
-                        <ui:Button
-                            Grid.Column="1"
-                            Margin="10,0,0,0"
-                            ToolTip="{loc:Str ModLists_ImportToolTip}"
-                            Icon="{ui:SymbolIcon ArrowImport24}"
-                            Content="{loc:Str ModLists_Import}"
-                            Command="{Binding ImportCommand}" />
-                    </Grid>
-                </StackPanel>
-            </ui:Card>
+            <!-- Fork (1.4.7): Capture and Import were here. Your collections has both (Create from
+                 installed mods, Add from file), and its Add from file is the one that knows a
+                 friend's copy; this page edits the collection chosen there. -->
 
             <TextBlock
                 Grid.Row="1"
-                Margin="4,20,0,8"
+                Margin="4,0,0,8"
                 FontWeight="SemiBold"
                 Foreground="{DynamicResource TextFillColorSecondaryBrush}"
                 Text="{loc:Str ModLists_SavedHeader}" />
@@ -493,13 +454,6 @@
                         Content="{loc:Str Collection_ViewPage}"
                         ToolTip="{loc:Str Collection_ViewPageToolTip}"
                         Command="{Binding ViewCollectionCommand}" />
-
-                    <ui:Button
-                        Appearance="Transparent"
-                        Icon="{ui:SymbolIcon ArrowExportLtr24}"
-                        Content="{loc:Str ModLists_Export}"
-                        ToolTip="{loc:Str ModLists_ExportToolTip}"
-                        Command="{Binding ExportCommand}" />
 
                     <!-- Only a served list has anywhere to be refreshed FROM, so it is the only
                          one that shows this. -->

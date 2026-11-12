@@ -461,7 +461,6 @@ public partial class ModListsViewModel : LocalizedViewModel
     [NotifyCanExecuteChangedFor(nameof(PreviewCommand))]
     [NotifyCanExecuteChangedFor(nameof(AddModsCommand))]
     [NotifyCanExecuteChangedFor(nameof(RemoveEntryCommand))]
-    [NotifyCanExecuteChangedFor(nameof(ExportCommand))]
     [NotifyCanExecuteChangedFor(nameof(DeleteCommand))]
     [NotifyCanExecuteChangedFor(nameof(ForkCommand))]
     [NotifyCanExecuteChangedFor(nameof(RefreshFromServerCommand))]
@@ -475,9 +474,6 @@ public partial class ModListsViewModel : LocalizedViewModel
     [NotifyCanExecuteChangedFor(nameof(CycleScopeCommand))]
     [NotifyCanExecuteChangedFor(nameof(RefreshVersionsCommand))]
     private ModListRowViewModel? _selected;
-
-    [ObservableProperty]
-    private string _newListName = string.Empty;
 
     [ObservableProperty]
     private string _editName = string.Empty;
@@ -936,34 +932,6 @@ public partial class ModListsViewModel : LocalizedViewModel
 
         var active = Lists.FirstOrDefault(l => l.IsActive);
         if (active is not null) StatusMessage = Text(Strings.ModLists_FollowingFormat, active.Name);
-    }
-
-    // Saves what's installed right now as a new list.
-    [RelayCommand]
-    private async Task CaptureAsync()
-    {
-        var name = NewListName.Trim();
-        if (name.Length == 0)
-        {
-            StatusMessage = Strings.ModLists_NameFirst;
-            return;
-        }
-
-        await RunAsync(async () =>
-        {
-            var captured = await _service.CaptureAsync(name);
-
-            if (captured is null)
-            {
-                StatusMessage = AppMessages.NoSptInstallFolder;
-                return;
-            }
-
-            NewListName = string.Empty;
-            Refresh(captured.Id);
-            StatusMessage = Strings.ModLists_Captured(
-                captured.Entries.Count, captured.Entries.Count, captured.Name);
-        });
     }
 
     //
@@ -1830,103 +1798,6 @@ public partial class ModListsViewModel : LocalizedViewModel
         else AppServices.ModLists.SetActive(null);
         Refresh();
         StatusMessage = Strings.ModLists_StoppedFollowing;
-    }
-
-    // Writes a manifest, never mod files - "install mod 2426 at version 5", not somebody's archive.
-    [RelayCommand(CanExecute = nameof(HasSelection))]
-    private void Export()
-    {
-        if (Selected is not { } row) return;
-
-        var dialog = new SaveFileDialog
-        {
-            Title = Strings.ModLists_ExportDialogTitle,
-            Filter = ModListFileDialog.Filter,
-            FileName = ModListFile.SuggestedFileName(row.List),
-            AddExtension = true,
-            DefaultExt = ModListFile.Extension,
-        };
-
-        if (dialog.ShowDialog() != true) return;
-
-        try
-        {
-            ModListFile.Save(row.List, dialog.FileName);
-            StatusMessage = Text(Strings.ModLists_ExportedFormat, row.Name);
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-        {
-            StatusMessage = Text(Strings.ModLists_ExportFailedFormat, ex.Message);
-        }
-    }
-
-    [RelayCommand]
-    private void Import()
-    {
-        var dialog = new OpenFileDialog
-        {
-            Title = Strings.ModLists_ImportDialogTitle,
-            Filter = ModListFileDialog.Filter,
-            CheckFileExists = true,
-        };
-
-        if (dialog.ShowDialog() != true) return;
-
-        var read = ModListFile.Load(dialog.FileName);
-
-        if (!read.Succeeded)
-        {
-            StatusMessage = Text(Strings.ModLists_ImportReadFailedFormat, read.Error);
-            return;
-        }
-
-        var list = read.List!;
-        var existing = AppServices.ModLists.Find(list.Id);
-
-        // Replacing by Id is right for a newer revision of a list received before; for one's own
-        // list read back from a file, or an older file of a received one, the user is asked.
-        switch (AppServices.ModLists.ClashFor(list))
-        {
-            case ModListImportClash.YourOwnList:
-                var own = TCFModManager.App.Views.SteamMessageBox.Show(
-                    Text(Strings.ModLists_ImportOwnListFormat, existing!.Name),
-                    Strings.ModLists_ImportClashTitle,
-                    System.Windows.MessageBoxButton.YesNoCancel,
-                    System.Windows.MessageBoxImage.Question);
-                if (own == System.Windows.MessageBoxResult.Yes)
-                {
-                    ImportAsSeparateList(list);
-                    return;
-                }
-
-                if (own != System.Windows.MessageBoxResult.No) return;
-                break;
-
-            case ModListImportClash.OlderThanStored:
-                var older = TCFModManager.App.Views.SteamMessageBox.Show(
-                    Text(Strings.ModLists_ImportOlderFormat, existing!.Name, list.Revision, existing.Revision),
-                    Strings.ModLists_ImportClashTitle,
-                    System.Windows.MessageBoxButton.YesNo,
-                    System.Windows.MessageBoxImage.Question);
-                if (older != System.Windows.MessageBoxResult.Yes) return;
-                break;
-        }
-
-        AppServices.ModLists.Add(list);
-        Refresh(list.Id);
-
-        StatusMessage = existing is null
-            ? Text(Strings.ModLists_ImportedFormat, list.Name)
-            : Text(Strings.ModLists_ImportUpdatedFormat, list.Name, existing.Revision, list.Revision);
-    }
-
-    // Beside the list it would have replaced, under a name that tells the two apart.
-    private void ImportAsSeparateList(ModList list)
-    {
-        var copy = ModListStore.AsSeparateList(list, Text(Strings.ModLists_ImportedCopyNameFormat, list.Name));
-        AppServices.ModLists.Add(copy);
-        Refresh(copy.Id);
-        StatusMessage = Text(Strings.ModLists_ImportedFormat, copy.Name);
     }
 
     private async Task RunAsync(Func<Task> work)

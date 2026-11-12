@@ -295,6 +295,16 @@ public partial class PlayViewModel
                 : Text(Strings.Play_RemoteFikaVersionsFormat, hostFika.Version, plugin.Version ?? "?");
         }
 
+        // A server that hands out its own list through Server Map is checked against that list, by
+        // the check above the launch buttons: it names the host's game mods too, which a server
+        // cannot. Only Fika's line is said here, and no second collection is made for it.
+        if (ServerMapCovers(address))
+        {
+            ServerModsNote = string.Join(" ", new[] { Text(Strings.Play_RemoteModsServerMapFormat, server.Title), fika }
+                .Where(part => part is not null));
+            return true;
+        }
+
         var plan = preview.Plan;
         int install = plan.Install.Count(), update = plan.Update.Count(), enable = plan.Enable.Count();
         var byHand = plan.Manual.Select(a => a.Name).ToList();
@@ -316,6 +326,15 @@ public partial class PlayViewModel
         ServerModsNote = string.Join(" ", new[] { Text(Strings.Play_RemoteModsDifferFormat, server.Title, install, update, enable), manual, fika }
             .Where(part => part is not null));
         return true;
+    }
+
+    // Fork (1.4.7): whether Server Map is set to this server and has its list.
+    private static bool ServerMapCovers(string address)
+    {
+        var gate = AppServices.ServerMap;
+        return gate.IsPageEnabled
+            && (gate.List is not null || AppServices.ModLists.GetActiveServer() is not null)
+            && SptLauncherApi.IsSameServer(gate.HostInput, gate.PortInput, address);
     }
 
     // Quietly: after the profiles, and when the page comes back - from applying the collection, say.

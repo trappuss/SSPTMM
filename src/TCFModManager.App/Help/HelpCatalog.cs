@@ -421,7 +421,7 @@ internal static class HelpCatalog
 
             Topic("servermap.publish", () => Strings.Help_ServerMap_Publish_Title,
                 Step(() => Strings.Help_ServerMap_Publish_Step1,
-                    () => Strings.Nav_ModLists, () => Strings.ModLists_Capture),
+                    () => Strings.Nav_ModLists, () => Strings.Collections_Create, () => Strings.Collection_Manage),
                 Step(() => Strings.Help_ServerMap_Publish_Step2),
                 Step(() => Strings.Help_ServerMap_Publish_Step3,
                     () => Strings.Common_Save, () => Strings.ModLists_Publish))

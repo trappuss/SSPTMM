@@ -20,7 +20,13 @@ From 1.3.0 or later: Help > About > **Install update**. From an older version: c
 - **Join from an invite.** On Play, **...** > **Join from an invite...** takes the message a host copied, or any message with the server's address: it tries the addresses, adds and picks the one that answers, turns Play with Fika on, compares the server's mods with yours, and says so if the SPT version differs. When the server runs Fika, the card also shows its Fika version beside yours, or that Fika isn't installed here.
 - **Copy invite for Fika hosts.** Beside **Copy address**, **Copy invite** copies a message for friends with your addresses, the port, your SPT and Fika versions, and how to get the same mods with SSPTMM.
 - **A crash points you to Diagnose logs.** When the SPT server stops unexpectedly or fails to start, or the game crashes, a red bar at the top of SSPTMM says so, with a **Diagnose logs** button beside it. If SSPTMM isn't the window in front, a Windows notification says it too. Quitting the game normally, or closing it from SSPTMM, doesn't show it.
+- **Save as file is in Share with friends.** Beside the share code and the shared folder, **Save as file...** saves a collection as a file to send as an attachment. It replaces **Export** on the Manage page.
 - **Closing with the server running asks first.** Closing SSPTMM doesn't stop the SPT server, which keeps running, with no window at all if it was started hidden. While it runs, closing the window or **Quit** in the tray now asks first. **Don't ask again** turns the question off, and Options > Play > **Closing SSPTMM** turns it back on.
+
+## Changed
+
+- **One place for each thing a collection does.** The Manage page no longer has its own **Capture** and **Import**: they did what **Create from installed mods** and **Add from file** on the Collections tab do, and the Manage page's Import did not notice a friend's copy of your collection. Manage is now for editing the collection you opened it from.
+- **A server with Server Map is checked against its own list.** When the server picked on Play is the one Server Map is connected to, Play no longer compares its mods a second time: the check above the launch buttons uses the server's list, which names the host's game mods too. Fika's versions are still compared.
 
 # SSPTMM 1.4.6
 

@@ -373,24 +373,6 @@
   <data name="Installed_GroupRowToolTip" xml:space="preserve">
     <value>点击查看详情——拖到另一个分组即可移入</value>
   </data>
-  <data name="ModLists_CaptureHeader" xml:space="preserve">
-    <value>保存当前已安装的内容</value>
-  </data>
-  <data name="ModLists_CaptureDescription" xml:space="preserve">
-    <value>记录当前已启用的模组及你所安装的版本。</value>
-  </data>
-  <data name="ModLists_NamePlaceholder" xml:space="preserve">
-    <value>列表名称</value>
-  </data>
-  <data name="ModLists_Capture" xml:space="preserve">
-    <value>记录</value>
-  </data>
-  <data name="ModLists_Import" xml:space="preserve">
-    <value>导入</value>
-  </data>
-  <data name="ModLists_ImportToolTip" xml:space="preserve">
-    <value>打开别人分享给你的模组列表</value>
-  </data>
   <data name="ModLists_SavedHeader" xml:space="preserve">
     <value>已保存的列表</value>
   </data>
@@ -441,12 +423,6 @@
   </data>
   <data name="ModLists_BackToModsToolTip" xml:space="preserve">
     <value>不再显示计划，返回此列表列出的模组。不做任何更改。</value>
-  </data>
-  <data name="ModLists_Export" xml:space="preserve">
-    <value>导出</value>
-  </data>
-  <data name="ModLists_ExportToolTip" xml:space="preserve">
-    <value>将此列表保存为可以发给别人的文件。文件只包含模组及其版本，绝不包含模组文件本身。</value>
   </data>
   <data name="ModLists_RefreshFromServer" xml:space="preserve">
     <value>从服务端刷新</value>
@@ -1707,12 +1683,6 @@
   <data name="ModLists_FollowingFormat" xml:space="preserve">
     <value>正在跟随“{0}”。</value>
   </data>
-  <data name="ModLists_NameFirst" xml:space="preserve">
-    <value>请先为列表命名。</value>
-  </data>
-  <data name="ModLists_Captured_other" xml:space="preserve">
-    <value>已将 {0} 个已启用的模组保存为“{1}”。</value>
-  </data>
   <data name="ModLists_CloseSptBeforeApply" xml:space="preserve">
     <value>应用前请关闭 SPT——它运行时无法禁用模组。</value>
   </data>
@@ -1886,12 +1856,6 @@
   </data>
   <data name="ModLists_ImportReadFailedFormat" xml:space="preserve">
     <value>无法读取该文件——{0}</value>
-  </data>
-  <data name="ModLists_ImportedFormat" xml:space="preserve">
-    <value>已导入“{0}”——预览它即可查看应用后的效果。</value>
-  </data>
-  <data name="ModLists_ImportUpdatedFormat" xml:space="preserve">
-    <value>已将“{0}”从修订版 {1} 更新到 {2}。</value>
   </data>
   <data name="ModLists_SomethingWentWrongFormat" xml:space="preserve">
     <value>出了点问题——{0}</value>
@@ -5097,19 +5061,6 @@
   <data name="Installed_WaitForInstallFormat" xml:space="preserve">
     <value>正在安装 {0}。请等待安装完成（见“下载”）后再试。</value>
   </data>
-  <data name="ModLists_ImportClashTitle" xml:space="preserve">
-    <value>导入模组列表</value>
-  </data>
-  <data name="ModLists_ImportOwnListFormat" xml:space="preserve">
-    <value>此文件包含“{0}”，这是你在本应用中创建的列表。用它覆盖你的列表会使你的列表变为只读，并撤销该文件保存后所做的所有更改。
-
-是 - 将其作为单独的列表导入，保留你的列表不变
-否 - 用该文件替换你的列表
-取消 - 不导入</value>
-  </data>
-  <data name="ModLists_ImportOlderFormat" xml:space="preserve">
-    <value>此文件包含“{0}”的较旧修订版（修订版 {1}；你的是修订版 {2}）。要用较旧的版本替换你的列表吗？</value>
-  </data>
   <data name="ModLists_ImportedCopyNameFormat" xml:space="preserve">
     <value>{0}（已导入）</value>
   </data>
@@ -6272,7 +6223,7 @@ GitHub 上的文件未经 sp-mod.com 检查，请只安装你信任的作者的�
     <value>他们打开后按{0}。他们的应用会自行从 sp-mod.com 下载每个模组。</value>
   </data>
   <data name="Help_ModLists_Share_Note" xml:space="preserve">
-    <value>修改了合集？再发送一次代码即可——他们的副本会更新，并显示有哪些变化。用“导出”生成的文件也可以。</value>
+    <value>修改了合集？再发送一次代码即可——他们的副本会更新，并显示有哪些变化。用“保存为文件”生成的文件也可以。</value>
   </data>
   <data name="Help_ModLists_Suggest_Title" xml:space="preserve">
     <value>为好友的合集推荐模组</value>
@@ -6491,7 +6442,7 @@ GitHub 上的文件未经 sp-mod.com 检查，请只安装你信任的作者的�
     <value>从我的服务端发布我的模组列表</value>
   </data>
   <data name="Help_ServerMap_Publish_Step1" xml:space="preserve">
-    <value>在运行服务端的机器上，打开{0}，输入名称并按{1}。</value>
+    <value>在运行服务端的机器上，打开{0}，按{1}，然后在合集页面上按{2}。</value>
   </data>
   <data name="Help_ServerMap_Publish_Step2" xml:space="preserve">
     <value>去掉玩家不需要的内容。每行的范围按钮会注明它适用于哪些机器。</value>
@@ -7515,6 +7466,15 @@ GitHub 上的文件未经 sp-mod.com 检查，请只安装你信任的作者的�
   </data>
   <data name="Sharing_StopSharing" xml:space="preserve">
     <value>不再保存到那里</value>
+  </data>
+  <data name="Sharing_FileHeading" xml:space="preserve">
+    <value>文件</value>
+  </data>
+  <data name="Sharing_FileIntroFormat" xml:space="preserve">
+    <value>将合集保存为文件，作为附件发送。好友用“{0}”打开它。</value>
+  </data>
+  <data name="Sharing_SaveFile" xml:space="preserve">
+    <value>保存为文件...</value>
   </data>
   <data name="Sharing_FolderDone" xml:space="preserve">
     <value>已保存到那里。请告诉好友用“关注共享文件”关注该文件。</value>
@@ -9350,6 +9310,9 @@ GitHub 上的文件未经 sp-mod.com 检查，请只安装你信任的作者的�
   </data>
   <data name="Play_RemoteModsMatchFormat" xml:space="preserve">
     <value>这里的模组与 {0} 一致：它加载的每个服务端模组（{1} 个）都已安装且版本相同。</value>
+  </data>
+  <data name="Play_RemoteModsServerMapFormat" xml:space="preserve">
+    <value>{0} 通过 Server Map 分发自己的模组列表，因此上方的检查使用该列表。</value>
   </data>
   <data name="Play_RemoteModsManualFormat" xml:space="preserve">
     <value>{0} 使用了 SSPTMM 在 sp-mod.com 上找不到的服务端模组，无法在这里比较或安装：{1}。</value>
