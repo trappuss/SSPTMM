@@ -8483,6 +8483,39 @@ Rimuoverli - o disattivarli - può lasciare un profilo che SPT non carica. Se su
   <data name="Diagnose_Body_ServerStoppedNoMod" xml:space="preserve">
     <value>Il log non dice da quale mod proviene. «Trova il mod difettoso», qui sopra, può trovarlo.</value>
   </data>
+  <data name="Diagnose_Title_FikaForbidden" xml:space="preserve">
+    <value>Fika: l'host non consente alcuni dei tuoi mod</value>
+  </data>
+  <data name="Diagnose_Body_FikaForbiddenFormat" xml:space="preserve">
+    <value>L'host Fika lascia entrare solo i mod di gioco della sua lista, e questi non ci sono: {0}. Disattivali per giocare lì, o chiedi all'host di consentirli.</value>
+  </data>
+  <data name="Diagnose_Title_FikaMissing" xml:space="preserve">
+    <value>Fika: mancano mod richiesti dall'host</value>
+  </data>
+  <data name="Diagnose_Body_FikaMissingFormat" xml:space="preserve">
+    <value>L'host Fika richiede questi mod di gioco, e qui non sono caricati: {0}. Installali o riattivali.</value>
+  </data>
+  <data name="Diagnose_Title_FikaMismatch" xml:space="preserve">
+    <value>Fika: alcuni mod sono diversi da quelli dell'host</value>
+  </data>
+  <data name="Diagnose_Body_FikaMismatchFormat" xml:space="preserve">
+    <value>Questi mod di gioco non sono gli stessi file che il server ha visto per primi: {0}. Portali alla stessa versione dell'host.</value>
+  </data>
+  <data name="Diagnose_Body_FikaCompareHint" xml:space="preserve">
+    <value>In Gioca, "{0}" mostra cosa installare, aggiornare o attivare per i mod che hanno una parte server.</value>
+  </data>
+  <data name="Diagnose_Title_FikaNoServerMod" xml:space="preserve">
+    <value>Fika: il server non ha risposto a Fika</value>
+  </data>
+  <data name="Diagnose_Body_FikaNoServerMod" xml:space="preserve">
+    <value>Il gioco ha Fika, ma il server a cui si è collegato non ha risposto al controllo di Fika, e il gioco si è chiuso. Il mod server di Fika non è installato su quel server o non si è caricato. Lo installa l'host; per giocare da soli su questo PC, disattiva Fika qui.</value>
+  </data>
+  <data name="Diagnose_Title_FikaServerVersion" xml:space="preserve">
+    <value>Fika: il Fika del server è troppo vecchio</value>
+  </data>
+  <data name="Diagnose_Body_FikaServerVersionFormat" xml:space="preserve">
+    <value>Il Fika di questo gioco richiede sul server Fika {0} o più recente, ed è {1}. L'host aggiorna il mod server di Fika, oppure qui si installa la versione di Fika usata dall'host.</value>
+  </data>
   <data name="Diagnose_Title_PluginMissingDependency" xml:space="preserve">
     <value>Un mod non si è caricato: manca qualcosa che gli serve</value>
   </data>

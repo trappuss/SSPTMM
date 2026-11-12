@@ -10508,6 +10508,50 @@ Removing them - or turning them off - can leave a profile SPT won't load. If tha
     <value>The log doesn't say which mod it came from. Find the broken mod, above, can find it.</value>
     <comment>Added to that card when the error could not be traced to a mod.</comment>
   </data>
+  <data name="Diagnose_Title_FikaForbidden" xml:space="preserve">
+    <value>Fika: the host doesn't allow some of your mods</value>
+    <comment>Diagnose logs card title.</comment>
+  </data>
+  <data name="Diagnose_Body_FikaForbiddenFormat" xml:space="preserve">
+    <value>The Fika host only lets in the game mods on its list, and these are not on it: {0}. Turn them off to play there, or ask the host to allow them.</value>
+    <comment>Card text. {0}: the mods, by name where known, else by their plugin id.</comment>
+  </data>
+  <data name="Diagnose_Title_FikaMissing" xml:space="preserve">
+    <value>Fika: mods the host requires are missing</value>
+    <comment>Diagnose logs card title.</comment>
+  </data>
+  <data name="Diagnose_Body_FikaMissingFormat" xml:space="preserve">
+    <value>The Fika host requires these game mods, and they are not loaded here: {0}. Install them, or turn them back on.</value>
+    <comment>Card text. {0}: the mods' plugin ids.</comment>
+  </data>
+  <data name="Diagnose_Title_FikaMismatch" xml:space="preserve">
+    <value>Fika: some mods differ from the host's</value>
+    <comment>Diagnose logs card title.</comment>
+  </data>
+  <data name="Diagnose_Body_FikaMismatchFormat" xml:space="preserve">
+    <value>These game mods are not the same files as the ones the server saw first: {0}. Bring them to the same version as the host's.</value>
+    <comment>Card text. {0}: the mods.</comment>
+  </data>
+  <data name="Diagnose_Body_FikaCompareHint" xml:space="preserve">
+    <value>On Play, "{0}" shows what to install, update or turn on for the mods that have a server part.</value>
+    <comment>Added to the three Fika mod cards. {0}: Play_RemoteCompareMods.</comment>
+  </data>
+  <data name="Diagnose_Title_FikaNoServerMod" xml:space="preserve">
+    <value>Fika: the server didn't answer Fika</value>
+    <comment>Diagnose logs card title.</comment>
+  </data>
+  <data name="Diagnose_Body_FikaNoServerMod" xml:space="preserve">
+    <value>The game has Fika, but the server it connected to didn't answer Fika's check, and the game closed. Fika's server mod is not installed on that server, or didn't load. The host installs it; to play alone on this PC, turn Fika off here.</value>
+    <comment>Card text.</comment>
+  </data>
+  <data name="Diagnose_Title_FikaServerVersion" xml:space="preserve">
+    <value>Fika: the server's Fika is too old</value>
+    <comment>Diagnose logs card title.</comment>
+  </data>
+  <data name="Diagnose_Body_FikaServerVersionFormat" xml:space="preserve">
+    <value>This game's Fika needs the server's Fika to be {0} or newer, and it is {1}. The host updates Fika's server mod, or the Fika version the host uses is installed here.</value>
+    <comment>Card text. {0}: the server version this game's Fika needs at least; {1}: the server's.</comment>
+  </data>
   <data name="Diagnose_Title_PluginMissingDependency" xml:space="preserve">
     <value>A mod didn't load: something it needs is missing</value>
     <comment>Diagnose logs finding</comment>

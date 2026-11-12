@@ -267,6 +267,37 @@ public sealed class ForkLogDiagnosisTests : IDisposable
         Assert.Equal(["mods/ak/Pic_Adapter_for_AK.bundle"], Assert.Single(found, f => f.Kind == LogFindingKind.BundleMissingDependency).Args);
     }
 
+    // Fork (1.4.7): Fika.Core 2.4.6's own lines, as its source writes them.
+    [Fact]
+    public void What_fika_says_about_the_hosts_mods_and_server_is_read()
+    {
+        var bepInEx = LogEntries.Parse(LogKind.BepInEx, "LogOutput.log",
+        [
+            "[Error  :FikaModHandler] 2 forbidden mod(s) are loaded, have the server host allow or remove the following mods: com.chazut.orbit, com.unknown.thing",
+            "[Error  :FikaModHandler] 1 missing required mod(s), verify the following mods are present: com.fika.headless",
+            "[Warning:FikaModHandler] 1 mismatched mod(s) are loaded, verify the following mods are up to date with the server host: LootingBots",
+            "[Error  : Fika.Core] FikaModHandler::VerifyMods: Response was invalid!",
+            "[Error  : Fika.Core] Server version check failed. Expected: >2.4.1, received: 2.3.0",
+        ]);
+
+        var found = Find([], bepInEx: bepInEx);
+
+        var forbidden = Assert.Single(found, f => f.Kind == LogFindingKind.FikaForbiddenMods);
+        Assert.Equal(LogSeverity.Critical, forbidden.Severity);
+        Assert.Same(Orbit, forbidden.Mod);
+        Assert.Equal(["ORBIT, com.unknown.thing"], forbidden.Args); // by name where it is a mod here
+
+        Assert.Equal(["com.fika.headless"], Assert.Single(found, f => f.Kind == LogFindingKind.FikaMissingMods).Args);
+
+        var mismatch = Assert.Single(found, f => f.Kind == LogFindingKind.FikaMismatchedMods);
+        Assert.Equal(LogSeverity.Warning, mismatch.Severity);
+        Assert.Same(LootingBots, mismatch.Mod);
+
+        Assert.Single(found, f => f.Kind == LogFindingKind.FikaNoServerMod);
+        Assert.Equal(["2.4.1", "2.3.0"], Assert.Single(found, f => f.Kind == LogFindingKind.FikaServerVersion).Args);
+        Assert.Equal(5, found.Count);
+    }
+
     [Fact]
     public void The_locator_takes_the_longest_namespace_and_names_nobody_for_a_shared_one()
     {

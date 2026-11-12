@@ -2892,6 +2892,15 @@ From another mod manager (trappuss: "research it and see if there's anything cou
     a block rule wins, no rule refuses, a firewall that is off lets everything in. Read off the
     UI thread, at most once a minute. The headless client needed nothing: its card, with start,
     restart and state, was there already.
+  - Diagnose logs reads Fika's own lines in BepInEx's log (`LogDiagnoser.CheckFika`): forbidden,
+    missing required and mismatched mods, no answer to the mod check, and the server version
+    check. Worded as Fika.Core 2.4.6's source has them (`FikaModHandler.VerifyMods`,
+    `FikaPlugin.VerifyServerVersion`); no log holding them has been seen.
+  - Left out on purpose: filling `fika.jsonc`'s `client.mods.required` / `optional` from this
+    install. Fika's server (`ClientService.GetCheckModsResponse`) refuses every game that loads a
+    plugin not on those lists, and every game missing a required one - so a list that is one
+    plugin id short, or names one that did not load, keeps every player out, the host included.
+    Not to be written without a Fika install to try it on.
   - Not known: the host's game plugins (the server takes `/singleplayer/clientmods` from a game,
     it does not hand them out), and which server mods a player needs no part of.
   - The answer's shape is read from the 4.1.6 server's code (`LauncherV2Callbacks.Mods`, routed

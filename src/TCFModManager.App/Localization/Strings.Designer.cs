@@ -2776,6 +2776,17 @@ internal static class Strings
     internal static string Diagnose_Title_ServerStopped => LocalizationService.Get("Diagnose_Title_ServerStopped");
     internal static string Diagnose_Body_ServerStoppedFormat => LocalizationService.Get("Diagnose_Body_ServerStoppedFormat");
     internal static string Diagnose_Body_ServerStoppedNoMod => LocalizationService.Get("Diagnose_Body_ServerStoppedNoMod");
+    internal static string Diagnose_Title_FikaForbidden => LocalizationService.Get("Diagnose_Title_FikaForbidden");
+    internal static string Diagnose_Body_FikaForbiddenFormat => LocalizationService.Get("Diagnose_Body_FikaForbiddenFormat");
+    internal static string Diagnose_Title_FikaMissing => LocalizationService.Get("Diagnose_Title_FikaMissing");
+    internal static string Diagnose_Body_FikaMissingFormat => LocalizationService.Get("Diagnose_Body_FikaMissingFormat");
+    internal static string Diagnose_Title_FikaMismatch => LocalizationService.Get("Diagnose_Title_FikaMismatch");
+    internal static string Diagnose_Body_FikaMismatchFormat => LocalizationService.Get("Diagnose_Body_FikaMismatchFormat");
+    internal static string Diagnose_Body_FikaCompareHint => LocalizationService.Get("Diagnose_Body_FikaCompareHint");
+    internal static string Diagnose_Title_FikaNoServerMod => LocalizationService.Get("Diagnose_Title_FikaNoServerMod");
+    internal static string Diagnose_Body_FikaNoServerMod => LocalizationService.Get("Diagnose_Body_FikaNoServerMod");
+    internal static string Diagnose_Title_FikaServerVersion => LocalizationService.Get("Diagnose_Title_FikaServerVersion");
+    internal static string Diagnose_Body_FikaServerVersionFormat => LocalizationService.Get("Diagnose_Body_FikaServerVersionFormat");
     internal static string Diagnose_Title_PluginMissingDependency => LocalizationService.Get("Diagnose_Title_PluginMissingDependency");
     internal static string Diagnose_Body_PluginMissingDependency => LocalizationService.Get("Diagnose_Body_PluginMissingDependency");
     internal static string Diagnose_Title_PluginIncompatible => LocalizationService.Get("Diagnose_Title_PluginIncompatible");

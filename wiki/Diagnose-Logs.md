@@ -52,6 +52,11 @@ press **Read the logs again**.
 | Two mods ship the same bundle | SPT could only use one of them. |
 | A bundle needs files that aren't there | The game couldn't fully load a mod's bundle. |
 | A mod logged errors in the game | A plugin's own error lines in BepInEx's log. |
+| Fika: the host doesn't allow some of your mods | The host's Fika lists the game mods it lets in, and some of yours are not on it. Turn them off, or ask the host to allow them. |
+| Fika: mods the host requires are missing | The host's Fika requires game mods that aren't loaded here. |
+| Fika: some mods differ from the host's | Game mods here aren't the same files as the server saw first - usually another version. |
+| Fika: the server didn't answer Fika | The game has Fika and the server doesn't: Fika's server mod isn't installed there, or didn't load. The game closes when this happens. |
+| Fika: the server's Fika is too old | The game's Fika needs a newer Fika on the server than it has. |
 
 Each card has the line it was read from (file and line number), and buttons: **Show in Subscribed
 items**, **Open its folder**, **Open the log** - plus **Go to Play** or **Profile backups** where they

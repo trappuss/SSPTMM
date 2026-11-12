@@ -8483,6 +8483,39 @@ Wenn du sie entfernst - oder ausschaltest -, kann ein Profil zurückbleiben, das
   <data name="Diagnose_Body_ServerStoppedNoMod" xml:space="preserve">
     <value>Das Log sagt nicht, von welcher Mod er kam. „Die kaputte Mod finden“ oben kann sie finden.</value>
   </data>
+  <data name="Diagnose_Title_FikaForbidden" xml:space="preserve">
+    <value>Fika: Der Host erlaubt einige deiner Mods nicht</value>
+  </data>
+  <data name="Diagnose_Body_FikaForbiddenFormat" xml:space="preserve">
+    <value>Der Fika-Host lässt nur die Spiel-Mods auf seiner Liste zu, und diese stehen nicht darauf: {0}. Schalte sie aus, um dort zu spielen, oder bitte den Host, sie zu erlauben.</value>
+  </data>
+  <data name="Diagnose_Title_FikaMissing" xml:space="preserve">
+    <value>Fika: Vom Host verlangte Mods fehlen</value>
+  </data>
+  <data name="Diagnose_Body_FikaMissingFormat" xml:space="preserve">
+    <value>Der Fika-Host verlangt diese Spiel-Mods, und sie sind hier nicht geladen: {0}. Installiere sie oder schalte sie wieder ein.</value>
+  </data>
+  <data name="Diagnose_Title_FikaMismatch" xml:space="preserve">
+    <value>Fika: Einige Mods weichen von denen des Hosts ab</value>
+  </data>
+  <data name="Diagnose_Body_FikaMismatchFormat" xml:space="preserve">
+    <value>Diese Spiel-Mods sind nicht dieselben Dateien wie die, die der Server zuerst gesehen hat: {0}. Bring sie auf dieselbe Version wie beim Host.</value>
+  </data>
+  <data name="Diagnose_Body_FikaCompareHint" xml:space="preserve">
+    <value>Unter Spielen zeigt "{0}", was für Mods mit Server-Teil zu installieren, zu aktualisieren oder einzuschalten ist.</value>
+  </data>
+  <data name="Diagnose_Title_FikaNoServerMod" xml:space="preserve">
+    <value>Fika: Der Server hat Fika nicht geantwortet</value>
+  </data>
+  <data name="Diagnose_Body_FikaNoServerMod" xml:space="preserve">
+    <value>Das Spiel hat Fika, aber der verbundene Server hat Fikas Prüfung nicht beantwortet, und das Spiel wurde beendet. Fikas Server-Mod ist auf diesem Server nicht installiert oder wurde nicht geladen. Der Host installiert sie; um allein auf diesem PC zu spielen, schalte Fika hier aus.</value>
+  </data>
+  <data name="Diagnose_Title_FikaServerVersion" xml:space="preserve">
+    <value>Fika: Fika auf dem Server ist zu alt</value>
+  </data>
+  <data name="Diagnose_Body_FikaServerVersionFormat" xml:space="preserve">
+    <value>Fika in diesem Spiel braucht auf dem Server Fika {0} oder neuer, dort ist es {1}. Der Host aktualisiert Fikas Server-Mod, oder hier wird die Fika-Version des Hosts installiert.</value>
+  </data>
   <data name="Diagnose_Title_PluginMissingDependency" xml:space="preserve">
     <value>Ein Mod wurde nicht geladen: Etwas, das er braucht, fehlt</value>
   </data>

@@ -8897,6 +8897,39 @@
   <data name="Diagnose_Body_ServerStoppedNoMod" xml:space="preserve">
     <value>В логе не сказано, от какого мода она идёт. «Найти сломанный мод» выше может его найти.</value>
   </data>
+  <data name="Diagnose_Title_FikaForbidden" xml:space="preserve">
+    <value>Fika: хост не разрешает некоторые моды</value>
+  </data>
+  <data name="Diagnose_Body_FikaForbiddenFormat" xml:space="preserve">
+    <value>Хост Fika пускает только игровые моды из своего списка, а этих в нём нет: {0}. Выключить их, чтобы играть там, или попросить хоста разрешить их.</value>
+  </data>
+  <data name="Diagnose_Title_FikaMissing" xml:space="preserve">
+    <value>Fika: нет модов, которые требует хост</value>
+  </data>
+  <data name="Diagnose_Body_FikaMissingFormat" xml:space="preserve">
+    <value>Хост Fika требует эти игровые моды, а здесь они не загружены: {0}. Установить их или снова включить.</value>
+  </data>
+  <data name="Diagnose_Title_FikaMismatch" xml:space="preserve">
+    <value>Fika: некоторые моды отличаются от модов хоста</value>
+  </data>
+  <data name="Diagnose_Body_FikaMismatchFormat" xml:space="preserve">
+    <value>Эти игровые моды не совпадают с файлами, которые сервер увидел первыми: {0}. Привести их к той же версии, что у хоста.</value>
+  </data>
+  <data name="Diagnose_Body_FikaCompareHint" xml:space="preserve">
+    <value>На странице игры «{0}» показывает, что установить, обновить или включить для модов с серверной частью.</value>
+  </data>
+  <data name="Diagnose_Title_FikaNoServerMod" xml:space="preserve">
+    <value>Fika: сервер не ответил Fika</value>
+  </data>
+  <data name="Diagnose_Body_FikaNoServerMod" xml:space="preserve">
+    <value>В игре есть Fika, но сервер, к которому она подключилась, не ответил на проверку Fika, и игра закрылась. Серверный мод Fika на том сервере не установлен или не загрузился. Его устанавливает хост; чтобы играть в одиночку на этом ПК, выключить Fika здесь.</value>
+  </data>
+  <data name="Diagnose_Title_FikaServerVersion" xml:space="preserve">
+    <value>Fika: на сервере слишком старая версия Fika</value>
+  </data>
+  <data name="Diagnose_Body_FikaServerVersionFormat" xml:space="preserve">
+    <value>Fika в этой игре требует на сервере Fika {0} или новее, а там {1}. Хост обновляет серверный мод Fika, либо здесь устанавливается версия Fika, как у хоста.</value>
+  </data>
   <data name="Diagnose_Title_PluginMissingDependency" xml:space="preserve">
     <value>Мод не загрузился: не хватает того, что ему нужно</value>
   </data>

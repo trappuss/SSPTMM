@@ -65,6 +65,21 @@ public enum LogFindingKind
 
     /// <summary>A plugin logged errors in the game. Args: first message.</summary>
     PluginLoggedErrors,
+
+    /// <summary>Fork (1.4.7): the Fika host's list does not allow game mods loaded here. Args: the mods.</summary>
+    FikaForbiddenMods,
+
+    /// <summary>Fork (1.4.7): game mods the Fika host requires are not loaded here. Args: the mods.</summary>
+    FikaMissingMods,
+
+    /// <summary>Fork (1.4.7): game mods here are not the files the Fika server saw first. Args: the mods.</summary>
+    FikaMismatchedMods,
+
+    /// <summary>Fork (1.4.7): the server did not answer Fika's mod check - no Fika server mod there. Args: none.</summary>
+    FikaNoServerMod,
+
+    /// <summary>Fork (1.4.7): the server's Fika is older than this game's Fika needs. Args: needed, the server's.</summary>
+    FikaServerVersion,
 }
 
 public enum LogSeverity
@@ -374,6 +389,52 @@ public static partial class LogDiagnoser
         return true;
     }
 
+    //
+    // Fork (1.4.7): what Fika's game plugin logs when it and the server do not agree - worded as in
+    // Fika.Core 2.4.6 (FikaModHandler.VerifyMods, FikaPlugin.VerifyServerVersion), read from its
+    // source, not seen in a log. The mods are plugin ids, as the host's fika.jsonc lists them.
+    //
+    [GeneratedRegex(@"^\d+ forbidden mod\(s\) are loaded, .*following mods: (?<mods>.+)$")]
+    private static partial Regex FikaForbidden();
+
+    [GeneratedRegex(@"^\d+ missing required mod\(s\), .*following mods are present: (?<mods>.+)$")]
+    private static partial Regex FikaMissing();
+
+    [GeneratedRegex(@"^\d+ mismatched mod\(s\) are loaded, .*server host: (?<mods>.+)$")]
+    private static partial Regex FikaMismatched();
+
+    [GeneratedRegex(@"^Server version check failed\. Expected: >(?<needed>\S+), received: (?<has>\S+)")]
+    private static partial Regex FikaServerVersion();
+
+    private static bool CheckFika(LogEntry entry, LogModLocator mods, Findings found)
+    {
+        var line = entry.Message;
+        Match m;
+
+        void Mods(LogFindingKind kind, LogSeverity severity, string list)
+        {
+            var ids = list.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            var known = ids.Select(mods.ByName).OfType<DiagnosedMod>().Distinct().ToList();
+            var names = ids.Select(id => mods.ByName(id)?.DisplayName ?? id).Distinct().ToList();
+            found.Add(kind, severity, known.FirstOrDefault(), [string.Join(", ", names)], entry, [.. known.Skip(1)], Quote(line, entry));
+        }
+
+        if ((m = FikaForbidden().Match(line)).Success)
+            Mods(LogFindingKind.FikaForbiddenMods, LogSeverity.Critical, m.Groups["mods"].Value);
+        else if ((m = FikaMissing().Match(line)).Success)
+            Mods(LogFindingKind.FikaMissingMods, LogSeverity.Critical, m.Groups["mods"].Value);
+        else if ((m = FikaMismatched().Match(line)).Success)
+            Mods(LogFindingKind.FikaMismatchedMods, LogSeverity.Warning, m.Groups["mods"].Value);
+        else if (line.Contains("FikaModHandler::VerifyMods: Response was invalid", StringComparison.Ordinal))
+            found.Add(LogFindingKind.FikaNoServerMod, LogSeverity.Critical, null, [], entry, quote: Quote(line, entry));
+        else if ((m = FikaServerVersion().Match(line)).Success)
+            found.Add(LogFindingKind.FikaServerVersion, LogSeverity.Critical, null, [m.Groups["needed"].Value, m.Groups["has"].Value], entry, quote: Quote(line, entry));
+        else
+            return false;
+
+        return true;
+    }
+
     private static void CheckBepInEx(IReadOnlyList<LogEntry> entries, LogModLocator mods, Findings found, HashSet<LogEntry> explained)
     {
         foreach (var entry in entries)
@@ -381,6 +442,13 @@ public static partial class LogDiagnoser
             if (entry.Source == "BepInEx")
             {
                 if (CheckChainloader(entry.Message, entry, mods, found)) explained.Add(entry);
+                continue;
+            }
+
+            // Fork (1.4.7): Fika's own complaints, a warning among them, before the plugin's errors as a lot.
+            if ((entry.IsError || entry.IsWarning) && CheckFika(entry, mods, found))
+            {
+                explained.Add(entry);
                 continue;
             }
 

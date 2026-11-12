@@ -8048,6 +8048,39 @@ GitHub 上的文件未经 sp-mod.com 检查，请只安装你信任的作者的�
   <data name="Diagnose_Body_ServerStoppedNoMod" xml:space="preserve">
     <value>日志没有说明它来自哪个模组。上方的“找出有问题的模组”可以找到它。</value>
   </data>
+  <data name="Diagnose_Title_FikaForbidden" xml:space="preserve">
+    <value>Fika：主机不允许你的部分模组</value>
+  </data>
+  <data name="Diagnose_Body_FikaForbiddenFormat" xml:space="preserve">
+    <value>Fika 主机只允许其列表中的游戏模组，而这些不在列表中：{0}。关闭它们即可在那里游玩，或请主机允许它们。</value>
+  </data>
+  <data name="Diagnose_Title_FikaMissing" xml:space="preserve">
+    <value>Fika：缺少主机要求的模组</value>
+  </data>
+  <data name="Diagnose_Body_FikaMissingFormat" xml:space="preserve">
+    <value>Fika 主机要求这些游戏模组，但这里没有加载：{0}。请安装或重新启用它们。</value>
+  </data>
+  <data name="Diagnose_Title_FikaMismatch" xml:space="preserve">
+    <value>Fika：部分模组与主机不一致</value>
+  </data>
+  <data name="Diagnose_Body_FikaMismatchFormat" xml:space="preserve">
+    <value>这些游戏模组与服务端最先看到的文件不同：{0}。请将它们更新到与主机相同的版本。</value>
+  </data>
+  <data name="Diagnose_Body_FikaCompareHint" xml:space="preserve">
+    <value>在开始游戏页面，“{0}”会显示带服务端部分的模组需要安装、更新或启用什么。</value>
+  </data>
+  <data name="Diagnose_Title_FikaNoServerMod" xml:space="preserve">
+    <value>Fika：服务端没有回应 Fika</value>
+  </data>
+  <data name="Diagnose_Body_FikaNoServerMod" xml:space="preserve">
+    <value>游戏中有 Fika，但所连接的服务端没有回应 Fika 的检查，游戏随即关闭。该服务端没有安装 Fika 的服务端模组，或它没有加载。应由主机安装；若要在此电脑上单独游玩，请在这里关闭 Fika。</value>
+  </data>
+  <data name="Diagnose_Title_FikaServerVersion" xml:space="preserve">
+    <value>Fika：服务端的 Fika 版本太旧</value>
+  </data>
+  <data name="Diagnose_Body_FikaServerVersionFormat" xml:space="preserve">
+    <value>此游戏的 Fika 需要服务端的 Fika 为 {0} 或更新版本，而它是 {1}。由主机更新 Fika 的服务端模组，或在这里安装主机所用的 Fika 版本。</value>
+  </data>
   <data name="Diagnose_Title_PluginMissingDependency" xml:space="preserve">
     <value>有模组未加载：缺少它需要的内容</value>
   </data>
