@@ -158,7 +158,8 @@ public class ForkFikaRealShapesTests
     [Fact]
     public async Task The_mods_a_fika_server_lists_are_read_and_fika_is_one_of_them()
     {
-        // /launcher/v2/mods, as answered: keyed by name, and Fika's server mod is named "server".
+        // /launcher/v2/mods: the values are the ones the real server gave (two mods, keyed by name,
+        // Fika's server mod named "server"); the JSON around them is written here, not captured.
         const string answer = """
             {"response":{"FIR Fence Purchases":{"modGuid":"de.tosox.firfencepurchases","name":"FIR Fence Purchases","author":"Tosox","contributors":null,"version":"1.1.0","sptVersion":"~4.1.0","hasPrepatcher":false,"incompatibilities":null,"modDependencies":null,"url":"https://github.com/Tosox/SPT-FIRFencePurchases","license":"MIT"},"server":{"modGuid":"Fika","name":"server","author":"Fika","contributors":null,"version":"2.4.2","sptVersion":"~4.1.3","hasPrepatcher":false,"incompatibilities":null,"modDependencies":null,"url":"https://github.com/project-fika/Fika-Server-CSharp","license":"CC BY-NC-SA 4.0"}}}
             """;
@@ -186,7 +187,8 @@ public class ForkFikaRealShapesTests
     [Fact]
     public async Task A_profile_comes_back_from_fika_asked_with_its_id_as_the_session()
     {
-        // /fika/profile/download for a profile just made: the profile, and no mod data yet.
+        // /fika/profile/download for a profile just made. The profile begins as the real one did;
+        // the wrapper is Fika's DownloadProfileResponse, from its source.
         const string answer = """
             {"profile":{"info":{"id":"6af54560f666896958ebe7ca","scavId":"6af54560f666896958ebe7cb","aid":1307922,"username":"benchuser","wipe":true,"edition":"Standard"},"characters":{"pmc":{},"scav":{}}}}
             """;

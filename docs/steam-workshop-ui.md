@@ -2952,7 +2952,9 @@ From another mod manager (trappuss: "research it and see if there's anything cou
     versions said, the profile copy written, the menu's Compare. On the host's side: the card on
     the real install, a switch ticked into the real file, the headless client started once the
     server Start server launched was up. The five lines the Diagnose cards read are in
-    Fika.Core.dll 2.4.6 word for word. What it showed, kept as tests: `ForkFikaRealShapesTests`.
+    Fika.Core.dll 2.4.6 word for word. What it showed, kept as tests: `ForkFikaRealShapesTests`
+    (the settings file is the real one; the two HTTP answers hold the real values in JSON written
+    by hand - the raw bodies were not captured).
   - Still not run: a game with Fika's plugin joining (the cards' lines in a real log, a raid's
     profile copy after the game closes), a server on another PC, and the two notifications.
   - Not known: the host's game plugins (the server takes `/singleplayer/clientmods` from a game,
