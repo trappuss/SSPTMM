@@ -19,6 +19,7 @@ key.
 | Page | What it is for |
 |---|---|
 | [Play](Play) | Start the server and the game, read the server log, open your mods' tools. |
+| [Playing with friends (Fika)](Fika) | Host or join a Fika server: the invite, getting the host's mods, and what to check when it doesn't connect. |
 | [Workshop](Workshop) | Home, Browse, item pages, authors - finding mods. |
 | [Subscribing and downloads](Subscribing-and-Downloads) | What happens when you press Subscribe, the downloads bar, Download only, Install from file. |
 | [Subscribed items](Subscribed-Items) | Everything in your SPT install: update, enable, disable, pin, group, unsubscribe. |

@@ -6,6 +6,7 @@
 
 **Pages**
 - [Play](Play)
+- [Playing with friends (Fika)](Fika)
 - [Workshop](Workshop)
 - [Subscribing and downloads](Subscribing-and-Downloads)
 - [Subscribed items](Subscribed-Items)
