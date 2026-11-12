@@ -9341,6 +9341,18 @@ GitHub 上的文件未经 sp-mod.com 检查，请只安装你信任的作者的�
   <data name="Play_FikaInviteOutsideFormat" xml:space="preserve">
     <value>从我的网络之外：使用我的公网地址，端口 {0}。</value>
   </data>
+  <data name="Play_FikaInviteOutsideAddressFormat" xml:space="preserve">
+    <value>不在我的网络内：{0}</value>
+  </data>
+  <data name="Play_FikaInviteNoPublicAddress" xml:space="preserve">
+    <value>邀请已复制。未能查到公网地址，因此邀请中没有该地址。</value>
+  </data>
+  <data name="Play_FikaGuide" xml:space="preserve">
+    <value>Fika 指南</value>
+  </data>
+  <data name="Play_FikaGuideToolTip" xml:space="preserve">
+    <value>在浏览器中打开 SSPTMM 的 Fika 主机与加入指南。</value>
+  </data>
   <data name="Play_FikaInviteVersionsFormat" xml:space="preserve">
     <value>版本：SPT {0}，Fika {1}</value>
   </data>
@@ -9553,6 +9565,15 @@ GitHub 上的文件未经 sp-mod.com 检查，请只安装你信任的作者的�
   </data>
   <data name="Options_FikaDescription" xml:space="preserve">
     <value>在“开始游戏”卡片上加入服务器选择，以及 ... &gt; 添加服务器，让游戏可以在 Fika 主机或朋友的 SPT 服务器上运行——SPT 启动器里添加的服务器也会列出。这台电脑托管 Fika 时，卡片会说明要给朋友哪个地址、要转发哪些端口；在别人的服务器上游玩时，如果这台电脑自己的服务器也在运行，卡片会提示。“自动”会在安装了 Fika 时开启这些。需要“从 SSPTMM 启动游戏”。</value>
+  </data>
+  <data name="Options_FikaPublicHeader" xml:space="preserve">
+    <value>邀请中包含公网地址</value>
+  </data>
+  <data name="Options_FikaPublicHint" xml:space="preserve">
+    <value>复制邀请时会查询这台电脑的公网地址，并为不在同一网络的好友加入邀请。</value>
+  </data>
+  <data name="Options_FikaPublicDescription" xml:space="preserve">
+    <value>默认关闭。开启后，复制邀请时会向 api.ipify.org 查询这台电脑的公网地址；除请求本身外不会向该服务发送任何内容。收到邀请的人都能看到这个地址。路由器仍需把服务端的端口转发到这台电脑；有些运营商让多个用户共用一个地址，这种地址无法从外部访问。</value>
   </data>
   <data name="Options_FikaAutomatic" xml:space="preserve">
     <value>自动</value>

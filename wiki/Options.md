@@ -68,6 +68,7 @@ The gear at the top right. Each setting has a one-line explanation and a **?** w
 | Setting | What it does |
 |---|---|
 | Play with Fika (experimental) | **Automatic** (the default), **On** or **Off**: the Play card's options for another PC's server - the server list and **Add a server...** - and, when this PC hosts Fika, the address to give friends and the ports to forward. Automatic switches them on when Fika is installed; the row says whether its plugin or server mod was found. Needs **Start the game from SSPTMM**. See [Play](Play#another-pcs-server-fika). |
+| Public address in the invite (from 1.4.8) | **Off** by default. On: a Fika host's **Copy invite** asks `api.ipify.org` for this PC's address on the internet and puts it in the invite, for friends outside your network. Everyone who gets the invite sees it, and the router still has to forward the server's port. See [Playing with friends (Fika)](Fika). |
 | What this machine is | A player's PC, a Fika headless client, or both - a headless client needs the mods that decide how a raid goes and none of the ones that draw things at a player. |
 | Fika headless launcher | Only needed if `FikaHeadlessManager.exe` isn't at the top of the install folder. |
 | Server map connection | The address and port from your SPT launcher, and the key if the server has one; what this machine shares. |

@@ -336,6 +336,20 @@ public partial class PlayViewModel
 
     private bool CanCopyFikaAddress() => FikaHostAddress is not null;
 
+    // Fork (1.4.8): the guide's page on hosting and joining, from Play's menu.
+    [RelayCommand]
+    private static void OpenFikaGuide()
+    {
+        try
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(SelfMod.FikaGuideUrl) { UseShellExecute = true })?.Dispose();
+        }
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
+        {
+            AppLog.Warn("Fika", $"couldn't open {SelfMod.FikaGuideUrl}: {ex.Message}");
+        }
+    }
+
     // Fork (1.4.7): everything a friend needs, in one message - the addresses, the versions that
     // have to match, and how SSPTMM gets them the same mods (Compare mods with this server).
     private IReadOnlyList<string> _fikaHostAddresses = [];
@@ -369,13 +383,19 @@ public partial class PlayViewModel
             if (code.Length > 1500) code = null;
         }
 
-        var invite = FikaInvite(_fikaHostAddresses, _fikaHostPort, AppServices.SptEnvironment.InstalledVersion, fika, code);
+        // Fork (1.4.8): this PC's address on the internet, only with Options > Public address in
+        // the invite on. Without an answer the invite is as it was before, and the status says so.
+        var wantsPublic = _fikaHostPort is not null && new SettingsService().Load().FikaInvitePublicAddress;
+        var publicAddress = wantsPublic ? await PublicAddress.FindAsync() : null;
+        if (wantsPublic) AppLog.Info("Fika", publicAddress is null ? "the public address couldn't be looked up" : "the invite has the public address");
+
+        var invite = FikaInvite(_fikaHostAddresses, _fikaHostPort, AppServices.SptEnvironment.InstalledVersion, fika, code, publicAddress);
 
         try
         {
             Clipboard.SetText(invite);
             PlayStatusIsError = false;
-            PlayStatus = Strings.Play_FikaInviteCopied;
+            PlayStatus = wantsPublic && publicAddress is null ? Strings.Play_FikaInviteNoPublicAddress : Strings.Play_FikaInviteCopied;
         }
         catch (COMException ex)
         {
@@ -383,7 +403,8 @@ public partial class PlayViewModel
         }
     }
 
-    internal static string FikaInvite(IReadOnlyList<string> addresses, string? port, string? spt, string? fika, string? code = null)
+    internal static string FikaInvite(IReadOnlyList<string> addresses, string? port, string? spt, string? fika, string? code = null,
+        string? publicAddress = null)
     {
         var lines = new List<string>
         {
@@ -391,7 +412,10 @@ public partial class PlayViewModel
             Text(Strings.Play_FikaInviteAddressFormat, TextLists.Join([.. addresses.Select(Labelled)])),
         };
 
-        if (port is not null) lines.Add(Text(Strings.Play_FikaInviteOutsideFormat, port));
+        if (port is not null)
+            lines.Add(publicAddress is null
+                ? Text(Strings.Play_FikaInviteOutsideFormat, port)
+                : Text(Strings.Play_FikaInviteOutsideAddressFormat, publicAddress + ":" + port));
         if (spt is { Length: > 0 })
             lines.Add(fika is { Length: > 0 } ? Text(Strings.Play_FikaInviteVersionsFormat, spt, fika) : Text(Strings.Play_FikaInviteSptFormat, spt));
         lines.Add(Text(Strings.Play_FikaInviteHowFormat, Strings.Play_InviteJoin.TrimEnd('.', '\u2026')));

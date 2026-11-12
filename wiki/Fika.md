@@ -9,6 +9,8 @@ getting everyone the same mods, and saying what is wrong when something doesn't 
 
 These features are marked experimental: they have not been tried against every kind of setup yet.
 
+From 1.4.8, Play's **...** menu has **Fika guide**, which opens this page.
+
 ## Before you start
 
 Everyone, host and friends:
@@ -38,7 +40,7 @@ Who can reach you depends on where your friends are:
 |---|---|---|
 | On your home network | The address marked **same network** | Nothing more |
 | On your Tailscale network | The address marked **Tailscale** | Tailscale running on both PCs |
-| Anywhere else | Your public address | Your router forwarding **TCP** on the server's port (6969 unless changed) to this PC |
+| Anywhere else | Your public address (the invite can carry it, see below) | Your router forwarding **TCP** on the server's port (6969 unless changed) to this PC |
 
 Whoever hosts a **raid** also needs **UDP 25565** (Fika's default) to reach their own PC: the raid
 runs in that player's game, not in the server. Fika's own guides cover routers, VPNs and the rest:
@@ -49,7 +51,22 @@ runs in that player's game, not in the server. Fika's own guides cover routers, 
 - **Your addresses**, with the port from `fika.jsonc`. **Copy address** copies the first one.
 - **Copy invite**: a message with the addresses, the port to use from outside your network, your
   SPT and Fika versions, and what a friend does with it. When your mod list fits in a message, the
-  invite ends with a share code for it, so friends get your game-only mods too.
+  invite ends with a share code for it, so friends get your game-only mods too. It looks like this:
+
+  ```
+  Join my SPT server (Fika).
+  Address: 192.168.1.5:6969 (same network) and 100.72.1.9:6969 (Tailscale)
+  From outside my network: my public address, port 6969.
+  Versions: SPT 4.1.6, Fika 2.4.6
+  With SSPTMM: on Play, "Join from an invite" and paste this message. It adds the server and gets the same mods.
+  ```
+
+- **Your public address in the invite** (from 1.4.8, off by default): with
+  [Options](Options#fika-and-servers) > **Public address in the invite** on, the third line gives
+  the address itself, such as `203.0.113.7:6969`, and a friend's SSPTMM tries it with the others.
+  Copy invite asks `api.ipify.org` for it, and everyone who gets the invite sees it. It only works
+  when your router forwards the port; an internet provider that shares one address between several
+  customers can't be reached from outside at all, and SSPTMM leaves such an address out.
 - **Fika settings**: friendly fire, shared quest progress, inertia, free camera and whether anyone
   can start a raid, as tick boxes. A change applies the next time the server starts. The first time
   SSPTMM changes `fika.jsonc`, it keeps the file as it was beside it, as

@@ -99,6 +99,12 @@ public partial class PlayPage : Page
             Command = vm.JoinFromInviteCommand,
             IsEnabled = !vm.IsPlaying,
         });
+        menu.Items.Add(new MenuItem
+        {
+            Header = Strings.Play_FikaGuide,
+            ToolTip = Strings.Play_FikaGuideToolTip,
+            Command = vm.OpenFikaGuideCommand,
+        });
 
         // Fork (1.4.3): another PC's server - a Fika host, or a friend's. Only with Options > Play
         // with Fika on, or on Automatic with Fika installed.

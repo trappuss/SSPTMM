@@ -9785,6 +9785,18 @@ Mit Nein behält diese Gruppe ihren alten Namen.</value>
   <data name="Play_FikaInviteOutsideFormat" xml:space="preserve">
     <value>Von außerhalb meines Netzwerks: meine öffentliche Adresse, Port {0}.</value>
   </data>
+  <data name="Play_FikaInviteOutsideAddressFormat" xml:space="preserve">
+    <value>Von außerhalb meines Netzwerks: {0}</value>
+  </data>
+  <data name="Play_FikaInviteNoPublicAddress" xml:space="preserve">
+    <value>Einladung kopiert. Die öffentliche Adresse ließ sich nicht ermitteln und steht deshalb nicht in der Einladung.</value>
+  </data>
+  <data name="Play_FikaGuide" xml:space="preserve">
+    <value>Fika-Anleitung</value>
+  </data>
+  <data name="Play_FikaGuideToolTip" xml:space="preserve">
+    <value>Öffnet die SSPTMM-Anleitung zum Hosten und Beitreten mit Fika im Browser.</value>
+  </data>
   <data name="Play_FikaInviteVersionsFormat" xml:space="preserve">
     <value>Versionen: SPT {0}, Fika {1}</value>
   </data>
@@ -9997,6 +10009,15 @@ Mit Nein behält diese Gruppe ihren alten Namen.</value>
   </data>
   <data name="Options_FikaDescription" xml:space="preserve">
     <value>Fügt der Spielen-Karte eine Serverauswahl hinzu, mit ... &gt; Server hinzufügen, damit das Spiel auf einem Fika-Host oder dem SPT-Server eines Freundes laufen kann – die im SPT-Launcher hinzugefügten Server stehen auch dort. Hostet dieser PC Fika, nennt die Karte die Adresse für Freunde und die weiterzuleitenden Ports; spielst du auf dem Server eines anderen, sagt sie, ob der eigene Server dieses PCs auch läuft. „Automatisch“ schaltet das ein, wenn Fika installiert ist. Braucht „Spiel aus SSPTMM starten“.</value>
+  </data>
+  <data name="Options_FikaPublicHeader" xml:space="preserve">
+    <value>Öffentliche Adresse in der Einladung</value>
+  </data>
+  <data name="Options_FikaPublicHint" xml:space="preserve">
+    <value>Einladung kopieren ermittelt die Internetadresse dieses PCs und fügt sie für Freunde außerhalb deines Netzwerks hinzu.</value>
+  </data>
+  <data name="Options_FikaPublicDescription" xml:space="preserve">
+    <value>Standardmäßig aus. Wenn an, fragt Einladung kopieren bei api.ipify.org nach, welche Adresse dieser PC im Internet hat; dieser Dienst erhält nichts außer der Anfrage. Alle, die die Einladung bekommen, sehen die Adresse. Der Router muss den Port des Servers weiterhin an diesen PC weiterleiten, und manche Internetanbieter teilen eine Adresse unter mehreren Kunden auf; die ist von außen nicht erreichbar.</value>
   </data>
   <data name="Options_FikaAutomatic" xml:space="preserve">
     <value>Automatisch</value>

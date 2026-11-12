@@ -168,7 +168,8 @@ folder. **Open** starts it in the right folder, and the folder button opens the 
 
 ### Playing with friends (Fika)
 
-For a group on [Fika](https://sp-mod.com/mod/2326/project-fika), where everyone needs the same mods:
+For a group on [Fika](https://sp-mod.com/mod/2326/project-fika), where everyone needs the same mods.
+The wiki has it step by step: [Playing with friends (Fika)](https://github.com/trappuss/SSPTMM/wiki/Fika).
 
 - **Join from an invite.** The host presses **Copy invite** and sends the message. On Play,
   **...** > **Join from an invite...** takes it: SSPTMM tries the addresses in it, adds the server

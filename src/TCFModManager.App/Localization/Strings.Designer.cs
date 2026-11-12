@@ -3210,6 +3210,10 @@ internal static class Strings
     internal static string Play_FikaInviteIntro => LocalizationService.Get("Play_FikaInviteIntro");
     internal static string Play_FikaInviteAddressFormat => LocalizationService.Get("Play_FikaInviteAddressFormat");
     internal static string Play_FikaInviteOutsideFormat => LocalizationService.Get("Play_FikaInviteOutsideFormat");
+    internal static string Play_FikaInviteOutsideAddressFormat => LocalizationService.Get("Play_FikaInviteOutsideAddressFormat");
+    internal static string Play_FikaInviteNoPublicAddress => LocalizationService.Get("Play_FikaInviteNoPublicAddress");
+    internal static string Play_FikaGuide => LocalizationService.Get("Play_FikaGuide");
+    internal static string Play_FikaGuideToolTip => LocalizationService.Get("Play_FikaGuideToolTip");
     internal static string Play_FikaInviteVersionsFormat => LocalizationService.Get("Play_FikaInviteVersionsFormat");
     internal static string Play_FikaInviteSptFormat => LocalizationService.Get("Play_FikaInviteSptFormat");
     internal static string Play_FikaInviteHowFormat => LocalizationService.Get("Play_FikaInviteHowFormat");
@@ -3281,6 +3285,9 @@ internal static class Strings
     internal static string Options_ExperimentalToolTip => LocalizationService.Get("Options_ExperimentalToolTip");
     internal static string Options_FikaHint => LocalizationService.Get("Options_FikaHint");
     internal static string Options_FikaDescription => LocalizationService.Get("Options_FikaDescription");
+    internal static string Options_FikaPublicHeader => LocalizationService.Get("Options_FikaPublicHeader");
+    internal static string Options_FikaPublicHint => LocalizationService.Get("Options_FikaPublicHint");
+    internal static string Options_FikaPublicDescription => LocalizationService.Get("Options_FikaPublicDescription");
     internal static string Options_FikaAutomatic => LocalizationService.Get("Options_FikaAutomatic");
     internal static string Options_FikaOn => LocalizationService.Get("Options_FikaOn");
     internal static string Options_FikaOff => LocalizationService.Get("Options_FikaOff");

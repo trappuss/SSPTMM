@@ -167,6 +167,10 @@ public sealed class AppSettings
     //
     public bool? FikaOptions { get; set; }
 
+    // Fork (1.4.8): Options > Public address in the invite - Copy invite asks PublicAddress for
+    // this PC's address on the internet and puts it in the message. Off unless switched on.
+    public bool FikaInvitePublicAddress { get; set; }
+
     // Minimise SSPTMM once the game has started from it, as SPT's launcher does by default.
     public bool MinimizeWhilePlaying { get; set; } = true;
 

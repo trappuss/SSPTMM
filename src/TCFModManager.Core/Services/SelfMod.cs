@@ -33,6 +33,9 @@ public static class SelfMod
     // SSPTMM's own guide, opened from Help.
     public const string WikiUrl = RepositoryUrl + "/wiki";
 
+    // Fork (1.4.8): the guide's page on hosting and joining with Fika, opened from Play's menu.
+    public const string FikaGuideUrl = WikiUrl + "/Fika";
+
     // The original, credited on the About page.
     public const string OriginalAuthor = "TheCrimsonFckr";
 

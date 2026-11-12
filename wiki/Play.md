@@ -154,6 +154,10 @@ With Fika's server mod installed and **This PC** picked, the card tells you what
   and what a friend does with it in SSPTMM (**Join from an invite...**). When your mod list fits
   in a message, the invite ends with a share code for it: a friend's SSPTMM then opens the
   preview for all of your mods, the game-only ones too - which a server can't tell it.
+- From 1.4.8, with [Options](Options) > **Public address in the invite** on, the invite's line for
+  friends outside your network gives your public address and port instead of telling them to ask.
+  Copy invite then asks `api.ipify.org` which address this PC has on the internet; if that fails,
+  the invite is as before and Play says so. Off by default.
 - A server that hands out its mod list through [Server Map](Tools) is checked against that list,
   in the check above the launch buttons, rather than against the mods it reports: that list names
   the host's game mods too. The mods line then says so, and only Fika's versions are compared
@@ -172,7 +176,9 @@ With Fika's server mod installed and **This PC** picked, the card tells you what
   hosting a raid, UDP 25565 in to the game - the card says so and where to allow it. SSPTMM only
   reads the rules; it changes none. It can't see another firewall, or your router.
 
-Fika's own guides cover VPNs, headless clients and the rest: [wiki.project-fika.com](https://wiki.project-fika.com/).
+Hosting and joining step by step: [Playing with friends (Fika)](Fika) - from 1.4.8 also on
+**...** > **Fika guide**. Fika's own guides cover VPNs, headless clients and the rest:
+[wiki.project-fika.com](https://wiki.project-fika.com/).
 
 ## Mod tools
 

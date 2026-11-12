@@ -1,3 +1,14 @@
+# SSPTMM 1.4.8
+
+## Updating
+
+From 1.3.0 or later: Help > About > **Install update**. From an older version: close SSPTMM, download `SSPTMM-1.4.8-win-x64.zip` and copy the contents of its `SSPTMM` folder over your SSPTMM folder. Your settings in `Data` stay as they are.
+
+## New
+
+- **Public address in the invite.** A Fika host's **Copy invite** can now put this PC's address on the internet into the message, so friends outside your network no longer have to ask for it. It is off until you switch it on in Options > Fika and servers: when on, Copy invite asks `api.ipify.org` for the address, and everyone who gets the invite sees it. Your router still has to forward the server's port to this PC.
+- **Fika guide.** Play's **...** menu has a **Fika guide** item, which opens the wiki's new page on hosting and joining: [Playing with friends (Fika)](https://github.com/trappuss/SSPTMM/wiki/Fika).
+
 # SSPTMM 1.4.7
 
 ## Updating

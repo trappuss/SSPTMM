@@ -12195,6 +12195,22 @@ No keeps this group under its old name.</value>
     <value>From outside my network: my public address, port {0}.</value>
     <comment>Invite line. {0}: the port.</comment>
   </data>
+  <data name="Play_FikaInviteOutsideAddressFormat" xml:space="preserve">
+    <value>From outside my network: {0}</value>
+    <comment>A line of the invite a Fika host copies, when Options &gt; Public address in the invite is on. {0}: this PC's public address and the server's port, such as 203.0.113.7:6969. Keep {0} as it is: a friend's SSPTMM reads the address out of it.</comment>
+  </data>
+  <data name="Play_FikaInviteNoPublicAddress" xml:space="preserve">
+    <value>Invite copied. The public address couldn't be looked up, so the invite doesn't have it.</value>
+    <comment>Status line on Play after Copy invite, when the public address was asked for and couldn't be looked up.</comment>
+  </data>
+  <data name="Play_FikaGuide" xml:space="preserve">
+    <value>Fika guide</value>
+    <comment>Item on Play's ... menu: opens SSPTMM's guide to hosting and joining with Fika in the browser.</comment>
+  </data>
+  <data name="Play_FikaGuideToolTip" xml:space="preserve">
+    <value>Opens SSPTMM's guide to hosting and joining with Fika, in the browser.</value>
+    <comment>Tooltip of the Fika guide menu item.</comment>
+  </data>
   <data name="Play_FikaInviteVersionsFormat" xml:space="preserve">
     <value>Versions: SPT {0}, Fika {1}</value>
     <comment>Invite line. {0}: SPT version; {1}: Fika version.</comment>
@@ -12442,6 +12458,18 @@ No keeps this group under its old name.</value>
   </data>
   <data name="Options_FikaDescription" xml:space="preserve">
     <value>Adds a server picker to the Play card, with ... &gt; Add a server, so the game can play on a Fika host or a friend's SPT server - the servers added in SPT's launcher are listed too. When this PC hosts Fika, the card says which address to give friends and which ports to forward; when you play on someone else's server, it says if this PC's own server is running too. Automatic switches these on when Fika is installed. Needs Start the game from SSPTMM.</value>
+  </data>
+  <data name="Options_FikaPublicHeader" xml:space="preserve">
+    <value>Public address in the invite</value>
+    <comment>Options &gt; Fika and servers: title of the switch that puts this PC's public address into the invite a Fika host copies.</comment>
+  </data>
+  <data name="Options_FikaPublicHint" xml:space="preserve">
+    <value>Copy invite looks up this PC's address on the internet and adds it for friends outside your network.</value>
+    <comment>Hint under Public address in the invite.</comment>
+  </data>
+  <data name="Options_FikaPublicDescription" xml:space="preserve">
+    <value>Off by default. When on, Copy invite asks api.ipify.org which address this PC has on the internet; that service is sent nothing but the request. Everyone who gets the invite sees the address. The router still has to forward the server's port to this PC, and some internet providers share one address between several customers, which can't be reached from outside.</value>
+    <comment>Info tip of Public address in the invite. api.ipify.org is the service's name; keep it.</comment>
   </data>
   <data name="Options_FikaAutomatic" xml:space="preserve">
     <value>Automatic</value>

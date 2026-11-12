@@ -9785,6 +9785,18 @@ No mantiene questo gruppo con il suo vecchio nome.</value>
   <data name="Play_FikaInviteOutsideFormat" xml:space="preserve">
     <value>Da fuori dalla mia rete: il mio indirizzo pubblico, porta {0}.</value>
   </data>
+  <data name="Play_FikaInviteOutsideAddressFormat" xml:space="preserve">
+    <value>Da fuori dalla mia rete: {0}</value>
+  </data>
+  <data name="Play_FikaInviteNoPublicAddress" xml:space="preserve">
+    <value>Invito copiato. Non è stato possibile trovare l'indirizzo pubblico, quindi non è nell'invito.</value>
+  </data>
+  <data name="Play_FikaGuide" xml:space="preserve">
+    <value>Guida a Fika</value>
+  </data>
+  <data name="Play_FikaGuideToolTip" xml:space="preserve">
+    <value>Apre nel browser la guida di SSPTMM per ospitare e partecipare con Fika.</value>
+  </data>
   <data name="Play_FikaInviteVersionsFormat" xml:space="preserve">
     <value>Versioni: SPT {0}, Fika {1}</value>
   </data>
@@ -9997,6 +10009,15 @@ No mantiene questo gruppo con il suo vecchio nome.</value>
   </data>
   <data name="Options_FikaDescription" xml:space="preserve">
     <value>Aggiunge alla scheda Gioca una scelta del server, con ... &gt; Aggiungi un server, così il gioco può giocare su un host Fika o sul server SPT di un amico – ci sono anche i server aggiunti nel launcher di SPT. Quando questo PC ospita Fika, la scheda dice quale indirizzo dare agli amici e quali porte inoltrare; quando giochi sul server di un altro, dice se anche il server di questo PC è in esecuzione. Automatico attiva tutto questo quando Fika è installato. Richiede Avvia il gioco da SSPTMM.</value>
+  </data>
+  <data name="Options_FikaPublicHeader" xml:space="preserve">
+    <value>Indirizzo pubblico nell'invito</value>
+  </data>
+  <data name="Options_FikaPublicHint" xml:space="preserve">
+    <value>Copia invito cerca l'indirizzo di questo PC su Internet e lo aggiunge per gli amici fuori dalla rete locale.</value>
+  </data>
+  <data name="Options_FikaPublicDescription" xml:space="preserve">
+    <value>Disattivato per impostazione predefinita. Se attivo, Copia invito chiede ad api.ipify.org quale indirizzo ha questo PC su Internet; a quel servizio non viene inviato altro che la richiesta. Chiunque riceva l'invito vede l'indirizzo. Il router deve comunque inoltrare la porta del server a questo PC, e alcuni provider condividono un indirizzo tra più clienti: in quel caso non è raggiungibile dall'esterno.</value>
   </data>
   <data name="Options_FikaAutomatic" xml:space="preserve">
     <value>Automatico</value>

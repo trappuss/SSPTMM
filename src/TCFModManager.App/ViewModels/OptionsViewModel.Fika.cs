@@ -43,6 +43,21 @@ public partial class OptionsViewModel
         AppLog.Info("Fika", $"Play with Fika: {value.Value switch { null => "automatic", true => "on", false => "off" }}");
     }
 
+    // Fork (1.4.8): Copy invite may ask an outside service for this PC's public address.
+    [ObservableProperty]
+    private bool _fikaInvitePublicAddress;
+
+    partial void OnFikaInvitePublicAddressChanged(bool value)
+    {
+        if (!_loaded) return;
+
+        var settings = _settings.Load();
+        settings.FikaInvitePublicAddress = value;
+        _settings.Save(settings);
+
+        AppLog.Info("Fika", $"public address in the invite: {(value ? "on" : "off")}");
+    }
+
     // Null until looked for.
     private FikaInstall.Found? _fikaInInstall;
 
@@ -61,6 +76,7 @@ public partial class OptionsViewModel
     private void LoadFika(AppSettings settings)
     {
         SelectedFikaMode = FikaModeOptions.FirstOrDefault(o => o.Value == settings.FikaOptions) ?? FikaModeOptions[0];
+        FikaInvitePublicAddress = settings.FikaInvitePublicAddress;
 
         SptEnvironment.PropertyChanged += (_, e) =>
         {

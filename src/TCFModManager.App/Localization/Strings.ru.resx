@@ -10220,6 +10220,18 @@
   <data name="Play_FikaInviteOutsideFormat" xml:space="preserve">
     <value>Извне моей сети: мой публичный адрес, порт {0}.</value>
   </data>
+  <data name="Play_FikaInviteOutsideAddressFormat" xml:space="preserve">
+    <value>Не из моей сети: {0}</value>
+  </data>
+  <data name="Play_FikaInviteNoPublicAddress" xml:space="preserve">
+    <value>Приглашение скопировано. Публичный адрес узнать не удалось, поэтому в приглашении его нет.</value>
+  </data>
+  <data name="Play_FikaGuide" xml:space="preserve">
+    <value>Руководство по Fika</value>
+  </data>
+  <data name="Play_FikaGuideToolTip" xml:space="preserve">
+    <value>Открывает в браузере руководство SSPTMM о том, как создать сервер Fika и как присоединиться.</value>
+  </data>
   <data name="Play_FikaInviteVersionsFormat" xml:space="preserve">
     <value>Версии: SPT {0}, Fika {1}</value>
   </data>
@@ -10432,6 +10444,15 @@
   </data>
   <data name="Options_FikaDescription" xml:space="preserve">
     <value>Добавляет на карточку «Играть» выбор сервера и ... &gt; «Добавить сервер», чтобы играть на хосте Fika или SPT-сервере друга — серверы, добавленные в лаунчере SPT, тоже в списке. Когда этот ПК хостит Fika, карточка подсказывает, какой адрес дать друзьям и какие порты пробросить; когда вы играете на чужом сервере, она скажет, если собственный сервер этого ПК тоже запущен. «Автоматически» включает это, когда установлена Fika. Нужен параметр «Запускать игру из SSPTMM».</value>
+  </data>
+  <data name="Options_FikaPublicHeader" xml:space="preserve">
+    <value>Публичный адрес в приглашении</value>
+  </data>
+  <data name="Options_FikaPublicHint" xml:space="preserve">
+    <value>«Скопировать приглашение» узнаёт адрес этого ПК в интернете и добавляет его для друзей не из локальной сети.</value>
+  </data>
+  <data name="Options_FikaPublicDescription" xml:space="preserve">
+    <value>По умолчанию выключено. Если включено, «Скопировать приглашение» спрашивает у api.ipify.org, какой адрес у этого ПК в интернете; этой службе не отправляется ничего, кроме самого запроса. Адрес видят все, кто получит приглашение. Роутер по-прежнему должен пробрасывать порт сервера на этот ПК, а некоторые провайдеры дают один адрес нескольким абонентам, и снаружи он недоступен.</value>
   </data>
   <data name="Options_FikaAutomatic" xml:space="preserve">
     <value>Автоматически</value>
