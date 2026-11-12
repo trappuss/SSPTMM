@@ -141,6 +141,9 @@ With Fika's server mod installed and **This PC** picked, the card tells you what
 - If `fika.jsonc` only listens on `127.0.0.1`, nobody else can reach the server: the card says to
   set its `"ip"` to `0.0.0.0` and restart the server.
 - If there is no `fika.jsonc` yet, start the server once: Fika writes it then.
+- If **Windows Firewall** has no rule that lets the server's port in to `SPT.Server.exe` - or, for
+  hosting a raid, UDP 25565 in to the game - the card says so and where to allow it. SSPTMM only
+  reads the rules; it changes none. It can't see another firewall, or your router.
 
 Fika's own guides cover VPNs, headless clients and the rest: [wiki.project-fika.com](https://wiki.project-fika.com/).
 

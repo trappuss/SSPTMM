@@ -2887,6 +2887,11 @@ From another mod manager (trappuss: "research it and see if there's anything cou
   - A Fika host's **Copy invite** (`PlayViewModel.FikaInvite`): addresses, port, SPT and Fika
     versions (the enabled server mod whose name or GUID has "fika"), and the two menu items a
     friend uses. No share code: the comparison needs nothing from the host.
+  - A Fika host's firewall (`FirewallRules`, read through `HNetCfg.FwPolicy2`, nothing written):
+    TCP on Fika's port to the server's exe and UDP 25565 to the game, decided as Windows does -
+    a block rule wins, no rule refuses, a firewall that is off lets everything in. Read off the
+    UI thread, at most once a minute. The headless client needed nothing: its card, with start,
+    restart and state, was there already.
   - Not known: the host's game plugins (the server takes `/singleplayer/clientmods` from a game,
     it does not hand them out), and which server mods a player needs no part of.
   - The answer's shape is read from the 4.1.6 server's code (`LauncherV2Callbacks.Mods`, routed
@@ -2912,7 +2917,7 @@ From another mod manager (trappuss: "research it and see if there's anything cou
   as buttons, and the GitHub chip's shades (#C6D4DF at 20% and 33%). For Find the broken mod: five
   minutes for a server to come up, three seconds after its port opens for mods to finish logging,
   twenty seconds for its process to appear or go, 200 ms between looks, that a start still
-  to come takes the average of those done, and that a changed mod shows in its folder's top level. For the crash bar: that the game leaves
+  to come takes the average of those done, that a changed mod shows in its folder's top level, UDP 25565 as the raid's port (Fika's default; the game's setting is not read), and a minute between reads of the firewall. For the crash bar: that the game leaves
   no fault code when it quits by itself (not seen with the real game), three seconds between
   looks, and thirty seconds after the app closes the game.
 

@@ -9804,6 +9804,12 @@ No mantiene questo gruppo con il suo vecchio nome.</value>
   <data name="Play_FikaInviteCopied" xml:space="preserve">
     <value>Invito copiato. Incollalo agli amici.</value>
   </data>
+  <data name="Play_FikaFirewallServerFormat" xml:space="preserve">
+    <value>Windows Firewall non ha una regola che lasci arrivare gli amici al server (TCP {0}, SPT.Server.exe). Windows lo chiede al primo avvio del server; se è stato rifiutato, consentilo in Sicurezza di Windows &gt; Firewall e protezione rete &gt; Consenti app tramite firewall.</value>
+  </data>
+  <data name="Play_FikaFirewallRaidFormat" xml:space="preserve">
+    <value>Windows Firewall non ha una regola per ospitare un raid da questo PC (UDP {0}, EscapeFromTarkov.exe). Serve solo a chi ospita il raid; Windows lo chiede la prima volta.</value>
+  </data>
   <data name="Play_RemoteAddServer" xml:space="preserve">
     <value>Aggiungi un server...</value>
   </data>

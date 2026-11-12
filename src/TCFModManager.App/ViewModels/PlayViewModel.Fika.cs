@@ -40,6 +40,55 @@ public partial class PlayViewModel
     [ObservableProperty]
     private string? _fikaStrayServerNote;
 
+    // Fork (1.4.7): Windows Firewall has no rule that lets friends in - FirewallRules.
+    [ObservableProperty]
+    private string? _fikaFirewallNote;
+
+    // Read off the UI thread, and again after a minute (HUNCH): a rule Windows has just asked
+    // about shows soon enough, and reading every rule is not something to do every two seconds.
+    private (string Key, DateTime At)? _firewallRead;
+
+    // HUNCH: Fika's default for the raid; the game's own setting is not read.
+    private const int FikaRaidPort = 25565;
+
+    private void RefreshFirewall(string serverExe, string? port, string? installPath)
+    {
+        if (!int.TryParse(port, out var serverPort))
+        {
+            FikaFirewallNote = null;
+            return;
+        }
+
+        var key = serverExe + "|" + serverPort;
+        if (_firewallRead is { } read && read.Key == key && DateTime.UtcNow - read.At < TimeSpan.FromMinutes(1)) return;
+        _firewallRead = (key, DateTime.UtcNow);
+
+        var game = SptInstallationService.ToGameRoot(installPath) is { Length: > 0 } root
+            ? System.IO.Path.Combine(root, "EscapeFromTarkov.exe")
+            : null;
+
+        _ = Task.Run(() =>
+        {
+            var state = FirewallRules.Read();
+            return (
+                Server: FirewallRules.Reaches(state, serverExe, FirewallRules.Tcp, serverPort),
+                Raid: game is null ? null : FirewallRules.Reaches(state, game, FirewallRules.Udp, FikaRaidPort));
+        }).ContinueWith(done =>
+        {
+            if (done.IsFaulted || _firewallRead?.Key != key) return;
+
+            var (server, raid) = done.Result;
+            AppLog.Info("Fika", $"Windows Firewall lets in: server TCP {serverPort} {server?.ToString() ?? "?"}, raid UDP {FikaRaidPort} {raid?.ToString() ?? "?"}");
+
+            var notes = new[]
+            {
+                server == false ? Text(Strings.Play_FikaFirewallServerFormat, serverPort) : null,
+                raid == false ? Text(Strings.Play_FikaFirewallRaidFormat, FikaRaidPort) : null,
+            }.Where(note => note is not null).ToList();
+            FikaFirewallNote = notes.Count > 0 ? string.Join("\n", notes) : null;
+        }, TaskScheduler.FromCurrentSynchronizationContext());
+    }
+
     private FikaInstall.Found _fikaFound;
     private string? _fikaFoundFor;
     private bool _lookingForFika;
@@ -96,6 +145,8 @@ public partial class PlayViewModel
             FikaHostNote = null;
             FikaHostAddress = null;
             FikaHostWarning = null;
+            FikaFirewallNote = null;
+            _firewallRead = null;
             return;
         }
 
@@ -123,6 +174,10 @@ public partial class PlayViewModel
             ? Text(Strings.Play_FikaHostNoAddressFormat, port)
             : Text(Strings.Play_FikaHostFormat, TextLists.Join(addresses), port);
         FikaHostWarning = config.OnlyThisPc ? Text(Strings.Play_FikaHostOnlyThisPcFormat, config.Ip) : null;
+
+        // Not worth saying while nobody can reach it anyway.
+        if (config.OnlyThisPc) FikaFirewallNote = null;
+        else RefreshFirewall(exe, port, installPath);
     }
 
     [RelayCommand(CanExecute = nameof(CanCopyFikaAddress))]

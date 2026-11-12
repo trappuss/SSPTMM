@@ -384,6 +384,14 @@
                         Foreground="{DynamicResource SystemFillColorCautionBrush}"
                         Text="{Binding FikaHostWarning}"
                         Visibility="{Binding FikaHostWarning, Converter={StaticResource NullToCollapsed}}" />
+                    <TextBlock
+                        MaxWidth="640"
+                        Margin="0,0,0,8"
+                        HorizontalAlignment="Left"
+                        TextWrapping="Wrap"
+                        Foreground="{DynamicResource SystemFillColorCautionBrush}"
+                        Text="{Binding FikaFirewallNote}"
+                        Visibility="{Binding FikaFirewallNote, Converter={StaticResource NullToCollapsed}}" />
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                         <ComboBox
                             MinWidth="340"

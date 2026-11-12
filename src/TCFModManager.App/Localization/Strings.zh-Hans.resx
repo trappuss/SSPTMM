@@ -9357,6 +9357,12 @@ GitHub 上的文件未经 sp-mod.com 检查，请只安装你信任的作者的�
   <data name="Play_FikaInviteCopied" xml:space="preserve">
     <value>邀请已复制，粘贴给朋友即可。</value>
   </data>
+  <data name="Play_FikaFirewallServerFormat" xml:space="preserve">
+    <value>Windows 防火墙没有允许朋友连接服务端的规则（TCP {0}，SPT.Server.exe）。服务端首次启动时 Windows 会询问；如果当时拒绝了，请在“Windows 安全中心 &gt; 防火墙和网络保护 &gt; 允许应用通过防火墙”中允许它。</value>
+  </data>
+  <data name="Play_FikaFirewallRaidFormat" xml:space="preserve">
+    <value>Windows 防火墙没有允许从此电脑主持战局的规则（UDP {0}，EscapeFromTarkov.exe）。只有主持战局的人需要；首次主持时 Windows 会询问。</value>
+  </data>
   <data name="Play_RemoteAddServer" xml:space="preserve">
     <value>添加服务器...</value>
   </data>

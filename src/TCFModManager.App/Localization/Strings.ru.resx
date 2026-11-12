@@ -10242,6 +10242,12 @@
   <data name="Play_FikaInviteCopied" xml:space="preserve">
     <value>Приглашение скопировано. Вставить его друзьям.</value>
   </data>
+  <data name="Play_FikaFirewallServerFormat" xml:space="preserve">
+    <value>В брандмауэре Windows нет правила, пропускающего друзей к серверу (TCP {0}, SPT.Server.exe). Windows спрашивает при первом запуске сервера; если тогда было отказано, разрешить в «Безопасность Windows» &gt; «Брандмауэр и защита сети» &gt; «Разрешить работу с приложением через брандмауэр».</value>
+  </data>
+  <data name="Play_FikaFirewallRaidFormat" xml:space="preserve">
+    <value>В брандмауэре Windows нет правила для хостинга рейда с этого ПК (UDP {0}, EscapeFromTarkov.exe). Оно нужно только тому, кто хостит рейд; Windows спрашивает в первый раз.</value>
+  </data>
   <data name="Play_RemoteAddServer" xml:space="preserve">
     <value>Добавить сервер...</value>
   </data>

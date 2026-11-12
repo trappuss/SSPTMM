@@ -12209,6 +12209,14 @@ No keeps this group under its old name.</value>
     <value>Invite copied. Paste it to friends.</value>
     <comment>Play status after Copy invite.</comment>
   </data>
+  <data name="Play_FikaFirewallServerFormat" xml:space="preserve">
+    <value>Windows Firewall has no rule that lets friends reach the server (TCP {0}, SPT.Server.exe). Windows asks the first time the server starts; if that was refused, allow it under Windows Security &gt; Firewall &amp; network protection &gt; Allow an app through firewall.</value>
+    <comment>Play, a Fika host's warning: Windows Firewall would keep friends from the server. {0}: the port.</comment>
+  </data>
+  <data name="Play_FikaFirewallRaidFormat" xml:space="preserve">
+    <value>Windows Firewall has no rule for hosting a raid from this PC (UDP {0}, EscapeFromTarkov.exe). Only whoever hosts the raid needs it; Windows asks the first time one is hosted.</value>
+    <comment>Play, a Fika host's warning: Windows Firewall would keep friends from a raid hosted in this PC's game. {0}: the port.</comment>
+  </data>
   <data name="Play_RemoteAddServer" xml:space="preserve">
     <value>Add a server...</value>
   </data>
