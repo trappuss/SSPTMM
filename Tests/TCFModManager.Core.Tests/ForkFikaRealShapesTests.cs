@@ -8,7 +8,8 @@ namespace TCFModManager.Core.Tests;
 //
 // Fork (1.4.7): what a real Fika answered, kept as it came - a 4.1.6 server with Fika's server mod
 // 2.4.2 (2026-11-12), asked on its own port. The Fika code here was first written from Fika's
-// source; these are the shapes it then met.
+// source; these are the shapes it then met. The settings file and both HTTP answers are the
+// server's own, byte for byte (the settings file's API key taken out).
 //
 public class ForkFikaRealShapesTests
 {
@@ -141,7 +142,8 @@ public class ForkFikaRealShapesTests
         Assert.False(FikaServerConfig.Parse(changed)!.OnlyThisPc);
     }
 
-    private sealed class Answers(Dictionary<string, string> byPath) : HttpMessageHandler
+    // Answers the server's own bytes: zlib, as it sent them.
+    private sealed class Answers(Dictionary<string, byte[]> byPath) : HttpMessageHandler
     {
         public List<string> Cookies { get; } = [];
 
@@ -150,7 +152,7 @@ public class ForkFikaRealShapesTests
             if (request.Headers.TryGetValues("Cookie", out var cookies)) Cookies.AddRange(cookies);
 
             return Task.FromResult(byPath.TryGetValue(request.RequestUri!.AbsolutePath, out var body)
-                ? new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(SptLauncherApi.Compress(body)) }
+                ? new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(body) }
                 : new HttpResponseMessage(HttpStatusCode.NotFound));
         }
     }
@@ -158,11 +160,10 @@ public class ForkFikaRealShapesTests
     [Fact]
     public async Task The_mods_a_fika_server_lists_are_read_and_fika_is_one_of_them()
     {
-        // /launcher/v2/mods: the values are the ones the real server gave (two mods, keyed by name,
-        // Fika's server mod named "server"); the JSON around them is written here, not captured.
-        const string answer = """
-            {"response":{"FIR Fence Purchases":{"modGuid":"de.tosox.firfencepurchases","name":"FIR Fence Purchases","author":"Tosox","contributors":null,"version":"1.1.0","sptVersion":"~4.1.0","hasPrepatcher":false,"incompatibilities":null,"modDependencies":null,"url":"https://github.com/Tosox/SPT-FIRFencePurchases","license":"MIT"},"server":{"modGuid":"Fika","name":"server","author":"Fika","contributors":null,"version":"2.4.2","sptVersion":"~4.1.3","hasPrepatcher":false,"incompatibilities":null,"modDependencies":null,"url":"https://github.com/project-fika/Fika-Server-CSharp","license":"CC BY-NC-SA 4.0"}}}
-            """;
+        // /launcher/v2/mods as the server sent it. Keyed by name, the names written in PascalCase,
+        // fields with nothing in them left out, and Fika's server mod named "server".
+        var answer = Convert.FromBase64String(ModsAnswer);
+        Assert.Equal(ModsAnswerText, SptLauncherApi.Decompress(answer));
         using var api = new SptLauncherApi("203.0.113.7:6969", new Answers(new() { [SptLauncherApi.ModsPath] = answer }));
 
         var mods = await api.ModsAsync();
@@ -187,19 +188,41 @@ public class ForkFikaRealShapesTests
     [Fact]
     public async Task A_profile_comes_back_from_fika_asked_with_its_id_as_the_session()
     {
-        // /fika/profile/download for a profile just made. The profile begins as the real one did;
-        // the wrapper is Fika's DownloadProfileResponse, from its source.
-        const string answer = """
-            {"profile":{"info":{"id":"6af54560f666896958ebe7ca","scavId":"6af54560f666896958ebe7cb","aid":1307922,"username":"benchuser","wipe":true,"edition":"Standard"},"characters":{"pmc":{},"scav":{}}}}
-            """;
+        // /fika/profile/download for a profile just made, as the server sent it: the profile, and
+        // no modData at all (not a null).
+        var answer = Convert.FromBase64String(ProfileAnswer);
+        Assert.Equal(ProfileAnswerText, SptLauncherApi.Decompress(answer));
         var server = new Answers(new() { [SptLauncherApi.FikaProfilePath] = answer });
         using var api = new SptLauncherApi("203.0.113.7:6969", server);
 
-        var profile = await api.FikaProfileAsync("6af54560f666896958ebe7ca");
+        var profile = await api.FikaProfileAsync("6af5d032ffed68874887dd51");
 
-        Assert.StartsWith("{\"info\":{\"id\":\"6af54560f666896958ebe7ca\"", profile);
-        Assert.Equal(["PHPSESSID=6af54560f666896958ebe7ca"], server.Cookies);
+        Assert.StartsWith("{\"info\":{\"id\":\"6af5d032ffed68874887dd51\"", profile);
+        Assert.Equal(["PHPSESSID=6af5d032ffed68874887dd51"], server.Cookies);
     }
+
+    [Fact]
+    public async Task An_id_fika_does_not_know_gets_an_empty_answer_and_no_profile()
+    {
+        // What the server sent for an id it has no profile for: 200 and nothing in the body.
+        using var api = new SptLauncherApi("203.0.113.7:6969", new Answers(new() { [SptLauncherApi.FikaProfilePath] = [] }));
+
+        Assert.Null(await api.FikaProfileAsync("0123456789abcdef01234567"));
+    }
+
+    // The server's answers, captured from a 4.1.6 server with Fika 2.4.2 and FIR Fence Purchases
+    // (2026-11-12): the bytes it sent, and the JSON they hold.
+    private const string ModsAnswer = "eNp9kMFOhDAQhl9l0zMt7sqJ24pBSdwNWdDEmD2UMkiVpU1bjAnBZ3cgxMVk9frNzJ//m54cwGrVWiBhT+LksIqhFbBKOyNqbsGOeKfKu06WJCQlMKes+mSVNNW4qH/2PLLnJ0y5GOKRbedqZXCcj/cInsBYqVoka7ZmV0gy7c7wK5jpPbepAc2dqAHvK95Y8MijaXCpdk7b0Pdfpau7ggl18qd4P0tzij2mGssWD1LA5Ep2SU4Gj1gwH2PsUjKW7/ysM28sDOZ5pFpnZNE5ZfBLL8el0oYFbHNR6fpPpaTF/ghlIRvpJMyh2OsWNLQlukywH/7R10a9gXC0wo7+WJRmU38aZTU3+tcLoojePNN9RLMtDfDXwzB8A0CorTs=";
+
+    private const string ModsAnswerText = """
+        {"Response":{"FIR Fence Purchases":{"ModGuid":"de.tosox.firfencepurchases","Name":"FIR Fence Purchases","Author":"Tosox","Version":"1.1.0","SptVersion":"~4.1.0","HasPrepatcher":false,"Url":"https://github.com/Tosox/SPT-FIRFencePurchases","License":"MIT"},"server":{"ModGuid":"Fika","Name":"server","Author":"Fika","Contributors":[],"Version":"2.4.2","SptVersion":"~4.1.3","HasPrepatcher":false,"Incompatibilities":[],"ModDependencies":{},"Url":"https://github.com/project-fika/Fika-Server-CSharp","License":"CC-BY-NC-SA-4.0"}}}
+        """;
+
+    private const string ProfileAnswer = "eNqljz9PAzEMxb+L5wy09I5rdyQqsTEwIAbjOL1IqRPlTxE69bvju3ISEwtDZD3rl+f3Jkg5Oh8YDhN4cXGZFg7Qo+vs3f3WObb9MDzs9FnbbcBAIbwc/2C2yuBssun3w27fGWiFs+BZr8AHC42ESZlPn3RTc2MDbH31URR4qSgWs4WrARoxI1XOZc6VzjSPghc86UdpIRh4FPqiEJMa4Lp78pZjq6t89WV89kX12/v1Fv//PmqkZIinxnM4lV7y0nqCEAl/2kgUhl9F1tXCl5ZRiG9+31Xygo0=";
+
+    private const string ProfileAnswerText = """
+        {"profile":{"info":{"id":"6af5d032ffed68874887dd51","scavId":"6af5d032ffed68874887dd52","aid":1698495,"username":"benchcap","wipe":true,"edition":"Standard"},"characters":{"pmc":{"savage":null,"Encyclopedia":null,"Hideout":null,"WishList":[]},"scav":{"savage":null,"Encyclopedia":null,"Hideout":null,"WishList":[]}},"dialogues":{},"inraid":{"location":"none","character":"none"},"insurance":[]}}
+        """;
 
     // The lines Fika's game plugin logs, as they stand in Fika.Core.dll 2.4.6.
     [Theory]
