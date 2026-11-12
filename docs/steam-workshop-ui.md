@@ -2875,6 +2875,17 @@ From another mod manager (trappuss: "research it and see if there's anything cou
     running (Turn them back on stopping it first), and closing during a search. The stand-in also
     ran a mod that only logs errors and two mods that only fail together, through the same code
     without the window.
+- **Compare mods with another PC's server** (`HostMods`, `SptLauncherApi.ModsAsync`, Play's "..."
+  with a remote server picked). `/launcher/v2/mods` is what SPT's launcher lists: each loaded server
+  mod's GUID, name and version. They become an ordinary Additive collection - resolved against the
+  catalogue by GUID, pinned to the host's version where sp-mod.com has it - and the Collections
+  preview says what applying would do. Kept only when there is something to do; asked again, the
+  same collection is replaced (found by its Source, the server's address).
+  - Not known: the host's game plugins (the server takes `/singleplayer/clientmods` from a game,
+    it does not hand them out), and which server mods a player needs no part of.
+  - The answer's shape is read from the 4.1.6 server's code (`LauncherV2Callbacks.Mods`, routed
+    and wrapped as `/launcher/v2/version` is), not seen from a running server; the menu item has
+    not been seen on screen.
 - **A crash points at Diagnose logs** (`CrashWatch`, a bar in MainWindow's banner row and a
   Windows notification when the window is not in front). Diagnose logs is under Tools, where
   someone who has just lost a raid has no reason to look.

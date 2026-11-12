@@ -146,6 +146,30 @@ public sealed class ModListService
     }
 
     //
+    // Fork (1.4.7): the collection for another PC's server's mods (HostMods) and what applying it
+    // would do. Not saved here: the caller keeps it only when there is something to do.
+    //
+    public async Task<ModListPreview?> FromServerAsync(string name, string address, IReadOnlyList<SptServerMod> mods)
+    {
+        var byGuid = AppServices.ModCache.AllMods
+            .Where(m => !string.IsNullOrWhiteSpace(m.Guid))
+            .GroupBy(m => m.Guid!.Trim(), StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
+
+        var list = HostMods.BuildList(
+            name,
+            address,
+            mods,
+            guid => byGuid.TryGetValue(guid, out var mod) ? (mod.Id, mod.Name) : null,
+            CatalogVersions(),
+            AppServices.SptEnvironment.InstalledVersion,
+            HostMods.Existing(AppServices.ModLists.Load().Lists, address),
+            DateTimeOffset.UtcNow);
+
+        return await PreviewAsync(list);
+    }
+
+    //
     // What this machine is, as the scopes a served list gets filtered to.
     //
     // Read here rather than passed in, because every caller would read the same setting and one that

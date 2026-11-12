@@ -102,6 +102,13 @@ public partial class PlayPage : Page
                     Command = vm.LoadRemoteProfilesCommand,
                     IsEnabled = !vm.IsPlaying,
                 });
+                menu.Items.Add(new MenuItem // Fork (1.4.7)
+                {
+                    Header = Strings.Play_RemoteCompareMods,
+                    ToolTip = Strings.Play_RemoteCompareModsToolTip,
+                    Command = vm.CompareServerModsCommand,
+                    IsEnabled = !vm.IsPlaying,
+                });
             }
 
             menu.Items.Add(new MenuItem

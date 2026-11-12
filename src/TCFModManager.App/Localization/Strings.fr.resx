@@ -9753,6 +9753,27 @@ Non garde ce groupe sous son ancien nom.</value>
   <data name="Play_RemoteReloadProfiles" xml:space="preserve">
     <value>Recharger les profils depuis le serveur</value>
   </data>
+  <data name="Play_RemoteCompareMods" xml:space="preserve">
+    <value>Comparer les mods avec ce serveur</value>
+  </data>
+  <data name="Play_RemoteCompareModsToolTip" xml:space="preserve">
+    <value>Lit les mods serveur chargés par ce serveur et montre ce qu'il faut installer, mettre à jour ou activer ici pour correspondre.</value>
+  </data>
+  <data name="Play_RemoteModsListNameFormat" xml:space="preserve">
+    <value>Mods sur {0}</value>
+  </data>
+  <data name="Play_RemoteModsMatchFormat" xml:space="preserve">
+    <value>Les mods d'ici correspondent à {0} : ses {1} mods serveur sont installés dans la même version.</value>
+  </data>
+  <data name="Play_RemoteModsManualFormat" xml:space="preserve">
+    <value>{0} utilise des mods serveur introuvables sur sp-mod.com ; ils ne peuvent être ni comparés ni installés d'ici : {1}.</value>
+  </data>
+  <data name="Play_RemoteNoModsFormat" xml:space="preserve">
+    <value>{0} n'a chargé aucun mod serveur.</value>
+  </data>
+  <data name="Play_RemoteModsCatalogLoading" xml:space="preserve">
+    <value>Le catalogue des mods est encore en cours de chargement. Réessayer dans un instant.</value>
+  </data>
   <data name="Play_RemoteAddServer" xml:space="preserve">
     <value>Ajouter un serveur...</value>
   </data>

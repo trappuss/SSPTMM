@@ -10191,6 +10191,27 @@
   <data name="Play_RemoteReloadProfiles" xml:space="preserve">
     <value>Заново загрузить профили с сервера</value>
   </data>
+  <data name="Play_RemoteCompareMods" xml:space="preserve">
+    <value>Сравнить моды с этим сервером</value>
+  </data>
+  <data name="Play_RemoteCompareModsToolTip" xml:space="preserve">
+    <value>Читает серверные моды, загруженные этим сервером, и показывает, что здесь установить, обновить или включить для совпадения.</value>
+  </data>
+  <data name="Play_RemoteModsListNameFormat" xml:space="preserve">
+    <value>Моды на {0}</value>
+  </data>
+  <data name="Play_RemoteModsMatchFormat" xml:space="preserve">
+    <value>Моды здесь совпадают с {0}: все {1} его серверных модов установлены в той же версии.</value>
+  </data>
+  <data name="Play_RemoteModsManualFormat" xml:space="preserve">
+    <value>На {0} есть серверные моды, которых SSPTMM не находит на sp-mod.com, поэтому отсюда их нельзя ни сравнить, ни установить: {1}.</value>
+  </data>
+  <data name="Play_RemoteNoModsFormat" xml:space="preserve">
+    <value>На {0} не загружено ни одного серверного мода.</value>
+  </data>
+  <data name="Play_RemoteModsCatalogLoading" xml:space="preserve">
+    <value>Каталог модов ещё загружается. Повторить через минуту.</value>
+  </data>
   <data name="Play_RemoteAddServer" xml:space="preserve">
     <value>Добавить сервер...</value>
   </data>

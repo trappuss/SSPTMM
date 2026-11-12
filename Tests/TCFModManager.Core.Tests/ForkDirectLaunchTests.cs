@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using TCFModManager.Core.Models;
 using TCFModManager.Core.Services;
 using Xunit;
 
@@ -48,6 +49,7 @@ public class ForkDirectLaunchTests : IDisposable
         public bool HasProfile = true;
         public bool WipeAllowed = true;
         public bool Invalid;
+        public object? Mods;
         public List<SptBundleEntry> Bundles = [];
         public Dictionary<string, byte[]> BundleFiles = [];
         public List<(string Method, string Path, string? Body)> Calls = [];
@@ -73,6 +75,7 @@ public class ForkDirectLaunchTests : IDisposable
                 SptLauncherApi.LoginPath => new { Response = HasProfile },
                 SptLauncherApi.WipePath => new { Response = WipeAllowed, Profiles = Array.Empty<object>() },
                 SptLauncherApi.BundlesPath => Bundles,
+                SptLauncherApi.ModsPath => Mods,
                 SptLauncherApi.ProfilesPath => new
                 {
                     Response = new[] { new { username = "trap", nickname = "Trap", side = "Usec", currlvl = 64, profileId = "6abee519842869498c34024b", edition = "SPT Developer", wipe = false, invalidOrUnloadableProfile = Invalid } },
@@ -84,6 +87,73 @@ public class ForkDirectLaunchTests : IDisposable
                 ? new HttpResponseMessage(HttpStatusCode.NotFound)
                 : new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(SptLauncherApi.Compress(JsonSerializer.Serialize(answer))) };
         }
+    }
+
+    // ---- Fork (1.4.7): another PC's server's mods ------------------------------------------------
+
+    [Fact]
+    public async Task The_servers_loaded_mods_are_read_as_it_sends_them()
+    {
+        // The shape a 4.1.6 server answers with: name to metadata, versions as text.
+        var server = new FakeServer
+        {
+            Mods = new
+            {
+                Response = new Dictionary<string, object>
+                {
+                    ["Casino"] = new { ModGuid = "com.casino", Name = "Casino", Author = "x", Version = "1.2.0", SptVersion = "~4.1.0", HasPrepatcher = false, License = "MIT" },
+                    ["Fika"] = new { ModGuid = "com.fika.server", Name = "Fika", Author = "y", Version = "2.0.1", Url = "https://example.org" },
+                },
+            },
+        };
+        using var api = new SptLauncherApi("127.0.0.1:6969", server);
+
+        var mods = await api.ModsAsync();
+
+        Assert.Equal(["com.casino", "com.fika.server"], mods.Select(m => m.ModGuid));
+        Assert.Equal(["1.2.0", "2.0.1"], mods.Select(m => m.Version));
+
+        // A server that does not know the question has none to say.
+        using var old = new SptLauncherApi("127.0.0.1:6969", new FakeServer());
+        Assert.Empty(await old.ModsAsync());
+    }
+
+    [Fact]
+    public void A_collection_from_a_servers_mods_holds_them_at_its_versions_and_turns_nothing_off()
+    {
+        SptServerMod[] host =
+        [
+            new() { ModGuid = "com.casino", Name = "Casino Server", Version = "1.2.0" },
+            new() { ModGuid = "com.private", Name = "Friend's own mod", Version = "0.1.0" },
+            new() { ModGuid = "", Name = "", Version = "1.0.0" },
+        ];
+        HostMods.CatalogLookup catalog = guid => guid == "com.casino" ? (77, "Casino") : null;
+        ModListCapture.VersionLookup versions = id => id == 77
+            ? [new ModVersionSummary { Id = 501, Version = "1.1.0" }, new ModVersionSummary { Id = 502, Version = "1.2.0" }]
+            : null;
+        var now = new DateTimeOffset(2026, 11, 11, 0, 0, 0, TimeSpan.Zero);
+
+        var list = HostMods.BuildList("Mods on Friend", "203.0.113.7:6969", host, catalog, versions, "4.1.6", null, now);
+
+        Assert.Equal(ModListPolicy.Additive, list.Policy);
+        Assert.Equal(ModListOrigin.Local, list.Origin);
+        Assert.Equal("203.0.113.7:6969", list.Source);
+        Assert.Equal(2, list.Entries.Count);
+
+        var casino = list.Entries.Single(e => e.Guid == "com.casino");
+        Assert.Equal("Casino", casino.Name); // as sp-mod.com names it
+        Assert.Equal(77, casino.ModId);
+        Assert.Equal(502, casino.VersionId);
+        Assert.Equal("1.2.0", casino.Version);
+
+        var own = list.Entries.Single(e => e.Guid == "com.private");
+        Assert.False(own.IsResolved); // by hand
+
+        // Asked again: the same collection, replaced.
+        Assert.Same(list, HostMods.Existing([list], "203.0.113.7:6969"));
+        var again = HostMods.BuildList("Mods on Friend", "203.0.113.7:6969", host, catalog, versions, "4.1.6", list, now.AddDays(1));
+        Assert.Equal(list.Id, again.Id);
+        Assert.Equal(list.CreatedAt, again.CreatedAt);
     }
 
     private static readonly SptMiniProfile Trap = new() { Username = "trap", ProfileId = "6abee519842869498c34024b", Edition = "SPT Developer" };

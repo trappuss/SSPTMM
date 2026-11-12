@@ -205,6 +205,59 @@ public partial class PlayViewModel
         });
     }
 
+    //
+    // Fork (1.4.7): "Compare mods with this server" - the server mods the picked server has loaded,
+    // as a collection (HostMods), and the Collections page's preview of what applying it would do.
+    // Nothing is installed from here. When nothing would be, it only says so and keeps no collection.
+    //
+    [RelayCommand]
+    private async Task CompareServerModsAsync()
+    {
+        if (SelectedPlayServer is not { Address: { } address } server) return;
+
+        if (AppServices.ModCache.AllMods.Count == 0)
+        {
+            PlayStatus = Strings.Play_RemoteModsCatalogLoading;
+            return;
+        }
+
+        await WithServerAsync(async (api, ct) =>
+        {
+            var mods = await api.ModsAsync(ct);
+            AppLog.Info("DirectLaunch", $"{mods.Count} server mod(s) loaded on {address}");
+
+            if (mods.Count == 0)
+            {
+                PlayStatus = Text(Strings.Play_RemoteNoModsFormat, server.Title);
+                return;
+            }
+
+            var preview = await AppServices.ModListWorkflow.FromServerAsync(
+                Text(Strings.Play_RemoteModsListNameFormat, server.Title), address, mods);
+            if (preview is null)
+            {
+                PlayStatus = AppMessages.NoSptInstallFolder;
+                return;
+            }
+
+            var plan = preview.Plan;
+            AppLog.Info("DirectLaunch", $"against {address}: {plan.Install.Count()} to install, {plan.Update.Count()} to update, "
+                + $"{plan.Enable.Count()} to turn on, {plan.Manual.Count()} not on the catalog, {plan.Keep.Count()} the same");
+
+            if (plan.IsNoOp)
+            {
+                var byHand = plan.Manual.Select(a => a.Name).ToList();
+                PlayStatus = byHand.Count == 0
+                    ? Text(Strings.Play_RemoteModsMatchFormat, server.Title, mods.Count)
+                    : Text(Strings.Play_RemoteModsManualFormat, server.Title, TextLists.Join(byHand));
+                return;
+            }
+
+            AppServices.ModLists.Add(preview.List);
+            AppNavigation.ReviewList(preview.List.Id);
+        });
+    }
+
     // The api for the server picked: this PC's at its http.json address, or another PC's, pinned.
     private SptLauncherApi? CreateApi()
     {

@@ -9306,6 +9306,27 @@ GitHub 上的文件未经 sp-mod.com 检查，请只安装你信任的作者的�
   <data name="Play_RemoteReloadProfiles" xml:space="preserve">
     <value>从服务器重新加载配置文件</value>
   </data>
+  <data name="Play_RemoteCompareMods" xml:space="preserve">
+    <value>与此服务端比较模组</value>
+  </data>
+  <data name="Play_RemoteCompareModsToolTip" xml:space="preserve">
+    <value>读取此服务端已加载的服务端模组，并显示这里需要安装、更新或启用哪些模组才能一致。</value>
+  </data>
+  <data name="Play_RemoteModsListNameFormat" xml:space="preserve">
+    <value>{0} 上的模组</value>
+  </data>
+  <data name="Play_RemoteModsMatchFormat" xml:space="preserve">
+    <value>这里的模组与 {0} 一致：它的 {1} 个服务端模组都已安装且版本相同。</value>
+  </data>
+  <data name="Play_RemoteModsManualFormat" xml:space="preserve">
+    <value>{0} 使用了 SSPTMM 在 sp-mod.com 上找不到的服务端模组，无法在这里比较或安装：{1}。</value>
+  </data>
+  <data name="Play_RemoteNoModsFormat" xml:space="preserve">
+    <value>{0} 没有加载任何服务端模组。</value>
+  </data>
+  <data name="Play_RemoteModsCatalogLoading" xml:space="preserve">
+    <value>模组目录仍在加载，请稍后再试。</value>
+  </data>
   <data name="Play_RemoteAddServer" xml:space="preserve">
     <value>添加服务器...</value>
   </data>

@@ -108,6 +108,17 @@ With another PC's server picked:
   sets SPT up again, and **Trust the new certificate** takes the new one; otherwise it may not be
   the same server.
 - **Close the game when the server stops** is hidden: it watches this PC's server only.
+- **Compare mods with this server** on **...** asks the server which server mods it has loaded and
+  compares them with what is installed here, by version. When they match, it says so. Otherwise it
+  makes a collection named **Mods on** and the server's name, and opens it in
+  [Collections](Collections) with the preview of what would be installed, updated or turned on.
+  Nothing changes until you press **Apply**, and applying it never turns a mod off.
+  - The host needs nothing for this: any SPT 4.1 server answers.
+  - It knows the host's **server mods** only. An SPT server can't see its own game's BepInEx
+    plugins, so game-only mods are not compared.
+  - A mod the host runs that you need no part of (a server-only mod) can be removed from the
+    collection before applying.
+  - A mod that isn't on sp-mod.com is listed as one to install by hand.
 
 Pick **This PC** to go back to your own server.
 

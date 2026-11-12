@@ -3198,6 +3198,13 @@ internal static class Strings
     internal static string Play_RemoteTrustCertificate => LocalizationService.Get("Play_RemoteTrustCertificate");
     internal static string Play_RemoteCertificateTrusted => LocalizationService.Get("Play_RemoteCertificateTrusted");
     internal static string Play_RemoteReloadProfiles => LocalizationService.Get("Play_RemoteReloadProfiles");
+    internal static string Play_RemoteCompareMods => LocalizationService.Get("Play_RemoteCompareMods");
+    internal static string Play_RemoteCompareModsToolTip => LocalizationService.Get("Play_RemoteCompareModsToolTip");
+    internal static string Play_RemoteModsListNameFormat => LocalizationService.Get("Play_RemoteModsListNameFormat");
+    internal static string Play_RemoteModsMatchFormat => LocalizationService.Get("Play_RemoteModsMatchFormat");
+    internal static string Play_RemoteModsManualFormat => LocalizationService.Get("Play_RemoteModsManualFormat");
+    internal static string Play_RemoteNoModsFormat => LocalizationService.Get("Play_RemoteNoModsFormat");
+    internal static string Play_RemoteModsCatalogLoading => LocalizationService.Get("Play_RemoteModsCatalogLoading");
     internal static string Play_RemoteAddServer => LocalizationService.Get("Play_RemoteAddServer");
     internal static string Play_RemoteAddServerToolTip => LocalizationService.Get("Play_RemoteAddServerToolTip");
     internal static string Play_RemoteRemoveServer => LocalizationService.Get("Play_RemoteRemoveServer");

@@ -9753,6 +9753,27 @@ No mantiene questo gruppo con il suo vecchio nome.</value>
   <data name="Play_RemoteReloadProfiles" xml:space="preserve">
     <value>Ricarica i profili dal server</value>
   </data>
+  <data name="Play_RemoteCompareMods" xml:space="preserve">
+    <value>Confronta i mod con questo server</value>
+  </data>
+  <data name="Play_RemoteCompareModsToolTip" xml:space="preserve">
+    <value>Legge i mod server caricati da questo server e mostra cosa installare, aggiornare o attivare qui per corrispondere.</value>
+  </data>
+  <data name="Play_RemoteModsListNameFormat" xml:space="preserve">
+    <value>Mod su {0}</value>
+  </data>
+  <data name="Play_RemoteModsMatchFormat" xml:space="preserve">
+    <value>I mod qui corrispondono a {0}: tutti i suoi {1} mod server sono installati nella stessa versione.</value>
+  </data>
+  <data name="Play_RemoteModsManualFormat" xml:space="preserve">
+    <value>{0} usa mod server che SSPTMM non trova su sp-mod.com, quindi da qui non si possono confrontare né installare: {1}.</value>
+  </data>
+  <data name="Play_RemoteNoModsFormat" xml:space="preserve">
+    <value>{0} non ha mod server caricati.</value>
+  </data>
+  <data name="Play_RemoteModsCatalogLoading" xml:space="preserve">
+    <value>Il catalogo dei mod è ancora in caricamento. Riprova tra un momento.</value>
+  </data>
   <data name="Play_RemoteAddServer" xml:space="preserve">
     <value>Aggiungi un server...</value>
   </data>

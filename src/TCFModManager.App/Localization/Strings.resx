@@ -12141,6 +12141,34 @@ No keeps this group under its old name.</value>
   <data name="Play_RemoteReloadProfiles" xml:space="preserve">
     <value>Reload profiles from the server</value>
   </data>
+  <data name="Play_RemoteCompareMods" xml:space="preserve">
+    <value>Compare mods with this server</value>
+    <comment>Play, the ... menu with another PC's server picked.</comment>
+  </data>
+  <data name="Play_RemoteCompareModsToolTip" xml:space="preserve">
+    <value>Reads the server mods this server has loaded and shows what to install, update or turn on here to match.</value>
+    <comment>Tooltip of Play_RemoteCompareMods.</comment>
+  </data>
+  <data name="Play_RemoteModsListNameFormat" xml:space="preserve">
+    <value>Mods on {0}</value>
+    <comment>Name of the collection made from another PC's server's mods. {0}: the server's name.</comment>
+  </data>
+  <data name="Play_RemoteModsMatchFormat" xml:space="preserve">
+    <value>The mods here match {0}: all {1} of its server mods are installed in the same version.</value>
+    <comment>Play status: nothing to do. {0}: the server; {1}: how many server mods it has loaded.</comment>
+  </data>
+  <data name="Play_RemoteModsManualFormat" xml:space="preserve">
+    <value>{0} runs server mods SSPTMM can't find on sp-mod.com, so they can't be compared or installed from here: {1}.</value>
+    <comment>Play status: the rest matches, but these could not be checked. {0}: the server; {1}: the mods' names.</comment>
+  </data>
+  <data name="Play_RemoteNoModsFormat" xml:space="preserve">
+    <value>{0} has no server mods loaded.</value>
+    <comment>Play status. {0}: the server.</comment>
+  </data>
+  <data name="Play_RemoteModsCatalogLoading" xml:space="preserve">
+    <value>The mod catalog is still loading. Try again in a moment.</value>
+    <comment>Play status: the comparison needs the sp-mod.com catalog.</comment>
+  </data>
   <data name="Play_RemoteAddServer" xml:space="preserve">
     <value>Add a server...</value>
   </data>

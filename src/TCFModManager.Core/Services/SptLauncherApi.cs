@@ -33,6 +33,7 @@ public sealed class SptLauncherApi : IDisposable
     public const string RegisterPath = "/launcher/v2/register";
     public const string RemovePath = "/launcher/v2/remove";
     public const string VersionPath = "/launcher/v2/version";
+    public const string ModsPath = "/launcher/v2/mods"; // Fork (1.4.7)
     public const string ProfilesPath = "/launcher/v2/profiles";
     public const string ProfilePath = "/launcher/v2/profile";
     public const string WipePath = "/launcher/v2/wipe";
@@ -230,6 +231,22 @@ public sealed class SptLauncherApi : IDisposable
     /// <summary>The server's version tag: "4.1.6", or "4.1.6 - (text)" on a bleeding-edge build.</summary>
     public async Task<string?> VersionAsync(CancellationToken ct = default) =>
         (await GetAsync<Answer<string>>(VersionPath, ct).ConfigureAwait(false))?.Response;
+
+    /// <summary>Fork (1.4.7): the server mods the server has loaded - what SPT's launcher lists.
+    /// Seen in a 4.1.6 server: a map from each mod's name to its metadata. None from a server
+    /// that does not know the question (an older SPT), whatever it answers instead.</summary>
+    public async Task<IReadOnlyList<SptServerMod>> ModsAsync(CancellationToken ct = default)
+    {
+        try
+        {
+            var answer = await GetAsync<Answer<Dictionary<string, SptServerMod>>>(ModsPath, ct).ConfigureAwait(false);
+            return [.. (answer?.Response ?? []).Values];
+        }
+        catch (JsonException)
+        {
+            return [];
+        }
+    }
 
     public async Task<IReadOnlyList<SptMiniProfile>> ProfilesAsync(CancellationToken ct = default) =>
         (await GetAsync<Answer<List<SptMiniProfile>>>(ProfilesPath, ct).ConfigureAwait(false))?.Response ?? [];
