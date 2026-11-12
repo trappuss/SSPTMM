@@ -204,6 +204,120 @@ public class ForkBrokenModSearchTests : IDisposable
     }
 
     [Fact]
+    public void A_bisect_says_who_is_still_suspected()
+    {
+        var search = new ModBisect(8);
+        Assert.Equal(8, search.Suspects.Count);
+
+        while (search.Next is { } on)
+        {
+            Assert.Contains(5, search.Suspects);
+            search.Report(on.Contains(5));
+        }
+
+        Assert.Equal([5], search.Suspects);
+    }
+
+    [Fact]
+    public async Task Recently_changed_mods_are_tried_first_and_the_rest_stay_on()
+    {
+        // Sixteen mods; 11 is the bad one, and 3 and 11 changed. 12 needs 11.
+        IEnumerable<int> Needs(int mod) => mod == 12 ? [11] : [];
+        var asked = new List<IReadOnlyList<int>>();
+        Task<ServerTrialOutcome> Server(IReadOnlyList<int> on, bool errors, CancellationToken ct)
+        {
+            asked.Add(on);
+            return Task.FromResult(new ServerTrialOutcome(!on.Contains(11), false, []));
+        }
+
+        var plain = await BrokenModSearch.RunAsync(16, Needs, Server);
+        asked.Clear();
+        var result = await BrokenModSearch.RunAsync(16, Needs, Server, recent: [3, 11]);
+
+        Assert.Equal(BrokenModVerdict.Found, result.Verdict);
+        Assert.Equal(11, result.Culprit);
+        Assert.Null(result.Partner);
+        Assert.Equal(3, result.RecentTried); // 3, 11 and the one that needs 11
+        Assert.True(result.Tries < plain.Tries);
+
+        // The third try is everything but those three; after it the other thirteen are always on.
+        Assert.Equal(13, asked[2].Count);
+        Assert.All(asked.Skip(3), on => Assert.Equal(13, on.Except([3, 11, 12]).Count()));
+        // And 12 is never on without 11.
+        Assert.All(asked, on => Assert.True(!on.Contains(12) || on.Contains(11)));
+    }
+
+    [Fact]
+    public async Task A_wrong_guess_at_the_recent_mods_costs_one_start()
+    {
+        Task<ServerTrialOutcome> Server(IReadOnlyList<int> on, bool errors, CancellationToken ct) =>
+            Task.FromResult(new ServerTrialOutcome(!on.Contains(11), false, []));
+
+        var plain = await BrokenModSearch.RunAsync(16, _ => [], Server);
+        var result = await BrokenModSearch.RunAsync(16, _ => [], Server, recent: [2, 3]);
+
+        Assert.Equal(11, result.Culprit);
+        Assert.Equal(0, result.RecentTried);
+        Assert.Equal(plain.Tries + 1, result.Tries);
+
+        // Too many changed to be worth it: as if none were given.
+        var most = await BrokenModSearch.RunAsync(16, _ => [], Server, recent: [.. Enumerable.Range(0, 9)]);
+        Assert.Equal(plain.Tries, most.Tries);
+    }
+
+    [Fact]
+    public async Task A_pair_among_the_recent_mods_is_found()
+    {
+        Task<ServerTrialOutcome> Server(IReadOnlyList<int> on, bool errors, CancellationToken ct) =>
+            Task.FromResult(new ServerTrialOutcome(!(on.Contains(4) && on.Contains(9)), false, []));
+
+        var result = await BrokenModSearch.RunAsync(16, _ => [], Server, recent: [4, 9, 13]);
+
+        Assert.Equal(9, result.Culprit);
+        Assert.Equal(4, result.Partner);
+        Assert.Equal(3, result.RecentTried);
+    }
+
+    [Fact]
+    public void Changed_mods_are_told_by_their_folder_and_what_is_in_it()
+    {
+        var old = Path.Combine(_dir, "Old");
+        var touched = Path.Combine(_dir, "Touched");
+        var added = Path.Combine(_dir, "Added");
+        foreach (var folder in new[] { old, touched })
+        {
+            Directory.CreateDirectory(folder);
+            File.WriteAllText(Path.Combine(folder, "mod.dll"), "x");
+            foreach (var entry in new DirectoryInfo(folder).EnumerateFileSystemInfos().Prepend(new DirectoryInfo(folder)))
+            {
+                entry.CreationTimeUtc = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+                entry.LastWriteTimeUtc = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            }
+        }
+
+        var since = new DateTimeOffset(2026, 6, 1, 0, 0, 0, TimeSpan.Zero);
+        File.SetLastWriteTimeUtc(Path.Combine(touched, "mod.dll"), new DateTime(2026, 7, 1, 0, 0, 0, DateTimeKind.Utc));
+        Directory.CreateDirectory(added); // made now
+
+        Assert.Equal([1, 2], BrokenModSearch.ChangedSince([old, touched, added, Path.Combine(_dir, "Gone")], since));
+    }
+
+    [Fact]
+    public void When_a_server_was_last_up_is_kept_by_install()
+    {
+        var file = Path.Combine(_dir, "server_last_up.json");
+        var at = new DateTimeOffset(2026, 11, 11, 20, 0, 0, TimeSpan.Zero);
+
+        Assert.Null(new ServerUpLog(file).Last(@"C:\SPT"));
+
+        new ServerUpLog(file).Note(@"C:\SPT", at);
+        new ServerUpLog(file).Note(@"D:\Other", at.AddHours(1));
+
+        Assert.Equal(at, new ServerUpLog(file).Last(@"c:\spt"));
+        Assert.Equal(at.AddHours(1), new ServerUpLog(file).Last(@"D:\Other"));
+    }
+
+    [Fact]
     public void Time_left_is_the_average_start_times_the_starts_left()
     {
         TimeSpan S(double seconds) => TimeSpan.FromSeconds(seconds);

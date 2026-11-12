@@ -9328,6 +9328,15 @@ Les profils sont copiés d'abord, et tous les mods sont réactivés à la fin. N
   <data name="Search_LeftUnderMinute" xml:space="preserve">
     <value>Moins d'une minute restante.</value>
   </data>
+  <data name="Search_StoppedNarrowedFormat" xml:space="preserve">
+    <value>Avant l'arrêt, la recherche s'était réduite à {0} mods serveur sur {1} : {2}.</value>
+  </data>
+  <data name="Search_StoppedNarrowedCountFormat" xml:space="preserve">
+    <value>Avant l'arrêt, la recherche s'était réduite à {0} mods serveur sur {1}.</value>
+  </data>
+  <data name="Search_RecentFirstFormat" xml:space="preserve">
+    <value>Les mods serveur modifiés depuis le dernier démarrage du serveur ont été essayés en premier : {0}.</value>
+  </data>
   <data name="Search_Dismiss" xml:space="preserve">
     <value>Terminé</value>
   </data>

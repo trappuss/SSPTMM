@@ -37,6 +37,7 @@ public sealed partial class CrashWatch : LocalizedViewModel
     private DateTime _gameClosedByAppUntil = DateTime.MinValue;
     private bool _checking;
     private bool _serverCrashed;
+    private bool _serverUp;
 
     [ObservableProperty]
     private bool _isOpen;
@@ -107,6 +108,7 @@ public sealed partial class CrashWatch : LocalizedViewModel
             _logs = ServerTrial.LogLengths(install);
             _game?.Dispose();
             _game = null;
+            _serverUp = false;
             return (null, null);
         }
 
@@ -123,6 +125,12 @@ public sealed partial class CrashWatch : LocalizedViewModel
             serverLine = CrashSigns.ServerCrash(ServerTrial.ErrorsSince(install, since))?.Message;
             _logs = now;
         }
+
+        // When the server is first seen up: Find the broken mod tries what changed since then first.
+        var server = SptLaunchService.Describe(install, SptLaunchTarget.Server);
+        var up = !searching && server.IsRunning && SptServerReadiness.IsListening(SptServerReadiness.PortsFor(server.ExePath));
+        if (up && !_serverUp) new ServerUpLog().Note(install, DateTimeOffset.Now);
+        _serverUp = up;
 
         int? gameCode = null;
         if (_game is null)

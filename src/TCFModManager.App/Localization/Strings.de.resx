@@ -9328,6 +9328,15 @@ Vorher werden die Profile kopiert, und am Ende sind alle Mods wieder an. Starte 
   <data name="Search_LeftUnderMinute" xml:space="preserve">
     <value>Noch weniger als eine Minute.</value>
   </data>
+  <data name="Search_StoppedNarrowedFormat" xml:space="preserve">
+    <value>Vor dem Stopp war die Suche auf {0} von {1} Server-Mods eingegrenzt: {2}.</value>
+  </data>
+  <data name="Search_StoppedNarrowedCountFormat" xml:space="preserve">
+    <value>Vor dem Stopp war die Suche auf {0} von {1} Server-Mods eingegrenzt.</value>
+  </data>
+  <data name="Search_RecentFirstFormat" xml:space="preserve">
+    <value>Seit dem letzten Serverstart geänderte Server-Mods wurden zuerst geprüft: {0}.</value>
+  </data>
   <data name="Search_Dismiss" xml:space="preserve">
     <value>Fertig</value>
   </data>

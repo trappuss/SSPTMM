@@ -257,6 +257,12 @@ public sealed partial class BrokenModFinder : LocalizedViewModel
                     SayProgress();
                 });
 
+                // The mods changed since this install's server was last seen up are tried first.
+                var recent = await Task.Run(() => new ServerUpLog().Last(install) is { } up
+                    ? BrokenModSearch.ChangedSince(session.Mods, up)
+                    : null);
+                if (recent is not null) AppLog.Info("Search", $"{recent.Count} mod(s) changed since the server was last up");
+
                 result = await Task.Run(() => BrokenModSearch.RunAsync(mods.Count, needs, async (on, errors, ct) =>
                 {
                     var wanted = on.Select(i => session.Mods[i]).ToHashSet(StringComparer.OrdinalIgnoreCase);
@@ -266,7 +272,7 @@ public sealed partial class BrokenModFinder : LocalizedViewModel
                     var outcome = await ServerTrial.RunAsync(install, ct, settle: errors).ConfigureAwait(false);
                     AppLog.Info("Search", $"{on.Count} on: {(outcome.Started ? "started" : outcome.TimedOut ? "timed out" : "did not start")}, {outcome.Errors.Count} error(s)");
                     return outcome;
-                }, progress, cancel.Token));
+                }, progress, cancel.Token, recent));
             }
         }
         catch (OperationCanceledException)
@@ -312,7 +318,7 @@ public sealed partial class BrokenModFinder : LocalizedViewModel
         }
         else if (stopped)
         {
-            StatusMessage = back.AllBack ? Strings.Search_Stopped : null;
+            StatusMessage = back.AllBack ? Sentences(Strings.Search_Stopped, Narrowed(mods)) : null;
         }
         else if (result is not null)
         {
@@ -326,6 +332,19 @@ public sealed partial class BrokenModFinder : LocalizedViewModel
 
         InstalledViewModel.NotifyModsMoved();
         Ended?.Invoke(this, EventArgs.Empty);
+    }
+
+    // What a stopped search had got to: the mods the fault could still be, named when they are few.
+    private string? Narrowed(IReadOnlyList<InstalledMod> mods)
+    {
+        if (_now?.Suspects is not { Count: > 0 } suspects || suspects.Count >= mods.Count) return null;
+
+        var names = suspects.Where(i => i >= 0 && i < mods.Count).Select(i => TitleOf(mods[i])).ToList();
+        AppLog.Info("Search", $"stopped with {names.Count} suspect(s): {string.Join(", ", names)}");
+
+        return names.Count <= 8
+            ? T(Strings.Search_StoppedNarrowedFormat, names.Count, mods.Count, TextLists.Join(names))
+            : T(Strings.Search_StoppedNarrowedCountFormat, names.Count, mods.Count);
     }
 
     // The progress line, again every second: which start, the time so far and about how much is left.
@@ -583,6 +602,7 @@ public sealed partial class BrokenModFinder : LocalizedViewModel
 
         ResultNote = Sentences(
             T(Strings.Search_SummaryFormat, mods.Count, result.Tries, Duration(took)),
+            result.RecentTried > 0 ? T(Strings.Search_RecentFirstFormat, result.RecentTried) : null,
             back.AllBack ? Strings.Search_AllBack : null,
             back.ProfilesRestored ? Strings.Search_ProfilesPutBack : null);
 

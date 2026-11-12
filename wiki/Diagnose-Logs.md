@@ -67,6 +67,11 @@ see what is wrong. The second has them all off, to check that it is one of the m
 that has half of the remaining suspects on, until one mod is left. Sixty mods take about seven starts.
 If that mod is fine by itself, the fault needs a second mod, and the search goes on to find it.
 
+**Recently changed mods first.** While SSPTMM is open it notes when the server was last seen up. If
+fewer than half of the server mods were added or changed since then, the third start has every mod
+on but those. When the server then starts, the fault is among them and only they are searched,
+which takes fewer starts. When it doesn't, the search goes on as usual, one start longer.
+
 | It says | Means |
 |---|---|
 | Found: a mod | With it on, the server doesn't start (or logs the errors shown). Without it, it does. |
@@ -99,7 +104,8 @@ What it does and doesn't touch:
   as they are. It tests the server only: a fault that shows in the game is not found.
 - A mod is never tried without the mods it says it needs.
 - Mods are turned off the same way Subscribed items does it (moved to `user\mods.disabled`), and
-  **every one is turned back on at the end**, also when you press **Stop**.
+  **every one is turned back on at the end**, also when you press **Stop**. A stopped search says
+  which mods it had narrowed the fault down to.
 - Your **profiles are copied first** (Options > **SPT profile backups**). If the test starts changed a profile,
   the copy is put back, since nothing was played in between.
 - It won't start while the server or game is running, or while downloads are queued, and downloads

@@ -21,17 +21,20 @@ public enum BrokenModVerdict
     Found,
 }
 
-/// <summary>How a search ended. Culprit and Partner number the mods as they were given.</summary>
+/// <summary>How a search ended. Culprit and Partner number the mods as they were given.
+/// RecentTried: how many recently changed mods the search was kept to, when the fault was among them.</summary>
 public sealed record BrokenModResult(
     BrokenModVerdict Verdict,
     BrokenModSymptom? Symptom,
     int? Culprit,
     int? Partner,
     IReadOnlyList<LogEntry> Errors,
-    int Tries);
+    int Tries,
+    int RecentTried = 0);
 
 /// <summary>One try about to be made: which it is, about how many there will be, how many mods are on.</summary>
-public sealed record BrokenModProgress(int Try, int About, int ModsOn, int Mods);
+/// <remarks>Suspects: the mods the fault can still be, once it is known to be one of them.</remarks>
+public sealed record BrokenModProgress(int Try, int About, int ModsOn, int Mods, IReadOnlyList<int>? Suspects = null);
 
 //
 // Fork (1.4.7): Find the broken mod, for the SPT server. The mods are the install's enabled server
@@ -42,6 +45,11 @@ public sealed record BrokenModProgress(int Try, int About, int ModsOn, int Mods)
 // are not looked for afterwards. Then ModBisect, where a try fails when it shows what the first one
 // showed - the server down, or one of those errors.
 //
+// Recent first: given the mods that changed since the server last came up, one more try before the
+// halving - every mod on but those (and the ones that need them). When that works the fault is among
+// them, and only they are halved, the rest staying on. When it does not, nothing is known that was
+// not before, and every mod is halved as usual: a wrong guess costs one start.
+//
 public static class BrokenModSearch
 {
     public static async Task<BrokenModResult> RunAsync(
@@ -49,7 +57,8 @@ public static class BrokenModSearch
         Func<int, IEnumerable<int>> needs,
         Func<IReadOnlyList<int>, bool, CancellationToken, Task<ServerTrialOutcome>> tryWith,
         IProgress<BrokenModProgress>? progress = null,
-        CancellationToken ct = default)
+        CancellationToken ct = default,
+        IReadOnlyCollection<int>? recent = null)
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(mods, 1);
 
@@ -57,11 +66,11 @@ public static class BrokenModSearch
 
         // errors: whether what a server that came up logs is wanted - when it is not, the try
         // need not wait for it.
-        async Task<ServerTrialOutcome> Try(IReadOnlyList<int> on, int left, bool errors)
+        async Task<ServerTrialOutcome> Try(IReadOnlyList<int> on, int left, bool errors, IReadOnlyList<int>? suspects = null)
         {
             ct.ThrowIfCancellationRequested();
             tries++;
-            progress?.Report(new BrokenModProgress(tries, tries + left, on.Count, mods));
+            progress?.Report(new BrokenModProgress(tries, tries + left, on.Count, mods, suspects));
             return await tryWith(on, errors, ct).ConfigureAwait(false);
         }
 
@@ -96,9 +105,32 @@ public static class BrokenModSearch
         var errors = Shown(first);
         var fewest = mods;
 
-        while (search.Next is { } on)
+        // Recent first. among: the mods halved, by their numbers here; rest: the ones on throughout.
+        List<int>? among = null;
+        List<int> rest = [];
+
+        if (recent is { Count: > 0 } && WithDependents(mods, needs, recent) is { Count: > 0 } changed && changed.Count * 2 <= mods)
         {
-            var outcome = await Try(on, search.TriesLeft - 1, errorsMatter).ConfigureAwait(false);
+            var others = all.Except(changed).ToList();
+            var narrow = new ModBisect(changed.Count, i => needs(changed[i]).Select(n => changed.IndexOf(n)).Where(n => n >= 0));
+
+            var without = await Try(others, 1 + narrow.TriesLeft, errorsMatter, changed).ConfigureAwait(false);
+            if (!Fails(without))
+            {
+                among = changed;
+                rest = others;
+                search = narrow;
+            }
+        }
+
+        int Mod(int number) => among is null ? number : among[number];
+
+        while (search.Next is { } next)
+        {
+            IReadOnlyList<int> on = among is null ? next : [.. rest.Concat(next.Select(Mod)).Order()];
+            IReadOnlyList<int> suspects = [.. search.Suspects.Select(Mod)];
+
+            var outcome = await Try(on, search.TriesLeft - 1, errorsMatter, suspects).ConfigureAwait(false);
             var failed = Fails(outcome);
 
             if (failed && on.Count <= fewest)
@@ -110,7 +142,57 @@ public static class BrokenModSearch
             search.Report(failed);
         }
 
-        return new BrokenModResult(BrokenModVerdict.Found, symptom, search.Culprit, search.Partner, errors, tries);
+        return new BrokenModResult(
+            BrokenModVerdict.Found, symptom,
+            Mod(search.Culprit!.Value), search.Partner is { } partner ? Mod(partner) : null,
+            errors, tries, among?.Count ?? 0);
+    }
+
+    // These mods and every one that needs one of them, in order. A mod's needs come before it, so
+    // one pass finds them all.
+    private static List<int> WithDependents(int mods, Func<int, IEnumerable<int>> needs, IReadOnlyCollection<int> picked)
+    {
+        var chosen = new bool[mods];
+        foreach (var mod in picked)
+            if (mod >= 0 && mod < mods) chosen[mod] = true;
+
+        for (var i = 0; i < mods; i++)
+            if (!chosen[i] && needs(i).Any(n => n >= 0 && n < mods && chosen[n])) chosen[i] = true;
+
+        return [.. Enumerable.Range(0, mods).Where(i => chosen[i])];
+    }
+
+    //
+    // Which of these mod folders changed after a moment: the folder or something directly in it
+    // made or written since. Made as well as written, since a file taken out of an archive can keep
+    // the archive's date as when it was written. Turning a mod off and on moves its folder, which
+    // changes neither.
+    //
+    // HUNCH: that looking directly in the folder is enough - a mod updated only deeper down is
+    // missed, and is then found by the ordinary search, one start later.
+    //
+    public static List<int> ChangedSince(IReadOnlyList<string> folders, DateTimeOffset since)
+    {
+        var moment = since.UtcDateTime;
+        var changed = new List<int>();
+
+        for (var i = 0; i < folders.Count; i++)
+        {
+            try
+            {
+                FileSystemInfo entry = Directory.Exists(folders[i]) ? new DirectoryInfo(folders[i]) : new FileInfo(folders[i]);
+                if (!entry.Exists) continue;
+
+                var inside = entry is DirectoryInfo folder ? folder.EnumerateFileSystemInfos() : [];
+                if (inside.Prepend(entry).Any(e => e.CreationTimeUtc > moment || e.LastWriteTimeUtc > moment)) changed.Add(i);
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                // Not known to have changed: it is searched with the others.
+            }
+        }
+
+        return changed;
     }
 
     //
@@ -149,6 +231,56 @@ public static class BrokenModSearch
         return (ordered, i => graph.DependenciesOf(ordered[i])
             .Where(link => !link.IsSoft && number.ContainsKey(link.Dependency))
             .Select(link => number[link.Dependency]));
+    }
+}
+
+//
+// Fork (1.4.7): Data\server_last_up.json - when each install's server was last seen up, so Find the
+// broken mod can try the mods changed since then first. Written when a server is first seen
+// listening, not for as long as it does.
+//
+public sealed class ServerUpLog
+{
+    private readonly string _filePath;
+
+    public ServerUpLog() : this(Path.Combine(AppPaths.DataDirectory, "server_last_up.json"))
+    {
+    }
+
+    // A file of its own - for the tests.
+    public ServerUpLog(string filePath) => _filePath = filePath;
+
+    public DateTimeOffset? Last(string installPath) =>
+        Read().TryGetValue(installPath, out var at) ? at : null;
+
+    public void Note(string installPath, DateTimeOffset at)
+    {
+        try
+        {
+            var all = Read();
+            all[installPath] = at;
+            SafeFile.WriteText(_filePath, JsonSerializer.Serialize(all));
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            AppLog.Debug("Search", $"server_last_up.json couldn't be written: {ex.Message}");
+        }
+    }
+
+    private Dictionary<string, DateTimeOffset> Read()
+    {
+        try
+        {
+            if (File.Exists(_filePath)
+                && JsonSerializer.Deserialize<Dictionary<string, DateTimeOffset>>(File.ReadAllText(_filePath)) is { } read)
+                return new Dictionary<string, DateTimeOffset>(read, StringComparer.OrdinalIgnoreCase);
+        }
+        catch (Exception ex) when (ex is JsonException or IOException or UnauthorizedAccessException or NotSupportedException)
+        {
+            AppLog.Debug("Search", $"server_last_up.json couldn't be read: {ex.Message}");
+        }
+
+        return new Dictionary<string, DateTimeOffset>(StringComparer.OrdinalIgnoreCase);
     }
 }
 

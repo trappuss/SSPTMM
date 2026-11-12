@@ -3057,6 +3057,9 @@ internal static class Strings
     internal static string Search_ElapsedFormat => LocalizationService.Get("Search_ElapsedFormat");
     internal static string Search_LeftMinutesFormat => LocalizationService.Get("Search_LeftMinutesFormat");
     internal static string Search_LeftUnderMinute => LocalizationService.Get("Search_LeftUnderMinute");
+    internal static string Search_StoppedNarrowedFormat => LocalizationService.Get("Search_StoppedNarrowedFormat");
+    internal static string Search_StoppedNarrowedCountFormat => LocalizationService.Get("Search_StoppedNarrowedCountFormat");
+    internal static string Search_RecentFirstFormat => LocalizationService.Get("Search_RecentFirstFormat");
     internal static string Search_Dismiss => LocalizationService.Get("Search_Dismiss");
     internal static string Search_InterruptedFormat => LocalizationService.Get("Search_InterruptedFormat");
     internal static string Search_TurnBackOn => LocalizationService.Get("Search_TurnBackOn");

@@ -8881,6 +8881,15 @@ GitHub 上的文件未经 sp-mod.com 检查，请只安装你信任的作者的�
   <data name="Search_LeftUnderMinute" xml:space="preserve">
     <value>剩余不到一分钟。</value>
   </data>
+  <data name="Search_StoppedNarrowedFormat" xml:space="preserve">
+    <value>停止前，范围已缩小到 {1} 个服务端模组中的 {0} 个：{2}。</value>
+  </data>
+  <data name="Search_StoppedNarrowedCountFormat" xml:space="preserve">
+    <value>停止前，范围已缩小到 {1} 个服务端模组中的 {0} 个。</value>
+  </data>
+  <data name="Search_RecentFirstFormat" xml:space="preserve">
+    <value>自服务端上次启动以来有变动的服务端模组已优先测试：{0}。</value>
+  </data>
   <data name="Search_Dismiss" xml:space="preserve">
     <value>完成</value>
   </data>

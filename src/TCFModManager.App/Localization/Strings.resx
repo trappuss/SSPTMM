@@ -11648,6 +11648,18 @@ The profiles are copied first, and every mod is turned back on at the end. Don't
     <value>Less than a minute left.</value>
     <comment>Progress line: a rough guess at the time left.</comment>
   </data>
+  <data name="Search_StoppedNarrowedFormat" xml:space="preserve">
+    <value>Before it stopped, it had narrowed it down to {0} of {1} server mods: {2}.</value>
+    <comment>Status after Stop, after Search_Stopped. {0}: mods still suspected; {1}: mods searched; {2}: their names.</comment>
+  </data>
+  <data name="Search_StoppedNarrowedCountFormat" xml:space="preserve">
+    <value>Before it stopped, it had narrowed it down to {0} of {1} server mods.</value>
+    <comment>Status after Stop, when the mods still suspected are too many to name. {0}: how many; {1}: mods searched.</comment>
+  </data>
+  <data name="Search_RecentFirstFormat" xml:space="preserve">
+    <value>Server mods changed since the server last came up were tried first: {0}.</value>
+    <comment>Note under a result, when the mods changed since the server last came up were tried first and the fault was among them. {0}: how many.</comment>
+  </data>
   <data name="Search_Dismiss" xml:space="preserve">
     <value>Done</value>
     <comment>Button: clears the result.</comment>

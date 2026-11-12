@@ -56,6 +56,16 @@ public sealed class ModBisect
     /// <summary>The second mod the fault takes, when the first is fine with only what it needs.</summary>
     public int? Partner { get; private set; }
 
+    /// <summary>The mods the fault can still be, as far as the answers so far say: the ones the
+    /// first mod is among, then that mod with the ones its partner is among.</summary>
+    public IReadOnlyList<int> Suspects => _phase switch
+    {
+        Phase.Run => [.. Enumerable.Range(_low, _high - _low)],
+        Phase.Alone => [Culprit!.Value],
+        Phase.Partner => [.. Enumerable.Range(_low, _high - _low), Culprit!.Value],
+        _ => Partner is { } partner ? [partner, Culprit!.Value] : [Culprit!.Value],
+    };
+
     /// <summary>About how many tries are left - one more may follow when the fault takes two mods.</summary>
     public int TriesLeft => _phase switch
     {

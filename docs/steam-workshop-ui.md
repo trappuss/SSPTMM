@@ -2850,6 +2850,14 @@ From another mod manager (trappuss: "research it and see if there's anything cou
     offered on the ServerStopped card when no mod is named and under Play's server log once the
     server stopped before it was up (`OpenAndStart`). The copied report carries the result. Seen on
     screen with the stand-in server: each button, and the progress line.
+  - Recent first (`BrokenModSearch.RunAsync`'s `recent`). `CrashWatch` notes when a server is first
+    seen up (`ServerUpLog`, `Data\server_last_up.json`); the mods whose folder, or something
+    directly in it, was made or written since (`ChangedSince`) and the mods that need them are
+    left out of one extra try. When that try works, only they are halved with the rest on; when
+    not, the ordinary search follows. Skipped when they are more than half. Seen with the stand-in:
+    a bad mod added after the server was up, found in 3 starts where the plain search took 7.
+  - A stopped search says the mods it had got down to (`ModBisect.Suspects`, carried in the
+    progress), named when eight or fewer.
   - Diagnose logs has a card for SPT's own giving up (`LogFindingKind.ServerStopped`, the Critical
     line from `SPTarkov.Server.Core`), with the error under it and the mod of the first stack
     frame in a mod's code. The crash bar looks for that line, not any Critical one: a failed
@@ -2886,8 +2894,8 @@ From another mod manager (trappuss: "research it and see if there's anything cou
 - Round 58: 30 minutes between reads of a repository's releases, four archives as the most offered
   as buttons, and the GitHub chip's shades (#C6D4DF at 20% and 33%). For Find the broken mod: five
   minutes for a server to come up, three seconds after its port opens for mods to finish logging,
-  twenty seconds for its process to appear or go, 200 ms between looks, and that a start still
-  to come takes the average of those done. For the crash bar: that the game leaves
+  twenty seconds for its process to appear or go, 200 ms between looks, that a start still
+  to come takes the average of those done, and that a changed mod shows in its folder's top level. For the crash bar: that the game leaves
   no fault code when it quits by itself (not seen with the real game), three seconds between
   looks, and thirty seconds after the app closes the game.
 
