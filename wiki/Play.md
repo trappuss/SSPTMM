@@ -130,7 +130,8 @@ With another PC's server picked:
   - It knows the host's **server mods** only. An SPT server can't see its own game's BepInEx
     plugins, so game-only mods are not compared.
   - A mod the host runs that you need no part of (a server-only mod) can be removed from the
-    collection before applying.
+    collection before applying. It then stays out: later looks don't offer it again, and the
+    card no longer counts it as a difference. Deleting the collection starts over.
   - A mod that isn't on sp-mod.com is listed as one to install by hand.
 
 Pick **This PC** to go back to your own server.

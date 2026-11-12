@@ -191,6 +191,10 @@ public partial class PlayViewModel
             FikaHostNote = null;
             FikaHostAddress = null;
             FikaHostWarning = FikaServerConfig.Find(root) is null ? Strings.Play_FikaHostNotWritten : null;
+            FikaFirewallNote = null;
+            CanFixFikaListen = false;
+            _fikaHostAddresses = [];
+            _firewallRead = null;
             return;
         }
 

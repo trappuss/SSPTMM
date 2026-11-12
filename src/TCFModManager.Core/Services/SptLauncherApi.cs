@@ -240,8 +240,16 @@ public sealed class SptLauncherApi : IDisposable
     {
         try
         {
-            var answer = await GetAsync<Answer<Dictionary<string, SptServerMod>>>(ModsPath, ct).ConfigureAwait(false);
-            return [.. (answer?.Response ?? []).Values];
+            var answer = await GetAsync<Answer<Dictionary<string, SptServerMod?>>>(ModsPath, ct).ConfigureAwait(false);
+
+            // Whatever a server sends: no entry and no text of one is null from here on.
+            return [.. (answer?.Response ?? []).Values.OfType<SptServerMod>().Select(mod => mod with
+            {
+                ModGuid = mod.ModGuid ?? string.Empty,
+                Name = mod.Name ?? string.Empty,
+                Author = mod.Author ?? string.Empty,
+                Version = mod.Version ?? string.Empty,
+            })];
         }
         catch (JsonException)
         {

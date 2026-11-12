@@ -157,6 +157,10 @@ public sealed class AppSettings
     //
     public Dictionary<string, string> PlayServerPins { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 
+    // Fork (1.4.7): by server address, the server mods its collection was last made from (HostMods
+    // .Key) - so the ones taken out of that collection since are not offered again.
+    public Dictionary<string, List<string>> PlayServerModsSeen { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+
     //
     // Fork (1.4.3, experimental): Options > Play with Fika - the Play card's options for other PCs'
     // servers and a Fika host's notes. Null: Automatic, on when Fika is found in the install.

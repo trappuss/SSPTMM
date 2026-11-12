@@ -2331,8 +2331,13 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         var card = _all.FirstOrDefault(c => c.Entries.Any(e => string.Equals(e.FolderPath, folderPath, StringComparison.OrdinalIgnoreCase)));
         if (card is null) return (false, Strings.Installed_NothingToDisable);
 
+        // What is said has to be about this try: a question answered No says nothing.
+        StatusMessage = null;
         var moves = await ApplyDisableAsync([card], disable: true);
-        return (moves is not null, StatusMessage);
+
+        // A move that failed (a file in use) still comes back with a list: the folder says.
+        var off = moves is not null && !Directory.Exists(folderPath) && !File.Exists(folderPath);
+        return (off, StatusMessage);
     }
 
     //

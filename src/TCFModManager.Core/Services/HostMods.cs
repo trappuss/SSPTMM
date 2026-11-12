@@ -61,8 +61,28 @@ public static class HostMods
         return candidates;
     }
 
+    /// <summary>What a server's mod is known by between one look and the next: its GUID, or its name.</summary>
+    public static string Key(SptServerMod mod) => mod.ModGuid.Trim() is { Length: > 0 } guid ? guid : mod.Name.Trim();
+
+    //
+    // The server's mods the player took out of the collection: the ones it was made from last time
+    // (seen) that it no longer holds. They are not put back by the next look - a mod the host
+    // has added since is not among them, and is offered.
+    //
+    public static HashSet<string> LeftOut(ModList? existing, IEnumerable<string>? seen)
+    {
+        var leftOut = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        if (existing is null || seen is null) return leftOut;
+
+        var held = existing.Entries.SelectMany(e => new[] { e.Guid, e.Name }).OfType<string>().ToHashSet(StringComparer.OrdinalIgnoreCase);
+        foreach (var key in seen)
+            if (!held.Contains(key)) leftOut.Add(key);
+
+        return leftOut;
+    }
+
     /// <summary>The collection. <paramref name="existing"/>: the one made for this server before,
-    /// which this replaces under the same id.</summary>
+    /// which this replaces under the same id. <paramref name="leftOut"/>: see <see cref="LeftOut"/>.</summary>
     public static ModList BuildList(
         string name,
         string address,
@@ -71,8 +91,11 @@ public static class HostMods
         ModListCapture.VersionLookup? versions,
         string? sptVersion,
         ModList? existing,
-        DateTimeOffset now)
+        DateTimeOffset now,
+        IReadOnlySet<string>? leftOut = null)
     {
+        if (leftOut is { Count: > 0 }) host = host.Where(mod => !leftOut.Contains(Key(mod)));
+
         var list = new ModList
         {
             Id = existing?.Id ?? Guid.NewGuid(),

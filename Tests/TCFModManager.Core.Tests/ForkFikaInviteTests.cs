@@ -42,5 +42,10 @@ public class ForkFikaInviteTests
         Assert.Equal(["203.0.113.7:6969"], invite.Addresses);
         Assert.Null(invite.Fika);
         Assert.Empty(FikaInviteText.Parse(null).Addresses);
+
+        // A version of four numbers is still a version.
+        var four = FikaInviteText.Parse("Versions: SPT 4.1.6.0, Fika 2.4.6.0 - 203.0.113.9");
+        Assert.Equal(["203.0.113.9:6969"], four.Addresses);
+        Assert.Equal("2.4.6.0", four.Fika);
     }
 }

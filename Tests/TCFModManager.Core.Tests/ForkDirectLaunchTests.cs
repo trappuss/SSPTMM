@@ -200,6 +200,48 @@ public class ForkDirectLaunchTests : IDisposable
         Assert.Equal(list.CreatedAt, again.CreatedAt);
     }
 
+    [Fact]
+    public void What_was_taken_out_of_a_servers_collection_is_not_put_back_by_the_next_look()
+    {
+        SptServerMod[] host =
+        [
+            new() { ModGuid = "com.casino", Name = "Casino Server", Version = "1.2.0" },
+            new() { ModGuid = "com.serveronly", Name = "Server Only", Version = "1.0.0" },
+        ];
+        HostMods.CatalogLookup catalog = guid => guid == "com.casino" ? (77, "Casino") : guid == "com.serveronly" ? (78, "Server Only") : null;
+        var now = new DateTimeOffset(2026, 11, 11, 0, 0, 0, TimeSpan.Zero);
+
+        var list = HostMods.BuildList("Mods on Friend", "203.0.113.7:6969", host, catalog, null, null, null, now);
+        var seen = host.Select(HostMods.Key).ToList();
+        Assert.Equal(["com.casino", "com.serveronly"], seen);
+
+        // The player takes the server-only one out. The host then adds a third.
+        list.Entries.RemoveAll(e => e.Guid == "com.serveronly");
+        SptServerMod[] later = [.. host, new() { ModGuid = "com.new", Name = "New", Version = "2.0.0" }];
+
+        var leftOut = HostMods.LeftOut(list, seen);
+        Assert.Equal(["com.serveronly"], leftOut);
+
+        var again = HostMods.BuildList("Mods on Friend", "203.0.113.7:6969", later, catalog, null, null, list, now, leftOut);
+        Assert.Equal(["com.casino", "com.new"], again.Entries.Select(e => e.Guid).Order());
+
+        // Nothing kept to go by: nothing is left out.
+        Assert.Empty(HostMods.LeftOut(null, seen));
+        Assert.Empty(HostMods.LeftOut(list, null));
+    }
+
+    [Fact]
+    public async Task A_server_answering_with_nulls_gives_mods_with_empty_text()
+    {
+        var server = new FakeServer { Mods = new { Response = new Dictionary<string, object?> { ["A"] = new { ModGuid = (string?)null, Name = "A", Version = (string?)null }, ["B"] = null } } };
+        using var api = new SptLauncherApi("127.0.0.1:6969", server);
+
+        var mod = Assert.Single(await api.ModsAsync());
+        Assert.Equal(string.Empty, mod.ModGuid);
+        Assert.Equal(string.Empty, mod.Version);
+        Assert.Equal("A", HostMods.Key(mod));
+    }
+
     private static readonly SptMiniProfile Trap = new() { Username = "trap", ProfileId = "6abee519842869498c34024b", Edition = "SPT Developer" };
 
     // A real versioned assembly as spt-core.dll, and the server saying that same version.

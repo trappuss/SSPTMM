@@ -114,7 +114,8 @@ public static class BrokenModSearch
             var others = all.Except(changed).ToList();
             var narrow = new ModBisect(changed.Count, i => needs(changed[i]).Select(n => changed.IndexOf(n)).Where(n => n >= 0));
 
-            var without = await Try(others, 1 + narrow.TriesLeft, errorsMatter, changed).ConfigureAwait(false);
+            // No suspects said for this try: until it has passed, the fault is not known to be among them.
+            var without = await Try(others, 1 + narrow.TriesLeft, errorsMatter).ConfigureAwait(false);
             if (!Fails(without))
             {
                 among = changed;

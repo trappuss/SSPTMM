@@ -28,7 +28,10 @@ public static partial class FikaInviteText
         text ??= string.Empty;
         var addresses = new List<string>();
 
-        foreach (Match match in Address().Matches(text))
+        // The versions out first: "Fika 2.4.6.0" is four numbers too.
+        var withoutVersions = Fika().Replace(Spt().Replace(text, " "), " ");
+
+        foreach (Match match in Address().Matches(withoutVersions))
         {
             // Four numbers are an address; fewer are a version ("4.1.6"), and a name needs more to go on.
             var host = match.Groups["host"].Value;

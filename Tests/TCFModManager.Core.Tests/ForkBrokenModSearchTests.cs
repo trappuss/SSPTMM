@@ -240,6 +240,15 @@ public class ForkBrokenModSearchTests : IDisposable
         Assert.Equal(3, result.RecentTried); // 3, 11 and the one that needs 11
         Assert.True(result.Tries < plain.Tries);
 
+        // The try without them names no suspects: nothing is narrowed until it has passed.
+        var said = new List<BrokenModProgress>();
+        var first = asked.ToList();
+        await BrokenModSearch.RunAsync(16, Needs, Server, new Collect(said), recent: [3, 11]);
+        asked.Clear();
+        asked.AddRange(first);
+        Assert.Null(said[2].Suspects);
+        Assert.Equal([3, 11, 12], said[3].Suspects!.Order());
+
         // The third try is everything but those three; after it the other thirteen are always on.
         Assert.Equal(13, asked[2].Count);
         Assert.All(asked.Skip(3), on => Assert.Equal(13, on.Except([3, 11, 12]).Count()));

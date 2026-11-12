@@ -2926,6 +2926,20 @@ From another mod manager (trappuss: "research it and see if there's anything cou
     plugin not on those lists, and every game missing a required one - so a list that is one
     plugin id short, or names one that did not load, keeps every player out, the host included.
     Not to be written without a Fika install to try it on.
+  - Audit of the round (a second reader over the diff, ten findings, all fixed). The ones that
+    mattered: the result's Turn off said "off" when the move had failed - it now looks at the
+    folder; a server's collection edited by hand was rebuilt whole at every look - the mods it
+    was made from are kept (`AppSettings.PlayServerModsSeen`) and what was taken out since stays
+    out (`HostMods.LeftOut`); a search stopped during the recent-first try named a narrowing it
+    had not made. Also: the mods look and the profile copy no longer run inside the reading of
+    the profiles, the invite's addresses are pinged as Play pings a server, nulls in a server's
+    answer, a four-number version read as an address, a removed mod shown as turned off, and the
+    firewall's COM objects released.
+  - Seen on screen with a made-up Fika host (a `fika-server` folder with a `fika.jsonc`, no
+    server started): the hosting card with Copy invite, Let other PCs in - which changed the
+    server's `"ip"` only, kept the file beside it and left the comment - and the firewall line.
+    Not seen: the tick boxes being ticked, and anything that needs a second server, since a
+    server on this PC's own addresses is refused as "another PC's".
   - Not known: the host's game plugins (the server takes `/singleplayer/clientmods` from a game,
     it does not hand them out), and which server mods a player needs no part of.
   - The answer's shape is read from the 4.1.6 server's code (`LauncherV2Callbacks.Mods`, routed

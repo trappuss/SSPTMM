@@ -104,20 +104,33 @@ public static class FirewallRules
                 if ((current & profile) != 0) on |= Convert.ToBoolean(Get(policy, "FirewallEnabled", profile));
 
             var rules = new List<FirewallRule>();
-            if (Get(policy, "Rules") is IEnumerable all)
+            var all = Get(policy, "Rules");
+            try
             {
-                foreach (var rule in all)
+                foreach (var rule in all as IEnumerable ?? Array.Empty<object>())
                 {
                     if (rule is null) continue;
-                    rules.Add(new FirewallRule(
-                        Get(rule, "ApplicationName") as string,
-                        Convert.ToInt32(Get(rule, "Protocol")),
-                        Get(rule, "LocalPorts") as string,
-                        Convert.ToBoolean(Get(rule, "Enabled")),
-                        Convert.ToInt32(Get(rule, "Action")) == 1,
-                        Convert.ToInt32(Get(rule, "Direction")) == 1,
-                        Convert.ToInt32(Get(rule, "Profiles"))));
+
+                    try
+                    {
+                        rules.Add(new FirewallRule(
+                            Get(rule, "ApplicationName") as string,
+                            Convert.ToInt32(Get(rule, "Protocol")),
+                            Get(rule, "LocalPorts") as string,
+                            Convert.ToBoolean(Get(rule, "Enabled")),
+                            Convert.ToInt32(Get(rule, "Action")) == 1,
+                            Convert.ToInt32(Get(rule, "Direction")) == 1,
+                            Convert.ToInt32(Get(rule, "Profiles"))));
+                    }
+                    finally
+                    {
+                        Release(rule); // hundreds of them, once a minute
+                    }
                 }
+            }
+            finally
+            {
+                Release(all);
             }
 
             return new FirewallState(rules, current, on);
@@ -130,8 +143,13 @@ public static class FirewallRules
         }
         finally
         {
-            if (policy is not null && OperatingSystem.IsWindows() && Marshal.IsComObject(policy)) Marshal.ReleaseComObject(policy);
+            Release(policy);
         }
+    }
+
+    private static void Release(object? com)
+    {
+        if (com is not null && OperatingSystem.IsWindows() && Marshal.IsComObject(com)) Marshal.ReleaseComObject(com);
     }
 
     private static object? Get(object target, string name, params object[] index) =>

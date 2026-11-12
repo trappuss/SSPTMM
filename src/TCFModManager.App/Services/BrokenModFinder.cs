@@ -45,7 +45,13 @@ public sealed partial class FoundMod(string name, string title, string? path) : 
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanTurnOff))]
-    private bool _isOff = path is not null && !Directory.Exists(path) && !File.Exists(path);
+    private bool _isOff = IsTurnedOff(path);
+
+    // Off, as Subscribed items turns a mod off: gone from where it is when on, and there in the
+    // ".disabled" folder beside it. A mod that was removed is in neither.
+    private static bool IsTurnedOff(string? path) =>
+        path is not null && !Directory.Exists(path) && !File.Exists(path)
+        && DisabledModPaths.Counterpart(path) is { } off && (Directory.Exists(off) || File.Exists(off));
 
     public bool CanTurnOff => Path is not null && !IsOff;
 }

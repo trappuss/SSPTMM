@@ -207,13 +207,11 @@ public partial class PlayViewModel
             ShowProfiles(found, SelectedProfile?.Profile.ProfileId ?? new SettingsService().Load().DirectLaunchProfileId);
             OnPropertyChanged(nameof(HasNoProfiles));
             AppLog.Info("DirectLaunch", $"{found.Count} profile(s) on {address}");
-
-            // Fork (1.4.7): and its mods against the ones here, while it is answering.
-            if (AppServices.ModCache.AllMods.Count > 0 && SelectedPlayServer is { } picked)
-                await CheckServerModsAsync(api, picked, address, ct);
-
-            await CopyRemoteProfileAsync(api, address, ct);
         });
+
+        // Fork (1.4.7): then its mods against the ones here and a copy of the profile - by
+        // themselves, so that neither holds Play back nor is taken for the profiles failing.
+        if (_remoteProfilesRead) _ = RecheckServerModsAsync();
     }
 
     //
@@ -233,6 +231,9 @@ public partial class PlayViewModel
     private bool _serverModsDiffer;
 
     private ModListPreview? _serverModsPreview;
+
+    // The server's mods at the last look, as HostMods.Key names them - kept with the collection.
+    private (string Address, List<string> Keys)? _serverModsSeen;
 
     // The menu's "Compare mods with this server": the same, said aloud, and straight to the preview.
     [RelayCommand]
@@ -281,6 +282,8 @@ public partial class PlayViewModel
             Text(Strings.Play_RemoteModsListNameFormat, server.Title), address, mods);
         if (preview is null || SelectedPlayServer?.Address != address) return true;
 
+        _serverModsSeen = (address, [.. mods.Select(HostMods.Key)]);
+
         string? fika = null;
         if (hostFika is not null)
         {
@@ -317,17 +320,19 @@ public partial class PlayViewModel
     // Quietly: after the profiles, and when the page comes back - from applying the collection, say.
     private async Task RecheckServerModsAsync()
     {
-        if (SelectedPlayServer is not { Address: { } address } server || IsPlaying || AppServices.ModCache.AllMods.Count == 0) return;
-        if (CreateApi() is not { } created) return;
+        if (SelectedPlayServer is not { Address: { } address } server || IsPlaying) return;
 
         try
         {
+            if (CreateApi() is not { } created) return;
+
             using var api = created;
-            await CheckServerModsAsync(api, server, address, CancellationToken.None);
+            if (AppServices.ModCache.AllMods.Count > 0) await CheckServerModsAsync(api, server, address, CancellationToken.None);
             await CopyRemoteProfileAsync(api, address, CancellationToken.None);
         }
-        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or System.Text.Json.JsonException or IOException)
+        catch (Exception ex)
         {
+            // Nobody waits on this: whatever a server far away answers with is logged, not thrown.
             AppLog.Debug("DirectLaunch", $"couldn't compare mods with {address}: {ex.Message}");
         }
     }
@@ -348,7 +353,8 @@ public partial class PlayViewModel
             var path = await Task.Run(() => AppServices.RemoteProfiles.Save(address, id, json, DateTimeOffset.Now), ct);
             if (path is not null) AppLog.Info("DirectLaunch", $"kept a copy of profile {id} from {address}: {path}");
         }
-        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or IOException or UnauthorizedAccessException)
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or IOException or UnauthorizedAccessException
+            or InvalidDataException or System.Text.Json.JsonException)
         {
             AppLog.Debug("DirectLaunch", $"couldn't copy the profile from {address}: {ex.Message}");
         }
@@ -358,10 +364,18 @@ public partial class PlayViewModel
     private async Task CopyRemoteProfileAfterGameAsync()
     {
         await Task.Delay(TimeSpan.FromSeconds(5)); // HUNCH: for the server to have written it
-        if (SelectedPlayServer?.Address is not { } address || CreateApi() is not { } created) return;
 
-        using var api = created;
-        await CopyRemoteProfileAsync(api, address, CancellationToken.None);
+        try
+        {
+            if (SelectedPlayServer?.Address is not { } address || CreateApi() is not { } created) return;
+
+            using var api = created;
+            await CopyRemoteProfileAsync(api, address, CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            AppLog.Debug("DirectLaunch", $"couldn't copy the profile after the game: {ex.Message}");
+        }
     }
 
     [RelayCommand]
@@ -387,6 +401,16 @@ public partial class PlayViewModel
         if (_serverModsPreview is not { } preview) return;
 
         AppServices.ModLists.Add(preview.List);
+
+        // What the collection was made from: an entry taken out of it later is then known as taken out.
+        if (_serverModsSeen is { } seen)
+        {
+            var service = new SettingsService();
+            var settings = service.Load();
+            settings.PlayServerModsSeen[seen.Address] = seen.Keys;
+            service.Save(settings);
+        }
+
         AppNavigation.ReviewList(preview.List.Id);
     }
 
@@ -534,13 +558,13 @@ public partial class PlayViewModel
             try
             {
                 using var api = SptLauncherApi.ForRemote(address, pins.GetValueOrDefault(address));
-                if (!await api.PingAsync()) continue;
+                if (!await PingAsync(api, CancellationToken.None)) continue;
 
                 RememberCertificate(api);
                 reached = address;
                 break;
             }
-            catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or IOException or UriFormatException or ArgumentException)
+            catch (Exception ex) when (ex is IOException or UriFormatException or ArgumentException or InvalidDataException)
             {
                 AppLog.Debug("DirectLaunch", $"invite: {address} didn't answer: {ex.Message}");
             }

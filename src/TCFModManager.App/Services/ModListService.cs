@@ -183,6 +183,10 @@ public sealed class ModListService
             .GroupBy(m => m.Guid!.Trim(), StringComparer.OrdinalIgnoreCase)
             .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
 
+        // What was taken out of this server's collection by hand stays out of it.
+        var existing = HostMods.Existing(AppServices.ModLists.Load().Lists, address);
+        var leftOut = HostMods.LeftOut(existing, new SettingsService().Load().PlayServerModsSeen.GetValueOrDefault(address));
+
         var list = HostMods.BuildList(
             name,
             address,
@@ -190,8 +194,9 @@ public sealed class ModListService
             guid => byGuid.TryGetValue(guid, out var mod) ? (mod.Id, mod.Name) : null,
             CatalogVersions(),
             AppServices.SptEnvironment.InstalledVersion,
-            HostMods.Existing(AppServices.ModLists.Load().Lists, address),
-            DateTimeOffset.UtcNow);
+            existing,
+            DateTimeOffset.UtcNow,
+            leftOut);
 
         return await PreviewAsync(list);
     }
