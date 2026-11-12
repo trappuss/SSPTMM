@@ -9885,6 +9885,42 @@ Non garde ce groupe sous son ancien nom.</value>
   <data name="Play_FikaAddressTailscaleFormat" xml:space="preserve">
     <value>{0} (Tailscale)</value>
   </data>
+  <data name="Play_FikaInviteModsFormat" xml:space="preserve">
+    <value>Mes mods, pour SSPTMM : {0}</value>
+  </data>
+  <data name="Play_FikaInviteListName" xml:space="preserve">
+    <value>Mods de l'hôte Fika</value>
+  </data>
+  <data name="Play_FikaSettings" xml:space="preserve">
+    <value>Réglages de Fika</value>
+  </data>
+  <data name="Play_FikaSettingSaved" xml:space="preserve">
+    <value>Enregistré dans fika.jsonc. Appliqué au prochain démarrage du serveur.</value>
+  </data>
+  <data name="Play_FikaSettingFailedFormat" xml:space="preserve">
+    <value>Impossible de modifier fika.jsonc : {0}</value>
+  </data>
+  <data name="Play_FikaSettingNotFound" xml:space="preserve">
+    <value>le réglage n'est pas dans le fichier</value>
+  </data>
+  <data name="Play_FikaSwitchFriendlyFire" xml:space="preserve">
+    <value>Tir allié</value>
+  </data>
+  <data name="Play_FikaSwitchSharedQuests" xml:space="preserve">
+    <value>Progression de quêtes partagée</value>
+  </data>
+  <data name="Play_FikaSwitchInertia" xml:space="preserve">
+    <value>Inertie</value>
+  </data>
+  <data name="Play_FikaSwitchFreeCam" xml:space="preserve">
+    <value>Caméra libre</value>
+  </data>
+  <data name="Play_FikaSwitchAnyoneStarts" xml:space="preserve">
+    <value>Tout le monde peut lancer un raid</value>
+  </data>
+  <data name="Play_FikaHostFixListen" xml:space="preserve">
+    <value>Autoriser les autres PC</value>
+  </data>
   <data name="Play_FikaFirewallServerFormat" xml:space="preserve">
     <value>Le pare-feu Windows n'a aucune règle laissant des amis atteindre le serveur (TCP {0}, SPT.Server.exe). Windows le demande au premier démarrage du serveur ; si cela a été refusé, l'autoriser dans Sécurité Windows &gt; Pare-feu et protection du réseau &gt; Autoriser une application via le pare-feu.</value>
   </data>

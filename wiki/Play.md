@@ -146,12 +146,18 @@ With Fika's server mod installed and **This PC** picked, the card tells you what
   `fika.jsonc` - Fika ignores `http.json`'s address and port. **Copy address** copies the first.
 - **Copy invite** copies a message to paste to friends: the addresses, each marked as on the same
   network or on Tailscale, the port to use from outside your network, your SPT and Fika versions,
-  and what a friend does with it in SSPTMM (**Join from an invite...**).
+  and what a friend does with it in SSPTMM (**Join from an invite...**). When your mod list fits
+  in a message, the invite ends with a share code for it: a friend's SSPTMM then opens the
+  preview for all of your mods, the game-only ones too - which a server can't tell it.
 - From outside your network, friends use your public address instead, and your router forwards
   **TCP** on that port to this PC. Whoever hosts a raid also needs **UDP 25565** (Fika's default)
   forwarded to their own PC - the raid runs in the host's game, not in the server.
-- If `fika.jsonc` only listens on `127.0.0.1`, nobody else can reach the server: the card says to
-  set its `"ip"` to `0.0.0.0` and restart the server.
+- If `fika.jsonc` only listens on `127.0.0.1`, nobody else can reach the server: the card says
+  so, and **Let other PCs in** sets its `"ip"` to `0.0.0.0` for you. Restart the server after.
+- **Fika settings** holds the switches hosts change most - friendly fire, shared quest progress,
+  inertia, free camera, anyone can start a raid. Ticking one writes it into `fika.jsonc`; it
+  applies the next time the server starts. The first time SSPTMM changes the file, it keeps the
+  file as it was beside it, as `fika.jsonc.before-ssptmm`.
 - If there is no `fika.jsonc` yet, start the server once: Fika writes it then.
 - If **Windows Firewall** has no rule that lets the server's port in to `SPT.Server.exe` - or, for
   hosting a raid, UDP 25565 in to the game - the card says so and where to allow it. SSPTMM only

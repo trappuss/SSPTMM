@@ -568,6 +568,10 @@ public partial class PlayViewModel
             reached is null ? Text(Strings.Play_InviteNotReachedFormat, chosen) : Text(Strings.Play_RemoteAddedFormat, chosen),
             differs ? Text(Strings.Play_InviteSptDiffersFormat, invite.Spt, here) : null,
         }.Where(part => part is not null));
+
+        // The host's own mods, when the invite carries them: every mod, the game-only ones too.
+        if (ModListShareCode.Contains(text) && await CollectionSharing.AddFromCodeAsync(text) is { } received)
+            AppNavigation.ReviewList(received.List.Id);
     }
 
     private static string? AskInvite()

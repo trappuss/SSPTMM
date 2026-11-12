@@ -146,6 +146,33 @@ public sealed class ModListService
     }
 
     //
+    // Fork (1.4.7): what is installed and on, as a collection that is not saved - for a Fika
+    // host's invite. Additive, so applying it on a friend's PC turns nothing of theirs off, and
+    // under one id per install, so an invite sent again updates the collection it made before.
+    //
+    public async Task<ModList?> SnapshotForInviteAsync(string name)
+    {
+        var install = await ReadInstallAsync();
+        if (install is null) return null;
+
+        var now = DateTimeOffset.UtcNow;
+        var list = new ModList
+        {
+            Id = new Guid(System.Security.Cryptography.MD5.HashData(System.Text.Encoding.UTF8.GetBytes("invite|" + install.InstallPath.ToLowerInvariant()))),
+            Name = name,
+            Origin = ModListOrigin.Local,
+            Policy = ModListPolicy.Additive,
+            SptVersion = install.SptVersion,
+            Revision = (int)Math.Min(int.MaxValue, now.ToUnixTimeSeconds() / 60), // later invites are newer
+            CreatedAt = now,
+            UpdatedAt = now,
+        };
+
+        list.Entries.AddRange(ModListCapture.BuildEntries(install.Candidates, CatalogVersions(), addonVersions: CatalogAddonVersions()));
+        return list;
+    }
+
+    //
     // Fork (1.4.7): the collection for another PC's server's mods (HostMods) and what applying it
     // would do. Not saved here: the caller keeps it only when there is something to do.
     //

@@ -10323,6 +10323,42 @@
   <data name="Play_FikaAddressTailscaleFormat" xml:space="preserve">
     <value>{0} (Tailscale)</value>
   </data>
+  <data name="Play_FikaInviteModsFormat" xml:space="preserve">
+    <value>Мои моды, для SSPTMM: {0}</value>
+  </data>
+  <data name="Play_FikaInviteListName" xml:space="preserve">
+    <value>Моды хоста Fika</value>
+  </data>
+  <data name="Play_FikaSettings" xml:space="preserve">
+    <value>Настройки Fika</value>
+  </data>
+  <data name="Play_FikaSettingSaved" xml:space="preserve">
+    <value>Сохранено в fika.jsonc. Применится при следующем запуске сервера.</value>
+  </data>
+  <data name="Play_FikaSettingFailedFormat" xml:space="preserve">
+    <value>Не удалось изменить fika.jsonc: {0}</value>
+  </data>
+  <data name="Play_FikaSettingNotFound" xml:space="preserve">
+    <value>этой настройки нет в файле</value>
+  </data>
+  <data name="Play_FikaSwitchFriendlyFire" xml:space="preserve">
+    <value>Огонь по своим</value>
+  </data>
+  <data name="Play_FikaSwitchSharedQuests" xml:space="preserve">
+    <value>Общий прогресс заданий</value>
+  </data>
+  <data name="Play_FikaSwitchInertia" xml:space="preserve">
+    <value>Инерция</value>
+  </data>
+  <data name="Play_FikaSwitchFreeCam" xml:space="preserve">
+    <value>Свободная камера</value>
+  </data>
+  <data name="Play_FikaSwitchAnyoneStarts" xml:space="preserve">
+    <value>Любой может начать рейд</value>
+  </data>
+  <data name="Play_FikaHostFixListen" xml:space="preserve">
+    <value>Пускать другие ПК</value>
+  </data>
   <data name="Play_FikaFirewallServerFormat" xml:space="preserve">
     <value>В брандмауэре Windows нет правила, пропускающего друзей к серверу (TCP {0}, SPT.Server.exe). Windows спрашивает при первом запуске сервера; если тогда было отказано, разрешить в «Безопасность Windows» &gt; «Брандмауэр и защита сети» &gt; «Разрешить работу с приложением через брандмауэр».</value>
   </data>

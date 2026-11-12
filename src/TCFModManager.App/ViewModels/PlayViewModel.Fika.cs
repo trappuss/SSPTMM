@@ -19,6 +19,32 @@ namespace TCFModManager.App.ViewModels;
 //     only the host runs one, and Fika's FAQ names a stray one as a cause of friends not seeing
 //     each other.
 //
+/// <summary>One of Fika's on/off settings, as a tick box.</summary>
+public sealed partial class FikaSwitch(string name, string label, bool isOn, Action<FikaSwitch> changed) : ObservableObject
+{
+    private bool _showing;
+
+    public string Name { get; } = name;
+
+    public string Label { get; } = label;
+
+    [ObservableProperty]
+    private bool _isOn = isOn;
+
+    /// <summary>What the file says, shown without writing it back.</summary>
+    public void Show(bool value)
+    {
+        _showing = true;
+        IsOn = value;
+        _showing = false;
+    }
+
+    partial void OnIsOnChanged(bool value)
+    {
+        if (!_showing) changed(this);
+    }
+}
+
 public partial class PlayViewModel
 {
     [ObservableProperty]
@@ -147,6 +173,8 @@ public partial class PlayViewModel
             FikaHostWarning = null;
             FikaFirewallNote = null;
             _firewallRead = null;
+            CanFixFikaListen = false;
+            RefreshFikaSwitches(null);
             return;
         }
 
@@ -155,6 +183,7 @@ public partial class PlayViewModel
         {
             read = (root, DateTime.UtcNow, LocalNetworkAddresses.Find(), FikaServerConfig.Read(root));
             _fikaHostRead = read;
+            RefreshFikaSwitches(FikaServerConfig.Find(root));
         }
 
         if (read.Config is not { } config)
@@ -174,10 +203,114 @@ public partial class PlayViewModel
             ? Text(Strings.Play_FikaHostNoAddressFormat, port)
             : Text(Strings.Play_FikaHostFormat, TextLists.Join(addresses), port);
         FikaHostWarning = config.OnlyThisPc ? Text(Strings.Play_FikaHostOnlyThisPcFormat, config.Ip) : null;
+        CanFixFikaListen = config.OnlyThisPc;
 
         // Not worth saying while nobody can reach it anyway.
         if (config.OnlyThisPc) FikaFirewallNote = null;
         else RefreshFirewall(exe, port, installPath);
+    }
+
+    //
+    // Fork (1.4.7): the handful of Fika's settings a host changes most, switched here - written
+    // into fika.jsonc as text (FikaConfigText), the file as it was kept beside it the first time.
+    //
+    public System.Collections.ObjectModel.ObservableCollection<FikaSwitch> FikaSwitches { get; } = [];
+
+    [ObservableProperty]
+    private bool _hasFikaSwitches;
+
+    // Fika listens on this PC only: "Let other PCs in" is offered.
+    [ObservableProperty]
+    private bool _canFixFikaListen;
+
+    private string? _fikaConfigPath;
+
+    private static string FikaSwitchLabel(string name) => name switch
+    {
+        "friendlyFire" => Strings.Play_FikaSwitchFriendlyFire,
+        "sharedQuestProgression" => Strings.Play_FikaSwitchSharedQuests,
+        "useInertia" => Strings.Play_FikaSwitchInertia,
+        "allowFreeCam" => Strings.Play_FikaSwitchFreeCam,
+        _ => Strings.Play_FikaSwitchAnyoneStarts,
+    };
+
+    private void RefreshFikaSwitches(string? path)
+    {
+        _fikaConfigPath = path;
+        string? text = null;
+        try
+        {
+            if (path is not null) text = System.IO.File.ReadAllText(path);
+        }
+        catch (Exception ex) when (ex is System.IO.IOException or UnauthorizedAccessException)
+        {
+            AppLog.Debug("Fika", $"couldn't read {path}: {ex.Message}");
+        }
+
+        var found = text is null
+            ? []
+            : FikaConfigText.ClientSwitches
+                .Select(name => (Name: name, Value: FikaConfigText.ReadSwitch(text, name)))
+                .Where(s => s.Value is not null)
+                .ToList();
+
+        if (!found.Select(s => s.Name).SequenceEqual(FikaSwitches.Select(s => s.Name)))
+        {
+            FikaSwitches.Clear();
+            foreach (var (name, value) in found) FikaSwitches.Add(new FikaSwitch(name, FikaSwitchLabel(name), value!.Value, ChangeFikaSwitch));
+        }
+        else
+        {
+            foreach (var (item, (_, value)) in FikaSwitches.Zip(found)) item.Show(value!.Value);
+        }
+
+        HasFikaSwitches = FikaSwitches.Count > 0;
+    }
+
+    private void ChangeFikaSwitch(FikaSwitch item)
+    {
+        if (!WriteFikaConfig(text => FikaConfigText.SetSwitch(text, item.Name, item.IsOn))) item.Show(!item.IsOn);
+    }
+
+    [RelayCommand]
+    private void FixFikaListen()
+    {
+        if (!WriteFikaConfig(text => FikaConfigText.SetListenAddress(text, "0.0.0.0"))) return;
+
+        _fikaHostRead = null;
+        Refresh();
+    }
+
+    // The file read, changed and written back; false, with the reason said, when it could not be.
+    private bool WriteFikaConfig(Func<string, string?> change)
+    {
+        if (_fikaConfigPath is not { } path) return false;
+
+        try
+        {
+            var text = System.IO.File.ReadAllText(path);
+            if (change(text) is not { } changed)
+            {
+                PlayStatusIsError = true;
+                PlayStatus = Text(Strings.Play_FikaSettingFailedFormat, Strings.Play_FikaSettingNotFound);
+                return false;
+            }
+
+            var backup = path + ".before-ssptmm";
+            if (!System.IO.File.Exists(backup)) System.IO.File.Copy(path, backup);
+
+            SafeFile.WriteText(path, changed);
+            AppLog.Info("Fika", $"changed {path}");
+            PlayStatusIsError = false;
+            PlayStatus = Strings.Play_FikaSettingSaved;
+            return true;
+        }
+        catch (Exception ex) when (ex is System.IO.IOException or UnauthorizedAccessException)
+        {
+            PlayStatusIsError = true;
+            PlayStatus = Text(Strings.Play_FikaSettingFailedFormat, ex.Message);
+            return false;
+        }
     }
 
     [RelayCommand(CanExecute = nameof(CanCopyFikaAddress))]
@@ -214,7 +347,17 @@ public partial class PlayViewModel
             .FirstOrDefault(m => m.Name.StartsWith("fika", StringComparison.OrdinalIgnoreCase)
                 || m.AllGuids.Any(g => g.Contains("fika", StringComparison.OrdinalIgnoreCase)))?.Version);
 
-        var invite = FikaInvite(_fikaHostAddresses, _fikaHostPort, AppServices.SptEnvironment.InstalledVersion, fika);
+        // The mods as a share code, when it fits a chat message: with it a friend's SSPTMM gets the
+        // game-only mods too, which the server cannot tell it. 1500 characters is HUNCH.
+        string? code = null;
+        if (await AppServices.ModListWorkflow.SnapshotForInviteAsync(Strings.Play_FikaInviteListName) is { } mine
+            && mine.Entries.Any(e => e.IsResolved))
+        {
+            code = ModListShareCode.Encode(mine, null);
+            if (code.Length > 1500) code = null;
+        }
+
+        var invite = FikaInvite(_fikaHostAddresses, _fikaHostPort, AppServices.SptEnvironment.InstalledVersion, fika, code);
 
         try
         {
@@ -228,7 +371,7 @@ public partial class PlayViewModel
         }
     }
 
-    internal static string FikaInvite(IReadOnlyList<string> addresses, string? port, string? spt, string? fika)
+    internal static string FikaInvite(IReadOnlyList<string> addresses, string? port, string? spt, string? fika, string? code = null)
     {
         var lines = new List<string>
         {
@@ -240,6 +383,7 @@ public partial class PlayViewModel
         if (spt is { Length: > 0 })
             lines.Add(fika is { Length: > 0 } ? Text(Strings.Play_FikaInviteVersionsFormat, spt, fika) : Text(Strings.Play_FikaInviteSptFormat, spt));
         lines.Add(Text(Strings.Play_FikaInviteHowFormat, Strings.Play_InviteJoin.TrimEnd('.', '\u2026')));
+        if (code is not null) lines.Add(Text(Strings.Play_FikaInviteModsFormat, code));
 
         return string.Join(Environment.NewLine, lines);
     }

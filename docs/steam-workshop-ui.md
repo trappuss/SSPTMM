@@ -2902,6 +2902,16 @@ From another mod manager (trappuss: "research it and see if there's anything cou
   - "Start with the server" (`PlayViewModel.Headless`): Start server waits for the port as Find
     the broken mod does and then starts the headless client, once. It is not brought back when
     it goes down later.
+  - `fika.jsonc` is changed as text (`FikaConfigText`): a `"name": true|false` replaced once, and
+    the listen address found by walking `server` > `SPT` > `http` to its `"ip"` (the NAT punch
+    server has one too). Names from Fika's `FikaConfigClient`; the file is that model written out.
+    A copy of the file is kept beside it the first time. No real `fika.jsonc` has been edited.
+  - The invite's share code is `SnapshotForInviteAsync`: the install as an Additive collection
+    under one id per install path, left out when longer than 1500 characters. Join hands it to
+    `CollectionSharing.AddFromCodeAsync` and opens its preview.
+  - A guided hosting set-up was not built as a flow: its steps are on the card in order - Fika
+    found, listening beyond this PC (now one button), the firewall, the invite. Installing Fika
+    itself is left to the Workshop.
   - A Fika host's firewall (`FirewallRules`, read through `HNetCfg.FwPolicy2`, nothing written):
     TCP on Fika's port to the server's exe and UDP 25565 to the game, decided as Windows does -
     a block rule wins, no rule refuses, a firewall that is off lets everything in. Read off the
@@ -2941,7 +2951,7 @@ From another mod manager (trappuss: "research it and see if there's anything cou
   as buttons, and the GitHub chip's shades (#C6D4DF at 20% and 33%). For Find the broken mod: five
   minutes for a server to come up, three seconds after its port opens for mods to finish logging,
   twenty seconds for its process to appear or go, 200 ms between looks, that a start still
-  to come takes the average of those done, that a changed mod shows in its folder's top level, UDP 25565 as the raid's port (Fika's default; the game's setting is not read), a minute between reads of the firewall, and five seconds after the game closes before a remote profile is copied. For the crash bar: that the game leaves
+  to come takes the average of those done, that a changed mod shows in its folder's top level, UDP 25565 as the raid's port (Fika's default; the game's setting is not read), a minute between reads of the firewall, five seconds after the game closes before a remote profile is copied, and 1500 characters as the longest share code an invite carries. For the crash bar: that the game leaves
   no fault code when it quits by itself (not seen with the real game), three seconds between
   looks, and thirty seconds after the app closes the game.
 

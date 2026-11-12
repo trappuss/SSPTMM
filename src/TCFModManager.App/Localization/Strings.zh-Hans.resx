@@ -9438,6 +9438,42 @@ GitHub 上的文件未经 sp-mod.com 检查，请只安装你信任的作者的�
   <data name="Play_FikaAddressTailscaleFormat" xml:space="preserve">
     <value>{0}（Tailscale）</value>
   </data>
+  <data name="Play_FikaInviteModsFormat" xml:space="preserve">
+    <value>我的模组（供 SSPTMM 使用）：{0}</value>
+  </data>
+  <data name="Play_FikaInviteListName" xml:space="preserve">
+    <value>Fika 主机的模组</value>
+  </data>
+  <data name="Play_FikaSettings" xml:space="preserve">
+    <value>Fika 设置</value>
+  </data>
+  <data name="Play_FikaSettingSaved" xml:space="preserve">
+    <value>已保存到 fika.jsonc，下次启动服务端时生效。</value>
+  </data>
+  <data name="Play_FikaSettingFailedFormat" xml:space="preserve">
+    <value>无法更改 fika.jsonc：{0}</value>
+  </data>
+  <data name="Play_FikaSettingNotFound" xml:space="preserve">
+    <value>文件中没有该设置</value>
+  </data>
+  <data name="Play_FikaSwitchFriendlyFire" xml:space="preserve">
+    <value>友军伤害</value>
+  </data>
+  <data name="Play_FikaSwitchSharedQuests" xml:space="preserve">
+    <value>共享任务进度</value>
+  </data>
+  <data name="Play_FikaSwitchInertia" xml:space="preserve">
+    <value>惯性</value>
+  </data>
+  <data name="Play_FikaSwitchFreeCam" xml:space="preserve">
+    <value>自由视角</value>
+  </data>
+  <data name="Play_FikaSwitchAnyoneStarts" xml:space="preserve">
+    <value>任何人都可以开始战局</value>
+  </data>
+  <data name="Play_FikaHostFixListen" xml:space="preserve">
+    <value>允许其他电脑连接</value>
+  </data>
   <data name="Play_FikaFirewallServerFormat" xml:space="preserve">
     <value>Windows 防火墙没有允许朋友连接服务端的规则（TCP {0}，SPT.Server.exe）。服务端首次启动时 Windows 会询问；如果当时拒绝了，请在“Windows 安全中心 &gt; 防火墙和网络保护 &gt; 允许应用通过防火墙”中允许它。</value>
   </data>

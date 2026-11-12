@@ -384,6 +384,31 @@
                         Foreground="{DynamicResource SystemFillColorCautionBrush}"
                         Text="{Binding FikaHostWarning}"
                         Visibility="{Binding FikaHostWarning, Converter={StaticResource NullToCollapsed}}" />
+                    <ui:Button
+                        Margin="0,0,0,8"
+                        Appearance="Primary"
+                        Content="{loc:Str Play_FikaHostFixListen}"
+                        Command="{Binding FixFikaListenCommand}"
+                        Visibility="{Binding CanFixFikaListen, Converter={StaticResource BoolToVisibility}}" />
+                    <Expander
+                        MaxWidth="640"
+                        Margin="0,0,0,8"
+                        HorizontalAlignment="Left"
+                        Header="{loc:Str Play_FikaSettings}"
+                        Visibility="{Binding HasFikaSwitches, Converter={StaticResource BoolToVisibility}}">
+                        <ItemsControl Margin="0,6,0,0" Focusable="False" ItemsSource="{Binding FikaSwitches}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <CheckBox Margin="0,0,20,4" Content="{Binding Label}" IsChecked="{Binding IsOn}" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Expander>
                     <TextBlock
                         MaxWidth="640"
                         Margin="0,0,0,8"

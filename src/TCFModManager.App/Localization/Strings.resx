@@ -12317,6 +12317,54 @@ No keeps this group under its old name.</value>
     <value>{0} (Tailscale)</value>
     <comment>An address in the copied invite, on Tailscale (a product name). {0}: address:port.</comment>
   </data>
+  <data name="Play_FikaInviteModsFormat" xml:space="preserve">
+    <value>My mods, for SSPTMM: {0}</value>
+    <comment>Last line of the copied invite. {0}: a collection share code.</comment>
+  </data>
+  <data name="Play_FikaInviteListName" xml:space="preserve">
+    <value>Fika host's mods</value>
+    <comment>Name of the collection an invite carries.</comment>
+  </data>
+  <data name="Play_FikaSettings" xml:space="preserve">
+    <value>Fika settings</value>
+    <comment>Play, a Fika host's card: header of the settings that can be switched here.</comment>
+  </data>
+  <data name="Play_FikaSettingSaved" xml:space="preserve">
+    <value>Saved in fika.jsonc. It applies the next time the server starts.</value>
+    <comment>Play status after a Fika setting was changed.</comment>
+  </data>
+  <data name="Play_FikaSettingFailedFormat" xml:space="preserve">
+    <value>Couldn't change fika.jsonc: {0}</value>
+    <comment>Play status. {0}: why.</comment>
+  </data>
+  <data name="Play_FikaSettingNotFound" xml:space="preserve">
+    <value>the setting isn't in the file</value>
+    <comment>Why a Fika setting could not be changed.</comment>
+  </data>
+  <data name="Play_FikaSwitchFriendlyFire" xml:space="preserve">
+    <value>Friendly fire</value>
+    <comment>A Fika setting (fika.jsonc client.friendlyFire).</comment>
+  </data>
+  <data name="Play_FikaSwitchSharedQuests" xml:space="preserve">
+    <value>Shared quest progress</value>
+    <comment>A Fika setting (client.sharedQuestProgression).</comment>
+  </data>
+  <data name="Play_FikaSwitchInertia" xml:space="preserve">
+    <value>Inertia</value>
+    <comment>A Fika setting (client.useInertia).</comment>
+  </data>
+  <data name="Play_FikaSwitchFreeCam" xml:space="preserve">
+    <value>Free camera</value>
+    <comment>A Fika setting (client.allowFreeCam).</comment>
+  </data>
+  <data name="Play_FikaSwitchAnyoneStarts" xml:space="preserve">
+    <value>Anyone can start a raid</value>
+    <comment>A Fika setting (client.anyoneCanStartRaid).</comment>
+  </data>
+  <data name="Play_FikaHostFixListen" xml:space="preserve">
+    <value>Let other PCs in</value>
+    <comment>Play, beside the warning that Fika only listens on this PC: sets its ip to 0.0.0.0.</comment>
+  </data>
   <data name="Play_FikaFirewallServerFormat" xml:space="preserve">
     <value>Windows Firewall has no rule that lets friends reach the server (TCP {0}, SPT.Server.exe). Windows asks the first time the server starts; if that was refused, allow it under Windows Security &gt; Firewall &amp; network protection &gt; Allow an app through firewall.</value>
     <comment>Play, a Fika host's warning: Windows Firewall would keep friends from the server. {0}: the port.</comment>
