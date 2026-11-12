@@ -2729,7 +2729,7 @@ Die Kopie, die du nicht behältst, wird in einen versteckten Ordner .tcfmm-dupli
     <value>Importierte Listen sind schreibgeschützt. Das hier legt deine eigene Kopie davon an.</value>
   </data>
   <data name="ModLists_NoEntries" xml:space="preserve">
-    <value>Diese Liste nennt noch keine Mods. Füg welche hinzu oder erfass als neue Liste, was du installiert hast.</value>
+    <value>Diese Liste nennt noch keine Mods. Mit „Mods hinzufügen“ kommen welche dazu.</value>
   </data>
   <data name="ModLists_NoMatches" xml:space="preserve">
     <value>Nichts auf dieser Liste passt. Es ist alles noch da - erweitere die Suche oder den Geltungsbereich-Filter, um es zu sehen.</value>
@@ -2831,7 +2831,7 @@ Die Kopie, die du nicht behältst, wird in einen versteckten Ordner .tcfmm-dupli
     <value>"{0}" gespeichert - {1} Mods. Auf der Festplatte hat sich nichts geändert; Anwenden ist das, was installiert, aktiviert und Mods beiseitelegt.</value>
   </data>
   <data name="ModLists_SavedEmpty" xml:space="preserve">
-    <value>Noch nichts gespeichert. Erfass, was du installiert hast, oder importiere eine Liste, die dir jemand geschickt hat.</value>
+    <value>Noch nichts gespeichert. Auf dem Tab Kollektionen eine aus den installierten Mods erstellen oder eine hinzufügen, die ein Freund geschickt hat.</value>
   </data>
   <data name="ModLists_SavedHeader" xml:space="preserve">
     <value>Gespeicherte Listen</value>
@@ -2882,7 +2882,7 @@ Die Kopie, die du nicht behältst, wird in einen versteckten Ordner .tcfmm-dupli
     <value>"{0}" ist jetzt nur Server - ein Spieler, der diese Liste anwendet, überspringt ihn ganz.</value>
   </data>
   <data name="ModLists_ScopeToolTip" xml:space="preserve">
-    <value>Für welche Rechner dieser Eintrag gilt - den Server, spielende Clients, einen Fika-Headless-Client oder eine beliebige Kombination davon. Beim Erfassen wird das daraus ermittelt, wo die Dateien des Mods liegen; änder es für die Ausnahmen, etwa einen Server-Mod, den niemand zum Spielen installieren muss, oder einen HUD-Mod, für den ein Headless-Client keine Verwendung hat.</value>
+    <value>Für welche Rechner dieser Eintrag gilt - den Server, spielende Clients, einen Fika-Headless-Client oder eine beliebige Kombination davon. „Aus installierten Mods erstellen“ ermittelt das daraus, wo die Dateien des Mods liegen; änder es für die Ausnahmen, etwa einen Server-Mod, den niemand zum Spielen installieren muss, oder einen HUD-Mod, für den ein Headless-Client keine Verwendung hat.</value>
   </data>
   <data name="ModLists_ServerPublishingDifferentFormat" xml:space="preserve">
     <value>{0} veröffentlicht jetzt eine andere Liste - "{1}" ist hier gespeichert. "{2}" bleibt unangetastet.</value>
@@ -5632,7 +5632,7 @@ Siehe Abhängigkeiten und Konflikte.</value>
     <value>Manche Mods werden vielleicht nicht geladen. Starten kannst du trotzdem.</value>
   </data>
   <data name="ModLists_EmptyStateShort" xml:space="preserve">
-    <value>Wähl links eine Liste aus oder erfass, was du gerade installiert hast.</value>
+    <value>Links eine Liste wählen. Neue entstehen auf dem Tab Kollektionen.</value>
   </data>
   <data name="ModLists_AboutLists" xml:space="preserve">
     <value>Eine Modliste hält fest, welche Mods installiert und aktiviert werden sollen. Wendest du eine an, wird alles Fehlende von sp-mod.com heruntergeladen und alles beiseitegelegt, was die Liste nicht nennt - ein Mod wird nie gelöscht.</value>
@@ -6174,7 +6174,7 @@ Trotzdem installieren?</value>
     <value>Aktuelle Abonnements in einer Kollektion speichern</value>
   </data>
   <data name="Collection_CaptureHint" xml:space="preserve">
-    <value>Gib einer neuen Kollektion einen Namen und wähle „Erfassen“, um zu speichern, was gerade installiert ist.</value>
+    <value>Neue Kollektionen entstehen auf dem Tab Kollektionen: Aus installierten Mods erstellen, Aus Code hinzufügen oder Aus Datei hinzufügen.</value>
   </data>
   <data name="Collection_UnsubscribeAllBody_one" xml:space="preserve">
     <value>Der {0:N0} installierte Inhalt dieser Kollektion kann beiseitegelegt (deaktiviert - er kommt mit einem Klick unter „Abonnierte Inhalte“ zurück) oder entfernt werden (seine Dateien werden gelöscht, seine Konfigurationsdateien vorher beiseitekopiert).</value>

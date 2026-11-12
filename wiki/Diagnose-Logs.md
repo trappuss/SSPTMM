@@ -4,7 +4,7 @@
 mod it came from when the log names it in a way that can be traced. Nothing on the page changes any
 file.
 
-![Diagnose logs](https://raw.githubusercontent.com/trappuss/SSPTMM/main/docs/images/11-diagnose.png)
+![Diagnose logs, with Find the broken mod's result](https://raw.githubusercontent.com/trappuss/SSPTMM/main/docs/images/11-diagnose.png)
 
 ## After a crash
 
@@ -16,6 +16,8 @@ You don't have to remember this page is here. While SSPTMM is open, it notices w
 A red bar then appears at the top of the window, with a **Diagnose logs** button that opens this
 page. If SSPTMM isn't the window in front, a Windows notification says the same. Quitting the game
 normally, closing it from SSPTMM, or stopping the server yourself doesn't show the bar.
+
+![The crash bar](https://raw.githubusercontent.com/trappuss/SSPTMM/main/docs/images/23-crash-bar.png)
 
 ## What it reads
 
@@ -32,6 +34,8 @@ Logs only describe the last run: after changing something, start the server or t
 press **Read the logs again**.
 
 ## What it recognises
+
+![Diagnose logs explaining what Fika logged](https://raw.githubusercontent.com/trappuss/SSPTMM/main/docs/images/22-diagnose-fika.png)
 
 | Card | Means |
 |---|---|

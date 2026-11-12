@@ -183,13 +183,13 @@ name gets it; what is not, does not.
 A **Server only** entry is not fetched by a player, not counted as missing, and never appears in
 their "you are behind" list.
 
-Scope is worked out for you when you capture a list, from where the mod's files actually live. To
+Scope is worked out for you when you make a collection from installed mods, from where the mod's files actually live. To
 change one: select the list, find the row, and press the **scope button** to cycle it. The full set
 leads into **Client + Headless** first, because taking a HUD mod off the headless is the edit
 anybody actually makes. Then **Save**, then **Publish to this server** again.
 
 The **scope filter** above the list matches one exactly, which is the question you have while tidying
-one: what have I already pruned, and what is still carrying the capture default?
+one: what have I already pruned, and what is still carrying the default it was given?
 
 ## Serve a Fika headless only what it needs?
 
@@ -519,7 +519,7 @@ machine: **Options** → **What this machine is**. If the app never asked, it di
 launcher** at the one you have.
 
 Operators: check the list too. A row still scoped **Client + Headless** goes to the headless by
-design that is the capture default, and pruning it is the operator's job.
+design that is the default a new collection gets, and pruning it is the operator's job.
 
 ## The map says the server mod needs updating
 

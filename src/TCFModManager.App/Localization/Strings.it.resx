@@ -2729,7 +2729,7 @@ La copia che non conservi viene spostata in una cartella nascosta .tcfmm-duplica
     <value>Le liste importate sono in sola lettura. Così ne crei una tua copia.</value>
   </data>
   <data name="ModLists_NoEntries" xml:space="preserve">
-    <value>Questa lista non nomina ancora nessun mod. Aggiungine qualcuno, oppure cattura ciò che hai installato come nuova lista.</value>
+    <value>Questo elenco non nomina ancora nessun mod. Con «Aggiungi mod» se ne aggiungono.</value>
   </data>
   <data name="ModLists_NoMatches" xml:space="preserve">
     <value>Nessuna voce di questa lista corrisponde. C'è ancora tutto - allarga la ricerca o il filtro per ambito per vederlo.</value>
@@ -2831,7 +2831,7 @@ La copia che non conservi viene spostata in una cartella nascosta .tcfmm-duplica
     <value>"{0}" salvata - {1} mod. Nulla è cambiato su disco; è Applica che installa, attiva e mette da parte i mod.</value>
   </data>
   <data name="ModLists_SavedEmpty" xml:space="preserve">
-    <value>Ancora niente di salvato. Cattura ciò che hai installato, oppure importa una lista che ti ha mandato qualcuno.</value>
+    <value>Ancora niente di salvato. Nella scheda Collezioni creane una dai mod installati, o aggiungi quella inviata da un amico.</value>
   </data>
   <data name="ModLists_SavedHeader" xml:space="preserve">
     <value>Liste salvate</value>
@@ -2882,7 +2882,7 @@ La copia che non conservi viene spostata in una cartella nascosta .tcfmm-duplica
     <value>"{0}" ora è solo server - un giocatore che applica questa lista lo salterà del tutto.</value>
   </data>
   <data name="ModLists_ScopeToolTip" xml:space="preserve">
-    <value>A quali macchine è destinata questa voce - il server, i client su cui si gioca, un client headless Fika, o una qualsiasi combinazione. La cattura lo deduce da dove stanno i file del mod; cambialo per le eccezioni, come un mod server che nessun giocatore deve installare, o un mod per l'HUD che a un client headless non serve.</value>
+    <value>A quali macchine è destinata questa voce - il server, i client su cui si gioca, un client headless Fika, o una qualsiasi combinazione. «Crea dai mod installati» lo deduce da dove stanno i file del mod; cambialo per le eccezioni, come un mod server che nessun giocatore deve installare, o un mod per l'HUD che a un client headless non serve.</value>
   </data>
   <data name="ModLists_ServerPublishingDifferentFormat" xml:space="preserve">
     <value>{0} ora pubblica una lista diversa - "{1}" è salvata qui. "{2}" non è stata toccata.</value>
@@ -5632,7 +5632,7 @@ Vedi Dipendenze e conflitti.</value>
     <value>Alcune mod potrebbero non caricarsi. Puoi comunque avviare.</value>
   </data>
   <data name="ModLists_EmptyStateShort" xml:space="preserve">
-    <value>Scegli una lista a sinistra, oppure cattura ciò che hai installato adesso.</value>
+    <value>Scegli un elenco a sinistra. I nuovi si creano nella scheda Collezioni.</value>
   </data>
   <data name="ModLists_AboutLists" xml:space="preserve">
     <value>Una lista mod registra quali mod installare e attivare. Applicarne una scarica da sp-mod.com ciò che manca e mette da parte tutto quello che la lista non nomina - non elimina mai un mod.</value>
@@ -6174,7 +6174,7 @@ Vuoi installarlo comunque?</value>
     <value>Salva le sottoscrizioni attuali in una collezione</value>
   </data>
   <data name="Collection_CaptureHint" xml:space="preserve">
-    <value>Dai un nome a una nuova collezione e scegli Cattura per salvare ciò che è installato adesso.</value>
+    <value>Le nuove collezioni si creano nella scheda Collezioni: Crea dai mod installati, Aggiungi da codice o Aggiungi da file.</value>
   </data>
   <data name="Collection_UnsubscribeAllBody_one" xml:space="preserve">
     <value>L'unico oggetto installato di questa collezione può essere messo da parte (disattivato - torna con un clic in Oggetti sottoscritti) o rimosso (i suoi file eliminati, dopo aver copiato a parte i suoi file di configurazione).</value>

@@ -438,7 +438,7 @@
     <value>Saved lists</value>
   </data>
   <data name="ModLists_SavedEmpty" xml:space="preserve">
-    <value>Nothing saved yet. Capture what you have installed, or import a list someone sent you.</value>
+    <value>Nothing saved yet. On the Collections tab, create one from your installed mods, or add one a friend sent you.</value>
   </data>
   <data name="ModLists_ServingBadge" xml:space="preserve">
     <value>Serving</value>
@@ -554,13 +554,13 @@
     <value>Ordered by the name shown on the row.</value>
   </data>
   <data name="ModLists_NoEntries" xml:space="preserve">
-    <value>This list names no mods yet. Add some, or capture what you have installed as a new list.</value>
+    <value>This list names no mods yet. Press Add mods to add some.</value>
   </data>
   <data name="ModLists_NoMatches" xml:space="preserve">
     <value>Nothing on this list matches. Everything is still here - widen the search or the scope filter to see it.</value>
   </data>
   <data name="ModLists_ScopeToolTip" xml:space="preserve">
-    <value>Which machines this entry is for - the server, playing clients, a Fika headless client, or any combination of them. Capture works this out from where the mod's files live; change it for the exceptions, like a server mod nobody playing needs to install, or a HUD mod a headless client has no use for.</value>
+    <value>Which machines this entry is for - the server, playing clients, a Fika headless client, or any combination of them. Create from installed mods works this out from where the mod's files live; change it for the exceptions, like a server mod nobody playing needs to install, or a HUD mod a headless client has no use for.</value>
   </data>
   <data name="ModLists_RemoveEntryToolTip" xml:space="preserve">
     <value>Take this mod off the list. It stays installed - nothing on disk changes.</value>
@@ -5435,7 +5435,7 @@ This was written to:
     <comment>Instead of overwriting: go and save what is installed now as a collection. Steam's words.</comment>
   </data>
   <data name="Collection_CaptureHint" xml:space="preserve">
-    <value>Name a new collection and choose Capture to save what is installed now.</value>
+    <value>New collections are made on the Collections tab: Create from installed mods, Add from code or Add from file.</value>
     <comment>Status line on the Collections page when sent there to save the current subscriptions.</comment>
   </data>
   <data name="Collection_UnsubscribeAllBody_one" xml:space="preserve">
@@ -9460,7 +9460,7 @@ See Dependencies and Conflicts.</value>
     <comment>Configs page warning, the line on show. Hovering the warning shows the full text (Configs_DisclaimerMessage).</comment>
   </data>
   <data name="ModLists_EmptyStateShort" xml:space="preserve">
-    <value>Pick a list on the left, or capture what you have installed now.</value>
+    <value>Pick a list on the left. New ones are made on the Collections tab.</value>
     <comment>Collections page with no list picked. What a mod list is (ModLists_AboutLists) is behind the "?" beside it.</comment>
   </data>
   <data name="ModLists_AboutLists" xml:space="preserve">

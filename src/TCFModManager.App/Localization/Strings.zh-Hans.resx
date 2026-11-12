@@ -377,7 +377,7 @@
     <value>已保存的列表</value>
   </data>
   <data name="ModLists_SavedEmpty" xml:space="preserve">
-    <value>尚未保存任何列表。记录你已安装的内容，或导入别人发给你的列表。</value>
+    <value>还没有保存任何内容。在“合集”标签页中用已安装的模组创建一个，或添加朋友发来的合集。</value>
   </data>
   <data name="ModLists_ServingBadge" xml:space="preserve">
     <value>提供中</value>
@@ -491,13 +491,13 @@
     <value>按行上显示的名称排序。</value>
   </data>
   <data name="ModLists_NoEntries" xml:space="preserve">
-    <value>此列表还没有任何模组。添加一些，或将你已安装的内容记录为新列表。</value>
+    <value>此列表还没有任何模组。按“添加模组”即可添加。</value>
   </data>
   <data name="ModLists_NoMatches" xml:space="preserve">
     <value>此列表中没有匹配项。所有内容仍在——放宽搜索或适用范围筛选即可看到。</value>
   </data>
   <data name="ModLists_ScopeToolTip" xml:space="preserve">
-    <value>此条目适用于哪些机器——服务端、玩家客户端、Fika 无头客户端，或它们的任意组合。“记录”会根据模组文件所在的位置自动判断；遇到例外时可以修改，比如玩家无需安装的服务端模组，或无头客户端用不上的 HUD 模组。</value>
+    <value>此条目适用于哪些机器——服务端、玩家客户端、Fika 无头客户端，或它们的任意组合。“用已安装的模组创建”会根据模组文件所在的位置自动判断；遇到例外时可以修改，比如玩家无需安装的服务端模组，或无头客户端用不上的 HUD 模组。</value>
   </data>
   <data name="ModLists_RemoveEntryToolTip" xml:space="preserve">
     <value>将此模组从列表中移除。它仍保持安装——磁盘上的内容不会改变。</value>
@@ -4241,7 +4241,7 @@
     <value>将当前订阅保存为合集</value>
   </data>
   <data name="Collection_CaptureHint" xml:space="preserve">
-    <value>为新合集命名，然后选择“捕获”以保存当前已安装的内容。</value>
+    <value>新合集在“合集”标签页中创建：用已安装的模组创建、从代码添加或从文件添加。</value>
   </data>
   <data name="Collection_UnsubscribeAllBody_other" xml:space="preserve">
     <value>此合集中已安装的 {0:N0} 个物品可以移到一旁（禁用，之后在“已订阅的物品”中点一下即可恢复），也可以移除（删除其文件，但会先另存其配置文件）。</value>
@@ -7276,7 +7276,7 @@ GitHub 上的文件未经 sp-mod.com 检查，请只安装你信任的作者的�
     <value>错误的设置可能会破坏模组或游戏，而且这不该由作者来修复。每个文件在保存前都会备份。</value>
   </data>
   <data name="ModLists_EmptyStateShort" xml:space="preserve">
-    <value>在左侧选择一个列表，或记录你当前已安装的内容。</value>
+    <value>在左侧选择一个列表。新的列表在“合集”标签页中创建。</value>
   </data>
   <data name="ModLists_AboutLists" xml:space="preserve">
     <value>模组列表记录了要安装和启用哪些模组。应用列表时，会从 sp-mod.com 下载缺少的模组，并将列表中未提到的模组搁置——绝不会删除任何模组。</value>

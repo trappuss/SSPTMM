@@ -25,7 +25,7 @@ From 1.3.0 or later: Help > About > **Install update**. From an older version: c
 
 ## Changed
 
-- **One place for each thing a collection does.** The Manage page no longer has its own **Capture** and **Import**: they did what **Create from installed mods** and **Add from file** on the Collections tab do, and the Manage page's Import did not notice a friend's copy of your collection. Manage is now for editing the collection you opened it from.
+- **One place for each thing a collection does.** The Manage page no longer has its own **Capture** and **Import**: they did what **Create from installed mods** and **Add from file** on the Collections tab do, and the Manage page's Import did not notice a friend's copy of your collection. Manage is now for editing the collection you opened it from, and its texts point to the Collections tab for new ones.
 - **A server with Server Map is checked against its own list.** When the server picked on Play is the one Server Map is connected to, Play no longer compares its mods a second time: the check above the launch buttons uses the server's list, which names the host's game mods too. Fika's versions are still compared.
 
 # SSPTMM 1.4.6

@@ -2973,6 +2973,14 @@ From another mod manager (trappuss: "research it and see if there's anything cou
     collections (on and off only, offline), and the invite's share code beside Play's look (the
     only way the host's game mods travel without Server Map). No unused strings or types were
     found; the plural forms a scan flags are reached through their base name.
+  - Pictures for 1.4.7 (docs\images 01, 01b, 08c, 11, 14, 18, and new 21-24): a copy of the app on
+    a hidden desktop against a made-up install mapped to a drive letter of its own, so no real
+    path shows. Its server is a stand-in that only loads, crashes or listens (it reports 4.1.6),
+    its server mods have made-up names, Fika's server mod is there with the `fika.jsonc` Fika
+    writes, and the Fika lines in the Diagnose picture are from a log written for it. The invite
+    in the Join picture uses made-up addresses. Taking them turned up three texts on the Manage
+    page that still named Capture and Import (the empty states and the scope tip); they now point
+    to the Collections tab.
   - Not known: the host's game plugins (the server takes `/singleplayer/clientmods` from a game,
     it does not hand them out), and which server mods a player needs no part of.
   - The answer's shape is read from the 4.1.6 server's code (`LauncherV2Callbacks.Mods`, routed

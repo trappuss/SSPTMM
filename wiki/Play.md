@@ -83,6 +83,8 @@ launcher:
 
 ### Another PC's server (Fika)
 
+![Join from an invite](https://raw.githubusercontent.com/trappuss/SSPTMM/main/docs/images/24-join-invite.png)
+
 These options are there with [Options](Options) > **Fika and servers** > **Play with Fika** on - or
 on **Automatic**, its default, when Fika is installed. It is marked experimental: it has not been
 tried against every kind of setup yet.
@@ -140,6 +142,8 @@ If this PC's own SPT server is running while another PC's is picked, the card sa
 only the host runs a server, and a stray one can keep friends from seeing each other.
 
 ### Hosting Fika on this PC
+
+![Hosting Fika: the address, the invite and Fika's settings](https://raw.githubusercontent.com/trappuss/SSPTMM/main/docs/images/21-fika-host.png)
 
 With Fika's server mod installed and **This PC** picked, the card tells you what to give friends:
 

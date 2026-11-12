@@ -121,7 +121,7 @@ Manager 1.19.0-beta does is still here, under Steam's names:
 - **Your collections** (TCF Mod Manager's mod lists) as a grid of cards, with **Add from code**,
   **Follow a shared file**, **Add to Collection** and **Save to Collection** added to saving what's
   installed and importing list files.
-- **Share with friends** by share code (one line for Discord) or a shared folder kept up to date,
+- **Share with friends** by share code (one line for Discord), a file to send, or a shared folder kept up to date,
   with a notice saying what changed and offering Sync or Later.
 
 ## Play

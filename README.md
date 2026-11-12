@@ -27,13 +27,17 @@ Player Tarkov) mods, laid out and styled like Steam's Workshop. Mods and collect
   profile. Right-click a mod to rename it, add a note, skip an update, or go back to the version an
   update replaced; with several picked, the menu acts on them all.
 - **Collections** - public collections from sp-mod.com, your own collections, and sharing them with
-  friends by code or shared folder.
+  friends by code, file or shared folder.
 - **Play** - start the server and the game, read the server log, close the game, and open the tools
   your mods installed (SVM's Greed, give-ui...). Before you launch it warns about conflicts and about
   mods that need something missing or switched off. Pick a profile and press PLAY - server and game
   start with no SPT launcher window (SPT 4.1.3 and later in 4.1; it can be switched off in Options).
+- **Fika** - join a friend's server from the invite they paste you, compare your mods with the
+  host's and get the missing ones, and host with your address, an invite, Fika's settings and a
+  firewall check on the Play card.
 - **Tools** - Configs, Dependencies and Conflicts, and **Diagnose logs**, which reads SPT's logs and
-  says what went wrong and which mod it came from.
+  says what went wrong and which mod it came from. **Find the broken mod** finds the server mod that
+  keeps the server from starting, and a red bar points you there when the server or game crashes.
 - **Safety** - a copy of your SPT profiles before anything changes the install, your BepInEx
   settings kept, SPT's own files protected, every install checked file by file, and an install cut
   off part-way (a crash, the power going) put on record so it can be finished or removed.
@@ -45,6 +49,7 @@ Player Tarkov) mods, laid out and styled like Steam's Workshop. Mods and collect
 | ![Workshop Home](docs/images/02b-workshop-home.png) | ![Item page](docs/images/04-item.png) |
 | ![Subscribed items](docs/images/07-subscribed-cards.png) | ![Collection](docs/images/06b-collection-items.png) |
 | ![Your collections](docs/images/08-your-collections.png) | ![Diagnose logs](docs/images/11-diagnose.png) |
+| ![Hosting Fika on the Play page](docs/images/21-fika-host.png) | ![Join from an invite](docs/images/24-join-invite.png) |
 
 More screenshots of every page are in the [wiki](https://github.com/trappuss/SSPTMM/wiki).
 
@@ -150,15 +155,43 @@ folder. **Open** starts it in the right folder, and the folder button opens the 
 - **Browse sp-mod.com's public collections** inside the app.
 - **Subscribe to all** of a collection, at the versions for your SPT or the collection's.
 - **Make your own** from the mods you have installed.
-- **Share with friends in two ways:**
+- **Share with friends in three ways:**
   - a **share code**: one line of text that fits in a Discord message;
+  - a **file** to send as an attachment, which friends open with **Add from file**;
   - a **shared folder** (Dropbox, OneDrive, Google Drive), which keeps everyone's copy up to date.
 - **When a friend's collection changes,** SSPTMM says exactly what was added or removed and offers
   **Sync**. Only the list travels; every mod still downloads from sp-mod.com.
 - **Friends can suggest mods for yours.** They save a copy of your collection, add mods and send
   you its code. SSPTMM lists the mods their copy adds, and you tick the ones that join yours.
 
-![Sharing a collection by code or shared folder](docs/images/18-share-collection.png)
+![Sharing a collection by code, file or shared folder](docs/images/18-share-collection.png)
+
+### Playing with friends (Fika)
+
+For a group on [Fika](https://sp-mod.com/mod/2326/project-fika), where everyone needs the same mods:
+
+- **Join from an invite.** The host presses **Copy invite** and sends the message. On Play,
+  **...** > **Join from an invite...** takes it: SSPTMM tries the addresses in it, adds the server
+  that answers, shows its profiles, and says whether the SPT and Fika versions match yours.
+- **Get the host's mods.** Your server mods are compared with the ones the host's server has
+  loaded. When something is missing, older or turned off, **Review and install** opens a preview of
+  exactly what to install, update or turn on; nothing changes until you press **Apply**. When the
+  invite carries the host's collection, the game-only mods come with it too.
+- **Hosting.** The Play card shows the address friends add, **Copy address** and **Copy invite**,
+  and Fika's own settings - friendly fire, shared quest progress, inertia, free camera and who can
+  start a raid - as tick boxes. **Let other PCs in** fixes a Fika that only listens on this PC, and
+  the card says when Windows Firewall is in the way.
+- **Your character is backed up.** Copies of your profile on a friend's server are kept on your PC,
+  the newest ten.
+- **Headless client:** a tick box starts it with the server.
+- **When Fika complains,** Diagnose logs explains it: mods the host doesn't allow, mods it requires,
+  mods that differ from the host's, or a server without Fika or with an older one.
+
+![Hosting Fika: the address to share, the invite and Fika's settings](docs/images/21-fika-host.png)
+
+| | |
+|---|---|
+| ![Join from an invite](docs/images/24-join-invite.png) | ![Diagnose logs explaining a Fika mod mismatch](docs/images/22-diagnose-fika.png) |
 
 ### Diagnose logs
 
@@ -175,7 +208,15 @@ addresses.
 
 **Find the broken mod** is for when the logs don't name a mod. It starts the SPT server a few times
 with some server mods off, halving the suspects until it finds the one that keeps the server from
-starting or fills its log with errors. Every mod is turned back on afterwards.
+starting or fills its log with errors - about seven starts for sixty mods. **Turn off** turns the
+mod it found off right there. Every other mod is turned back on afterwards.
+
+When the server stops unexpectedly or the game crashes, a red bar at the top of SSPTMM says so,
+with a **Diagnose logs** button.
+
+![The crash bar](docs/images/23-crash-bar.png)
+
+![Find the broken mod found the mod that kept the server from starting](docs/images/11-diagnose.png)
 
 ### A Steam Workshop to browse
 
@@ -221,6 +262,7 @@ they do for any other mod.
 - **Warnings before you launch:** conflicts, and mods that need something missing or switched off.
 - **Server:** stop it, run it without its window, and read its log live.
 - **Game:** close it, optionally whenever the server stops.
+- **Closing SSPTMM** while the server runs asks first, since the server keeps running.
 - **Play:** start the game straight from SSPTMM with no SPT launcher window (on by default).
 
 Everything that differs, item by item, is in the wiki:

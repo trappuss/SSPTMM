@@ -2729,7 +2729,7 @@ La copie que vous ne gardez pas est déplacée dans un dossier caché .tcfmm-dup
     <value>Les listes importées sont en lecture seule. Ceci en crée votre propre copie.</value>
   </data>
   <data name="ModLists_NoEntries" xml:space="preserve">
-    <value>Cette liste ne nomme encore aucun mod. Ajoutez-en, ou capturez ce que vous avez installé comme nouvelle liste.</value>
+    <value>Cette liste ne nomme encore aucun mod. « Ajouter des mods » permet d'en ajouter.</value>
   </data>
   <data name="ModLists_NoMatches" xml:space="preserve">
     <value>Rien ne correspond dans cette liste. Tout est toujours là - élargissez la recherche ou le filtre de portée pour le voir.</value>
@@ -2831,7 +2831,7 @@ La copie que vous ne gardez pas est déplacée dans un dossier caché .tcfmm-dup
     <value>« {0} » enregistrée - {1} mods. Rien n'a changé sur le disque ; c'est Appliquer qui installe, active et met les mods de côté.</value>
   </data>
   <data name="ModLists_SavedEmpty" xml:space="preserve">
-    <value>Rien d'enregistré pour l'instant. Capturez ce que vous avez installé, ou importez une liste qu'on vous a envoyée.</value>
+    <value>Rien d'enregistré pour l'instant. Dans l'onglet Collections, créez-en une à partir des mods installés, ou ajoutez celle qu'un ami a envoyée.</value>
   </data>
   <data name="ModLists_SavedHeader" xml:space="preserve">
     <value>Listes enregistrées</value>
@@ -2882,7 +2882,7 @@ La copie que vous ne gardez pas est déplacée dans un dossier caché .tcfmm-dup
     <value>« {0} » est désormais serveur uniquement - un joueur qui applique cette liste l'ignorera complètement.</value>
   </data>
   <data name="ModLists_ScopeToolTip" xml:space="preserve">
-    <value>À quelles machines cette entrée est destinée - le serveur, les clients qui jouent, un client headless Fika, ou n'importe quelle combinaison. La capture le déduit de l'emplacement des fichiers du mod ; modifiez-le pour les exceptions, comme un mod serveur qu'aucun joueur n'a besoin d'installer, ou un mod de HUD dont un client headless n'a aucun usage.</value>
+    <value>À quelles machines cette entrée est destinée - le serveur, les clients qui jouent, un client headless Fika, ou n'importe quelle combinaison. « Créer à partir des mods installés » le déduit de l'emplacement des fichiers du mod ; modifiez-le pour les exceptions, comme un mod serveur qu'aucun joueur n'a besoin d'installer, ou un mod de HUD dont un client headless n'a aucun usage.</value>
   </data>
   <data name="ModLists_ServerPublishingDifferentFormat" xml:space="preserve">
     <value>{0} publie désormais une autre liste - « {1} » est enregistrée ici. « {2} » est intacte.</value>
@@ -5632,7 +5632,7 @@ Voir Dépendances et conflits.</value>
     <value>Certains mods risquent de ne pas se charger. Vous pouvez quand même lancer.</value>
   </data>
   <data name="ModLists_EmptyStateShort" xml:space="preserve">
-    <value>Choisissez une liste à gauche, ou capturez ce que vous avez installé.</value>
+    <value>Choisissez une liste à gauche. Les nouvelles se créent dans l'onglet Collections.</value>
   </data>
   <data name="ModLists_AboutLists" xml:space="preserve">
     <value>Une liste de mods enregistre les mods à installer et à activer. En appliquer une télécharge ce qui manque depuis sp-mod.com et met de côté tout ce que la liste ne nomme pas - elle ne supprime jamais un mod.</value>
@@ -6174,7 +6174,7 @@ L'installer quand même ?</value>
     <value>Enregistrer les abonnements actuels dans une collection</value>
   </data>
   <data name="Collection_CaptureHint" xml:space="preserve">
-    <value>Nommez une nouvelle collection et choisissez Capturer pour enregistrer ce qui est installé maintenant.</value>
+    <value>Les nouvelles collections se créent dans l'onglet Collections : Créer à partir des mods installés, Ajouter depuis un code ou Ajouter depuis un fichier.</value>
   </data>
   <data name="Collection_UnsubscribeAllBody_one" xml:space="preserve">
     <value>Le {0:N0} article installé de cette collection peut être mis de côté (désactivé - il revient d'un clic dans Articles faisant l'objet d'un abonnement) ou supprimé (ses fichiers effacés, ses fichiers de configuration copiés à part d'abord).</value>
