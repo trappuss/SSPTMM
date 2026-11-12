@@ -87,6 +87,11 @@ These options are there with [Options](Options) > **Fika and servers** > **Play 
 on **Automatic**, its default, when Fika is installed. It is marked experimental: it has not been
 tried against every kind of setup yet.
 
+The quickest way in is **...** > **Join from an invite...**: paste the message the host copied
+with **Copy invite** (or any message with the server's address in it). SSPTMM tries its addresses,
+adds the one that answers, picks it, and compares its mods with yours. It also turns **Play with
+Fika** on, and says so if the invite names another SPT version than yours.
+
 To play on a Fika host or a friend's SPT server, pick it in the server list above the profiles.
 The list shows when there is more than **This PC** on it: the servers added in SPT's launcher are
 there, and **...** > **Add a server...** adds one - a name of your own and its address
@@ -113,7 +118,9 @@ With another PC's server picked:
   turn on, with **Review and install** beside it. That makes a collection named **Mods on** and
   the server's name, and opens it in [Collections](Collections) with the preview. Nothing changes
   until you press **Apply**, and applying it never turns a mod off. **Compare mods with this
-  server** on **...** asks again and goes straight to the preview.
+  server** on **...** asks again and goes straight to the preview. When the server runs Fika, the
+  line also gives its Fika version beside yours, or says that Fika isn't installed here. (The two
+  halves of Fika carry their own version numbers, so they need not be equal.)
   - The host needs nothing for this: any SPT 4.1 server answers.
   - It knows the host's **server mods** only. An SPT server can't see its own game's BepInEx
     plugins, so game-only mods are not compared.
@@ -132,9 +139,9 @@ With Fika's server mod installed and **This PC** picked, the card tells you what
 
 - this PC's addresses on your network (and on Tailscale, if you use it), with the port from Fika's
   `fika.jsonc` - Fika ignores `http.json`'s address and port. **Copy address** copies the first.
-- **Copy invite** copies a message to paste to friends: the addresses, the port to use from outside
-  your network, your SPT and Fika versions, and how SSPTMM gets them the same mods (add the
-  address on Play, then **Compare mods with this server**).
+- **Copy invite** copies a message to paste to friends: the addresses, each marked as on the same
+  network or on Tailscale, the port to use from outside your network, your SPT and Fika versions,
+  and what a friend does with it in SSPTMM (**Join from an invite...**).
 - From outside your network, friends use your public address instead, and your router forwards
   **TCP** on that port to this PC. Whoever hosts a raid also needs **UDP 25565** (Fika's default)
   forwarded to their own PC - the raid runs in the host's game, not in the server.

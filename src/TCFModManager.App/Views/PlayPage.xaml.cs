@@ -89,11 +89,21 @@ public partial class PlayPage : Page
             IsEnabled = vm.SelectedProfile is not null && !vm.IsPlaying && !vm.IsGameRunning,
         });
 
+        // Fork (1.4.7): always there - someone invited may not have Fika yet, and joining turns
+        // Options > Play with Fika on.
+        menu.Items.Add(new Separator());
+        menu.Items.Add(new MenuItem
+        {
+            Header = Strings.Play_InviteJoin,
+            ToolTip = Strings.Play_InviteJoinToolTip,
+            Command = vm.JoinFromInviteCommand,
+            IsEnabled = !vm.IsPlaying,
+        });
+
         // Fork (1.4.3): another PC's server - a Fika host, or a friend's. Only with Options > Play
         // with Fika on, or on Automatic with Fika installed.
         if (vm.OtherServersOn)
         {
-            menu.Items.Add(new Separator());
             if (vm.IsRemoteServer)
             {
                 menu.Items.Add(new MenuItem

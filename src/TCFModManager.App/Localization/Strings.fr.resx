@@ -9832,10 +9832,46 @@ Non garde ce groupe sous son ancien nom.</value>
     <value>Version : SPT {0}</value>
   </data>
   <data name="Play_FikaInviteHowFormat" xml:space="preserve">
-    <value>Avec SSPTMM : dans Jouer, « {0} » avec cette adresse, puis « {1} » pour obtenir les mêmes mods.</value>
+    <value>Avec SSPTMM : dans Jouer, « {0} » puis coller ce message. Cela ajoute le serveur et récupère les mêmes mods.</value>
   </data>
   <data name="Play_FikaInviteCopied" xml:space="preserve">
     <value>Invitation copiée. La coller pour des amis.</value>
+  </data>
+  <data name="Play_InviteJoin" xml:space="preserve">
+    <value>Rejoindre depuis une invitation...</value>
+  </data>
+  <data name="Play_InviteJoinToolTip" xml:space="preserve">
+    <value>Coller l'invitation envoyée par un hôte Fika : SSPTMM ajoute le serveur et compare ses mods avec les tiens.</value>
+  </data>
+  <data name="Play_InviteTitle" xml:space="preserve">
+    <value>Rejoindre depuis une invitation</value>
+  </data>
+  <data name="Play_InviteHint" xml:space="preserve">
+    <value>Coller l'invitation ici :</value>
+  </data>
+  <data name="Play_InviteNoAddress" xml:space="preserve">
+    <value>Aucune adresse de serveur n'a été trouvée dans ce texte.</value>
+  </data>
+  <data name="Play_InviteTrying" xml:space="preserve">
+    <value>Recherche du serveur...</value>
+  </data>
+  <data name="Play_InviteNotReachedFormat" xml:space="preserve">
+    <value>{0} a été ajouté, mais ne répond pas encore. Vérifier que le serveur de l'hôte est démarré.</value>
+  </data>
+  <data name="Play_InviteSptDiffersFormat" xml:space="preserve">
+    <value>L'invitation est pour SPT {0} ; cette installation est en SPT {1}.</value>
+  </data>
+  <data name="Play_RemoteFikaMissingFormat" xml:space="preserve">
+    <value>{0} utilise Fika, et Fika n'est pas installé ici.</value>
+  </data>
+  <data name="Play_RemoteFikaVersionsFormat" xml:space="preserve">
+    <value>Fika : le serveur a {0}, ce PC a {1}.</value>
+  </data>
+  <data name="Play_FikaAddressHomeFormat" xml:space="preserve">
+    <value>{0} (même réseau)</value>
+  </data>
+  <data name="Play_FikaAddressTailscaleFormat" xml:space="preserve">
+    <value>{0} (Tailscale)</value>
   </data>
   <data name="Play_FikaFirewallServerFormat" xml:space="preserve">
     <value>Le pare-feu Windows n'a aucune règle laissant des amis atteindre le serveur (TCP {0}, SPT.Server.exe). Windows le demande au premier démarrage du serveur ; si cela a été refusé, l'autoriser dans Sécurité Windows &gt; Pare-feu et protection du réseau &gt; Autoriser une application via le pare-feu.</value>

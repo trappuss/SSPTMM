@@ -42,6 +42,12 @@ public static class LocalNetworkAddresses
             .Select(a => a.ToString())
             .ToList();
 
+    /// <summary>Fork (1.4.7): whether this is an address of a home network (10., 172.16-31., 192.168.).</summary>
+    public static bool IsHomeNetwork(string address) => IPAddress.TryParse(address, out var ip) && Rank(ip) == 0;
+
+    /// <summary>Fork (1.4.7): whether this is a Tailscale address (100.64.0.0/10).</summary>
+    public static bool IsTailscale(string address) => IPAddress.TryParse(address, out var ip) && Rank(ip) == 1;
+
     // 0 a home network's, 1 Tailscale's (100.64.0.0/10), 2 anything else; null for none to give out.
     public static int? Rank(IPAddress address)
     {

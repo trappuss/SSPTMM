@@ -9385,10 +9385,46 @@ GitHub 上的文件未经 sp-mod.com 检查，请只安装你信任的作者的�
     <value>版本：SPT {0}</value>
   </data>
   <data name="Play_FikaInviteHowFormat" xml:space="preserve">
-    <value>使用 SSPTMM：在开始游戏页面用此地址“{0}”，然后“{1}”即可获得相同的模组。</value>
+    <value>使用 SSPTMM：在开始游戏页面选择“{0}”并粘贴此消息，即可添加服务端并获得相同的模组。</value>
   </data>
   <data name="Play_FikaInviteCopied" xml:space="preserve">
     <value>邀请已复制，粘贴给朋友即可。</value>
+  </data>
+  <data name="Play_InviteJoin" xml:space="preserve">
+    <value>通过邀请加入...</value>
+  </data>
+  <data name="Play_InviteJoinToolTip" xml:space="preserve">
+    <value>粘贴 Fika 主机发来的邀请：SSPTMM 会添加该服务端，并将它的模组与你的进行比较。</value>
+  </data>
+  <data name="Play_InviteTitle" xml:space="preserve">
+    <value>通过邀请加入</value>
+  </data>
+  <data name="Play_InviteHint" xml:space="preserve">
+    <value>在此粘贴邀请：</value>
+  </data>
+  <data name="Play_InviteNoAddress" xml:space="preserve">
+    <value>在这段文字中没有找到服务端地址。</value>
+  </data>
+  <data name="Play_InviteTrying" xml:space="preserve">
+    <value>正在查找服务端...</value>
+  </data>
+  <data name="Play_InviteNotReachedFormat" xml:space="preserve">
+    <value>已添加 {0}，但它还没有回应。请确认主机的服务端正在运行。</value>
+  </data>
+  <data name="Play_InviteSptDiffersFormat" xml:space="preserve">
+    <value>邀请针对 SPT {0}；此安装为 SPT {1}。</value>
+  </data>
+  <data name="Play_RemoteFikaMissingFormat" xml:space="preserve">
+    <value>{0}使用 Fika，而这里没有安装 Fika。</value>
+  </data>
+  <data name="Play_RemoteFikaVersionsFormat" xml:space="preserve">
+    <value>Fika：服务端为 {0}，此电脑为 {1}。</value>
+  </data>
+  <data name="Play_FikaAddressHomeFormat" xml:space="preserve">
+    <value>{0}（同一网络）</value>
+  </data>
+  <data name="Play_FikaAddressTailscaleFormat" xml:space="preserve">
+    <value>{0}（Tailscale）</value>
   </data>
   <data name="Play_FikaFirewallServerFormat" xml:space="preserve">
     <value>Windows 防火墙没有允许朋友连接服务端的规则（TCP {0}，SPT.Server.exe）。服务端首次启动时 Windows 会询问；如果当时拒绝了，请在“Windows 安全中心 &gt; 防火墙和网络保护 &gt; 允许应用通过防火墙”中允许它。</value>

@@ -2887,6 +2887,14 @@ From another mod manager (trappuss: "research it and see if there's anything cou
   - A Fika host's **Copy invite** (`PlayViewModel.FikaInvite`): addresses, port, SPT and Fika
     versions (the enabled server mod whose name or GUID has "fika"), and the two menu items a
     friend uses. No share code: the comparison needs nothing from the host.
+  - **Join from an invite** (`FikaInviteText`, `JoinFromInviteAsync`): addresses are told by their
+    shape (four numbers, or a name with a port or scheme) and versions by "SPT" / "Fika" before
+    them, so an invite in any language reads. Each address is pinged, the first to answer is
+    added and picked, and `FikaOptions` is set so the server list shows without Fika installed.
+  - Fika's version is said, not judged: the server mod (ModGuid "Fika", named "server") and the
+    plugin (com.fika.core) are versioned apart - 2.4.2 and 2.4.6 on Fika's main branch, the plugin
+    asking for a server newer than 2.4.1 - so equal numbers are not the rule. Fika's server mod is
+    kept out of the collection.
   - A Fika host's firewall (`FirewallRules`, read through `HNetCfg.FwPolicy2`, nothing written):
     TCP on Fika's port to the server's exe and UDP 25565 to the game, decided as Windows does -
     a block rule wins, no rule refuses, a firewall that is off lets everything in. Read off the

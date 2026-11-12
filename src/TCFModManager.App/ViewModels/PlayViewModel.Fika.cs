@@ -233,14 +233,22 @@ public partial class PlayViewModel
         var lines = new List<string>
         {
             Strings.Play_FikaInviteIntro,
-            Text(Strings.Play_FikaInviteAddressFormat, TextLists.Join(addresses)),
+            Text(Strings.Play_FikaInviteAddressFormat, TextLists.Join([.. addresses.Select(Labelled)])),
         };
 
         if (port is not null) lines.Add(Text(Strings.Play_FikaInviteOutsideFormat, port));
         if (spt is { Length: > 0 })
             lines.Add(fika is { Length: > 0 } ? Text(Strings.Play_FikaInviteVersionsFormat, spt, fika) : Text(Strings.Play_FikaInviteSptFormat, spt));
-        lines.Add(Text(Strings.Play_FikaInviteHowFormat, Strings.Play_RemoteAddServer.TrimEnd('.', '\u2026'), Strings.Play_RemoteCompareMods));
+        lines.Add(Text(Strings.Play_FikaInviteHowFormat, Strings.Play_InviteJoin.TrimEnd('.', '\u2026')));
 
         return string.Join(Environment.NewLine, lines);
+    }
+
+    // "192.168.1.5:6969 (same network)", "100.72.1.9:6969 (Tailscale)" - which one a friend can use.
+    private static string Labelled(string addressAndPort)
+    {
+        var address = addressAndPort.Split(':')[0];
+        if (LocalNetworkAddresses.IsHomeNetwork(address)) return Text(Strings.Play_FikaAddressHomeFormat, addressAndPort);
+        return LocalNetworkAddresses.IsTailscale(address) ? Text(Strings.Play_FikaAddressTailscaleFormat, addressAndPort) : addressAndPort;
     }
 }

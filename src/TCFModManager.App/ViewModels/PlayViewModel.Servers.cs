@@ -269,9 +269,26 @@ public partial class PlayViewModel
         ServerModsNote = null;
         if (mods.Count == 0) return false;
 
+        // Fika's own server mod (ModGuid "Fika", named "server") is said by itself: a player needs
+        // Fika's plugin, not that, and the two halves are versioned apart.
+        var hostFika = mods.FirstOrDefault(m => m.ModGuid.Equals("Fika", StringComparison.OrdinalIgnoreCase)
+            || m.ModGuid.StartsWith("com.fika", StringComparison.OrdinalIgnoreCase));
+        if (hostFika is not null) mods = [.. mods.Where(m => !ReferenceEquals(m, hostFika))];
+
         var preview = await AppServices.ModListWorkflow.FromServerAsync(
             Text(Strings.Play_RemoteModsListNameFormat, server.Title), address, mods);
         if (preview is null || SelectedPlayServer?.Address != address) return true;
+
+        string? fika = null;
+        if (hostFika is not null)
+        {
+            var plugin = preview.Install.Candidates.SelectMany(c => c.Entries).FirstOrDefault(e =>
+                e.Target == InstalledModTarget.Client && !e.IsDisabled
+                && e.AllGuids.Any(g => g.Equals("com.fika.core", StringComparison.OrdinalIgnoreCase)));
+            fika = plugin is null
+                ? Text(Strings.Play_RemoteFikaMissingFormat, server.Title)
+                : Text(Strings.Play_RemoteFikaVersionsFormat, hostFika.Version, plugin.Version ?? "?");
+        }
 
         var plan = preview.Plan;
         int install = plan.Install.Count(), update = plan.Update.Count(), enable = plan.Enable.Count();
@@ -283,13 +300,14 @@ public partial class PlayViewModel
 
         if (plan.IsNoOp)
         {
-            ServerModsNote = manual ?? Text(Strings.Play_RemoteModsMatchFormat, server.Title, mods.Count);
+            ServerModsNote = string.Join(" ", new[] { manual ?? Text(Strings.Play_RemoteModsMatchFormat, server.Title, mods.Count), fika }
+                .Where(part => part is not null));
             return true;
         }
 
         _serverModsPreview = preview;
         ServerModsDiffer = true;
-        ServerModsNote = string.Join(" ", new[] { Text(Strings.Play_RemoteModsDifferFormat, server.Title, install, update, enable), manual }
+        ServerModsNote = string.Join(" ", new[] { Text(Strings.Play_RemoteModsDifferFormat, server.Title, install, update, enable), manual, fika }
             .Where(part => part is not null));
         return true;
     }
@@ -434,6 +452,92 @@ public partial class PlayViewModel
         AppLog.Info("DirectLaunch", $"server {address} removed");
 
         SelectedPlayServer = PlayServers[0];
+    }
+
+    //
+    // Fork (1.4.7): "Join from an invite..." - the text a host copied (FikaInviteText), pasted. Its
+    // addresses are tried in turn and the first that answers is added and picked; the rest follows
+    // from picking a server: its profiles, and its mods against the ones here.
+    //
+    [RelayCommand]
+    private async Task JoinFromInviteAsync()
+    {
+        if (AskInvite() is not { } text) return;
+
+        var invite = FikaInviteText.Parse(text);
+        if (invite.Addresses.Count == 0)
+        {
+            PlayStatusIsError = true;
+            PlayStatus = Strings.Play_InviteNoAddress;
+            return;
+        }
+
+        PlayStatusIsError = false;
+        PlayStatus = Strings.Play_InviteTrying;
+
+        var pins = new SettingsService().Load().PlayServerPins;
+        string? reached = null;
+        foreach (var address in invite.Addresses)
+        {
+            try
+            {
+                using var api = SptLauncherApi.ForRemote(address, pins.GetValueOrDefault(address));
+                if (!await api.PingAsync()) continue;
+
+                RememberCertificate(api);
+                reached = address;
+                break;
+            }
+            catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or IOException or UriFormatException or ArgumentException)
+            {
+                AppLog.Debug("DirectLaunch", $"invite: {address} didn't answer: {ex.Message}");
+            }
+        }
+
+        var chosen = reached ?? invite.Addresses[0];
+        var service = new SettingsService();
+        var settings = service.Load();
+        if (!settings.PlayServers.Any(s => string.Equals(s.Address, chosen, StringComparison.OrdinalIgnoreCase)))
+            settings.PlayServers.Add(new PlayServerEntry { Name = chosen, Address = chosen });
+        settings.PlayServerAddress = chosen;
+        settings.FikaOptions = true; // other PCs' servers are offered from here on, Fika installed or not
+        service.Save(settings);
+        AppLog.Info("DirectLaunch", $"invite: {invite.Addresses.Count} address(es), {(reached is null ? "none answered" : reached + " answered")}; SPT {invite.Spt ?? "?"}, Fika {invite.Fika ?? "?"}");
+
+        Refresh();
+
+        var here = AppServices.SptEnvironment.InstalledVersion;
+        var differs = invite.Spt is { } theirs && here is { Length: > 0 }
+            && !here.StartsWith(theirs, StringComparison.OrdinalIgnoreCase) && !theirs.StartsWith(here, StringComparison.OrdinalIgnoreCase);
+
+        PlayStatusIsError = reached is null || differs;
+        PlayStatus = string.Join(" ", new[]
+        {
+            reached is null ? Text(Strings.Play_InviteNotReachedFormat, chosen) : Text(Strings.Play_RemoteAddedFormat, chosen),
+            differs ? Text(Strings.Play_InviteSptDiffersFormat, invite.Spt, here) : null,
+        }.Where(part => part is not null));
+    }
+
+    private static string? AskInvite()
+    {
+        var box = new System.Windows.Controls.TextBox
+        {
+            AcceptsReturn = true,
+            TextWrapping = TextWrapping.Wrap,
+            MinHeight = 120,
+            MaxHeight = 240,
+            VerticalScrollBarVisibility = System.Windows.Controls.ScrollBarVisibility.Auto,
+            Margin = new Thickness(0, 6, 0, 0),
+        };
+        box.Loaded += (_, _) => box.Focus();
+
+        var answer = SteamDialog.Show(
+            Strings.Play_InviteTitle,
+            new StackPanel { Width = 420, Children = { new TextBlock { Text = Strings.Play_InviteHint }, box } },
+            new SteamDialogChoice(Strings.Common_Save, SteamDialogButton.Green),
+            new SteamDialogChoice(Strings.Common_Cancel, SteamDialogButton.Grey));
+
+        return answer == 0 && box.Text.Trim() is { Length: > 0 } text ? text : null;
     }
 
     private static PlayServerEntry? AskServer()

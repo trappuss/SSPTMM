@@ -10270,10 +10270,46 @@
     <value>Версия: SPT {0}</value>
   </data>
   <data name="Play_FikaInviteHowFormat" xml:space="preserve">
-    <value>В SSPTMM: на странице игры «{0}» с этим адресом, затем «{1}», чтобы получить те же моды.</value>
+    <value>В SSPTMM: на странице игры «{0}» и вставить это сообщение. Сервер будет добавлен, а моды станут такими же.</value>
   </data>
   <data name="Play_FikaInviteCopied" xml:space="preserve">
     <value>Приглашение скопировано. Вставить его друзьям.</value>
+  </data>
+  <data name="Play_InviteJoin" xml:space="preserve">
+    <value>Войти по приглашению...</value>
+  </data>
+  <data name="Play_InviteJoinToolTip" xml:space="preserve">
+    <value>Вставить приглашение от хоста Fika: SSPTMM добавит сервер и сравнит его моды с твоими.</value>
+  </data>
+  <data name="Play_InviteTitle" xml:space="preserve">
+    <value>Вход по приглашению</value>
+  </data>
+  <data name="Play_InviteHint" xml:space="preserve">
+    <value>Вставить приглашение сюда:</value>
+  </data>
+  <data name="Play_InviteNoAddress" xml:space="preserve">
+    <value>В этом тексте не найден адрес сервера.</value>
+  </data>
+  <data name="Play_InviteTrying" xml:space="preserve">
+    <value>Поиск сервера...</value>
+  </data>
+  <data name="Play_InviteNotReachedFormat" xml:space="preserve">
+    <value>{0} добавлен, но пока не отвечает. Проверить, что сервер хоста запущен.</value>
+  </data>
+  <data name="Play_InviteSptDiffersFormat" xml:space="preserve">
+    <value>Приглашение для SPT {0}; эта установка - SPT {1}.</value>
+  </data>
+  <data name="Play_RemoteFikaMissingFormat" xml:space="preserve">
+    <value>На {0} работает Fika, а здесь Fika не установлена.</value>
+  </data>
+  <data name="Play_RemoteFikaVersionsFormat" xml:space="preserve">
+    <value>Fika: на сервере {0}, на этом ПК {1}.</value>
+  </data>
+  <data name="Play_FikaAddressHomeFormat" xml:space="preserve">
+    <value>{0} (та же сеть)</value>
+  </data>
+  <data name="Play_FikaAddressTailscaleFormat" xml:space="preserve">
+    <value>{0} (Tailscale)</value>
   </data>
   <data name="Play_FikaFirewallServerFormat" xml:space="preserve">
     <value>В брандмауэре Windows нет правила, пропускающего друзей к серверу (TCP {0}, SPT.Server.exe). Windows спрашивает при первом запуске сервера; если тогда было отказано, разрешить в «Безопасность Windows» &gt; «Брандмауэр и защита сети» &gt; «Разрешить работу с приложением через брандмауэр».</value>

@@ -12246,12 +12246,60 @@ No keeps this group under its old name.</value>
     <comment>Invite line when the Fika version is not known. {0}: SPT version.</comment>
   </data>
   <data name="Play_FikaInviteHowFormat" xml:space="preserve">
-    <value>With SSPTMM: on Play, "{0}" with this address, then "{1}" to get the same mods.</value>
-    <comment>Invite line. {0}: Play_RemoteAddServer; {1}: Play_RemoteCompareMods.</comment>
+    <value>With SSPTMM: on Play, "{0}" and paste this message. It adds the server and gets the same mods.</value>
+    <comment>Invite line. {0}: Play_InviteJoin.</comment>
   </data>
   <data name="Play_FikaInviteCopied" xml:space="preserve">
     <value>Invite copied. Paste it to friends.</value>
     <comment>Play status after Copy invite.</comment>
+  </data>
+  <data name="Play_InviteJoin" xml:space="preserve">
+    <value>Join from an invite...</value>
+    <comment>Play, the ... menu: add a server from the invite text a Fika host copied.</comment>
+  </data>
+  <data name="Play_InviteJoinToolTip" xml:space="preserve">
+    <value>Paste the invite a Fika host sent you: SSPTMM adds the server and compares its mods with yours.</value>
+    <comment>Tooltip of Play_InviteJoin.</comment>
+  </data>
+  <data name="Play_InviteTitle" xml:space="preserve">
+    <value>Join from an invite</value>
+    <comment>Title of the Join from an invite dialog.</comment>
+  </data>
+  <data name="Play_InviteHint" xml:space="preserve">
+    <value>Paste the invite here:</value>
+    <comment>Label over the dialog's text box.</comment>
+  </data>
+  <data name="Play_InviteNoAddress" xml:space="preserve">
+    <value>No server address was found in that text.</value>
+    <comment>Play status: the pasted text had no server address.</comment>
+  </data>
+  <data name="Play_InviteTrying" xml:space="preserve">
+    <value>Looking for the server...</value>
+    <comment>Play status while the invite's addresses are tried.</comment>
+  </data>
+  <data name="Play_InviteNotReachedFormat" xml:space="preserve">
+    <value>{0} was added, but it doesn't answer yet. Check that the host's server is running.</value>
+    <comment>Play status. {0}: the address added.</comment>
+  </data>
+  <data name="Play_InviteSptDiffersFormat" xml:space="preserve">
+    <value>The invite is for SPT {0}; this install is SPT {1}.</value>
+    <comment>Play status, added when the invite names another SPT version. {0}: the invite's; {1}: this install's.</comment>
+  </data>
+  <data name="Play_RemoteFikaMissingFormat" xml:space="preserve">
+    <value>{0} runs Fika, and Fika isn't installed here.</value>
+    <comment>Play, under another PC's server. {0}: the server.</comment>
+  </data>
+  <data name="Play_RemoteFikaVersionsFormat" xml:space="preserve">
+    <value>Fika: the server has {0}, this PC has {1}.</value>
+    <comment>Play, under another PC's server. {0}: the server's Fika server mod version; {1}: this PC's Fika plugin version.</comment>
+  </data>
+  <data name="Play_FikaAddressHomeFormat" xml:space="preserve">
+    <value>{0} (same network)</value>
+    <comment>An address in the copied invite. {0}: address:port.</comment>
+  </data>
+  <data name="Play_FikaAddressTailscaleFormat" xml:space="preserve">
+    <value>{0} (Tailscale)</value>
+    <comment>An address in the copied invite, on Tailscale (a product name). {0}: address:port.</comment>
   </data>
   <data name="Play_FikaFirewallServerFormat" xml:space="preserve">
     <value>Windows Firewall has no rule that lets friends reach the server (TCP {0}, SPT.Server.exe). Windows asks the first time the server starts; if that was refused, allow it under Windows Security &gt; Firewall &amp; network protection &gt; Allow an app through firewall.</value>

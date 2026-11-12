@@ -9832,10 +9832,46 @@ Mit Nein behält diese Gruppe ihren alten Namen.</value>
     <value>Version: SPT {0}</value>
   </data>
   <data name="Play_FikaInviteHowFormat" xml:space="preserve">
-    <value>Mit SSPTMM: unter Spielen "{0}" mit dieser Adresse, dann "{1}", um dieselben Mods zu bekommen.</value>
+    <value>Mit SSPTMM: unter Spielen "{0}" wählen und diese Nachricht einfügen. Das fügt den Server hinzu und holt dieselben Mods.</value>
   </data>
   <data name="Play_FikaInviteCopied" xml:space="preserve">
     <value>Einladung kopiert. Füge sie für Freunde ein.</value>
+  </data>
+  <data name="Play_InviteJoin" xml:space="preserve">
+    <value>Per Einladung beitreten...</value>
+  </data>
+  <data name="Play_InviteJoinToolTip" xml:space="preserve">
+    <value>Füge die Einladung eines Fika-Hosts ein: SSPTMM fügt den Server hinzu und vergleicht seine Mods mit deinen.</value>
+  </data>
+  <data name="Play_InviteTitle" xml:space="preserve">
+    <value>Per Einladung beitreten</value>
+  </data>
+  <data name="Play_InviteHint" xml:space="preserve">
+    <value>Einladung hier einfügen:</value>
+  </data>
+  <data name="Play_InviteNoAddress" xml:space="preserve">
+    <value>In diesem Text wurde keine Serveradresse gefunden.</value>
+  </data>
+  <data name="Play_InviteTrying" xml:space="preserve">
+    <value>Server wird gesucht...</value>
+  </data>
+  <data name="Play_InviteNotReachedFormat" xml:space="preserve">
+    <value>{0} wurde hinzugefügt, antwortet aber noch nicht. Prüfe, ob der Server des Hosts läuft.</value>
+  </data>
+  <data name="Play_InviteSptDiffersFormat" xml:space="preserve">
+    <value>Die Einladung gilt für SPT {0}; diese Installation ist SPT {1}.</value>
+  </data>
+  <data name="Play_RemoteFikaMissingFormat" xml:space="preserve">
+    <value>{0} nutzt Fika, und Fika ist hier nicht installiert.</value>
+  </data>
+  <data name="Play_RemoteFikaVersionsFormat" xml:space="preserve">
+    <value>Fika: Der Server hat {0}, dieser PC hat {1}.</value>
+  </data>
+  <data name="Play_FikaAddressHomeFormat" xml:space="preserve">
+    <value>{0} (gleiches Netzwerk)</value>
+  </data>
+  <data name="Play_FikaAddressTailscaleFormat" xml:space="preserve">
+    <value>{0} (Tailscale)</value>
   </data>
   <data name="Play_FikaFirewallServerFormat" xml:space="preserve">
     <value>Die Windows-Firewall hat keine Regel, die Freunde zum Server durchlässt (TCP {0}, SPT.Server.exe). Windows fragt beim ersten Start des Servers; wurde das abgelehnt, erlaube es unter Windows-Sicherheit &gt; Firewall- &amp; Netzwerkschutz &gt; Zugriff von App durch Firewall zulassen.</value>
