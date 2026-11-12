@@ -2832,6 +2832,14 @@ From another mod manager (trappuss: "research it and see if there's anything cou
     to `Data\broken_mod_search.json` before the first move and all turned back on at the end;
     a search cut short is put back at the next start (`RecoverAsync`), or from the page when the
     server still runs. Closing the app during a search stops the search instead.
+  - The search's starts are cut back out of the server's logs at the end (`ServerTrial.TrimLogs`:
+    each file to the length it had, new files deleted). Left in, the last of them - most mods off
+    - was the "last run" Diagnose logs read, and every other mod was reported as not running (seen
+    on a real install with 70 server mods).
+  - Diagnose logs has a card for SPT's own giving up (`LogFindingKind.ServerStopped`, the Critical
+    line from `SPTarkov.Server.Core`), with the error under it and the mod of the first stack
+    frame in a mod's code. The crash bar looks for that line, not any Critical one: a failed
+    request is Critical too and the server goes on.
   - Only server mods: the game half cannot be judged without someone playing, and turning game
     mods off changes what a profile can load.
   - Seen on screen, on a made-up install with a stand-in server that fails by its mod folders'

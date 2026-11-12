@@ -230,6 +230,30 @@ public class ForkBrokenModSearchTests : IDisposable
 
         Assert.Equal("SPTarkov.Server.Core", CrashSigns.ServerCrash(entries)!.Source);
         Assert.Null(CrashSigns.ServerCrash(entries.Take(1)));
+
+        // A request that failed is Critical too, and the server goes on.
+        Assert.Null(CrashSigns.ServerCrash(
+            [new(LogKind.Server, "spt.log", 3, null, "Critical", "SPTarkov.Server.Middleware.SptLoggerMiddleware", "Error handling request: /x", [])]));
+    }
+
+    [Fact]
+    public void What_a_search_logged_is_taken_back_out()
+    {
+        var install = Path.Combine(_dir, "SPT");
+        var logs = Path.Combine(install, "user", "logs", "spt");
+        Directory.CreateDirectory(logs);
+        File.WriteAllText(Path.Combine(install, "SPT.Server.exe"), "");
+        var log = Path.Combine(logs, "spt20261111.log");
+        File.WriteAllText(log, "[2026-11-11 10:00:00.000][Information][Server] the run before\n");
+
+        var before = ServerTrial.LogLengths(install);
+        File.AppendAllText(log, "[2026-11-11 11:00:00.000][Error][BadMod] from a search's start\n");
+        File.WriteAllText(Path.Combine(logs, "spt20261112.log"), "[2026-11-12 00:00:01.000][Error][BadMod] past midnight\n");
+
+        ServerTrial.TrimLogs(install, before);
+
+        Assert.Equal("[2026-11-11 10:00:00.000][Information][Server] the run before\n", File.ReadAllText(log));
+        Assert.False(File.Exists(Path.Combine(logs, "spt20261112.log")));
     }
 
     // ---- the session ---------------------------------------------------------------------------

@@ -97,6 +97,8 @@ public sealed class LogFindingRow
             LogFindingKind.ProfileTraderMissing => (Strings.Diagnose_Title_ProfileTraderMissing, T(Strings.Diagnose_Body_ProfileTraderMissing, Arg(f, 0))),
             LogFindingKind.RaidResultsLost => (Strings.Diagnose_Title_RaidResultsLost, T(Strings.Diagnose_Body_RaidResultsLost, Arg(f, 0))),
             LogFindingKind.PortInUse => (Strings.Diagnose_Title_PortInUse, T(Strings.Diagnose_Body_PortInUse, Arg(f, 0))),
+            LogFindingKind.ServerStopped => (Strings.Diagnose_Title_ServerStopped, // Fork (1.4.7)
+                T(Strings.Diagnose_Body_ServerStoppedFormat, Arg(f, 0)) + (f.Mod is null ? " " + Strings.Diagnose_Body_ServerStoppedNoMod : fromMod)),
             LogFindingKind.PluginMissingDependency => (Strings.Diagnose_Title_PluginMissingDependency, T(Strings.Diagnose_Body_PluginMissingDependency, Arg(f, 0), Arg(f, 1))),
             LogFindingKind.PluginIncompatible => (Strings.Diagnose_Title_PluginIncompatible, T(Strings.Diagnose_Body_PluginIncompatible, Arg(f, 0), Arg(f, 1))),
             LogFindingKind.PluginDependencyNotLoaded => (Strings.Diagnose_Title_PluginDependencyNotLoaded, T(Strings.Diagnose_Body_PluginDependencyNotLoaded, Arg(f, 0))),

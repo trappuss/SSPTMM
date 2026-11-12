@@ -167,6 +167,7 @@ public sealed partial class BrokenModFinder : LocalizedViewModel
         string? problem = null;
         var stopped = false;
         ProfileBackup? profiles = null;
+        Dictionary<string, long>? logs = null;
 
         try
         {
@@ -182,6 +183,7 @@ public sealed partial class BrokenModFinder : LocalizedViewModel
             else
             {
                 _store.Save(session);
+                logs = ServerTrial.LogLengths(install);
                 AppLog.Info("Search", $"searching {mods.Count} server mod(s) of {install}");
 
                 var progress = new Progress<BrokenModProgress>(p =>
@@ -226,7 +228,7 @@ public sealed partial class BrokenModFinder : LocalizedViewModel
         ProgressText = Strings.Search_PuttingBack;
         Progress = 100;
 
-        var back = await PutBackAsync(session, profiles == NoProfiles ? null : profiles);
+        var back = await PutBackAsync(session, profiles == NoProfiles ? null : profiles, logs);
 
         AppServices.DownloadQueue.IsPaused = queueWasPaused;
         _cancel = null;
@@ -292,7 +294,8 @@ public sealed partial class BrokenModFinder : LocalizedViewModel
 
     // Every mod of the session back on and, when the starts changed a profile, the profiles as
     // they were. The session's file goes only when every mod is back.
-    private async Task<PutBack> PutBackAsync(BrokenModSession session, ProfileBackup? profiles)
+    private async Task<PutBack> PutBackAsync(
+        BrokenModSession session, ProfileBackup? profiles, IReadOnlyDictionary<string, long>? logs = null)
     {
         var (problem, restored) = await Task.Run(async () =>
         {
@@ -302,6 +305,9 @@ public sealed partial class BrokenModFinder : LocalizedViewModel
 
                 var outcome = BrokenModSessionStore.PutBack(session);
                 if (outcome.Failed.Count > 0) return (Failures(outcome.Failed), false);
+
+                // The search's own starts are not the server's last run: out of its log again.
+                if (logs is not null) ServerTrial.TrimLogs(session.InstallPath, logs);
 
                 var changed = profiles is not null
                     && AppServices.ProfileBackups.BackupIfChanged(session.InstallPath, ProfileBackups.BeforeSearch) is not null;

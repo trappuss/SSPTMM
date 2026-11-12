@@ -129,6 +129,23 @@ public sealed class ForkLogDiagnosisTests : IDisposable
             failed.Quote);
     }
 
+    // Fork (1.4.7): seen on a 4.1.6 server whose mod threw while loading (2026-11-11).
+    [Fact]
+    public void The_server_giving_up_is_said_with_its_error_and_the_mod_whose_code_threw()
+    {
+        var found = Find(ServerLog(
+            "[2026-11-12 00:41:57.000][Critical][SPTarkov.Server.Core] The server has unexpectedly stopped, reach out to the support channel in our Discord server. Include a screenshot of this message and the surrounding error(s) above and below",
+            "Roulette is broken on purpose: turn it off to start the server.",
+            "   at Roulette.Server.BrokenOnPurpose.OnLoadAsync(CancellationToken cancellationToken)",
+            "   at SPTarkov.Server.Extensions.ProgramExtensions.RunPreSptLoadCallbacks(IServiceProvider serviceProvider, ILogger logger, CancellationToken cancellationToken)"));
+
+        var stopped = Assert.Single(found);
+        Assert.Equal(LogFindingKind.ServerStopped, stopped.Kind);
+        Assert.Equal(LogSeverity.Critical, stopped.Severity);
+        Assert.Same(Casino, stopped.Mod);
+        Assert.Equal(["Roulette is broken on purpose: turn it off to start the server."], stopped.Args);
+    }
+
     [Fact]
     public void Raid_results_the_server_could_not_read_are_said_with_the_type()
     {

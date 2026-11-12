@@ -24,6 +24,9 @@ public enum LogFindingKind
     /// <summary>The server couldn't start: its port is taken. Args: address.</summary>
     PortInUse,
 
+    /// <summary>Fork (1.4.7): the server gave up on an error. Args: the error's message.</summary>
+    ServerStopped,
+
     /// <summary>A plugin BepInEx didn't load for a missing dependency. Args: plugin "[Name Version]", what's missing.</summary>
     PluginMissingDependency,
 
@@ -239,6 +242,16 @@ public static partial class LogDiagnoser
             else if ((m = PortInUse().Match(entry.Message)).Success)
             {
                 found.Add(LogFindingKind.PortInUse, LogSeverity.Critical, null, [m.Groups["address"].Value], entry);
+                explained.Add(entry);
+            }
+            else if (CrashSigns.IsServerStopped(entry))
+            {
+                // Fork (1.4.7): the error and its stack are the lines under it; the first frame in
+                // a mod's code says whose it is.
+                var origin = Origin(entry.More, mods);
+                var error = entry.More.FirstOrDefault(l => !IsFrame(l))?.Trim() ?? string.Empty;
+                found.Add(LogFindingKind.ServerStopped, LogSeverity.Critical, origin, [error], entry,
+                    quote: Excerpt(entry, [.. entry.More], origin, mods));
                 explained.Add(entry);
             }
             else if ((m = RequestFailed().Match(entry.Message)).Success)

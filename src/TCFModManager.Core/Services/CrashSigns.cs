@@ -19,8 +19,18 @@ public static class CrashSigns
         return code is >= 0xC0000000 and <= 0xCFFFFFFF or >= 0xE0000000 and <= 0xEFFFFFFF;
     }
 
-    /// <summary>The line the server logs when it gives up - SPT logs "The server has unexpectedly
-    /// stopped" as Critical - or null when these entries have none.</summary>
-    public static LogEntry? ServerCrash(IEnumerable<LogEntry> entries) =>
-        entries.FirstOrDefault(e => e.Level is "Critical" or "Fatal");
+    //
+    // The line the server logs when it gives up, with the error under it - seen on a 4.1.6 server
+    // whose mod threw while loading:
+    //   [Critical][SPTarkov.Server.Core] The server has unexpectedly stopped, reach out to ...
+    // Told by where it comes from as well as what it says, since SPT words it in the PC's language.
+    // Not every Critical line: a request that fails is logged Critical too, and the server goes on.
+    //
+    public static bool IsServerStopped(LogEntry entry) =>
+        entry.Level is "Critical" or "Fatal"
+        && (entry.Source == "SPTarkov.Server.Core"
+            || entry.Message.StartsWith("The server has unexpectedly stopped", StringComparison.OrdinalIgnoreCase));
+
+    /// <summary>The first such line in these entries, or null.</summary>
+    public static LogEntry? ServerCrash(IEnumerable<LogEntry> entries) => entries.FirstOrDefault(IsServerStopped);
 }

@@ -156,6 +156,37 @@ public static partial class ServerTrial
         return errors;
     }
 
+    //
+    // Takes what was logged since <see cref="LogLengths"/> back out: each file cut back to the
+    // length it had, and a file that was not there deleted. For Find the broken mod, whose starts -
+    // with most mods off - would otherwise be the server's "last run" to Diagnose logs and to anyone
+    // reading the log. Only with the server stopped; a file that cannot be changed is left.
+    //
+    public static void TrimLogs(string installPath, IReadOnlyDictionary<string, long> before)
+    {
+        if (SptLaunchService.Describe(installPath, SptLaunchTarget.Server).IsRunning) return;
+
+        foreach (var file in LogFilesOf(installPath))
+        {
+            try
+            {
+                if (!before.TryGetValue(file.FullName, out var length))
+                {
+                    file.Delete();
+                }
+                else if (file.Length > length)
+                {
+                    using var stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Write, FileShare.Read);
+                    stream.SetLength(length);
+                }
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                AppLog.Warn("Search", $"couldn't take the search's lines out of {file.Name}: {ex.Message}");
+            }
+        }
+    }
+
     private static List<FileInfo> LogFilesOf(string installPath)
     {
         if (ServerLogs.Folder(installPath) is not { } folder) return [];

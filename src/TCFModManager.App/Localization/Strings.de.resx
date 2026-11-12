@@ -8474,6 +8474,15 @@ Wenn du sie entfernst - oder ausschaltest -, kann ein Profil zurückbleiben, das
   <data name="Diagnose_Body_PortInUse" xml:space="preserve">
     <value>Etwas belegt bereits {0} - meistens ein Server, der noch läuft. Stoppe ihn auf der Seite Spielen oder schließ das andere Programm.</value>
   </data>
+  <data name="Diagnose_Title_ServerStopped" xml:space="preserve">
+    <value>Der Server wurde wegen eines Fehlers beendet</value>
+  </data>
+  <data name="Diagnose_Body_ServerStoppedFormat" xml:space="preserve">
+    <value>SPT hat mit diesem Fehler aufgegeben: {0}</value>
+  </data>
+  <data name="Diagnose_Body_ServerStoppedNoMod" xml:space="preserve">
+    <value>Das Log sagt nicht, von welcher Mod er kam. „Die kaputte Mod finden“ oben kann sie finden.</value>
+  </data>
   <data name="Diagnose_Title_PluginMissingDependency" xml:space="preserve">
     <value>Ein Mod wurde nicht geladen: Etwas, das er braucht, fehlt</value>
   </data>

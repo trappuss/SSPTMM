@@ -8474,6 +8474,15 @@ Les retirer - ou les désactiver - peut laisser un profil que SPT ne chargera pa
   <data name="Diagnose_Body_PortInUse" xml:space="preserve">
     <value>Quelque chose utilise déjà {0} - le plus souvent un serveur encore en cours d'exécution. Arrêtez-le depuis la page Jouer, ou fermez l'autre programme.</value>
   </data>
+  <data name="Diagnose_Title_ServerStopped" xml:space="preserve">
+    <value>Le serveur s'est arrêté sur une erreur</value>
+  </data>
+  <data name="Diagnose_Body_ServerStoppedFormat" xml:space="preserve">
+    <value>SPT a abandonné avec cette erreur : {0}</value>
+  </data>
+  <data name="Diagnose_Body_ServerStoppedNoMod" xml:space="preserve">
+    <value>Le journal ne dit pas de quel mod elle vient. « Trouver le mod défectueux », ci-dessus, peut le trouver.</value>
+  </data>
   <data name="Diagnose_Title_PluginMissingDependency" xml:space="preserve">
     <value>Un mod ne s'est pas chargé : il lui manque quelque chose</value>
   </data>

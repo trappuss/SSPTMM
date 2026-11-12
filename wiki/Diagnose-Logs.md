@@ -39,6 +39,7 @@ press **Read the logs again**.
 | A profile wears clothing from a missing mod | A clothing mod was removed while a character wore its clothes. |
 | Raid results weren't saved | The game sent a value the server doesn't know (for example a skill) - usually a mod's game half is loaded but its server half (such as its prepatch in `user\patchers`) is not. |
 | The server couldn't start | Its port is in use - most often a server that is still running. |
+| The server stopped on an error | SPT gave up ("The server has unexpectedly stopped"). The card shows the error and, when the log shows whose code threw it, the mod. When it doesn't, **Find the broken mod** can find it. |
 | A mod didn't load: something it needs is missing | BepInEx skipped a plugin: a mod it needs isn't installed or is too old. |
 | A mod didn't load: it doesn't work with another | BepInEx skipped a plugin because another installed one is incompatible with it. |
 | A mod didn't load: one it needs didn't | A knock-on: fix the mod it needs first. |
@@ -89,6 +90,9 @@ What it does and doesn't touch:
 - If SSPTMM is closed or crashes part way, the next start turns the mods back on and says so. If the
   server is still running then, the page shows **Turn them back on**, which stops it first.
 - Errors the server logs even with every mod off (a profile problem, for example) are not looked for.
+- What the test starts wrote to the server's log is taken out again when the search ends, so the log
+  still ends with your own last run and the cards above read that. (Not after a search that was cut
+  short: start the server once and read the logs again.)
 
 ## Copy a report for help
 

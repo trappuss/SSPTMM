@@ -8039,6 +8039,15 @@ GitHub 上的文件未经 sp-mod.com 检查，请只安装你信任的作者的�
   <data name="Diagnose_Body_PortInUse" xml:space="preserve">
     <value>{0} 已被占用，最常见的原因是有服务端仍在运行。请在“开始游戏”页面停止它，或关闭占用的程序。</value>
   </data>
+  <data name="Diagnose_Title_ServerStopped" xml:space="preserve">
+    <value>服务端因错误而停止</value>
+  </data>
+  <data name="Diagnose_Body_ServerStoppedFormat" xml:space="preserve">
+    <value>SPT 因以下错误而终止：{0}</value>
+  </data>
+  <data name="Diagnose_Body_ServerStoppedNoMod" xml:space="preserve">
+    <value>日志没有说明它来自哪个模组。上方的“找出有问题的模组”可以找到它。</value>
+  </data>
   <data name="Diagnose_Title_PluginMissingDependency" xml:space="preserve">
     <value>有模组未加载：缺少它需要的内容</value>
   </data>

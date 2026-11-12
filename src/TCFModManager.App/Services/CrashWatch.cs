@@ -118,7 +118,9 @@ public sealed partial class CrashWatch : LocalizedViewModel
         }
         else if (now.Any(file => file.Value != _logs.GetValueOrDefault(file.Key)))
         {
-            serverLine = CrashSigns.ServerCrash(ServerTrial.ErrorsSince(install, _logs))?.Message;
+            // A file that got shorter (Find the broken mod takes its own lines back out) has nothing new.
+            var since = now.ToDictionary(file => file.Key, file => Math.Min(file.Value, _logs.GetValueOrDefault(file.Key)), StringComparer.OrdinalIgnoreCase);
+            serverLine = CrashSigns.ServerCrash(ServerTrial.ErrorsSince(install, since))?.Message;
             _logs = now;
         }
 

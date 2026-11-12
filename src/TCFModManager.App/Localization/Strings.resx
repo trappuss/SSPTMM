@@ -10496,6 +10496,18 @@ Removing them - or turning them off - can leave a profile SPT won't load. If tha
     <value>Something is already using {0} - most often a server that is still running. Stop it from the Play page, or close the other program.</value>
     <comment>Diagnose logs finding. {0} address:port.</comment>
   </data>
+  <data name="Diagnose_Title_ServerStopped" xml:space="preserve">
+    <value>The server stopped on an error</value>
+    <comment>Diagnose logs card title: the server gave up on an error.</comment>
+  </data>
+  <data name="Diagnose_Body_ServerStoppedFormat" xml:space="preserve">
+    <value>SPT gave up with this error: {0}</value>
+    <comment>Card text. {0}: the error's own message, as logged.</comment>
+  </data>
+  <data name="Diagnose_Body_ServerStoppedNoMod" xml:space="preserve">
+    <value>The log doesn't say which mod it came from. Find the broken mod, above, can find it.</value>
+    <comment>Added to that card when the error could not be traced to a mod.</comment>
+  </data>
   <data name="Diagnose_Title_PluginMissingDependency" xml:space="preserve">
     <value>A mod didn't load: something it needs is missing</value>
     <comment>Diagnose logs finding</comment>

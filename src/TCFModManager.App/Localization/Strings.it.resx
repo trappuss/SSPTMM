@@ -8474,6 +8474,15 @@ Rimuoverli - o disattivarli - può lasciare un profilo che SPT non carica. Se su
   <data name="Diagnose_Body_PortInUse" xml:space="preserve">
     <value>Qualcosa sta già usando {0} - il più delle volte un server ancora in esecuzione. Fermalo dalla pagina Gioca, o chiudi l'altro programma.</value>
   </data>
+  <data name="Diagnose_Title_ServerStopped" xml:space="preserve">
+    <value>Il server si è arrestato per un errore</value>
+  </data>
+  <data name="Diagnose_Body_ServerStoppedFormat" xml:space="preserve">
+    <value>SPT si è fermato con questo errore: {0}</value>
+  </data>
+  <data name="Diagnose_Body_ServerStoppedNoMod" xml:space="preserve">
+    <value>Il log non dice da quale mod proviene. «Trova il mod difettoso», qui sopra, può trovarlo.</value>
+  </data>
   <data name="Diagnose_Title_PluginMissingDependency" xml:space="preserve">
     <value>Un mod non si è caricato: manca qualcosa che gli serve</value>
   </data>

@@ -2773,6 +2773,9 @@ internal static class Strings
     internal static string Diagnose_Body_RaidResultsLost => LocalizationService.Get("Diagnose_Body_RaidResultsLost");
     internal static string Diagnose_Title_PortInUse => LocalizationService.Get("Diagnose_Title_PortInUse");
     internal static string Diagnose_Body_PortInUse => LocalizationService.Get("Diagnose_Body_PortInUse");
+    internal static string Diagnose_Title_ServerStopped => LocalizationService.Get("Diagnose_Title_ServerStopped");
+    internal static string Diagnose_Body_ServerStoppedFormat => LocalizationService.Get("Diagnose_Body_ServerStoppedFormat");
+    internal static string Diagnose_Body_ServerStoppedNoMod => LocalizationService.Get("Diagnose_Body_ServerStoppedNoMod");
     internal static string Diagnose_Title_PluginMissingDependency => LocalizationService.Get("Diagnose_Title_PluginMissingDependency");
     internal static string Diagnose_Body_PluginMissingDependency => LocalizationService.Get("Diagnose_Body_PluginMissingDependency");
     internal static string Diagnose_Title_PluginIncompatible => LocalizationService.Get("Diagnose_Title_PluginIncompatible");

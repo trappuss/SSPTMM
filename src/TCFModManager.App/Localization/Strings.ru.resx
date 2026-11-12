@@ -8888,6 +8888,15 @@
   <data name="Diagnose_Body_PortInUse" xml:space="preserve">
     <value>{0} уже что-то использует - чаще всего это ещё работающий сервер. Остановите его на странице «Играть» или закройте другую программу.</value>
   </data>
+  <data name="Diagnose_Title_ServerStopped" xml:space="preserve">
+    <value>Сервер остановился из-за ошибки</value>
+  </data>
+  <data name="Diagnose_Body_ServerStoppedFormat" xml:space="preserve">
+    <value>SPT завершил работу с этой ошибкой: {0}</value>
+  </data>
+  <data name="Diagnose_Body_ServerStoppedNoMod" xml:space="preserve">
+    <value>В логе не сказано, от какого мода она идёт. «Найти сломанный мод» выше может его найти.</value>
+  </data>
   <data name="Diagnose_Title_PluginMissingDependency" xml:space="preserve">
     <value>Мод не загрузился: не хватает того, что ему нужно</value>
   </data>
