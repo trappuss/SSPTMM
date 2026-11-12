@@ -103,8 +103,13 @@ With another PC's server picked:
 - Play doesn't start a server here. It checks that one answers (a few tries), and if it doesn't,
   says to check the address, that its server is running and that its port is open to you.
 - The profiles are the ones on that server. **New profile**, **Delete** and **Wipe** act on
-  them, and keep no copy here - the profiles are on the other PC. **Reload profiles from the
-  server** on **...** asks again.
+  them - the profiles are on the other PC. **Reload profiles from the server** on **...** asks
+  again.
+- On a **Fika** server, SSPTMM keeps **copies of your profile** on this PC: one when Play is
+  opened and one a few seconds after the game closes, when it changed - the newest ten.
+  **Open this server's profile copies** on **...** shows them. A copy is an ordinary SPT profile
+  file: in an install's `user\profiles` folder it is that character. Nothing is sent back to the
+  server from here. (A server without Fika has no way to hand a profile over.)
 - The game files are still this PC's: the clean-up, SPT's game patches and the mods' bundles
   are done here, as SPT's launcher does. Your SPT version and mods have to match the server's -
   for Fika, the host's Fika version too.

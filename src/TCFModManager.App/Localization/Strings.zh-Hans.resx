@@ -9420,6 +9420,18 @@ GitHub 上的文件未经 sp-mod.com 检查，请只安装你信任的作者的�
   <data name="Play_RemoteFikaVersionsFormat" xml:space="preserve">
     <value>Fika：服务端为 {0}，此电脑为 {1}。</value>
   </data>
+  <data name="Play_RemoteProfileCopies" xml:space="preserve">
+    <value>打开此服务端的存档副本</value>
+  </data>
+  <data name="Play_RemoteProfileCopiesToolTip" xml:space="preserve">
+    <value>在 Fika 服务端上，SSPTMM 会在这里保留你的存档副本：打开开始游戏页面时一份，游戏关闭后一份，保留最新的十份。存档本身仍在另一台电脑上。</value>
+  </data>
+  <data name="Play_HeadlessWithServer" xml:space="preserve">
+    <value>随服务端一起启动</value>
+  </data>
+  <data name="Play_HeadlessWithServerToolTip" xml:space="preserve">
+    <value>按下启动服务端后，服务端就绪时也会启动 headless 客户端。</value>
+  </data>
   <data name="Play_FikaAddressHomeFormat" xml:space="preserve">
     <value>{0}（同一网络）</value>
   </data>

@@ -211,6 +211,8 @@ public partial class PlayViewModel
             // Fork (1.4.7): and its mods against the ones here, while it is answering.
             if (AppServices.ModCache.AllMods.Count > 0 && SelectedPlayServer is { } picked)
                 await CheckServerModsAsync(api, picked, address, ct);
+
+            await CopyRemoteProfileAsync(api, address, ct);
         });
     }
 
@@ -322,10 +324,60 @@ public partial class PlayViewModel
         {
             using var api = created;
             await CheckServerModsAsync(api, server, address, CancellationToken.None);
+            await CopyRemoteProfileAsync(api, address, CancellationToken.None);
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or System.Text.Json.JsonException or IOException)
         {
             AppLog.Debug("DirectLaunch", $"couldn't compare mods with {address}: {ex.Message}");
+        }
+    }
+
+    //
+    // Fork (1.4.7): the picked profile, copied here from a Fika server (RemoteProfileCopies) - when
+    // the server's profiles are read, when Play is shown, and a little after the game closes. Said
+    // nowhere: a server without Fika has nothing to give, and that is not news.
+    //
+    private async Task CopyRemoteProfileAsync(SptLauncherApi api, string address, CancellationToken ct)
+    {
+        if (SelectedProfile?.Profile.ProfileId is not { Length: > 0 } id) return;
+
+        try
+        {
+            if (await api.FikaProfileAsync(id, ct) is not { } json) return;
+
+            var path = await Task.Run(() => AppServices.RemoteProfiles.Save(address, id, json, DateTimeOffset.Now), ct);
+            if (path is not null) AppLog.Info("DirectLaunch", $"kept a copy of profile {id} from {address}: {path}");
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or IOException or UnauthorizedAccessException)
+        {
+            AppLog.Debug("DirectLaunch", $"couldn't copy the profile from {address}: {ex.Message}");
+        }
+    }
+
+    // The game has closed on another PC's server: what the raid left in the profile, once it is saved.
+    private async Task CopyRemoteProfileAfterGameAsync()
+    {
+        await Task.Delay(TimeSpan.FromSeconds(5)); // HUNCH: for the server to have written it
+        if (SelectedPlayServer?.Address is not { } address || CreateApi() is not { } created) return;
+
+        using var api = created;
+        await CopyRemoteProfileAsync(api, address, CancellationToken.None);
+    }
+
+    [RelayCommand]
+    private void OpenRemoteProfileCopies()
+    {
+        if (SelectedPlayServer?.Address is not { } address) return;
+
+        var folder = AppServices.RemoteProfiles.FolderFor(address);
+        try
+        {
+            Directory.CreateDirectory(folder);
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("explorer.exe", "\"" + folder + "\"") { UseShellExecute = true })?.Dispose();
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.ComponentModel.Win32Exception or InvalidOperationException)
+        {
+            AppLog.Warn("DirectLaunch", $"couldn't open {folder}: {ex.Message}");
         }
     }
 

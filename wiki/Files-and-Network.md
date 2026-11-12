@@ -39,6 +39,7 @@ GitHub (the repository, releases, this wiki, Issues), and links you click in a d
 | `Data\installed-mods.json` | What SSPTMM installed, and every file it placed |
 | `Data\mod_cache.json`, `addon_cache.json`, `spt_versions.json`, `collections_index.json`, `dependency_flags.json` | Cached sp-mod.com data |
 | `Data\mod_presets.json` | Your presets, per SPT install, and how the mods were before the last one was applied |
+| `Data\ProfileBackups\from-servers\<server>\` | Copies of your profile from a Fika server you play on, the newest ten of each |
 | `Data\server_last_up.json` | When each install's server was last seen up, so **Find the broken mod** can try the mods changed since then first |
 | `Data\broken_mod_result.json` | How the last **Find the broken mod** search ended, until **Done** clears it |
 | `Data\broken_mod_search.json` | Only while **Find the broken mod** runs: the server mods it switches, so they can be turned back on if it is cut short |

@@ -806,6 +806,12 @@
                         Icon="{ui:SymbolIcon ArrowSync24}"
                         ToolTip="{loc:Str Play_RestartHeadlessToolTip}"
                         Command="{Binding AskRestartHeadlessCommand}" />
+                    <CheckBox
+                        Margin="12,0,0,0"
+                        VerticalAlignment="Center"
+                        Content="{loc:Str Play_HeadlessWithServer}"
+                        ToolTip="{loc:Str Play_HeadlessWithServerToolTip}"
+                        IsChecked="{Binding StartHeadlessWithServer}" />
                     <TextBlock
                         VerticalAlignment="Center"
                         Margin="12,0,0,0"

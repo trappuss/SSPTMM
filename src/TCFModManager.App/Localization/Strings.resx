@@ -12293,6 +12293,22 @@ No keeps this group under its old name.</value>
     <value>Fika: the server has {0}, this PC has {1}.</value>
     <comment>Play, under another PC's server. {0}: the server's Fika server mod version; {1}: this PC's Fika plugin version.</comment>
   </data>
+  <data name="Play_RemoteProfileCopies" xml:space="preserve">
+    <value>Open this server's profile copies</value>
+    <comment>Play, the ... menu with another PC's server picked: opens the folder of profile copies.</comment>
+  </data>
+  <data name="Play_RemoteProfileCopiesToolTip" xml:space="preserve">
+    <value>On a Fika server, SSPTMM keeps copies of your profile here: one when Play is opened and one after the game closes, the newest ten. The profile itself stays on the other PC.</value>
+    <comment>Tooltip of Play_RemoteProfileCopies.</comment>
+  </data>
+  <data name="Play_HeadlessWithServer" xml:space="preserve">
+    <value>Start with the server</value>
+    <comment>Play, the headless card: tick box.</comment>
+  </data>
+  <data name="Play_HeadlessWithServerToolTip" xml:space="preserve">
+    <value>When Start server is pressed, the headless client is started too, once the server is up.</value>
+    <comment>Tooltip of Play_HeadlessWithServer.</comment>
+  </data>
   <data name="Play_FikaAddressHomeFormat" xml:space="preserve">
     <value>{0} (same network)</value>
     <comment>An address in the copied invite. {0}: address:port.</comment>

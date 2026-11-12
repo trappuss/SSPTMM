@@ -3236,6 +3236,10 @@ internal static class Strings
     internal static string Play_InviteSptDiffersFormat => LocalizationService.Get("Play_InviteSptDiffersFormat");
     internal static string Play_RemoteFikaMissingFormat => LocalizationService.Get("Play_RemoteFikaMissingFormat");
     internal static string Play_RemoteFikaVersionsFormat => LocalizationService.Get("Play_RemoteFikaVersionsFormat");
+    internal static string Play_RemoteProfileCopies => LocalizationService.Get("Play_RemoteProfileCopies");
+    internal static string Play_RemoteProfileCopiesToolTip => LocalizationService.Get("Play_RemoteProfileCopiesToolTip");
+    internal static string Play_HeadlessWithServer => LocalizationService.Get("Play_HeadlessWithServer");
+    internal static string Play_HeadlessWithServerToolTip => LocalizationService.Get("Play_HeadlessWithServerToolTip");
     internal static string Play_FikaAddressHomeFormat => LocalizationService.Get("Play_FikaAddressHomeFormat");
     internal static string Play_FikaAddressTailscaleFormat => LocalizationService.Get("Play_FikaAddressTailscaleFormat");
     internal static string Play_FikaFirewallServerFormat => LocalizationService.Get("Play_FikaFirewallServerFormat");

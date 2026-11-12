@@ -9867,6 +9867,18 @@ Mit Nein behält diese Gruppe ihren alten Namen.</value>
   <data name="Play_RemoteFikaVersionsFormat" xml:space="preserve">
     <value>Fika: Der Server hat {0}, dieser PC hat {1}.</value>
   </data>
+  <data name="Play_RemoteProfileCopies" xml:space="preserve">
+    <value>Profilkopien dieses Servers öffnen</value>
+  </data>
+  <data name="Play_RemoteProfileCopiesToolTip" xml:space="preserve">
+    <value>Auf einem Fika-Server bewahrt SSPTMM hier Kopien deines Profils auf: eine beim Öffnen von Spielen und eine nach dem Schließen des Spiels, die neuesten zehn. Das Profil selbst bleibt auf dem anderen PC.</value>
+  </data>
+  <data name="Play_HeadlessWithServer" xml:space="preserve">
+    <value>Mit dem Server starten</value>
+  </data>
+  <data name="Play_HeadlessWithServerToolTip" xml:space="preserve">
+    <value>Wenn Server starten gedrückt wird, startet auch der Headless-Client, sobald der Server läuft.</value>
+  </data>
   <data name="Play_FikaAddressHomeFormat" xml:space="preserve">
     <value>{0} (gleiches Netzwerk)</value>
   </data>

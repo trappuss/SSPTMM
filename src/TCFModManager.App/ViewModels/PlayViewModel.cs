@@ -348,6 +348,7 @@ public partial class PlayViewModel : LocalizedViewModel
             installPath, SptLaunchTarget.Headless, settings.HeadlessLauncherPath);
 
         HidesServerWindow = settings.HideServerWindow;
+        RefreshHeadlessSetting(settings); // Fork (1.4.7)
 
         var roles = settings.Roles;
         PlaysHere = roles.HasFlag(InstallRoles.Player);
@@ -372,6 +373,10 @@ public partial class PlayViewModel : LocalizedViewModel
         if (!HasError && settings.HideServerWindow) ShowServerLog = true;
 
         if (HasError) return;
+
+        // Fork (1.4.7): the headless client with it, when its card says so.
+        if (settings.StartHeadlessWithServer && Headless is { CanLaunch: true, IsRunning: false })
+            _ = StartHeadlessWhenServerIsUpAsync();
 
         // Fork: not when Play starts the game itself - the SPT launcher is what that replaces.
         var openLauncher = settings.StartLauncherAfterServer && !IsDirectLaunchOn && Client is { CanLaunch: true };

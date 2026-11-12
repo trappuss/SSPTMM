@@ -10305,6 +10305,18 @@
   <data name="Play_RemoteFikaVersionsFormat" xml:space="preserve">
     <value>Fika: на сервере {0}, на этом ПК {1}.</value>
   </data>
+  <data name="Play_RemoteProfileCopies" xml:space="preserve">
+    <value>Открыть копии профиля с этого сервера</value>
+  </data>
+  <data name="Play_RemoteProfileCopiesToolTip" xml:space="preserve">
+    <value>На сервере Fika SSPTMM хранит здесь копии профиля: одну при открытии страницы игры и одну после закрытия игры, десять последних. Сам профиль остаётся на другом ПК.</value>
+  </data>
+  <data name="Play_HeadlessWithServer" xml:space="preserve">
+    <value>Запускать вместе с сервером</value>
+  </data>
+  <data name="Play_HeadlessWithServerToolTip" xml:space="preserve">
+    <value>При нажатии «Запустить сервер» headless-клиент тоже запускается, как только сервер поднимется.</value>
+  </data>
   <data name="Play_FikaAddressHomeFormat" xml:space="preserve">
     <value>{0} (та же сеть)</value>
   </data>

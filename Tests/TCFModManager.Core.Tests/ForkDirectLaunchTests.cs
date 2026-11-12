@@ -50,6 +50,8 @@ public class ForkDirectLaunchTests : IDisposable
         public bool WipeAllowed = true;
         public bool Invalid;
         public object? Mods;
+        public object? FikaProfile;
+        public List<string> Cookies = [];
         public List<SptBundleEntry> Bundles = [];
         public Dictionary<string, byte[]> BundleFiles = [];
         public List<(string Method, string Path, string? Body)> Calls = [];
@@ -59,6 +61,7 @@ public class ForkDirectLaunchTests : IDisposable
             var path = request.RequestUri!.AbsolutePath;
             string? body = request.Content is null ? null : SptLauncherApi.Decompress(await request.Content.ReadAsByteArrayAsync(ct));
             lock (Calls) Calls.Add((request.Method.Method, Uri.UnescapeDataString(path), body));
+            if (request.Headers.TryGetValues("Cookie", out var cookies)) lock (Cookies) Cookies.AddRange(cookies);
 
             if (path.StartsWith(SptLauncherApi.BundleFilePath))
             {
@@ -76,6 +79,7 @@ public class ForkDirectLaunchTests : IDisposable
                 SptLauncherApi.WipePath => new { Response = WipeAllowed, Profiles = Array.Empty<object>() },
                 SptLauncherApi.BundlesPath => Bundles,
                 SptLauncherApi.ModsPath => Mods,
+                SptLauncherApi.FikaProfilePath => FikaProfile,
                 SptLauncherApi.ProfilesPath => new
                 {
                     Response = new[] { new { username = "trap", nickname = "Trap", side = "Usec", currlvl = 64, profileId = "6abee519842869498c34024b", edition = "SPT Developer", wipe = false, invalidOrUnloadableProfile = Invalid } },
@@ -116,6 +120,46 @@ public class ForkDirectLaunchTests : IDisposable
         // A server that does not know the question has none to say.
         using var old = new SptLauncherApi("127.0.0.1:6969", new FakeServer());
         Assert.Empty(await old.ModsAsync());
+    }
+
+    [Fact]
+    public async Task A_fika_server_hands_over_the_profile_asked_for_by_its_id()
+    {
+        var server = new FakeServer { FikaProfile = new { profile = new { info = new { id = "6abee519842869498c34024b" } }, modData = new { } } };
+        using var api = new SptLauncherApi("203.0.113.7:6969", server);
+
+        var json = await api.FikaProfileAsync("6abee519842869498c34024b");
+
+        Assert.Equal("{\"info\":{\"id\":\"6abee519842869498c34024b\"}}", json);
+        Assert.Equal(["PHPSESSID=6abee519842869498c34024b"], server.Cookies);
+
+        // No Fika there; an id that is not one is not sent at all.
+        using var plain = new SptLauncherApi("203.0.113.7:6969", new FakeServer());
+        Assert.Null(await plain.FikaProfileAsync("6abee519842869498c34024b"));
+        Assert.Null(await api.FikaProfileAsync("../../etc"));
+        Assert.Single(server.Cookies);
+    }
+
+    [Fact]
+    public void Copies_of_a_remote_profile_are_kept_when_it_changed_and_only_the_newest()
+    {
+        var copies = new RemoteProfileCopies(Path.Combine(_root, "copies"), keep: 2);
+        var at = new DateTimeOffset(2026, 11, 11, 20, 0, 0, TimeSpan.Zero);
+        const string id = "6abee519842869498c34024b";
+
+        var first = copies.Save("203.0.113.7:6969", id, "{\"level\":1}", at);
+        Assert.NotNull(first);
+        Assert.StartsWith(copies.FolderFor("203.0.113.7:6969"), first);
+        Assert.DoesNotContain(':', Path.GetFileName(Path.GetDirectoryName(first)!));
+
+        Assert.Null(copies.Save("203.0.113.7:6969", id, "{\"level\":1}", at.AddMinutes(1))); // the same
+        Assert.NotNull(copies.Save("203.0.113.7:6969", id, "{\"level\":2}", at.AddMinutes(2)));
+        Assert.NotNull(copies.Save("203.0.113.7:6969", id, "{\"level\":3}", at.AddMinutes(3)));
+
+        var kept = Directory.GetFiles(copies.FolderFor("203.0.113.7:6969")).Order().ToList();
+        Assert.Equal(2, kept.Count);
+        Assert.Equal("{\"level\":3}", File.ReadAllText(kept[^1]));
+        Assert.False(File.Exists(first));
     }
 
     [Fact]

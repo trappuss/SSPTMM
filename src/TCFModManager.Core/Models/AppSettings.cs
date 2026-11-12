@@ -112,6 +112,9 @@ public sealed class AppSettings
     //
     public bool HideServerWindow { get; set; }
 
+    // Fork (1.4.7): Start server also starts the Fika headless client, once the server is up.
+    public bool StartHeadlessWithServer { get; set; }
+
     //
     // Fork (SSPTMM 1.2.0): whether SSPTMM may ask GitHub for a newer release of itself (and
     // sp-mod.com for a newer Server Map mod, where that is in use) each time it starts. Null until

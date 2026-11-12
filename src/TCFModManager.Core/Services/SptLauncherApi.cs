@@ -34,6 +34,7 @@ public sealed class SptLauncherApi : IDisposable
     public const string RemovePath = "/launcher/v2/remove";
     public const string VersionPath = "/launcher/v2/version";
     public const string ModsPath = "/launcher/v2/mods"; // Fork (1.4.7)
+    public const string FikaProfilePath = "/fika/profile/download"; // Fork (1.4.7): Fika's server mod
     public const string ProfilesPath = "/launcher/v2/profiles";
     public const string ProfilePath = "/launcher/v2/profile";
     public const string WipePath = "/launcher/v2/wipe";
@@ -245,6 +246,36 @@ public sealed class SptLauncherApi : IDisposable
         catch (JsonException)
         {
             return [];
+        }
+    }
+
+    //
+    // Fork (1.4.7): a profile as a Fika server hands it to its owner (Fika's ClientService
+    // .GetProfileBySessionID, read from Fika's source: {"profile": ..., "modData": ...}, asked with
+    // the profile's id as the session). The profile's own JSON, or null - no Fika there, no such
+    // profile, or an id that is not one.
+    //
+    public async Task<string?> FikaProfileAsync(string profileId, CancellationToken ct = default)
+    {
+        if (profileId.Length != 24 || !profileId.All(Uri.IsHexDigit)) return null;
+
+        using var request = new HttpRequestMessage(HttpMethod.Get, FikaProfilePath);
+        request.Headers.TryAddWithoutValidation("Cookie", "PHPSESSID=" + profileId);
+
+        using var response = await _http.SendAsync(request, ct).ConfigureAwait(false);
+        if (!response.IsSuccessStatusCode) return null;
+
+        try
+        {
+            using var doc = JsonDocument.Parse(Decompress(await response.Content.ReadAsByteArrayAsync(ct).ConfigureAwait(false)));
+            return doc.RootElement.ValueKind == JsonValueKind.Object
+                && doc.RootElement.TryGetProperty("profile", out var profile) && profile.ValueKind == JsonValueKind.Object
+                ? profile.GetRawText()
+                : null;
+        }
+        catch (JsonException)
+        {
+            return null;
         }
     }
 

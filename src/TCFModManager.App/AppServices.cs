@@ -34,6 +34,9 @@ internal static class AppServices
     // Copies of the SPT profiles, taken before the app changes the install - see ProfileBackups.
     public static ProfileBackups ProfileBackups { get; } = new();
 
+    // Fork (1.4.7): copies of a profile kept on another PC's (Fika) server.
+    public static RemoteProfileCopies RemoteProfiles { get; } = new();
+
     // Places (and removes) a mod's files in the SPT install.
     public static ModInstallService ModInstall { get; } = new(Downloads, InstallManifest, profileBackups: ProfileBackups);
 

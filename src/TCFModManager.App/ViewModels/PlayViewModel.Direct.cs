@@ -120,6 +120,7 @@ public partial class PlayViewModel
     {
         OnPropertyChanged(nameof(CanPlay));
         PlayCommand.NotifyCanExecuteChanged();
+        if (!value && IsRemoteServer) _ = CopyRemoteProfileAfterGameAsync(); // Fork (1.4.7)
         if (value || IsPlaying) return;
 
         // The game has gone: "Playing as ..." no longer holds, and the window comes back if Play hid it.

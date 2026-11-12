@@ -2895,6 +2895,13 @@ From another mod manager (trappuss: "research it and see if there's anything cou
     plugin (com.fika.core) are versioned apart - 2.4.2 and 2.4.6 on Fika's main branch, the plugin
     asking for a server newer than 2.4.1 - so equal numbers are not the rule. Fika's server mod is
     kept out of the collection.
+  - A remote profile is copied here (`SptLauncherApi.FikaProfileAsync`, `RemoteProfileCopies`):
+    Fika's `/fika/profile/download`, asked with the profile id as `PHPSESSID` - how SPT's
+    `HttpServer` reads a session - and answered `{"profile": ..., "modData": ...}`. Read from
+    Fika's and SPT's code; no Fika server has answered it here. Mod data is not kept.
+  - "Start with the server" (`PlayViewModel.Headless`): Start server waits for the port as Find
+    the broken mod does and then starts the headless client, once. It is not brought back when
+    it goes down later.
   - A Fika host's firewall (`FirewallRules`, read through `HNetCfg.FwPolicy2`, nothing written):
     TCP on Fika's port to the server's exe and UDP 25565 to the game, decided as Windows does -
     a block rule wins, no rule refuses, a firewall that is off lets everything in. Read off the
@@ -2934,7 +2941,7 @@ From another mod manager (trappuss: "research it and see if there's anything cou
   as buttons, and the GitHub chip's shades (#C6D4DF at 20% and 33%). For Find the broken mod: five
   minutes for a server to come up, three seconds after its port opens for mods to finish logging,
   twenty seconds for its process to appear or go, 200 ms between looks, that a start still
-  to come takes the average of those done, that a changed mod shows in its folder's top level, UDP 25565 as the raid's port (Fika's default; the game's setting is not read), and a minute between reads of the firewall. For the crash bar: that the game leaves
+  to come takes the average of those done, that a changed mod shows in its folder's top level, UDP 25565 as the raid's port (Fika's default; the game's setting is not read), a minute between reads of the firewall, and five seconds after the game closes before a remote profile is copied. For the crash bar: that the game leaves
   no fault code when it quits by itself (not seen with the real game), three seconds between
   looks, and thirty seconds after the app closes the game.
 

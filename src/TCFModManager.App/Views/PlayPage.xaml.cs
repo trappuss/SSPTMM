@@ -114,6 +114,12 @@ public partial class PlayPage : Page
                 });
                 menu.Items.Add(new MenuItem // Fork (1.4.7)
                 {
+                    Header = Strings.Play_RemoteProfileCopies,
+                    ToolTip = Strings.Play_RemoteProfileCopiesToolTip,
+                    Command = vm.OpenRemoteProfileCopiesCommand,
+                });
+                menu.Items.Add(new MenuItem // Fork (1.4.7)
+                {
                     Header = Strings.Play_RemoteCompareMods,
                     ToolTip = Strings.Play_RemoteCompareModsToolTip,
                     Command = vm.CompareServerModsCommand,
