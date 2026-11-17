@@ -8056,6 +8056,9 @@ GitHub 上的文件未经 sp-mod.com 检查，请只安装你信任的作者的�
   <data name="Diagnose_Body_GameUnknownValueNoModFormat" xml:space="preserve">
     <value>很可能是某个扩展 {0} 的模组已被移除或停用，而存档里仍有它添加的内容，或者它的游戏端部分没有加载。</value>
   </data>
+  <data name="Installed_DisabledAddsValuesFormat" xml:space="preserve">
+    <value>{0} 向服务端添加了自己的值（例如技能）。含有这些值的存档在重新启用该模组之前无法在游戏中打开。</value>
+  </data>
   <data name="Diagnose_Title_PluginMissingDependency" xml:space="preserve">
     <value>有模组未加载：缺少它需要的内容</value>
   </data>

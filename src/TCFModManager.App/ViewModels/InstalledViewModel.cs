@@ -2451,6 +2451,24 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
             : Strings.Installed_EnabledCount(targets.Count);
         if (outcome.Failed.Count > 0) message = Sentences(message, DescribeFailures(outcome.Failed));
 
+        // Fork (1.4.8): a server mod's folder in user\patchers stays when it is turned off, so the
+        // server goes on knowing what it added (a skill) and the game does not. Said here, before a
+        // profile that has it fails to open; Diagnose logs explains it when it does.
+        if (disable && AppServices.SptEnvironment.InstallPath is { Length: > 0 } prepatchesOf)
+        {
+            var adding = await Task.Run(() =>
+            {
+                var folders = ServerPrepatches.Read(prepatchesOf).Select(p => p.Guid).ToHashSet(StringComparer.OrdinalIgnoreCase);
+                return entries
+                    .Where(e => e.Target == InstalledModTarget.Server && e.AllGuids.Any(folders.Contains))
+                    .Select(e => e.DeclaredName ?? e.Name)
+                    .Distinct()
+                    .ToList();
+            });
+            if (adding.Count > 0)
+                message = Sentences(message, LocalizationService.Text(Strings.Installed_DisabledAddsValuesFormat, TextLists.Join(adding)));
+        }
+
         await ScanAsync();
         StatusMessage = message;
         ModsMoved?.Invoke(this, EventArgs.Empty);

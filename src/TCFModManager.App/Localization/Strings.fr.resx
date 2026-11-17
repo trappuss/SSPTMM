@@ -8488,6 +8488,9 @@ Les retirer - ou les désactiver - peut laisser un profil que SPT ne chargera pa
   <data name="Diagnose_Body_GameUnknownValueNoModFormat" xml:space="preserve">
     <value>Très probablement, un mod qui ajoute à {0} a été retiré ou désactivé alors qu'un profil contient encore ce qu'il a ajouté, ou sa partie jeu n'est pas chargée.</value>
   </data>
+  <data name="Installed_DisabledAddsValuesFormat" xml:space="preserve">
+    <value>{0} ajoute ses propres valeurs au serveur, des compétences par exemple. Un profil qui les contient ne s'ouvrira pas dans le jeu tant que le mod n'est pas réactivé.</value>
+  </data>
   <data name="Diagnose_Title_PluginMissingDependency" xml:space="preserve">
     <value>Un mod ne s'est pas chargé : il lui manque quelque chose</value>
   </data>

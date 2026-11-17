@@ -8899,6 +8899,9 @@
   <data name="Diagnose_Body_GameUnknownValueNoModFormat" xml:space="preserve">
     <value>Скорее всего, мод, дополняющий {0}, удалён или выключен, а в профиле осталось добавленное им, либо его игровая часть не загружена.</value>
   </data>
+  <data name="Installed_DisabledAddsValuesFormat" xml:space="preserve">
+    <value>{0} добавляет на сервер собственные значения, например навыки. Профиль, в котором они есть, не откроется в игре, пока мод снова не включён.</value>
+  </data>
   <data name="Diagnose_Title_PluginMissingDependency" xml:space="preserve">
     <value>Мод не загрузился: не хватает того, что ему нужно</value>
   </data>

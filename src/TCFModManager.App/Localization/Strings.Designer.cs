@@ -2779,6 +2779,7 @@ internal static class Strings
     internal static string Diagnose_Body_GameUnknownValueOffFormat => LocalizationService.Get("Diagnose_Body_GameUnknownValueOffFormat");
     internal static string Diagnose_Body_GameUnknownValueOnFormat => LocalizationService.Get("Diagnose_Body_GameUnknownValueOnFormat");
     internal static string Diagnose_Body_GameUnknownValueNoModFormat => LocalizationService.Get("Diagnose_Body_GameUnknownValueNoModFormat");
+    internal static string Installed_DisabledAddsValuesFormat => LocalizationService.Get("Installed_DisabledAddsValuesFormat");
     internal static string Diagnose_Title_PluginMissingDependency => LocalizationService.Get("Diagnose_Title_PluginMissingDependency");
     internal static string Diagnose_Body_PluginMissingDependency => LocalizationService.Get("Diagnose_Body_PluginMissingDependency");
     internal static string Diagnose_Title_PluginIncompatible => LocalizationService.Get("Diagnose_Title_PluginIncompatible");

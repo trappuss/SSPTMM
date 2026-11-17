@@ -10526,6 +10526,10 @@ Removing them - or turning them off - can leave a profile SPT won't load. If tha
     <value>Most likely a mod that adds to {0} was removed or turned off while a profile still has what it added, or its game half isn't loaded.</value>
     <comment>Card text, second sentence, when no mod could be named. {0}: a type name, such as ESkillId.</comment>
   </data>
+  <data name="Installed_DisabledAddsValuesFormat" xml:space="preserve">
+    <value>{0} adds values of its own to the server, such as skills. A profile that has them won't open in the game until it is turned on again.</value>
+    <comment>Status line on Subscribed items after turning off a mod that adds its own values to the server (a server prepatch). {0}: the mod's name, or several.</comment>
+  </data>
   <data name="Diagnose_Title_PluginMissingDependency" xml:space="preserve">
     <value>A mod didn't load: something it needs is missing</value>
     <comment>Diagnose logs finding</comment>
