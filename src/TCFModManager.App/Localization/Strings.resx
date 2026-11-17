@@ -5623,7 +5623,7 @@ This was written to:
     <comment>Filter chip. Steam's words. {0} is a date.</comment>
   </data>
   <data name="Installed_HeldBackFormat" xml:space="preserve">
-    <value>Update to {0} held back: {1}.</value>
+    <value>Update to {0} held back so another installed mod keeps working: {1}.</value>
     <comment>On a mod whose newer version would break another installed mod, e.g. "Update to 3.0.6 held back: Black and Blue needs ~2.0.24." {0} is the held-back version, {1} the mods it would break (Installed_HeldBackNeedsFormat, joined).</comment>
   </data>
   <data name="Installed_HeldBackNeedsFormat" xml:space="preserve">
@@ -5635,8 +5635,8 @@ This was written to:
     <comment>sp-mod.com holds the update back because something it depends on is held back itself. {0} is the version.</comment>
   </data>
   <data name="Installed_HeldBackPlainFormat" xml:space="preserve">
-    <value>Update to {0} held back by sp-mod.com.</value>
-    <comment>sp-mod.com holds the update back for a reason it does not explain. {0} is the version.</comment>
+    <value>Update to {0} held back: sp-mod.com reports it would break another installed mod, without naming it. The mod's own update dialog can still install it.</value>
+    <comment>sp-mod.com lists the update as blocked and names no mod it would break. {0} is the version.</comment>
   </data>
   <data name="Installed_UpdatesHeldBack_one" xml:space="preserve">
     <value>{1} was left alone: sp-mod.com holds its update back. Its own update dialog can still install it.</value>

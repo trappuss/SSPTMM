@@ -6309,7 +6309,7 @@ Vuoi installarlo comunque?</value>
     <value>Aggiornati prima del {0}</value>
   </data>
   <data name="Installed_HeldBackFormat" xml:space="preserve">
-    <value>Aggiornamento a {0} trattenuto: {1}.</value>
+    <value>Aggiornamento a {0} trattenuto perché un'altra mod installata continui a funzionare: {1}.</value>
   </data>
   <data name="Installed_HeldBackNeedsFormat" xml:space="preserve">
     <value>{0} richiede {1}</value>
@@ -6318,7 +6318,7 @@ Vuoi installarlo comunque?</value>
     <value>Aggiornamento a {0} trattenuto: richiede un altro aggiornamento, anch'esso trattenuto.</value>
   </data>
   <data name="Installed_HeldBackPlainFormat" xml:space="preserve">
-    <value>Aggiornamento a {0} trattenuto da sp-mod.com.</value>
+    <value>Aggiornamento a {0} trattenuto: secondo sp-mod.com comprometterebbe un'altra mod installata, senza indicare quale. La finestra di aggiornamento della mod permette comunque di installarlo.</value>
   </data>
   <data name="Installed_UpdatesHeldBack_one" xml:space="preserve">
     <value>{1} è stato lasciato com'era: sp-mod.com ne trattiene l'aggiornamento. La sua finestra di aggiornamento può comunque installarlo.</value>

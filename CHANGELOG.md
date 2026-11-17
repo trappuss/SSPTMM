@@ -11,6 +11,7 @@ From 1.3.0 or later: Help > About > **Install update**. From an older version: c
 - **Diagnose logs explains a profile the game can't read.** When the game stops at the profile list because the server sent a value it doesn't know - a skill from a mod that was turned off while a profile still has it - Diagnose logs now says which value, and which mod it comes from, even when that mod is turned off.
 - **A note when you turn off a mod that adds to the server.** Some mods add values of their own to the server, such as skills, and a profile that has them won't open in the game without the mod. Subscribed items now says so when such a mod is turned off.
 - **Fika guide.** Play's **...** menu has a **Fika guide** item, which opens the wiki's new page on hosting and joining: [Playing with friends (Fika)](https://github.com/trappuss/SSPTMM/wiki/Fika).
+- **"Held back" says why.** An update sp-mod.com lists as blocked used to read "held back by sp-mod.com". The card now says that it would break another installed mod, and that the mod's own update dialog can still install it.
 
 # SSPTMM 1.4.7
 

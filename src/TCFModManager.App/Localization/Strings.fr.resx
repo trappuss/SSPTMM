@@ -6309,7 +6309,7 @@ L'installer quand même ?</value>
     <value>Mis à jour avant le {0}</value>
   </data>
   <data name="Installed_HeldBackFormat" xml:space="preserve">
-    <value>Mise à jour vers {0} retenue : {1}.</value>
+    <value>Mise à jour vers {0} retenue pour qu'un autre mod installé continue de fonctionner : {1}.</value>
   </data>
   <data name="Installed_HeldBackNeedsFormat" xml:space="preserve">
     <value>{0} nécessite {1}</value>
@@ -6318,7 +6318,7 @@ L'installer quand même ?</value>
     <value>Mise à jour vers {0} retenue : elle dépend d'une autre mise à jour elle-même retenue.</value>
   </data>
   <data name="Installed_HeldBackPlainFormat" xml:space="preserve">
-    <value>Mise à jour vers {0} retenue par sp-mod.com.</value>
+    <value>Mise à jour vers {0} retenue : selon sp-mod.com, elle casserait un autre mod installé, sans préciser lequel. La fenêtre de mise à jour du mod permet quand même de l'installer.</value>
   </data>
   <data name="Installed_UpdatesHeldBack_one" xml:space="preserve">
     <value>{1} n'a pas été touché : sp-mod.com retient sa mise à jour. Sa propre fenêtre de mise à jour peut quand même l'installer.</value>

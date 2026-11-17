@@ -4376,7 +4376,7 @@
     <value>更新于 {0} 之前</value>
   </data>
   <data name="Installed_HeldBackFormat" xml:space="preserve">
-    <value>已暂缓更新到 {0}：{1}。</value>
+    <value>已暂缓更新到 {0}，以免另一个已安装的模组失效：{1}。</value>
   </data>
   <data name="Installed_HeldBackNeedsFormat" xml:space="preserve">
     <value>{0} 需要 {1}</value>
@@ -4385,7 +4385,7 @@
     <value>已暂缓更新到 {0}：它需要的另一项更新也被暂缓了。</value>
   </data>
   <data name="Installed_HeldBackPlainFormat" xml:space="preserve">
-    <value>sp-mod.com 已暂缓更新到 {0}。</value>
+    <value>已暂缓更新到 {0}：sp-mod.com 称它会使另一个已安装的模组失效，但未指明是哪个。仍可在该模组自己的更新对话框中安装。</value>
   </data>
   <data name="Installed_UpdatesHeldBack_other" xml:space="preserve">
     <value>{1} 未更新：sp-mod.com 暂缓了其更新。仍可在各自的更新对话框中安装。</value>

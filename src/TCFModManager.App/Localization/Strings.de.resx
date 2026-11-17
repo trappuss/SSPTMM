@@ -6309,7 +6309,7 @@ Trotzdem installieren?</value>
     <value>Aktualisiert vor {0}</value>
   </data>
   <data name="Installed_HeldBackFormat" xml:space="preserve">
-    <value>Update auf {0} zurückgehalten: {1}.</value>
+    <value>Update auf {0} zurückgehalten, damit eine andere installierte Mod weiter funktioniert: {1}.</value>
   </data>
   <data name="Installed_HeldBackNeedsFormat" xml:space="preserve">
     <value>{0} benötigt {1}</value>
@@ -6318,7 +6318,7 @@ Trotzdem installieren?</value>
     <value>Update auf {0} zurückgehalten: Es benötigt ein anderes Update, das selbst zurückgehalten wird.</value>
   </data>
   <data name="Installed_HeldBackPlainFormat" xml:space="preserve">
-    <value>Update auf {0} von sp-mod.com zurückgehalten.</value>
+    <value>Update auf {0} zurückgehalten: Laut sp-mod.com würde es eine andere installierte Mod unbrauchbar machen; welche, wird nicht genannt. Über den Update-Dialog der Mod lässt es sich trotzdem installieren.</value>
   </data>
   <data name="Installed_UpdatesHeldBack_one" xml:space="preserve">
     <value>{1} wurde nicht angerührt: sp-mod.com hält sein Update zurück. Sein eigener Update-Dialog kann es trotzdem installieren.</value>

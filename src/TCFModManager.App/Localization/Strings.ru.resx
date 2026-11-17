@@ -6645,7 +6645,7 @@
     <value>Изменены до {0}</value>
   </data>
   <data name="Installed_HeldBackFormat" xml:space="preserve">
-    <value>Обновление до {0} задержано: {1}.</value>
+    <value>Обновление до {0} задержано, чтобы другой установленный мод продолжал работать: {1}.</value>
   </data>
   <data name="Installed_HeldBackNeedsFormat" xml:space="preserve">
     <value>{0} нужна {1}</value>
@@ -6654,7 +6654,7 @@
     <value>Обновление до {0} задержано: ему нужно другое обновление, которое тоже задержано.</value>
   </data>
   <data name="Installed_HeldBackPlainFormat" xml:space="preserve">
-    <value>Обновление до {0} задержано sp-mod.com.</value>
+    <value>Обновление до {0} задержано: по данным sp-mod.com, оно сломает другой установленный мод (какой именно, не указано). Установить его всё же можно в окне обновления самого мода.</value>
   </data>
   <data name="Installed_UpdatesHeldBack_one" xml:space="preserve">
     <value>{1} не тронут: sp-mod.com задерживает его обновление. Его собственное окно обновления всё равно может его установить.</value>
