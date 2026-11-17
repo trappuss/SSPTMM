@@ -142,6 +142,17 @@ public static class ModVersionComparer
             ?? candidates.FirstOrDefault();
     }
 
+    /// <summary>Fork (1.4.8): the published version a mod's files now hold, when they were replaced
+    /// by hand since the app installed <paramref name="recorded"/>: the files report a newer
+    /// version than the one recorded, and that version is one of the mod's releases. Null otherwise
+    /// - a version the files have always claimed and no release carries is not an update.</summary>
+    public static string? HandUpdatedTo(string? recorded, string? fromFiles, IEnumerable<string?> published)
+    {
+        if (IsUpdateAvailable(recorded, fromFiles) != true) return null;
+
+        return BestSameRelease(fromFiles, published) is { } release && Compare(release, recorded) > 0 ? release : null;
+    }
+
     private static (Version Core, string[] Pre)? Parse(string? raw)
     {
         if (string.IsNullOrWhiteSpace(raw)) return null;

@@ -16,6 +16,7 @@ From 1.3.0 or later: Help > About > **Install update**. From an older version: c
 ## Changed
 
 - **Subscribed items keeps up with sp-mod.com while SSPTMM stays open.** The list of mods was read at start, and with update notifications off nothing read it again, so a release from the afternoon didn't show until a restart. Now a scan of Subscribed items, Rescan (F5) included, also asks sp-mod.com what moved for your installed mods and addons when that was last done more than 20 minutes ago. It announces nothing unless update notifications are on.
+- **A mod updated by hand is seen as updated.** For a mod SSPTMM installed, the version it wrote down at install used to win over the mod's files, so copying a newer release over it by hand left the card on the old version with an update waiting. When the files now report a newer version that is one of the mod's releases, the card shows that version and says it was updated by hand.
 - **Fika filters no longer hide addons.** In the Workshop an addon counted as "Fika compatibility unknown", so ticking **Fika compatible** hid every addon, Fika sync addons included. An addon now goes by the mod it is for, as it does for SPT version and category.
 
 # SSPTMM 1.4.7

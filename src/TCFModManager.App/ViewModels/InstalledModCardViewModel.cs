@@ -1608,8 +1608,17 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
         // The version recorded at install time beats anything read off disk: plenty of authors never
         // bump the assembly version, so a mod installed as 1.2.1 can still report 1.0.0.0 from its
         // DLL - which then reads as an update being available forever.
+        //
+        // Fork (1.4.8): unless the files were replaced by hand since - they report a newer version
+        // than the record's, and it is one of the mod's releases. The record then kept the card on
+        // the old version with an update waiting, for a mod that was up to date. A version confirmed
+        // by hand stays as it was confirmed.
+        //
         var fileVersion = client?.Version ?? server?.Version;
-        var installedVersion = record?.Version ?? fileVersion;
+        var handUpdated = record is { IsAppManaged: true } && match is not null
+            ? ModVersionComparer.HandUpdatedTo(record.Version, fileVersion, (match.Versions ?? []).Select(v => v.Version))
+            : null;
+        var installedVersion = handUpdated ?? record?.Version ?? fileVersion;
 
         (string Key, object?[] Values)? detail = null;
         // Compared as versions, not text: a plugin declaring "1.1.5" beside a server half that only
@@ -1626,6 +1635,10 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
                  && !VersionsAreEquivalent(record.Version, fileVersion))
         {
             detail = (nameof(Strings.Installed_DetailFilesReportFormat), [fileVersion]);
+        }
+        else if (handUpdated is not null)
+        {
+            detail = (nameof(Strings.Installed_DetailUpdatedByHandFormat), [record!.Version]);
         }
 
         var manuallyConfirmed = record is not null && !record.IsAppManaged;

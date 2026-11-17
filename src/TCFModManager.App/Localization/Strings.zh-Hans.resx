@@ -2629,6 +2629,9 @@
   <data name="Installed_DetailFilesReportFormat" xml:space="preserve">
     <value>文件显示为 {0}</value>
   </data>
+  <data name="Installed_DetailUpdatedByHandFormat" xml:space="preserve">
+    <value>在此安装 {0} 之后已手动更新</value>
+  </data>
   <data name="Installed_DetailFilesReportPairFormat" xml:space="preserve">
     <value>文件显示为客户端 {0} / 服务端 {1}</value>
   </data>

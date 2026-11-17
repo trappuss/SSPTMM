@@ -3232,6 +3232,10 @@ The copy you don't keep is moved into a hidden .tcfmm-duplicates folder in your 
     <value>Files report {0}</value>
     <comment>{0} is the version the mod's own files claim, where it differs from the version recorded at install.</comment>
   </data>
+  <data name="Installed_DetailUpdatedByHandFormat" xml:space="preserve">
+    <value>Updated by hand since {0} was installed here</value>
+    <comment>{0} is the version SSPTMM installed, before the mod's files were replaced by hand with a newer release.</comment>
+  </data>
   <data name="Installed_DetailFilesReportPairFormat" xml:space="preserve">
     <value>Files report client {0} / server {1}</value>
     <comment>Shown when a mod's two halves claim different versions. Either may be Common_Unknown.</comment>

@@ -1797,6 +1797,9 @@
   <data name="Installed_DetailFilesReportFormat" xml:space="preserve">
     <value>Файлы сообщают {0}</value>
   </data>
+  <data name="Installed_DetailUpdatedByHandFormat" xml:space="preserve">
+    <value>Обновлено вручную после установки {0} здесь</value>
+  </data>
   <data name="Installed_DetailFilesReportPairFormat" xml:space="preserve">
     <value>Файлы сообщают: клиент {0} / сервер {1}</value>
   </data>

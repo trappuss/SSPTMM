@@ -1704,6 +1704,9 @@ Qualunque cosa scegli, la versione ora sul disco viene prima copiata in {1}.</va
   <data name="Installed_DetailFilesReportFormat" xml:space="preserve">
     <value>I file indicano {0}</value>
   </data>
+  <data name="Installed_DetailUpdatedByHandFormat" xml:space="preserve">
+    <value>Aggiornato a mano dopo l'installazione di {0} qui</value>
+  </data>
   <data name="Installed_DetailFilesReportPairFormat" xml:space="preserve">
     <value>I file indicano client {0} / server {1}</value>
   </data>

@@ -906,6 +906,7 @@ internal static class Strings
     internal static string Installed_DetailParentConstraintFormat => LocalizationService.Get("Installed_DetailParentConstraintFormat");
     internal static string Installed_DetailParentConstraintUnnamedFormat => LocalizationService.Get("Installed_DetailParentConstraintUnnamedFormat");
     internal static string Installed_DetailFilesReportFormat => LocalizationService.Get("Installed_DetailFilesReportFormat");
+    internal static string Installed_DetailUpdatedByHandFormat => LocalizationService.Get("Installed_DetailUpdatedByHandFormat");
     internal static string Installed_DetailFilesReportPairFormat => LocalizationService.Get("Installed_DetailFilesReportPairFormat");
     internal static string Installed_DetailManuallyConfirmed => LocalizationService.Get("Installed_DetailManuallyConfirmed");
     internal static string Installed_DetailManuallyConfirmedFormat => LocalizationService.Get("Installed_DetailManuallyConfirmedFormat");

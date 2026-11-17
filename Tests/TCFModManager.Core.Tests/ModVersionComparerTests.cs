@@ -62,4 +62,21 @@ public class ModVersionComparerTests
         Assert.Equal("1.2.0-hotfix", ModVersionComparer.BestSameRelease("1.2.0.0", ["1.2.0-hotfix", "1.3.0"]));
         Assert.Null(ModVersionComparer.BestSameRelease("1.2.0.0", ["1.3.0"]));
     }
+
+    // Fork (1.4.8): files replaced by hand after the app installed an older version.
+    [Theory]
+    [InlineData("1.0.0", "1.1.0.0", "1.1.0")] // updated by hand to a release
+    [InlineData("1.0.0", "1.1.0", "1.1.0")]
+    [InlineData("1.0.0", "1.1.0.0", "1.1.0-hotfix", "1.1.0-hotfix")] // the DLL can't carry the label
+    [InlineData("1.0.0", "2.0.0.0", null)] // a number the files claim that no release has
+    [InlineData("1.1.0", "1.0.0.0", null)] // files that never bumped their version
+    [InlineData("1.1.0", "1.1.0.0", null)] // the same release
+    [InlineData("1.1.0", "1.1.0.0", null, "1.1.0-hotfix")] // not the hotfix just because 1.1.0 is gone
+    [InlineData("1.1.0-beta", "1.1.0.0", null, "1.1.0-beta")] // the beta's own DLL
+    [InlineData("1.0.0", null, null)]
+    [InlineData(null, "1.1.0", null)]
+    public void HandUpdatedTo(string? recorded, string? fromFiles, string? expected, string published = "1.1.0")
+    {
+        Assert.Equal(expected, ModVersionComparer.HandUpdatedTo(recorded, fromFiles, ["1.0.0", published, "0.9.0"]));
+    }
 }

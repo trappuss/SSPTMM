@@ -1704,6 +1704,9 @@ Quel que soit votre choix, la version actuellement sur le disque est d'abord cop
   <data name="Installed_DetailFilesReportFormat" xml:space="preserve">
     <value>Les fichiers indiquent {0}</value>
   </data>
+  <data name="Installed_DetailUpdatedByHandFormat" xml:space="preserve">
+    <value>Mis à jour à la main depuis l'installation de {0} ici</value>
+  </data>
   <data name="Installed_DetailFilesReportPairFormat" xml:space="preserve">
     <value>Les fichiers indiquent client {0} / serveur {1}</value>
   </data>

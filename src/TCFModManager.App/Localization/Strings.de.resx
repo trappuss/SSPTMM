@@ -1704,6 +1704,9 @@ Was du auch wählst: Die Version, die gerade auf der Festplatte liegt, wird zuer
   <data name="Installed_DetailFilesReportFormat" xml:space="preserve">
     <value>Dateien melden {0}</value>
   </data>
+  <data name="Installed_DetailUpdatedByHandFormat" xml:space="preserve">
+    <value>Von Hand aktualisiert, seit {0} hier installiert wurde</value>
+  </data>
   <data name="Installed_DetailFilesReportPairFormat" xml:space="preserve">
     <value>Dateien melden Client {0} / Server {1}</value>
   </data>
