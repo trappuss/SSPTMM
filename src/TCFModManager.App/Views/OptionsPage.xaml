@@ -1313,6 +1313,44 @@
                                                     Visibility="{Binding HasHeadlessLauncher, Converter={StaticResource FalseToVisible}}" />
                                             </StackPanel>
                                         </Border>
+
+                                        <!-- Fork (1.4.8): a headless client in a folder of its own - HeadlessMirror. -->
+                                        <Border Style="{StaticResource SubSetting}" Padding="0,12,0,0">
+                                            <StackPanel>
+                                                <TextBlock Style="{StaticResource SettingTitle}" Text="{loc:Str Options_HeadlessFolderHeader}" />
+                                                <TextBlock Style="{StaticResource SettingHint}"><Run Text="{loc:Str Options_HeadlessFolderHint}" /><InlineUIContainer BaselineAlignment="Center"><views:InfoTip Text="{loc:Str Options_HeadlessFolderDescription}" /></InlineUIContainer></TextBlock>
+                                                <Grid Margin="0,8,0,0">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <ui:TextBox
+                                                        Grid.Column="0"
+                                                        AutomationProperties.Name="{loc:Str Options_HeadlessFolderHeader}"
+                                                        PlaceholderText="{loc:Str Options_HeadlessFolderPlaceholder}"
+                                                        Text="{Binding HeadlessClientFolder, UpdateSourceTrigger=LostFocus}" />
+                                                    <ui:Button
+                                                        Grid.Column="1"
+                                                        Margin="8,0,0,0"
+                                                        Content="{loc:Str Options_Browse}"
+                                                        Icon="{ui:SymbolIcon FolderOpen24}"
+                                                        Command="{Binding BrowseHeadlessClientFolderCommand}" />
+                                                    <ui:Button
+                                                        Grid.Column="2"
+                                                        Margin="8,0,0,0"
+                                                        Appearance="Transparent"
+                                                        Content="{loc:Str Options_ClearHeadlessLauncher}"
+                                                        Command="{Binding ClearHeadlessClientFolderCommand}" />
+                                                </Grid>
+                                                <TextBlock
+                                                    Style="{StaticResource SettingNote}"
+                                                    Margin="0,8,0,0"
+                                                    Foreground="{DynamicResource SystemFillColorCautionBrush}"
+                                                    Text="{Binding HeadlessClientFolderNote}"
+                                                    Visibility="{Binding HeadlessClientFolderNote, Converter={StaticResource NullToCollapsed}}" />
+                                            </StackPanel>
+                                        </Border>
                                     </StackPanel>
                                 </ui:CardExpander>
 

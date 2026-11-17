@@ -1177,6 +1177,51 @@ public partial class OptionsViewModel : LocalizedViewModel
     [RelayCommand]
     private void ClearHeadlessLauncher() => HeadlessLauncherPath = string.Empty;
 
+    //
+    // Fork (1.4.8): a headless client's own game folder (HeadlessMirror). Saved as it is typed, like
+    // the launcher above; blank is none. What is wrong with the folder is said under the box and
+    // never prevents saving - the copy itself refuses.
+    //
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HeadlessClientFolderNote))]
+    private string _headlessClientFolder = string.Empty;
+
+    partial void OnHeadlessClientFolderChanged(string value)
+    {
+        if (!_loaded || _settingInstallRole) return;
+
+        var settings = _settings.Load();
+        settings.HeadlessClientFolder = string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+        _settings.Save(settings);
+
+        AppLog.Info("InstallRole", $"headless client folder set to \"{settings.HeadlessClientFolder}\"");
+    }
+
+    public string? HeadlessClientFolderNote
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(HeadlessClientFolder) || string.IsNullOrWhiteSpace(SptEnvironment.InstallPath)) return null;
+
+            var folder = HeadlessClientFolder.Trim();
+            return HeadlessMirror.Check(SptEnvironment.InstallPath, folder) is { } problem and not HeadlessMirrorProblem.InUse
+                ? HeadlessMirrorProblems.Describe(problem, folder)
+                : null;
+        }
+    }
+
+    [RelayCommand]
+    private void BrowseHeadlessClientFolder()
+    {
+        var dialog = new OpenFolderDialog { Title = Strings.Options_HeadlessFolderPickerTitle };
+        if (Directory.Exists(HeadlessClientFolder)) dialog.InitialDirectory = HeadlessClientFolder;
+
+        if (dialog.ShowDialog() == true) HeadlessClientFolder = dialog.FolderName;
+    }
+
+    [RelayCommand]
+    private void ClearHeadlessClientFolder() => HeadlessClientFolder = string.Empty;
+
     partial void OnRunsHeadlessClientChanged(bool value) => SaveInstallRole();
 
     private void SaveInstallRole()
@@ -1208,6 +1253,7 @@ public partial class OptionsViewModel : LocalizedViewModel
         PlaysHere = roles.HasFlag(InstallRoles.Player);
         RunsHeadlessClient = roles.HasFlag(InstallRoles.Headless);
         HeadlessLauncherPath = settings.HeadlessLauncherPath ?? string.Empty;
+        HeadlessClientFolder = settings.HeadlessClientFolder ?? string.Empty;
 
         //
         // The named path counts as having one, and it stands on its own: a machine can name a

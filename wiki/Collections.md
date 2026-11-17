@@ -99,3 +99,28 @@ A copy of your SPT profiles is taken before a collection is applied - see
 Both can set which mods are on. A [preset](Subscribed-Items#presets) only switches mods you already
 have on and off: instant, offline, nothing downloaded. A collection names versions: applying it
 downloads, updates and turns mods on, so it is what you share, or keep for a whole setup.
+
+## A headless client in its own folder
+
+From 1.4.8. SSPTMM manages one SPT install. When a Fika headless client lives in another folder,
+name that folder in [Options](Options) > **What this machine is** > **Headless client folder**.
+
+- **Applying a collection** then also copies the mods it marks **Headless** into that folder, and
+  the status line says how many were copied, removed or already the same.
+- **Copy to headless folder**, beside **Publish to this server**, does the same without applying -
+  for the first time after naming the folder, or after updating mods on Subscribed items.
+
+What is copied is each mod's game half: its folder or file in `BepInEx\plugins` and
+`BepInEx\patchers` of your SPT install. Server mods stay with the server. A mod with no scope set
+counts for everyone, the headless client included, so set the scope of the ones a headless client
+shouldn't have (interface mods, for example) to players only.
+
+- Nothing is downloaded: a mod that isn't installed and turned on in your SPT install is skipped.
+- SSPTMM writes down what it copied, in `.ssptmm-headless.json` in the headless folder, and removes
+  a mod from there again when the collection no longer marks it Headless. It never removes anything
+  else - Fika's own headless plugin stays.
+- A folder of the same name that was already there is moved to `.ssptmm-headless-replaced` in the
+  headless folder, not deleted.
+- The copy is refused while the game runs from that folder, and when its `BepInEx`, `plugins` or
+  `patchers` folder is a link to another folder: SSPTMM doesn't write through links. Some installers
+  set the headless folder up with links; those folders have to be real folders for this to work.

@@ -10037,6 +10037,48 @@ No mantiene questo gruppo con il suo vecchio nome.</value>
   <data name="Options_FikaPublicDescription" xml:space="preserve">
     <value>Disattivato per impostazione predefinita. Se attivo, Copia invito chiede ad api.ipify.org quale indirizzo ha questo PC su Internet; a quel servizio non viene inviato altro che la richiesta. Chiunque riceva l'invito vede l'indirizzo. Il router deve comunque inoltrare la porta del server a questo PC, e alcuni provider condividono un indirizzo tra più clienti: in quel caso non è raggiungibile dall'esterno.</value>
   </data>
+  <data name="Options_HeadlessFolderHeader" xml:space="preserve">
+    <value>Cartella del client headless</value>
+  </data>
+  <data name="Options_HeadlessFolderHint" xml:space="preserve">
+    <value>Per un client headless in una cartella propria: applicando una collezione vengono copiate lì anche le mod contrassegnate Headless.</value>
+  </data>
+  <data name="Options_HeadlessFolderDescription" xml:space="preserve">
+    <value>SSPTMM gestisce una sola installazione SPT. Con una cartella del client headless indicata qui, applicare una collezione - o Copia nella cartella headless nella pagina Collezioni - copia i file di gioco delle mod che la collezione contrassegna Headless da BepInEx\plugins e BepInEx\patchers di questa installazione negli stessi punti lì. Nulla viene scaricato due volte. SSPTMM ricorda ciò che ha copiato e lo rimuove quando la collezione non lo contiene più; una cartella con lo stesso nome già presente viene messa da parte, non eliminata, e il resto della cartella headless non viene toccato. Una cartella il cui BepInEx è un collegamento a un'altra cartella viene rifiutata.</value>
+  </data>
+  <data name="Options_HeadlessFolderPlaceholder" xml:space="preserve">
+    <value>La cartella con EscapeFromTarkov.exe del client headless</value>
+  </data>
+  <data name="Options_HeadlessFolderPickerTitle" xml:space="preserve">
+    <value>Seleziona la cartella del client headless</value>
+  </data>
+  <data name="Headless_ProblemNoFolderFormat" xml:space="preserve">
+    <value>La cartella del client headless non c'è: {0}</value>
+  </data>
+  <data name="Headless_ProblemNotAGameFormat" xml:space="preserve">
+    <value>{0} non contiene una cartella BepInEx, quindi non è una cartella di gioco.</value>
+  </data>
+  <data name="Headless_ProblemSameAsInstall" xml:space="preserve">
+    <value>La cartella del client headless è questa stessa installazione SPT. Serve per un client headless in un'altra cartella.</value>
+  </data>
+  <data name="Headless_ProblemLinkFormat" xml:space="preserve">
+    <value>La cartella BepInEx, plugins o patchers in {0} è un collegamento a un'altra cartella. SSPTMM non scrive attraverso i collegamenti: modificherebbe ciò a cui il collegamento punta.</value>
+  </data>
+  <data name="Headless_ProblemInUseFormat" xml:space="preserve">
+    <value>Il gioco è in esecuzione da {0}. Chiudere prima il client headless.</value>
+  </data>
+  <data name="Headless_CopiedFormat" xml:space="preserve">
+    <value>Cartella del client headless: {0} copiati, {1} rimossi, {2} già uguali.</value>
+  </data>
+  <data name="Headless_FailedFormat" xml:space="preserve">
+    <value>Non copiati: {0}.</value>
+  </data>
+  <data name="ModLists_CopyToHeadless" xml:space="preserve">
+    <value>Copia nella cartella headless</value>
+  </data>
+  <data name="ModLists_CopyToHeadlessToolTip" xml:space="preserve">
+    <value>Copia i file di gioco delle mod di questa collezione contrassegnate Headless da questa installazione SPT nella cartella del client headless indicata nelle Opzioni. Nulla viene scaricato; una mod non ancora installata qui viene saltata.</value>
+  </data>
   <data name="Options_FikaAutomatic" xml:space="preserve">
     <value>Automatico</value>
   </data>

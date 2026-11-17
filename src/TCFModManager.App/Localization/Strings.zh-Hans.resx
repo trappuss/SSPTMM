@@ -9593,6 +9593,48 @@ GitHub 上的文件未经 sp-mod.com 检查，请只安装你信任的作者的�
   <data name="Options_FikaPublicDescription" xml:space="preserve">
     <value>默认关闭。开启后，复制邀请时会向 api.ipify.org 查询这台电脑的公网地址；除请求本身外不会向该服务发送任何内容。收到邀请的人都能看到这个地址。路由器仍需把服务端的端口转发到这台电脑；有些运营商让多个用户共用一个地址，这种地址无法从外部访问。</value>
   </data>
+  <data name="Options_HeadlessFolderHeader" xml:space="preserve">
+    <value>无头客户端文件夹</value>
+  </data>
+  <data name="Options_HeadlessFolderHint" xml:space="preserve">
+    <value>用于放在独立文件夹里的无头客户端：应用合集时，会把标记为 Headless 的模组也复制到那里。</value>
+  </data>
+  <data name="Options_HeadlessFolderDescription" xml:space="preserve">
+    <value>SSPTMM 只管理一个 SPT 安装。在这里指定无头客户端文件夹后，应用合集（或在合集页面点“复制到无头文件夹”）时，会把合集中标记为 Headless 的模组的游戏端文件，从本安装的 BepInEx\plugins 和 BepInEx\patchers 复制到那里的相同位置。不会重复下载。SSPTMM 会记住复制过的内容，并在合集不再包含它时将其移除；那里原有的同名文件夹会被移到一旁而不是删除，无头文件夹中的其他内容不会被改动。如果该文件夹的 BepInEx 是指向其他文件夹的链接，则会拒绝。</value>
+  </data>
+  <data name="Options_HeadlessFolderPlaceholder" xml:space="preserve">
+    <value>无头客户端的 EscapeFromTarkov.exe 所在文件夹</value>
+  </data>
+  <data name="Options_HeadlessFolderPickerTitle" xml:space="preserve">
+    <value>选择无头客户端文件夹</value>
+  </data>
+  <data name="Headless_ProblemNoFolderFormat" xml:space="preserve">
+    <value>找不到无头客户端文件夹：{0}</value>
+  </data>
+  <data name="Headless_ProblemNotAGameFormat" xml:space="preserve">
+    <value>{0} 中没有 BepInEx 文件夹，因此不是游戏文件夹。</value>
+  </data>
+  <data name="Headless_ProblemSameAsInstall" xml:space="preserve">
+    <value>无头客户端文件夹就是本 SPT 安装本身。它用于放在另一个文件夹里的无头客户端。</value>
+  </data>
+  <data name="Headless_ProblemLinkFormat" xml:space="preserve">
+    <value>{0} 中的 BepInEx、plugins 或 patchers 文件夹是指向其他文件夹的链接。SSPTMM 不会通过链接写入：那会改动链接所指向的内容。</value>
+  </data>
+  <data name="Headless_ProblemInUseFormat" xml:space="preserve">
+    <value>游戏正从 {0} 运行。请先关闭无头客户端。</value>
+  </data>
+  <data name="Headless_CopiedFormat" xml:space="preserve">
+    <value>无头客户端文件夹：已复制 {0} 个，已移除 {1} 个，{2} 个已相同。</value>
+  </data>
+  <data name="Headless_FailedFormat" xml:space="preserve">
+    <value>未能复制：{0}。</value>
+  </data>
+  <data name="ModLists_CopyToHeadless" xml:space="preserve">
+    <value>复制到无头文件夹</value>
+  </data>
+  <data name="ModLists_CopyToHeadlessToolTip" xml:space="preserve">
+    <value>把此合集中标记为 Headless 的模组的游戏端文件，从本 SPT 安装复制到“选项”中指定的无头客户端文件夹。不会下载任何内容；这里尚未安装的模组会被跳过。</value>
+  </data>
   <data name="Options_FikaAutomatic" xml:space="preserve">
     <value>自动</value>
   </data>

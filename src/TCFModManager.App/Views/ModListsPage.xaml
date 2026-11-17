@@ -645,6 +645,15 @@
                                 Content="{loc:Str ModLists_Publish}"
                                 ToolTip="{loc:Str ModLists_PublishToolTip}"
                                 Command="{Binding PublishCommand}" />
+
+                            <!-- Fork (1.4.8): only with Options > Headless client folder named. -->
+                            <ui:Button
+                                Margin="8,0,0,0"
+                                Icon="{ui:SymbolIcon Copy24}"
+                                Content="{loc:Str ModLists_CopyToHeadless}"
+                                ToolTip="{loc:Str ModLists_CopyToHeadlessToolTip}"
+                                Visibility="{Binding HasHeadlessFolder, Converter={StaticResource BoolToVis}}"
+                                Command="{Binding CopyToHeadlessCommand}" />
                         </StackPanel>
                     </Grid>
 

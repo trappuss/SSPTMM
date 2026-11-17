@@ -12495,6 +12495,62 @@ No keeps this group under its old name.</value>
     <value>Off by default. When on, Copy invite asks api.ipify.org which address this PC has on the internet; that service is sent nothing but the request. Everyone who gets the invite sees the address. The router still has to forward the server's port to this PC, and some internet providers share one address between several customers, which can't be reached from outside.</value>
     <comment>Info tip of Public address in the invite. api.ipify.org is the service's name; keep it.</comment>
   </data>
+  <data name="Options_HeadlessFolderHeader" xml:space="preserve">
+    <value>Headless client folder</value>
+    <comment>Options &gt; What this machine is: title of the box naming a Fika headless client's own game folder.</comment>
+  </data>
+  <data name="Options_HeadlessFolderHint" xml:space="preserve">
+    <value>For a headless client kept in a folder of its own: applying a collection also copies the mods marked Headless there.</value>
+    <comment>Hint under Headless client folder.</comment>
+  </data>
+  <data name="Options_HeadlessFolderDescription" xml:space="preserve">
+    <value>SSPTMM manages one SPT install. With a headless client folder named here, applying a collection - or Copy to headless folder on the Collections page - copies the game files of the mods the collection marks Headless from this install's BepInEx\plugins and BepInEx\patchers into the same places there. Nothing is downloaded twice. SSPTMM remembers what it copied and removes it again when the collection no longer has it; a folder of the same name that was already there is set aside, not deleted, and everything else in the headless folder is left alone. A folder whose BepInEx is a link to another folder is refused.</value>
+    <comment>Info tip of Headless client folder. BepInEx\plugins and BepInEx\patchers are folders; keep them.</comment>
+  </data>
+  <data name="Options_HeadlessFolderPlaceholder" xml:space="preserve">
+    <value>The folder with the headless client's EscapeFromTarkov.exe</value>
+    <comment>Placeholder of the Headless client folder box.</comment>
+  </data>
+  <data name="Options_HeadlessFolderPickerTitle" xml:space="preserve">
+    <value>Select the headless client's folder</value>
+    <comment>Title of the folder picker for the Headless client folder.</comment>
+  </data>
+  <data name="Headless_ProblemNoFolderFormat" xml:space="preserve">
+    <value>The headless client folder isn't there: {0}</value>
+    <comment>Why nothing was copied to the headless client folder. {0}: the folder.</comment>
+  </data>
+  <data name="Headless_ProblemNotAGameFormat" xml:space="preserve">
+    <value>{0} has no BepInEx folder, so it isn't a game folder.</value>
+    <comment>Why nothing was copied to the headless client folder. {0}: the folder.</comment>
+  </data>
+  <data name="Headless_ProblemSameAsInstall" xml:space="preserve">
+    <value>The headless client folder is this SPT install itself. It is for a headless client kept in another folder.</value>
+    <comment>Why nothing was copied to the headless client folder: it is the SPT install set in Options.</comment>
+  </data>
+  <data name="Headless_ProblemLinkFormat" xml:space="preserve">
+    <value>The BepInEx, plugins or patchers folder in {0} is a link to another folder. SSPTMM doesn't write through links: it would change whatever the link points at.</value>
+    <comment>Why nothing was copied to the headless client folder. {0}: the folder.</comment>
+  </data>
+  <data name="Headless_ProblemInUseFormat" xml:space="preserve">
+    <value>The game is running from {0}. Close the headless client first.</value>
+    <comment>Why nothing was copied to the headless client folder. {0}: the folder.</comment>
+  </data>
+  <data name="Headless_CopiedFormat" xml:space="preserve">
+    <value>Headless client folder: {0} copied, {1} removed, {2} already the same.</value>
+    <comment>Status after copying a collection's Headless mods to the headless client folder. {0} copied, {1} removed, {2} already the same - all counts.</comment>
+  </data>
+  <data name="Headless_FailedFormat" xml:space="preserve">
+    <value>Couldn't be copied: {0}.</value>
+    <comment>Added to the status when some couldn't be copied. {0}: their names.</comment>
+  </data>
+  <data name="ModLists_CopyToHeadless" xml:space="preserve">
+    <value>Copy to headless folder</value>
+    <comment>Button on the Collections page: copies the collection's Headless mods to the headless client folder.</comment>
+  </data>
+  <data name="ModLists_CopyToHeadlessToolTip" xml:space="preserve">
+    <value>Copies the game files of this collection's mods marked Headless from this SPT install into the headless client folder set in Options. Nothing is downloaded; a mod that isn't installed here yet is skipped.</value>
+    <comment>Tooltip of Copy to headless folder.</comment>
+  </data>
   <data name="Options_FikaAutomatic" xml:space="preserve">
     <value>Automatic</value>
   </data>

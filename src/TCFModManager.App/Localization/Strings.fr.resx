@@ -10037,6 +10037,48 @@ Non garde ce groupe sous son ancien nom.</value>
   <data name="Options_FikaPublicDescription" xml:space="preserve">
     <value>Désactivé par défaut. Une fois activé, Copier l'invitation demande à api.ipify.org quelle adresse ce PC a sur Internet ; ce service ne reçoit rien d'autre que la requête. Toute personne qui reçoit l'invitation voit l'adresse. Le routeur doit toujours rediriger le port du serveur vers ce PC, et certains fournisseurs d'accès partagent une adresse entre plusieurs clients ; elle n'est alors pas joignable de l'extérieur.</value>
   </data>
+  <data name="Options_HeadlessFolderHeader" xml:space="preserve">
+    <value>Dossier du client headless</value>
+  </data>
+  <data name="Options_HeadlessFolderHint" xml:space="preserve">
+    <value>Pour un client headless installé dans son propre dossier : appliquer une collection y copie aussi les mods marqués Headless.</value>
+  </data>
+  <data name="Options_HeadlessFolderDescription" xml:space="preserve">
+    <value>SSPTMM gère une seule installation SPT. Avec un dossier de client headless indiqué ici, appliquer une collection - ou Copier vers le dossier headless sur la page Collections - copie les fichiers de jeu des mods que la collection marque Headless, depuis BepInEx\plugins et BepInEx\patchers de cette installation vers les mêmes emplacements là-bas. Rien n'est téléchargé deux fois. SSPTMM retient ce qui a été copié et le retire quand la collection ne le contient plus ; un dossier du même nom déjà présent est mis de côté, pas supprimé, et le reste du dossier headless n'est pas touché. Un dossier dont BepInEx est un lien vers un autre dossier est refusé.</value>
+  </data>
+  <data name="Options_HeadlessFolderPlaceholder" xml:space="preserve">
+    <value>Le dossier contenant EscapeFromTarkov.exe du client headless</value>
+  </data>
+  <data name="Options_HeadlessFolderPickerTitle" xml:space="preserve">
+    <value>Sélectionner le dossier du client headless</value>
+  </data>
+  <data name="Headless_ProblemNoFolderFormat" xml:space="preserve">
+    <value>Le dossier du client headless est introuvable : {0}</value>
+  </data>
+  <data name="Headless_ProblemNotAGameFormat" xml:space="preserve">
+    <value>{0} ne contient pas de dossier BepInEx : ce n'est pas un dossier de jeu.</value>
+  </data>
+  <data name="Headless_ProblemSameAsInstall" xml:space="preserve">
+    <value>Le dossier du client headless est cette installation SPT elle-même. Il sert pour un client headless placé dans un autre dossier.</value>
+  </data>
+  <data name="Headless_ProblemLinkFormat" xml:space="preserve">
+    <value>Le dossier BepInEx, plugins ou patchers de {0} est un lien vers un autre dossier. SSPTMM n'écrit pas à travers les liens : cela modifierait ce vers quoi le lien pointe.</value>
+  </data>
+  <data name="Headless_ProblemInUseFormat" xml:space="preserve">
+    <value>Le jeu est lancé depuis {0}. Fermer d'abord le client headless.</value>
+  </data>
+  <data name="Headless_CopiedFormat" xml:space="preserve">
+    <value>Dossier du client headless : {0} copié(s), {1} retiré(s), {2} déjà identique(s).</value>
+  </data>
+  <data name="Headless_FailedFormat" xml:space="preserve">
+    <value>Non copié(s) : {0}.</value>
+  </data>
+  <data name="ModLists_CopyToHeadless" xml:space="preserve">
+    <value>Copier vers le dossier headless</value>
+  </data>
+  <data name="ModLists_CopyToHeadlessToolTip" xml:space="preserve">
+    <value>Copie les fichiers de jeu des mods de cette collection marqués Headless, depuis cette installation SPT vers le dossier du client headless indiqué dans les Options. Rien n'est téléchargé ; un mod pas encore installé ici est ignoré.</value>
+  </data>
   <data name="Options_FikaAutomatic" xml:space="preserve">
     <value>Automatique</value>
   </data>

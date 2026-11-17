@@ -98,6 +98,12 @@ public sealed class AppSettings
     public string? HeadlessLauncherPath { get; set; }
 
     //
+    // Fork (1.4.8): a Fika headless client's own game folder, when it isn't this install. Applying
+    // a collection then copies the mods it marks Headless there (HeadlessMirror). Null: none.
+    //
+    public string? HeadlessClientFolder { get; set; }
+
+    //
     // Whether Start server on the Play page also opens the SPT launcher once the server is up -
     // up meaning listening on its port, which is when the launcher can reach it. Off by default:
     // a machine that hosts for others often has nobody playing on it.

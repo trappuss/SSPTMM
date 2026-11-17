@@ -10037,6 +10037,48 @@ Mit Nein behält diese Gruppe ihren alten Namen.</value>
   <data name="Options_FikaPublicDescription" xml:space="preserve">
     <value>Standardmäßig aus. Wenn an, fragt Einladung kopieren bei api.ipify.org nach, welche Adresse dieser PC im Internet hat; dieser Dienst erhält nichts außer der Anfrage. Alle, die die Einladung bekommen, sehen die Adresse. Der Router muss den Port des Servers weiterhin an diesen PC weiterleiten, und manche Internetanbieter teilen eine Adresse unter mehreren Kunden auf; die ist von außen nicht erreichbar.</value>
   </data>
+  <data name="Options_HeadlessFolderHeader" xml:space="preserve">
+    <value>Ordner des Headless-Clients</value>
+  </data>
+  <data name="Options_HeadlessFolderHint" xml:space="preserve">
+    <value>Für einen Headless-Client in einem eigenen Ordner: Beim Anwenden einer Kollektion werden die mit Headless markierten Mods auch dorthin kopiert.</value>
+  </data>
+  <data name="Options_HeadlessFolderDescription" xml:space="preserve">
+    <value>SSPTMM verwaltet eine SPT-Installation. Ist hier ein Ordner für den Headless-Client angegeben, kopiert das Anwenden einer Kollektion – oder In den Headless-Ordner kopieren auf der Seite Kollektionen – die Spieldateien der Mods, die die Kollektion mit Headless markiert, aus BepInEx\plugins und BepInEx\patchers dieser Installation an dieselben Stellen dort. Nichts wird doppelt heruntergeladen. SSPTMM merkt sich, was kopiert wurde, und entfernt es wieder, wenn die Kollektion es nicht mehr enthält; ein gleichnamiger Ordner, der schon dort lag, wird beiseitegelegt und nicht gelöscht, und alles andere im Headless-Ordner bleibt unberührt. Ein Ordner, dessen BepInEx eine Verknüpfung zu einem anderen Ordner ist, wird abgelehnt.</value>
+  </data>
+  <data name="Options_HeadlessFolderPlaceholder" xml:space="preserve">
+    <value>Der Ordner mit der EscapeFromTarkov.exe des Headless-Clients</value>
+  </data>
+  <data name="Options_HeadlessFolderPickerTitle" xml:space="preserve">
+    <value>Ordner des Headless-Clients auswählen</value>
+  </data>
+  <data name="Headless_ProblemNoFolderFormat" xml:space="preserve">
+    <value>Der Ordner des Headless-Clients ist nicht vorhanden: {0}</value>
+  </data>
+  <data name="Headless_ProblemNotAGameFormat" xml:space="preserve">
+    <value>{0} enthält keinen BepInEx-Ordner und ist daher kein Spielordner.</value>
+  </data>
+  <data name="Headless_ProblemSameAsInstall" xml:space="preserve">
+    <value>Der Ordner des Headless-Clients ist diese SPT-Installation selbst. Er ist für einen Headless-Client in einem anderen Ordner gedacht.</value>
+  </data>
+  <data name="Headless_ProblemLinkFormat" xml:space="preserve">
+    <value>Der Ordner BepInEx, plugins oder patchers in {0} ist eine Verknüpfung zu einem anderen Ordner. SSPTMM schreibt nicht durch Verknüpfungen: Das würde ändern, worauf die Verknüpfung zeigt.</value>
+  </data>
+  <data name="Headless_ProblemInUseFormat" xml:space="preserve">
+    <value>Das Spiel läuft aus {0}. Schließe zuerst den Headless-Client.</value>
+  </data>
+  <data name="Headless_CopiedFormat" xml:space="preserve">
+    <value>Ordner des Headless-Clients: {0} kopiert, {1} entfernt, {2} bereits gleich.</value>
+  </data>
+  <data name="Headless_FailedFormat" xml:space="preserve">
+    <value>Nicht kopiert: {0}.</value>
+  </data>
+  <data name="ModLists_CopyToHeadless" xml:space="preserve">
+    <value>In den Headless-Ordner kopieren</value>
+  </data>
+  <data name="ModLists_CopyToHeadlessToolTip" xml:space="preserve">
+    <value>Kopiert die Spieldateien der mit Headless markierten Mods dieser Kollektion aus dieser SPT-Installation in den in den Optionen angegebenen Ordner des Headless-Clients. Nichts wird heruntergeladen; eine hier noch nicht installierte Mod wird übersprungen.</value>
+  </data>
   <data name="Options_FikaAutomatic" xml:space="preserve">
     <value>Automatisch</value>
   </data>

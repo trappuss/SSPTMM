@@ -75,7 +75,8 @@ runs in that player's game, not in the server. Fika's own guides cover routers, 
   25565 in for hosting a raid. SSPTMM only reads the rules and changes none. It can't see another
   firewall, or your router.
 - **Headless client**: if this install has Fika's headless launcher, **Start with the server**
-  starts it once the server is up.
+  starts it once the server is up. A headless client kept in a folder of its own gets its mods
+  from a collection: see [Collections](Collections#a-headless-client-in-its-own-folder).
 
 Closing SSPTMM while the server runs asks first, since the server keeps running for your friends.
 

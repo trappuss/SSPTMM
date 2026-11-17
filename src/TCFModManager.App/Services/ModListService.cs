@@ -214,6 +214,32 @@ public sealed class ModListService
     public static ModListEntryScope MachineScope =>
         InstallRole.ScopeFor(new SettingsService().Load().Roles);
 
+    // Fork (1.4.8): Options > Headless client folder; null when none is named.
+    public static string? HeadlessFolder =>
+        new SettingsService().Load().HeadlessClientFolder is { Length: > 0 } folder ? folder : null;
+
+    //
+    // Fork (1.4.8): the game halves of the mods this list marks Headless, copied from this install
+    // into the headless client's folder (HeadlessMirror). Planned against every scope, so a list a
+    // server served is not first narrowed to what this machine is. Null when no folder is named or
+    // there is no install to copy from.
+    //
+    public async Task<HeadlessMirrorResult?> CopyToHeadlessAsync(ModList list)
+    {
+        if (HeadlessFolder is not { } headless || await ReadInstallAsync() is not { } install) return null;
+
+        var plan = ModListPlanner.Build(list, install.Candidates, machine: ModListEntryScope.Everyone);
+        var wanted = plan.Actions
+            .Where(a => a.Entry is { } entry && entry.EffectiveScope.HasFlag(ModListEntryScope.Headless) && a.Installed is { IsDisabled: false })
+            .SelectMany(a => a.Installed!.Entries)
+            .Where(e => e.Target == InstalledModTarget.Client && !e.IsDisabled)
+            .Select(e => e.FolderPath)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        return await Task.Run(() => HeadlessMirror.Sync(install.InstallPath, headless, wanted, DateTimeOffset.Now));
+    }
+
     // Works out what applying this list would do. Nothing moves and nothing downloads.
     public async Task<ModListPreview?> PreviewAsync(ModList list)
     {

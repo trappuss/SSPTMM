@@ -71,6 +71,7 @@ The gear at the top right. Each setting has a one-line explanation and a **?** w
 | Public address in the invite (from 1.4.8) | **Off** by default. On: a Fika host's **Copy invite** asks `api.ipify.org` for this PC's address on the internet and puts it in the invite, for friends outside your network. Everyone who gets the invite sees it, and the router still has to forward the server's port. See [Playing with friends (Fika)](Fika). |
 | What this machine is | A player's PC, a Fika headless client, or both - a headless client needs the mods that decide how a raid goes and none of the ones that draw things at a player. |
 | Fika headless launcher | Only needed if `FikaHeadlessManager.exe` isn't at the top of the install folder. |
+| Headless client folder (from 1.4.8) | For a headless client kept in a folder of its own. Applying a collection - or **Copy to headless folder** on [Collections](Collections#a-headless-client-in-its-own-folder) - copies the mods the collection marks **Headless** from this install into that folder. A folder whose `BepInEx` is a link to another folder is refused. |
 | Server map connection | The address and port from your SPT launcher, and the key if the server has one; what this machine shares. |
 
 ## Advanced

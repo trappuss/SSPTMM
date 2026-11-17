@@ -10472,6 +10472,48 @@
   <data name="Options_FikaPublicDescription" xml:space="preserve">
     <value>По умолчанию выключено. Если включено, «Скопировать приглашение» спрашивает у api.ipify.org, какой адрес у этого ПК в интернете; этой службе не отправляется ничего, кроме самого запроса. Адрес видят все, кто получит приглашение. Роутер по-прежнему должен пробрасывать порт сервера на этот ПК, а некоторые провайдеры дают один адрес нескольким абонентам, и снаружи он недоступен.</value>
   </data>
+  <data name="Options_HeadlessFolderHeader" xml:space="preserve">
+    <value>Папка headless-клиента</value>
+  </data>
+  <data name="Options_HeadlessFolderHint" xml:space="preserve">
+    <value>Для headless-клиента в отдельной папке: при применении коллекции туда копируются и моды с отметкой Headless.</value>
+  </data>
+  <data name="Options_HeadlessFolderDescription" xml:space="preserve">
+    <value>SSPTMM управляет одной установкой SPT. Если здесь указана папка headless-клиента, применение коллекции - или «Скопировать в папку headless» на странице коллекций - копирует игровые файлы модов, отмеченных в коллекции как Headless, из BepInEx\plugins и BepInEx\patchers этой установки в те же места там. Ничего не скачивается дважды. SSPTMM запоминает скопированное и удаляет его, когда коллекция его больше не содержит; уже лежавшая там папка с тем же именем откладывается в сторону, а не удаляется, и остальное в папке headless не трогается. Папка, в которой BepInEx - ссылка на другую папку, отклоняется.</value>
+  </data>
+  <data name="Options_HeadlessFolderPlaceholder" xml:space="preserve">
+    <value>Папка с EscapeFromTarkov.exe headless-клиента</value>
+  </data>
+  <data name="Options_HeadlessFolderPickerTitle" xml:space="preserve">
+    <value>Выберите папку headless-клиента</value>
+  </data>
+  <data name="Headless_ProblemNoFolderFormat" xml:space="preserve">
+    <value>Папка headless-клиента не найдена: {0}</value>
+  </data>
+  <data name="Headless_ProblemNotAGameFormat" xml:space="preserve">
+    <value>В {0} нет папки BepInEx, значит, это не папка игры.</value>
+  </data>
+  <data name="Headless_ProblemSameAsInstall" xml:space="preserve">
+    <value>Папка headless-клиента - это сама эта установка SPT. Она нужна для headless-клиента в другой папке.</value>
+  </data>
+  <data name="Headless_ProblemLinkFormat" xml:space="preserve">
+    <value>Папка BepInEx, plugins или patchers в {0} - ссылка на другую папку. SSPTMM не пишет через ссылки: изменилось бы то, на что ссылка указывает.</value>
+  </data>
+  <data name="Headless_ProblemInUseFormat" xml:space="preserve">
+    <value>Игра запущена из {0}. Сначала закройте headless-клиент.</value>
+  </data>
+  <data name="Headless_CopiedFormat" xml:space="preserve">
+    <value>Папка headless-клиента: скопировано {0}, удалено {1}, без изменений {2}.</value>
+  </data>
+  <data name="Headless_FailedFormat" xml:space="preserve">
+    <value>Не удалось скопировать: {0}.</value>
+  </data>
+  <data name="ModLists_CopyToHeadless" xml:space="preserve">
+    <value>Скопировать в папку headless</value>
+  </data>
+  <data name="ModLists_CopyToHeadlessToolTip" xml:space="preserve">
+    <value>Копирует игровые файлы модов этой коллекции с отметкой Headless из этой установки SPT в папку headless-клиента, указанную в настройках. Ничего не скачивается; мод, который здесь ещё не установлен, пропускается.</value>
+  </data>
   <data name="Options_FikaAutomatic" xml:space="preserve">
     <value>Автоматически</value>
   </data>

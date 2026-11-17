@@ -903,6 +903,8 @@ public partial class ModListsViewModel : LocalizedViewModel
     [RelayCommand]
     public void Refresh(Guid? select = null)
     {
+        OnPropertyChanged(nameof(HasHeadlessFolder));
+
         // Fork: a collection kept in a shared folder is rewritten there when it changes.
         Services.CollectionSharing.WriteSharedFolders();
 
@@ -1226,7 +1228,13 @@ public partial class ModListsViewModel : LocalizedViewModel
 
             if (result.Completed)
             {
-                StatusMessage = Completed(result, ModListDownloadMode.For(preview.List));
+                var done = Completed(result, ModListDownloadMode.For(preview.List));
+
+                // Fork (1.4.8): then the headless client's own folder, when one is named in Options.
+                if (ModListService.HeadlessFolder is { } headless && await _service.CopyToHeadlessAsync(preview.List) is { } copy)
+                    done += " " + HeadlessMirrorProblems.Describe(copy, headless);
+
+                StatusMessage = done;
                 ClearPlan();
                 Refresh(preview.List.Id);
                 return;
@@ -1254,6 +1262,21 @@ public partial class ModListsViewModel : LocalizedViewModel
 
             ClearPlan();
             Refresh(preview.List.Id);
+        });
+    }
+
+    // Fork (1.4.8): Options > Headless client folder is named - Copy to headless folder is offered.
+    public bool HasHeadlessFolder => ModListService.HeadlessFolder is not null;
+
+    [RelayCommand]
+    private async Task CopyToHeadlessAsync()
+    {
+        if (Selected is not { } row || ModListService.HeadlessFolder is not { } headless) return;
+
+        await RunAsync(async () =>
+        {
+            if (await _service.CopyToHeadlessAsync(row.List) is { } copy)
+                StatusMessage = HeadlessMirrorProblems.Describe(copy, headless);
         });
     }
 
