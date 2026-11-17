@@ -8473,6 +8473,21 @@ Rimuoverli - o disattivarli - può lasciare un profilo che SPT non carica. Se su
   <data name="Diagnose_Body_FikaServerVersionFormat" xml:space="preserve">
     <value>Il Fika di questo gioco richiede sul server Fika {0} o più recente, ed è {1}. L'host aggiorna il mod server di Fika, oppure qui si installa la versione di Fika usata dall'host.</value>
   </data>
+  <data name="Diagnose_Title_GameUnknownValue" xml:space="preserve">
+    <value>Il gioco non ha potuto leggere la risposta del server</value>
+  </data>
+  <data name="Diagnose_Body_GameUnknownValueFormat" xml:space="preserve">
+    <value>Il gioco si è fermato a {0}: il server ha inviato il valore {1} "{2}", che il gioco non conosce.</value>
+  </data>
+  <data name="Diagnose_Body_GameUnknownValueOffFormat" xml:space="preserve">
+    <value>Proviene da {0}, che è disattivata mentre un profilo lo contiene ancora. Riattivare tutte le parti di {0}, oppure ripristinare un profilo precedente all'uso di quella mod.</value>
+  </data>
+  <data name="Diagnose_Body_GameUnknownValueOnFormat" xml:space="preserve">
+    <value>Proviene da {0}, la cui parte di gioco non è caricata: il suo plugin, o il suo prepatch in BepInEx\patchers, manca o è disattivato.</value>
+  </data>
+  <data name="Diagnose_Body_GameUnknownValueNoModFormat" xml:space="preserve">
+    <value>Molto probabilmente una mod che aggiunge a {0} è stata rimossa o disattivata mentre un profilo contiene ancora ciò che ha aggiunto, oppure la sua parte di gioco non è caricata.</value>
+  </data>
   <data name="Diagnose_Title_PluginMissingDependency" xml:space="preserve">
     <value>Un mod non si è caricato: manca qualcosa che gli serve</value>
   </data>

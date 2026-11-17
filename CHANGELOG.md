@@ -7,6 +7,7 @@ From 1.3.0 or later: Help > About > **Install update**. From an older version: c
 ## New
 
 - **Public address in the invite.** A Fika host's **Copy invite** can now put this PC's address on the internet into the message, so friends outside your network no longer have to ask for it. It is off until you switch it on in Options > Fika and servers: when on, Copy invite asks `api.ipify.org` for the address, and everyone who gets the invite sees it. Your router still has to forward the server's port to this PC.
+- **Diagnose logs explains a profile the game can't read.** When the game stops at the profile list because the server sent a value it doesn't know - a skill from a mod that was turned off while a profile still has it - Diagnose logs now says which value, and which mod it comes from, even when that mod is turned off.
 - **Fika guide.** Play's **...** menu has a **Fika guide** item, which opens the wiki's new page on hosting and joining: [Playing with friends (Fika)](https://github.com/trappuss/SSPTMM/wiki/Fika).
 
 # SSPTMM 1.4.7

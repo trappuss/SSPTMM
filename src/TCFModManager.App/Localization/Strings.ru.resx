@@ -8884,6 +8884,21 @@
   <data name="Diagnose_Body_FikaServerVersionFormat" xml:space="preserve">
     <value>Fika в этой игре требует на сервере Fika {0} или новее, а там {1}. Хост обновляет серверный мод Fika, либо здесь устанавливается версия Fika, как у хоста.</value>
   </data>
+  <data name="Diagnose_Title_GameUnknownValue" xml:space="preserve">
+    <value>Игра не смогла прочитать ответ сервера</value>
+  </data>
+  <data name="Diagnose_Body_GameUnknownValueFormat" xml:space="preserve">
+    <value>Игра остановилась на {0}: сервер прислал значение {1} «{2}», которого игра не знает.</value>
+  </data>
+  <data name="Diagnose_Body_GameUnknownValueOffFormat" xml:space="preserve">
+    <value>Оно принадлежит моду {0}, который выключен, а в профиле оно осталось. Нужно снова включить все части {0} или восстановить профиль, сохранённый до этого мода.</value>
+  </data>
+  <data name="Diagnose_Body_GameUnknownValueOnFormat" xml:space="preserve">
+    <value>Оно принадлежит моду {0}, игровая часть которого не загружена: его плагин или препатч в BepInEx\patchers отсутствует или выключен.</value>
+  </data>
+  <data name="Diagnose_Body_GameUnknownValueNoModFormat" xml:space="preserve">
+    <value>Скорее всего, мод, дополняющий {0}, удалён или выключен, а в профиле осталось добавленное им, либо его игровая часть не загружена.</value>
+  </data>
   <data name="Diagnose_Title_PluginMissingDependency" xml:space="preserve">
     <value>Мод не загрузился: не хватает того, что ему нужно</value>
   </data>

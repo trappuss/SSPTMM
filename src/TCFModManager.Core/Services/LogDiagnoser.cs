@@ -80,6 +80,11 @@ public enum LogFindingKind
 
     /// <summary>Fork (1.4.7): the server's Fika is older than this game's Fika needs. Args: needed, the server's.</summary>
     FikaServerVersion,
+
+    /// <summary>Fork (1.4.8): the game could not read a server answer for a value it doesn't know (a
+    /// mod's skill in a profile, with the mod off). Args: the request, the type, the value, and "off"
+    /// or "on" for the mod the value comes from (empty when none could be named).</summary>
+    GameUnknownValue,
 }
 
 public enum LogSeverity
@@ -468,10 +473,30 @@ public static partial class LogDiagnoser
     [GeneratedRegex("^Bundle \"(?<bundle>[^\"]+)\" has dependency \"[^\"]+\" that was not found in manifest")]
     private static partial Regex BundleDependency();
 
+    //
+    // Fork (1.4.8): seen in a real install (2026-11-17), with Skills Extended turned off and its two
+    // skills still in a profile:
+    //   JSON parsing error in response to https://127.0.0.1:6969/client/game/profile/list: Error
+    //   converting value "SignalsIntelligence" to type 'EFT.ESkillId'. Path '[0].Skills.Common[45].Id', ...
+    // The game writes it several times over; this is the one line that carries all of it.
+    //
+    [GeneratedRegex(@"^JSON parsing error in response to https?://[^/\s]+(?<route>/[^\s:]+): Error converting value ""(?<value>[^""]+)"" to type '(?<type>[\w.+]+)'")]
+    private static partial Regex GameUnknownValue();
+
     private static void CheckGame(IReadOnlyList<LogEntry> entries, LogModLocator mods, Findings found)
     {
         foreach (var entry in entries)
         {
+            if (GameUnknownValue().Match(entry.Message) is { Success: true } unknown)
+            {
+                var value = unknown.Groups["value"].Value;
+                var owner = mods.ByAddedValue(value);
+                found.Add(LogFindingKind.GameUnknownValue, LogSeverity.Critical, owner?.Mod,
+                    [unknown.Groups["route"].Value, ShortType(unknown.Groups["type"].Value), value, owner is null ? string.Empty : owner.Value.Off ? "off" : "on"],
+                    entry);
+                continue;
+            }
+
             if (BundleDependency().Match(entry.Message) is not { Success: true } m) continue;
 
             var bundle = m.Groups["bundle"].Value;

@@ -298,6 +298,65 @@ public sealed class ForkLogDiagnosisTests : IDisposable
         Assert.Equal(5, found.Count);
     }
 
+    // Fork (1.4.8): the game's errors.log as a real install wrote it (2026-11-17), with Skills Extended
+    // turned off and its skills still in a profile.
+    [Fact]
+    public void A_value_the_game_does_not_know_is_traced_to_the_mod_whose_prepatch_adds_it()
+    {
+        var game = LogEntries.Parse(LogKind.GameErrors, "errors.log",
+        [
+            "2026-11-17 06:40:07.084 -05:00|0.16.9.5.40743|Error|Default|JSON deserialization error: Cannot deserialize the current JSON object (e.g. {\"name\":\"value\"}) into type 'EFT.ProfileDescriptor[]' because the type requires a JSON array (e.g. [1,2,3]) to deserialize correctly.",
+            "Path 'err', line 1, position 7..",
+            "2026-11-17 06:40:07.096 -05:00|0.16.9.5.40743|Error|backend|JSON parsing error in response to https://127.0.0.1:6969/client/game/profile/list",
+            "JSON parsing into EFT.ProfileDescriptor[] failed on response:",
+            "Error details: Error converting value \"SignalsIntelligence\" to type 'EFT.ESkillId'. Path '[0].Skills.Common[45].Id', line 1, position 33908.",
+            "2026-11-17 06:40:07.096 -05:00|0.16.9.5.40743|Error|Default|JSON parsing error in response to https://127.0.0.1:6969/client/game/profile/list: Error converting value \"SignalsIntelligence\" to type 'EFT.ESkillId'. Path '[0].Skills.Common[45].Id', line 1, position 33908.",
+            "  Inner Exception 1: Requested value 'SignalsIntelligence' was not found.",
+        ]);
+
+        var skills = Server("SkillsExtended", "com.cj.skillsextended", Path.Combine("mods.disabled", "SkillsExtended"));
+
+        var off = Assert.Single(Find([], Mods().WithAddedValue("SignalsIntelligence", skills, off: true), game: game));
+        Assert.Equal(LogFindingKind.GameUnknownValue, off.Kind);
+        Assert.Equal(LogSeverity.Critical, off.Severity);
+        Assert.Same(skills, off.Mod);
+        Assert.Equal(["/client/game/profile/list", "ESkillId", "SignalsIntelligence", "off"], off.Args);
+
+        // The server half on and the game half not, and a value no prepatch here adds.
+        Assert.Equal("on", Assert.Single(Find([], Mods().WithAddedValue("SignalsIntelligence", skills, off: false), game: game)).Args[3]);
+        var nobody = Assert.Single(Find([], game: game));
+        Assert.Null(nobody.Mod);
+        Assert.Equal(string.Empty, nobody.Args[3]);
+    }
+
+    [Fact]
+    public void Server_prepatches_are_read_from_every_mods_folder_and_a_broken_file_is_skipped()
+    {
+        var install = Path.Combine(Path.GetTempPath(), "ssptmm-prepatch-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            var skills = Path.Combine(install, "SPT_Runtime", "user", "patchers", "com.cj.skillsextended");
+            var broken = Path.Combine(install, "SPT_Runtime", "user", "patchers", "com.broken");
+            Directory.CreateDirectory(skills);
+            Directory.CreateDirectory(broken);
+            Directory.CreateDirectory(Path.Combine(install, "SPT_Runtime", "user", "mods"));
+            File.WriteAllText(Path.Combine(skills, "EnumExtensions.json"), "["
+                + "{ \"enumType\": \"SPTarkov.Server.Core.Models.Enums.SkillTypes\", \"constantName\": \"Hacking\", \"constantValue\": 200 },"
+                + "{ \"enumType\": \"SPTarkov.Server.Core.Models.Enums.SkillTypes\", \"constantName\": \"SignalsIntelligence\", \"constantValue\": 201 }"
+                + "]");
+            File.WriteAllText(Path.Combine(broken, "x.json"), "{ not json");
+
+            Assert.Equal(
+                [("com.cj.skillsextended", "Hacking"), ("com.cj.skillsextended", "SignalsIntelligence")],
+                ServerPrepatches.Read(install));
+            Assert.Empty(ServerPrepatches.Read(Path.Combine(install, "nothing-here")));
+        }
+        finally
+        {
+            Directory.Delete(install, recursive: true);
+        }
+    }
+
     [Fact]
     public void The_locator_takes_the_longest_namespace_and_names_nobody_for_a_shared_one()
     {

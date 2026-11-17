@@ -39,16 +39,39 @@ public sealed class LogModLocator
     private readonly List<DiagnosedMod> _serverMods = [];
     private readonly List<DiagnosedMod> _all = [];
 
+    // Fork (1.4.8): the values server enum prepatches add (ServerPrepatches), and whose they are -
+    // a mod that is turned off included, since its prepatch stays where it is.
+    private readonly Dictionary<string, (DiagnosedMod Mod, bool Off)> _byAddedValue = new(StringComparer.Ordinal);
+
     public IReadOnlyList<DiagnosedMod> ServerMods => _serverMods;
 
     public IReadOnlyList<DiagnosedMod> All => _all;
 
-    /// <summary>From the scan of the install: enabled mods only (a disabled one isn't loaded).</summary>
-    public static LogModLocator Build(IEnumerable<InstalledMod> scanned)
+    /// <summary>From the scan of the install: enabled mods only (a disabled one isn't loaded). With the
+    /// install's folder, the values its server prepatches add are traced too, to mods on or off.</summary>
+    public static LogModLocator Build(IEnumerable<InstalledMod> scanned, string? installPath = null)
     {
         var locator = new LogModLocator();
+        var everything = scanned.ToList();
 
-        foreach (var mod in scanned.Where(m => !m.IsDisabled))
+        if (installPath is { Length: > 0 })
+        {
+            foreach (var (guid, value) in ServerPrepatches.Read(installPath))
+            {
+                // The one that is on, when the same mod is there twice.
+                var owner = everything
+                    .Where(m => m.Target == InstalledModTarget.Server && m.AllGuids.Any(g => g.Equals(guid, StringComparison.OrdinalIgnoreCase)))
+                    .OrderBy(m => m.IsDisabled)
+                    .FirstOrDefault();
+                if (owner is null) continue;
+
+                locator._byAddedValue.TryAdd(value, (
+                    new DiagnosedMod(owner.Name, owner.DeclaredName ?? owner.Name, owner.FolderPath, owner.Target, owner.Guid) { InstalledAt = owner.InstalledAt },
+                    owner.IsDisabled));
+            }
+        }
+
+        foreach (var mod in everything.Where(m => !m.IsDisabled))
         {
             var found = new DiagnosedMod(mod.Name, mod.DeclaredName ?? mod.Name, mod.FolderPath, mod.Target, mod.Guid)
             {
@@ -118,6 +141,18 @@ public sealed class LogModLocator
             name = name[..dot];
             if (_byNamespace.TryGetValue(name, out var found)) return found;
         }
+    }
+
+    /// <summary>Fork (1.4.8): the server mod whose prepatch adds this value ("SignalsIntelligence"), and
+    /// whether that mod is turned off; null when no prepatch adds it or the folder is no installed mod's.</summary>
+    public (DiagnosedMod Mod, bool Off)? ByAddedValue(string value) =>
+        _byAddedValue.TryGetValue(value, out var found) ? found : null;
+
+    /// <summary>For tests: a value a mod's prepatch adds.</summary>
+    public LogModLocator WithAddedValue(string value, DiagnosedMod mod, bool off)
+    {
+        _byAddedValue[value] = (mod, off);
+        return this;
     }
 
     /// <summary>The server mods holding this bundle (a path as SPT logs it, "assets/content/.../x.bundle").</summary>

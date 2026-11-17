@@ -56,6 +56,7 @@ press **Read the logs again**.
 | Two mods ship the same bundle | SPT could only use one of them. |
 | A bundle needs files that aren't there | The game couldn't fully load a mod's bundle. |
 | A mod logged errors in the game | A plugin's own error lines in BepInEx's log. |
+| The game couldn't read the server's answer (from 1.4.8) | The server sent a value the game doesn't know - a skill a mod added, say - and the game stopped there, often at the profile list. It happens when a mod that adds its own values is turned off or removed while a profile still has them: the mod's folder in `user\patchers` stays, so the server goes on knowing the value and the game no longer does. The card names the value and the mod it comes from, turned off or not. Turn every part of that mod back on, or restore a profile from before it was used. |
 | Fika: the host doesn't allow some of your mods | The host's Fika lists the game mods it lets in, and some of yours are not on it. Turn them off, or ask the host to allow them. |
 | Fika: mods the host requires are missing | The host's Fika requires game mods that aren't loaded here. |
 | Fika: some mods differ from the host's | Game mods here aren't the same files as the server saw first - usually another version. |

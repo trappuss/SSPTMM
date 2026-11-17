@@ -110,6 +110,13 @@ public sealed class LogFindingRow
                 T(Strings.Diagnose_Body_FikaMismatchFormat, Arg(f, 0)) + " " + T(Strings.Diagnose_Body_FikaCompareHint, Strings.Play_RemoteCompareMods)),
             LogFindingKind.FikaNoServerMod => (Strings.Diagnose_Title_FikaNoServerMod, Strings.Diagnose_Body_FikaNoServerMod),
             LogFindingKind.FikaServerVersion => (Strings.Diagnose_Title_FikaServerVersion, T(Strings.Diagnose_Body_FikaServerVersionFormat, Arg(f, 0), Arg(f, 1))),
+            LogFindingKind.GameUnknownValue => (Strings.Diagnose_Title_GameUnknownValue, // Fork (1.4.8)
+                T(Strings.Diagnose_Body_GameUnknownValueFormat, Arg(f, 0), Arg(f, 1), Arg(f, 2)) + " " + (f.Mod, Arg(f, 3)) switch
+                {
+                    ({ } mod, "off") => T(Strings.Diagnose_Body_GameUnknownValueOffFormat, mod.DisplayName),
+                    ({ } mod, _) => T(Strings.Diagnose_Body_GameUnknownValueOnFormat, mod.DisplayName),
+                    _ => T(Strings.Diagnose_Body_GameUnknownValueNoModFormat, Arg(f, 1)),
+                }),
             LogFindingKind.PluginMissingDependency => (Strings.Diagnose_Title_PluginMissingDependency, T(Strings.Diagnose_Body_PluginMissingDependency, Arg(f, 0), Arg(f, 1))),
             LogFindingKind.PluginIncompatible => (Strings.Diagnose_Title_PluginIncompatible, T(Strings.Diagnose_Body_PluginIncompatible, Arg(f, 0), Arg(f, 1))),
             LogFindingKind.PluginDependencyNotLoaded => (Strings.Diagnose_Title_PluginDependencyNotLoaded, T(Strings.Diagnose_Body_PluginDependencyNotLoaded, Arg(f, 0))),
@@ -191,7 +198,7 @@ public sealed partial class DiagnoseViewModel : LocalizedViewModel
                 _coreConfig = SptProfileFixes.ConfigPath(installPath);
                 _profileFix = SptProfileFixes.Read(_coreConfig);
 
-                var mods = LogModLocator.Build(InstalledModScanner.Scan(installPath));
+                var mods = LogModLocator.Build(InstalledModScanner.Scan(installPath), installPath);
                 return LogDiagnoser.Diagnose(LogFiles.Find(installPath), mods);
             });
 

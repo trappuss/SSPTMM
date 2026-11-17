@@ -8473,6 +8473,21 @@ Wenn du sie entfernst - oder ausschaltest -, kann ein Profil zurückbleiben, das
   <data name="Diagnose_Body_FikaServerVersionFormat" xml:space="preserve">
     <value>Fika in diesem Spiel braucht auf dem Server Fika {0} oder neuer, dort ist es {1}. Der Host aktualisiert Fikas Server-Mod, oder hier wird die Fika-Version des Hosts installiert.</value>
   </data>
+  <data name="Diagnose_Title_GameUnknownValue" xml:space="preserve">
+    <value>Das Spiel konnte die Antwort des Servers nicht lesen</value>
+  </data>
+  <data name="Diagnose_Body_GameUnknownValueFormat" xml:space="preserve">
+    <value>Das Spiel blieb bei {0} stehen: Der Server schickte den {1}-Wert „{2}“, den das Spiel nicht kennt.</value>
+  </data>
+  <data name="Diagnose_Body_GameUnknownValueOffFormat" xml:space="preserve">
+    <value>Er stammt von {0}; die Mod ist ausgeschaltet, aber ein Profil enthält den Wert noch. Schalte alle Teile von {0} wieder ein oder stelle ein Profil aus der Zeit vor dieser Mod wieder her.</value>
+  </data>
+  <data name="Diagnose_Body_GameUnknownValueOnFormat" xml:space="preserve">
+    <value>Er stammt von {0}, deren Spielhälfte nicht geladen ist: Ihr Plugin oder ihr Prepatch in BepInEx\patchers fehlt oder ist ausgeschaltet.</value>
+  </data>
+  <data name="Diagnose_Body_GameUnknownValueNoModFormat" xml:space="preserve">
+    <value>Wahrscheinlich wurde eine Mod, die {0} erweitert, entfernt oder ausgeschaltet, während ein Profil noch enthält, was sie hinzugefügt hat – oder ihre Spielhälfte ist nicht geladen.</value>
+  </data>
   <data name="Diagnose_Title_PluginMissingDependency" xml:space="preserve">
     <value>Ein Mod wurde nicht geladen: Etwas, das er braucht, fehlt</value>
   </data>

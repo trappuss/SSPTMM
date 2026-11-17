@@ -10506,6 +10506,26 @@ Removing them - or turning them off - can leave a profile SPT won't load. If tha
     <value>This game's Fika needs the server's Fika to be {0} or newer, and it is {1}. The host updates Fika's server mod, or the Fika version the host uses is installed here.</value>
     <comment>Card text. {0}: the server version this game's Fika needs at least; {1}: the server's.</comment>
   </data>
+  <data name="Diagnose_Title_GameUnknownValue" xml:space="preserve">
+    <value>The game couldn't read the server's answer</value>
+    <comment>Diagnose logs card title: the game could not read an answer from the server, because of a value (a skill, say) it does not know.</comment>
+  </data>
+  <data name="Diagnose_Body_GameUnknownValueFormat" xml:space="preserve">
+    <value>The game stopped at {0}: the server sent the {1} value "{2}", which the game doesn't know.</value>
+    <comment>Card text, first sentence. {0}: the request, such as /client/game/profile/list; {1}: a type name, such as ESkillId; {2}: the value, such as SignalsIntelligence.</comment>
+  </data>
+  <data name="Diagnose_Body_GameUnknownValueOffFormat" xml:space="preserve">
+    <value>It comes from {0}, which is turned off while a profile still has it. Turn every part of {0} back on, or restore a profile from before that mod was used.</value>
+    <comment>Card text, second sentence, when the mod the value comes from is turned off. {0}: the mod's name.</comment>
+  </data>
+  <data name="Diagnose_Body_GameUnknownValueOnFormat" xml:space="preserve">
+    <value>It comes from {0}, whose game half isn't loaded: its plugin, or its prepatch in BepInEx\patchers, is missing or turned off.</value>
+    <comment>Card text, second sentence, when the mod the value comes from is on at the server. {0}: the mod's name. BepInEx\patchers is a folder; keep it.</comment>
+  </data>
+  <data name="Diagnose_Body_GameUnknownValueNoModFormat" xml:space="preserve">
+    <value>Most likely a mod that adds to {0} was removed or turned off while a profile still has what it added, or its game half isn't loaded.</value>
+    <comment>Card text, second sentence, when no mod could be named. {0}: a type name, such as ESkillId.</comment>
+  </data>
   <data name="Diagnose_Title_PluginMissingDependency" xml:space="preserve">
     <value>A mod didn't load: something it needs is missing</value>
     <comment>Diagnose logs finding</comment>
