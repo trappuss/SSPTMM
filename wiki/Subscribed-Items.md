@@ -136,6 +136,10 @@ Install from file, **Add from GitHub** (see [Subscribing and downloads](Subscrib
 **SPT upgrade check** (pick a newer SPT release and see which of your mods are
 ready, need an update first, or have nothing yet), Rescan and more.
 
+From 1.4.8, a scan of this page (opening it, an install finishing, Rescan or F5) also asks
+sp-mod.com what changed for your installed mods and addons when that was last done more than 20
+minutes ago, so new releases show without a restart.
+
 ## Undo
 
 After disabling, enabling or unsubscribing, **Undo ...** appears under the toolbar. Removed mods are

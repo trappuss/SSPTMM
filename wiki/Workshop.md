@@ -29,7 +29,7 @@ the other Workshop pages.
 - **Addons** are among the results, each on its own card: a puzzle piece in the picture's corner,
   and the mod it is for across its foot. The version line says whether it fits the mod you have.
   Click one to open its mod's page at the Addons tab, with that addon first. The **Addons** tag's
-  **+** shows only addons, **-** hides them; an addon goes by its mod's SPT versions and category.
+  **+** shows only addons, **-** hides them; an addon goes by its mod's SPT versions, category and (from 1.4.8) Fika tags.
 
   ![Addons only, each marked with its mod](https://raw.githubusercontent.com/trappuss/SSPTMM/main/docs/images/19-browse-addons.png)
 - **Sort** like Steam: Top Rated All Time (sp-mod.com endorsements), Most Recent, Last Updated,

@@ -13,6 +13,11 @@ From 1.3.0 or later: Help > About > **Install update**. From an older version: c
 - **Fika guide.** Play's **...** menu has a **Fika guide** item, which opens the wiki's new page on hosting and joining: [Playing with friends (Fika)](https://github.com/trappuss/SSPTMM/wiki/Fika).
 - **"Held back" says why.** An update sp-mod.com lists as blocked used to read "held back by sp-mod.com". The card now says that it would break another installed mod, and that the mod's own update dialog can still install it.
 
+## Changed
+
+- **Subscribed items keeps up with sp-mod.com while SSPTMM stays open.** The list of mods was read at start, and with update notifications off nothing read it again, so a release from the afternoon didn't show until a restart. Now a scan of Subscribed items, Rescan (F5) included, also asks sp-mod.com what moved for your installed mods and addons when that was last done more than 20 minutes ago. It announces nothing unless update notifications are on.
+- **Fika filters no longer hide addons.** In the Workshop an addon counted as "Fika compatibility unknown", so ticking **Fika compatible** hid every addon, Fika sync addons included. An addon now goes by the mod it is for, as it does for SPT version and category.
+
 # SSPTMM 1.4.7
 
 ## Updating

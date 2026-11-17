@@ -85,7 +85,34 @@ internal sealed class UpdateWatcher
     // now" (§8a, step 5). Counts exactly like a timer tick: a baseline check announces nothing, and
     // what it announces isn't announced again. The timer keeps its own schedule.
     //
-    public Task<UpdateCheckOutcome> CheckNowAsync() => CheckAsync(_loop?.Token ?? CancellationToken.None);
+    public Task<UpdateCheckOutcome> CheckNowAsync() => CheckAsync(_loop?.Token ?? CancellationToken.None, announce: true);
+
+    //
+    // Fork (1.4.8): the same check, run after a scan of Subscribed items when sp-mod.com was last
+    // read longer ago than a saved catalog counts as fresh. The catalog is read at start; without
+    // this, an app left open with update notifications off showed that morning's versions all day,
+    // and Rescan only read the SPT folder again. Nothing is announced unless notifications are on.
+    //
+    public async Task RefreshIfStaleAsync()
+    {
+        if (Environment.TickCount64 < _staleAt) return;
+
+        try
+        {
+            await CheckAsync(_loop?.Token ?? CancellationToken.None, announce: _settings.Load().UpdateNotifications.Enabled);
+        }
+        catch (OperationCanceledException)
+        {
+            // Notifications were switched off or re-timed while it ran; the next scan asks again.
+        }
+    }
+
+    // When sp-mod.com is due to be read again (Environment.TickCount64): at start the catalog is
+    // at most FreshFor old, a check that got an answer starts the wait again, and one that didn't
+    // is tried again after a minute.
+    private long _staleAt = After(ModCacheViewModel.FreshFor);
+
+    private static long After(TimeSpan wait) => Environment.TickCount64 + (long)wait.TotalMilliseconds;
 
     private async Task RunAsync(TimeSpan interval, CancellationToken ct)
     {
@@ -94,7 +121,7 @@ internal sealed class UpdateWatcher
         try
         {
             while (await timer.WaitForNextTickAsync(ct))
-                await CheckAsync(ct);
+                await CheckAsync(ct, announce: true);
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested)
         {
@@ -102,7 +129,7 @@ internal sealed class UpdateWatcher
         }
     }
 
-    private async Task<UpdateCheckOutcome> CheckAsync(CancellationToken ct)
+    private async Task<UpdateCheckOutcome> CheckAsync(CancellationToken ct, bool announce)
     {
         // A tick that lands while the previous check is still going is skipped, not queued (§5).
         if (_checking) return new UpdateCheckOutcome(UpdateCheckResult.AlreadyChecking);
@@ -110,7 +137,9 @@ internal sealed class UpdateWatcher
 
         try
         {
-            return await CheckCoreAsync(ct);
+            var outcome = await CheckCoreAsync(ct, announce);
+            if (outcome.Result == UpdateCheckResult.Checked) _staleAt = After(ModCacheViewModel.FreshFor);
+            return outcome;
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested)
         {
@@ -120,18 +149,21 @@ internal sealed class UpdateWatcher
         {
             // Nothing is retried within the tick; the next one tries again (§5).
             AppLog.Warn("Updates", $"check skipped: The Forge is rate limiting ({ex.Message}), trying again next time");
+            _staleAt = After(TimeSpan.FromMinutes(1));
             return new UpdateCheckOutcome(UpdateCheckResult.RateLimited);
         }
         catch (Exception ex) when (ex is SpModApiException or HttpRequestException or TaskCanceledException)
         {
             // Offline, or The Forge is down. Skipped, not caught up later.
             AppLog.Warn("Updates", $"check skipped: couldn't reach The Forge ({ex.Message})");
+            _staleAt = After(TimeSpan.FromMinutes(1));
             return new UpdateCheckOutcome(UpdateCheckResult.Offline);
         }
         catch (Exception ex)
         {
             // A check that fails for any other reason must not take the timer down with it.
             AppLog.Error("Updates", "check failed", ex);
+            _staleAt = After(TimeSpan.FromMinutes(1));
             return new UpdateCheckOutcome(UpdateCheckResult.Failed);
         }
         finally
@@ -140,7 +172,7 @@ internal sealed class UpdateWatcher
         }
     }
 
-    private async Task<UpdateCheckOutcome> CheckCoreAsync(CancellationToken ct)
+    private async Task<UpdateCheckOutcome> CheckCoreAsync(CancellationToken ct, bool announce)
     {
         var installPath = AppServices.SptEnvironment.InstallPath;
         var sptVersion = AppServices.SptEnvironment.InstalledVersion;
@@ -208,6 +240,24 @@ internal sealed class UpdateWatcher
                 c.ModId!.Value, c.IsAddon, c.DisplayTitle, c.UpdateVersion ?? c.LatestPublishedVersion ?? string.Empty))
             .ToList();
 
+        var shown = available.Select(c => (c.ModId, c.IsAddon, c.Version)).ToHashSet();
+        // A patched cache always goes to the pages - a release that isn't an update still changes
+        // a card's "Latest published" line - and so does a different set of arrows.
+        var changed = patched || (_lastShown is not null && !shown.SetEquals(_lastShown));
+        _lastShown = shown;
+
+        // Fork (1.4.8): a check with notifications off (RefreshIfStaleAsync) announces nothing and
+        // leaves what has been announced as it is.
+        if (!announce)
+        {
+            AppLog.Info("Updates",
+                $"read sp-mod.com again for {mods.Count} mods and {addonIds.Count} addons: "
+                + $"{answer?.Updated.Count ?? 0} moved, {available.Count} with an update");
+
+            if (changed) UpdatesFound?.Invoke(this, EventArgs.Empty);
+            return new UpdateCheckOutcome(UpdateCheckResult.Checked, available.Count);
+        }
+
         var previous = _store.Load();
         var result = UpdateAnnouncer.Pick(available, previous, AppServices.DownloadLedger.Pending(), DateTimeOffset.Now);
         _store.Save(result.State);
@@ -219,12 +269,6 @@ internal sealed class UpdateWatcher
             + $"{answer?.NotRecognised.Count ?? 0} read directly, "
             + $"{available.Count} with an update, {result.New.Count} announced"
             + (previous.BaselineTaken ? string.Empty : " (baseline - nothing is announced on the first check)"));
-
-        var shown = available.Select(c => (c.ModId, c.IsAddon, c.Version)).ToHashSet();
-        // A patched cache always goes to the pages - a release that isn't an update still changes
-        // a card's "Latest published" line - and so does a different set of arrows.
-        var changed = patched || (_lastShown is not null && !shown.SetEquals(_lastShown));
-        _lastShown = shown;
 
         if (changed) UpdatesFound?.Invoke(this, EventArgs.Empty);
 

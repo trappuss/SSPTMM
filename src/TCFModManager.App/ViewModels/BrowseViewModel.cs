@@ -1220,9 +1220,10 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
 
     //
     // Fork (1.4.6): the addons the same filters leave, each with the mod it is for. An addon has no
-    // SPT version, category or Fika flag of its own, so the first two are its mod's - an addon for an
-    // AI mod is listed under AI, and under the SPT lines that mod runs on - and for Fika it counts as
-    // unknown, which is what sp-mod.com says about it. It is never featured, and has no
+    // SPT version, category or Fika flag of its own, so all three are its mod's - an addon for an
+    // AI mod is listed under AI, and under the SPT lines that mod runs on. (Fork, 1.4.8: for Fika it
+    // counted as unknown until then, so ticking "Fika compatible" hid every addon, the Fika sync
+    // addons included.) It is never featured, and has no
     // dependencies or addons, so those filters leave it out. An addon whose mod isn't in the catalog
     // (or that sp-mod.com marks detached from it) is never listed: there is no page to open it on.
     //
@@ -1248,7 +1249,7 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
             .Where(x => featured != FeaturedFilter.CreatedByFollowed || AppServices.Followed.IsByFollowed(x.Addon))
             .Where(x => SelectedCategory.Title is not { } category
                 || string.Equals(x.Parent!.Category?.Title, category, StringComparison.OrdinalIgnoreCase))
-            .Where(_ => FikaWanted(FikaStatus.Unknown))
+            .Where(x => FikaWanted(x.Parent!.Fika))
             .Where(x => !IsOn(ModAttributeFilter.HideAds) || x.Addon.ContainsAds != true)
             .Where(x => !IsOn(ModAttributeFilter.HideInstalled) || !_installedAddons.ContainsKey(x.Addon.Id))
             .Select(x => new BrowseEntry(x.Parent!, x.Addon))

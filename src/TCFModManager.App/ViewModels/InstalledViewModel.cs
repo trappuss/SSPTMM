@@ -622,7 +622,17 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         //
         AppServices.UpdateWatcher.UpdatesFound += async (_, _) =>
         {
-            if (!ReferenceEquals(Current, this) || !_hasScanned || ScanCommand.IsRunning) return;
+            if (!ReferenceEquals(Current, this) || !_hasScanned) return;
+
+            // Fork (1.4.8): a scan still running read the catalog before it was patched, so the page
+            // scans again once that one is done, as it does after an install.
+            if (ScanCommand.IsRunning)
+            {
+                _rescanAfterInstall.Stop();
+                _rescanAfterInstall.Start();
+                return;
+            }
+
             await ScanCommand.ExecuteAsync(null);
         };
     }
@@ -2104,6 +2114,10 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     {
         await AppServices.HeldBack.RefreshAsync(cards, AppServices.SptEnvironment.InstalledVersion);
         ApplyHeldBack();
+
+        // Fork (1.4.8): and, when sp-mod.com hasn't been read for a while, what moved there since.
+        // After the held-back answer, so the two don't cross; the page scans again if anything did.
+        if (_forPage && ReferenceEquals(Current, this)) await AppServices.UpdateWatcher.RefreshIfStaleAsync();
     }
 
     private void ApplyHeldBack()
