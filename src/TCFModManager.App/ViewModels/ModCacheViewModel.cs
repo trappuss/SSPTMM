@@ -25,6 +25,9 @@ public partial class ModCacheViewModel : LocalizedViewModel
 
     public IReadOnlyList<Mod> AllMods { get; private set; } = [];
 
+    // Fork (1.4.8): when the whole list was last fetched from sp-mod.com; null before it has loaded.
+    public DateTimeOffset? FetchedAt { get; private set; }
+
     // How old a saved catalog can be and still be used without fetching it again at start.
     public static readonly TimeSpan FreshFor = TimeSpan.FromMinutes(20);
 
@@ -88,6 +91,7 @@ public partial class ModCacheViewModel : LocalizedViewModel
             var mods = await _cacheService.FetchAllAsync(progress, ct);
             AppLog.Debug("Catalog", $"RefreshAsync: live fetch done, {mods.Count} mods");
             AllMods = mods;
+            FetchedAt = DateTimeOffset.UtcNow;
             _ = Task.Run(() => _store.Save(mods));
 
             // Replace the memoized task so future EnsureLoadedAsync calls see this fresh fetch.
@@ -154,6 +158,7 @@ public partial class ModCacheViewModel : LocalizedViewModel
             // Use the disk cache immediately, then refresh in the background.
             AppLog.Debug("Catalog", $"LoadAsync: disk cache hit, {cached.Mods.Count} mods");
             AllMods = cached.Mods;
+            FetchedAt = cached.FetchedAt;
 
             // A copy from a few minutes ago - the app restarted - is not fetched again (Refresh does).
             // (A copy dated in the future - the clock was ahead, then put right - counts as old.)
@@ -180,6 +185,7 @@ public partial class ModCacheViewModel : LocalizedViewModel
             var mods = await _cacheService.FetchAllAsync(progress, ct);
             AppLog.Debug("Catalog", $"LoadAsync: live fetch done, {mods.Count} mods");
             AllMods = mods;
+            FetchedAt = DateTimeOffset.UtcNow;
 
             // Save off the UI thread.
             _ = Task.Run(() => _store.Save(mods));
@@ -199,6 +205,7 @@ public partial class ModCacheViewModel : LocalizedViewModel
         {
             var fresh = await _cacheService.FetchAllAsync(null, ct).ConfigureAwait(false);
             AllMods = fresh;
+            FetchedAt = DateTimeOffset.UtcNow;
             _store.Save(fresh);
         }
         catch (OperationCanceledException)

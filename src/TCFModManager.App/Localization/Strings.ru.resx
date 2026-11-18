@@ -1846,10 +1846,10 @@
     <value>Открыть полную историю версий и окно обновления</value>
   </data>
   <data name="Installed_DetailUndetermined" xml:space="preserve">
-    <value>Не удалось определить версию - считаем, что она актуальна</value>
+    <value>Не удалось определить версию - считаем, что она актуальна. В «Сведения и версии» можно указать настоящую.</value>
   </data>
   <data name="Installed_DetailUndeterminedLatestFormat" xml:space="preserve">
-    <value>Не удалось определить версию - считаем, что установлена новейшая опубликованная ({0})</value>
+    <value>Не удалось определить версию - считаем, что установлена новейшая опубликованная ({0}). В «Сведения и версии» можно указать настоящую.</value>
   </data>
   <data name="Installed_DisabledCount_few" xml:space="preserve">
     <value>Отключено {0} мода.</value>
@@ -9910,6 +9910,39 @@
   </data>
   <data name="Menu_NoteHint" xml:space="preserve">
     <value>Нужно поменять конфиг, конфликтует с другим модом... (пусто - без заметки)</value>
+  </data>
+  <data name="Menu_LinkToPage" xml:space="preserve">
+    <value>Привязать к странице на sp-mod.com...</value>
+  </data>
+  <data name="Menu_LinkTitleFormat" xml:space="preserve">
+    <value>Какая страница sp-mod.com соответствует {0}?</value>
+  </data>
+  <data name="Menu_LinkBody" xml:space="preserve">
+    <value>Вставьте ссылку на страницу мода или аддона на sp-mod.com. SSPTMM покажет запись под этим названием и будет проверять обновления. На диске ничего не меняется.</value>
+  </data>
+  <data name="Menu_LinkSave" xml:space="preserve">
+    <value>Привязать</value>
+  </data>
+  <data name="Installed_LinkNotALink" xml:space="preserve">
+    <value>Это не ссылка на страницу мода или аддона на sp-mod.com, поэтому ничего не привязано.</value>
+  </data>
+  <data name="Installed_LinkNotInList" xml:space="preserve">
+    <value>Этой страницы нет в списке, полученном SSPTMM с sp-mod.com, поэтому ничего не привязано.</value>
+  </data>
+  <data name="Installed_LinkAlreadyFormat" xml:space="preserve">
+    <value>{0} уже установлен, поэтому ничего не привязано.</value>
+  </data>
+  <data name="Installed_LinkNoVersionFormat" xml:space="preserve">
+    <value>У {0} нет опубликованных версий, поэтому ничего не привязано.</value>
+  </data>
+  <data name="Installed_LinkedFormat" xml:space="preserve">
+    <value>{0} привязан к {1}, версия {2}. В «Сведения и версии» можно изменить версию, а «Сбросить переопределение» там отменяет привязку.</value>
+  </data>
+  <data name="Installed_StatusNotFound" xml:space="preserve">
+    <value>Не найден на sp-mod.com, поэтому обновления не проверяются. Если страница есть: правый клик &gt; Привязать к странице на sp-mod.com.</value>
+  </data>
+  <data name="Installed_SpModReadFormat" xml:space="preserve">
+    <value>Версии прочитаны с sp-mod.com: {0}</value>
   </data>
   <data name="Menu_SkipUpdateFormat" xml:space="preserve">
     <value>Пропустить это обновление ({0})</value>

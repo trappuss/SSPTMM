@@ -2642,10 +2642,10 @@
     <value>{0}——已手动确认</value>
   </data>
   <data name="Installed_DetailUndeterminedLatestFormat" xml:space="preserve">
-    <value>无法确定版本——假定已安装最新发布版本（{0}）</value>
+    <value>无法确定版本——假定已安装最新发布版本（{0}）。可在“详情和版本”中填写实际版本。</value>
   </data>
   <data name="Installed_DetailUndetermined" xml:space="preserve">
-    <value>无法确定版本——假定已是最新</value>
+    <value>无法确定版本——假定已是最新。可在“详情和版本”中填写实际版本。</value>
   </data>
   <data name="Configs_AddUserDataTitleFormat" xml:space="preserve">
     <value>{0} 中存放你自己创建的文件的文件夹</value>
@@ -9031,6 +9031,39 @@ GitHub 上的文件未经 sp-mod.com 检查，请只安装你信任的作者的�
   </data>
   <data name="Menu_NoteHint" xml:space="preserve">
     <value>需要改配置、与另一个模组冲突……（留空则不加备注）</value>
+  </data>
+  <data name="Menu_LinkToPage" xml:space="preserve">
+    <value>关联到 sp-mod.com 页面...</value>
+  </data>
+  <data name="Menu_LinkTitleFormat" xml:space="preserve">
+    <value>{0} 对应 sp-mod.com 上的哪个页面？</value>
+  </data>
+  <data name="Menu_LinkBody" xml:space="preserve">
+    <value>粘贴该模组或附加组件在 sp-mod.com 上的页面链接。之后 SSPTMM 会以该名称显示它并检查更新。磁盘上的文件不会改动。</value>
+  </data>
+  <data name="Menu_LinkSave" xml:space="preserve">
+    <value>关联</value>
+  </data>
+  <data name="Installed_LinkNotALink" xml:space="preserve">
+    <value>这不是 sp-mod.com 上模组或附加组件页面的链接，因此未关联。</value>
+  </data>
+  <data name="Installed_LinkNotInList" xml:space="preserve">
+    <value>SSPTMM 从 sp-mod.com 获取的列表中没有该页面，因此未关联。</value>
+  </data>
+  <data name="Installed_LinkAlreadyFormat" xml:space="preserve">
+    <value>{0} 已安装，因此未关联。</value>
+  </data>
+  <data name="Installed_LinkNoVersionFormat" xml:space="preserve">
+    <value>{0} 没有已发布的版本，因此未关联。</value>
+  </data>
+  <data name="Installed_LinkedFormat" xml:space="preserve">
+    <value>已将 {0} 关联到 {1}，版本 {2}。可在“详情和版本”中更改版本，在那里“清除手动设置”可取消关联。</value>
+  </data>
+  <data name="Installed_StatusNotFound" xml:space="preserve">
+    <value>在 sp-mod.com 上未找到，因此无法检查更新。如果它有页面：右键 &gt; 关联到 sp-mod.com 页面。</value>
+  </data>
+  <data name="Installed_SpModReadFormat" xml:space="preserve">
+    <value>版本读取自 sp-mod.com：{0}</value>
   </data>
   <data name="Menu_SkipUpdateFormat" xml:space="preserve">
     <value>跳过此更新（{0}）</value>

@@ -1753,10 +1753,10 @@ Was du auch wählst: Die Version, die gerade auf der Festplatte liegt, wird zuer
     <value>Öffnet den vollen Versionsverlauf und den Update-Dialog</value>
   </data>
   <data name="Installed_DetailUndetermined" xml:space="preserve">
-    <value>Version nicht ermittelbar - es wird angenommen, dass sie aktuell ist</value>
+    <value>Version nicht ermittelbar - es wird angenommen, dass sie aktuell ist. Unter „Details und Versionen“ lässt sich die tatsächliche Version eintragen.</value>
   </data>
   <data name="Installed_DetailUndeterminedLatestFormat" xml:space="preserve">
-    <value>Version nicht ermittelbar - es wird angenommen, dass die neueste veröffentlichte Version ({0}) installiert ist</value>
+    <value>Version nicht ermittelbar - es wird angenommen, dass die neueste veröffentlichte Version ({0}) installiert ist. Unter „Details und Versionen“ lässt sich die tatsächliche Version eintragen.</value>
   </data>
   <data name="Installed_DisabledCount_one" xml:space="preserve">
     <value>1 Mod deaktiviert.</value>
@@ -9475,6 +9475,39 @@ Mit Nein behält diese Gruppe ihren alten Namen.</value>
   </data>
   <data name="Menu_NoteHint" xml:space="preserve">
     <value>Braucht eine Config-Änderung, verträgt sich nicht mit einem anderen Mod... (leer für keine)</value>
+  </data>
+  <data name="Menu_LinkToPage" xml:space="preserve">
+    <value>Mit der sp-mod.com-Seite verknüpfen...</value>
+  </data>
+  <data name="Menu_LinkTitleFormat" xml:space="preserve">
+    <value>Welche sp-mod.com-Seite gehört zu {0}?</value>
+  </data>
+  <data name="Menu_LinkBody" xml:space="preserve">
+    <value>Link zur Seite des Mods oder Addons auf sp-mod.com einfügen. SSPTMM zeigt den Eintrag dann unter diesem Namen und prüft ihn auf Updates. Auf der Festplatte ändert sich nichts.</value>
+  </data>
+  <data name="Menu_LinkSave" xml:space="preserve">
+    <value>Verknüpfen</value>
+  </data>
+  <data name="Installed_LinkNotALink" xml:space="preserve">
+    <value>Das ist kein Link zu einer Mod- oder Addon-Seite auf sp-mod.com, daher wurde nichts verknüpft.</value>
+  </data>
+  <data name="Installed_LinkNotInList" xml:space="preserve">
+    <value>Diese Seite ist nicht in der Liste, die SSPTMM von sp-mod.com hat, daher wurde nichts verknüpft.</value>
+  </data>
+  <data name="Installed_LinkAlreadyFormat" xml:space="preserve">
+    <value>{0} ist bereits installiert, daher wurde nichts verknüpft.</value>
+  </data>
+  <data name="Installed_LinkNoVersionFormat" xml:space="preserve">
+    <value>{0} hat keine veröffentlichte Version, daher wurde nichts verknüpft.</value>
+  </data>
+  <data name="Installed_LinkedFormat" xml:space="preserve">
+    <value>{0} mit {1} verknüpft, als Version {2}. Unter „Details und Versionen“ lässt sich die Version ändern, und „Überschreibung aufheben“ löst dort die Verknüpfung.</value>
+  </data>
+  <data name="Installed_StatusNotFound" xml:space="preserve">
+    <value>Auf sp-mod.com nicht gefunden, daher ist keine Update-Prüfung möglich. Gibt es dort eine Seite: Rechtsklick &gt; Mit der sp-mod.com-Seite verknüpfen.</value>
+  </data>
+  <data name="Installed_SpModReadFormat" xml:space="preserve">
+    <value>Versionen von sp-mod.com gelesen: {0}</value>
   </data>
   <data name="Menu_SkipUpdateFormat" xml:space="preserve">
     <value>Dieses Update überspringen ({0})</value>

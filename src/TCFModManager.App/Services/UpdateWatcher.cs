@@ -112,6 +112,9 @@ internal sealed class UpdateWatcher
     // is tried again after a minute.
     private long _staleAt = After(ModCacheViewModel.FreshFor);
 
+    // Fork (1.4.8): when sp-mod.com last answered what moved for the installed mods; null until it has.
+    public DateTimeOffset? CheckedAt { get; private set; }
+
     private static long After(TimeSpan wait) => Environment.TickCount64 + (long)wait.TotalMilliseconds;
 
     private async Task RunAsync(TimeSpan interval, CancellationToken ct)
@@ -138,7 +141,11 @@ internal sealed class UpdateWatcher
         try
         {
             var outcome = await CheckCoreAsync(ct, announce);
-            if (outcome.Result == UpdateCheckResult.Checked) _staleAt = After(ModCacheViewModel.FreshFor);
+            if (outcome.Result == UpdateCheckResult.Checked)
+            {
+                _staleAt = After(ModCacheViewModel.FreshFor);
+                CheckedAt = DateTimeOffset.UtcNow;
+            }
             return outcome;
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested)

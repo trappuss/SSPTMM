@@ -3107,6 +3107,17 @@ internal static class Strings
     internal static string Menu_Note => LocalizationService.Get("Menu_Note");
     internal static string Menu_NoteTitleFormat => LocalizationService.Get("Menu_NoteTitleFormat");
     internal static string Menu_NoteHint => LocalizationService.Get("Menu_NoteHint");
+    internal static string Menu_LinkToPage => LocalizationService.Get("Menu_LinkToPage");
+    internal static string Menu_LinkTitleFormat => LocalizationService.Get("Menu_LinkTitleFormat");
+    internal static string Menu_LinkBody => LocalizationService.Get("Menu_LinkBody");
+    internal static string Menu_LinkSave => LocalizationService.Get("Menu_LinkSave");
+    internal static string Installed_LinkNotALink => LocalizationService.Get("Installed_LinkNotALink");
+    internal static string Installed_LinkNotInList => LocalizationService.Get("Installed_LinkNotInList");
+    internal static string Installed_LinkAlreadyFormat => LocalizationService.Get("Installed_LinkAlreadyFormat");
+    internal static string Installed_LinkNoVersionFormat => LocalizationService.Get("Installed_LinkNoVersionFormat");
+    internal static string Installed_LinkedFormat => LocalizationService.Get("Installed_LinkedFormat");
+    internal static string Installed_StatusNotFound => LocalizationService.Get("Installed_StatusNotFound");
+    internal static string Installed_SpModReadFormat => LocalizationService.Get("Installed_SpModReadFormat");
     internal static string Menu_SkipUpdateFormat => LocalizationService.Get("Menu_SkipUpdateFormat");
     internal static string Menu_StopSkippingFormat => LocalizationService.Get("Menu_StopSkippingFormat");
     internal static string Menu_GoBackFormat => LocalizationService.Get("Menu_GoBackFormat");

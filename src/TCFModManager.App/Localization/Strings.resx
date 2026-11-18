@@ -3249,11 +3249,11 @@ The copy you don't keep is moved into a hidden .tcfmm-duplicates folder in your 
     <comment>{0} is whichever other detail line applies.</comment>
   </data>
   <data name="Installed_DetailUndeterminedLatestFormat" xml:space="preserve">
-    <value>Version couldn't be determined - assuming the latest published version ({0}) is installed</value>
+    <value>Version couldn't be determined - assuming the latest published version ({0}) is installed. Details and versions can record the one you have.</value>
     <comment>{0} is a version number.</comment>
   </data>
   <data name="Installed_DetailUndetermined" xml:space="preserve">
-    <value>Version couldn't be determined - assuming it's up to date</value>
+    <value>Version couldn't be determined - assuming it's up to date. Details and versions can record the one you have.</value>
   </data>
   <data name="Configs_AddUserDataTitleFormat" xml:space="preserve">
     <value>A folder inside {0} holding files you authored</value>
@@ -11851,6 +11851,50 @@ No keeps this group under its old name.</value>
   <data name="Menu_NoteHint" xml:space="preserve">
     <value>Needs a config change, broke with another mod... (empty for none)</value>
     <comment>Placeholder in the note box.</comment>
+  </data>
+  <data name="Menu_LinkToPage" xml:space="preserve">
+    <value>Link to its sp-mod.com page...</value>
+    <comment>Right-click menu of a mod on Subscribed items that matched no sp-mod.com listing.</comment>
+  </data>
+  <data name="Menu_LinkTitleFormat" xml:space="preserve">
+    <value>Which sp-mod.com page is {0}?</value>
+    <comment>Dialog title. {0} is the mod's folder name.</comment>
+  </data>
+  <data name="Menu_LinkBody" xml:space="preserve">
+    <value>Paste the link to the mod's or addon's page on sp-mod.com. SSPTMM then shows it under that name and checks it for updates. Nothing on disk changes.</value>
+    <comment>Above the box the link is pasted into.</comment>
+  </data>
+  <data name="Menu_LinkSave" xml:space="preserve">
+    <value>Link</value>
+    <comment>Button that links the mod to the pasted page.</comment>
+  </data>
+  <data name="Installed_LinkNotALink" xml:space="preserve">
+    <value>That is not a link to a mod or addon page on sp-mod.com, so nothing was linked.</value>
+    <comment>Status line after the link dialog.</comment>
+  </data>
+  <data name="Installed_LinkNotInList" xml:space="preserve">
+    <value>That page is not in the list SSPTMM has from sp-mod.com, so nothing was linked.</value>
+    <comment>Status line after the link dialog: the page is not in the saved mod list.</comment>
+  </data>
+  <data name="Installed_LinkAlreadyFormat" xml:space="preserve">
+    <value>{0} is already installed, so nothing was linked.</value>
+    <comment>Status line after the link dialog. {0} is the sp-mod.com name.</comment>
+  </data>
+  <data name="Installed_LinkNoVersionFormat" xml:space="preserve">
+    <value>{0} has no published version, so nothing was linked.</value>
+    <comment>Status line after the link dialog. {0} is the sp-mod.com name.</comment>
+  </data>
+  <data name="Installed_LinkedFormat" xml:space="preserve">
+    <value>Linked {0} to {1}, as version {2}. Details and versions can change the version, and Clear override there undoes the link.</value>
+    <comment>Status line. {0} folder name, {1} sp-mod.com name, {2} version recorded as installed.</comment>
+  </data>
+  <data name="Installed_StatusNotFound" xml:space="preserve">
+    <value>Not found on sp-mod.com, so it can't be checked for updates. If it has a page there, right-click &gt; Link to its sp-mod.com page.</value>
+    <comment>Status tooltip of a mod no sp-mod.com listing matched.</comment>
+  </data>
+  <data name="Installed_SpModReadFormat" xml:space="preserve">
+    <value>Versions read from sp-mod.com: {0}</value>
+    <comment>Under the page's status line. {0} is a time, or a date and time when not today.</comment>
   </data>
   <data name="Menu_SkipUpdateFormat" xml:space="preserve">
     <value>Skip this update ({0})</value>

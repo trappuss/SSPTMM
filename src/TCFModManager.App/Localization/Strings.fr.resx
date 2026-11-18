@@ -1753,10 +1753,10 @@ Quel que soit votre choix, la version actuellement sur le disque est d'abord cop
     <value>Ouvrir l'historique complet des versions et la fenêtre de mise à jour</value>
   </data>
   <data name="Installed_DetailUndetermined" xml:space="preserve">
-    <value>Version indéterminable - on suppose qu'elle est à jour</value>
+    <value>Version indéterminable - on suppose qu'elle est à jour. « Détails et versions » permet d'indiquer la version réelle.</value>
   </data>
   <data name="Installed_DetailUndeterminedLatestFormat" xml:space="preserve">
-    <value>Version indéterminable - on suppose que la dernière version publiée ({0}) est installée</value>
+    <value>Version indéterminable - on suppose que la dernière version publiée ({0}) est installée. « Détails et versions » permet d'indiquer la version réelle.</value>
   </data>
   <data name="Installed_DisabledCount_one" xml:space="preserve">
     <value>{0} mod désactivé.</value>
@@ -9475,6 +9475,39 @@ Non garde ce groupe sous son ancien nom.</value>
   </data>
   <data name="Menu_NoteHint" xml:space="preserve">
     <value>Demande un réglage de config, incompatible avec un autre mod... (vide pour aucune)</value>
+  </data>
+  <data name="Menu_LinkToPage" xml:space="preserve">
+    <value>Lier à sa page sp-mod.com...</value>
+  </data>
+  <data name="Menu_LinkTitleFormat" xml:space="preserve">
+    <value>Quelle page sp-mod.com correspond à {0} ?</value>
+  </data>
+  <data name="Menu_LinkBody" xml:space="preserve">
+    <value>Collez le lien de la page du mod ou de l'addon sur sp-mod.com. SSPTMM l'affiche alors sous ce nom et vérifie ses mises à jour. Rien ne change sur le disque.</value>
+  </data>
+  <data name="Menu_LinkSave" xml:space="preserve">
+    <value>Lier</value>
+  </data>
+  <data name="Installed_LinkNotALink" xml:space="preserve">
+    <value>Ce n'est pas un lien vers une page de mod ou d'addon sur sp-mod.com : rien n'a été lié.</value>
+  </data>
+  <data name="Installed_LinkNotInList" xml:space="preserve">
+    <value>Cette page n'est pas dans la liste que SSPTMM tient de sp-mod.com : rien n'a été lié.</value>
+  </data>
+  <data name="Installed_LinkAlreadyFormat" xml:space="preserve">
+    <value>{0} est déjà installé : rien n'a été lié.</value>
+  </data>
+  <data name="Installed_LinkNoVersionFormat" xml:space="preserve">
+    <value>{0} n'a aucune version publiée : rien n'a été lié.</value>
+  </data>
+  <data name="Installed_LinkedFormat" xml:space="preserve">
+    <value>{0} lié à {1}, en version {2}. « Détails et versions » permet de changer la version, et « Effacer la valeur forcée » y annule le lien.</value>
+  </data>
+  <data name="Installed_StatusNotFound" xml:space="preserve">
+    <value>Introuvable sur sp-mod.com : les mises à jour ne peuvent pas être vérifiées. S'il y a une page : clic droit &gt; Lier à sa page sp-mod.com.</value>
+  </data>
+  <data name="Installed_SpModReadFormat" xml:space="preserve">
+    <value>Versions lues sur sp-mod.com : {0}</value>
   </data>
   <data name="Menu_SkipUpdateFormat" xml:space="preserve">
     <value>Ignorer cette mise à jour ({0})</value>

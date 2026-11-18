@@ -1138,6 +1138,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
                 ? Text(Strings.Installed_NoModsFoundFormat, installPath)
                 : DescribeCounts();
             if (offline) StatusMessage = Sentences(StatusMessage, Strings.Installed_CatalogUnavailable);
+            ShowSpModRead();
         }
         finally
         {
@@ -2118,6 +2119,26 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         // Fork (1.4.8): and, when sp-mod.com hasn't been read for a while, what moved there since.
         // After the held-back answer, so the two don't cross; the page scans again if anything did.
         if (_forPage && ReferenceEquals(Current, this)) await AppServices.UpdateWatcher.RefreshIfStaleAsync();
+        ShowSpModRead();
+    }
+
+    // Fork (1.4.8): under the page's status line, when the versions shown were last read from
+    // sp-mod.com - the whole list, or since then what moved for the installed mods. Without it
+    // nothing said whether "up to date" was this minute's answer or this morning's.
+    [ObservableProperty]
+    private string? _spModReadNote;
+
+    private void ShowSpModRead()
+    {
+        var read = new[] { AppServices.ModCache.FetchedAt, AppServices.UpdateWatcher.CheckedAt }.Max();
+        if (read is not { } at || _all.Count == 0)
+        {
+            SpModReadNote = null;
+            return;
+        }
+
+        var local = at.ToLocalTime();
+        SpModReadNote = Text(Strings.Installed_SpModReadFormat, local.ToString(local.Date == DateTime.Today ? "t" : "g", System.Globalization.CultureInfo.CurrentCulture));
     }
 
     private void ApplyHeldBack()

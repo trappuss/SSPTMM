@@ -62,6 +62,11 @@ the same details; click a card or row to open it.
 - Right-click a mod for **Rename...** (a name of your own; empty gives it back its own), **Open
   client folder** and **Open server folder**, beside the group items. Also:
   - **Note...** - a line of your own, shown under the mod's name and found by the search.
+  - **Link to its sp-mod.com page...** (from 1.4.8) - on a mod or addon installed by hand that
+    SSPTMM could not find on sp-mod.com. Paste the link to its page there; the card then has that
+    name, its page and its updates. This is the only way an addon installed by hand can be
+    recognised, since its files do not say which addon it is. Nothing on disk changes. To undo
+    it, open **Details and versions** and press **Clear override**.
   - **Skip this update (version)** - the mod stops showing as out of date, and Update all and
     notifications leave it out, until a newer version comes out. **Stop skipping** undoes it.
   - **Go back to (version)** after an update - the copy kept when it was updated goes back, with
@@ -138,7 +143,8 @@ ready, need an update first, or have nothing yet), Rescan and more.
 
 From 1.4.8, a scan of this page (opening it, an install finishing, Rescan or F5) also asks
 sp-mod.com what changed for your installed mods and addons when that was last done more than 20
-minutes ago, so new releases show without a restart.
+minutes ago, so new releases show without a restart. The line under the page's title says when
+the versions shown were last read from sp-mod.com.
 
 ## Undo
 

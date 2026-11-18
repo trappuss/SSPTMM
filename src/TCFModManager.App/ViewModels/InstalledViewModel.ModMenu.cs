@@ -115,6 +115,130 @@ public partial class InstalledViewModel
         StatusMessage = message;
     }
 
+    /// <summary>Fork (1.4.8): whether this card can be told which sp-mod.com page it is - nothing
+    /// matched it, so it has no page, no updates and, for an addon, no mod it belongs to.</summary>
+    public static bool CanLinkToPage(InstalledModCardViewModel card) =>
+        card is { ModId: null, IsFolderCompanion: false } && LinkFolders(card).Count > 0;
+
+    private static List<string> LinkFolders(InstalledModCardViewModel card) =>
+        new[] { card.ClientFolderName, card.ServerFolderName }
+            .Where(f => !string.IsNullOrWhiteSpace(f))
+            .Select(f => f!)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+    //
+    // Fork (1.4.8): asks for the page's link and records the card's folders as that mod or addon,
+    // the way a version confirmed by hand is recorded (SetManualVersion) - the record's folders are
+    // what the next scan matches the card by, so nothing new is stored and nothing on disk changes.
+    // "Clear override" in the mod's update dialog removes the record, and with it the link.
+    //
+    // An addon installed by hand has nothing else to be known by: it has no GUID, and no file of it
+    // says which addon it is.
+    //
+    // The version recorded is the release its files report when they report one, else the newest
+    // that fits - what an unmatched mod with no readable version is assumed to be anyway.
+    //
+    public async Task LinkToPageAsync(InstalledModCardViewModel card)
+    {
+        var folders = LinkFolders(card);
+        if (card.ModId is not null || folders.Count == 0) return;
+
+        var box = new TextBox
+        {
+            Style = (Style)Application.Current.FindResource("SteamSearchField"),
+            Tag = "https://sp-mod.com/mod/...",
+            Height = 34,
+            MinWidth = 480,
+            MaxLength = 400, // HUNCH: far longer than any page link
+        };
+        box.Loaded += (_, _) => box.Focus();
+        System.Windows.Automation.AutomationProperties.SetName(box, Strings.Menu_LinkToPage);
+
+        var answer = SteamDialog.Show(
+            Text(Strings.Menu_LinkTitleFormat, card.DisplayTitle),
+            new StackPanel { Children = { Paragraph(Strings.Menu_LinkBody), box } },
+            new SteamDialogChoice(Strings.Menu_LinkSave, SteamDialogButton.Green, IsDefault: true),
+            new SteamDialogChoice(Strings.Common_Cancel, SteamDialogButton.Grey));
+        if (answer != 0) return;
+
+        if (!SpModPageLink.TryParse(box.Text, out var id, out var isAddon))
+        {
+            StatusMessage = Strings.Installed_LinkNotALink;
+            return;
+        }
+
+        var fromFiles = card.InstalledVersion;
+        string? name;
+        string? guid = null;
+        string? version;
+        int? versionId;
+
+        if (isAddon)
+        {
+            if (AppServices.Addons.ById(id) is not { } addon)
+            {
+                StatusMessage = Strings.Installed_LinkNotInList;
+                return;
+            }
+
+            var parentVersion = _all.FirstOrDefault(c => !c.IsAddon && c.ModId == addon.ModId)?.InstalledVersion;
+            var published = (addon.Versions ?? []).Where(v => !string.IsNullOrWhiteSpace(v.Version)).ToList();
+            var held = ModVersionComparer.BestSameRelease(fromFiles, published.Select(v => v.Version));
+            var pick = published.FirstOrDefault(v => v.Version == held)
+                ?? (fromFiles is not null ? null : published
+                    .OrderByDescending(v => v.PublishedAt ?? DateTimeOffset.MinValue)
+                    .FirstOrDefault(v => parentVersion is null || ModVersionMatcher.IsSatisfiedBy(v.ModVersionConstraint, parentVersion) != false));
+
+            name = addon.Name;
+            version = pick?.Version ?? fromFiles;
+            versionId = pick?.Id;
+        }
+        else
+        {
+            if (AppServices.ModCache.AllMods.FirstOrDefault(m => m.Id == id) is not { } mod)
+            {
+                StatusMessage = Strings.Installed_LinkNotInList;
+                return;
+            }
+
+            var published = (mod.Versions ?? []).Where(v => !string.IsNullOrWhiteSpace(v.Version)).ToList();
+            var held = ModVersionComparer.BestSameRelease(fromFiles, published.Select(v => v.Version));
+            var pick = published.FirstOrDefault(v => v.Version == held)
+                ?? (fromFiles is not null ? null : ModCardViewModel.PickDisplayVersion(mod, AppServices.SptEnvironment.InstalledVersion) ?? published.FirstOrDefault());
+
+            name = mod.Name;
+            guid = mod.Guid;
+            version = pick?.Version ?? fromFiles;
+            versionId = pick?.Id;
+        }
+
+        name ??= card.DisplayTitle;
+
+        // One record a mod: linking a second folder to it would rewrite the record of the first -
+        // and, were that one installed by this app, the version it was installed as.
+        if (AppServices.InstallManifest.Load().Find(id, isAddon) is not null || _all.Any(c => c.ModId == id && c.IsAddon == isAddon))
+        {
+            StatusMessage = Text(Strings.Installed_LinkAlreadyFormat, name);
+            return;
+        }
+
+        if (version is null)
+        {
+            StatusMessage = Text(Strings.Installed_LinkNoVersionFormat, name);
+            return;
+        }
+
+        var folder = card.Name;
+        AppServices.InstallManifest.SetManualVersion(id, guid, name, version, versionId, folders, isAddon);
+        AppLog.Info("Installed", $"linked by hand: {string.Join(", ", folders)} -> {(isAddon ? "addon" : "mod")} {id} as {version}");
+
+        await ScanAsync();
+        ModsMoved?.Invoke(this, EventArgs.Empty); // the page it now has shows as installed in the Workshop
+
+        StatusMessage = Text(Strings.Installed_LinkedFormat, folder, name, version);
+    }
+
     /// <summary>A line of your own on the mod's card; empty removes it.</summary>
     public void EditNote(InstalledModCardViewModel card)
     {

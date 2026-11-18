@@ -658,7 +658,11 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
                 ? Strings.Installed_StatusMixed
                 : UpdateAvailable == true && !IsDisabled && (UpdateVersion ?? LatestPublishedVersion) is { } target
                     ? Text(Strings.Installed_StatusUpdateFormat, target)
-                    : ModStatusWording.Tooltip(Status));
+                    // Fork (1.4.8): "update status unknown" said neither why nor what can be done.
+                    // Not for a patcher on its own: most are not sp-mod.com mods at all.
+                    : ModId is null && !IsDisabled && (HasPlugin || HasServer)
+                        ? Strings.Installed_StatusNotFound
+                        : ModStatusWording.Tooltip(Status));
 
     // Groups raw scan results into one card per distinct mod and looks up each against the cached
     // catalog for its latest published version.

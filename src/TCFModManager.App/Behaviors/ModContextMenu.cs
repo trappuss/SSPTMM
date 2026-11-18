@@ -96,6 +96,10 @@ public static class ModContextMenu
             menu.Items.Add(Item(Strings.Menu_Rename, () => page.RenameMod(card))); // Fork (1.4.3)
             menu.Items.Add(Item(Strings.Menu_Note, () => page.EditNote(card))); // Fork (1.4.3)
 
+            // Fork (1.4.8): for a mod nothing on sp-mod.com matched, which page it is.
+            if (ViewModels.InstalledViewModel.CanLinkToPage(card))
+                menu.Items.Add(Item(Strings.Menu_LinkToPage, () => page.LinkToPageAsync(card)));
+
             // Fork (1.4.3): skip this update, or stop skipping one; go back to what an update replaced.
             var skippable = ViewModels.InstalledViewModel.SkippableUpdate(card);
             var goBack = ViewModels.InstalledViewModel.GoBackVersion(card);

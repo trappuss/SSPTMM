@@ -1278,6 +1278,13 @@
                     TextWrapping="Wrap"
                     Foreground="{StaticResource SteamText}"
                     Text="{Binding StatusMessage}" />
+                <!-- Fork (1.4.8): when the versions shown were last read from sp-mod.com. -->
+                <TextBlock
+                    Margin="0,2,0,0"
+                    FontSize="12"
+                    Foreground="{StaticResource SteamTextDim}"
+                    Text="{Binding SpModReadNote}"
+                    Visibility="{Binding SpModReadNote, Converter={StaticResource NullToCollapsed}}" />
             </StackPanel>
         </DockPanel>
 
