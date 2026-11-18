@@ -229,6 +229,13 @@ public partial class InstalledViewModel
             return;
         }
 
+        // The queue writes the same records.
+        if (InstallingNow() is { } busy)
+        {
+            StatusMessage = Text(Strings.Installed_WaitForInstallFormat, busy);
+            return;
+        }
+
         var folder = card.Name;
         AppServices.InstallManifest.SetManualVersion(id, guid, name, version, versionId, folders, isAddon);
         AppLog.Info("Installed", $"linked by hand: {string.Join(", ", folders)} -> {(isAddon ? "addon" : "mod")} {id} as {version}");

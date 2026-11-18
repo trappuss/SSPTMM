@@ -289,7 +289,7 @@ internal sealed class UpdateWatcher
         var catalog = AppServices.ModCache.AllMods;
         var addons = AppServices.Addons.AllAddons;
 
-        return Task.Run(() => InstalledModCardViewModel.BuildFrom(scanned, catalog, sptVersion, records, addons), ct);
+        return Task.Run(() => InstalledModCardViewModel.BuildFrom(scanned, catalog, sptVersion, records, addons, addonsInModFolders: true), ct);
     }
 }
 

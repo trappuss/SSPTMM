@@ -281,7 +281,8 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
     public int? ModId { get; init; }
 
     // Fork (1.4.2): a second card over a folder another card already stands for, because this app
-    // installed two mods into it (SharedFolderCards). Left out wherever cards are counted by folder.
+    // installed two mods into it (SharedFolderCards) - or (1.4.8) an addon into its mod's folder.
+    // Left out wherever cards are counted by folder.
     public bool IsFolderCompanion { get; private set; }
 
     // On every card over such a folder: which other mods are in it, and what switching it does.
@@ -289,12 +290,8 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
         ? Text(SharedFolderParts is null ? Strings.Installed_SharedFolderByHandFormat : Strings.Installed_SharedFolderFormat, names)
         : null;
 
-    // The other mods' names in it, as they are shown - renames included. Fork (1.4.8): a mod's own
-    // addons are not "other mods" to it - they go off and on with it, and its removal is as it was.
-    public string? SharedFolderWith =>
-        _folderMates?.Where(c => IsAddon || !c.IsAddon).Select(c => c.DisplayTitle).ToList() is { Count: > 0 } names
-            ? TextLists.Join([.. names])
-            : null;
+    // The other mods' names in it, as they are shown - renames included.
+    public string? SharedFolderWith => _folderMates is { } mates ? TextLists.Join([.. mates.Select(c => c.DisplayTitle)]) : null;
 
     private IReadOnlyList<InstalledModCardViewModel>? _folderMates;
 
@@ -664,7 +661,8 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
                     ? Text(Strings.Installed_StatusUpdateFormat, target)
                     // Fork (1.4.8): "update status unknown" said neither why nor what can be done.
                     // Not for a patcher on its own: most are not sp-mod.com mods at all.
-                    : ModId is null && !IsDisabled && (HasPlugin || HasServer)
+                    // Nor with no list at all (offline): it was not looked for.
+                    : ModId is null && !IsDisabled && (HasPlugin || HasServer) && AppServices.ModCache.AllMods.Count > 0
                         ? Strings.Installed_StatusNotFound
                         : ModStatusWording.Tooltip(Status));
 
@@ -678,7 +676,8 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
         IReadOnlyList<Mod> catalog,
         string? installedSptVersion,
         IReadOnlyList<InstalledModRecord>? installRecords = null,
-        IReadOnlyList<Addon>? addonCatalog = null)
+        IReadOnlyList<Addon>? addonCatalog = null,
+        bool addonsInModFolders = false)
     {
         // Addon records are held apart from mod records the whole way down: their ids belong to a
         // different sequence, so letting them into recordsByModId or the catalog index would have
@@ -767,12 +766,15 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
             .Select((g, i) => BuildCard(g.Entries, g.Match, installedSptVersion, cardRecords[i], addonsByParent))
             .ToList();
 
-        // Fork (1.4.8): an addon installed into its mod's folder gets a card too, as a mod sharing a
-        // folder does - all but the ones whose own folder gives them a card further down.
-        var ownFolderAddons = addonFolders.Select(g => addonRecordsByFolder[g.Key].ModId).ToHashSet();
-        var folderAddons = addonRecords.Where(r => r.IsAppManaged && !ownFolderAddons.Contains(r.ModId)).ToList();
+        AddSharedFolderCards(merged, cards, cardRecords, modRecords, index, installedSptVersion, addonsByParent);
 
-        AddSharedFolderCards(merged, cards, cardRecords, [.. modRecords, .. folderAddons], index, installedSptVersion, addonsByParent, addonCatalog ?? []);
+        // Fork (1.4.8): only where asked for - Subscribed items and the update check, which shows
+        // the same arrows. Every other reader of these cards counts a folder once.
+        if (addonsInModFolders)
+        {
+            var ownFolder = addonFolders.Select(g => addonRecordsByFolder[g.Key].ModId).ToHashSet();
+            AddAddonFolderCards(merged, cards, [.. addonRecords.Where(r => r.IsAppManaged && !ownFolder.Contains(r.ModId))], addonCatalog ?? [], index);
+        }
 
         AttachInstalledAddons(cards, addonRecords, addonCatalog); // Fork (1.4.6)
 
@@ -802,6 +804,46 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
             }));
 
         return cards;
+    }
+
+    //
+    // Fork (1.4.8): a card for each addon this app installed into a mod's folder - most of them; until
+    // now they showed only as the chip on the mod's card (AttachInstalledAddons). The card is for
+    // seeing, updating and unsubscribing it, which go by its install record. It stands over the
+    // folder's entries and is not told apart by its files (no SharedFolderParts): an addon in its
+    // mod's folder is on or off with that folder, as it always was, so its switch is the folder's.
+    //
+    // Made for the first folder that still holds a file the install placed; none for an addon whose
+    // files are gone.
+    //
+    private static void AddAddonFolderCards(
+        List<(List<InstalledMod> Entries, Mod? Match)> merged,
+        List<InstalledModCardViewModel> cards,
+        List<InstalledModRecord> records,
+        IReadOnlyList<Addon> addonCatalog,
+        CatalogIndex index)
+    {
+        if (records.Count == 0) return;
+
+        var folders = merged
+            .Select(g => (g.Entries, Names: g.Entries.SelectMany(FolderNamesOf).Distinct(StringComparer.OrdinalIgnoreCase).ToList()))
+            .ToList();
+
+        foreach (var record in records)
+        {
+            var home = folders.FirstOrDefault(f =>
+                f.Names.SelectMany(name => InstalledModFolders.PlacedFilesUnder(record, name)).ToList() is { Count: > 0 } placed
+                && PlacedFilesStillPresent(f.Entries, placed));
+            if (home.Entries is null) continue;
+
+            var addon = addonCatalog.FirstOrDefault(a => a.Id == record.ModId);
+            var parent = addon?.ModId is { } parentId ? cards.FirstOrDefault(c => !c.IsAddon && c.ModId == parentId) : null;
+            var parentName = addon?.ModId is { } id ? index.ById.GetValueOrDefault(id)?.Name ?? parent?.DisplayTitle : null;
+
+            var card = BuildAddonCard(home.Entries, addon, record, parent, parentName, ownFolder: false);
+            card.IsFolderCompanion = true;
+            cards.Add(card);
+        }
     }
 
     //
@@ -970,11 +1012,9 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
         List<InstalledModRecord> modRecords,
         CatalogIndex index,
         string? installedSptVersion,
-        Dictionary<int, int> addonsByParent,
-        IReadOnlyList<Addon> addonCatalog)
+        Dictionary<int, int> addonsByParent)
     {
         var shown = cards.Where(c => c.ModId is not null).Select(c => c.ModId!.Value).ToHashSet();
-        var shownAddons = new HashSet<int>(); // addons are numbered apart from mods
 
         for (var i = 0; i < merged.Count; i++)
         {
@@ -989,7 +1029,7 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
             var others = new List<(InstalledModRecord Record, List<string> Files, List<(InstalledMod Entry, IReadOnlyList<string> Files)> Parts)>();
             foreach (var record in modRecords)
             {
-                if (!record.IsAppManaged || (record.IsAddon ? shownAddons : shown).Contains(record.ModId)) continue;
+                if (!record.IsAppManaged || shown.Contains(record.ModId)) continue;
 
                 // Only when its files are found inside the folders here: a loose DLL counts as
                 // present but has no folder to look in, and a file can go between the two looks
@@ -1006,7 +1046,7 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
                     .SelectMany(e => e.AllGuids)
                     .Select(guid => index.ByGuid.GetValueOrDefault(guid))
                     .OfType<Mod>()
-                    .Where(m => m.Id != match?.Id && !shown.Contains(m.Id) && others.All(o => o.Record.IsAddon || o.Record.ModId != m.Id))
+                    .Where(m => m.Id != match?.Id && !shown.Contains(m.Id) && others.All(o => o.Record.ModId != m.Id))
                     .DistinctBy(m => m.Id)
                     .ToList()
                 : [];
@@ -1018,20 +1058,6 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
 
             foreach (var (record, _, parts) in others)
             {
-                if (record.IsAddon)
-                {
-                    // Its files sit among its mod's, so the folder's DLLs say nothing about it.
-                    var addon = addonCatalog.FirstOrDefault(a => a.Id == record.ModId);
-                    var parent = addon?.ModId is { } parentId ? cards.FirstOrDefault(c => !c.IsAddon && c.ModId == parentId) : null;
-                    var parentName = addon?.ModId is { } pid ? index.ById.GetValueOrDefault(pid)?.Name ?? parent?.DisplayTitle : null;
-
-                    var addonCard = BuildAddonCard([.. parts.Select(p => p.Entry)], addon, record, parent, parentName, ownFolder: false);
-                    addonCard.SharedFolderParts = parts;
-                    companions.Add(addonCard);
-                    shownAddons.Add(record.ModId);
-                    continue;
-                }
-
                 var mod = LocalArchive.IsLocalId(record.ModId)
                     ? LocalMod(record)
                     : index.ById.GetValueOrDefault(record.ModId)
@@ -1649,6 +1675,7 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
         var handUpdated = record is { IsAppManaged: true } && match is not null
             ? ModVersionComparer.HandUpdatedTo(record.Version, fileVersion, (match.Versions ?? []).Select(v => v.Version))
             : null;
+        if (handUpdated is not null && !DllsReplacedSince(record!)) handUpdated = null;
         var installedVersion = handUpdated ?? record?.Version ?? fileVersion;
 
         (string Key, object?[] Values)? detail = null;
@@ -1778,6 +1805,39 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
             WasPartlyInstalled = record?.Incomplete ?? false,
             Entries = entries,
         };
+    }
+
+    //
+    // Fork (1.4.8): whether a DLL this install placed is no longer the size it was placed at - the
+    // mod's files were replaced since. It is what tells a mod updated by hand from one whose DLL has
+    // always claimed a later version than its release: that one would otherwise read as updated the
+    // day a release with that number came out, and its update would never be offered.
+    //
+    // True as well when nothing can say otherwise: a record with no sizes (made before they were
+    // kept), or none of its DLLs where the record put them (the mod is switched off).
+    //
+    private static bool DllsReplacedSince(InstalledModRecord record)
+    {
+        var install = AppServices.SptEnvironment.InstallPath;
+        if (string.IsNullOrWhiteSpace(install)) return true;
+
+        var found = false;
+        foreach (var print in record.Fingerprints.Where(f => f.Path.EndsWith(".dll", StringComparison.OrdinalIgnoreCase)))
+        {
+            try
+            {
+                var file = new FileInfo(Path.Combine(install, print.Path.Replace('/', Path.DirectorySeparatorChar)));
+                if (!file.Exists) continue;
+                if (file.Length != print.Size) return true;
+                found = true;
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
+            {
+                // Unreadable says nothing either way.
+            }
+        }
+
+        return !found;
     }
 
     //
