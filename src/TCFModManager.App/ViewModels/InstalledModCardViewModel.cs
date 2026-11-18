@@ -289,8 +289,12 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
         ? Text(SharedFolderParts is null ? Strings.Installed_SharedFolderByHandFormat : Strings.Installed_SharedFolderFormat, names)
         : null;
 
-    // The other mods' names in it, as they are shown - renames included.
-    public string? SharedFolderWith => _folderMates is { } mates ? TextLists.Join([.. mates.Select(c => c.DisplayTitle)]) : null;
+    // The other mods' names in it, as they are shown - renames included. Fork (1.4.8): a mod's own
+    // addons are not "other mods" to it - they go off and on with it, and its removal is as it was.
+    public string? SharedFolderWith =>
+        _folderMates?.Where(c => IsAddon || !c.IsAddon).Select(c => c.DisplayTitle).ToList() is { Count: > 0 } names
+            ? TextLists.Join([.. names])
+            : null;
 
     private IReadOnlyList<InstalledModCardViewModel>? _folderMates;
 
@@ -763,7 +767,12 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
             .Select((g, i) => BuildCard(g.Entries, g.Match, installedSptVersion, cardRecords[i], addonsByParent))
             .ToList();
 
-        AddSharedFolderCards(merged, cards, cardRecords, modRecords, index, installedSptVersion, addonsByParent);
+        // Fork (1.4.8): an addon installed into its mod's folder gets a card too, as a mod sharing a
+        // folder does - all but the ones whose own folder gives them a card further down.
+        var ownFolderAddons = addonFolders.Select(g => addonRecordsByFolder[g.Key].ModId).ToHashSet();
+        var folderAddons = addonRecords.Where(r => r.IsAppManaged && !ownFolderAddons.Contains(r.ModId)).ToList();
+
+        AddSharedFolderCards(merged, cards, cardRecords, [.. modRecords, .. folderAddons], index, installedSptVersion, addonsByParent, addonCatalog ?? []);
 
         AttachInstalledAddons(cards, addonRecords, addonCatalog); // Fork (1.4.6)
 
@@ -848,14 +857,16 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
         Addon? addon,
         InstalledModRecord record,
         InstalledModCardViewModel? parent,
-        string? parentName)
+        string? parentName,
+        bool ownFolder = true)
     {
         var plugin = entries.FirstOrDefault(m => m is { Target: InstalledModTarget.Client, IsPatcher: false });
         var patcher = entries.FirstOrDefault(m => m is { Target: InstalledModTarget.Client, IsPatcher: true });
         var client = plugin ?? patcher;
         var server = entries.FirstOrDefault(m => m.Target == InstalledModTarget.Server);
 
-        var fileVersion = client?.Version ?? server?.Version;
+        // In its mod's folder (1.4.8), the version the folder's DLLs report is the mod's, not its own.
+        var fileVersion = ownFolder ? client?.Version ?? server?.Version : null;
         var installedVersion = record.Version ?? fileVersion;
 
         // Only versions the installed parent mod actually satisfies count as an update: an addon
@@ -959,9 +970,11 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
         List<InstalledModRecord> modRecords,
         CatalogIndex index,
         string? installedSptVersion,
-        Dictionary<int, int> addonsByParent)
+        Dictionary<int, int> addonsByParent,
+        IReadOnlyList<Addon> addonCatalog)
     {
         var shown = cards.Where(c => c.ModId is not null).Select(c => c.ModId!.Value).ToHashSet();
+        var shownAddons = new HashSet<int>(); // addons are numbered apart from mods
 
         for (var i = 0; i < merged.Count; i++)
         {
@@ -976,7 +989,7 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
             var others = new List<(InstalledModRecord Record, List<string> Files, List<(InstalledMod Entry, IReadOnlyList<string> Files)> Parts)>();
             foreach (var record in modRecords)
             {
-                if (!record.IsAppManaged || shown.Contains(record.ModId)) continue;
+                if (!record.IsAppManaged || (record.IsAddon ? shownAddons : shown).Contains(record.ModId)) continue;
 
                 // Only when its files are found inside the folders here: a loose DLL counts as
                 // present but has no folder to look in, and a file can go between the two looks
@@ -993,7 +1006,7 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
                     .SelectMany(e => e.AllGuids)
                     .Select(guid => index.ByGuid.GetValueOrDefault(guid))
                     .OfType<Mod>()
-                    .Where(m => m.Id != match?.Id && !shown.Contains(m.Id) && others.All(o => o.Record.ModId != m.Id))
+                    .Where(m => m.Id != match?.Id && !shown.Contains(m.Id) && others.All(o => o.Record.IsAddon || o.Record.ModId != m.Id))
                     .DistinctBy(m => m.Id)
                     .ToList()
                 : [];
@@ -1005,6 +1018,20 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
 
             foreach (var (record, _, parts) in others)
             {
+                if (record.IsAddon)
+                {
+                    // Its files sit among its mod's, so the folder's DLLs say nothing about it.
+                    var addon = addonCatalog.FirstOrDefault(a => a.Id == record.ModId);
+                    var parent = addon?.ModId is { } parentId ? cards.FirstOrDefault(c => !c.IsAddon && c.ModId == parentId) : null;
+                    var parentName = addon?.ModId is { } pid ? index.ById.GetValueOrDefault(pid)?.Name ?? parent?.DisplayTitle : null;
+
+                    var addonCard = BuildAddonCard([.. parts.Select(p => p.Entry)], addon, record, parent, parentName, ownFolder: false);
+                    addonCard.SharedFolderParts = parts;
+                    companions.Add(addonCard);
+                    shownAddons.Add(record.ModId);
+                    continue;
+                }
+
                 var mod = LocalArchive.IsLocalId(record.ModId)
                     ? LocalMod(record)
                     : index.ById.GetValueOrDefault(record.ModId)

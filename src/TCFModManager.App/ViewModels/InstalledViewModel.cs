@@ -2363,7 +2363,11 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     {
         await ScanAsync(); // the search has just moved every one of them and back
 
-        var card = _all.FirstOrDefault(c => c.Entries.Any(e => string.Equals(e.FolderPath, folderPath, StringComparison.OrdinalIgnoreCase)));
+        // The folder's own mod before a card that only shares it (another mod's, or an addon's).
+        var card = _all
+            .Where(c => c.Entries.Any(e => string.Equals(e.FolderPath, folderPath, StringComparison.OrdinalIgnoreCase)))
+            .OrderBy(c => c.IsFolderCompanion || c.IsAddon)
+            .FirstOrDefault();
         if (card is null) return (false, Strings.Installed_NothingToDisable);
 
         // What is said has to be about this try: a question answered No says nothing.
@@ -2437,6 +2441,18 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
                     targets = targets.Concat(affected.Select(a => a.Card)).Distinct().ToList();
                     break;
             }
+        }
+
+        // Fork (1.4.8): an addon in its mod's folder goes off and on with the mod, as it did when it
+        // had no card and the whole folder moved. On its own card it is switched by itself.
+        var mods = targets.Where(c => c is { IsAddon: false, ModId: not null }).Select(c => c.ModId!.Value).ToHashSet();
+        if (mods.Count > 0)
+        {
+            targets = targets
+                .Concat(_all.Where(c => c is { IsAddon: true, SharedFolderParts: not null, ParentModId: { } parent }
+                    && mods.Contains(parent) && c.IsDisabled != disable))
+                .Distinct()
+                .ToList();
         }
 
         // A mod sharing its folder with another moves only its own files (SharedFolderParts); every

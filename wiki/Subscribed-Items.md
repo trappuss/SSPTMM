@@ -42,6 +42,9 @@ the same details; click a card or row to open it.
 - **Addons**: a mod you've installed addons for has a puzzle chip under its name with how many, and
   how many have an update. Hover it for the list; click it for the mod's dialog, where they update
   and come off. An addon with a folder of its own has a card of its own, straight under its mod's.
+  From 1.4.8 so does an addon SSPTMM installed into its mod's folder: its card has a blue
+  **Addon for** chip, its switch turns only the addon's own files off and on, and turning the mod
+  off or on takes its addons with it. The **addons only** and **hide addons** filters cover them.
 
   ![Addon chips and an addon's own card](https://raw.githubusercontent.com/trappuss/SSPTMM/main/docs/images/19c-subscribed-addons.png)
 
