@@ -11852,6 +11852,14 @@ No keeps this group under its old name.</value>
     <value>Needs a config change, broke with another mod... (empty for none)</value>
     <comment>Placeholder in the note box.</comment>
   </data>
+  <data name="Installed_CountAddonsFormat" xml:space="preserve">
+    <value>Plus {0}.</value>
+    <comment>After the count of mods on Subscribed items. {0} is a counted phrase such as '2 addons'.</comment>
+  </data>
+  <data name="Installed_AddonSwitchedWithModFormat" xml:space="preserve">
+    <value>{0} is in {1}'s folder, so it goes off and on with it.</value>
+    <comment>Status line after the switch on an addon's card was used. {0} is the addon, {1} its mod.</comment>
+  </data>
   <data name="Menu_LinkToPage" xml:space="preserve">
     <value>Link to its sp-mod.com page...</value>
     <comment>Right-click menu of a mod on Subscribed items that matched no sp-mod.com listing.</comment>

@@ -3107,6 +3107,8 @@ internal static class Strings
     internal static string Menu_Note => LocalizationService.Get("Menu_Note");
     internal static string Menu_NoteTitleFormat => LocalizationService.Get("Menu_NoteTitleFormat");
     internal static string Menu_NoteHint => LocalizationService.Get("Menu_NoteHint");
+    internal static string Installed_CountAddonsFormat => LocalizationService.Get("Installed_CountAddonsFormat");
+    internal static string Installed_AddonSwitchedWithModFormat => LocalizationService.Get("Installed_AddonSwitchedWithModFormat");
     internal static string Menu_LinkToPage => LocalizationService.Get("Menu_LinkToPage");
     internal static string Menu_LinkTitleFormat => LocalizationService.Get("Menu_LinkTitleFormat");
     internal static string Menu_LinkBody => LocalizationService.Get("Menu_LinkBody");

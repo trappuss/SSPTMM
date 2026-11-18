@@ -1630,11 +1630,15 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
             // Off the UI thread: deleting a large mod's files and copying the SPT profiles first.
             var result = await Task.Run(() => AppServices.ModInstall.UninstallAsync(installPath, record, configAction));
+
+            // Fork (1.4.8): an addon in its mod's folder is named as itself, not as that folder, and
+            // the folder staying is no leftover: it is the mod's.
+            var inModFolder = mod is { IsAddon: true, IsFolderCompanion: true };
             return (
                 true,
-                DescribeRemoval(mod.Name, result.FailedFiles.Count, result.ConfigsKept, result.ConfigsFolder, result),
+                DescribeRemoval(inModFolder ? mod.DisplayTitle : mod.Name, result.FailedFiles.Count, result.ConfigsKept, result.ConfigsFolder, result, foldersLeft: !inModFolder),
                 result.FailedFiles.Count > 0 || result.ConfigsKept > 0 || result.KeptChanged.Count > 0
-                    || result.KeptOwned.Count > 0 || result.RefusedFiles is { Count: > 0 } || result.FoldersLeft.Count > 0);
+                    || result.KeptOwned.Count > 0 || result.RefusedFiles is { Count: > 0 } || (!inModFolder && result.FoldersLeft.Count > 0));
         }
 
         // Fork (1.4.2): removing by hand moves the whole folder, and this one holds another mod's
@@ -2396,10 +2400,19 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     {
         // Fork (1.4.8): an addon in its mod's folder is on or off with that folder, so its switch is
         // its mod's: what is asked, said and undone is then about the mod.
+        string? switchedWithMod = null;
         cards = [.. cards
-            .Select(c => c is { IsAddon: true, IsFolderCompanion: true }
-                ? _all.FirstOrDefault(o => !o.IsFolderCompanion && o.Entries.Intersect(c.Entries).Any()) ?? c
-                : c)
+            .Select(c =>
+            {
+                if (c is not { IsAddon: true, IsFolderCompanion: true }
+                    || _all.FirstOrDefault(o => !o.IsFolderCompanion && o.Entries.Intersect(c.Entries).Any()) is not { } owner)
+                {
+                    return c;
+                }
+
+                switchedWithMod ??= Text(Strings.Installed_AddonSwitchedWithModFormat, c.DisplayTitle, owner.DisplayTitle);
+                return owner;
+            })
             .Distinct()];
 
         var targets = cards.Where(c => c.IsDisabled != disable).ToList();
@@ -2518,6 +2531,8 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
             if (adding.Count > 0)
                 message = Sentences(message, LocalizationService.Text(Strings.Installed_DisabledAddsValuesFormat, TextLists.Join(adding)));
         }
+
+        if (switchedWithMod is not null) message = Sentences(message, switchedWithMod);
 
         await ScanAsync();
         StatusMessage = message;
@@ -2846,7 +2861,8 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     // in place and why, what it put back, where configs went, and that it can be undone.
     //
     private static string DescribeRemoval(
-        string modName, int failedFiles, int configsKept, string? configsFolder, UninstallResult? result = null, bool held = false)
+        string modName, int failedFiles, int configsKept, string? configsFolder, UninstallResult? result = null, bool held = false,
+        bool foldersLeft = true)
     {
         var parts = new List<string>
         {
@@ -2868,7 +2884,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
             // A folder that had to stay for files the mod didn't install - otherwise it looks like a
             // mod still installed, with nothing saying why.
-            foreach (var left in result.FoldersLeft)
+            foreach (var left in foldersLeft ? result.FoldersLeft : [])
                 parts.Add(Strings.Installed_RemovedFolderLeft(left.Files, left.Files, left.Folder.Replace('/', '\\')));
         }
 
@@ -2952,7 +2968,8 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         {
             var log = card.Entries
                 .Select(e => left.GetValueOrDefault(SamePath(e.FolderPath)))
-                .FirstOrDefault(l => l is not null);
+                // Fork (1.4.8): not an addon's removal on a mod's own card - the folder it left is the mod's.
+                .FirstOrDefault(l => l is not null && !(l.Record?.IsAddon == true && card.ModId is not null));
 
             if (log is not null)
                 card.LeftoverSummary = Text(Strings.Installed_LeftoverFormat, log.ModName, WhenLabel(log.RemovedAt));
@@ -3155,11 +3172,18 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     // How many mods are shown out of how many are installed, plus how many of them are disabled.
     private string DescribeCounts()
     {
+        // Fork (1.4.8): addons have cards but are not mods - counted beside them, not among them.
+        var mods = _all.Count(m => !m.IsAddon);
+        var modsShown = _filtered.Count(m => !m.IsAddon);
         var shown = _filtered.Count == _all.Count
-            ? Strings.Installed_CountFound(_all.Count)
-            : Strings.Installed_CountShown(_filtered.Count, _filtered.Count, _all.Count);
+            ? Strings.Installed_CountFound(mods)
+            : Strings.Installed_CountShown(modsShown, modsShown, mods);
 
-        var disabled = _all.Count(m => m.IsDisabled);
+        var addons = _filtered.Count - modsShown;
+        if (addons > 0) shown = Sentences(shown, Text(Strings.Installed_CountAddonsFormat, Strings.Installed_AddonsChip(addons, addons)));
+
+        // An addon in its mod's folder is off because its mod is.
+        var disabled = _all.Count(m => m.IsDisabled && m is not { IsAddon: true, IsFolderCompanion: true });
         if (disabled == 0) return shown;
 
         return Sentences(

@@ -9032,6 +9032,12 @@ GitHub 上的文件未经 sp-mod.com 检查，请只安装你信任的作者的�
   <data name="Menu_NoteHint" xml:space="preserve">
     <value>需要改配置、与另一个模组冲突……（留空则不加备注）</value>
   </data>
+  <data name="Installed_CountAddonsFormat" xml:space="preserve">
+    <value>另有 {0}。</value>
+  </data>
+  <data name="Installed_AddonSwitchedWithModFormat" xml:space="preserve">
+    <value>{0} 位于 {1} 的文件夹中，因此会随该模组一起启用或禁用。</value>
+  </data>
   <data name="Menu_LinkToPage" xml:space="preserve">
     <value>关联到 sp-mod.com 页面...</value>
   </data>

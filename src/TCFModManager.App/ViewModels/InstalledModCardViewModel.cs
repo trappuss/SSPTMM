@@ -1675,7 +1675,7 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
         var handUpdated = record is { IsAppManaged: true } && match is not null
             ? ModVersionComparer.HandUpdatedTo(record.Version, fileVersion, (match.Versions ?? []).Select(v => v.Version))
             : null;
-        if (handUpdated is not null && !DllsReplacedSince(record!)) handUpdated = null;
+        if (handUpdated is not null && !InstalledModFolders.DllsReplacedSince(record!, AppServices.SptEnvironment.InstallPath)) handUpdated = null;
         var installedVersion = handUpdated ?? record?.Version ?? fileVersion;
 
         (string Key, object?[] Values)? detail = null;
@@ -1805,39 +1805,6 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
             WasPartlyInstalled = record?.Incomplete ?? false,
             Entries = entries,
         };
-    }
-
-    //
-    // Fork (1.4.8): whether a DLL this install placed is no longer the size it was placed at - the
-    // mod's files were replaced since. It is what tells a mod updated by hand from one whose DLL has
-    // always claimed a later version than its release: that one would otherwise read as updated the
-    // day a release with that number came out, and its update would never be offered.
-    //
-    // True as well when nothing can say otherwise: a record with no sizes (made before they were
-    // kept), or none of its DLLs where the record put them (the mod is switched off).
-    //
-    private static bool DllsReplacedSince(InstalledModRecord record)
-    {
-        var install = AppServices.SptEnvironment.InstallPath;
-        if (string.IsNullOrWhiteSpace(install)) return true;
-
-        var found = false;
-        foreach (var print in record.Fingerprints.Where(f => f.Path.EndsWith(".dll", StringComparison.OrdinalIgnoreCase)))
-        {
-            try
-            {
-                var file = new FileInfo(Path.Combine(install, print.Path.Replace('/', Path.DirectorySeparatorChar)));
-                if (!file.Exists) continue;
-                if (file.Length != print.Size) return true;
-                found = true;
-            }
-            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
-            {
-                // Unreadable says nothing either way.
-            }
-        }
-
-        return !found;
     }
 
     //

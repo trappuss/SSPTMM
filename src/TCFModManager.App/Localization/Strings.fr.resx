@@ -9476,6 +9476,12 @@ Non garde ce groupe sous son ancien nom.</value>
   <data name="Menu_NoteHint" xml:space="preserve">
     <value>Demande un réglage de config, incompatible avec un autre mod... (vide pour aucune)</value>
   </data>
+  <data name="Installed_CountAddonsFormat" xml:space="preserve">
+    <value>Plus {0}.</value>
+  </data>
+  <data name="Installed_AddonSwitchedWithModFormat" xml:space="preserve">
+    <value>{0} se trouve dans le dossier de {1} et s'active ou se désactive donc avec le mod.</value>
+  </data>
   <data name="Menu_LinkToPage" xml:space="preserve">
     <value>Lier à sa page sp-mod.com...</value>
   </data>

@@ -89,6 +89,39 @@ public static class InstalledModFolders
     }
 
     //
+    //
+    // Fork (1.4.8): whether a DLL this install placed is no longer the size it was placed at - the
+    // mod's files were replaced since. It is what tells a mod updated by hand from one whose DLL has
+    // always claimed a later version than its release: that one would otherwise read as updated the
+    // day a release with that number came out, and its update would never be offered.
+    //
+    // True as well when nothing can say otherwise: no install to look in, a record with no sizes
+    // (made before they were kept), or none of its DLLs where the record put them (the mod is
+    // switched off).
+    //
+    public static bool DllsReplacedSince(InstalledModRecord record, string? installPath)
+    {
+        if (string.IsNullOrWhiteSpace(installPath)) return true;
+
+        var found = false;
+        foreach (var print in record.Fingerprints.Where(f => f.Path.EndsWith(".dll", StringComparison.OrdinalIgnoreCase)))
+        {
+            try
+            {
+                var file = new FileInfo(Path.Combine(installPath, print.Path.Replace('/', Path.DirectorySeparatorChar)));
+                if (!file.Exists) continue;
+                if (file.Length != print.Size) return true;
+                found = true;
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
+            {
+                // Unreadable says nothing either way.
+            }
+        }
+
+        return !found;
+    }
+
     // The files a record placed inside one of its folders, each relative to that folder. Empty for a
     // folder the record doesn't name, and for a manually-confirmed record, which places no files.
     //

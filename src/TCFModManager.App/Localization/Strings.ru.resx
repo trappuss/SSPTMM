@@ -9911,6 +9911,12 @@
   <data name="Menu_NoteHint" xml:space="preserve">
     <value>Нужно поменять конфиг, конфликтует с другим модом... (пусто - без заметки)</value>
   </data>
+  <data name="Installed_CountAddonsFormat" xml:space="preserve">
+    <value>И ещё {0}.</value>
+  </data>
+  <data name="Installed_AddonSwitchedWithModFormat" xml:space="preserve">
+    <value>{0} находится в папке {1}, поэтому включается и отключается вместе с модом.</value>
+  </data>
   <data name="Menu_LinkToPage" xml:space="preserve">
     <value>Привязать к странице на sp-mod.com...</value>
   </data>
