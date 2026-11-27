@@ -1743,8 +1743,8 @@
                                         Visibility="{Binding Items.Count, Converter={StaticResource HasItems}, ConverterParameter=Invert}" />
 
                                     <ItemsControl Focusable="False" ItemsSource="{Binding Items}">
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate DataType="{x:Type viewmodels:InstalledModCardViewModel}">
+                                        <ItemsControl.Resources>
+                                            <DataTemplate x:Key="ModGroupRow" DataType="{x:Type viewmodels:InstalledModCardViewModel}">
                                                 <!-- Fork (round 49): Steam's row here too - the same backdrop
                                                      as a card and a List row, drawn behind the row's padding. -->
                                                 <Border
@@ -1916,6 +1916,12 @@
                                                     </Grid>
                                                     </Grid>
                                                 </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.Resources>
+                                        <!-- Fork (1.4.9): built a few at once and then a few a turn - see StagedContent. -->
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border behaviors:StagedContent.Template="{StaticResource ModGroupRow}" />
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
