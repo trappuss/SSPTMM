@@ -48,6 +48,12 @@ From 1.3.0 or later: Help > About > **Install update**. From an older version: c
 - **A removal says when files the mod had replaced could not be put back** because something else is in their place now.
 - **The bar for picked items goes when they do.** After unsubscribing from a picked item, or anything else that read the folder again, the bar along the bottom still said "1 selected" with nothing picked, and its buttons did nothing.
 - **An addon has Unsubscribe on its right-click menu**, as a mod has, and so does a mod sp-mod.com has no listing for.
+- **What you picked stays picked.** Switching one mod off, an update landing, or cancelling an Unsubscribe read the folder again and dropped every pick.
+- **A pick the filters hide is dropped.** Enable, Disable, Update and Add to group went on acting on picked mods a search had taken off the page.
+- **Right-click on Subscribed items acts on the card you clicked.** Unsubscribe from the menu read the folder again before asking, a hand-made copy's menu acted on the original, and a switched-off mod with an update was offered no Update.
+- **Pin, Sort out, Confirm as installed and Get again are on the right-click menu**, so a row in the Groups view, which does not open, can reach them.
+- **Mark up to date, Set version and the like reach every page.** Done from a right-click or an item page, the card went on showing the update; done from Subscribed items, the Workshop did.
+- **Your collections' tiles follow what you do inside one.** A tile said "All installed" after its items were unsubscribed from, until the page was left and come back to.
 
 ### Updating
 

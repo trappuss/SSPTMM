@@ -40,6 +40,15 @@ public static class PerfProbe
         dispatcher.BeginInvoke(() => log(made, timer.Elapsed.TotalMilliseconds), System.Windows.Threading.DispatcherPriority.Loaded);
     }
 
+    /// <summary>Logs how long after the process started this point was reached, when measuring.</summary>
+    public static void Mark(string what)
+    {
+        if (!IsOn) return;
+
+        var ms = (DateTime.Now - Process.GetCurrentProcess().StartTime).TotalMilliseconds;
+        AppLog.Info("Perf", FormattableString.Invariant($"{what} at {ms:F0}ms"));
+    }
+
     // Whether anything scrolled since the last line.
     private static bool _scrolled;
 

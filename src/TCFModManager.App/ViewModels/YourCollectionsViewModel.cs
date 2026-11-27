@@ -129,7 +129,7 @@ public sealed partial class YourCollectionsViewModel : LocalizedViewModel
     }
 
     // "61 of 68 installed" on each - matched the way the collection page itself matches.
-    private async Task UpdateInstallStateAsync()
+    internal async Task UpdateInstallStateAsync()
     {
         await AppServices.ModCache.EnsureLoadedAsync();
         await AppServices.Browse.EnsureInstalledIndexAsync();

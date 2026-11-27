@@ -86,7 +86,7 @@ public static class ModContextMenu
             return;
         }
 
-        if (mod is not null) Fill(menu, mod, element);
+        if (mod is not null) Fill(menu, mod, element, page, card);
 
         if (page is not null && card is not null)
         {
@@ -95,6 +95,15 @@ public static class ModContextMenu
             menu.Items.Add(ModColorMenu(page, card)); // Fork (1.4.3)
             menu.Items.Add(Item(Strings.Menu_Rename, () => page.RenameMod(card))); // Fork (1.4.3)
             menu.Items.Add(Item(Strings.Menu_Note, () => page.EditNote(card))); // Fork (1.4.3)
+
+            // Fork (1.4.9): what an opened card offers, here too - a row of the Groups view does not open.
+            menu.Items.Add(Item(card.PinLabel, () => page.TogglePinCommand.Execute(card)));
+            if (card.HasDuplicateFolders)
+                menu.Items.Add(Item(Strings.Installed_SortOut, () => page.ResolveDuplicateCommand.Execute(card)));
+            if (card.CanConfirmDownload)
+                menu.Items.Add(Item(Strings.Installed_ConfirmDownload, () => page.ConfirmDownloadCommand.Execute(card)));
+            if (card.HasReupload)
+                menu.Items.Add(Item(Strings.Installed_GetAgain, () => page.GetAgainCommand.Execute(card)));
 
             // Fork (1.4.8): for a mod nothing on sp-mod.com matched, which page it is.
             if (ViewModels.InstalledViewModel.CanLinkToPage(card))
@@ -248,7 +257,15 @@ public static class ModContextMenu
         };
     }
 
-    private static void Fill(ContextMenu menu, Mod mod, FrameworkElement source)
+    //
+    // Fork (1.4.9): on Subscribed items, Update and Unsubscribe go by the card that was clicked.
+    // Looked up by the listing they went through the Workshop's own scan: Unsubscribe read the folder
+    // again before it asked (dropping what was picked even when cancelled), a hand-made copy's menu
+    // acted on the original, and a switched-off mod with an update was offered none.
+    //
+    private static void Fill(
+        ContextMenu menu, Mod mod, FrameworkElement source,
+        ViewModels.InstalledViewModel? page = null, ViewModels.InstalledModCardViewModel? card = null)
     {
         void Report(string? message)
         {
@@ -263,7 +280,14 @@ public static class ModContextMenu
 
         menu.Items.Add(Rule());
 
-        if (ModActions.IsSubscribed(mod))
+        if (page is not null && card is not null)
+        {
+            if (ViewModels.InstalledViewModel.IsUpdatable(card))
+                menu.Items.Add(Item(Strings.ModUpdate_Update, async () => await page.ShowDetailsCommand.ExecuteAsync(card)));
+
+            menu.Items.Add(Item(Strings.Item_Unsubscribe, async () => { await page.RemoveOneAsync(card); }));
+        }
+        else if (ModActions.IsSubscribed(mod))
         {
             if (ModActions.CanUpdate(mod))
                 menu.Items.Add(Item(Strings.ModUpdate_Update, async () => await ModActions.UpdateAsync(mod)));

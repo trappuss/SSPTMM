@@ -1010,6 +1010,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         }
 
         IsBusy = true;
+        var clock = PerfProbe.IsOn ? Stopwatch.StartNew() : null;
         try
         {
             // Reuses whatever's already cached; triggers the one-time catalog fetch if Browse
@@ -1041,6 +1042,8 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
             var addons = AppServices.Addons.AllAddons;
             var sptVersion = AppServices.SptEnvironment.InstalledVersion;
 
+            var lists = clock?.ElapsedMilliseconds ?? 0;
+
             // The whole scan-and-match pass runs off the UI thread. Matching a large install
             // against a full catalog is the slower half of the two, and doing it inline is what
             // made navigating to this page hang.
@@ -1061,8 +1064,13 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
             // What was open in each view, keyed the same way group assignments are, so the sets
             // survive every card object being replaced. Captured before _all is reassigned, and
             // kept apart because the two views expand independently.
+            var read = clock?.ElapsedMilliseconds ?? 0;
             var openCards = OpenKeys(_all, m => m.IsCardExpanded);
             var openRows = OpenKeys(_all, m => m.IsRowExpanded);
+
+            // Fork (1.4.9): and what was picked. Switching one mod off, an update landing or a
+            // cancelled Unsubscribe read the folder again and dropped every pick with the old cards.
+            var picked = OpenKeys(_all, m => m.IsSelected);
 
             _all = cards;
             RefreshUndo();
@@ -1076,12 +1084,13 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
             _ = CheckHeldBackAsync(cards);
             _ = CheckGitHubAsync(cards); // Fork (1.4.7)
 
-            if (openCards.Count > 0 || openRows.Count > 0)
+            if (openCards.Count > 0 || openRows.Count > 0 || picked.Count > 0)
                 foreach (var card in cards)
                 {
                     var key = ModGroupStore.KeyFor(card.Name);
                     card.IsCardExpanded = openCards.Contains(key);
                     card.IsRowExpanded = openRows.Contains(key);
+                    card.IsSelected = picked.Contains(key);
                 }
 
             ApplyListMembership(cards);
@@ -1126,7 +1135,8 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
             RefreshGroups();
 
-            // A rescan replaces every card, so any previous selection is gone with them.
+            // A rescan replaces every card; what was picked is picked on the new ones (above), less
+            // whatever is no longer there.
             OnPropertyChanged(nameof(SelectedCount));
             OnPropertyChanged(nameof(SelectedCountLabel));
             AnnounceSelection(); // Fork (1.4.9): and the bar along the bottom, which went on counting them
@@ -1157,6 +1167,13 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
                 : DescribeCounts();
             if (offline) StatusMessage = Sentences(StatusMessage, Strings.Installed_CatalogUnavailable);
             ShowSpModRead();
+
+            if (clock is not null)
+            {
+                var shown = clock.ElapsedMilliseconds;
+                PerfProbe.Timed(clock, System.Windows.Application.Current.Dispatcher, (_, drawn) => AppLog.Info("Perf", FormattableString.Invariant(
+                    $"scan of {_all.Count} card(s): lists {lists}ms, folders read and matched {read - lists}ms, page filled {shown - read}ms, drawn {drawn - shown:F0}ms")));
+            }
         }
         finally
         {
@@ -1951,7 +1968,10 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         // Only when the dialog actually did something. A rescan re-reads the whole install and
         // replaces every card, which visibly rebuilds the page - not something opening a mod to
         // read its changelog should cause.
-        if (await show(mod)) await ScanAsync();
+        if (!await show(mod)) return;
+
+        await ScanAsync();
+        ModsMoved?.Invoke(this, EventArgs.Empty); // Fork (1.4.9): the Workshop's dots and Update buttons go by it too
     }
 
     //
@@ -3268,6 +3288,15 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
         // Fork (1.4.6): an addon's own card straight under its mod's, where both are shown.
         _filtered = AddonsUnderParents(_filtered);
+
+        // Fork (1.4.9): a pick the filters now hide is dropped. The bar's Enable, Disable and Update
+        // and the menu's Add to group went on acting on mods a search had taken off the page.
+        if (_all.Any(m => m.IsSelected))
+        {
+            var shown = _filtered.ToHashSet();
+            foreach (var mod in _all)
+                if (mod.IsSelected && !shown.Contains(mod)) mod.IsSelected = false;
+        }
 
         // Every view now disagrees with _filtered, including the two that aren't on screen - they
         // catch up when switched to.

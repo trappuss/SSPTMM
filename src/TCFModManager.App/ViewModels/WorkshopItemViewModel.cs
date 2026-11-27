@@ -959,7 +959,7 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel, IModActi
     private async Task UpdateAsync()
     {
         if (Installed is null || AppServices.ModUpdateOverlay.ShowAsync is not { } show) return;
-        await show(Installed);
+        if (await show(Installed)) InstalledViewModel.NotifyModsMoved(); // Fork (1.4.9)
     }
 
     [RelayCommand]

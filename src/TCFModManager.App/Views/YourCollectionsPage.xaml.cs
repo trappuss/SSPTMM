@@ -24,6 +24,12 @@ public partial class YourCollectionsPage : Page
     private async void Page_Loaded(object sender, RoutedEventArgs e)
     {
         if (Application.Current.MainWindow is { } window) window.Activated += Window_Activated;
+
+        // Fork (1.4.9): and whenever what is installed changes. A collection opens over this page
+        // without unloading it, so subscribing or unsubscribing inside one left its tile saying
+        // "All installed" until the page was left and come back to.
+        AppServices.Browse.InstalledIndexChanged -= OnInstalledIndexChanged;
+        AppServices.Browse.InstalledIndexChanged += OnInstalledIndexChanged;
         ViewModel.CheckClipboard();
         await ViewModel.RefreshAsync();
     }
@@ -31,7 +37,10 @@ public partial class YourCollectionsPage : Page
     private void Page_Unloaded(object sender, RoutedEventArgs e)
     {
         if (Application.Current.MainWindow is { } window) window.Activated -= Window_Activated;
+        AppServices.Browse.InstalledIndexChanged -= OnInstalledIndexChanged;
     }
+
+    private void OnInstalledIndexChanged(object? sender, EventArgs e) => Dispatcher.BeginInvoke(() => _ = ViewModel.UpdateInstallStateAsync());
 
     private void Window_Activated(object? sender, EventArgs e) => ViewModel.CheckClipboard();
 

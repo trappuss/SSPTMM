@@ -74,7 +74,9 @@ public static class ModActions
             return;
         }
 
-        await show(installed);
+        // Fork (1.4.9): Mark up to date and the like change only the record - said, so the pages
+        // showing this mod read it again.
+        if (await show(installed)) InstalledViewModel.NotifyModsMoved();
     }
 
     public static string? AddToCollection(Mod mod) => AddToCollectionDialog.Ask(mod);
