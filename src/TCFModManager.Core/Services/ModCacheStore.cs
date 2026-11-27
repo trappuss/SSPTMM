@@ -87,7 +87,9 @@ public sealed class ModCacheStore
             {
                 SchemaVersion = SchemaVersion,
                 FetchedAt = fetchedAt ?? DateTimeOffset.UtcNow,
-                Mods = mods.ToList(),
+                // As listed: a version added for this install's SPT is this session's, asked for
+                // again from the answers kept beside this file (OlderSptVersions).
+                Mods = [.. mods.Select(m => m.AsListed())],
             };
             // The same bytes WriteText made of the string, without the string in between.
             SafeFile.WriteBytes(_filePath, JsonSerializer.SerializeToUtf8Bytes(data));

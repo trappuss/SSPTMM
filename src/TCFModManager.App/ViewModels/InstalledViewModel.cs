@@ -1688,13 +1688,26 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         // Again: SPT may have been started while the copy was being taken.
         ModInstallService.EnsureInstallNotInUse(ModInstallAction.Remove, installPath);
 
-        var configs = ModInstallService.FindLegacyConfigs(installPath, paths);
-        var kept = configAction == ConfigAction.Keep && configs.Count > 0
-            ? ModInstallService.KeepLegacyConfigs(installPath, configs, mod.Name)
-            : new KeptConfigs(0, null);
+        // Fork (1.4.9): not beside an install that began while the profiles were being copied.
+        if (!ModInstallService.Exclusive.Wait(0))
+            return (false, Text(Strings.Installed_WaitForInstallFormat, InstallingNow() ?? mod.Name), true);
 
-        // 1.19: into the install's holding folder, where Undo can bring it back (D27, D28).
-        var held = AppServices.ModInstall.RemoveHandInstalled([.. paths], installPath, mod.Name, kept.Folder);
+        KeptConfigs kept;
+        string? held;
+        try
+        {
+            var configs = ModInstallService.FindLegacyConfigs(installPath, paths);
+            kept = configAction == ConfigAction.Keep && configs.Count > 0
+                ? ModInstallService.KeepLegacyConfigs(installPath, configs, mod.Name)
+                : new KeptConfigs(0, null);
+
+            // 1.19: into the install's holding folder, where Undo can bring it back (D27, D28).
+            held = AppServices.ModInstall.RemoveHandInstalled([.. paths], installPath, mod.Name, kept.Folder);
+        }
+        finally
+        {
+            ModInstallService.Exclusive.Release();
+        }
 
         // A manually-confirmed version record would otherwise dangle, pointing at a mod that's no
         // longer on disk.

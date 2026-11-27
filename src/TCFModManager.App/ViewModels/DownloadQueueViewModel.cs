@@ -250,11 +250,15 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
         // Subscribe on a card and again on another page before it had installed, downloaded the
         // archive twice and installed the mod over itself; with two versions, the last one won.
         //
+        // (The same version: another one asked for by hand - picked in the update dialog, pinned by a
+        // collection - is a different request, and goes in as it always did.)
         if (Items.FirstOrDefault(i => !i.IsFinished && i.Target.Id == target.Id && i.Target.IsAddon == target.IsAddon
                 && i.DownloadOnly == downloadOnly
+                && string.Equals(i.VersionLabel, versionLabel, StringComparison.OrdinalIgnoreCase)
                 && string.Equals(i.InstallPath, installPath, StringComparison.OrdinalIgnoreCase)) is { } waiting)
         {
-            AppLog.Info("Downloads", $"{target.Name} is already in the queue ({waiting.VersionLabel}); not queued again");
+            AppLog.Info("Downloads", $"{target.Name} {waiting.VersionLabel} is already in the queue; not queued again");
+            if (dependencyOf is not null && !ReferenceEquals(dependencyOf, waiting)) dependencyOf.AddDependency(waiting);
             return waiting;
         }
 
@@ -760,6 +764,7 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
         string? archive = null;
         var keepArchive = true;
         var alone = false;
+        var began = false;
         IReadOnlyList<ModMove>? switchedOn = null;
         try
         {
@@ -790,6 +795,7 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
             // names, and switched off again below whether the install worked or not.
             switchedOn = SwitchOnForUpdate(item);
 
+            began = true;
             var result = await AppServices.ModInstall.InstallAsync(
                 item.Target, item.Version!, item.InstallPath, status, null, turn.Token, downloadedArchive: archive);
 
@@ -854,12 +860,12 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
             // Fork (1.4.9): an install that failed after it began has changed the folder - the old
             // version taken out, part of the new one placed - and the pages still showed the mod as
             // it was until a Rescan. They are told, as after one that worked.
-            if (!keepArchive) ItemInstalled?.Invoke(this, EventArgs.Empty);
+            if (began && !keepArchive) ItemInstalled?.Invoke(this, EventArgs.Empty);
         }
         finally
         {
-            if (alone) ModInstallService.Exclusive.Release();
             if (switchedOn is not null) SwitchBackOff(item, switchedOn);
+            if (alone) ModInstallService.Exclusive.Release();
             if (archive is not null) Release(archive, keepArchive);
         }
     }

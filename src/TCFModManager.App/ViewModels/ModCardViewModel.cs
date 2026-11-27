@@ -308,7 +308,10 @@ public sealed partial class ModCardViewModel : LocalizedViewModel
         {
             (false, _) => Text(Strings.Browse_AddonParentMissingFormat, parentName),
             (_, true) => Text(Strings.Browse_AddonFitsFormat, parentName, parentInstalledVersion),
-            (_, false) => Text(Strings.Browse_AddonNeedsFormat, parentName, shown?.ModVersionConstraint),
+            // What the newest version that is ruled out asks for - "shown" may be one that asks for nothing.
+            (_, false) => Text(Strings.Browse_AddonNeedsFormat, parentName,
+                versions.FirstOrDefault(v => ModVersionMatcher.IsSatisfiedBy(v.ModVersionConstraint, parentInstalledVersion) == false)?.ModVersionConstraint
+                ?? shown?.ModVersionConstraint),
             _ => Text(Strings.Browse_AddonUncheckedFormat, parentName, parentInstalledVersion),
         };
 

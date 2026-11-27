@@ -61,6 +61,17 @@ public sealed class Mod
     public DateTimeOffset? PublishedAt { get; set; }
     public DateTimeOffset? CreatedAt { get; set; }
     public DateTimeOffset? UpdatedAt { get; set; }
+
+    // Fork (1.4.9): as sp-mod.com sent it - without the versions added for this install's SPT
+    // (ModVersionSummary.AddedForSpt). This object when it has none.
+    public Mod AsListed()
+    {
+        if (Versions is null || !Versions.Any(v => v.AddedForSpt)) return this;
+
+        var copy = (Mod)MemberwiseClone();
+        copy.Versions = [.. Versions.Where(v => !v.AddedForSpt)];
+        return copy;
+    }
 }
 
 // The limited version info embedded on a Mod via include=versions.

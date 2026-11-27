@@ -32,7 +32,10 @@ public static class OlderSptVersions
     public static bool WorthAsking(Mod mod, string? sptVersion)
     {
         if (mod.Id <= 0 || string.IsNullOrWhiteSpace(sptVersion)) return false;
-        if (mod.Versions is not { Count: >= Carried } versions) return false;
+        // Of what sp-mod.com sent - not counting a version added here, or a mod with an answer would
+        // never be asked about again, and a newer build for this SPT never be found.
+        var versions = (mod.Versions ?? []).Where(v => !v.AddedForSpt).ToList();
+        if (versions.Count < Carried) return false;
         if (SptVersionMatcher.ParseVersion(sptVersion) is not { } installed) return false;
 
         if (versions.Any(v => SptVersionMatcher.IsSatisfiedBy(v.SptVersionConstraint, sptVersion) == true)) return false;
@@ -52,7 +55,8 @@ public static class OlderSptVersions
             if (answers.Find(mod.Id, sptVersion) is not { Version: { } found }) continue;
             if (mod.Versions is not { } versions || versions.Any(v => v.Id == found.Id)) continue;
 
-            versions.Add(new ModVersionSummary
+            // A new list, never the one in hand: a scan on another thread may be reading that one.
+            mod.Versions = [.. versions.Where(v => !v.AddedForSpt), new ModVersionSummary
             {
                 Id = found.Id,
                 Version = found.Version,
@@ -63,7 +67,7 @@ public static class OlderSptVersions
                 ContentLength = found.ContentLength,
                 FikaCompatibility = found.FikaCompatibility,
                 AddedForSpt = true,
-            });
+            }];
             added++;
         }
 
@@ -119,7 +123,7 @@ public static class OlderSptVersions
         {
             SafeFile.WriteBytes(FilePath, JsonSerializer.SerializeToUtf8Bytes(answers));
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException)
         {
             AppLog.Debug("Catalog", $"couldn't keep the older SPT versions: {ex.Message}");
         }

@@ -164,8 +164,9 @@ public sealed class UpdateCheckService(SpModApiClient api)
 
             return together;
         }
-        catch (Exception ex) when (ex is not OperationCanceledException)
+        catch (Exception ex) when (!ct.IsCancellationRequested)
         {
+            // (A request that timed out is a cancellation by type, and is a failure like any other.)
             AppLog.Warn("Updates", $"couldn't check which held-back updates go together: {ex.Message}");
             return none;
         }

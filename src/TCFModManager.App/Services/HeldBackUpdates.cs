@@ -51,6 +51,8 @@ public sealed class HeldBackUpdates
     private IReadOnlyDictionary<int, IReadOnlyList<int>> _together = new Dictionary<int, IReadOnlyList<int>>();
 
     private readonly UpdateCheckService _checker = new(AppServices.SpModApi);
+    private string? _togetherAsked;
+    private IReadOnlyDictionary<int, IReadOnlyList<int>>? _togetherAnswer;
 
     /// <summary>The mods this one's held-back update is installed together with; none for most.</summary>
     //
@@ -161,8 +163,19 @@ public sealed class HeldBackUpdates
     {
         if (ticket != _request) return false;
 
-        var together = await _checker.HeldBackTogetherAsync(installed, blockedUpdates, sptVersion, ct);
-        return Apply(ticket, blockedUpdates, incompatibleWithSpt, sptVersion, together);
+        // Asked once per answer: every scan asks sp-mod.com what is held back, and with the same
+        // mods held at the same versions, which of them go together has not changed.
+        var asked = sptVersion + "|" + string.Join(',', blockedUpdates
+            .Select(b => string.Join(':', b.CurrentVersion?.ModId, b.CurrentVersion?.Version, b.LatestVersion?.Version))
+            .Order(StringComparer.Ordinal));
+
+        if (asked != _togetherAsked)
+        {
+            _togetherAnswer = await _checker.HeldBackTogetherAsync(installed, blockedUpdates, sptVersion, ct);
+            _togetherAsked = asked;
+        }
+
+        return Apply(ticket, blockedUpdates, incompatibleWithSpt, sptVersion, _togetherAnswer);
     }
 
     /// <summary>Asks sp-mod.com about the mods of a scan of the install (addons left out).</summary>

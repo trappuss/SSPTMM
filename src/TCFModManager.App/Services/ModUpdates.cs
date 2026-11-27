@@ -77,7 +77,7 @@ public static class ModUpdates
                 case HandInstalledAnswer.Cancel:
                     return (Strings.Installed_UpdateCancelled, false);
                 case HandInstalledAnswer.LeaveOut:
-                    queue.RemoveAll(t => !t.IsAppManaged);
+                    LeaveOut(queue, [.. queue.Where(t => !t.IsAppManaged)]);
                     handLeftOut = LocalizationService.Text(Strings.Installed_UpdateHandInstalledLeftOutFormat, TextLists.Join(handInstalled));
                     break;
             }
@@ -99,8 +99,7 @@ public static class ModUpdates
                 batch: true,
                 downloadOnly)) // Fork: worded for a download
         {
-            var dropped = incompatible.Select(t => t.Target).ToHashSet();
-            queue.RemoveAll(dropped.Contains);
+            LeaveOut(queue, [.. incompatible.Select(t => t.Target)]);
             leftOut = LocalizationService.Text(
                 Strings.Install_IncompatibleLeftOutFormat,
                 AppServices.SptEnvironment.InstalledVersion,
@@ -160,6 +159,16 @@ public static class ModUpdates
         }
 
         return queued ? AppServices.HeldBack.Note(modId) : null;
+    }
+
+    // Takes these out of the batch, and with each the updates it only works together with: one of a
+    // pair left out leaves the other out too, since going alone is what the pair is held back for.
+    private static void LeaveOut(List<UpdateTarget> queue, IReadOnlyList<UpdateTarget> leaving)
+    {
+        var ids = leaving.Select(t => t.Mod.Id).ToHashSet();
+        foreach (var target in leaving) ids.UnionWith(AppServices.HeldBack.Partners(target.Mod.Id));
+
+        queue.RemoveAll(t => ids.Contains(t.Mod.Id));
     }
 
     private enum HandInstalledAnswer

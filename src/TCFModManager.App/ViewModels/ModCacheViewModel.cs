@@ -194,14 +194,7 @@ public partial class ModCacheViewModel : LocalizedViewModel
         var spt = AppServices.SptEnvironment.InstalledVersion;
         if (string.IsNullOrWhiteSpace(spt)) return mods;
 
-        // A saved list holds what was added to it as plain versions; marked again here.
         _olderAnswers ??= OlderSptVersions.Load();
-        foreach (var mod in mods)
-        {
-            if (_olderAnswers.Find(mod.Id, spt)?.Version is not { } known) continue;
-            foreach (var version in mod.Versions ?? []) version.AddedForSpt |= version.Id == known.Id;
-        }
-
         OlderSptVersions.Apply(mods, _olderAnswers, spt);
 
         if (_askingOlder is null or { IsCompleted: true }
@@ -224,11 +217,30 @@ public partial class ModCacheViewModel : LocalizedViewModel
 
         try
         {
+            var waits = 0;
             foreach (var mod in toAsk)
             {
-                var versions = await AppServices.SpModApi.GetModVersionsAsync(
-                    mod.Id.ToString(System.Globalization.CultureInfo.InvariantCulture),
-                    new ModVersionsQuery { FilterSptVersion = spt, Sort = "-version", PerPage = 1 });
+                // Not beside a read of the whole list: the two together are what sp-mod.com limits.
+                while (_refreshing is { IsCompleted: false } || IsLoading) await Task.Delay(1000);
+
+                PagedResult<ModVersion> versions;
+                while (true)
+                {
+                    try
+                    {
+                        versions = await AppServices.SpModApi.GetModVersionsAsync(
+                            mod.Id.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                            new ModVersionsQuery { FilterSptVersion = spt, Sort = "-version", PerPage = 1 });
+                        break;
+                    }
+                    catch (SpModApiRateLimitedException ex) when (waits < 5)
+                    {
+                        // Asked to slow down: waits as long as it says, a few times over, then gives
+                        // up until the list is next handed over.
+                        waits++;
+                        await Task.Delay(ex.RetryAfter ?? TimeSpan.FromSeconds(20));
+                    }
+                }
 
                 var version = versions.Data.FirstOrDefault();
                 answers.Set(mod.Id, spt, version is null ? null : new ModVersionSummary

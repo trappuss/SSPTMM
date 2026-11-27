@@ -458,9 +458,14 @@ public sealed class ModInstallService(
             // program). They stay in the new record, so a later update or removal takes them; left
             // out of it, a DLL the new version no longer ships stayed for good, owned by nothing.
             //
+            // And the paths left as an installed addon placed them (below): the mod ships them too, so
+            // both records go on listing them, and removing the addon does not take the mod's file.
             List<string> leftFromBefore = [];
+            var keptForAddons = new List<string>();
             List<string> Recorded(List<string> placed) =>
-                leftFromBefore.Count == 0 ? placed : [.. placed, .. leftFromBefore.Except(placed, StringComparer.OrdinalIgnoreCase)];
+                leftFromBefore.Count == 0 && keptForAddons.Count == 0
+                    ? placed
+                    : [.. placed, .. leftFromBefore.Concat(keptForAddons).Except(placed, StringComparer.OrdinalIgnoreCase)];
 
             if (existing is not null)
             {
@@ -510,7 +515,6 @@ public sealed class ModInstallService(
                     .Where(m => m.IsAddon)
                     .SelectMany(m => m.Files)
                     .ToHashSet(StringComparer.OrdinalIgnoreCase);
-            var keptForAddons = new List<string>();
 
             var placedFiles = new List<string>(placements.Count);
             var keptSettings = new List<string>();
@@ -547,7 +551,8 @@ public sealed class ModInstallService(
 
                     var destination = Path.Combine(installPath, installRelative);
 
-                    if (addonsFiles.Contains(installRelativeForward) && File.Exists(destination))
+                    if (addonsFiles.Contains(installRelativeForward) && File.Exists(destination)
+                        && !installRelativeForward.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
                     {
                         keptForAddons.Add(installRelativeForward);
                         continue;
@@ -1168,6 +1173,10 @@ public sealed class ModInstallService(
             var left = System.Text.Json.JsonSerializer.SerializeToNode(record)!.AsObject();
             left[nameof(InstalledModRecord.Files)] = new System.Text.Json.Nodes.JsonArray([.. failed.Select(f => System.Text.Json.Nodes.JsonValue.Create(f))]);
             left[nameof(InstalledModRecord.Incomplete)] = true;
+
+            // What this mod had replaced went back just above; a record still listing those would
+            // make a reinstall take them as kept already, and write over them with no copy.
+            left[nameof(InstalledModRecord.Overwrote)] = new System.Text.Json.Nodes.JsonArray();
             manifest.Mods.Add(System.Text.Json.JsonSerializer.Deserialize<InstalledModRecord>(left)!);
         }
 
@@ -1429,7 +1438,8 @@ public sealed class ModInstallService(
         // Fork (1.4.9): not over a copy installed since. Its files would be mixed with the removed
         // version's, and its record replaced by the old one.
         if (log.Record is { } wasRecord
-            && manifestService.Load().ModsFor(installPath).Any(m => m.ModId == wasRecord.ModId && m.IsAddon == wasRecord.IsAddon && !m.Incomplete))
+            && manifestService.Load().ModsFor(installPath).Any(m => m.ModId == wasRecord.ModId && m.IsAddon == wasRecord.IsAddon
+                && !(m.Incomplete && m.Version == wasRecord.Version && m.InstalledAt == wasRecord.InstalledAt)))
         {
             AppLog.Info("Undo", $"{log.ModName}: installed again since it was removed; nothing put back");
             return new UndoResult(false, 0, []);
@@ -1618,7 +1628,12 @@ public sealed class ModInstallService(
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
         var incoming = moved.Where(p => !tuned.Contains(p)).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        RemoveRecordedFiles(installPath, current, ConfigAction.Preserve, tuned, incoming, RemovalKind.ReplacedByUpdate, CancellationToken.None);
+        // Fork (1.4.9): and what the update could not move out stays - it is the older version's
+        // file still, kept in the newer record only so that it is not forgotten.
+        var stays = tuned.Concat(log.Entries.Where(e => e.Outcome == RemovalOutcome.Failed).Select(e => e.Path))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        RemoveRecordedFiles(installPath, current, ConfigAction.Preserve, stays, incoming, RemovalKind.ReplacedByUpdate, CancellationToken.None);
 
         //
         // What the newer version replaced: its entry wins over the older record's for the same path

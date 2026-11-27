@@ -367,5 +367,10 @@ public class ForkPrepatchInstallTests : IDisposable
         Assert.Contains(Locale, RecordOf(addon).Files);
         Assert.Empty(update.NotAsInArchive);
         Assert.Equal("server 3.1.1", File.ReadAllText(Full("SPT_Runtime/user/mods/SkillsExtended/SkillsExtended.Server.dll")));
+
+        // The mod ships that path too, so it is still the mod's when the addon goes.
+        Assert.Contains(Locale, RecordOf(mod).Files);
+        await Service().UninstallAsync(_install, RecordOf(addon), ConfigAction.Delete);
+        Assert.True(File.Exists(Full(Locale)));
     }
 }
