@@ -5423,6 +5423,12 @@ Succede legittimamente se il server è stato ricostruito o se lo raggiungi attra
   <data name="Installed_UndoNothing" xml:space="preserve">
     <value>Non c'è niente da annullare - i file rimossi sono stati eliminati.</value>
   </data>
+  <data name="Installed_RemovedOriginalsNotBack" xml:space="preserve">
+    <value>Alcuni file che aveva sostituito non sono stati ripristinati perché al loro posto ora ci sono altri file. Sono conservati insieme ai file rimossi.</value>
+  </data>
+  <data name="Installed_UndoInstalledSinceFormat" xml:space="preserve">
+    <value>{0} è stato installato di nuovo dopo la rimozione, quindi non è stato ripristinato nulla. I file rimossi restano conservati.</value>
+  </data>
   <data name="Installed_RemoveHeldFormat" xml:space="preserve">
     <value>I file rimossi restano nell'installazione per {0}, quindi puoi annullare.</value>
   </data>
@@ -9419,6 +9425,9 @@ Prima vengono copiati i profili, e alla fine tutti i mod vengono riattivati. Non
   </data>
   <data name="Installed_SharedFolderRemoveFormat" xml:space="preserve">
     <value>{0} condivide la sua cartella con {1} ed è stato installato a mano. Rimuoverlo toglierebbe l'intera cartella, {1} compreso, quindi non è stato rimosso - togli tu i file di {0} dalla cartella.</value>
+  </data>
+  <data name="Installed_RemoveHasAddonFormat" xml:space="preserve">
+    <value>{0} è stato installato a mano e {1} è installato nella sua cartella. Rimuovere {0} toglierebbe anche {1}, quindi non è stato rimosso - annulla prima la sottoscrizione a {1}.</value>
   </data>
   <data name="Play_ProfileFixDone" xml:space="preserve">
     <value>Attivati in core.json. Riavvia il server SPT perché ripulisca il profilo, poi premi di nuovo Gioca.</value>

@@ -41,6 +41,11 @@ From 1.3.0 or later: Help > About > **Install update**. From an older version: c
 - **Undo does not mix two versions.** Undoing the removal of a hand-installed mod into a folder that holds the mod again is refused, and what was removed stays in the list.
 - **Unsubscribe from all on a collection page sees mods subscribed to since.** It could report "Removed 0".
 - **Unsubscribing from an addon in its mod's folder no longer warns about the mod.** It listed everything that uses the mod and the mod's profile items.
+- **"Delete" for a mod's configs deletes the ones you edited too.** An edited config counted as changed since install and was left behind, so the choice did nothing for the files it was made for. They go to the removed files like the rest, where Undo still has them.
+- **A hand-installed mod's server prepatch folder goes with it.** Its folder in `user\patchers` was left, and the server went on adding the mod's values (skills, for example) to profiles.
+- **A hand-installed mod with an addon in its folder is not removed over it.** Removing the mod took the addon's files and left the addon listed. It now says to unsubscribe from the addon first.
+- **Undo says why it did nothing** when the mod has been installed again since, and that the removed files are still kept. It used to say there was nothing to undo.
+- **A removal says when files the mod had replaced could not be put back** because something else is in their place now.
 
 ### Updating
 
@@ -49,6 +54,7 @@ From 1.3.0 or later: Help > About > **Install update**. From an older version: c
 - **Files an update could not move stay on record**, so the next update or a removal takes them.
 - **A mod's update leaves what an addon placed over it.** A translation or texture addon that replaces one of its mod's files lost that file when the mod updated, while its card still said installed.
 - **An update already in the queue is not queued again** by a second click on a card that still shows its arrow.
+- **Get again brings a re-uploaded file's new defaults.** Installing the same version over itself treated every default the new file had changed as an edit of yours and put the old value back. Your own edits are still carried over.
 - **Installs, removals, Undo and Go back take turns.** A download that reached its install while a removal was running could run beside it.
 
 # SSPTMM 1.4.8

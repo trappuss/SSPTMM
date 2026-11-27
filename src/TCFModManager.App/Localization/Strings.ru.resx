@@ -5717,6 +5717,12 @@
   <data name="Installed_UndoNothing" xml:space="preserve">
     <value>Отменять нечего - удалённые файлы уже стёрты.</value>
   </data>
+  <data name="Installed_RemovedOriginalsNotBack" xml:space="preserve">
+    <value>Некоторые файлы, которые он заменил, не удалось вернуть: на их месте теперь другие файлы. Они хранятся вместе с удалёнными файлами.</value>
+  </data>
+  <data name="Installed_UndoInstalledSinceFormat" xml:space="preserve">
+    <value>{0} снова установлен после удаления, поэтому ничего не возвращено. Удалённые файлы по-прежнему хранятся.</value>
+  </data>
   <data name="Installed_RemoveHeldFormat" xml:space="preserve">
     <value>Удалённые файлы хранятся в установке {0}, так что это можно отменить.</value>
   </data>
@@ -9854,6 +9860,9 @@
   </data>
   <data name="Installed_SharedFolderRemoveFormat" xml:space="preserve">
     <value>{0} делит папку с {1} и установлен вручную. Его удаление забрало бы всю папку, включая {1}, поэтому он не удалён - уберите файлы {0} из папки сами.</value>
+  </data>
+  <data name="Installed_RemoveHasAddonFormat" xml:space="preserve">
+    <value>{0} установлен вручную, а {1} установлен в его папку. Удаление {0} забрало бы и {1}, поэтому он не удалён - сначала отпишитесь от {1}.</value>
   </data>
   <data name="Play_ProfileFixDone" xml:space="preserve">
     <value>Включено в core.json. Перезапустите сервер SPT, чтобы он почистил профиль, затем снова нажмите «Играть».</value>

@@ -50,6 +50,43 @@ public sealed class ConfigBaselineStore(string? root = null)
         return File.Exists(path) ? path : null;
     }
 
+    //
+    // Fork (1.4.9): moves one version's shipped copies aside, for an install of that same version
+    // over itself (Get again, a re-uploaded file). Capture is about to write the new file's copies
+    // into the same place, and what the old file shipped has to be read after that. Returns the
+    // folder they are in now, or null when there were none.
+    //
+    public string? SetAside(int modId, bool isAddon, string version)
+    {
+        var versionDir = VersionDirectory(modId, isAddon, version);
+        if (!Directory.Exists(versionDir)) return null;
+
+        var aside = versionDir + ".before";
+        try
+        {
+            TryDelete(aside);
+            Directory.Move(versionDir, aside);
+            return aside;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            AppLog.Warn("Configs", $"couldn't set the shipped copies of {version} aside: {ex.Message}");
+            return null;
+        }
+    }
+
+    /// <summary>The shipped copy of one file in a folder SetAside returned, or null.</summary>
+    public static string? FindIn(string asideFolder, string relativePath)
+    {
+        var path = Path.Combine(asideFolder, ToNative(relativePath));
+        return File.Exists(path) ? path : null;
+    }
+
+    public static void Discard(string? asideFolder)
+    {
+        if (asideFolder is not null) TryDelete(asideFolder);
+    }
+
     // Drops every version of this mod's baseline except the ones named.
     public void Prune(int modId, bool isAddon, params string?[] keepVersions)
     {

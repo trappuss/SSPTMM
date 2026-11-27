@@ -9040,6 +9040,14 @@ Install the file as it is anyway?</value>
     <value>There's nothing to undo - the removed files have been cleared.</value>
     <comment>Shown when Undo is pressed but the removal can no longer be undone.</comment>
   </data>
+  <data name="Installed_RemovedOriginalsNotBack" xml:space="preserve">
+    <value>Some files it had replaced could not be put back because other files are in their place now. They are kept with the removed files.</value>
+    <comment>After removing a mod: files it had overwritten at install could not be restored because their paths are occupied.</comment>
+  </data>
+  <data name="Installed_UndoInstalledSinceFormat" xml:space="preserve">
+    <value>{0} has been installed again since it was removed, so nothing was put back. What was removed is still kept.</value>
+    <comment>Shown when Undo is pressed for a removed mod that has been installed again since. {0} is the mod.</comment>
+  </data>
   <data name="Installed_RemoveHeldFormat" xml:space="preserve">
     <value>Removed files are kept in the install for {0}, so you can undo it.</value>
     <comment>Part of the removal confirmation. {0} is one of the Keep removed mods choices, e.g. '14 days'.</comment>
@@ -11781,6 +11789,10 @@ The profiles are copied first, and every mod is turned back on at the end. Don't
   <data name="Installed_SharedFolderRemoveFormat" xml:space="preserve">
     <value>{0} shares its folder with {1} and was installed by hand. Removing it would take the whole folder, {1} included, so it wasn't removed - take {0}'s files out of the folder yourself.</value>
     <comment>Status line when removing a mod installed by hand into another mod's folder is refused. {0}: this mod. {1}: the folder's other mod.</comment>
+  </data>
+  <data name="Installed_RemoveHasAddonFormat" xml:space="preserve">
+    <value>{0} was installed by hand, and {1} is installed in its folder. Removing {0} would take {1} with it, so it wasn't removed - unsubscribe from {1} first.</value>
+    <comment>Status line when removing a hand-installed mod is refused because an addon this app installed sits in its folder. {0}: the mod. {1}: the addon(s).</comment>
   </data>
   <data name="Play_ProfileFixDone" xml:space="preserve">
     <value>Turned on in core.json. Restart the SPT server so it cleans the profile, then press Play again.</value>

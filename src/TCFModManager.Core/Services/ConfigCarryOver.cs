@@ -143,6 +143,16 @@ public sealed class ConfigCarryOver(
         // extract folder - these are the exact bytes the install now holds, and they are captured
         // BEFORE a merge writes over any of them.
         //
+        //
+        // Fork (1.4.9): the same version over itself - Get again, after its file was uploaded again.
+        // The copies just captured would stand in for what the file before had shipped, so every
+        // difference from the new defaults read as the user's edit and was "carried": defaults the
+        // new upload changed went back to the old ones. What the old file shipped is set aside first
+        // and read from there.
+        //
+        var sameVersion = existing is not null && string.Equals(existing.Version, installed.Version, StringComparison.OrdinalIgnoreCase);
+        var before = sameVersion ? _baselines.SetAside(target.Id, target.IsAddon, installed.Version) : null;
+
         _baselines.Capture(installPath, target.Id, target.IsAddon, installed.Version,
             placed.Where(p => !pending.Untouchable.Contains(p)));
 
@@ -156,7 +166,7 @@ public sealed class ConfigCarryOver(
                 continue;
             }
 
-            outcomes.Add(Decide(pending, installPath, target, existing, relative, policy));
+            outcomes.Add(Decide(pending, installPath, target, existing, relative, policy, sameVersion, before));
         }
 
         // Archived files the new version no longer ships. Their copy is the only one left.
@@ -180,7 +190,9 @@ public sealed class ConfigCarryOver(
             outcomes.Add(new ConfigFileOutcome { Path = relative, Kind = ConfigOutcomeKind.NotUpdated });
         }
 
-        _baselines.Prune(target.Id, target.IsAddon, existing?.Version, installed.Version);
+        // (Not on the same version over itself: the version before it may still be held for Go back.)
+        ConfigBaselineStore.Discard(before);
+        if (!sameVersion) _baselines.Prune(target.Id, target.IsAddon, existing?.Version, installed.Version);
 
         return new ConfigUpdateReport
         {
@@ -210,7 +222,9 @@ public sealed class ConfigCarryOver(
         InstallTarget target,
         InstalledModRecord? existing,
         string relative,
-        ModConfigPolicy policy)
+        ModConfigPolicy policy,
+        bool sameVersion = false,
+        string? before = null)
     {
         if (!pending.Archived.TryGetValue(relative, out var userCopy))
             return new ConfigFileOutcome { Path = relative, Kind = ConfigOutcomeKind.Added };
@@ -232,7 +246,9 @@ public sealed class ConfigCarryOver(
                 : Replaced(relative, ConfigReplaceReason.MergeFailed);
         }
 
-        var baseline = _baselines.Find(target.Id, target.IsAddon, existing?.Version, relative);
+        var baseline = sameVersion
+            ? (before is null ? null : ConfigBaselineStore.FindIn(before, relative))
+            : _baselines.Find(target.Id, target.IsAddon, existing?.Version, relative);
 
         // Nothing recorded what the old version shipped, so a user edit cannot be told from a changed
         // default and there is nothing safe to carry.

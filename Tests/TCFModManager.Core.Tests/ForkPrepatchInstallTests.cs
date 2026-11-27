@@ -373,4 +373,95 @@ public class ForkPrepatchInstallTests : IDisposable
         await Service().UninstallAsync(_install, RecordOf(addon), ConfigAction.Delete);
         Assert.True(File.Exists(Full(Locale)));
     }
+
+    private const string ServerConfig = "SPT_Runtime/user/mods/SkillsExtended/config/config.json";
+
+    private Task<ModInstallResult> InstallWithConfig(InstallTarget target, string version, string config) =>
+        Service([.. Archive(version, NewPatch), (ServerConfig, config)]).InstallAsync(
+            target, new ModVersion { Id = 1, Version = version, Link = "https://example.test/a" }, _install);
+
+    // Fork (1.4.9): "delete its configs" takes the one that was edited too.
+    [Fact]
+    public async Task Removing_with_configs_deleted_takes_an_edited_config()
+    {
+        var target = NewTarget();
+        await InstallWithConfig(target, "3.1.1", "{ \"a\": 1 }");
+        Write(ServerConfig, "{ \"a\": 5 }");
+
+        var result = await Service().UninstallAsync(_install, RecordOf(target), ConfigAction.Delete);
+
+        Assert.False(File.Exists(Full(ServerConfig)));
+        Assert.Empty(result.KeptChanged);
+        Assert.False(Directory.Exists(Full("SPT_Runtime/user/mods/SkillsExtended")));
+    }
+
+    // Fork (1.4.9): the same version installed over itself, its file having been uploaded again.
+    [Fact]
+    public async Task The_same_version_again_brings_its_changed_defaults_and_keeps_an_edit()
+    {
+        var target = NewTarget();
+        await InstallWithConfig(target, "3.1.1", "{ \"a\": 1, \"b\": 1 }");
+        Write(ServerConfig, "{ \"a\": 5, \"b\": 1 }");
+
+        await InstallWithConfig(target, "3.1.1", "{ \"a\": 1, \"b\": 2 }");
+
+        var now = File.ReadAllText(Full(ServerConfig));
+        Assert.Contains("\"a\": 5", now);
+        Assert.Contains("\"b\": 2", now);
+    }
+
+    [Fact]
+    public async Task The_same_version_again_over_an_untouched_config_takes_the_new_defaults()
+    {
+        var target = NewTarget();
+        await InstallWithConfig(target, "3.1.1", "{ \"a\": 1, \"b\": 1 }");
+
+        await InstallWithConfig(target, "3.1.1", "{ \"a\": 1, \"b\": 2 }");
+
+        Assert.Contains("\"b\": 2", File.ReadAllText(Full(ServerConfig)));
+    }
+
+    // Fork (1.4.9): a hand-installed mod's own folder of server prepatches goes with it, and comes back.
+    [Fact]
+    public void A_hand_installed_mods_prepatch_folder_is_removed_with_it_and_undone_with_it()
+    {
+        Write("BepInEx/plugins/Hand/Hand.dll", "plugin");
+        Write("SPT_Runtime/user/patchers/com.hand/EnumExtensions.json", "{}");
+        Write("SPT_Runtime/user/patchers/some.other.mod/EnumExtensions.json", "another mod's");
+
+        var held = Service().RemoveHandInstalled(
+            [Full("BepInEx/plugins/Hand"), Full("SPT_Runtime/user/patchers/com.hand")], _install, "Hand");
+
+        Assert.False(Directory.Exists(Full("BepInEx/plugins/Hand")));
+        Assert.False(Directory.Exists(Full("SPT_Runtime/user/patchers/com.hand")));
+        Assert.True(File.Exists(Full("SPT_Runtime/user/patchers/some.other.mod/EnumExtensions.json")));
+
+        // user\patchers itself, and anything deeper, is never a folder to remove whole.
+        Assert.NotNull(InstallPathGuard.CheckModFolder(_install, Full("SPT_Runtime/user/patchers")));
+        Assert.NotNull(InstallPathGuard.CheckModFolder(_install, Full("SPT_Runtime/user/profiles")));
+
+        var undo = Service().UndoRemoval(_install, held!);
+
+        Assert.True(undo.Ran);
+        Assert.Empty(undo.Blocked);
+        Assert.True(File.Exists(Full("BepInEx/plugins/Hand/Hand.dll")));
+        Assert.True(File.Exists(Full("SPT_Runtime/user/patchers/com.hand/EnumExtensions.json")));
+    }
+
+    // Fork (1.4.9): Undo of a removal says so when the mod has been installed again, and leaves it.
+    [Fact]
+    public async Task Undo_after_the_mod_was_installed_again_puts_nothing_back_and_says_why()
+    {
+        var target = NewTarget();
+        await Install(target, "3.0.0", OldPatch);
+        var removal = await Service().UninstallAsync(_install, RecordOf(target), ConfigAction.Delete);
+        await Install(target, "3.1.1", NewPatch);
+
+        var undo = Service().UndoRemoval(_install, removal.HoldingFolder!);
+
+        Assert.False(undo.Ran);
+        Assert.True(undo.InstalledSince);
+        Assert.Equal("3.1.1", RecordOf(target).Version);
+        Assert.Equal("plugin 3.1.1", File.ReadAllText(Full("BepInEx/plugins/SkillsExtended/SkillsExtended.dll")));
+    }
 }

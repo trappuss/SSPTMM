@@ -5423,6 +5423,12 @@ Cela arrive légitimement si le serveur a été reconstruit ou si vous l'atteign
   <data name="Installed_UndoNothing" xml:space="preserve">
     <value>Il n'y a rien à annuler - les fichiers supprimés ont été effacés.</value>
   </data>
+  <data name="Installed_RemovedOriginalsNotBack" xml:space="preserve">
+    <value>Certains fichiers qu'il avait remplacés n'ont pas pu être remis en place, car d'autres fichiers occupent maintenant leur emplacement. Ils sont conservés avec les fichiers retirés.</value>
+  </data>
+  <data name="Installed_UndoInstalledSinceFormat" xml:space="preserve">
+    <value>{0} a été réinstallé depuis son retrait, rien n'a donc été remis en place. Les fichiers retirés sont toujours conservés.</value>
+  </data>
   <data name="Installed_RemoveHeldFormat" xml:space="preserve">
     <value>Les fichiers supprimés sont conservés dans l'installation pendant {0}, vous pouvez donc annuler.</value>
   </data>
@@ -9419,6 +9425,9 @@ Les profils sont copiés d'abord, et tous les mods sont réactivés à la fin. N
   </data>
   <data name="Installed_SharedFolderRemoveFormat" xml:space="preserve">
     <value>{0} partage son dossier avec {1} et a été installé à la main. Le retirer emporterait tout le dossier, {1} compris, il n'a donc pas été retiré - sortez vous-même les fichiers de {0} du dossier.</value>
+  </data>
+  <data name="Installed_RemoveHasAddonFormat" xml:space="preserve">
+    <value>{0} a été installé à la main, et {1} est installé dans son dossier. Retirer {0} emporterait {1}, il n'a donc pas été retiré - désabonnez-vous d'abord de {1}.</value>
   </data>
   <data name="Play_ProfileFixDone" xml:space="preserve">
     <value>Activés dans core.json. Redémarrez le serveur SPT pour qu'il nettoie le profil, puis cliquez à nouveau sur Jouer.</value>

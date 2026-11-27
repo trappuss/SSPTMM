@@ -160,8 +160,13 @@ public static class InstallPathGuard
         var relative = Path.GetRelativePath(root, full);
         if (ProtectedInstallPaths.Segments(relative) is not { } segments) return PathRefusal.OutsideInstall;
 
-        if (!ModContainers.Any(c => segments.Length == c.Length + 1 && StartsWith(segments, c)))
+        // Fork (1.4.9): or a mod's own folder of server prepatches (user/patchers/<GUID>), which a
+        // hand-installed mod's removal takes with it - left behind, the server went on adding its values.
+        if (!ModContainers.Any(c => segments.Length == c.Length + 1 && StartsWith(segments, c))
+            && !PrepatchContainers.Any(c => segments.Length == c.Length + 1 && StartsWith(segments, c)))
+        {
             return PathRefusal.NotAModFolder;
+        }
 
         if (ProtectedInstallPaths.IsProtected(relative)) return PathRefusal.Protected;
 

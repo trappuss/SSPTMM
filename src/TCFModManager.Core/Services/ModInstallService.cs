@@ -1035,6 +1035,13 @@ public sealed class ModInstallService(
             : [];
         configFiles.RemoveAll(owned.Contains);
 
+        // Fork (1.4.9): "delete its configs" is about the ones that were edited more than any. Those
+        // differ from what was installed, so they were kept as "changed since install" - the choice
+        // did nothing for exactly the files it was made for. They go to the holding folder like the rest.
+        var deleteAnyway = configs == ConfigAction.Delete
+            ? ModConfigFiles.InRecord(record, options).ToHashSet(StringComparer.OrdinalIgnoreCase)
+            : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
         if (configFiles.Count > 0)
             kept = ModConfigFiles.MoveOut(installPath, configFiles, record.Name, DateTimeOffset.UtcNow);
 
@@ -1104,7 +1111,8 @@ public sealed class ModInstallService(
                 // build, and where the new version ships that DLL under a new name or place, the
                 // old one stayed and loaded beside it: two plugins with one GUID.
                 //
-                if (!(kind == RemovalKind.ReplacedByUpdate && relative.EndsWith(".dll", StringComparison.OrdinalIgnoreCase)))
+                if (!(kind == RemovalKind.ReplacedByUpdate && relative.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
+                    && !deleteAnyway.Contains(relative))
                 {
                     keptChanged.Add(relative);
                     session.Note(relative, RemovalOutcome.KeptChangedSinceInstall);
@@ -1189,6 +1197,7 @@ public sealed class ModInstallService(
             KeptChanged = keptChanged,
             KeptOwned = keptOwned,
             OriginalsRestored = restored,
+            OriginalsNotPutBack = session.Log.Entries.Count(e => e.Outcome == RemovalOutcome.OriginalNotRestoredOccupied),
             HoldingFolder = holding,
             FoldersLeft = foldersLeft,
         };
@@ -1442,7 +1451,7 @@ public sealed class ModInstallService(
                 && !(m.Incomplete && m.Version == wasRecord.Version && m.InstalledAt == wasRecord.InstalledAt)))
         {
             AppLog.Info("Undo", $"{log.ModName}: installed again since it was removed; nothing put back");
-            return new UndoResult(false, 0, []);
+            return new UndoResult(false, 0, []) { InstalledSince = true };
         }
 
         var blocked = new List<string>();
@@ -2233,6 +2242,10 @@ public sealed record UninstallResult(
     public List<string> KeptChanged { get; init; } = [];
     public List<string> KeptOwned { get; init; } = [];
     public int OriginalsRestored { get; init; }
+
+    // Fork (1.4.9): files this mod had replaced that could not go back, their place being taken;
+    // they are in the holding folder with the removed files.
+    public int OriginalsNotPutBack { get; init; }
     public string? HoldingFolder { get; init; }
 
     // The mod's folders that stayed because they hold files it didn't install.
@@ -2244,7 +2257,11 @@ public sealed record FolderLeft(string Folder, int Files);
 
 // What Undo did: whether it ran at all, how many files and folders came back, and the paths it left in
 // the holding folder because something else now occupies them.
-public sealed record UndoResult(bool Ran, int PutBack, List<string> Blocked);
+public sealed record UndoResult(bool Ran, int PutBack, List<string> Blocked)
+{
+    // Fork (1.4.9): not run because the mod has been installed again since; the removal is still held.
+    public bool InstalledSince { get; init; }
+}
 
 // What to do with a mod's own config and user-data files when its files are being removed.
 public enum ConfigAction

@@ -5423,6 +5423,12 @@ Das passiert ganz harmlos, wenn der Server neu aufgesetzt wurde oder du ihn übe
   <data name="Installed_UndoNothing" xml:space="preserve">
     <value>Es gibt nichts rückgängig zu machen - die entfernten Dateien wurden gelöscht.</value>
   </data>
+  <data name="Installed_RemovedOriginalsNotBack" xml:space="preserve">
+    <value>Einige Dateien, die er ersetzt hatte, konnten nicht zurückgelegt werden, weil dort inzwischen andere Dateien liegen. Sie werden bei den entfernten Dateien aufbewahrt.</value>
+  </data>
+  <data name="Installed_UndoInstalledSinceFormat" xml:space="preserve">
+    <value>{0} wurde seit dem Entfernen erneut installiert, daher wurde nichts zurückgelegt. Die entfernten Dateien bleiben aufbewahrt.</value>
+  </data>
   <data name="Installed_RemoveHeldFormat" xml:space="preserve">
     <value>Entfernte Dateien bleiben {0} in der Installation, du kannst es also rückgängig machen.</value>
   </data>
@@ -9419,6 +9425,9 @@ Vorher werden die Profile kopiert, und am Ende sind alle Mods wieder an. Starte 
   </data>
   <data name="Installed_SharedFolderRemoveFormat" xml:space="preserve">
     <value>{0} teilt seinen Ordner mit {1} und wurde von Hand installiert. Beim Entfernen würde der ganze Ordner samt {1} verschwinden, daher wurde er nicht entfernt - nimm die Dateien von {0} selbst aus dem Ordner.</value>
+  </data>
+  <data name="Installed_RemoveHasAddonFormat" xml:space="preserve">
+    <value>{0} wurde von Hand installiert, und {1} ist in seinem Ordner installiert. Beim Entfernen von {0} würde {1} mit verschwinden, daher wurde er nicht entfernt - bestelle zuerst {1} ab.</value>
   </data>
   <data name="Play_ProfileFixDone" xml:space="preserve">
     <value>In core.json eingeschaltet. Starte den SPT-Server neu, damit er das Profil bereinigt, und klicke dann erneut auf Spielen.</value>

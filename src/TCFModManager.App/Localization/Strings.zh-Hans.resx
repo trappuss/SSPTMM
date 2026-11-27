@@ -6987,6 +6987,12 @@ GitHub 上的文件未经 sp-mod.com 检查，请只安装你信任的作者的�
   <data name="Installed_UndoNothing" xml:space="preserve">
     <value>没有可撤销的操作——被移除的文件已被清除。</value>
   </data>
+  <data name="Installed_RemovedOriginalsNotBack" xml:space="preserve">
+    <value>它曾替换的部分文件无法恢复，因为原位置现在已有其他文件。这些文件与已移除的文件一起保留。</value>
+  </data>
+  <data name="Installed_UndoInstalledSinceFormat" xml:space="preserve">
+    <value>{0} 在移除后已重新安装，因此没有恢复任何内容。已移除的文件仍被保留。</value>
+  </data>
   <data name="Installed_RemoveHeldFormat" xml:space="preserve">
     <value>被移除的文件会在安装目录中保留 {0}，以便撤销。</value>
   </data>
@@ -8975,6 +8981,9 @@ GitHub 上的文件未经 sp-mod.com 检查，请只安装你信任的作者的�
   </data>
   <data name="Installed_SharedFolderRemoveFormat" xml:space="preserve">
     <value>{0} 与 {1} 共用文件夹，且是手动安装的。移除它会删除整个文件夹（包括 {1}），因此未移除，请自行将 {0} 的文件从该文件夹中取出。</value>
+  </data>
+  <data name="Installed_RemoveHasAddonFormat" xml:space="preserve">
+    <value>{0} 是手动安装的，而 {1} 安装在它的文件夹中。移除 {0} 会连同 {1} 一起移除，因此未移除，请先取消订阅 {1}。</value>
   </data>
   <data name="Play_ProfileFixDone" xml:space="preserve">
     <value>已在 core.json 中开启。请重启 SPT 服务端以清理存档，然后再次点击“开始游戏”。</value>

@@ -2416,6 +2416,8 @@ internal static class Strings
     internal static string Installed_UndoRemovalToolTip => LocalizationService.Get("Installed_UndoRemovalToolTip");
     internal static string Installed_UndoneFormat => LocalizationService.Get("Installed_UndoneFormat");
     internal static string Installed_UndoNothing => LocalizationService.Get("Installed_UndoNothing");
+    internal static string Installed_RemovedOriginalsNotBack => LocalizationService.Get("Installed_RemovedOriginalsNotBack");
+    internal static string Installed_UndoInstalledSinceFormat => LocalizationService.Get("Installed_UndoInstalledSinceFormat");
     internal static string Installed_RemoveHeldFormat => LocalizationService.Get("Installed_RemoveHeldFormat");
     internal static string Installed_RemoveHeldUntilCleared => LocalizationService.Get("Installed_RemoveHeldUntilCleared");
     internal static string Installed_RemoveNotHeld => LocalizationService.Get("Installed_RemoveNotHeld");
@@ -3089,6 +3091,7 @@ internal static class Strings
     internal static string Installed_SharedFolderFormat => LocalizationService.Get("Installed_SharedFolderFormat");
     internal static string Installed_SharedFolderByHandFormat => LocalizationService.Get("Installed_SharedFolderByHandFormat");
     internal static string Installed_SharedFolderRemoveFormat => LocalizationService.Get("Installed_SharedFolderRemoveFormat");
+    internal static string Installed_RemoveHasAddonFormat => LocalizationService.Get("Installed_RemoveHasAddonFormat");
     internal static string Play_ProfileFixDone => LocalizationService.Get("Play_ProfileFixDone");
     internal static string Nav_Back => LocalizationService.Get("Nav_Back");
     internal static string Nav_Forward => LocalizationService.Get("Nav_Forward");

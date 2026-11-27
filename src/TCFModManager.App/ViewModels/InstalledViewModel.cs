@@ -1625,13 +1625,58 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     // beside the plugin's too. Only the plugin's (or, with none, the patcher's) and the server's
     // went, so "Removed" left a preloader in BepInEx\patchers that still loaded.
     //
+    // And its folder of server prepatches (user\patchers\<its GUID>), which belongs to no one else
+    // and, left there, has the server go on adding the mod's values to profiles.
     private static List<string> LegacyPaths(InstalledModCardViewModel mod) =>
         mod.Entries.Select(e => e.FolderPath)
             .Concat([mod.ClientFolderPath, mod.ServerFolderPath])
+            .Concat(PrepatchFoldersOf(mod))
             .Where(p => !string.IsNullOrWhiteSpace(p))
             .Select(p => p!)
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
+
+    private static IEnumerable<string> PrepatchFoldersOf(InstalledModCardViewModel mod)
+    {
+        var installPath = AppServices.SptEnvironment.InstallPath;
+        if (string.IsNullOrWhiteSpace(installPath)) yield break;
+
+        var guids = mod.Entries
+            .Where(e => e.Target == InstalledModTarget.Server)
+            .SelectMany(e => e.Guids.Append(e.Guid))
+            .Where(g => !string.IsNullOrWhiteSpace(g))
+            .Select(g => g!)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        foreach (var mods in DisabledModPaths.ServerContainers(installPath))
+        {
+            if (Path.GetDirectoryName(mods) is not { } user) continue;
+
+            foreach (var guid in guids)
+            {
+                // A GUID is a name here, never a path.
+                if (guid.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0 || guid is "." or "..") continue;
+
+                var folder = Path.Combine(user, "patchers", guid);
+                if (Directory.Exists(folder)) yield return folder;
+            }
+        }
+    }
+
+    // Fork (1.4.9): the addons this app installed into a hand-installed mod's folders. Removing the
+    // mod moves its folders whole, and took those addons' files with it, leaving their records.
+    private static List<string> AddonsInside(IReadOnlyList<string> paths, string installPath)
+    {
+        var prefixes = paths
+            .Select(p => Path.GetRelativePath(installPath, p).Replace('\\', '/').TrimEnd('/') + "/")
+            .ToList();
+
+        return AppServices.InstallManifest.Load().ModsFor(installPath)
+            .Where(r => r.IsAddon && r.Files.Any(f => prefixes.Any(prefix => f.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))))
+            .Select(r => r.Name)
+            .ToList();
+    }
 
     //
     // Removes one mod once the removal has been agreed to: the manifest-precise uninstall for what
@@ -1671,6 +1716,9 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
         var paths = LegacyPaths(mod);
         if (paths.Count == 0) return (false, Text(Strings.Installed_RemoveNoFolderFormat, mod.Name), true);
+
+        if (AddonsInside(paths, installPath) is { Count: > 0 } addons)
+            return (false, Text(Strings.Installed_RemoveHasAddonFormat, mod.DisplayTitle, TextLists.Join(addons)), true);
 
         foreach (var path in paths)
         {
@@ -2952,6 +3000,8 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
                 parts.Add(Strings.Installed_RemovedRefused(refused.Count, refused.Count));
             if (result.OriginalsRestored > 0)
                 parts.Add(Strings.Installed_RemovedRestored(result.OriginalsRestored, result.OriginalsRestored));
+            if (result.OriginalsNotPutBack > 0)
+                parts.Add(Strings.Installed_RemovedOriginalsNotBack);
 
             // A folder that had to stay for files the mod didn't install - otherwise it looks like a
             // mod still installed, with nothing saying why.
@@ -3087,7 +3137,9 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
             // Off the UI thread: putting back a large mod copies a lot of files.
             var result = await ModInstallService.AloneAsync(() => Task.Run(() => AppServices.ModInstall.UndoRemoval(installPath, latest.Folder)));
 
-            StatusMessage = !result.Ran
+            StatusMessage = result.InstalledSince
+                ? Text(Strings.Installed_UndoInstalledSinceFormat, latest.Log.ModName)
+                : !result.Ran
                 ? Strings.Installed_UndoNothing
                 : result.Blocked.Count == 0
                     ? Text(Strings.Installed_UndoneFormat, latest.Log.ModName)
