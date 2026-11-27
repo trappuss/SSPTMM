@@ -237,6 +237,27 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
             downloadSubfolder = dependencyOf.DownloadSubfolder;
         }
 
+        //
+        // Fork (1.4.9): a "no" given to a question stands for the batch it was asked in, so a
+        // collection asks once and not per mod - not for a Subscribe made after that batch is done.
+        // That one went straight to Cancelled, with no question and no reason given.
+        //
+        if (!Items.Any(i => !i.IsFinished)) _problemAnswers.Clear();
+
+        //
+        // Fork (1.4.9): what is already waiting or running is not queued a second time - the same
+        // mod for the same install, the same way (installed, or only downloaded). A double click, or
+        // Subscribe on a card and again on another page before it had installed, downloaded the
+        // archive twice and installed the mod over itself; with two versions, the last one won.
+        //
+        if (Items.FirstOrDefault(i => !i.IsFinished && i.Target.Id == target.Id && i.Target.IsAddon == target.IsAddon
+                && i.DownloadOnly == downloadOnly
+                && string.Equals(i.InstallPath, installPath, StringComparison.OrdinalIgnoreCase)) is { } waiting)
+        {
+            AppLog.Info("Downloads", $"{target.Name} is already in the queue ({waiting.VersionLabel}); not queued again");
+            return waiting;
+        }
+
         // Fork (1.4.9): a copy that is switched off, or half of it, when the caller did not say - Get
         // again, Install from file, a dependency. Without it the new files went into the live folder
         // and the switched-off copy stayed in ".disabled" with its record replaced.
@@ -824,6 +845,11 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
 
             // The card is a retry's by now, if there was one: this attempt says nothing on it.
             if (turn.Token == item.Token) Settle(item, ex);
+
+            // Fork (1.4.9): an install that failed after it began has changed the folder - the old
+            // version taken out, part of the new one placed - and the pages still showed the mod as
+            // it was until a Rescan. They are told, as after one that worked.
+            if (!keepArchive) ItemInstalled?.Invoke(this, EventArgs.Empty);
         }
         finally
         {
@@ -1206,6 +1232,15 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
     // Subscribe asks this before its gate, so the mod and everything it needs are confirmed in one
     // window instead of the dependencies' window appearing once the download has started.
     //
+    //
+    // Fork (1.4.9): a mod on its way into this install. Not one that is only being downloaded, or is
+    // going into another install: either counted as "queued", so a mod that needs it was installed
+    // without it and nothing was said.
+    //
+    private static bool WillInstallInto(DownloadQueueItemViewModel item, string installPath) =>
+        !item.IsFinished && !item.Target.IsAddon && !item.DownloadOnly
+        && string.Equals(item.InstallPath, installPath, StringComparison.OrdinalIgnoreCase);
+
     public async Task<DependencyCheck?> FindMissingDependenciesAsync(
         InstallTarget target, string version, string installPath, CancellationToken token = default,
         ModVersion? versionDetails = null)
@@ -1239,7 +1274,7 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
         // What is still to run or running now, before the scan: one that finishes while the scan
         // runs would be neither on the scan nor unfinished afterwards, and be queued a second time.
         var unfinishedBefore = Items
-            .Where(i => !i.IsFinished && !i.Target.IsAddon)
+            .Where(i => WillInstallInto(i, installPath))
             .Select(i => i.Target.Id)
             .ToHashSet();
 
@@ -1263,7 +1298,7 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
         // must be offered again. Counting finished cards was why a mod subscribed to a second time,
         // after its dependencies had been removed, went ahead without asking for them.
         var queuedIds = Items
-            .Where(i => !i.IsFinished && !i.Target.IsAddon)
+            .Where(i => WillInstallInto(i, installPath))
             .Select(i => i.Target.Id)
             .ToHashSet();
         queuedIds.UnionWith(unfinishedBefore);

@@ -1620,10 +1620,17 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     }
 
     // A hand-installed mod's folders - what removing it deletes.
+    //
+    // Fork (1.4.9): every folder the card stands for, as Disable moves them - a patcher folder
+    // beside the plugin's too. Only the plugin's (or, with none, the patcher's) and the server's
+    // went, so "Removed" left a preloader in BepInEx\patchers that still loaded.
+    //
     private static List<string> LegacyPaths(InstalledModCardViewModel mod) =>
-        new[] { mod.ClientFolderPath, mod.ServerFolderPath }
+        mod.Entries.Select(e => e.FolderPath)
+            .Concat([mod.ClientFolderPath, mod.ServerFolderPath])
             .Where(p => !string.IsNullOrWhiteSpace(p))
             .Select(p => p!)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 
     //
@@ -1705,7 +1712,9 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     /// no longer occupy. Returns what to say, or null when the check was cancelled.</summary>
     public async Task<string?> RemoveModsAsync(IReadOnlySet<int> modIds)
     {
-        if (_all.Count == 0) await ScanAsync();
+        // Always: asked from another page, this list was only as new as the last time one of these
+        // ran, and a mod subscribed to since was not in it - "Removed 0" (1.4.9).
+        await ScanAsync();
 
         return await RemoveCardsAsync(_all.Where(c => c is { IsAddon: false, ModId: { } id } && modIds.Contains(id)).ToList());
     }
@@ -1774,8 +1783,9 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     }
 
     // Enabled installed items, outside these, that use one of them - and how.
+    // (Not asked of an addon in its mod's folder: what uses those folders uses the mod, which stays.)
     private List<(string Name, string Detail)> NeededBy(IReadOnlyList<InstalledModCardViewModel> targets) =>
-        AffectedCards(targets.ToList(), disable: true)
+        AffectedCards(targets.Where(t => t is not { IsAddon: true, IsFolderCompanion: true }).ToList(), disable: true)
             .Where(a => !a.Card.IsDisabled)
             .Select(a => (a.Card.DisplayTitle, a.Detail))
             .ToList();
@@ -2402,7 +2412,9 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     /// if this page has not yet. Returns what it said. A collection's Unsubscribe from all.</summary>
     public async Task<string?> DisableModsAsync(IReadOnlySet<int> modIds)
     {
-        if (_all.Count == 0) await ScanAsync();
+        // Always: asked from another page, this list was only as new as the last time one of these
+        // ran, and a mod subscribed to since was not in it - "Removed 0" (1.4.9).
+        await ScanAsync();
 
         var cards = _all.Where(c => c is { IsAddon: false, ModId: { } id } && modIds.Contains(id)).ToList();
         await ApplyDisableAsync(cards, disable: true);

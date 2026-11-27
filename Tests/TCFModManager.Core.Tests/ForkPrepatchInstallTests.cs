@@ -276,4 +276,52 @@ public class ForkPrepatchInstallTests : IDisposable
         Assert.False(InstallPathGuard.MayRemoveEmptyFolder(_install, Full("SPT_Runtime/user")));
         Assert.False(InstallPathGuard.MayRemoveEmptyFolder(_install, Full("SPT_Runtime/user/profiles")));
     }
+
+    // Fork (1.4.9): a file that would not move stays recorded, so the mod can be removed again.
+    [Fact]
+    public async Task A_removal_that_could_not_take_a_file_keeps_a_record_of_it()
+    {
+        const string Plugin = "BepInEx/plugins/SkillsExtended/SkillsExtended.dll";
+        var target = NewTarget();
+        await Install(target, "3.1.1", NewPatch);
+
+        UninstallResult result;
+        using (new FileStream(Full(Plugin), FileMode.Open, FileAccess.Read, FileShare.None))
+            result = await Service().UninstallAsync(_install, RecordOf(target), ConfigAction.Delete);
+
+        Assert.Equal([Plugin], result.FailedFiles);
+        Assert.True(File.Exists(Full(Plugin)));
+
+        var left = RecordOf(target);
+        Assert.True(left.Incomplete);
+        Assert.Equal([Plugin], left.Files);
+
+        // Free now: the second time takes it, and the record with it.
+        await Service().UninstallAsync(_install, left, ConfigAction.Delete);
+
+        Assert.False(File.Exists(Full(Plugin)));
+        Assert.DoesNotContain(_manifest.Load().Mods, target.Matches);
+    }
+
+    // Fork (1.4.9): an addon installed into its mod's folder leaves the mod's configs where they are.
+    [Fact]
+    public async Task Removing_an_addon_in_its_mods_folder_keeps_the_mods_config()
+    {
+        const string Config = "SPT_Runtime/user/mods/SkillsExtended/config/config.json";
+        var mod = NewTarget();
+        await Service([.. Archive("3.1.1", NewPatch), (Config, "{ \"a\": 1 }")]).InstallAsync(
+            mod, new ModVersion { Id = 1, Version = "3.1.1", Link = "https://example.test/a" }, _install);
+
+        var addonId = Interlocked.Add(ref _nextId, 1);
+        _ids.Add(addonId);
+        var addon = new InstallTarget(addonId, true, $"Preset pack {addonId}", null, null, null);
+        await Service(("SPT_Runtime/user/mods/SkillsExtended/presets/pack.json", "{}"), (Config, "{ \"a\": 2 }")).InstallAsync(
+            addon, new ModVersion { Id = 2, Version = "1.0.0", Link = "https://example.test/b" }, _install);
+
+        await Service().UninstallAsync(_install, RecordOf(addon), ConfigAction.Keep);
+
+        Assert.True(File.Exists(Full(Config)));
+        Assert.False(File.Exists(Full("SPT_Runtime/user/mods/SkillsExtended/presets/pack.json")));
+        Assert.True(File.Exists(Full("SPT_Runtime/user/mods/SkillsExtended/SkillsExtended.Server.dll")));
+    }
 }

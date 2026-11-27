@@ -288,7 +288,12 @@ public sealed partial class ModCardViewModel : LocalizedViewModel
 
         var fitting = versions.FirstOrDefault(v =>
             ModVersionMatcher.IsSatisfiedBy(v.ModVersionConstraint, parentInstalledVersion) == true);
-        var shown = fitting ?? versions.FirstOrDefault();
+        // Fork (1.4.9): the version Subscribe takes (AddonRowViewModel) - the newest not ruled out,
+        // which one with no readable constraint is not. The card named the newest that says it fits,
+        // and Subscribe then installed a different, newer one.
+        var shown = versions.FirstOrDefault(v =>
+                ModVersionMatcher.IsSatisfiedBy(v.ModVersionConstraint, parentInstalledVersion) != false)
+            ?? versions.FirstOrDefault();
 
         // True: a version fits the installed mod. False: none does. Null: the mod isn't installed,
         // or no constraint could be read.

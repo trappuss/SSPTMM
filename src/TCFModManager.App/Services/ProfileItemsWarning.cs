@@ -19,6 +19,9 @@ internal static class ProfileItemsWarning
     public static IReadOnlyList<ProfileLoss> ForCards(IEnumerable<InstalledModCardViewModel> cards) =>
         For(cards
             .Where(c => c.SharedFolderParts is null)
+            // Fork (1.4.9): nor an addon in its mod's folder - the folders its card names are the
+            // mod's, and unsubscribing from the addon warned about everything the mod had added.
+            .Where(c => c is not { IsAddon: true, IsFolderCompanion: true })
             .Select(c => (c.DisplayTitle, (IReadOnlyList<string>)c.Entries.Select(e => e.FolderPath).ToList())));
 
     public static IReadOnlyList<ProfileLoss> For(IEnumerable<(string Mod, IReadOnlyList<string> Paths)> leaving)

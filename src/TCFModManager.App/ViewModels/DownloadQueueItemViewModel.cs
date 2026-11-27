@@ -346,6 +346,13 @@ public sealed partial class DownloadQueueItemViewModel : LocalizedViewModel
     {
         if (!CanRetry) return;
 
+        // Fork (1.4.9): and what it needs, cancelled or failed with it. Cancelling this one cancels
+        // those; Retry brought back this one alone, and it installed without them, unasked.
+        foreach (var dependency in _dependencies)
+        {
+            if (dependency.CanRetry) dependency.Retry();
+        }
+
         var previous = _cancellation;
         _cancellation = new CancellationTokenSource();
         previous.Dispose();

@@ -976,13 +976,28 @@ public sealed class ModInstallService(
         //
         var kept = new KeptConfigs(0, null);
 
+        // Every file another record of this install lists - those stay with their other owner (D9).
+        // (Fork 1.4.9: of this install. A record of another install naming the same path kept the
+        // file here, as "another mod's", where it went on loading.)
+        var owned = manifestService.Load().ModsFor(installPath)
+            .Where(m => !(m.ModId == record.ModId && m.IsAddon == record.IsAddon))
+            .SelectMany(m => m.Files)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        //
+        // Fork (1.4.9): never another record's files, and for an addon never what is on disk beyond
+        // its own record. An addon installed into its mod's folder resolved to that folder, so
+        // removing an SVM preset addon moved every one of SVM's presets out with it, and a config
+        // both records list went too - and was then logged as kept.
+        //
         List<string> configFiles = configs == ConfigAction.Keep
             ?
             [
                 .. ModConfigFiles.InRecord(record, options),
-                .. ModConfigFiles.UserDataOnDisk(installPath, record, options),
+                .. record.IsAddon ? [] : ModConfigFiles.UserDataOnDisk(installPath, record, options),
             ]
             : [];
+        configFiles.RemoveAll(owned.Contains);
 
         if (configFiles.Count > 0)
             kept = ModConfigFiles.MoveOut(installPath, configFiles, record.Name, DateTimeOffset.UtcNow);
@@ -992,12 +1007,6 @@ public sealed class ModInstallService(
         HashSet<string> preserve = configs == ConfigAction.Preserve
             ? ModConfigFiles.UserDataInRecord(record, options).ToHashSet(StringComparer.OrdinalIgnoreCase)
             : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-        // Every file another record lists - those stay with their other owner (D9).
-        var owned = manifestService.Load().Mods
-            .Where(m => !(m.ModId == record.ModId && m.IsAddon == record.IsAddon))
-            .SelectMany(m => m.Files)
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         var session = RemovedMods.Begin(installPath, record.Name, kind, record);
         session.Log.ConfigsKeptFolder = kept.Folder;
@@ -1043,6 +1052,16 @@ public sealed class ModInstallService(
                 && record.FingerprintFor(relative) is { } print
                 && !print.Matches(fullPath))
             {
+                // Fork (1.4.9): one that cannot be read - open in another program - is not one the
+                // user changed. It counted as that, was left in place and dropped from the record.
+                if (!CanBeRead(fullPath))
+                {
+                    AppLog.Warn("Remove", $"{record.Name}: {relative} is in use and was left");
+                    failed.Add(relative);
+                    session.Note(relative, RemovalOutcome.Failed);
+                    continue;
+                }
+
                 keptChanged.Add(relative);
                 session.Note(relative, RemovalOutcome.KeptChangedSinceInstall);
                 continue;
@@ -1097,6 +1116,21 @@ public sealed class ModInstallService(
 
         var manifest = manifestService.Load();
         manifest.Mods.RemoveAll(m => m.ModId == record.ModId && m.IsAddon == record.IsAddon);
+
+        //
+        // Fork (1.4.9): files that would not move (open in another program) stay recorded. The record
+        // used to go whatever happened, so a DLL that stayed went on loading as a mod installed by
+        // hand, with nothing left to say this app had placed it. Kept as an incomplete record of just
+        // those files, the mod can be unsubscribed from again once the file is free.
+        //
+        if (kind == RemovalKind.AppInstalled && failed.Count > 0)
+        {
+            var left = System.Text.Json.JsonSerializer.SerializeToNode(record)!.AsObject();
+            left[nameof(InstalledModRecord.Files)] = new System.Text.Json.Nodes.JsonArray([.. failed.Select(f => System.Text.Json.Nodes.JsonValue.Create(f))]);
+            left[nameof(InstalledModRecord.Incomplete)] = true;
+            manifest.Mods.Add(System.Text.Json.JsonSerializer.Deserialize<InstalledModRecord>(left)!);
+        }
+
         manifestService.Save(manifest);
 
         var holding = _removed.Finish(session);
@@ -1109,6 +1143,19 @@ public sealed class ModInstallService(
             HoldingFolder = holding,
             FoldersLeft = foldersLeft,
         };
+    }
+
+    private static bool CanBeRead(string path)
+    {
+        try
+        {
+            using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+            return true;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            return false;
+        }
     }
 
     //
@@ -1320,7 +1367,7 @@ public sealed class ModInstallService(
         // Fork (1.4.9): not over a copy installed since. Its files would be mixed with the removed
         // version's, and its record replaced by the old one.
         if (log.Record is { } wasRecord
-            && manifestService.Load().ModsFor(installPath).Any(m => m.ModId == wasRecord.ModId && m.IsAddon == wasRecord.IsAddon))
+            && manifestService.Load().ModsFor(installPath).Any(m => m.ModId == wasRecord.ModId && m.IsAddon == wasRecord.IsAddon && !m.Incomplete))
         {
             AppLog.Info("Undo", $"{log.ModName}: installed again since it was removed; nothing put back");
             return new UndoResult(false, 0, []);
@@ -1430,6 +1477,16 @@ public sealed class ModInstallService(
             //
             if (check is null && Directory.Exists(held) && Directory.Exists(target) && !InstallPathGuard.IsLink(target))
             {
+                // Fork (1.4.9): not into a folder that holds a mod again - a copy installed since,
+                // by this app or by hand. The old version's files filled every free path beside the
+                // new one's, which can leave two DLLs of the same plugin. Left held, and said.
+                // (A held folder of leftovers - no DLL of its own - still joins the mod put back first.)
+                if (HoldsCode(held) && HoldsCode(target))
+                {
+                    blocked.Add(entry.Path);
+                    continue;
+                }
+
                 var merged = MergeHeldFolder(installPath, held, entry.Path, blocked);
                 if (merged > 0) back++;
                 continue;
@@ -1561,6 +1618,24 @@ public sealed class ModInstallService(
         {
             AppLog.Warn("Undo", $"couldn't put back the original {original.Path}: {ex.Message}");
             return false;
+        }
+    }
+
+    private static bool HoldsCode(string folder)
+    {
+        try
+        {
+            return Directory.EnumerateFiles(folder, "*.dll", new EnumerationOptions
+            {
+                RecurseSubdirectories = true,
+                AttributesToSkip = FileAttributes.ReparsePoint,
+                MatchCasing = MatchCasing.CaseInsensitive,
+            }).Any();
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            // Not known to be free of one, then.
+            return true;
         }
     }
 

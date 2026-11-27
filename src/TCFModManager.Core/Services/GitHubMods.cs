@@ -52,6 +52,9 @@ public sealed partial class GitHubMods : IDisposable
         // of the same kind is found again however its version is written.
         public string? AssetShape { get; set; }
 
+        // Fork (1.4.9): the name of the file chosen, to tell apart files of one shape (see AssetFor).
+        public string? AssetName { get; set; }
+
         public string? ETag { get; set; }
         public DateTimeOffset? CheckedAt { get; set; }
         public List<Release> Releases { get; set; } = [];
@@ -144,13 +147,36 @@ public sealed partial class GitHubMods : IDisposable
     // The file of this release to install: the one shaped like the file chosen before, else the only
     // archive. Null when there is none, or several and nothing to choose between them by.
     //
-    public static Asset? AssetFor(Release release, string? shape)
+    // Fork (1.4.9): a release with "Mod-SPT3.11.zip" and "Mod-SPT4.0.zip" has two files of one shape,
+    // and the first of them was installed whichever was picked. With the chosen file's name known,
+    // it is that file; in a later release, the one sharing the most numbers with it (the "4.0" stays,
+    // the mod's own version moves). Several equally close is nothing to choose by, as before.
+    //
+    public static Asset? AssetFor(Release release, string? shape, string? chosenName = null)
     {
         var archives = ArchivesOf(release);
-        if (shape is not null && archives.FirstOrDefault(a => ShapeOf(a.Name) == shape) is { } same) return same;
+        var same = shape is null ? [] : archives.Where(a => ShapeOf(a.Name) == shape).ToList();
+
+        if (same.Count == 1 || (same.Count > 1 && chosenName is null)) return same[0];
+
+        if (same.Count > 1)
+        {
+            if (same.FirstOrDefault(a => string.Equals(a.Name, chosenName, StringComparison.OrdinalIgnoreCase)) is { } exact) return exact;
+
+            var wanted = NumbersIn(chosenName!);
+            var ranked = same
+                .Select(a => (Asset: a, Shared: NumbersIn(a.Name).Count(wanted.Contains)))
+                .OrderByDescending(x => x.Shared)
+                .ToList();
+
+            return ranked[0].Shared > ranked[1].Shared ? ranked[0].Asset : null;
+        }
 
         return archives.Count == 1 ? archives[0] : null;
     }
+
+    private static List<string> NumbersIn(string assetName) =>
+        [.. NumbersPattern().Matches(assetName.ToLowerInvariant()).Select(m => m.Value)];
 
     //
     // The releases in GitHub's answer, newest first: drafts left out, and pre-releases when there is
@@ -220,7 +246,7 @@ public sealed partial class GitHubMods : IDisposable
         if (Find(id) is not { } entry) return null;
 
         var versions = entry.Releases
-            .Select(r => (Release: r, Asset: AssetFor(r, entry.AssetShape)))
+            .Select(r => (Release: r, Asset: AssetFor(r, entry.AssetShape, entry.AssetName)))
             .Where(r => r.Asset is not null)
             .Select(r => new ModVersionSummary
             {
@@ -251,7 +277,7 @@ public sealed partial class GitHubMods : IDisposable
 
         foreach (var release in entry.Releases.Where(r => r.Version == version))
         {
-            if (AssetFor(release, entry.AssetShape) is not { } asset) continue;
+            if (AssetFor(release, entry.AssetShape, entry.AssetName) is not { } asset) continue;
 
             return new ModVersion
             {
@@ -282,6 +308,7 @@ public sealed partial class GitHubMods : IDisposable
             Id = IdFor(repository),
             Repository = repository,
             AssetShape = ShapeOf(chosen.Name),
+            AssetName = chosen.Name,
             ETag = etag,
             CheckedAt = DateTimeOffset.UtcNow,
             Releases = releases,

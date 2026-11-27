@@ -212,4 +212,27 @@ public class ForkGitHubModsTests : IDisposable
         var ex = await Assert.ThrowsAsync<GitHubReleaseCheckException>(() => mods.ReleasesAsync(Repo));
         Assert.Equal(HttpStatusCode.NotFound, ex.Status);
     }
+
+    // Fork (1.4.9): two files of one shape - the numbers taken out, "3.11" and "4.0" are the same.
+    [Fact]
+    public void Of_two_files_of_one_shape_the_one_chosen_is_taken_and_followed_into_later_releases()
+    {
+        static GitHubMods.Release Of(params string[] names) => new()
+        {
+            Assets = [.. names.Select(n => new GitHubMods.Asset { Name = n, Url = "https://example.invalid/" + n })],
+        };
+
+        var first = Of("Mod-1.0.0-SPT3.11.zip", "Mod-1.0.0-SPT4.0.zip");
+        var shape = GitHubMods.ShapeOf("Mod-1.0.0-SPT4.0.zip");
+
+        Assert.Equal("Mod-1.0.0-SPT4.0.zip", GitHubMods.AssetFor(first, shape, "Mod-1.0.0-SPT4.0.zip")!.Name);
+
+        // The next release: the mod's version moved, the SPT it is for did not.
+        var next = Of("Mod-1.1.0-SPT3.11.zip", "Mod-1.1.0-SPT4.0.zip");
+        Assert.Equal("Mod-1.1.0-SPT4.0.zip", GitHubMods.AssetFor(next, shape, "Mod-1.0.0-SPT4.0.zip")!.Name);
+
+        // Nothing to tell them apart by: not a guess.
+        var other = Of("Mod-2.0.0-SPT5.1.zip", "Mod-2.0.0-SPT5.2.zip");
+        Assert.Null(GitHubMods.AssetFor(other, shape, "Mod-1.0.0-SPT4.0.zip"));
+    }
 }
