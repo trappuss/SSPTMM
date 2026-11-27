@@ -17,6 +17,7 @@ public sealed class AddonCacheService(SpModApiClient spModApi)
     {
         var all = new List<Addon>();
         var page = 1;
+        var failures = 0;
 
         while (true)
         {
@@ -31,7 +32,10 @@ public sealed class AddonCacheService(SpModApiClient spModApi)
                         // Each addon's latest versions carry the download link, size and the
                         // parent-mod constraint, so the whole install path works off this one fetch.
                         Include = "versions",
-                        Sort = "-downloads",
+                        // Fork (1.4.9), as TCF 2d53631: oldest first. By downloads, a mod whose count changed
+                        // between two pages moved across the page boundary and was listed twice, or pushed
+                        // another out of the list altogether; creation order only ever grows at the end.
+                        Sort = "created_at",
                         Page = page,
                         PerPage = PageSize,
                     },
@@ -42,7 +46,17 @@ public sealed class AddonCacheService(SpModApiClient spModApi)
                 await Task.Delay(ex.RetryAfter ?? TimeSpan.FromSeconds(5), ct).ConfigureAwait(false);
                 continue;
             }
+            catch (Exception ex) when (ModCacheService.IsPassing(ex, ct) && failures < ModCacheService.PageRetryDelays.Length)
+            {
+                // Fork (1.4.9): as the mod list does. One 502 here used to fail Browse's Refresh
+                // after the mods had already been read again, and the page kept its old cards.
+                var wait = ModCacheService.PageRetryDelays[failures++];
+                AppLog.Info("Addons", $"page {page} failed ({ex.Message}); asking again in {wait.TotalSeconds:F0}s");
+                await Task.Delay(wait, ct).ConfigureAwait(false);
+                continue;
+            }
 
+            failures = 0;
             all.AddRange(result.Data);
             progress?.Report((all.Count, result.Meta?.Total));
 
@@ -56,6 +70,8 @@ public sealed class AddonCacheService(SpModApiClient spModApi)
         }
 
         AppLog.Info("Addons", $"fetched {all.Count} addon(s)");
-        return all;
+
+        // Most downloaded first, as the list always was.
+        return [.. all.DistinctBy(a => a.Id).OrderByDescending(a => a.Downloads ?? 0)];
     }
 }

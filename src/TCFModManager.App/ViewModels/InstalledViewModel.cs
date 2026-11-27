@@ -970,6 +970,19 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     }
 
     //
+    // Fork (1.4.9): the Rescan button and F5. A scan like any other, and sp-mod.com is asked again
+    // after it however recently it was read (UpdateWatcher.RefreshIfStaleAsync).
+    //
+    [RelayCommand]
+    private async Task RescanAsync()
+    {
+        _rescanAsked = true;
+        if (!ScanCommand.IsRunning) await ScanCommand.ExecuteAsync(null);
+    }
+
+    private bool _rescanAsked;
+
+    //
     // Re-reads the install and rebuilds every card. Deliberately leaves you on the page you were
     // on: a scan changes what the list holds, not which part of it you were looking at.
     //
@@ -2086,8 +2099,10 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         card is { IsDisabled: true, SharedFolderParts: not null };
 
     // A disabled card's switched-off folders, put back for its update and switched off again after.
+    // Fork (1.4.9): also when only one half is off. That half was not found by the update, so the
+    // new version went into the live folder beside it and the half turned off was on again.
     internal static IReadOnlyList<InstalledMod>? KeepDisabled(InstalledModCardViewModel card) =>
-        card.IsDisabled ? [.. card.Entries.Where(e => e.IsDisabled)] : null;
+        card.Entries.Where(e => e.IsDisabled).ToList() is { Count: > 0 } off ? off : null;
 
     /// <summary>The listing and version Update all updates this card to; null when the catalog can
     /// no longer place it.</summary>
@@ -2125,7 +2140,9 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
         // Fork (1.4.8): and, when sp-mod.com hasn't been read for a while, what moved there since.
         // After the held-back answer, so the two don't cross; the page scans again if anything did.
-        if (_forPage && ReferenceEquals(Current, this)) await AppServices.UpdateWatcher.RefreshIfStaleAsync();
+        var asked = _rescanAsked;
+        _rescanAsked = false;
+        if (_forPage && ReferenceEquals(Current, this)) await AppServices.UpdateWatcher.RefreshIfStaleAsync(asked);
         ShowSpModRead();
     }
 
@@ -2206,6 +2223,11 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         }
 
         var targets = selected.Where(IsUpdatable).ToList();
+
+        // Fork (1.4.9): and the mods any of them only updates together with (HeldBackUpdates.Partners).
+        var partners = targets.SelectMany(c => AppServices.HeldBack.Partners(c.ModId)).ToHashSet();
+        if (partners.Count > 0)
+            targets.AddRange(_all.Where(c => c.ModId is { } id && partners.Contains(id) && IsUpdatable(c) && !targets.Contains(c)));
 
         // Held back by sp-mod.com: said, and left for the mod's own update dialog.
         var heldBack = selected.Where(c => c is { UpdateAvailable: true } && !CannotUpdateDisabled(c) && IsHeldBack(c)).ToList();

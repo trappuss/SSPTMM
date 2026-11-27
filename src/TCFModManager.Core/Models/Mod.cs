@@ -1,3 +1,5 @@
+using TCFModManager.Core.Services;
+
 namespace TCFModManager.Core.Models;
 
 // A mod as returned by /mods and /mod/{modId}. Most fields are nullable since the API's "fields" parameter can request a subset; only "id" is guaranteed.
@@ -34,7 +36,7 @@ public sealed class Mod
     //
     public FikaStatus Fika =>
         FikaCompatibility == true ? FikaStatus.Compatible
-        : Versions?.OrderByDescending(v => v.PublishedAt ?? v.CreatedAt ?? DateTimeOffset.MinValue).FirstOrDefault() is { } newest
+        : Versions?.NewestFirst().FirstOrDefault() is { } newest
           && string.Equals(newest.FikaCompatibility, "incompatible", StringComparison.OrdinalIgnoreCase)
             ? FikaStatus.Incompatible
             : FikaStatus.Unknown;

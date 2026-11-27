@@ -41,7 +41,10 @@ public sealed class ModCacheService(SpModApiClient spModApi)
                         // "versions" ensures each cached mod carries its latest version's SPT
                         // constraint/release number, used by Browse cards and the version filter.
                         Include = "category,versions",
-                        Sort = "-downloads",
+                        // Fork (1.4.9), as TCF 2d53631: oldest first. By downloads, a mod whose count changed
+                        // between two pages moved across the page boundary and was listed twice, or pushed
+                        // another out of the list altogether; creation order only ever grows at the end.
+                        Sort = "created_at",
                         Page = page,
                         PerPage = PageSize,
                     },
@@ -79,12 +82,15 @@ public sealed class ModCacheService(SpModApiClient spModApi)
         }
 
         AppLog.Info("Catalog", $"fetched {all.Count} mod(s); dropped {dropped} below SPT {SptReleases.Floor}");
-        return all;
+
+        // Handed on most downloaded first, as the list always was: where two listings answer to one
+        // name or GUID, the first one found has been the better known of the two.
+        return [.. all.DistinctBy(m => m.Id).OrderByDescending(m => m.Downloads ?? 0)];
     }
 
     // A failure that may not happen again: a server error, a dropped or refused connection, a timeout
     // (not the caller cancelling). Not a refusal (4xx) or a response that did not read.
-    private static bool IsPassing(Exception ex, CancellationToken ct) => ex switch
+    internal static bool IsPassing(Exception ex, CancellationToken ct) => ex switch
     {
         _ when ct.IsCancellationRequested => false,
         SpModApiException api => (int)api.StatusCode >= 500 || (int)api.StatusCode == 408,

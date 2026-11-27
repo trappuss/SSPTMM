@@ -6323,6 +6323,9 @@ Vuoi installarlo comunque?</value>
   <data name="Installed_HeldBackPlainFormat" xml:space="preserve">
     <value>Aggiornamento a {0} trattenuto: secondo sp-mod.com comprometterebbe un'altra mod installata, senza indicare quale. La finestra di aggiornamento della mod permette comunque di installarlo.</value>
   </data>
+  <data name="Installed_HeldBackTogetherFormat" xml:space="preserve">
+    <value>Si aggiorna insieme a {0}: ciascuna richiede la nuova versione dell'altra.</value>
+  </data>
   <data name="Installed_UpdatesHeldBack_one" xml:space="preserve">
     <value>{1} è stato lasciato com'era: sp-mod.com ne trattiene l'aggiornamento. La sua finestra di aggiornamento può comunque installarlo.</value>
   </data>
@@ -7657,7 +7660,7 @@ Installare comunque il file così com'è?</value>
     <value>Altro: installa da file, verifica aggiornamento SPT, ripeti scansione, apri o chiudi tutti</value>
   </data>
   <data name="Installed_RescanToolTip" xml:space="preserve">
-    <value>Cerca di nuovo nella cartella di SPT i mod aggiunti o rimossi fuori da questa app</value>
+    <value>Cerca di nuovo nella cartella di SPT i mod aggiunti o rimossi fuori da questa app e chiede a sp-mod.com le nuove versioni</value>
   </data>
   <data name="Installed_NothingMatches" xml:space="preserve">
     <value>Nessun mod corrisponde alla ricerca e ai filtri.</value>

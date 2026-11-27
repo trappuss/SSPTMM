@@ -104,6 +104,37 @@ public static class ModUpdates
         return (Join(Strings.Installed_UpdateQueued(queue.Count), handLeftOut, leftOut), true);
     }
 
+    //
+    // Fork (1.4.9): after one update is queued from its own dialog, the updates it only works
+    // together with (HeldBackUpdates.Partners) - each at the release sp-mod.com holds back, when this
+    // app installed the copy it replaces. One installed by hand is left: the queue then says, before
+    // installing, that the version there will not do. Returns the note to show, or null.
+    //
+    public static string? QueuePartners(int? modId, string version, string installPath, bool downloadOnly)
+    {
+        if (!string.Equals(AppServices.HeldBack.HeldVersion(modId), version, StringComparison.OrdinalIgnoreCase)) return null;
+
+        var queued = false;
+        foreach (var id in AppServices.HeldBack.Partners(modId))
+        {
+            if (AppServices.HeldBack.HeldVersion(id) is not { } held
+                || AppServices.ModCache.AllMods.FirstOrDefault(m => m.Id == id) is not { } partner
+                || AppServices.Browse.InstalledMatchFor(partner) is not { IsAppManaged: true } card
+                || !ViewModels.InstalledViewModel.IsUpdatable(card)
+                || AppServices.DownloadQueue.Items.Any(i => !i.IsFinished && !i.Target.IsAddon && i.Target.Id == id))
+            {
+                continue;
+            }
+
+            AppServices.DownloadQueue.Enqueue(
+                InstallTarget.For(partner), held, installPath, () => ResolveVersionLinkAsync(partner, held),
+                downloadOnly: downloadOnly, keepDisabled: ViewModels.InstalledViewModel.KeepDisabled(card));
+            queued = true;
+        }
+
+        return queued ? AppServices.HeldBack.Note(modId) : null;
+    }
+
     private enum HandInstalledAnswer
     {
         Update,

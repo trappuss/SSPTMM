@@ -27,6 +27,14 @@ public static class ModAssemblyMetadata
     private const int SoftDependencyFlag = 2;
 
     //
+    // Fork (1.4.9): read without holding the file against anyone. A scan runs while the queue
+    // installs the next mod, and a DLL open for reading the plain way could not be renamed or
+    // replaced for that moment - the old file was then left beside the new one.
+    //
+    private static FileStream OpenShared(string path) =>
+        new(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+
+    //
     // [BepInPlugin(guid, name, version)] from the first type carrying one, and every
     // [BepInDependency] on any type. Guid is null when the DLL has no plugin attribute.
     //
@@ -34,7 +42,7 @@ public static class ModAssemblyMetadata
     {
         try
         {
-            using var stream = File.OpenRead(dllPath);
+            using var stream = OpenShared(dllPath);
             using var peReader = new PEReader(stream);
             if (!peReader.HasMetadata) return DeclaredMetadata.Empty;
 
@@ -85,7 +93,7 @@ public static class ModAssemblyMetadata
     {
         try
         {
-            using var stream = File.OpenRead(dllPath);
+            using var stream = OpenShared(dllPath);
             using var peReader = new PEReader(stream);
             if (!peReader.HasMetadata) return (null, null);
 
@@ -110,7 +118,7 @@ public static class ModAssemblyMetadata
     {
         try
         {
-            using var stream = File.OpenRead(dllPath);
+            using var stream = OpenShared(dllPath);
             using var peReader = new PEReader(stream);
             if (!peReader.HasMetadata) return new HashSet<string>();
 
@@ -140,7 +148,7 @@ public static class ModAssemblyMetadata
     {
         try
         {
-            using var stream = File.OpenRead(dllPath);
+            using var stream = OpenShared(dllPath);
             using var peReader = new PEReader(stream);
             if (!peReader.HasMetadata) return null;
 

@@ -457,7 +457,7 @@ public partial class InstalledPage : Page
         {
             Header = Strings.Common_Rescan,
             ToolTip = Strings.Installed_RescanToolTip,
-            Command = vm.ScanCommand,
+            Command = vm.RescanCommand,
         });
 
         menu.Items.Add(new Separator());

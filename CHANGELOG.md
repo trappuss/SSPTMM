@@ -1,3 +1,25 @@
+# SSPTMM 1.4.9
+
+## Updating
+
+From 1.3.0 or later: Help > About > **Install update**. From an older version: close SSPTMM, download `SSPTMM-1.4.9-win-x64.zip` and copy the contents of its `SSPTMM` folder over your SSPTMM folder. Your settings in `Data` stay as they are.
+
+## Fixed
+
+- **New and updated mods stopped showing up.** The list of mods from sp-mod.com was only read when SSPTMM started, and three things could keep even that from happening:
+  - While SSPTMM stayed open, nothing read the whole list again. A mod published since the start was not in the Workshop until you pressed Refresh there or restarted. The list is now read again, in the background, whenever a page needs it and the copy in hand is more than 20 minutes old, and the pages redraw when something in it changed.
+  - A restart could skip the read too. An update check that changed one or two mods in the saved list stamped the whole list as just read, so the next start within 20 minutes used the old list. The saved list now keeps the time it was really read.
+  - **Rescan** (F5) on Subscribed items did not ask sp-mod.com anything for 20 minutes after the last check, and gave no sign of it. Pressing it now always asks, unless the last check was less than a minute ago.
+- **A mod could be left out of the list, or be in it twice.** The list was read page by page, most downloaded first. A mod whose download count changed while the pages were being read moved to another page, and was read twice or pushed another mod out. The list is now read in the order the mods were created, which does not change between pages. From TCF Mod Manager.
+- **An older version offered as the newest, and "error 404" for WTT - Content Backport.** The newest version of a mod was the one with the latest date. When an author edits an older version after releasing a newer one, sp-mod.com dates the older one later: WTT - Content Backport 2.0.6 is dated one minute after 2.0.7, and its file is no longer on the author's server, so subscribing downloaded a file that was not there. The newest version is now the one with the highest version number, everywhere: the Workshop, Subscribed items, collections, the update dialog and addons. From TCF Mod Manager.
+- **Two mods that only update together were never offered.** When two installed mods each need an exact version of the other (ISB Aishi and ISB Special Forces), sp-mod.com holds each update back because of the other, and neither showed as an update. SSPTMM now asks sp-mod.com whether each update is fine once the other is in place. If it is, both show as updates again with "Updates together with ...", and updating one queues the other with it. From TCF Mod Manager.
+- **Downloads give a busy file host more time.** A download that failed with 502, 503 or 504, or a dropped connection, was tried twice more within 8 seconds. It is now tried for about a minute, and carries on from where it broke off. The addon list is read with the same retries as the mod list, so one failed page no longer fails Refresh in the Workshop.
+- **Updating a mod with only one half turned off.** With the client half of a mod on and its server half off (or the other way round), an update put the new version in both places and left the old half in its disabled folder. That half is now updated and stays off.
+- **Undo after installing the mod again.** Undoing a removal of a mod you had since subscribed to again mixed the old version's files into the new one. Undo now leaves the installed copy alone.
+- **A removal that stopped part way can be undone.** Removing a mod you installed by hand could stop when one of its files was open, after its configs or another of its folders had already been moved away, with no way to put them back. What was moved is now kept in the list Undo works from.
+- **A scan no longer gets in the way of an install.** While SSPTMM read a mod's DLL to find its version, an update running at the same moment could not replace that file. The files are now read without locking them.
+- **The update dialog marks the latest version** the first time it opens.
+
 # SSPTMM 1.4.8
 
 ## Updating

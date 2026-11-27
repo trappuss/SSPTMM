@@ -1262,20 +1262,39 @@ public sealed class ModInstallService(
         var session = RemovedMods.Begin(installPath, modName, RemovalKind.HandInstalled, record: null);
         session.Log.ConfigsKeptFolder = configsFolder;
 
-        foreach (var path in paths)
+        try
         {
-            var full = Path.GetFullPath(path);
-            var relative = Path.GetRelativePath(Path.GetFullPath(installPath), full).Replace('\\', '/');
-
-            if (Directory.Exists(full)) session.MoveFolderIn(full, relative);
-            else if (File.Exists(full)) session.MoveFileIn(full, relative);
-            else
+            foreach (var path in paths)
             {
-                session.Note(relative, RemovalOutcome.AlreadyGone);
-                continue;
+                var full = Path.GetFullPath(path);
+                var relative = Path.GetRelativePath(Path.GetFullPath(installPath), full).Replace('\\', '/');
+
+                if (Directory.Exists(full)) session.MoveFolderIn(full, relative);
+                else if (File.Exists(full)) session.MoveFileIn(full, relative);
+                else
+                {
+                    session.Note(relative, RemovalOutcome.AlreadyGone);
+                    continue;
+                }
+
+                session.Note(relative, RemovalOutcome.Moved);
+            }
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            // Fork (1.4.9): a folder with a file open stops the removal part way. What was moved
+            // before it - the configs kept, an earlier folder - is still logged, so Undo can put it
+            // back; without the log it sat in the holding folder where nothing listed it.
+            try
+            {
+                RemovedMods.WriteLog(session);
+            }
+            catch (Exception inner) when (inner is IOException or UnauthorizedAccessException)
+            {
+                AppLog.Warn("Remove", $"couldn't log the part of {modName} that was moved: {inner.Message}");
             }
 
-            session.Note(relative, RemovalOutcome.Moved);
+            throw;
         }
 
         return _removed.Finish(session);
@@ -1295,6 +1314,15 @@ public sealed class ModInstallService(
         if (log is null || log.Undone || log.Kind == RemovalKind.ReplacedByUpdate
             || !string.Equals(log.InstallPath, InstallStamp.Of(installPath), StringComparison.OrdinalIgnoreCase))
         {
+            return new UndoResult(false, 0, []);
+        }
+
+        // Fork (1.4.9): not over a copy installed since. Its files would be mixed with the removed
+        // version's, and its record replaced by the old one.
+        if (log.Record is { } wasRecord
+            && manifestService.Load().ModsFor(installPath).Any(m => m.ModId == wasRecord.ModId && m.IsAddon == wasRecord.IsAddon))
+        {
+            AppLog.Info("Undo", $"{log.ModName}: installed again since it was removed; nothing put back");
             return new UndoResult(false, 0, []);
         }
 

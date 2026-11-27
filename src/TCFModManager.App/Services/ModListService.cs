@@ -716,7 +716,7 @@ public sealed class ModListService
         if (isAddon)
         {
             var published = await AppServices.SpModApi.GetAddonVersionsAsync(
-                id, new AddonVersionsQuery { Sort = "-published_at", PerPage = NewestLookupSize }, ct);
+                id, new AddonVersionsQuery { Sort = "-version", PerPage = NewestLookupSize }, ct);
             return (NewestFittingVersion.ForParent(published.Data, parentVersion) is { } fit ? AsModVersion(fit) : null,
                 published.Data.Count > 0);
         }
@@ -737,7 +737,7 @@ public sealed class ModListService
             try
             {
                 var forSpt = await AppServices.SpModApi.GetModVersionsAsync(
-                    id, new ModVersionsQuery { FilterSptVersion = sptVersion, Sort = "-published_at", PerPage = 1 }, ct);
+                    id, new ModVersionsQuery { FilterSptVersion = sptVersion, Sort = "-version", PerPage = 1 }, ct);
                 if (forSpt.Data.FirstOrDefault() is { } found) return found;
             }
             catch (SpModApiException ex) when (IsUnmatchableFilter(ex))
@@ -750,7 +750,7 @@ public sealed class ModListService
         // (measured 2026-09-25 on APBS - 2.0.3 of Nov 2025 came back ahead of 2.2.1), which
         // quietly made "newest" the oldest release it had.
         var mods = await AppServices.SpModApi.GetModVersionsAsync(
-            id, new ModVersionsQuery { Sort = "-published_at", PerPage = 5 }, ct);
+            id, new ModVersionsQuery { Sort = "-version", PerPage = 5 }, ct);
         return mods.Data.FirstOrDefault();
     }
 

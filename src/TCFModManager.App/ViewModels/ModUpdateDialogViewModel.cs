@@ -220,10 +220,10 @@ public partial class ModUpdateDialogViewModel : LocalizedViewModel
             var installedSptVersion = AppServices.SptEnvironment.InstalledVersion;
             var result = await _spModApi.GetModVersionsAsync(
                 modId.ToString(),
-                new ModVersionsQuery { Sort = "-published_at", PerPage = 20 });
+                new ModVersionsQuery { Sort = "-version", PerPage = 20 });
 
             _allVersions.Clear();
-            foreach (var v in result.Data)
+            foreach (var v in result.Data.NewestFirst())
             {
                 _allVersions.Add(new ModVersionRowViewModel
                 {
@@ -234,8 +234,9 @@ public partial class ModUpdateDialogViewModel : LocalizedViewModel
                 });
             }
 
-            // Versions is fetched newest-first, so index 0 is the latest.
-            if (Versions.Count > 0) Versions[0].IsLatest = true;
+            // Newest first, so the first is the latest. (Marked on what was read, not on Versions:
+            // that list is only filled below, and on a first load nothing was marked at all.)
+            if (_allVersions.Count > 0) _allVersions[0].IsLatest = true;
 
             // Pre-select the newest compatible version, falling back to the newest overall.
             RepopulateVersions();
@@ -294,7 +295,7 @@ public partial class ModUpdateDialogViewModel : LocalizedViewModel
             var parentName = _mod.ParentModName ?? Strings.ModUpdate_ParentFallback;
 
             var ordered = (_catalogAddon.Versions ?? [])
-                .OrderByDescending(v => v.PublishedAt ?? DateTimeOffset.MinValue)
+                .NewestFirst()
                 .ToList();
 
             _allVersions.Clear();
@@ -322,7 +323,7 @@ public partial class ModUpdateDialogViewModel : LocalizedViewModel
                 });
             }
 
-            if (Versions.Count > 0) Versions[0].IsLatest = true;
+            if (_allVersions.Count > 0) _allVersions[0].IsLatest = true;
 
             RepopulateVersions();
             MarkUpToDateCommand.NotifyCanExecuteChanged();
@@ -471,8 +472,13 @@ public partial class ModUpdateDialogViewModel : LocalizedViewModel
             target, selectedVersion.VersionText, installPath, () => Task.FromResult<ModVersion?>(selectedVersion.Raw),
             totalBytes: selectedVersion.Raw.ContentLength,
             downloadOnly: downloadOnly,
-            keepDisabled: _mod.IsDisabled ? [.. _mod.Entries.Where(e => e.IsDisabled)] : null);
+            keepDisabled: InstalledViewModel.KeepDisabled(_mod));
         StatusMessage = Text(Strings.ModUpdate_QueuedFormat, _mod.DisplayTitle, selectedVersion.VersionText);
+
+        // Fork (1.4.9): with the updates this one only works together with.
+        if (!_mod.IsAddon && ModUpdates.QueuePartners(_mod.ModId, selectedVersion.VersionText, installPath, downloadOnly) is { } together)
+            StatusMessage = string.Join(Strings.Common_SentenceSeparator, StatusMessage, together);
+
         MadeChanges = true;
     }
 

@@ -78,7 +78,7 @@ public static class PublicCollections
         {
             var cached = versions
                 .Where(v => v.Version is not null && SptVersionMatcher.IsSatisfiedBy(v.SptVersionConstraint, spt) == true)
-                .OrderByDescending(v => v.PublishedAt ?? DateTimeOffset.MinValue)
+                .NewestFirst()
                 .FirstOrDefault();
 
             if (cached is not null) return new CollectionVersionPick(cached.Version, cached.Id > 0 ? cached.Id : null);
@@ -88,7 +88,7 @@ public static class PublicCollections
         {
             var found = await AppServices.SpModApi.GetModVersionsAsync(
                 modId.ToString(),
-                new ModVersionsQuery { FilterSptVersion = spt, Sort = "-published_at", PerPage = 1 },
+                new ModVersionsQuery { FilterSptVersion = spt, Sort = "-version", PerPage = 1 },
                 ct);
 
             return found.Data.FirstOrDefault() is { Version: not null } version
@@ -116,7 +116,7 @@ public static class PublicCollections
 
         var fitting = versions
             .Where(v => v.Version is not null && ModVersionFits(v.ModVersionConstraint, parentVersion))
-            .OrderByDescending(v => v.PublishedAt ?? DateTimeOffset.MinValue)
+            .NewestFirst()
             .FirstOrDefault();
 
         return fitting is null ? new CollectionVersionPick(null, null) : new CollectionVersionPick(fitting.Version, fitting.Id > 0 ? fitting.Id : null);

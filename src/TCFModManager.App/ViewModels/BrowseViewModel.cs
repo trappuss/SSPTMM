@@ -1133,14 +1133,14 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
         if (!hideAddons) entries = entries.Concat(MatchingAddons(query, authorQuery, selectedLines, featured));
 
         // An addon has no endorsements or favourites of its own, so under those two orders it sits
-        // with the mods that have none - among them by downloads under endorsements, after them under
-        // favourites, which has no tiebreak.
+        // with the mods that have none, among them by downloads.
         _filtered = SelectedSortOption.Value switch
         {
             ModSortOrder.LastUpdated => entries.OrderByDescending(e => LastUpdatedDate(e, installedSptVersion)).ToList(),
             ModSortOrder.MostDownloaded => entries.OrderByDescending(Downloads).ToList(),
             ModSortOrder.MostFavourited => entries
                 .OrderByDescending(e => e.Addon is null ? e.Mod.FavouritesCount ?? 0 : 0)
+                .ThenByDescending(Downloads)
                 .ToList(),
             // Endorsements are new enough that only a few dozen mods have any at all and the counts
             // are in the low tens, so the overwhelming majority tie on 0. Downloads break the tie to

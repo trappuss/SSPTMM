@@ -283,7 +283,7 @@ public sealed partial class ModCardViewModel : LocalizedViewModel
         bool installedDisabled = false)
     {
         var versions = (addon.Versions ?? [])
-            .OrderByDescending(v => v.PublishedAt ?? DateTimeOffset.MinValue)
+            .NewestFirst()
             .ToList();
 
         var fitting = versions.FirstOrDefault(v =>
@@ -336,7 +336,7 @@ public sealed partial class ModCardViewModel : LocalizedViewModel
     private static string BuildAlternateCompatibleVersionNote(ModVersionSummary shown, ModVersionSummary? newest)
     {
         var isOlder = newest is not null && shown.Id != newest.Id
-            && shown.PublishedAt is { } shownDate && newest.PublishedAt is { } newestDate && shownDate < newestDate;
+            && ModVersionComparer.Compare(shown.Version, newest.Version) < 0;
 
         // "version (vX)" rather than "vX" was eleven characters that said nothing the number
         // doesn't - and at three or four Browse columns it was what pushed this note past the card
@@ -358,16 +358,16 @@ public sealed partial class ModCardViewModel : LocalizedViewModel
     public static ModVersionSummary? PickDisplayVersion(Mod mod, string? installedSptVersion)
     {
         var candidates = (mod.Versions ?? [])
-            .OrderByDescending(v => v.PublishedAt ?? DateTimeOffset.MinValue)
+            .NewestFirst()
             .ToList();
 
         return candidates.FirstOrDefault(v => SptVersionMatcher.IsSatisfiedBy(v.SptVersionConstraint, installedSptVersion) == true)
             ?? candidates.FirstOrDefault();
     }
 
-    // Returns the mod's most recently published version.
+    // Returns the mod's newest version.
     public static ModVersionSummary? LatestVersion(Mod mod) => mod.Versions?
-        .OrderByDescending(v => v.PublishedAt ?? DateTimeOffset.MinValue)
+        .NewestFirst()
         .FirstOrDefault();
 
     private static string BuildDisplay(

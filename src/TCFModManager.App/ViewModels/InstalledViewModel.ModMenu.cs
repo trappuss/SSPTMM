@@ -187,7 +187,7 @@ public partial class InstalledViewModel
             var held = ModVersionComparer.BestSameRelease(fromFiles, published.Select(v => v.Version));
             var pick = published.FirstOrDefault(v => v.Version == held)
                 ?? (fromFiles is not null ? null : published
-                    .OrderByDescending(v => v.PublishedAt ?? DateTimeOffset.MinValue)
+                    .NewestFirst()
                     .FirstOrDefault(v => parentVersion is null || ModVersionMatcher.IsSatisfiedBy(v.ModVersionConstraint, parentVersion) != false));
 
             name = addon.Name;

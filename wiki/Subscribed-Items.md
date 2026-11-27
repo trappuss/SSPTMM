@@ -144,10 +144,14 @@ Install from file, **Add from GitHub** (see [Subscribing and downloads](Subscrib
 **SPT upgrade check** (pick a newer SPT release and see which of your mods are
 ready, need an update first, or have nothing yet), Rescan and more.
 
-From 1.4.8, a scan of this page (opening it, an install finishing, Rescan or F5) also asks
-sp-mod.com what changed for your installed mods and addons when that was last done more than 20
-minutes ago, so new releases show without a restart. The line under the page's title says when
-the versions shown were last read from sp-mod.com.
+From 1.4.8, a scan of this page (opening it, an install finishing) also asks sp-mod.com what
+changed for your installed mods and addons when that was last done more than 20 minutes ago, so
+new releases show without a restart. From 1.4.9, **Rescan** and F5 always ask, unless the last
+check was less than a minute ago. The line under the page's title says when the versions shown
+were last read from sp-mod.com.
+
+Two mods that each need an exact version of the other can only update together. From 1.4.9 their
+cards say "Updates together with ...", and updating one queues the other with it.
 
 ## Undo
 

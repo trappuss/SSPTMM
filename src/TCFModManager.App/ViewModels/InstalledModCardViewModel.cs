@@ -878,7 +878,7 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
                 .Select(x =>
                 {
                     var latest = (x.Addon!.Versions ?? [])
-                        .OrderByDescending(v => v.PublishedAt ?? DateTimeOffset.MinValue)
+                        .NewestFirst()
                         .FirstOrDefault(v => ModVersionMatcher.IsSatisfiedBy(v.ModVersionConstraint, card.InstalledVersion) == true);
                     var update = ModVersionComparer.IsUpdateAvailable(x.Record.Version, latest?.Version) == true
                         && !SkippedUpdates.Skips(x.Record.ModId, isAddon: true, latest?.Version);
@@ -915,7 +915,7 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
         // built for the next release of its parent isn't something this install can use yet.
         var parentVersion = parent?.InstalledVersion;
         var versions = (addon?.Versions ?? [])
-            .OrderByDescending(v => v.PublishedAt ?? DateTimeOffset.MinValue)
+            .NewestFirst()
             .ToList();
 
         var latest = versions.FirstOrDefault(v =>

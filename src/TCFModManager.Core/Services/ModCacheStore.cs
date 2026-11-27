@@ -76,14 +76,17 @@ public sealed class ModCacheStore
         }
     }
 
-    public void Save(IReadOnlyList<Mod> mods)
+    // Fork (1.4.9): fetchedAt is when the whole list was read from sp-mod.com - not when the file
+    // was written. A few listings patched into a list from this morning leave it this morning's:
+    // stamped "now", it counted as just fetched, and the next start did not read sp-mod.com again.
+    public void Save(IReadOnlyList<Mod> mods, DateTimeOffset? fetchedAt = null)
     {
         try
         {
             var data = new CachedCatalog
             {
                 SchemaVersion = SchemaVersion,
-                FetchedAt = DateTimeOffset.UtcNow,
+                FetchedAt = fetchedAt ?? DateTimeOffset.UtcNow,
                 Mods = mods.ToList(),
             };
             // The same bytes WriteText made of the string, without the string in between.

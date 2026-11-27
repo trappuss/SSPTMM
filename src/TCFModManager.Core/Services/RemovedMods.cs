@@ -156,6 +156,10 @@ public sealed class RemovedMods(Func<RemovedModsRetention>? retention = null)
     // Writes the trail, logs every line of it, and - when the setting is Delete straight away - deletes
     // this removal's folder as the last step. Returns the folder, or null once it has been deleted.
     //
+    // Fork (1.4.9): the trail alone, for a removal that stopped part way - never the delete.
+    public static void WriteLog(RemovalSession session) =>
+        SafeFile.WriteText(Path.Combine(session.Folder, LogName), JsonSerializer.Serialize(session.Log, Options));
+
     public string? Finish(RemovalSession session)
     {
         foreach (var entry in session.Log.Entries)

@@ -93,9 +93,15 @@ internal sealed class UpdateWatcher
     // this, an app left open with update notifications off showed that morning's versions all day,
     // and Rescan only read the SPT folder again. Nothing is announced unless notifications are on.
     //
-    public async Task RefreshIfStaleAsync()
+    //
+    // Fork (1.4.9): asked - Rescan was pressed. That reads sp-mod.com again whatever its age, short
+    // of a minute since the last time: pressed Rescan used to do nothing here for twenty minutes
+    // after a check, with no sign that it had not asked.
+    //
+    public async Task RefreshIfStaleAsync(bool asked = false)
     {
-        if (Environment.TickCount64 < _staleAt) return;
+        var now = Environment.TickCount64;
+        if (asked ? now - _lastAttempt < 60_000 : now < _staleAt) return;
 
         try
         {
@@ -117,6 +123,15 @@ internal sealed class UpdateWatcher
 
     private static long After(TimeSpan wait) => Environment.TickCount64 + (long)wait.TotalMilliseconds;
 
+    // When a check last started (Environment.TickCount64).
+    private long _lastAttempt = -60_000;
+
+    //
+    // Fork (1.4.9): the whole list was read again and differs. The pages draw it the same way they
+    // draw a patched one. Called on the UI thread.
+    //
+    public void CatalogChanged() => UpdatesFound?.Invoke(this, EventArgs.Empty);
+
     private async Task RunAsync(TimeSpan interval, CancellationToken ct)
     {
         using var timer = new PeriodicTimer(interval);
@@ -137,6 +152,7 @@ internal sealed class UpdateWatcher
         // A tick that lands while the previous check is still going is skipped, not queued (§5).
         if (_checking) return new UpdateCheckOutcome(UpdateCheckResult.AlreadyChecking);
         _checking = true;
+        _lastAttempt = Environment.TickCount64;
 
         try
         {
@@ -208,7 +224,7 @@ internal sealed class UpdateWatcher
         // Only matched mods with a version can be asked about. Addons aren't covered by the
         // endpoint (D3) and are re-read below instead.
         var mods = cards
-            .Where(c => !c.IsAddon && c.ModId is not null && !string.IsNullOrWhiteSpace(c.InstalledVersion))
+            .Where(c => !c.IsAddon && c.ModId is > 0 && !string.IsNullOrWhiteSpace(c.InstalledVersion))
             .Select(c => (c.ModId!.Value, c.InstalledVersion!))
             .DistinctBy(m => m.Item1)
             .ToList();
@@ -229,7 +245,7 @@ internal sealed class UpdateWatcher
         // installed mod. Taken in first, so none of those is announced below. Only an answer about the
         // whole install in one request: split into several, a blocker in one part can't hold back an
         // update in another, and Subscribed items' own (single) check stands instead.
-        if (answer is { Requests: 1 }) AppServices.HeldBack.Apply(heldBackTicket, answer.Blocked, answer.Incompatible, sptVersion);
+        if (answer is { Requests: 1 }) await AppServices.HeldBack.ApplyAsync(heldBackTicket, mods, answer.Blocked, answer.Incompatible, sptVersion, ct);
 
         var patched = false;
         if (refetch.Count > 0) patched |= AppServices.ModCache.Patch(await _checker.FetchModsAsync(refetch, ct));

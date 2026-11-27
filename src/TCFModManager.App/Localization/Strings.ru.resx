@@ -6659,6 +6659,9 @@
   <data name="Installed_HeldBackPlainFormat" xml:space="preserve">
     <value>Обновление до {0} задержано: по данным sp-mod.com, оно сломает другой установленный мод (какой именно, не указано). Установить его всё же можно в окне обновления самого мода.</value>
   </data>
+  <data name="Installed_HeldBackTogetherFormat" xml:space="preserve">
+    <value>Обновляется вместе с {0}: каждому нужна новая версия другого.</value>
+  </data>
   <data name="Installed_UpdatesHeldBack_one" xml:space="preserve">
     <value>{1} не тронут: sp-mod.com задерживает его обновление. Его собственное окно обновления всё равно может его установить.</value>
   </data>
@@ -8044,7 +8047,7 @@
     <value>Ещё: установка из файла, проверка перехода на SPT, пересканирование, развернуть или свернуть все</value>
   </data>
   <data name="Installed_RescanToolTip" xml:space="preserve">
-    <value>Заново просмотреть папку SPT в поисках модов, добавленных или удалённых не через это приложение</value>
+    <value>Заново просмотреть папку SPT в поисках модов, добавленных или удалённых не через это приложение, и запросить новые версии у sp-mod.com</value>
   </data>
   <data name="Installed_NothingMatches" xml:space="preserve">
     <value>Ни один мод не подходит под поиск и фильтры.</value>

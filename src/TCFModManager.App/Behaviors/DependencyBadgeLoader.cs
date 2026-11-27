@@ -130,7 +130,7 @@ public static class DependencyBadgeLoader
             {
                 var result = await AppServices.SpModApi.GetModVersionsAsync(
                     mod.Id.ToString(),
-                    new ModVersionsQuery { Include = "dependencies", Sort = "-published_at", PerPage = 1 });
+                    new ModVersionsQuery { Include = "dependencies", Sort = "-version", PerPage = 1 });
                 hasDependencies = result.Data.FirstOrDefault()?.Dependencies?.Count > 0;
             }
             catch (Exception)

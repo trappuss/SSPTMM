@@ -39,7 +39,22 @@ public sealed class HeldBackUpdates
     /// <summary>True when sp-mod.com holds back exactly this version of this mod - the update the
     /// app would install. A different, newer version being held back leaves this one alone.</summary>
     public bool Holds(int? modId, string? version) =>
-        HeldVersion(modId) is { } held && string.Equals(held, version, StringComparison.OrdinalIgnoreCase);
+        HeldVersion(modId) is { } held && string.Equals(held, version, StringComparison.OrdinalIgnoreCase)
+        && !_together.ContainsKey(modId!.Value);
+
+    //
+    // Fork (1.4.9), as TCF 71708aa: held-back updates that only work together. Two mods that each
+    // need an exact release of the other are both held back by sp-mod.com, so neither was ever
+    // offered. One sp-mod.com confirms is fine once the others have theirs is an update again, and
+    // is installed with them (UpdateCheckService.HeldBackTogetherAsync).
+    //
+    private IReadOnlyDictionary<int, IReadOnlyList<int>> _together = new Dictionary<int, IReadOnlyList<int>>();
+
+    private readonly UpdateCheckService _checker = new(AppServices.SpModApi);
+
+    /// <summary>The mods this one's held-back update is installed together with; none for most.</summary>
+    public IReadOnlyList<int> Partners(int? modId) =>
+        modId is { } id && _together.TryGetValue(id, out var partners) ? partners : [];
 
     // The SPT version the last answer was for.
     private string? _checkedSpt;
@@ -63,7 +78,7 @@ public sealed class HeldBackUpdates
         if (runs is null && AppServices.ModCache.AllMods.FirstOrDefault(m => m.Id == id) is { } mod)
         {
             runs = (mod.Versions ?? [])
-                .OrderByDescending(v => v.PublishedAt ?? DateTimeOffset.MinValue)
+                .NewestFirst()
                 .FirstOrDefault(v => SptVersionMatcher.IsSatisfiedBy(v.SptVersionConstraint, spt) == true)
                 ?.Version;
         }
@@ -76,7 +91,10 @@ public sealed class HeldBackUpdates
     }
 
     /// <summary>One sentence saying what is held back and why, or null.</summary>
-    public string? Note(int? modId) => For(modId) is { } entry ? Describe(entry) : null;
+    public string? Note(int? modId) => For(modId) is not { } entry ? null
+        : Partners(modId) is { Count: > 0 } partners ? LocalizationService.Text(Strings.Installed_HeldBackTogetherFormat, TextLists.Join(
+            [.. partners.Select(id => For(id) is { } p ? string.Join(' ', p.CurrentVersion?.Name ?? id.ToString(System.Globalization.CultureInfo.InvariantCulture), p.LatestVersion?.Version) : null).OfType<string>()]))
+        : Describe(entry);
 
     public static string Describe(ModBlockedUpdateEntry entry)
     {
@@ -103,7 +121,8 @@ public sealed class HeldBackUpdates
 
     /// <summary>Takes an answer sp-mod.com already gave - the background update check's (Fork, 1.3.0).
     /// Dropped when a newer question was asked since <paramref name="ticket"/> was taken.</summary>
-    public bool Apply(int ticket, IEnumerable<ModBlockedUpdateEntry> blockedUpdates, IEnumerable<ModIncompatibleEntry> incompatibleWithSpt, string sptVersion)
+    public bool Apply(int ticket, IEnumerable<ModBlockedUpdateEntry> blockedUpdates, IEnumerable<ModIncompatibleEntry> incompatibleWithSpt, string sptVersion,
+        IReadOnlyDictionary<int, IReadOnlyList<int>>? together = null)
     {
         if (ticket != _request) return false;
 
@@ -118,10 +137,22 @@ public sealed class HeldBackUpdates
             .ToDictionary(g => g.Key, g => g.First());
 
         _blocked = blocked;
+        _together = together ?? new Dictionary<int, IReadOnlyList<int>>();
         _incompatible = incompatible;
         _checkedSpt = sptVersion;
         Changed?.Invoke(this, EventArgs.Empty);
         return true;
+    }
+
+    /// <summary>The same, after asking sp-mod.com which of the held-back updates go together (1.4.9).</summary>
+    public async Task<bool> ApplyAsync(int ticket, IReadOnlyList<(int ModId, string Version)> installed,
+        IReadOnlyList<ModBlockedUpdateEntry> blockedUpdates, IEnumerable<ModIncompatibleEntry> incompatibleWithSpt, string sptVersion,
+        CancellationToken ct = default)
+    {
+        if (ticket != _request) return false;
+
+        var together = await _checker.HeldBackTogetherAsync(installed, blockedUpdates, sptVersion, ct);
+        return Apply(ticket, blockedUpdates, incompatibleWithSpt, sptVersion, together);
     }
 
     /// <summary>Asks sp-mod.com about the mods of a scan of the install (addons left out).</summary>
@@ -133,7 +164,7 @@ public sealed class HeldBackUpdates
             .ToList(), sptVersion);
 
     /// <summary>Asks sp-mod.com about these installed mods (id and installed version).</summary>
-    public async Task RefreshAsync(IReadOnlyCollection<(int ModId, string Version)> installed, string? sptVersion)
+    public async Task RefreshAsync(IReadOnlyList<(int ModId, string Version)> installed, string? sptVersion)
     {
         if (installed.Count == 0 || string.IsNullOrWhiteSpace(sptVersion)) return;
 
@@ -142,7 +173,7 @@ public sealed class HeldBackUpdates
         {
             var mods = string.Join(",", installed.Select(m => $"{m.ModId}:{m.Version}"));
             var result = await AppServices.SpModApi.GetModUpdatesAsync(mods, sptVersion);
-            if (!Apply(request, result.BlockedUpdates ?? [], result.IncompatibleWithSpt ?? [], sptVersion)) return;
+            if (!await ApplyAsync(request, installed, result.BlockedUpdates ?? [], result.IncompatibleWithSpt ?? [], sptVersion)) return;
             AppLog.Info("Updates", $"sp-mod.com update check: {result.Updates?.Count ?? 0} updates, {_blocked.Count} held back, {_incompatible.Count} not for SPT {sptVersion}");
         }
         catch (Exception ex)

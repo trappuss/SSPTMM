@@ -73,6 +73,166 @@ public sealed class UpdateCheckService(SpModApiClient api)
         };
     }
 
+    // Above this many held-back updates, none are grouped.
+    internal const int MaxGroupCandidates = 12;
+
+    //
+    // Fork (1.4.9), from TCF Mod Manager 71708aa (MIT): the held-back updates that can go together.
+    // Two mods that each need an exact release of the other - ISB Aishi and ISB Special Forces - are
+    // each held back by sp-mod.com, so neither was ever offered. Candidates are the held-back mods
+    // blocked only by other held-back mods, joined by the blockers sp-mod.com names and, for one it
+    // names none for, by the held-back mods in its dependency tree. sp-mod.com then confirms each
+    // group: every member must be a plain update once the others are at their held releases.
+    //
+    // Answers each grouped mod's id with the ids it goes with. Any failure answers with none, which
+    // leaves every update held as sp-mod.com gave it.
+    //
+    public async Task<IReadOnlyDictionary<int, IReadOnlyList<int>>> HeldBackTogetherAsync(
+        IReadOnlyList<(int ModId, string Version)> installed, IEnumerable<ModBlockedUpdateEntry> blocked,
+        string sptVersion, CancellationToken ct = default)
+    {
+        var none = new Dictionary<int, IReadOnlyList<int>>();
+
+        var held = blocked
+            .Where(b => b.CurrentVersion is not null && !string.IsNullOrWhiteSpace(b.LatestVersion?.Version))
+            .GroupBy(b => b.CurrentVersion!.ModId)
+            .ToDictionary(g => g.Key, g => g.First());
+
+        var candidates = held
+            .Where(h => h.Value.BlockingMods.All(b => held.ContainsKey(b.ModId)))
+            .Select(h => h.Key)
+            .ToList();
+
+        if (candidates.Count < 2) return none;
+
+        if (candidates.Count > MaxGroupCandidates)
+        {
+            AppLog.Info("Updates", $"{candidates.Count} held-back updates - too many to try grouping");
+            return none;
+        }
+
+        try
+        {
+            var links = candidates.ToDictionary(id => id, _ => new HashSet<int>());
+            void Link(int a, int b)
+            {
+                if (a == b || !links.ContainsKey(a) || !links.ContainsKey(b)) return;
+                links[a].Add(b);
+                links[b].Add(a);
+            }
+
+            foreach (var id in candidates)
+                foreach (var blocker in held[id].BlockingMods)
+                    Link(id, blocker.ModId);
+
+            var chained = candidates.Where(id => held[id].BlockingMods.Count == 0).ToList();
+            if (chained.Count > 0)
+            {
+                var trees = await api.GetModDependenciesAsync(
+                    string.Join(',', chained.Select(id => $"{id.ToString(CultureInfo.InvariantCulture)}:{held[id].LatestVersion!.Version!.Trim()}")),
+                    sptVersion, ct).ConfigureAwait(false);
+
+                foreach (var (key, nodes) in trees)
+                {
+                    if (!int.TryParse(key.Split(':')[0], NumberStyles.None, CultureInfo.InvariantCulture, out var id)) continue;
+                    foreach (var node in Flatten(nodes)) Link(id, node.Id);
+                }
+            }
+
+            var together = new Dictionary<int, IReadOnlyList<int>>();
+
+            foreach (var members in Components(candidates, links))
+            {
+                // A member sp-mod.com still holds with the others moved is dropped, and the rest asked again.
+                while (members.Count >= 2)
+                {
+                    var failed = new List<int>();
+                    foreach (var id in members)
+                    {
+                        if (!await GoesWithAsync(installed, members, id, held, sptVersion, ct).ConfigureAwait(false)) failed.Add(id);
+                    }
+
+                    if (failed.Count == 0) break;
+                    members.ExceptWith(failed);
+                }
+
+                if (members.Count < 2) continue;
+
+                foreach (var id in members) together[id] = [.. members.Where(other => other != id)];
+                AppLog.Info("Updates", $"held-back updates go together: {string.Join(", ", members.Select(id => $"{id} {held[id].LatestVersion!.Version}"))}");
+            }
+
+            return together;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            AppLog.Warn("Updates", $"couldn't check which held-back updates go together: {ex.Message}");
+            return none;
+        }
+    }
+
+    // Whether sp-mod.com offers this member its held release once every other member is at its own.
+    private async Task<bool> GoesWithAsync(
+        IReadOnlyList<(int ModId, string Version)> installed, IReadOnlySet<int> members, int modId,
+        IReadOnlyDictionary<int, ModBlockedUpdateEntry> held, string sptVersion, CancellationToken ct)
+    {
+        var wanted = held[modId].LatestVersion!.Version;
+
+        // The members first, so a long list split into several requests keeps them in one.
+        var state = installed
+            .OrderByDescending(m => members.Contains(m.ModId))
+            .Select(m => members.Contains(m.ModId) && m.ModId != modId ? (m.ModId, held[m.ModId].LatestVersion!.Version!) : m)
+            .ToList();
+
+        foreach (var chunk in ModsQueryChunks(state))
+        {
+            var result = await api.GetModUpdatesAsync(chunk, sptVersion, ct).ConfigureAwait(false);
+            if (result.Updates.Any(u => u.CurrentVersion?.ModId == modId
+                    && string.Equals(u.RecommendedVersion?.Version, wanted, StringComparison.OrdinalIgnoreCase)))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static List<HashSet<int>> Components(IReadOnlyList<int> ids, IReadOnlyDictionary<int, HashSet<int>> links)
+    {
+        var seen = new HashSet<int>();
+        var components = new List<HashSet<int>>();
+
+        foreach (var start in ids)
+        {
+            if (!seen.Add(start)) continue;
+
+            var component = new HashSet<int> { start };
+            var pending = new Stack<int>();
+            pending.Push(start);
+            while (pending.TryPop(out var id))
+            {
+                foreach (var next in links[id].Where(seen.Add))
+                {
+                    component.Add(next);
+                    pending.Push(next);
+                }
+            }
+
+            components.Add(component);
+        }
+
+        return components;
+    }
+
+    private static IEnumerable<DependencyNode> Flatten(IEnumerable<DependencyNode> nodes)
+    {
+        foreach (var node in nodes)
+        {
+            yield return node;
+            foreach (var child in Flatten(node.Dependencies)) yield return child;
+        }
+    }
+
     // Fresh listings, with categories and versions, shaped like the catalog cache's own.
     public async Task<IReadOnlyList<Mod>> FetchModsAsync(IEnumerable<int> modIds, CancellationToken ct = default)
     {

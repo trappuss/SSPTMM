@@ -121,8 +121,13 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
     }
 
     // A download that fails in a way that can pass (the connection dropped, the host busy) is
-    // tried again after these waits, as pictures are.
-    private static readonly TimeSpan[] RetryDelays = [TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(6)];
+    // tried again after these waits.
+    //
+    // Fork (1.4.9), as TCF 1.27: for about a minute, not eight seconds. A file host answering 502,
+    // 503 or 504 is usually restarting or busy, and is back within the minute far more often than
+    // within two tries. A second attempt carries on from where the last one broke off.
+    private static readonly TimeSpan[] RetryDelays =
+        [TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(6), TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(30)];
 
     public ObservableCollection<DownloadQueueItemViewModel> Items { get; } = [];
 

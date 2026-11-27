@@ -5642,6 +5642,10 @@ This was written to:
     <value>Update to {0} held back: sp-mod.com reports it would break another installed mod, without naming it. The mod's own update dialog can still install it.</value>
     <comment>sp-mod.com lists the update as blocked and names no mod it would break. {0} is the version.</comment>
   </data>
+  <data name="Installed_HeldBackTogetherFormat" xml:space="preserve">
+    <value>Updates together with {0}: each needs the other's new version.</value>
+    <comment>On a mod whose update sp-mod.com holds back only because another installed mod must update at the same time. {0} is the other mod(s) with the version each goes to, e.g. ISB Special Forces 2.0.4.</comment>
+  </data>
   <data name="Installed_UpdatesHeldBack_one" xml:space="preserve">
     <value>{1} was left alone: sp-mod.com holds its update back. Its own update dialog can still install it.</value>
     <comment>After Update all/selected, for a mod whose update sp-mod.com holds back. {0} is how many, {1} the mod.</comment>
@@ -9412,7 +9416,7 @@ See Dependencies and Conflicts.</value>
     <comment>Tooltip on the "..." button at the right of the Subscribed items toolbar.</comment>
   </data>
   <data name="Installed_RescanToolTip" xml:space="preserve">
-    <value>Look through the SPT folder again for mods added or removed outside this app</value>
+    <value>Look through the SPT folder again for mods added or removed outside this app, and ask sp-mod.com for new versions</value>
     <comment>Tooltip on Rescan in the Subscribed items "..." menu.</comment>
   </data>
   <data name="Installed_NothingMatches" xml:space="preserve">

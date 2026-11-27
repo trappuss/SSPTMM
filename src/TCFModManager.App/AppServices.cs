@@ -67,7 +67,13 @@ internal static class AppServices
     public static SptEnvironmentViewModel SptEnvironment { get; } = new();
 
     // The full sp-mod.com catalog, fetched once and reused across the app session.
-    public static ModCacheViewModel ModCache { get; } = new();
+    public static ModCacheViewModel ModCache { get; } = Listened(new());
+
+    private static ModCacheViewModel Listened(ModCacheViewModel cache)
+    {
+        cache.ModsChanged += (_, _) => UpdateWatcher.CatalogChanged();
+        return cache;
+    }
 
     // Every addon published on sp-mod.com, cached the same way the mod catalog is. Declared after
     // ModCache because an addon is only ever surfaced under a parent mod from that catalog.

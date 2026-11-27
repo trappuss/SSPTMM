@@ -50,9 +50,43 @@ public partial class ModCacheViewModel : LocalizedViewModel
         {
             _loadTask = MarkingFailureAsync(LoadAsync(CancellationToken.None));
         }
+        else if (_loadTask.IsCompletedSuccessfully)
+        {
+            RefreshIfStale();
+        }
 
         return ct.CanBeCanceled ? _loadTask.WaitAsync(ct) : _loadTask;
     }
+
+    //
+    // Fork (1.4.9): the list is read again, quietly, whenever something asks for it and the copy in
+    // hand is older than FreshFor. It used to be read at start only, so an app left open showed that
+    // morning's sp-mod.com until Browse's Refresh was pressed: a mod published since was nowhere,
+    // and Rescan on Subscribed items only read the SPT folder again.
+    //
+    private void RefreshIfStale()
+    {
+        lock (_refreshLock)
+        {
+            if (_refreshing is { IsCompleted: false } || IsLoading) return;
+            if (FetchedAt is not { } at) return;
+
+            // (A copy dated in the future - the clock was ahead, then put right - counts as old.)
+            var age = DateTimeOffset.UtcNow - at;
+            if (age <= FreshFor && age >= TimeSpan.Zero) return;
+            if (DateTime.UtcNow - _refreshFailedAt < RetryAfter) return;
+
+            _refreshing = RefreshInBackgroundAsync();
+        }
+    }
+
+    private readonly object _refreshLock = new();
+    private Task? _refreshing;
+    private DateTime _refreshFailedAt;
+
+    // Raised on the UI thread when a quiet refresh brought a list that differs from the one before
+    // it - a mod more or fewer, or a release changed - so the pages can draw it.
+    public event EventHandler? ModsChanged;
 
     // When the last load failed, and how long until another is tried by itself (Refresh tries at once).
     private DateTime _failedAt;
@@ -137,7 +171,10 @@ public partial class ModCacheViewModel : LocalizedViewModel
 
         AllMods = patched;
         _loadTask = Task.FromResult(patched);
-        _ = Task.Run(() => _store.Save(patched));
+
+        // Under the date the whole list was read: a few listings swapped in do not make it fresh.
+        var fetchedAt = FetchedAt;
+        _ = Task.Run(() => _store.Save(patched, fetchedAt));
 
         AppLog.Debug("Catalog", $"Patch: replaced {replaced} of {fresh.Count} fetched listings");
         return true;
@@ -161,10 +198,8 @@ public partial class ModCacheViewModel : LocalizedViewModel
             FetchedAt = cached.FetchedAt;
 
             // A copy from a few minutes ago - the app restarted - is not fetched again (Refresh does).
-            // (A copy dated in the future - the clock was ahead, then put right - counts as old.)
-            var age = DateTimeOffset.UtcNow - cached.FetchedAt;
-            if (age > FreshFor || age < TimeSpan.Zero) _ = RefreshInBackgroundAsync(ct);
-            else AppLog.Debug("Catalog", $"LoadAsync: saved copy is from {cached.FetchedAt:t}; not fetching again yet");
+            AppLog.Debug("Catalog", $"LoadAsync: saved copy is from {cached.FetchedAt:g}");
+            RefreshIfStale();
             return cached.Mods;
         }
 
@@ -199,26 +234,55 @@ public partial class ModCacheViewModel : LocalizedViewModel
         }
     }
 
-    private async Task RefreshInBackgroundAsync(CancellationToken ct)
+    private async Task RefreshInBackgroundAsync()
     {
         try
         {
-            var fresh = await _cacheService.FetchAllAsync(null, ct).ConfigureAwait(false);
-            AllMods = fresh;
-            FetchedAt = DateTimeOffset.UtcNow;
-            _store.Save(fresh);
+            var fresh = await Task.Run(() => _cacheService.FetchAllAsync(null, CancellationToken.None)).ConfigureAwait(false);
+
+            // Nothing at all is not a list to replace one with.
+            if (fresh.Count == 0)
+            {
+                _refreshFailedAt = DateTime.UtcNow;
+                AppLog.Warn("Catalog", "sp-mod.com listed no mods; keeping the list in hand");
+                return;
+            }
+
+            var fetchedAt = DateTimeOffset.UtcNow;
+            _store.Save(fresh, fetchedAt);
+
+            // Swapped in on the UI thread, where the pages read it and Patch and Refresh write it.
+            void Publish()
+            {
+                var differs = Differs(AllMods, fresh);
+                AllMods = fresh;
+                FetchedAt = fetchedAt;
+                _loadTask = Task.FromResult(fresh);
+
+                AppLog.Info("Catalog", $"read sp-mod.com again: {fresh.Count} mods, {(differs ? "changed" : "nothing changed")}");
+                if (differs) ModsChanged?.Invoke(this, EventArgs.Empty);
+            }
+
+            var dispatcher = System.Windows.Application.Current?.Dispatcher;
+            if (dispatcher is null || dispatcher.CheckAccess()) Publish();
+            else _ = dispatcher.BeginInvoke(Publish);
         }
-        catch (OperationCanceledException)
+        catch (Exception ex)
         {
-            // Cancelled or shutting down.
+            // Offline, the site down, an answer that did not read: the copy in hand stays, and the
+            // next one to ask after RetryAfter tries again. Logged, where it used to pass unseen.
+            _refreshFailedAt = DateTime.UtcNow;
+            AppLog.Warn("Catalog", $"couldn't read sp-mod.com again ({ex.GetType().Name}: {ex.Message}); keeping the list from {FetchedAt:g}");
         }
-        catch (SpModApiException)
-        {
-            // Best-effort refresh; ignore API errors.
-        }
-        catch (HttpRequestException)
-        {
-            // Best-effort refresh; ignore network errors.
-        }
+    }
+
+    // A mod more or fewer, or one whose releases changed. Download counts move on every read and
+    // are not a reason to redraw a page under whoever is reading it.
+    private static bool Differs(IReadOnlyList<Mod> before, IReadOnlyList<Mod> after)
+    {
+        if (before.Count != after.Count) return true;
+
+        var releases = before.GroupBy(m => m.Id).ToDictionary(g => g.Key, g => ReleasesOf(g.First()));
+        return after.Any(m => !releases.TryGetValue(m.Id, out var was) || was != ReleasesOf(m));
     }
 }

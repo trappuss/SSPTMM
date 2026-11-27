@@ -6323,6 +6323,9 @@ L'installer quand même ?</value>
   <data name="Installed_HeldBackPlainFormat" xml:space="preserve">
     <value>Mise à jour vers {0} retenue : selon sp-mod.com, elle casserait un autre mod installé, sans préciser lequel. La fenêtre de mise à jour du mod permet quand même de l'installer.</value>
   </data>
+  <data name="Installed_HeldBackTogetherFormat" xml:space="preserve">
+    <value>Se met à jour avec {0} : chacun a besoin de la nouvelle version de l'autre.</value>
+  </data>
   <data name="Installed_UpdatesHeldBack_one" xml:space="preserve">
     <value>{1} n'a pas été touché : sp-mod.com retient sa mise à jour. Sa propre fenêtre de mise à jour peut quand même l'installer.</value>
   </data>
@@ -7657,7 +7660,7 @@ Installer quand même le fichier tel quel ?</value>
     <value>Plus : installer depuis un fichier, vérification avant mise à niveau de SPT, réanalyser, tout déplier ou tout replier</value>
   </data>
   <data name="Installed_RescanToolTip" xml:space="preserve">
-    <value>Analyser à nouveau le dossier SPT pour trouver les mods ajoutés ou supprimés en dehors de cette application</value>
+    <value>Analyser à nouveau le dossier SPT pour trouver les mods ajoutés ou supprimés en dehors de cette application, et demander les nouvelles versions à sp-mod.com</value>
   </data>
   <data name="Installed_NothingMatches" xml:space="preserve">
     <value>Aucun mod ne correspond à la recherche et aux filtres.</value>

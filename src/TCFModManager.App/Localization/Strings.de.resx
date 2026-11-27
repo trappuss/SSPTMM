@@ -6323,6 +6323,9 @@ Trotzdem installieren?</value>
   <data name="Installed_HeldBackPlainFormat" xml:space="preserve">
     <value>Update auf {0} zurückgehalten: Laut sp-mod.com würde es eine andere installierte Mod unbrauchbar machen; welche, wird nicht genannt. Über den Update-Dialog der Mod lässt es sich trotzdem installieren.</value>
   </data>
+  <data name="Installed_HeldBackTogetherFormat" xml:space="preserve">
+    <value>Wird zusammen mit {0} aktualisiert: Jede braucht die neue Version der anderen.</value>
+  </data>
   <data name="Installed_UpdatesHeldBack_one" xml:space="preserve">
     <value>{1} wurde nicht angerührt: sp-mod.com hält sein Update zurück. Sein eigener Update-Dialog kann es trotzdem installieren.</value>
   </data>
@@ -7657,7 +7660,7 @@ Die Datei trotzdem so installieren?</value>
     <value>Mehr: aus Datei installieren, SPT-Upgrade-Prüfung, neu einlesen, alle öffnen oder schließen</value>
   </data>
   <data name="Installed_RescanToolTip" xml:space="preserve">
-    <value>Den SPT-Ordner erneut nach Mods durchsehen, die außerhalb dieser App hinzugefügt oder entfernt wurden</value>
+    <value>Den SPT-Ordner erneut nach Mods durchsehen, die außerhalb dieser App hinzugefügt oder entfernt wurden, und sp-mod.com nach neuen Versionen fragen</value>
   </data>
   <data name="Installed_NothingMatches" xml:space="preserve">
     <value>Keine Mods passen zu Suche und Filtern.</value>

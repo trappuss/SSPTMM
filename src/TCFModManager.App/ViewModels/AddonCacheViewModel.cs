@@ -44,6 +44,10 @@ public partial class AddonCacheViewModel : LocalizedViewModel
         {
             _loadTask = MarkingFailureAsync(LoadAsync(CancellationToken.None));
         }
+        else if (_loadTask.IsCompletedSuccessfully)
+        {
+            RefreshIfStale();
+        }
 
         return ct.CanBeCanceled ? _loadTask.WaitAsync(ct) : _loadTask;
     }
@@ -67,6 +71,30 @@ public partial class AddonCacheViewModel : LocalizedViewModel
 
     private static readonly TimeSpan RetryAfter = TimeSpan.FromSeconds(60);
 
+    // Fork (1.4.9): read again, quietly, when asked for and older than a saved copy counts as fresh -
+    // as ModCacheViewModel does, and for the same reason.
+    private void RefreshIfStale()
+    {
+        lock (_refreshLock)
+        {
+            if (_refreshing is { IsCompleted: false } || _fetchedAt is not { } at) return;
+
+            // (A copy dated in the future - the clock was ahead, then put right - counts as old.)
+            var age = DateTimeOffset.UtcNow - at;
+            if (age <= ModCacheViewModel.FreshFor && age >= TimeSpan.Zero) return;
+            if (DateTime.UtcNow - _refreshFailedAt < RetryAfter) return;
+
+            _refreshing = RefreshInBackgroundAsync();
+        }
+    }
+
+    private readonly object _refreshLock = new();
+    private Task? _refreshing;
+    private DateTime _refreshFailedAt;
+
+    // When the whole list was last read from sp-mod.com; null before it has loaded.
+    private DateTimeOffset? _fetchedAt;
+
     // 
     // The addons attached to a mod, most downloaded first. An addon whose parent isn't in the mod
     // catalog is never returned simply because nothing asks for it - which is also how detached
@@ -85,6 +113,7 @@ public partial class AddonCacheViewModel : LocalizedViewModel
     {
         var addons = await _cacheService.FetchAllAsync(null, ct);
         Publish(addons);
+        _fetchedAt = DateTimeOffset.UtcNow;
         _ = Task.Run(() => _store.Save(addons), CancellationToken.None);
         _loadTask = Task.FromResult(addons);
     }
@@ -117,12 +146,15 @@ public partial class AddonCacheViewModel : LocalizedViewModel
 
         Publish(patched);
         _loadTask = Task.FromResult(patched);
-        _ = Task.Run(() => _store.Save(patched), CancellationToken.None);
+
+        // Under the date the whole list was read: a few listings swapped in do not make it fresh.
+        var fetchedAt = _fetchedAt;
+        _ = Task.Run(() => _store.Save(patched, fetchedAt), CancellationToken.None);
         return true;
     }
 
     private static string ReleasesOf(Addon addon) =>
-        string.Join(',', (addon.Versions ?? []).Select(v => $"{v.Id}:{v.Version}"));
+        string.Join(',', (addon.Versions ?? []).Select(v => $"{v.Id}:{v.Version}:{v.ContentLength}:{v.Link}"));
 
     private async Task<List<Addon>> LoadAsync(CancellationToken ct)
     {
@@ -133,39 +165,57 @@ public partial class AddonCacheViewModel : LocalizedViewModel
             Publish(cached.Addons);
 
             // A copy from a few minutes ago - the app restarted - is not fetched again (Refresh does).
-            // (A copy dated in the future - the clock was ahead, then put right - counts as old.)
-            var age = DateTimeOffset.UtcNow - cached.FetchedAt;
-            if (age > ModCacheViewModel.FreshFor || age < TimeSpan.Zero) _ = RefreshInBackgroundAsync(ct);
-            else AppLog.Debug("Addons", $"saved copy is from {cached.FetchedAt:t}; not fetching again yet");
+            _fetchedAt = cached.FetchedAt;
+            RefreshIfStale();
             return cached.Addons;
         }
 
         AppLog.Debug("Addons", "disk cache miss, starting live fetch");
         var addons = await _cacheService.FetchAllAsync(null, ct);
         Publish(addons);
+        _fetchedAt = DateTimeOffset.UtcNow;
         _ = Task.Run(() => _store.Save(addons), CancellationToken.None);
         return addons;
     }
 
-    private async Task RefreshInBackgroundAsync(CancellationToken ct)
+    private async Task RefreshInBackgroundAsync()
     {
         try
         {
-            var fresh = await _cacheService.FetchAllAsync(null, ct).ConfigureAwait(false);
-            Publish(fresh);
-            _store.Save(fresh);
+            var fresh = await Task.Run(() => _cacheService.FetchAllAsync(null, CancellationToken.None)).ConfigureAwait(false);
+            // Nothing at all is not a list to replace one with.
+            if (fresh.Count == 0 && AllAddons.Count > 0)
+            {
+                _refreshFailedAt = DateTime.UtcNow;
+                AppLog.Warn("Addons", "sp-mod.com listed no addons; keeping the list in hand");
+                return;
+            }
+
+            var fetchedAt = DateTimeOffset.UtcNow;
+            _store.Save(fresh, fetchedAt);
+
+            // Swapped in on the UI thread, where the pages read it and Patch and Refresh write it.
+            void Swap()
+            {
+                var differs = fresh.Count != AllAddons.Count
+                    || !fresh.Select(a => (a.Id, ReleasesOf(a))).ToHashSet().SetEquals(AllAddons.Select(a => (a.Id, ReleasesOf(a))));
+
+                _fetchedAt = fetchedAt;
+                _loadTask = Task.FromResult(fresh);
+
+                // Only a list that differs is drawn; the counts in an unchanged one can wait.
+                if (differs) Publish(fresh);
+            }
+
+            var dispatcher = Application.Current?.Dispatcher;
+            if (dispatcher is null || dispatcher.CheckAccess()) Swap();
+            else _ = dispatcher.BeginInvoke(Swap);
         }
-        catch (OperationCanceledException)
+        catch (Exception ex)
         {
-            // Cancelled or shutting down.
-        }
-        catch (SpModApiException)
-        {
-            // Best-effort refresh; ignore API errors.
-        }
-        catch (HttpRequestException)
-        {
-            // Best-effort refresh; ignore network errors.
+            // Offline, the site down, an answer that did not read: the copy in hand stays.
+            _refreshFailedAt = DateTime.UtcNow;
+            AppLog.Warn("Addons", $"couldn't read sp-mod.com's addons again ({ex.GetType().Name}: {ex.Message})");
         }
     }
 

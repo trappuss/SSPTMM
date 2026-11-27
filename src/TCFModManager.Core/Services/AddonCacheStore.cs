@@ -39,14 +39,17 @@ public sealed class AddonCacheStore
         }
     }
 
-    public void Save(IReadOnlyList<Addon> addons)
+    // Fork (1.4.9): fetchedAt is when the whole list was read from sp-mod.com - not when the file
+    // was written. A few listings patched into a list from this morning leave it this morning's:
+    // stamped "now", it counted as just fetched, and the next start did not read sp-mod.com again.
+    public void Save(IReadOnlyList<Addon> addons, DateTimeOffset? fetchedAt = null)
     {
         try
         {
             var data = new CachedAddons
             {
                 SchemaVersion = SchemaVersion,
-                FetchedAt = DateTimeOffset.UtcNow,
+                FetchedAt = fetchedAt ?? DateTimeOffset.UtcNow,
                 Addons = addons.ToList(),
             };
 

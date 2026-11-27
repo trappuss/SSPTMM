@@ -794,7 +794,7 @@ public sealed partial class WorkshopItemViewModel : LocalizedViewModel, IModActi
         {
             var result = await AppServices.SpModApi.GetModVersionsAsync(
                 Mod.Id.ToString(),
-                new ModVersionsQuery { Include = "dependencies,virus_total_links", Sort = "-published_at", PerPage = VersionsPageSize, Page = page });
+                new ModVersionsQuery { Include = "dependencies,virus_total_links", Sort = "-version", PerPage = VersionsPageSize, Page = page });
 
             _versionsPage = page;
             TotalVersions = result.Meta?.Total ?? result.Data.Count;

@@ -1515,6 +1515,7 @@ internal static class Strings
     internal static string Installed_HeldBackNeedsFormat => LocalizationService.Get("Installed_HeldBackNeedsFormat");
     internal static string Installed_HeldBackChainFormat => LocalizationService.Get("Installed_HeldBackChainFormat");
     internal static string Installed_HeldBackPlainFormat => LocalizationService.Get("Installed_HeldBackPlainFormat");
+    internal static string Installed_HeldBackTogetherFormat => LocalizationService.Get("Installed_HeldBackTogetherFormat");
     internal static string Installed_UpdatesHeldBack(int count, params object?[] values) =>
         LocalizationService.Plural("Installed_UpdatesHeldBack", count, values);
     internal static string Item_VersionVerified => LocalizationService.Get("Item_VersionVerified");

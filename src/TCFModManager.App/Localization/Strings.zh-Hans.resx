@@ -4390,6 +4390,9 @@
   <data name="Installed_HeldBackPlainFormat" xml:space="preserve">
     <value>已暂缓更新到 {0}：sp-mod.com 称它会使另一个已安装的模组失效，但未指明是哪个。仍可在该模组自己的更新对话框中安装。</value>
   </data>
+  <data name="Installed_HeldBackTogetherFormat" xml:space="preserve">
+    <value>与 {0} 一起更新：两者各自需要对方的新版本。</value>
+  </data>
   <data name="Installed_UpdatesHeldBack_other" xml:space="preserve">
     <value>{1} 未更新：sp-mod.com 暂缓了其更新。仍可在各自的更新对话框中安装。</value>
   </data>
@@ -7240,7 +7243,7 @@ GitHub 上的文件未经 sp-mod.com 检查，请只安装你信任的作者的�
     <value>更多：从文件安装、SPT 升级检查、重新扫描、全部展开或收起</value>
   </data>
   <data name="Installed_RescanToolTip" xml:space="preserve">
-    <value>重新扫描 SPT 文件夹，查找在本应用之外添加或移除的模组</value>
+    <value>重新扫描 SPT 文件夹，查找在本应用之外添加或移除的模组，并向 sp-mod.com 查询新版本</value>
   </data>
   <data name="Installed_NothingMatches" xml:space="preserve">
     <value>没有符合搜索和筛选条件的模组。</value>
