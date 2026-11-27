@@ -198,8 +198,8 @@ public partial class MainWindow : FluentWindow
         };
         AppNavigation.CloseItemPageRequested += (_, _) =>
         {
-            QuickView.Close();
-            CollectionQuickView.Close();
+            _quickView?.Close();
+            _collectionQuickView?.Close();
             // Forgotten first, so no page closing brings another back.
             _under.Clear();
             // On the way to another page: closing these is not going back to the one under them.
@@ -207,9 +207,9 @@ public partial class MainWindow : FluentWindow
             _moving = true;
             try
             {
-                CollectionPage.Close();
-                AuthorPage.Close();
-                ItemPage.Close();
+                _collectionPage?.Close();
+                _authorPage?.Close();
+                _itemPage?.Close();
             }
             finally
             {
@@ -301,25 +301,15 @@ public partial class MainWindow : FluentWindow
             Visited();
         };
 
-        // Esc on a required item, back to the item it was opened from: a step back.
-        ItemPage.WalkedBack += (_, _) => Returned();
-
-        ItemPage.Closed += (_, _) =>
-        {
-            PerfProbe.ItemPage(opened: false);
-            Uncover(ItemPage);
-            Returned();
-        };
-
         AppServices.QuickView.Requested += (_, request) =>
         {
-            CollectionQuickView.Close();
+            _collectionQuickView?.Close();
             QuickView.Show(request);
         };
 
         AppServices.CollectionQuickView.Requested += (_, request) =>
         {
-            QuickView.Close();
+            _quickView?.Close();
             CollectionQuickView.Show(request);
         };
 
@@ -329,36 +319,15 @@ public partial class MainWindow : FluentWindow
             if (OpenCollection(request)) Visited();
         };
 
-        CollectionPage.Closed += (_, _) =>
-        {
-            Uncover(CollectionPage);
-            Returned();
-        };
-
-        // The item, collection and author pages have no background of their own, so the window's grid
-        // (or picture) shows through them as it does on the other Workshop pages. The page they were
-        // opened over is hidden meanwhile - Hidden, not Collapsed, so it keeps its layout and scroll
-        // for when it comes back.
-        foreach (var overlay in new FrameworkElement[] { ItemPage, AuthorPage, CollectionPage })
-        {
-            overlay.IsVisibleChanged += (_, _) =>
-            {
-                RootNavigationView.Visibility = OverlayShowing ? Visibility.Hidden : Visibility.Visible;
-                SyncWorkshopStrip();
-            };
-        }
+        // (What the item, collection and author pages are wired to as they are made is in
+        // MainWindow.Overlays.cs.)
+        ContentRendered += (_, _) => MakeOverlaysWhenIdle();
 
         // An author opened from anywhere opens as their Workshop page, the same way.
         AppServices.AuthorOverlay.Requested += (_, request) =>
         {
             OpenAuthor(request);
             Visited();
-        };
-
-        AuthorPage.Closed += (_, _) =>
-        {
-            Uncover(AuthorPage);
-            Returned();
         };
 
         // Constructs and shows the mod update dialog, awaitable so callers know when it closes.
@@ -391,12 +360,12 @@ public partial class MainWindow : FluentWindow
     private readonly List<FrameworkElement> _under = [];
 
     private FrameworkElement? TopPage =>
-        new FrameworkElement[] { ItemPage, AuthorPage, CollectionPage }.FirstOrDefault(p => p.Visibility == Visibility.Visible);
+        new FrameworkElement?[] { _itemPage, _authorPage, _collectionPage }.FirstOrDefault(p => p?.Visibility == Visibility.Visible);
 
     private void Cover(FrameworkElement next)
     {
-        QuickView.Close();
-        CollectionQuickView.Close();
+        _quickView?.Close();
+        _collectionQuickView?.Close();
         _under.Remove(next);
 
         if (TopPage is not { } top || ReferenceEquals(top, next)) return;
@@ -446,15 +415,15 @@ public partial class MainWindow : FluentWindow
 
     private void HidePage(FrameworkElement page)
     {
-        if (ReferenceEquals(page, ItemPage)) ItemPage.Hide();
-        else if (ReferenceEquals(page, AuthorPage)) AuthorPage.Hide();
+        if (ReferenceEquals(page, _itemPage)) ItemPage.Hide();
+        else if (ReferenceEquals(page, _authorPage)) AuthorPage.Hide();
         else CollectionPage.Hide();
     }
 
     private void RevealPage(FrameworkElement page)
     {
-        if (ReferenceEquals(page, ItemPage)) ItemPage.Reveal();
-        else if (ReferenceEquals(page, AuthorPage)) AuthorPage.Reveal();
+        if (ReferenceEquals(page, _itemPage)) ItemPage.Reveal();
+        else if (ReferenceEquals(page, _authorPage)) AuthorPage.Reveal();
         else CollectionPage.Reveal();
     }
 
@@ -637,7 +606,7 @@ public partial class MainWindow : FluentWindow
     // The item page says which item it shows itself: Esc walks it back through required items.
     private Place? Here() => AppNavigation.Current is { } page
         ? new Place(page, TopPage is not { } top ? null
-            : ReferenceEquals(top, ItemPage) ? ItemPage.Current
+            : ReferenceEquals(top, _itemPage) ? ItemPage.Current
             : _opened.GetValueOrDefault(top))
         : null;
 
@@ -763,7 +732,7 @@ public partial class MainWindow : FluentWindow
 
     // ------------------------------------------------------------------
 
-    private bool OverlayShowing => ItemPage.IsVisible || AuthorPage.IsVisible || CollectionPage.IsVisible;
+    private bool OverlayShowing => _itemPage?.IsVisible == true || _authorPage?.IsVisible == true || _collectionPage?.IsVisible == true;
 
     private void HubTab_Click(object sender, RoutedEventArgs e)
     {
