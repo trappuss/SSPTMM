@@ -477,7 +477,32 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
     // of a mod left in a container and in that container's ".disabled" sibling. What the disable
     // commands actually move, and what ModDependencyGraph is keyed on.
     //
-    public IReadOnlyList<InstalledMod> Entries { get; init; } = [];
+    public IReadOnlyList<InstalledMod> Entries { get; private set; } = [];
+
+    private static readonly System.Reflection.PropertyInfo[] BuiltProperties = ValueSameness.SetOnce(typeof(InstalledModCardViewModel));
+
+    //
+    // Fork (1.4.9): whether a card a new scan built says what this one says. When it does, this one
+    // stays on the page - with the folders as that scan read them - and nothing is drawn again:
+    // every read of the folder used to replace every card, and drawing them was most of its wait.
+    //
+    // Everything set as a card is built is compared, whatever it is; what is set afterwards (pins,
+    // notes, groups, what sp-mod.com holds back) is set again on whichever card is kept. Not for a
+    // card that shares its folder: those hold one another.
+    //
+    internal bool TakeOver(InstalledModCardViewModel fresh)
+    {
+        if (_folderMates is not null || fresh._folderMates is not null) return false;
+
+        foreach (var property in BuiltProperties)
+            if (!ValueSameness.Same(property.GetValue(this), property.GetValue(fresh))) return false;
+
+        Entries = fresh.Entries;
+        SharedFolderParts = fresh.SharedFolderParts;
+        InstalledAddons = fresh.InstalledAddons;
+        _duplicateFolders = null;
+        return true;
+    }
 
     //
     // The mod lists that name this mod, filled in after a scan by InstalledViewModel (the card
@@ -671,6 +696,8 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
     // <param name="installRecords">The current install's manifest. Each record names the folders it
     // placed, which identifies a mod exactly, and the version actually fetched, which beats whatever
     // the files on disk claim. Pass null or an empty list if the manifest doesn't apply.</param>
+    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<IReadOnlyList<Mod>, CatalogIndex> Indexes = [];
+
     public static List<InstalledModCardViewModel> BuildFrom(
         IEnumerable<InstalledMod> scanned,
         IReadOnlyList<Mod> catalog,
@@ -694,7 +721,9 @@ public sealed partial class InstalledModCardViewModel : LocalizedViewModel
         // Every per-catalog-mod value the matching tiers below compare against is derived once here
         // rather than recomputed for each installed mod. Without it, matching 120 installed mods
         // against a 3000-entry catalog re-normalizes and re-tokenizes 360,000 catalog entries.
-        var index = CatalogIndex.Build(catalog);
+        // Fork (1.4.9): and once per list from sp-mod.com, not once per scan - it reads only what
+        // does not change in a listing (id, GUID, name, slug), and a list read again is a new list.
+        var index = Indexes.GetValue(catalog, CatalogIndex.Build);
 
         var scannedGroups = scanned
             .GroupBy(m => m.Name, StringComparer.OrdinalIgnoreCase)

@@ -45,6 +45,11 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
     private List<InstalledModCardViewModel> _all = [];
 
+    // Fork (1.4.9): what the last scan matched against - see where ScanAsync keeps cards.
+    private object? _scannedCatalog;
+    private object? _scannedAddons;
+    private string? _scannedSptVersion;
+
     private readonly System.Windows.Threading.DispatcherTimer _rescanAfterInstall;
     private List<InstalledModCardViewModel> _filtered = [];
 
@@ -1072,6 +1077,33 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
             // cancelled Unsubscribe read the folder again and dropped every pick with the old cards.
             var picked = OpenKeys(_all, m => m.IsSelected);
 
+            //
+            // Fork (1.4.9): a card that says what one already on the page says is not replaced by it
+            // (InstalledModCardViewModel.TakeOver). Only against the same lists from sp-mod.com: what
+            // a card shows of its listing is read from them as it draws.
+            //
+            var kept = 0;
+            if (ReferenceEquals(catalog, _scannedCatalog) && ReferenceEquals(addons, _scannedAddons)
+                && string.Equals(sptVersion, _scannedSptVersion, StringComparison.Ordinal))
+            {
+                var before = new Dictionary<(string, bool, int?), InstalledModCardViewModel>();
+                foreach (var card in _all) before.TryAdd((card.FolderPath.ToUpperInvariant(), card.IsAddon, card.ModId), card);
+
+                for (var i = 0; i < cards.Count; i++)
+                {
+                    var key = (cards[i].FolderPath.ToUpperInvariant(), cards[i].IsAddon, cards[i].ModId);
+                    if (!before.Remove(key, out var old) || !old.TakeOver(cards[i])) continue;
+
+                    cards[i] = old;
+                    kept++;
+                }
+            }
+
+            _scannedCatalog = catalog;
+            _scannedAddons = addons;
+            _scannedSptVersion = sptVersion;
+
+            foreach (var card in _all) card.PropertyChanged -= OnCardPropertyChanged;
             _all = cards;
             RefreshUndo();
 
@@ -1172,7 +1204,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
             {
                 var shown = clock.ElapsedMilliseconds;
                 PerfProbe.Timed(clock, System.Windows.Application.Current.Dispatcher, (_, drawn) => AppLog.Info("Perf", FormattableString.Invariant(
-                    $"scan of {_all.Count} card(s): lists {lists}ms, folders read and matched {read - lists}ms, page filled {shown - read}ms, drawn {drawn - shown:F0}ms")));
+                    $"scan of {_all.Count} card(s), {kept} kept: lists {lists}ms, folders read and matched {read - lists}ms, page filled {shown - read}ms, drawn {drawn - shown:F0}ms")));
             }
         }
         finally

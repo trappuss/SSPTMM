@@ -87,6 +87,8 @@ public static class InstalledModScanner
         var results = new List<InstalledMod>();
         if (string.IsNullOrWhiteSpace(installPath) || !Directory.Exists(installPath)) return results;
 
+        using var look = ModAssemblyMetadata.OneLook(); // Fork (1.4.9)
+
         foreach (var container in DisabledModPaths.ClientContainers(installPath))
         {
             var isPatcher = DisabledModPaths.IsPatcherContainer(container);
@@ -395,17 +397,18 @@ public static class InstalledModScanner
         }
     }
 
-    private static string? TryGetFileVersion(string dllPath)
-    {
-        try
+    private static string? TryGetFileVersion(string dllPath) =>
+        ModAssemblyMetadata.Remembered("FileVersion", dllPath, () =>
         {
-            var info = FileVersionInfo.GetVersionInfo(dllPath);
-            var raw = (info.FileVersion ?? info.ProductVersion ?? "").Trim();
-            return string.IsNullOrWhiteSpace(raw) ? null : raw;
-        }
-        catch (Exception)
-        {
-            return null;
-        }
-    }
+            try
+            {
+                var info = FileVersionInfo.GetVersionInfo(dllPath);
+                var raw = (info.FileVersion ?? info.ProductVersion ?? "").Trim();
+                return string.IsNullOrWhiteSpace(raw) ? null : raw;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        });
 }

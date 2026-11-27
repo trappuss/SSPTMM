@@ -35,10 +35,78 @@ public static class ModAssemblyMetadata
         new(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
 
     //
+    // Fork (1.4.9): what a DLL was read as, kept for as long as its size and date stay what they
+    // were. Every read of the mod folders opened and parsed every DLL in them, some three times
+    // over, and that was most of the time a scan took; one that has not changed is now only looked
+    // at. A read that failed is not kept - the file may just have been busy.
+    //
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<(string Kind, string Path), (long Length, long Written, object? Value)> Kept = new();
+
+    [ThreadStatic]
+    private static bool _failed;
+
+    // Within one look at the folders (OneLook), each file's size and date are asked for once, not
+    // once for each thing read from it.
+    [ThreadStatic]
+    private static Dictionary<string, (long Length, long Written)?>? _looked;
+
+    /// <summary>Until disposed, on this thread, a file's size and date are read once and taken to
+    /// stand. For one pass over the folders - never held across anything that writes to them.</summary>
+    public static IDisposable OneLook() => new Look();
+
+    private sealed class Look : IDisposable
+    {
+        private readonly bool _outermost = _looked is null;
+
+        public Look() => _looked ??= new(StringComparer.OrdinalIgnoreCase);
+
+        public void Dispose()
+        {
+            if (_outermost) _looked = null;
+        }
+    }
+
+    private static (long Length, long Written)? Stamp(string path)
+    {
+        if (_looked is { } looked && looked.TryGetValue(path, out var seen)) return seen;
+
+        (long, long)? stamp;
+        try
+        {
+            var info = new FileInfo(path);
+            stamp = info.Exists ? (info.Length, info.LastWriteTimeUtc.Ticks) : null;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
+        {
+            stamp = null;
+        }
+
+        _looked?.TryAdd(path, stamp);
+        return stamp;
+    }
+
+    public static T Remembered<T>(string kind, string path, Func<T> read)
+    {
+        if (Stamp(path) is not var (length, written)) return read();
+
+        var key = (kind, path.ToUpperInvariant());
+        if (Kept.TryGetValue(key, out var kept) && kept.Length == length && kept.Written == written)
+            return (T)kept.Value!;
+
+        _failed = false;
+        var value = read();
+        if (!_failed) Kept[key] = (length, written, value);
+        return value;
+    }
+
+    //
     // [BepInPlugin(guid, name, version)] from the first type carrying one, and every
     // [BepInDependency] on any type. Guid is null when the DLL has no plugin attribute.
     //
-    public static DeclaredMetadata ReadPlugin(string dllPath)
+    public static DeclaredMetadata ReadPlugin(string dllPath) =>
+        Remembered(nameof(ReadPlugin), dllPath, () => ReadPluginNow(dllPath));
+
+    private static DeclaredMetadata ReadPluginNow(string dllPath)
     {
         try
         {
@@ -81,6 +149,7 @@ public static class ModAssemblyMetadata
         }
         catch (Exception)
         {
+            _failed = true;
             return DeclaredMetadata.Empty;
         }
     }
@@ -89,7 +158,10 @@ public static class ModAssemblyMetadata
     // The assembly's own name and version from its definition row, or nulls for a file that isn't a
     // managed assembly - a native DLL, a netmodule, or anything unreadable. Reads headers only.
     //
-    public static (string? Name, string? Version) ReadIdentity(string dllPath)
+    public static (string? Name, string? Version) ReadIdentity(string dllPath) =>
+        Remembered(nameof(ReadIdentity), dllPath, () => ReadIdentityNow(dllPath));
+
+    private static (string? Name, string? Version) ReadIdentityNow(string dllPath)
     {
         try
         {
@@ -105,6 +177,7 @@ public static class ModAssemblyMetadata
         }
         catch (Exception)
         {
+            _failed = true;
             return (null, null);
         }
     }
@@ -114,7 +187,10 @@ public static class ModAssemblyMetadata
     // name starts with - for Diagnose logs to tell whose code a line came from. Empty for anything
     // that isn't managed code.
     //
-    public static IReadOnlySet<string> ReadNamespaces(string dllPath)
+    public static IReadOnlySet<string> ReadNamespaces(string dllPath) =>
+        Remembered(nameof(ReadNamespaces), dllPath, () => ReadNamespacesNow(dllPath));
+
+    private static IReadOnlySet<string> ReadNamespacesNow(string dllPath)
     {
         try
         {
@@ -136,6 +212,7 @@ public static class ModAssemblyMetadata
         }
         catch (Exception)
         {
+            _failed = true;
             return new HashSet<string>();
         }
     }
@@ -144,7 +221,10 @@ public static class ModAssemblyMetadata
     // The SPT 4.x server mod metadata record in this DLL, or null when there isn't one - a bundled
     // library, an SPT 3.x mod's helper DLL, or anything that isn't managed code.
     //
-    public static DeclaredMetadata? ReadServer(string dllPath)
+    public static DeclaredMetadata? ReadServer(string dllPath) =>
+        Remembered(nameof(ReadServer), dllPath, () => ReadServerNow(dllPath));
+
+    private static DeclaredMetadata? ReadServerNow(string dllPath)
     {
         try
         {
@@ -182,6 +262,7 @@ public static class ModAssemblyMetadata
         }
         catch (Exception)
         {
+            _failed = true;
             return null;
         }
     }
