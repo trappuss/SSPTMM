@@ -11,6 +11,9 @@ Measured on an install of 165 mods, with the app's own timing log.
 - **Reading the mod folders again no longer redraws the page.** Every rescan - after an install, a removal, switching a mod on or off, or coming back to Subscribed items - replaced every card and drew them all again. A card that says what it said before now stays. With nothing changed, a rescan went from about 1.4 s (0.8 s of it with the window not answering) to under 0.2 s in the background.
 - **A mod's DLLs are read once, not on every scan.** Each scan opened every DLL in the mod folders, some of them three times. One whose size and date have not changed is now only looked at, which about halved the time a scan spends reading.
 - **Pages of cards appear at once and fill in.** A page of cards on Subscribed items, Browse and the Workshop's home was built in one pass, about 0.7 s in which nothing was drawn and no click answered. The first cards now come with the page (about 0.3 s) and the rest a few at a time, with the window answering throughout. The List and Groups views of Subscribed items, which draw every mod, do the same: Groups held the window for 2.6 s with 165 mods and now shows in 0.4 s.
+
+  ![The Groups view](https://raw.githubusercontent.com/trappuss/SSPTMM/v1.4.9/docs/images/26-groups-view.png)
+
 - **The window opens sooner.** The item, collection and author pages and the two Quick Views were built before the window's first frame; they are now built just after it. The window itself builds in 160-200 ms where it took 280-360 ms.
 - **Typing in a search box waits for a pause.** Browse, Collections and Subscribed items rebuilt their list on every letter; they now do it once you stop for a fifth of a second.
 - **An item page opened a moment ago opens at once.** Going back to one, or from Quick View to the page, waited on sp-mod.com again each time.
@@ -61,6 +64,9 @@ Measured on an install of 165 mods, with the app's own timing log.
 - **The bar for picked items goes when they do.** After unsubscribing from a picked item, or anything else that read the folder again, the bar along the bottom still said "1 selected" with nothing picked, and its buttons did nothing.
 - **An addon has Unsubscribe on its right-click menu**, as a mod has, and so does a mod sp-mod.com has no listing for.
 - **What you picked stays picked.** Switching one mod off, an update landing, or cancelling an Unsubscribe read the folder again and dropped every pick.
+
+  ![Two picked mods and the bar for them](https://raw.githubusercontent.com/trappuss/SSPTMM/v1.4.9/docs/images/25-picked.png)
+
 - **A pick the filters hide is dropped.** Enable, Disable, Update and Add to group went on acting on picked mods a search had taken off the page.
 - **Right-click on Subscribed items acts on the card you clicked.** Unsubscribe from the menu read the folder again before asking, a hand-made copy's menu acted on the original, and a switched-off mod with an update was offered no Update.
 - **Pin, Sort out, Confirm as installed and Get again are on the right-click menu**, so a row in the Groups view, which does not open, can reach them.
