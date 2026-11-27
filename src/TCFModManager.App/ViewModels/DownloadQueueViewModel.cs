@@ -1292,10 +1292,17 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
 
         // Fresh disk scan each time so it reflects whatever was just installed in this same batch.
         await AppServices.ModCache.EnsureLoadedAsync();
-        var scanned = await Task.Run(() => InstalledModScanner.Scan(installPath));
-        var installedMatches = InstalledModCardViewModel.BuildFrom(
-            scanned, AppServices.ModCache.AllMods, sptVersion, AppServices.InstallManifest.Load().ModsFor(installPath),
-            AppServices.Addons.AllAddons);
+        // Fork (1.4.9): matched off this thread too, as Subscribed items does it - it ran here, with
+        // the window waiting, after every install in the queue. The records and lists are read
+        // first, here, for the reason given there.
+        var records = AppServices.InstallManifest.Load().ModsFor(installPath);
+        var catalog = AppServices.ModCache.AllMods;
+        var addons = AppServices.Addons.AllAddons;
+        var (scanned, installedMatches) = await Task.Run(() =>
+        {
+            var found = InstalledModScanner.Scan(installPath);
+            return (found, InstalledModCardViewModel.BuildFrom(found, catalog, sptVersion, records, addons));
+        });
 
         // Every dependency node is a mod, so addon cards - whose ModId is an addon id - are left
         // out of both sets rather than being compared against mod ids.

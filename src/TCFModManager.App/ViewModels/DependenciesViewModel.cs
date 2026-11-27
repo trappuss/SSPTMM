@@ -204,10 +204,15 @@ public partial class DependenciesViewModel : LocalizedViewModel
             // Before anything that needs the network, so conflicts show even when the lookup fails.
             await RefreshConflictsAsync();
 
-            var scanned = await Task.Run(() => InstalledModScanner.Scan(installPath));
-            var installed = InstalledModCardViewModel.BuildFrom(
-                scanned, AppServices.ModCache.AllMods, sptVersion, AppServices.InstallManifest.Load().ModsFor(installPath),
-                AppServices.Addons.AllAddons);
+            // Fork (1.4.9): matched off this thread too, as Subscribed items does it.
+            var records = AppServices.InstallManifest.Load().ModsFor(installPath);
+            var catalog = AppServices.ModCache.AllMods;
+            var addons = AppServices.Addons.AllAddons;
+            var (scanned, installed) = await Task.Run(() =>
+            {
+                var found = InstalledModScanner.Scan(installPath);
+                return (found, InstalledModCardViewModel.BuildFrom(found, catalog, sptVersion, records, addons));
+            });
 
             // Only mods that matched the catalog can be asked about; a hand-installed mod we
             // couldn't identify has no identifier to query with.

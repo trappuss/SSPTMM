@@ -255,7 +255,7 @@
                             Style="{StaticResource SteamSearchField}"
                             Tag="{loc:Str Collections_SearchPlaceholder}"
                             behaviors:Shortcuts.Search="True"
-                            Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
+                            Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}" />
                     </Border>
                     <Button
                         Width="36"

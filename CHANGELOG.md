@@ -4,6 +4,18 @@
 
 From 1.3.0 or later: Help > About > **Install update**. From an older version: close SSPTMM, download `SSPTMM-1.4.9-win-x64.zip` and copy the contents of its `SSPTMM` folder over your SSPTMM folder. Your settings in `Data` stay as they are.
 
+## Faster
+
+Measured on an install of 165 mods, with the app's own timing log.
+
+- **Reading the mod folders again no longer redraws the page.** Every rescan - after an install, a removal, switching a mod on or off, or coming back to Subscribed items - replaced every card and drew them all again. A card that says what it said before now stays. With nothing changed, a rescan went from about 1.4 s (0.8 s of it with the window not answering) to under 0.2 s in the background.
+- **A mod's DLLs are read once, not on every scan.** Each scan opened every DLL in the mod folders, some of them three times. One whose size and date have not changed is now only looked at, which about halved the time a scan spends reading.
+- **Pages of cards appear at once and fill in.** A page of cards on Subscribed items, Browse and the Workshop's home was built in one pass, about 0.7 s in which nothing was drawn and no click answered. The first cards now come with the page (about 0.3 s) and the rest a few at a time, with the window answering throughout.
+- **The window opens sooner.** The item, collection and author pages and the two Quick Views were built before the window's first frame; they are now built just after it. The window itself builds in 160-200 ms where it took 280-360 ms.
+- **Typing in a search box waits for a pause.** Browse, Collections and Subscribed items rebuilt their list on every letter; they now do it once you stop for a fifth of a second.
+- **An item page opened a moment ago opens at once.** Going back to one, or from Quick View to the page, waited on sp-mod.com again each time.
+- **The dependency check after each install no longer holds the window** while it matches the mod folders.
+
 ## Fixed
 
 - **New and updated mods stopped showing up.** The list of mods from sp-mod.com was only read when SSPTMM started, and three things could keep even that from happening:

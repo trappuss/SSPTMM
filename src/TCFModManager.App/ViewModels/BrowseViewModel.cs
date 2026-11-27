@@ -132,6 +132,7 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
         //
         AppServices.UpdateWatcher.UpdatesFound += async (_, _) =>
         {
+            _details.Clear(); // Fork (1.4.9): a page opened now shows the new version
             await RefreshInstalledIndexAsync();
             if (!HasLoadedResults) return;
 
@@ -1944,14 +1945,33 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
         return message;
     }
 
+    // HUNCH: two minutes - long enough for going back and forth, short enough that a new version
+    // shows without a restart.
+    private static readonly TimeSpan DetailsKeptFor = TimeSpan.FromMinutes(2);
+
+    private readonly Dictionary<int, (DateTime At, Mod Details)> _details = [];
+
     /// <summary>The mod's full listing (description, versions, license, category, source links) -
     /// what the item page and Quick View show - or what went wrong.</summary>
     public async Task<(Mod? Details, string? Failure)> FetchDetailsAsync(Mod mod)
     {
+        // Fork (1.4.9): what was read a moment ago is not read again. Every opening of an item page
+        // waited on sp-mod.com before anything showed - going back to one just left, or from Quick
+        // View to the page, included.
+        if (_details.TryGetValue(mod.Id, out var kept) && DateTime.UtcNow - kept.At < DetailsKeptFor)
+            return (kept.Details, null);
+
         try
         {
             // source_code_links only arrives when asked for; the item page lists them.
-            return (await _spModApi.GetModAsync(mod.Id.ToString(), include: "versions,license,category,source_code_links"), null);
+            var details = await _spModApi.GetModAsync(mod.Id.ToString(), include: "versions,license,category,source_code_links");
+            if (details is not null)
+            {
+                if (_details.Count >= 64) _details.Clear();
+                _details[mod.Id] = (DateTime.UtcNow, details);
+            }
+
+            return (details, null);
         }
         catch (SpModApiException ex)
         {

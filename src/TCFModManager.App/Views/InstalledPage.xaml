@@ -1375,7 +1375,7 @@
                 VerticalAlignment="Center"
                 PlaceholderText="{loc:Str Common_SearchPlaceholder}"
                 behaviors:Shortcuts.Search="True"
-                Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
+                Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}" />
 
             <ComboBox
                 MinWidth="175"
