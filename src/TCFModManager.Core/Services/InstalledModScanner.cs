@@ -404,10 +404,15 @@ public static class InstalledModScanner
             {
                 var info = FileVersionInfo.GetVersionInfo(dllPath);
                 var raw = (info.FileVersion ?? info.ProductVersion ?? "").Trim();
-                return string.IsNullOrWhiteSpace(raw) ? null : raw;
+                if (!string.IsNullOrWhiteSpace(raw)) return raw;
+
+                // None read is not kept: a file that could not be opened answers the same way.
+                ModAssemblyMetadata.NotToKeep();
+                return null;
             }
             catch (Exception)
             {
+                ModAssemblyMetadata.NotToKeep();
                 return null;
             }
         });

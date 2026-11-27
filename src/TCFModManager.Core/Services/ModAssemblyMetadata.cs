@@ -85,6 +85,9 @@ public static class ModAssemblyMetadata
         return stamp;
     }
 
+    /// <summary>Called from inside a read handed to Remembered: what it returns is not kept.</summary>
+    public static void NotToKeep() => _failed = true;
+
     public static T Remembered<T>(string kind, string path, Func<T> read)
     {
         if (Stamp(path) is not var (length, written)) return read();

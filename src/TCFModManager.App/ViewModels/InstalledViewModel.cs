@@ -45,6 +45,11 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
     private List<InstalledModCardViewModel> _all = [];
 
+    // Fork (1.4.9): which card a card is, from one scan to the next: its folder, and which mod or
+    // addon of that folder it stands for.
+    private static (string Folder, bool IsAddon, int? ModId) CardKey(InstalledModCardViewModel card) =>
+        (card.FolderPath.ToUpperInvariant(), card.IsAddon, card.ModId);
+
     // Fork (1.4.9): what the last scan matched against - see where ScanAsync keeps cards.
     private object? _scannedCatalog;
     private object? _scannedAddons;
@@ -1075,7 +1080,10 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
             // Fork (1.4.9): and what was picked. Switching one mod off, an update landing or a
             // cancelled Unsubscribe read the folder again and dropped every pick with the old cards.
-            var picked = OpenKeys(_all, m => m.IsSelected);
+            // By what each card is, not by its name as the open ones are: an addon in its mod's
+            // folder has the mod's name, and would come back picked with it.
+            var picked = _all.Where(m => m.IsSelected).Select(CardKey).ToHashSet();
+            var anchor = _selectionAnchor is null ? ((string, bool, int?)?)null : CardKey(_selectionAnchor);
 
             //
             // Fork (1.4.9): a card that says what one already on the page says is not replaced by it
@@ -1087,12 +1095,11 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
                 && string.Equals(sptVersion, _scannedSptVersion, StringComparison.Ordinal))
             {
                 var before = new Dictionary<(string, bool, int?), InstalledModCardViewModel>();
-                foreach (var card in _all) before.TryAdd((card.FolderPath.ToUpperInvariant(), card.IsAddon, card.ModId), card);
+                foreach (var card in _all) before.TryAdd(CardKey(card), card);
 
                 for (var i = 0; i < cards.Count; i++)
                 {
-                    var key = (cards[i].FolderPath.ToUpperInvariant(), cards[i].IsAddon, cards[i].ModId);
-                    if (!before.Remove(key, out var old) || !old.TakeOver(cards[i])) continue;
+                    if (!before.Remove(CardKey(cards[i]), out var old) || !old.TakeOver(cards[i])) continue;
 
                     cards[i] = old;
                     kept++;
@@ -1122,8 +1129,11 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
                     var key = ModGroupStore.KeyFor(card.Name);
                     card.IsCardExpanded = openCards.Contains(key);
                     card.IsRowExpanded = openRows.Contains(key);
-                    card.IsSelected = picked.Contains(key);
+                    card.IsSelected = picked.Contains(CardKey(card));
                 }
+
+            // And the card Shift+click counts from, which may be a new one now.
+            if (anchor is { } from) _selectionAnchor = cards.FirstOrDefault(c => CardKey(c) == from);
 
             ApplyListMembership(cards);
             ApplyPins(cards);

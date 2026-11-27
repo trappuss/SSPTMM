@@ -64,9 +64,17 @@ public static class StagedContent
             return;
         }
 
+        // Until its turn it keeps the room one of its kind takes. Without it a list whose items
+        // were all replaced at once was, for a moment, a few items long - and a page scrolled down
+        // it was thrown back to the top.
+        if (Heights.TryGetValue((DataTemplate)e.NewValue, out var height)) presenter.MinHeight = height;
+
         Waiting.Enqueue(presenter);
         QueueStep(presenter.Dispatcher);
     }
+
+    // The height an item of each template was last drawn at - the least seen, which is a closed one.
+    private static readonly Dictionary<DataTemplate, double> Heights = [];
 
     private static void Fill(Decorator host)
     {
@@ -75,6 +83,18 @@ public static class StagedContent
 
         var presenter = new ContentPresenter { ContentTemplate = template };
         presenter.SetBinding(ContentPresenter.ContentProperty, new Binding());
+
+        SizeChangedEventHandler? drawn = null;
+        drawn = (_, _) =>
+        {
+            if (presenter.ActualHeight <= 0) return;
+
+            presenter.SizeChanged -= drawn;
+            host.ClearValue(FrameworkElement.MinHeightProperty);
+            Heights[template] = Heights.TryGetValue(template, out var least) ? Math.Min(least, presenter.ActualHeight) : presenter.ActualHeight;
+        };
+        presenter.SizeChanged += drawn;
+
         host.Child = presenter;
     }
 
