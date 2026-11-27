@@ -65,6 +65,9 @@ the same details; click a card or row to open it.
 - Right-click a mod for **Rename...** (a name of your own; empty gives it back its own), **Open
   client folder** and **Open server folder**, beside the group items. Also:
   - **Note...** - a line of your own, shown under the mod's name and found by the search.
+  - **Unsubscribe**, **Pin**, and - when they apply - **Update**, **Sort out**, **Confirm install**
+    and **Get again** (from 1.4.9 on every item, addons and hand-installed mods included, and in
+    the Groups view, whose rows do not open).
   - **Link to its sp-mod.com page...** (from 1.4.8) - on a mod or addon installed by hand that
     SSPTMM could not find on sp-mod.com. Paste the link to its page there; the card then has that
     name, its page and its updates. This is the only way an addon installed by hand can be
@@ -137,6 +140,8 @@ while sp-mod.com's listing stays the same can't be seen.
 
 Ctrl+click, Shift+click, Ctrl+A and Esc work as in Steam's library. A bar appears at the bottom with
 Select all, Update selected, Enable selected, Disable selected, Unsubscribe selected and Clear.
+What you picked stays picked when the folders are read again. A pick that a search or filter takes
+off the page is dropped, so the bar only acts on mods the page still lists.
 
 ## The ⋯ menu
 

@@ -87,14 +87,14 @@ public static class StagedContent
         {
             _stepQueued = false;
 
-            // One that left the page while it waited costs nothing: on to the next in the same turn.
+            // One that is off the page while it waits - its page left, or the item itself removed -
+            // is filled all the same, so it is there when the page comes back, but costs nothing
+            // until then and does not use up the turn.
             var made = 0;
             while (Waiting.TryDequeue(out var next))
             {
-                if (!next.IsLoaded && PresentationSource.FromVisual(next) is null) continue;
-
                 Fill(next);
-                if (++made >= PerTurn) break;
+                if (PresentationSource.FromVisual(next) is not null && ++made >= PerTurn) break;
             }
 
             if (Waiting.Count > 0) QueueStep(dispatcher);
