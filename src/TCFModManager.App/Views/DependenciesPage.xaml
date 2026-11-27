@@ -172,8 +172,8 @@
                 Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibility}}" />
 
             <ItemsControl Focusable="False" ItemsSource="{Binding Trees}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
+                <ItemsControl.Resources>
+                    <DataTemplate x:Key="DependencyTree">
                         <!-- One expander per installed mod, holding its flattened dependency rows. -->
                         <ui:CardExpander Style="{StaticResource HoverCardExpander}" Margin="0,0,0,8" IsExpanded="{Binding IsExpanded, Mode=TwoWay}">
                             <ui:CardExpander.Header>
@@ -273,6 +273,12 @@
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
                         </ui:CardExpander>
+                    </DataTemplate>
+                </ItemsControl.Resources>
+                <!-- Fork (1.4.9): built a few at once and then a few a turn - see StagedContent. -->
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border behaviors:StagedContent.Template="{StaticResource DependencyTree}" />
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
