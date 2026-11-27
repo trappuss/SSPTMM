@@ -166,13 +166,13 @@ public partial class App : Application
         // Before the window, so a launch that came from clicking a notification opens on Installed.
         UpdateToasts.Initialize(e.Args, new SettingsService().Load().UpdateNotifications.Enabled);
 
-        Services.PerfProbe.Mark("startup: ready for the window");
+        Services.PerfProbe.Mark("ready");
         var window = new MainWindow();
         MainWindow = window;
-        Services.PerfProbe.Mark("startup: window built");
-        window.ContentRendered += (_, _) => Services.PerfProbe.Mark("startup: first frame");
+        Services.PerfProbe.Mark("built");
+        window.ContentRendered += (_, _) => Services.PerfProbe.Mark("drawn");
         window.Show();
-        Services.PerfProbe.Mark("startup: window shown");
+        Services.PerfProbe.Mark("shown");
 
         if (_cutOffInstalls.Count > 0)
             Dispatcher.BeginInvoke(ReportCutOffInstalls, DispatcherPriority.ApplicationIdle);

@@ -46,7 +46,7 @@ public static class PerfProbe
         if (!IsOn) return;
 
         var ms = (DateTime.Now - Process.GetCurrentProcess().StartTime).TotalMilliseconds;
-        AppLog.Info("Perf", FormattableString.Invariant($"{what} at {ms:F0}ms"));
+        AppLog.Info("Perf", FormattableString.Invariant($"startup {what} at {ms:F0}ms"));
     }
 
     // Whether anything scrolled since the last line.
