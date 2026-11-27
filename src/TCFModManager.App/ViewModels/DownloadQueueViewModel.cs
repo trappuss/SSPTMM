@@ -759,6 +759,7 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
 
         string? archive = null;
         var keepArchive = true;
+        var alone = false;
         IReadOnlyList<ModMove>? switchedOn = null;
         try
         {
@@ -768,6 +769,10 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
             if (turn.Token != item.Token) return;
 
             turn.Token.ThrowIfCancellationRequested();
+
+            // Fork (1.4.9): after a removal, Undo or Go back that is running now (ModInstallService.Exclusive).
+            await ModInstallService.Exclusive.WaitAsync(turn.Token);
+            alone = true;
 
             // Core reports which stage it is in; every phase past the download (removing the
             // previous version, extracting, copying files) is bucketed under Installing.
@@ -853,6 +858,7 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
         }
         finally
         {
+            if (alone) ModInstallService.Exclusive.Release();
             if (switchedOn is not null) SwitchBackOff(item, switchedOn);
             if (archive is not null) Release(archive, keepArchive);
         }

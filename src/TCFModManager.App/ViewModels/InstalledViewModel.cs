@@ -1652,7 +1652,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
             if (record is null) return (false, Text(Strings.Installed_RemoveNoRecordFormat, mod.Name), true);
 
             // Off the UI thread: deleting a large mod's files and copying the SPT profiles first.
-            var result = await Task.Run(() => AppServices.ModInstall.UninstallAsync(installPath, record, configAction));
+            var result = await ModInstallService.AloneAsync(() => Task.Run(() => AppServices.ModInstall.UninstallAsync(installPath, record, configAction)));
 
             // Fork (1.4.8): an addon in its mod's folder is named as itself, not as that folder, and
             // the folder staying is no leftover: it is the mod's.
@@ -3072,7 +3072,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         try
         {
             // Off the UI thread: putting back a large mod copies a lot of files.
-            var result = await Task.Run(() => AppServices.ModInstall.UndoRemoval(installPath, latest.Folder));
+            var result = await ModInstallService.AloneAsync(() => Task.Run(() => AppServices.ModInstall.UndoRemoval(installPath, latest.Folder)));
 
             StatusMessage = !result.Ran
                 ? Strings.Installed_UndoNothing

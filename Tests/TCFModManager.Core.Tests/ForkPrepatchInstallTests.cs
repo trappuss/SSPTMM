@@ -324,4 +324,48 @@ public class ForkPrepatchInstallTests : IDisposable
         Assert.False(File.Exists(Full("SPT_Runtime/user/mods/SkillsExtended/presets/pack.json")));
         Assert.True(File.Exists(Full("SPT_Runtime/user/mods/SkillsExtended/SkillsExtended.Server.dll")));
     }
+
+    // Fork (1.4.9): a DLL replaced by hand, which the next version ships under another name.
+    [Fact]
+    public async Task An_update_takes_out_a_changed_dll_the_new_version_no_longer_ships()
+    {
+        const string Old = "BepInEx/plugins/SkillsExtended/SkillsExtended.Legacy.dll";
+        const string Notes = "BepInEx/plugins/SkillsExtended/notes.txt";
+        var target = NewTarget();
+        await Service([.. Archive("3.0.0", OldPatch), (Old, "legacy 3.0.0"), (Notes, "as shipped")]).InstallAsync(
+            target, new ModVersion { Id = 1, Version = "3.0.0", Link = "https://example.test/a" }, _install);
+        Write(Old, "a build of my own");
+        Write(Notes, "my own notes");
+
+        await Install(target, "3.1.1", NewPatch);
+
+        // The DLL would have loaded beside the new plugin; the text file is the user's and stays.
+        Assert.False(File.Exists(Full(Old)));
+        Assert.Equal("my own notes", File.ReadAllText(Full(Notes)));
+        Assert.DoesNotContain(Old, RecordOf(target).Files);
+    }
+
+    // Fork (1.4.9): a file an installed addon placed over its mod's stays the addon's through the mod's update.
+    [Fact]
+    public async Task A_mods_update_leaves_what_an_addon_placed_over_it()
+    {
+        const string Locale = "SPT_Runtime/user/mods/SkillsExtended/locales/en.json";
+        var mod = NewTarget();
+        await Service([.. Archive("3.0.0", OldPatch), (Locale, "english 3.0.0")]).InstallAsync(
+            mod, new ModVersion { Id = 1, Version = "3.0.0", Link = "https://example.test/a" }, _install);
+
+        var addonId = Interlocked.Add(ref _nextId, 1);
+        _ids.Add(addonId);
+        var addon = new InstallTarget(addonId, true, $"Translation {addonId}", null, null, null);
+        await Service((Locale, "translated")).InstallAsync(
+            addon, new ModVersion { Id = 2, Version = "1.0.0", Link = "https://example.test/b" }, _install);
+
+        var update = await Service([.. Archive("3.1.1", NewPatch), (Locale, "english 3.1.1")]).InstallAsync(
+            mod, new ModVersion { Id = 3, Version = "3.1.1", Link = "https://example.test/c" }, _install);
+
+        Assert.Equal("translated", File.ReadAllText(Full(Locale)));
+        Assert.Contains(Locale, RecordOf(addon).Files);
+        Assert.Empty(update.NotAsInArchive);
+        Assert.Equal("server 3.1.1", File.ReadAllText(Full("SPT_Runtime/user/mods/SkillsExtended/SkillsExtended.Server.dll")));
+    }
 }

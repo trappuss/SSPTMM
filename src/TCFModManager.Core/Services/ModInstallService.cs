@@ -453,6 +453,15 @@ public sealed class ModInstallService(
                 Overwrote = overwrote,
             });
 
+            //
+            // Fork (1.4.9): files of the version before that would not move out (open in another
+            // program). They stay in the new record, so a later update or removal takes them; left
+            // out of it, a DLL the new version no longer ships stayed for good, owned by nothing.
+            //
+            List<string> leftFromBefore = [];
+            List<string> Recorded(List<string> placed) =>
+                leftFromBefore.Count == 0 ? placed : [.. placed, .. leftFromBefore.Except(placed, StringComparer.OrdinalIgnoreCase)];
+
             if (existing is not null)
             {
                 status?.Report(new ModInstallProgress(
@@ -466,14 +475,14 @@ public sealed class ModInstallService(
                 //
                 // The files Prepare could not copy are named separately and left exactly as they are.
                 //
-                RemoveRecordedFiles(
+                leftFromBefore = RemoveRecordedFiles(
                     installPath,
                     existing,
                     ConfigAction.Preserve,
                     pending.Protected.ToHashSet(StringComparer.OrdinalIgnoreCase),
                     placements.Select(p => p.Forward).ToHashSet(StringComparer.OrdinalIgnoreCase),
                     RemovalKind.ReplacedByUpdate,
-                    CancellationToken.None);
+                    CancellationToken.None).FailedFiles;
             }
 
             status?.Report(new ModInstallProgress(
@@ -489,6 +498,19 @@ public sealed class ModInstallService(
             {
                 if (FileFingerprint.Compute(placement.File, placement.Forward) is { } print) archivePrints[placement.Forward] = print;
             }
+
+            //
+            // Fork (1.4.9): what an installed addon placed over this mod's files stays the addon's. A
+            // mod's update shipped the path again and wrote over it - the addon's translation or
+            // texture gone, its card still "installed", and no copy kept anywhere.
+            //
+            var addonsFiles = target.IsAddon
+                ? new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+                : manifestService.Load().ModsFor(installPath)
+                    .Where(m => m.IsAddon)
+                    .SelectMany(m => m.Files)
+                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var keptForAddons = new List<string>();
 
             var placedFiles = new List<string>(placements.Count);
             var keptSettings = new List<string>();
@@ -525,6 +547,12 @@ public sealed class ModInstallService(
 
                     var destination = Path.Combine(installPath, installRelative);
 
+                    if (addonsFiles.Contains(installRelativeForward) && File.Exists(destination))
+                    {
+                        keptForAddons.Add(installRelativeForward);
+                        continue;
+                    }
+
                     // Checked again at the moment of placing: a new-file-only path (R17) is never
                     // written over, whatever was decided before the previous version was removed.
                     if (ProtectedInstallPaths.IsNewFileOnly(installRelativeForward)
@@ -557,7 +585,7 @@ public sealed class ModInstallService(
                 // app-managed: a retry overwrites them and a removal cleans them up. Without this an
                 // interrupted update leaves the old version deleted and the new one untracked. The
                 // originals kept so far are recorded too - they are owed back whatever happens next.
-                SaveRecord(target, version, placedFiles, incomplete: true, installPath, overwrote,
+                SaveRecord(target, version, Recorded(placedFiles), incomplete: true, installPath, overwrote,
                     KeepSettingsPrints(Fingerprint(installPath, placedFiles), pending, existing), placedArchiveBytes);
                 InstallJournal.End(journal);
                 journal = null;
@@ -577,7 +605,7 @@ public sealed class ModInstallService(
             // Fork: the empty folders the archive ships, inside a mod's own folder (SVM's Presets\).
             CreateEmptyFolders(archivePath, extractDir, contentRoot, bareBepInEx, serverRoot, installPath, target, version);
 
-            var record = SaveRecord(target, version, placedFiles, incomplete: false, installPath, overwrote, fingerprints: [], placedArchiveBytes);
+            var record = SaveRecord(target, version, Recorded(placedFiles), incomplete: false, installPath, overwrote, fingerprints: [], placedArchiveBytes);
             InstallJournal.End(journal);
             journal = null;
 
@@ -602,7 +630,7 @@ public sealed class ModInstallService(
             // what is actually on disk now (D21).
             //
             var fingerprintClock = Stopwatch.StartNew();
-            record = SaveRecord(target, version, placedFiles, incomplete: false, installPath, overwrote,
+            record = SaveRecord(target, version, Recorded(placedFiles), incomplete: false, installPath, overwrote,
                 KeepSettingsPrints(Fingerprint(installPath, placedFiles), pending, existing), placedArchiveBytes);
             AppLog.Debug("Install", $"fingerprinted {record.Fingerprints.Count} file(s) in {fingerprintClock.ElapsedMilliseconds}ms");
 
@@ -620,6 +648,9 @@ public sealed class ModInstallService(
             var deliberate = new HashSet<string>(skippedProtected, StringComparer.OrdinalIgnoreCase);
             deliberate.UnionWith(skippedAppFolder);
             deliberate.UnionWith(keptSettings);
+            deliberate.UnionWith(keptForAddons);
+            if (keptForAddons.Count > 0)
+                AppLog.Info("Install", $"{target.Name} {version.Version}: left {keptForAddons.Count} file(s) as an installed addon placed them: {string.Join(", ", keptForAddons)}");
             deliberate.UnionWith(pending.Untouchable);
             deliberate.UnionWith(pending.Preserved);
             deliberate.UnionWith(report.Files.Where(f => !f.IsArchivesCopy).Select(f => f.Path));
@@ -1062,9 +1093,18 @@ public sealed class ModInstallService(
                     continue;
                 }
 
-                keptChanged.Add(relative);
-                session.Note(relative, RemovalOutcome.KeptChangedSinceInstall);
-                continue;
+                //
+                // Fork (1.4.9): on an update, a DLL that differs from the one installed goes out all
+                // the same (held, so Go back has it). It is the old version's code under another
+                // build, and where the new version ships that DLL under a new name or place, the
+                // old one stayed and loaded beside it: two plugins with one GUID.
+                //
+                if (!(kind == RemovalKind.ReplacedByUpdate && relative.EndsWith(".dll", StringComparison.OrdinalIgnoreCase)))
+                {
+                    keptChanged.Add(relative);
+                    session.Note(relative, RemovalOutcome.KeptChangedSinceInstall);
+                    continue;
+                }
             }
 
             try
@@ -1143,6 +1183,28 @@ public sealed class ModInstallService(
             HoldingFolder = holding,
             FoldersLeft = foldersLeft,
         };
+    }
+
+    //
+    // Fork (1.4.9): one at a time, across the app - an install from the queue, a removal, an Undo, a
+    // Go back. A page action checked that nothing was installing and then went to work off the UI
+    // thread; a download that reached its install in that moment ran beside it, and two saves of the
+    // records could cross (one record lost) or files move while they were being placed.
+    //
+    public static readonly SemaphoreSlim Exclusive = new(1, 1);
+
+    /// <summary>Runs the work once nothing else that changes an install is running.</summary>
+    public static async Task<T> AloneAsync<T>(Func<Task<T>> work)
+    {
+        await Exclusive.WaitAsync().ConfigureAwait(false);
+        try
+        {
+            return await work().ConfigureAwait(false);
+        }
+        finally
+        {
+            Exclusive.Release();
+        }
     }
 
     private static bool CanBeRead(string path)

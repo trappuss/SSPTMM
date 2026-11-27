@@ -19,6 +19,37 @@ From 1.3.0 or later: Help > About > **Install update**. From an older version: c
 - **A removal that stopped part way can be undone.** Removing a mod you installed by hand could stop when one of its files was open, after its configs or another of its folders had already been moved away, with no way to put them back. What was moved is now kept in the list Undo works from.
 - **A scan no longer gets in the way of an install.** While SSPTMM read a mod's DLL to find its version, an update running at the same moment could not replace that file. The files are now read without locking them.
 - **The update dialog marks the latest version** the first time it opens.
+- **Mods for an older SPT version read as having nothing for it.** sp-mod.com sends each mod's ten newest versions with the list. On SPT 3.11 or 4.0 the version that fits is often further back (UI Fixes, SVM, Dynamic Maps and Project Fika on 3.11, for example), so those mods showed no update, were hidden by the Workshop's SPT filter, and warned before subscribing. SSPTMM now asks sp-mod.com about those mods one at a time in the background and remembers the answers for three days. On a current SPT version almost no mod needs asking about.
+
+### Subscribing
+
+- **The same mod is not queued twice.** A double click, or Subscribe on a card and again on another page before the install had finished, downloaded the file twice and installed the mod over itself.
+- **A mod that is only being downloaded no longer counts as installed.** With a mod in the queue as download only, another mod that needs it was installed without it, and nothing was said.
+- **Retry brings back what was cancelled with it.** Cancelling a mod cancels the mods it needs; Retry used to bring back the mod alone.
+- **A "No" is not remembered for the next Subscribe.** After answering No to a question about a mod (not Fika compatible, a requirement that will not do), subscribing to it again within five minutes went straight to Cancelled with no question. The answer now only stands for the batch it was asked in.
+- **A failed install refreshes the pages.** An update that failed part way left the Workshop and Subscribed items showing the mod as it was before, until a Rescan.
+- **An addon's card names the version Subscribe installs.** The card could show one version and Subscribe install a newer one.
+- **Add from GitHub installs the file you picked.** When a release had two files that differ only in a number, such as `Mod-SPT3.11.zip` and `Mod-SPT4.0.zip`, the first one was installed whichever you chose.
+- **A version looked up by its number is that version or nothing.** In four places a lookup that did not find the exact version took the first one sp-mod.com answered with.
+
+### Unsubscribing
+
+- **Removing an addon no longer takes its mod's configs.** Unsubscribing from an addon installed into its mod's folder, with configs kept, moved the mod's own presets and configs out as well.
+- **A file that would not move stays on record.** When a file was open in another program, the removal left it in place and forgot it: the mod went on loading and showed as installed by hand. The mod now stays listed, marked incomplete, and can be unsubscribed from again.
+- **A mod with one half turned off is not half removed.** It is refused like a disabled mod: turn it on first. Its turned-off half used to be left behind with nothing to say whose it was.
+- **A hand-installed mod's patcher goes with it.** Removing a mod installed by hand left its folder in `BepInEx\patchers`, which still loaded.
+- **Undo does not mix two versions.** Undoing the removal of a hand-installed mod into a folder that holds the mod again is refused, and what was removed stays in the list.
+- **Unsubscribe from all on a collection page sees mods subscribed to since.** It could report "Removed 0".
+- **Unsubscribing from an addon in its mod's folder no longer warns about the mod.** It listed everything that uses the mod and the mod's profile items.
+
+### Updating
+
+- **A turned-off mod stays off through Get again, Install from file and a dependency install**, as it already did through Update.
+- **An update takes out a changed DLL the new version no longer ships.** A DLL you had replaced by hand was left in place when the next version shipped it under another name, and both then loaded.
+- **Files an update could not move stay on record**, so the next update or a removal takes them.
+- **A mod's update leaves what an addon placed over it.** A translation or texture addon that replaces one of its mod's files lost that file when the mod updated, while its card still said installed.
+- **An update already in the queue is not queued again** by a second click on a card that still shows its arrow.
+- **Installs, removals, Undo and Go back take turns.** A download that reached its install while a removal was running could run beside it.
 
 # SSPTMM 1.4.8
 

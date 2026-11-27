@@ -88,7 +88,7 @@ public partial class InstalledViewModel
         try
         {
             // Off the UI thread: a large mod is a lot of files to move.
-            var result = await Task.Run(() => AppServices.ModInstall.RevertUpdate(installPath, record, found.Folder));
+            var result = await ModInstallService.AloneAsync(() => Task.Run(() => AppServices.ModInstall.RevertUpdate(installPath, record, found.Folder)));
 
             message = !result.Ran
                 ? Strings.Installed_UndoNothing

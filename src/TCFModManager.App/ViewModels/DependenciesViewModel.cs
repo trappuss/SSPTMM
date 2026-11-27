@@ -136,12 +136,12 @@ public partial class DependenciesViewModel : LocalizedViewModel
                     if (card is { IsAppManaged: true, ModId: { } id } && manifest.Find(id, card.IsAddon) is { } record)
                     {
                         // Off the UI thread: it copies the SPT profiles first (fork: ProfileBackups).
-                        await Task.Run(() => AppServices.ModInstall.UninstallAsync(installPath, record, ConfigAction.Keep));
+                        await ModInstallService.AloneAsync(() => Task.Run(() => AppServices.ModInstall.UninstallAsync(installPath, record, ConfigAction.Keep)));
                     }
                     else
                     {
                         var paths = entries.Select(e => e.FolderPath).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
-                        await Task.Run(() => AppServices.ModInstall.RemoveHandInstalled(paths, installPath, card.DisplayTitle));
+                        await ModInstallService.AloneAsync(() => Task.Run(() => AppServices.ModInstall.RemoveHandInstalled(paths, installPath, card.DisplayTitle)));
                     }
 
                     removed.Add(card.DisplayTitle);
