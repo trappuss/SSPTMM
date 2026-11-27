@@ -494,8 +494,8 @@
                                 <UniformGrid VerticalAlignment="Top" Columns="{Binding Columns}" />
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
+                        <ItemsControl.Resources>
+                            <DataTemplate x:Key="BrowseCard">
                                 <!-- One card, plus the shadow behind it as its own layer: an Effect on
                                      the card itself would render its text without ClearType. -->
                                 <behaviors:OpenableCard
@@ -696,6 +696,12 @@
                                         <Setter TargetName="QuickSubscribe" Property="Visibility" Value="Visible" />
                                     </MultiDataTrigger>
                                 </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </ItemsControl.Resources>
+                        <!-- Fork (1.4.9): built a few at once and then a few a turn - see StagedContent. -->
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border behaviors:StagedContent.Template="{StaticResource BrowseCard}" />
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>

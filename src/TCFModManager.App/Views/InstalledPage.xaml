@@ -1207,6 +1207,15 @@
             </Grid>
         </DataTemplate>
 
+        <!-- Fork (1.4.9): what the lists below use for an item - the card or row above, built a few
+             at once and then one at a time (StagedContent), not a page of them in one pass. -->
+        <DataTemplate x:Key="ModCardStaged">
+            <Border behaviors:StagedContent.Template="{StaticResource ModCardTemplate}" />
+        </DataTemplate>
+        <DataTemplate x:Key="ModListRowStaged">
+            <Border behaviors:StagedContent.Template="{StaticResource ModListRowTemplate}" />
+        </DataTemplate>
+
     </Page.Resources>
     <!-- Scroll-anywhere for group view is wired up in code-behind (see the constructor and
          Page_PreviewMouseWheel in InstalledPage.xaml.cs), not via a XAML MouseWheel attribute here
@@ -1619,7 +1628,7 @@
                     x:Name="ResultsItems"
                     Focusable="False"
                     ItemsSource="{Binding Results}"
-                    ItemTemplate="{StaticResource ModCardTemplate}"
+                    ItemTemplate="{StaticResource ModCardStaged}"
                     SizeChanged="ResultsItems_SizeChanged"
                     Visibility="{Binding IsViewGrouped, Converter={StaticResource FalseToVisible}}">
                     <ItemsControl.ItemsPanel>
@@ -1660,7 +1669,7 @@
                                         Margin="0,8,0,0"
                                         Focusable="False"
                                         ItemsSource="{Binding Items}"
-                                        ItemTemplate="{StaticResource ModCardTemplate}"
+                                        ItemTemplate="{StaticResource ModCardStaged}"
                                         SizeChanged="ResultsItems_SizeChanged"
                                         Visibility="{Binding IsCollapsed, Converter={StaticResource FalseToVisible}}">
                                         <ItemsControl.ItemsPanel>
@@ -1935,7 +1944,7 @@
                 <ItemsControl
                     Focusable="False"
                     ItemsSource="{Binding ListItems}"
-                    ItemTemplate="{StaticResource ModListRowTemplate}"
+                    ItemTemplate="{StaticResource ModListRowStaged}"
                     Visibility="{Binding IsViewGrouped, Converter={StaticResource FalseToVisible}}" />
 
                 <!-- Grouped (Group by): the same rows in sections. -->
@@ -1967,7 +1976,7 @@
                                         Margin="0,8,0,0"
                                         Focusable="False"
                                         ItemsSource="{Binding Items}"
-                                        ItemTemplate="{StaticResource ModListRowTemplate}"
+                                        ItemTemplate="{StaticResource ModListRowStaged}"
                                         Visibility="{Binding IsCollapsed, Converter={StaticResource FalseToVisible}}" />
                                 </StackPanel>
                             </ui:Card>

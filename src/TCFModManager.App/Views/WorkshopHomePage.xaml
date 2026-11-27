@@ -214,6 +214,11 @@
                 </MultiDataTrigger>
             </DataTemplate.Triggers>
         </DataTemplate>
+
+        <!-- Fork (1.4.9): the same, built a few at once and then a few a turn (StagedContent). -->
+        <DataTemplate x:Key="SmallCardStaged">
+            <Border behaviors:StagedContent.Template="{StaticResource SmallCard}" />
+        </DataTemplate>
     </Page.Resources>
 
     <ScrollViewer FocusVisualStyle="{x:Null}" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
@@ -273,8 +278,8 @@
                                         <StackPanel Orientation="Horizontal" />
                                     </ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
+                                <ItemsControl.Resources>
+                                    <DataTemplate x:Key="FeaturedCard">
                                         <behaviors:OpenableCard
                                             x:Name="CardRoot"
                                             AutomationProperties.Name="{Binding Name}"
@@ -378,6 +383,12 @@
                                             </MultiDataTrigger>
                                         </DataTemplate.Triggers>
                                     </DataTemplate>
+                                </ItemsControl.Resources>
+                                <!-- Fork (1.4.9): built a few at once and then a few a turn - see StagedContent. -->
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border behaviors:StagedContent.Template="{StaticResource FeaturedCard}" />
+                                    </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
                         </ScrollViewer>
@@ -471,7 +482,7 @@
                                 <TextBlock FontSize="15" Foreground="{StaticResource SteamText}" Text="{loc:Str WorkshopHome_FromFollowedNote}" />
                             </StackPanel>
                         </DockPanel>
-                        <ItemsControl Focusable="False" Margin="0,16,-16,0" ItemsSource="{Binding FromFollowed}" ItemTemplate="{StaticResource SmallCard}">
+                        <ItemsControl Focusable="False" Margin="0,16,-16,0" ItemsSource="{Binding FromFollowed}" ItemTemplate="{StaticResource SmallCardStaged}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <UniformGrid Columns="6" Rows="1" />
@@ -499,7 +510,7 @@
                                 <TextBlock FontSize="15" Foreground="{StaticResource SteamText}" Text="{loc:Str WorkshopHome_AddonsForYouNote}" />
                             </StackPanel>
                         </DockPanel>
-                        <ItemsControl Focusable="False" Margin="0,16,-16,0" ItemsSource="{Binding AddonsForYou}" ItemTemplate="{StaticResource SmallCard}">
+                        <ItemsControl Focusable="False" Margin="0,16,-16,0" ItemsSource="{Binding AddonsForYou}" ItemTemplate="{StaticResource SmallCardStaged}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <UniformGrid Columns="6" Rows="1" />
@@ -530,8 +541,8 @@
                                 <UniformGrid Columns="2" VerticalAlignment="Top" />
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
+                        <ItemsControl.Resources>
+                            <DataTemplate x:Key="TabCard">
                                 <behaviors:OpenableCard
                                     x:Name="CardRoot"
                                     AutomationProperties.Name="{Binding Name}"
@@ -665,6 +676,12 @@
                                     <Setter TargetName="QuickSubscribe" Property="Visibility" Value="Visible" />
                                 </MultiDataTrigger>
                             </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </ItemsControl.Resources>
+                        <!-- Fork (1.4.9): built a few at once and then a few a turn - see StagedContent. -->
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border behaviors:StagedContent.Template="{StaticResource TabCard}" />
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
