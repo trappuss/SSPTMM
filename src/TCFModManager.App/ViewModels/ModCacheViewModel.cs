@@ -124,7 +124,7 @@ public partial class ModCacheViewModel : LocalizedViewModel
 
             var mods = await _cacheService.FetchAllAsync(progress, ct);
             AppLog.Debug("Catalog", $"RefreshAsync: live fetch done, {mods.Count} mods");
-            AllMods = mods;
+            AllMods = WithOlderSptVersions(mods);
             FetchedAt = DateTimeOffset.UtcNow;
             _ = Task.Run(() => _store.Save(mods));
 
@@ -169,7 +169,7 @@ public partial class ModCacheViewModel : LocalizedViewModel
 
         if (replaced == 0) return false;
 
-        AllMods = patched;
+        AllMods = WithOlderSptVersions(patched);
         _loadTask = Task.FromResult(patched);
 
         // Under the date the whole list was read: a few listings swapped in do not make it fresh.
@@ -181,7 +181,88 @@ public partial class ModCacheViewModel : LocalizedViewModel
     }
 
     private static string ReleasesOf(Mod mod) =>
-        string.Join(',', (mod.Versions ?? []).Select(v => $"{v.Id}:{v.Version}:{v.SptVersionConstraint}"));
+        string.Join(',', (mod.Versions ?? []).Where(v => !v.AddedForSpt).Select(v => $"{v.Id}:{v.Version}:{v.SptVersionConstraint}"));
+
+    //
+    // Fork (1.4.9): the version for this install's SPT, for the mods whose ten newest do not reach
+    // back that far (OlderSptVersions). The answers already known go in at once, on the list as it
+    // is handed over; the mods not asked about yet are asked in the background, a few a second, and
+    // the pages are told once when that added anything.
+    //
+    private List<Mod> WithOlderSptVersions(List<Mod> mods)
+    {
+        var spt = AppServices.SptEnvironment.InstalledVersion;
+        if (string.IsNullOrWhiteSpace(spt)) return mods;
+
+        // A saved list holds what was added to it as plain versions; marked again here.
+        _olderAnswers ??= OlderSptVersions.Load();
+        foreach (var mod in mods)
+        {
+            if (_olderAnswers.Find(mod.Id, spt)?.Version is not { } known) continue;
+            foreach (var version in mod.Versions ?? []) version.AddedForSpt |= version.Id == known.Id;
+        }
+
+        OlderSptVersions.Apply(mods, _olderAnswers, spt);
+
+        if (_askingOlder is null or { IsCompleted: true }
+            && OlderSptVersions.ToAsk(mods, _olderAnswers, spt, DateTimeOffset.UtcNow) is { Count: > 0 } toAsk)
+        {
+            _askingOlder = AskOlderAsync(toAsk, spt);
+        }
+
+        return mods;
+    }
+
+    private OlderSptVersions.Answers? _olderAnswers;
+    private Task? _askingOlder;
+
+    private async Task AskOlderAsync(List<Mod> toAsk, string spt)
+    {
+        var answers = _olderAnswers!;
+        var asked = 0;
+        var found = 0;
+
+        try
+        {
+            foreach (var mod in toAsk)
+            {
+                var versions = await AppServices.SpModApi.GetModVersionsAsync(
+                    mod.Id.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                    new ModVersionsQuery { FilterSptVersion = spt, Sort = "-version", PerPage = 1 });
+
+                var version = versions.Data.FirstOrDefault();
+                answers.Set(mod.Id, spt, version is null ? null : new ModVersionSummary
+                {
+                    Id = version.Id,
+                    Version = version.Version,
+                    SptVersionConstraint = version.SptVersionConstraint,
+                    Downloads = version.Downloads,
+                    PublishedAt = version.PublishedAt,
+                    CreatedAt = version.CreatedAt,
+                    ContentLength = version.ContentLength,
+                    FikaCompatibility = version.FikaCompatibility,
+                }, DateTimeOffset.UtcNow);
+
+                asked++;
+                if (version is not null) found++;
+
+                await Task.Delay(250);
+            }
+        }
+        catch (Exception ex) when (ex is SpModApiException or HttpRequestException or TaskCanceledException or System.Text.Json.JsonException)
+        {
+            // Rate limited, offline, or an SPT version sp-mod.com does not list: what was answered
+            // is kept, and the rest is asked the next time the list is handed over.
+            AppLog.Info("Catalog", $"stopped asking for versions for SPT {spt} after {asked} of {toAsk.Count}: {ex.Message}");
+        }
+
+        if (asked == 0) return;
+
+        _ = Task.Run(() => OlderSptVersions.Save(answers));
+        AppLog.Info("Catalog", $"asked sp-mod.com for the SPT {spt} version of {asked} mod(s) whose ten newest have none: {found} found");
+
+        if (OlderSptVersions.Apply(AllMods, answers, spt) > 0) ModsChanged?.Invoke(this, EventArgs.Empty);
+    }
 
     private async Task<List<Mod>> LoadAsync(CancellationToken ct)
     {
@@ -194,7 +275,7 @@ public partial class ModCacheViewModel : LocalizedViewModel
         {
             // Use the disk cache immediately, then refresh in the background.
             AppLog.Debug("Catalog", $"LoadAsync: disk cache hit, {cached.Mods.Count} mods");
-            AllMods = cached.Mods;
+            AllMods = WithOlderSptVersions(cached.Mods);
             FetchedAt = cached.FetchedAt;
 
             // A copy from a few minutes ago - the app restarted - is not fetched again (Refresh does).
@@ -219,7 +300,7 @@ public partial class ModCacheViewModel : LocalizedViewModel
             // Stays on the UI thread since IsLoading below is a WPF-bound property.
             var mods = await _cacheService.FetchAllAsync(progress, ct);
             AppLog.Debug("Catalog", $"LoadAsync: live fetch done, {mods.Count} mods");
-            AllMods = mods;
+            AllMods = WithOlderSptVersions(mods);
             FetchedAt = DateTimeOffset.UtcNow;
 
             // Save off the UI thread.
@@ -255,7 +336,7 @@ public partial class ModCacheViewModel : LocalizedViewModel
             void Publish()
             {
                 var differs = Differs(AllMods, fresh);
-                AllMods = fresh;
+                AllMods = WithOlderSptVersions(fresh);
                 FetchedAt = fetchedAt;
                 _loadTask = Task.FromResult(fresh);
 

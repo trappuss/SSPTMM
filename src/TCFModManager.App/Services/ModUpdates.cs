@@ -28,6 +28,33 @@ public static class ModUpdates
         var installPath = AppServices.SptEnvironment.InstallPath;
         if (string.IsNullOrWhiteSpace(installPath)) return (AppMessages.NoSptInstallFolder, false);
 
+        //
+        // Fork (1.4.9): with each update, the ones it only works together with (HeldBackUpdates) -
+        // whichever page asked, so a collection's Update all cannot send one of a pair alone. And
+        // not what is already in the queue: a card keeps its arrow until its update has landed, and
+        // a second click queued the same update again.
+        //
+        var batch = targets.ToList();
+        foreach (var target in targets)
+        {
+            foreach (var id in AppServices.HeldBack.Partners(target.Mod.Id))
+            {
+                if (batch.Any(t => t.Mod.Id == id)) continue;
+                if (ViewModels.InstalledViewModel.CardOf(id) is not { } card || ViewModels.InstalledViewModel.UpdateTo(card) is not { } to) continue;
+
+                batch.Add(new UpdateTarget(card.DisplayTitle, to.Mod, to.Version, card.IsAppManaged, ViewModels.InstalledViewModel.KeepDisabled(card)));
+            }
+        }
+
+        var waiting = batch
+            .Where(t => AppServices.DownloadQueue.Items.Any(i => !i.IsFinished && !i.Target.IsAddon && i.Target.Id == t.Mod.Id))
+            .ToList();
+        batch.RemoveAll(waiting.Contains);
+        if (batch.Count == 0 && waiting.Count > 0)
+            return (LocalizationService.Text(Strings.Dependencies_AlreadyQueuedFormat, TextLists.Join([.. waiting.Select(t => t.Title)])), false);
+
+        targets = batch;
+
         // 1.19: follows Monitor mode's setting. A download places nothing, so the warning below is moot.
         var downloadOnly = AppServices.ModPageGate.DownloadOnlyFor(alternate: false);
 
@@ -180,6 +207,6 @@ public static class ModUpdates
 
         var versions = await AppServices.SpModApi.GetModVersionsAsync(
             mod.Id.ToString(), new ModVersionsQuery { FilterVersion = version, PerPage = 5 });
-        return versions.Data.FirstOrDefault(v => v.Version == version) ?? versions.Data.FirstOrDefault();
+        return versions.Data.Exactly(version);
     }
 }

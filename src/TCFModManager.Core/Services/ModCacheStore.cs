@@ -92,9 +92,10 @@ public sealed class ModCacheStore
             // The same bytes WriteText made of the string, without the string in between.
             SafeFile.WriteBytes(_filePath, JsonSerializer.SerializeToUtf8Bytes(data));
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException)
         {
-            // A failed cache write just means the next launch does a full live fetch again.
+            // A failed cache write just means the next launch does a full live fetch again. (Invalid
+            // operation: a version was added to a listing while it was being written out.)
         }
     }
 }

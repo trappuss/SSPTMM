@@ -359,8 +359,7 @@ public partial class DependenciesViewModel : LocalizedViewModel
         var versions = await _spModApi.GetModVersionsAsync(
             mod.Id.ToString(), new ModVersionsQuery { FilterVersion = version, PerPage = 5 });
 
-        return versions.Data.FirstOrDefault(v => string.Equals(v.Version, version, StringComparison.OrdinalIgnoreCase))
-               ?? versions.Data.FirstOrDefault();
+        return versions.Data.Exactly(version);
     }
 
     // The endpoint wants a version that matches a published one exactly. The manifest holds

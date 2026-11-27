@@ -40,7 +40,7 @@ public sealed class HeldBackUpdates
     /// app would install. A different, newer version being held back leaves this one alone.</summary>
     public bool Holds(int? modId, string? version) =>
         HeldVersion(modId) is { } held && string.Equals(held, version, StringComparison.OrdinalIgnoreCase)
-        && !_together.ContainsKey(modId!.Value);
+        && Partners(modId).Count == 0;
 
     //
     // Fork (1.4.9), as TCF 71708aa: held-back updates that only work together. Two mods that each
@@ -53,8 +53,18 @@ public sealed class HeldBackUpdates
     private readonly UpdateCheckService _checker = new(AppServices.SpModApi);
 
     /// <summary>The mods this one's held-back update is installed together with; none for most.</summary>
+    //
+    // Only while every one of them can be updated here, to the release held back: one whose update
+    // was skipped, that is switched off in a shared folder, or that the last scan did not find,
+    // leaves this update held back as sp-mod.com gave it - going alone is what it is held back for.
+    //
     public IReadOnlyList<int> Partners(int? modId) =>
-        modId is { } id && _together.TryGetValue(id, out var partners) ? partners : [];
+        modId is { } id && _together.TryGetValue(id, out var partners) && partners.All(CanGo) ? partners : [];
+
+    private bool CanGo(int partnerId) =>
+        InstalledViewModel.CardOf(partnerId) is { } card
+        && InstalledViewModel.UpdatableButForHold(card)
+        && string.Equals(card.UpdateVersion ?? card.LatestPublishedVersion, HeldVersion(partnerId), StringComparison.OrdinalIgnoreCase);
 
     // The SPT version the last answer was for.
     private string? _checkedSpt;

@@ -1815,7 +1815,7 @@ public partial class BrowseViewModel : LocalizedViewModel, IModActionHost
     {
         var versions = await _spModApi.GetModVersionsAsync(
             mod.Id.ToString(), new ModVersionsQuery { FilterVersion = version, PerPage = 5 });
-        return versions.Data.FirstOrDefault(v => v.Version == version) ?? versions.Data.FirstOrDefault();
+        return versions.Data.Exactly(version);
     }
 
     //

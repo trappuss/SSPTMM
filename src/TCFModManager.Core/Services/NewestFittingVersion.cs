@@ -35,6 +35,20 @@ public static class NewestFittingVersion
     public static IEnumerable<AddonVersion> NewestFirst(this IEnumerable<AddonVersion> versions) =>
         Newest(versions, v => v.Version, v => v.PublishedAt);
 
+    //
+    // Fork (1.4.9): the one version asked for, out of what a filter[version] lookup answered. That
+    // filter reads its value as a range: "2.0.7.0" and "v2.0.7" both answer 2.0.7 (measured
+    // 2026-11-27), which is the version meant, but "^2.0.0" answers five. So: the same text, else
+    // the same number, and never simply the first of several - that one was installed under the
+    // number asked for, whatever it was.
+    //
+    public static ModVersion? Exactly(this IEnumerable<ModVersion> versions, string? version)
+    {
+        var all = versions.ToList();
+        return all.FirstOrDefault(v => string.Equals(v.Version, version?.Trim(), StringComparison.OrdinalIgnoreCase))
+            ?? all.FirstOrDefault(v => ModVersionComparer.Compare(v.Version, version) == 0);
+    }
+
     // Highest version number first. The publish date only orders versions with the same number, and
     // the ones whose number cannot be read, which go last.
     private static IEnumerable<T> Newest<T>(

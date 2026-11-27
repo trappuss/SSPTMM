@@ -1480,7 +1480,10 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         // A disabled mod's install record still points at the folders it was installed into, which
         // it no longer occupies - so removal would delete nothing and report success. Enabling it
         // first puts those paths back where the record expects them.
-        if (mod.IsDisabled) return StatusMessage = Text(Strings.Installed_RemoveDisabledFirstFormat, mod.DisplayTitle);
+        //
+        // Fork (1.4.9): the same with only one half off. That half was noted as already gone, the
+        // record dropped, and the folder left in ".disabled" with nothing to say whose it was.
+        if (HasDisabledPart(mod)) return StatusMessage = Text(Strings.Installed_RemoveDisabledFirstFormat, mod.DisplayTitle);
 
         // Installed items that use this one, for the question (or, unasked, the check) to name.
         var needed = NeededBy([mod]);
@@ -1721,7 +1724,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
 
         // Set-aside ones are left alone (RemoveCardsAsync says so), so the question counts and names
         // only what goes - by name, since ticked items can be hidden by the filters since.
-        var removing = cards.Where(c => !c.IsDisabled).ToList();
+        var removing = cards.Where(c => !HasDisabledPart(c)).ToList();
 
         System.Windows.Controls.CheckBox? dontAsk = null;
         var settingsService = new SettingsService();
@@ -1787,7 +1790,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         if (ModInstallService.Blockers(ModInstallAction.Remove, installPath) is { Count: > 0 } blockers)
             return StatusMessage = ModInstallProblems.InstallInUse(blockers, ModInstallAction.Remove);
 
-        var disabled = cards.Where(c => c.IsDisabled).ToList();
+        var disabled = cards.Where(HasDisabledPart).ToList();
 
         var targets = cards.Except(disabled).ToList();
 
@@ -2090,10 +2093,28 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     // one sharing its folder with another: its files can't be told from the new version's.
     // Also one of your own collections' rule (WorkshopCollectionItem.PendingUpdate).
     internal static bool IsUpdatable(InstalledModCardViewModel card) =>
+        UpdatableButForHold(card) && !IsHeldBack(card);
+
+    // The same, whatever sp-mod.com holds back - what HeldBackUpdates asks of a mod's partners.
+    internal static bool UpdatableButForHold(InstalledModCardViewModel card) =>
         card is { UpdateAvailable: true, IsAddon: false, ModId: not null }
         && !CannotUpdateDisabled(card)
-        && card.LatestPublishedVersion is not null
-        && !IsHeldBack(card);
+        && card.LatestPublishedVersion is not null;
+
+    // An installed mod's card, by id, from the last scan of Subscribed items; null before any scan.
+    internal static InstalledModCardViewModel? CardOf(int modId) =>
+        (Current ?? _forActions)?._all.FirstOrDefault(c => !c.IsAddon && c.ModId == modId);
+
+    // The switched-off folders of an installed mod, by id, from the last scan of Subscribed items;
+    // null when it has none, or nothing has scanned yet.
+    internal static IReadOnlyList<InstalledMod>? DisabledPartsOf(int modId) =>
+        CardOf(modId) is { } card
+        && !CannotUpdateDisabled(card)
+            ? KeepDisabled(card)
+            : null;
+
+    // Off, or one half of it off (IsMixedState): its record names folders it is not all in.
+    internal static bool HasDisabledPart(InstalledModCardViewModel card) => card.Entries.Any(e => e.IsDisabled);
 
     internal static bool CannotUpdateDisabled(InstalledModCardViewModel card) =>
         card is { IsDisabled: true, SharedFolderParts: not null };
@@ -2101,8 +2122,9 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
     // A disabled card's switched-off folders, put back for its update and switched off again after.
     // Fork (1.4.9): also when only one half is off. That half was not found by the update, so the
     // new version went into the live folder beside it and the half turned off was on again.
+    // Not for a mod sharing its folder with another: the whole folder would be switched on.
     internal static IReadOnlyList<InstalledMod>? KeepDisabled(InstalledModCardViewModel card) =>
-        card.Entries.Where(e => e.IsDisabled).ToList() is { Count: > 0 } off ? off : null;
+        card.SharedFolderParts is null && card.Entries.Where(e => e.IsDisabled).ToList() is { Count: > 0 } off ? off : null;
 
     /// <summary>The listing and version Update all updates this card to; null when the catalog can
     /// no longer place it.</summary>
@@ -2111,9 +2133,11 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         // Fork (1.4.7): a mod installed from GitHub updates to its repository's newest release.
         var match = AppServices.ModCache.AllMods.FirstOrDefault(m => m.Id == card.ModId)
             ?? (card.ModId is < 0 and var id ? AppServices.GitHubMods.ModFor(id) : null);
+        // The version the card offers, when it offers one: picked again from a list read since the
+        // scan, it could be a newer one than the card showed - one sp-mod.com holds back, even.
         var version = match is null
             ? null
-            : ModCardViewModel.PickDisplayVersion(match, AppServices.SptEnvironment.InstalledVersion)?.Version;
+            : card.UpdateVersion ?? ModCardViewModel.PickDisplayVersion(match, AppServices.SptEnvironment.InstalledVersion)?.Version;
 
         return match is null || version is null ? null : (match, version);
     }

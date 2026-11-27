@@ -237,6 +237,12 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
             downloadSubfolder = dependencyOf.DownloadSubfolder;
         }
 
+        // Fork (1.4.9): a copy that is switched off, or half of it, when the caller did not say - Get
+        // again, Install from file, a dependency. Without it the new files went into the live folder
+        // and the switched-off copy stayed in ".disabled" with its record replaced.
+        if (keepDisabled is null && !downloadOnly && !target.IsAddon)
+            keepDisabled = InstalledViewModel.DisabledPartsOf(target.Id);
+
         var item = new DownloadQueueItemViewModel(
             target, versionLabel, installPath, resolveVersion, checkDependencies, totalBytes,
             downloadOnly, downloadSubfolder) { KeepDisabled = keepDisabled };
@@ -835,7 +841,10 @@ public sealed partial class DownloadQueueViewModel : LocalizedViewModel
     //
     private static IReadOnlyList<ModMove>? SwitchOnForUpdate(DownloadQueueItemViewModel item)
     {
-        if (item.KeepDisabled?.Where(e => e.IsDisabled && (Directory.Exists(e.FolderPath) || File.Exists(e.FolderPath))).ToList()
+        // Fork (1.4.9): not a folder whose live place is taken - a second copy an older version left
+        // behind beside the live one. That one is left where it is and the live copy is updated.
+        if (item.KeepDisabled?.Where(e => e.IsDisabled && (Directory.Exists(e.FolderPath) || File.Exists(e.FolderPath))
+                && DisabledModPaths.Counterpart(e.FolderPath) is { } live && !Directory.Exists(live) && !File.Exists(live)).ToList()
             is not { Count: > 0 } off)
         {
             return null;

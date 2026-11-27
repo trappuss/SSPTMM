@@ -78,6 +78,12 @@ public sealed class ModVersionSummary
 
     // Fork (1.4.5): "compatible", "incompatible" or "unknown" - see Mod.Fika.
     public string? FikaCompatibility { get; set; }
+
+    // Fork (1.4.9): not one of the versions sp-mod.com sent with the list, but one asked for
+    // separately because it runs on this install's SPT (OlderSptVersions). Not saved, and left out
+    // when two listings are compared, so it never reads as the mod's releases having changed.
+    [System.Text.Json.Serialization.JsonIgnore]
+    public bool AddedForSpt { get; set; }
 }
 
 // Fork (1.4.5): what sp-mod.com says about a mod and Fika.
