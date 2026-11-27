@@ -46,6 +46,8 @@ From 1.3.0 or later: Help > About > **Install update**. From an older version: c
 - **A hand-installed mod with an addon in its folder is not removed over it.** Removing the mod took the addon's files and left the addon listed. It now says to unsubscribe from the addon first.
 - **Undo says why it did nothing** when the mod has been installed again since, and that the removed files are still kept. It used to say there was nothing to undo.
 - **A removal says when files the mod had replaced could not be put back** because something else is in their place now.
+- **The bar for picked items goes when they do.** After unsubscribing from a picked item, or anything else that read the folder again, the bar along the bottom still said "1 selected" with nothing picked, and its buttons did nothing.
+- **An addon has Unsubscribe on its right-click menu**, as a mod has, and so does a mod sp-mod.com has no listing for.
 
 ### Updating
 

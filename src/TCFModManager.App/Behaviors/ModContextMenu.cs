@@ -117,6 +117,14 @@ public static class ModContextMenu
                 menu.Items.Add(Item(Strings.Menu_OpenClientFolder, () => page.OpenModFolderCommand.Execute(client)));
             if (card.ServerFolderLink is { } server)
                 menu.Items.Add(Item(Strings.Menu_OpenServerFolder, () => page.OpenModFolderCommand.Execute(server)));
+
+            // Fork (1.4.9): an addon, or a mod sp-mod.com has no listing for, has no Unsubscribe
+            // above - that one goes by the listing. It gets the page's own, by its card.
+            if (mod is null)
+            {
+                menu.Items.Add(Rule());
+                menu.Items.Add(Item(Strings.Item_Unsubscribe, async () => { await page.RemoveOneAsync(card); }));
+            }
         }
 
         menu.PlacementTarget = element;

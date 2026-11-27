@@ -1002,6 +1002,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
         if (string.IsNullOrWhiteSpace(installPath))
         {
             _all = [];
+            AnnounceSelection();
             ApplyFilter();
             RefreshActiveView(CurrentPage);
             StatusMessage = AppMessages.NoSptInstallFolder;
@@ -1128,6 +1129,7 @@ public partial class InstalledViewModel : LocalizedViewModel, IModActionHost
             // A rescan replaces every card, so any previous selection is gone with them.
             OnPropertyChanged(nameof(SelectedCount));
             OnPropertyChanged(nameof(SelectedCountLabel));
+            AnnounceSelection(); // Fork (1.4.9): and the bar along the bottom, which went on counting them
             DisableSelectedCommand.NotifyCanExecuteChanged();
             EnableSelectedCommand.NotifyCanExecuteChanged();
             UnsubscribeSelectedCommand.NotifyCanExecuteChanged();
