@@ -199,7 +199,7 @@ public sealed class UpdateCheckService(SpModApiClient api)
     }
 
     //
-    // Fork (1.4.10): what a held-back update is missing. sp-mod.com holds an update back as
+    // Fork (1.4.9, hotfix): what a held-back update is missing. sp-mod.com holds an update back as
     // "missing_dependency" and names nothing - ECOT 2.0.2 on SPT 4.1.6, which needs WTT - CommonLib
     // 3.0.8, a release listed for SPT 4.1.3 only (read on 2026-11-27). Its dependency tree for the
     // held release says which: the mods in it with no version that fits.
@@ -370,7 +370,7 @@ public sealed record InstalledUpdateCheck(IReadOnlyList<int> Updated, IReadOnlyL
     public int Requests { get; init; }
 
     //
-    // Fork (1.4.10): the held-back ones too. Their listings were never read again, so the release
+    // Fork (1.4.9, hotfix): the held-back ones too. Their listings were never read again, so the release
     // sp-mod.com held back was not in the list the cards are made from: the card said "held back"
     // under a mod that showed no update, and "Needs update" left it out.
     //
