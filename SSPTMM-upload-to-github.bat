@@ -11,9 +11,6 @@ rem      build\Directory.Build.props.
 rem   3. A NEW version (no v<version> tag on GitHub yet): builds it in a separate folder under %TEMP%,
 rem      runs the tests and zips SSPTMM.exe as release\SSPTMM-<version>-win-x64.zip.
 rem      The SAME version as the last release: only the code and the wiki go up - no new release.
-rem      Run as "SSPTMM-upload-to-github.bat replace" to put a fix into that release instead: it
-rem      builds as for a new version and replaces the release's zip and notes. The tag stays on
-rem      the commit it was released from.
 rem   4. Says what it is about to upload and waits for you to type Y. Anything else stops with
 rem      nothing sent.
 rem   5. Pushes main and steam-workshop-ui; for a new version also the tag and the GitHub release
@@ -47,10 +44,6 @@ rem No pager: a long git listing would otherwise wait at a ":" prompt that looks
 set "GIT_PAGER=cat"
 
 > "%LOG%" echo SSPTMM upload - %DATE% %TIME%
-
-set "REPLACE="
-if /i "%~1"=="replace" set "REPLACE=1"
-set "REPLACING="
 
 rem (git, gh and dotnet through CALL throughout: some installs provide them as .cmd wrappers, and
 rem a script run without CALL never returns to this one.)
@@ -222,16 +215,10 @@ rem last line is always the commit.
 for /f %%c in ('git ls-remote --tags fork refs/tags/%TAG% "refs/tags/%TAG%^{}" 2^>nul') do set "REMOTE_TAG=%%c"
 if not defined REMOTE_TAG goto :tag_local
 rem Released already, on an earlier commit: this is an upload between releases - code and wiki only.
-if /i "%REMOTE_TAG%"=="%SEND%" goto :tag_same
-if defined REPLACE goto :tag_replace
-set "CODE_ONLY=1"
-goto :tag_ok
-:tag_replace
-rem A fix put into the release that is out: built and zipped as a new one, the tag left where it is.
-set "TAG_DONE=1"
-set "REPLACING=1"
-goto :tag_ok
-:tag_same
+if /i not "%REMOTE_TAG%"=="%SEND%" (
+    set "CODE_ONLY=1"
+    goto :tag_ok
+)
 set "TAG_DONE=1"
 :tag_local
 set "LOCAL_TAG="
@@ -241,7 +228,6 @@ if /i not "%LOCAL_TAG%"=="%SEND%" set "CODE_ONLY=1"
 :tag_ok
 call :say "      Version %VERSION%, commit %SEND%."
 if defined CODE_ONLY call :say "      %TAG% is already released - this uploads the code and the wiki only, no new release."
-if defined REPLACING call :say "      %TAG% is already released - this replaces its zip and notes. The tag stays on its commit."
 
 rem ---------------------------------------------------------------- 3. build, test, zip
 call :say "[3/6] Taking a clean copy of it into a separate folder..."
@@ -309,8 +295,7 @@ call git --no-pager log --oneline --no-decorate -20 refs/remotes/fork/main..%SEN
 goto :ask
 :confirm_release
 call :say ""
-if defined REPLACING call :say "Ready to REPLACE the zip and notes of the SSPTMM %VERSION% release that is out:"
-if not defined REPLACING call :say "Ready to publish SSPTMM %VERSION%:"
+call :say "Ready to publish SSPTMM %VERSION%:"
 call :say "   commit   %SEND%"
 call :say "   zip      release\%PKG%.zip - %ZIPMB% MB"
 call :say "   GitHub   %REPO%: branches main and steam-workshop-ui, tag %TAG%,"
@@ -364,8 +349,7 @@ if not defined LOCAL_TAG call git tag %TAG% %SEND% >> "%LOG%" 2>&1
 call git push fork refs/tags/%TAG% >> "%LOG%" 2>&1
 if errorlevel 1 goto :fail_push
 :tag_pushed
-if defined REPLACING call :say "      main and steam-workshop-ui are on GitHub; %TAG% stays where it was."
-if not defined REPLACING call :say "      main, steam-workshop-ui and %TAG% are on GitHub."
+call :say "      main, steam-workshop-ui and %TAG% are on GitHub."
 
 call :say "      Creating the release and uploading the zip - %ZIPMB% MB, this takes a while..."
 call "%GH%" release view %TAG% --repo %REPO% >> "%LOG%" 2>&1

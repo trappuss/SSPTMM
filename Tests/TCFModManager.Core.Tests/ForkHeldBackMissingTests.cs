@@ -6,7 +6,7 @@ using Xunit;
 
 namespace TCFModManager.Core.Tests;
 
-// Fork (1.4.9, hotfix): an update held back for a mod it needs, as ECOT 2.0.2 on SPT 4.1.6 - it needs
+// Fork (1.4.10): an update held back for a mod it needs, as ECOT 2.0.2 on SPT 4.1.6 - it needs
 // WTT - CommonLib 3.0.8, which sp-mod.com lists for SPT 4.1.3 only (read on 2026-11-27).
 public class ForkHeldBackMissingTests
 {

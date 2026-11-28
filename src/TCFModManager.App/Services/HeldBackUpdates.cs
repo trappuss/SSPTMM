@@ -54,7 +54,7 @@ public sealed class HeldBackUpdates
     private string? _togetherAsked;
     private IReadOnlyDictionary<int, IReadOnlyList<int>>? _togetherAnswer;
 
-    // Fork (1.4.9, hotfix): the mods a held-back update needs and sp-mod.com has no fitting version of
+    // Fork (1.4.10): the mods a held-back update needs and sp-mod.com has no fitting version of
     // (UpdateCheckService.MissingForAsync), asked with the same question as the above.
     private IReadOnlyDictionary<int, IReadOnlyList<string>> _missing = new Dictionary<int, IReadOnlyList<string>>();
     private IReadOnlyDictionary<int, IReadOnlyList<string>>? _missingAnswer;
@@ -117,7 +117,7 @@ public sealed class HeldBackUpdates
     {
         var version = entry.LatestVersion?.Version ?? "?";
 
-        // Fork (1.4.9, hotfix): held back for what it needs, not for what it would break.
+        // Fork (1.4.10): held back for what it needs, not for what it would break.
         if (entry.BlockReason == UpdateCheckService.MissingDependency)
         {
             return entry.CurrentVersion is { } current && _missing.TryGetValue(current.ModId, out var names)

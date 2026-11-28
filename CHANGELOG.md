@@ -1,15 +1,19 @@
+# SSPTMM 1.4.10
+
+## Updating
+
+From 1.3.0 or later: Help > About > **Install update**. From an older version: close SSPTMM, download `SSPTMM-1.4.10-win-x64.zip` and copy the contents of its `SSPTMM` folder over your SSPTMM folder. Your settings in `Data` stay as they are.
+
+## Fixed
+
+- **A held-back update was missing from "Needs update".** When sp-mod.com holds an update back, SSPTMM showed the "held back" note but did not read the mod's listing again, so the card showed no update and the **Needs update** filter left the mod out. The listing is now read again, and the mod is under Needs update with its note. Update all still leaves it out.
+- **"Would break another installed mod" said about an update that breaks nothing.** sp-mod.com also holds an update back when a mod it needs has no version that fits, and SSPTMM gave the same sentence for both. ECOT 2.0.2 on SPT 4.1.6 is such a case: it needs WTT - CommonLib 3.0.8, which sp-mod.com lists for SPT 4.1.3 only. The note now says which mod is needed: "it needs WTT - CommonLib in a version sp-mod.com lists none of for SPT 4.1.6".
+
 # SSPTMM 1.4.9
 
 ## Updating
 
 From 1.3.0 or later: Help > About > **Install update**. From an older version: close SSPTMM, download `SSPTMM-1.4.9-win-x64.zip` and copy the contents of its `SSPTMM` folder over your SSPTMM folder. Your settings in `Data` stay as they are.
-
-## Hotfix
-
-Added to 1.4.9 on 27 November 2026, a few hours after it came out. The version number is the same, so SSPTMM does not offer it: if you got 1.4.9 before, download the zip again and copy it over your SSPTMM folder.
-
-- **A held-back update was missing from "Needs update".** When sp-mod.com holds an update back, SSPTMM showed the "held back" note but did not read the mod's listing again, so the card showed no update and the **Needs update** filter left the mod out. The listing is now read again, and the mod is under Needs update with its note. Update all still leaves it out.
-- **"Would break another installed mod" said about an update that breaks nothing.** sp-mod.com also holds an update back when a mod it needs has no version that fits, and SSPTMM gave the same sentence for both. ECOT 2.0.2 on SPT 4.1.6 is such a case: it needs WTT - CommonLib 3.0.8, which sp-mod.com lists for SPT 4.1.3 only. The note now says which mod is needed: "it needs WTT - CommonLib in a version sp-mod.com lists none of for SPT 4.1.6".
 
 ## Faster
 
