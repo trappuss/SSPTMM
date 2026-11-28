@@ -6329,6 +6329,12 @@ Trotzdem installieren?</value>
   <data name="Installed_HeldBackPlainFormat" xml:space="preserve">
     <value>Update auf {0} zurückgehalten: Laut sp-mod.com würde es eine andere installierte Mod unbrauchbar machen; welche, wird nicht genannt. Über den Update-Dialog der Mod lässt es sich trotzdem installieren.</value>
   </data>
+  <data name="Installed_HeldBackMissingFormat" xml:space="preserve">
+    <value>Update auf {0} zurückgehalten: Es braucht {1} in einer Version, die sp-mod.com für SPT {2} nicht führt. Über den Update-Dialog der Mod lässt es sich trotzdem installieren.</value>
+  </data>
+  <data name="Installed_HeldBackMissingPlainFormat" xml:space="preserve">
+    <value>Update auf {0} zurückgehalten: Laut sp-mod.com gibt es von einer Mod, die es braucht, keine passende Version. Über den Update-Dialog der Mod lässt es sich trotzdem installieren.</value>
+  </data>
   <data name="Installed_HeldBackTogetherFormat" xml:space="preserve">
     <value>Wird zusammen mit {0} aktualisiert: Jede braucht die neue Version der anderen.</value>
   </data>

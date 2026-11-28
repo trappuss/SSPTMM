@@ -198,6 +198,57 @@ public sealed class UpdateCheckService(SpModApiClient api)
         return false;
     }
 
+    //
+    // Fork (1.4.10): what a held-back update is missing. sp-mod.com holds an update back as
+    // "missing_dependency" and names nothing - ECOT 2.0.2 on SPT 4.1.6, which needs WTT - CommonLib
+    // 3.0.8, a release listed for SPT 4.1.3 only (read on 2026-11-27). Its dependency tree for the
+    // held release says which: the mods in it with no version that fits.
+    //
+    // Answers each such mod's id with those mods' names. Any failure answers with none.
+    //
+    public const string MissingDependency = "missing_dependency";
+
+    public async Task<IReadOnlyDictionary<int, IReadOnlyList<string>>> MissingForAsync(
+        IEnumerable<ModBlockedUpdateEntry> blocked, string sptVersion, CancellationToken ct = default)
+    {
+        var missing = new Dictionary<int, IReadOnlyList<string>>();
+
+        var asked = blocked
+            .Where(b => b.BlockReason == MissingDependency && b.CurrentVersion is not null && !string.IsNullOrWhiteSpace(b.LatestVersion?.Version))
+            .Select(b => (b.CurrentVersion!.ModId, Version: b.LatestVersion!.Version!))
+            .DistinctBy(b => b.ModId)
+            .ToList();
+
+        if (asked.Count == 0) return missing;
+
+        try
+        {
+            foreach (var chunk in ModsQueryChunks(asked))
+            {
+                var trees = await api.GetModDependenciesAsync(chunk, sptVersion, ct).ConfigureAwait(false);
+
+                foreach (var (key, nodes) in trees)
+                {
+                    if (!int.TryParse(key.Split(':')[0], NumberStyles.None, CultureInfo.InvariantCulture, out var id)) continue;
+
+                    var names = Flatten(nodes)
+                        .Where(n => n.LatestCompatibleVersion is null && !string.IsNullOrWhiteSpace(n.Name))
+                        .Select(n => n.Name!)
+                        .Distinct(StringComparer.OrdinalIgnoreCase)
+                        .ToList();
+
+                    if (names.Count > 0) missing[id] = names;
+                }
+            }
+        }
+        catch (Exception ex) when (!ct.IsCancellationRequested)
+        {
+            AppLog.Warn("Updates", $"couldn't read what the held-back updates are missing: {ex.Message}");
+        }
+
+        return missing;
+    }
+
     private static List<HashSet<int>> Components(IReadOnlyList<int> ids, IReadOnlyDictionary<int, HashSet<int>> links)
     {
         var seen = new HashSet<int>();
@@ -318,5 +369,11 @@ public sealed record InstalledUpdateCheck(IReadOnlyList<int> Updated, IReadOnlyL
     // How many /mods/updates requests the answer took (the install is split when its list is long).
     public int Requests { get; init; }
 
-    public IReadOnlyList<int> ToRefetch => [.. Updated.Concat(NotRecognised).Distinct()];
+    //
+    // Fork (1.4.10): the held-back ones too. Their listings were never read again, so the release
+    // sp-mod.com held back was not in the list the cards are made from: the card said "held back"
+    // under a mod that showed no update, and "Needs update" left it out.
+    //
+    public IReadOnlyList<int> ToRefetch =>
+        [.. Updated.Concat(NotRecognised).Concat(Blocked.Select(b => b.CurrentVersion?.ModId).OfType<int>()).Distinct()];
 }

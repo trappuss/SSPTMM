@@ -5642,6 +5642,14 @@ This was written to:
     <value>Update to {0} held back: sp-mod.com reports it would break another installed mod, without naming it. The mod's own update dialog can still install it.</value>
     <comment>sp-mod.com lists the update as blocked and names no mod it would break. {0} is the version.</comment>
   </data>
+  <data name="Installed_HeldBackMissingFormat" xml:space="preserve">
+    <value>Update to {0} held back: it needs {1} in a version sp-mod.com lists none of for SPT {2}. The mod's own update dialog can still install it.</value>
+    <comment>sp-mod.com holds the update back because a mod it needs has no version that fits. {0} is the held-back version, {1} the mod(s) it needs, {2} the SPT version.</comment>
+  </data>
+  <data name="Installed_HeldBackMissingPlainFormat" xml:space="preserve">
+    <value>Update to {0} held back: sp-mod.com reports a mod it needs has no version that fits. The mod's own update dialog can still install it.</value>
+    <comment>The same when the mods it needs could not be read. {0} is the version.</comment>
+  </data>
   <data name="Installed_HeldBackTogetherFormat" xml:space="preserve">
     <value>Updates together with {0}: each needs the other's new version.</value>
     <comment>On a mod whose update sp-mod.com holds back only because another installed mod must update at the same time. {0} is the other mod(s) with the version each goes to, e.g. ISB Special Forces 2.0.4.</comment>

@@ -54,6 +54,11 @@ public sealed class HeldBackUpdates
     private string? _togetherAsked;
     private IReadOnlyDictionary<int, IReadOnlyList<int>>? _togetherAnswer;
 
+    // Fork (1.4.10): the mods a held-back update needs and sp-mod.com has no fitting version of
+    // (UpdateCheckService.MissingForAsync), asked with the same question as the above.
+    private IReadOnlyDictionary<int, IReadOnlyList<string>> _missing = new Dictionary<int, IReadOnlyList<string>>();
+    private IReadOnlyDictionary<int, IReadOnlyList<string>>? _missingAnswer;
+
     /// <summary>The mods this one's held-back update is installed together with; none for most.</summary>
     //
     // Only while every one of them can be updated here, to the release held back: one whose update
@@ -108,9 +113,17 @@ public sealed class HeldBackUpdates
             [.. partners.Select(id => For(id) is { } p ? string.Join(' ', p.CurrentVersion?.Name ?? id.ToString(System.Globalization.CultureInfo.InvariantCulture), p.LatestVersion?.Version) : null).OfType<string>()]))
         : Describe(entry);
 
-    public static string Describe(ModBlockedUpdateEntry entry)
+    private string Describe(ModBlockedUpdateEntry entry)
     {
         var version = entry.LatestVersion?.Version ?? "?";
+
+        // Fork (1.4.10): held back for what it needs, not for what it would break.
+        if (entry.BlockReason == UpdateCheckService.MissingDependency)
+        {
+            return entry.CurrentVersion is { } current && _missing.TryGetValue(current.ModId, out var names)
+                ? LocalizationService.Text(Strings.Installed_HeldBackMissingFormat, version, TextLists.Join(names), _checkedSpt ?? "?")
+                : LocalizationService.Text(Strings.Installed_HeldBackMissingPlainFormat, version);
+        }
 
         var blockers = entry.BlockingMods
             .Where(b => !string.IsNullOrWhiteSpace(b.ModName))
@@ -134,7 +147,7 @@ public sealed class HeldBackUpdates
     /// <summary>Takes an answer sp-mod.com already gave - the background update check's (Fork, 1.3.0).
     /// Dropped when a newer question was asked since <paramref name="ticket"/> was taken.</summary>
     public bool Apply(int ticket, IEnumerable<ModBlockedUpdateEntry> blockedUpdates, IEnumerable<ModIncompatibleEntry> incompatibleWithSpt, string sptVersion,
-        IReadOnlyDictionary<int, IReadOnlyList<int>>? together = null)
+        IReadOnlyDictionary<int, IReadOnlyList<int>>? together = null, IReadOnlyDictionary<int, IReadOnlyList<string>>? missing = null)
     {
         if (ticket != _request) return false;
 
@@ -150,6 +163,7 @@ public sealed class HeldBackUpdates
 
         _blocked = blocked;
         _together = together ?? new Dictionary<int, IReadOnlyList<int>>();
+        _missing = missing ?? new Dictionary<int, IReadOnlyList<string>>();
         _incompatible = incompatible;
         _checkedSpt = sptVersion;
         Changed?.Invoke(this, EventArgs.Empty);
@@ -172,10 +186,11 @@ public sealed class HeldBackUpdates
         if (asked != _togetherAsked)
         {
             _togetherAnswer = await _checker.HeldBackTogetherAsync(installed, blockedUpdates, sptVersion, ct);
+            _missingAnswer = await _checker.MissingForAsync(blockedUpdates, sptVersion, ct);
             _togetherAsked = asked;
         }
 
-        return Apply(ticket, blockedUpdates, incompatibleWithSpt, sptVersion, _togetherAnswer);
+        return Apply(ticket, blockedUpdates, incompatibleWithSpt, sptVersion, _togetherAnswer, _missingAnswer);
     }
 
     /// <summary>Asks sp-mod.com about the mods of a scan of the install (addons left out).</summary>

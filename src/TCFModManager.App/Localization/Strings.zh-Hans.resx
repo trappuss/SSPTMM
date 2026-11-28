@@ -4390,6 +4390,12 @@
   <data name="Installed_HeldBackPlainFormat" xml:space="preserve">
     <value>已暂缓更新到 {0}：sp-mod.com 称它会使另一个已安装的模组失效，但未指明是哪个。仍可在该模组自己的更新对话框中安装。</value>
   </data>
+  <data name="Installed_HeldBackMissingFormat" xml:space="preserve">
+    <value>已暂缓更新到 {0}：它需要 {1}，而 sp-mod.com 上没有适用于 SPT {2} 的所需版本。仍可在该模组自己的更新对话框中安装。</value>
+  </data>
+  <data name="Installed_HeldBackMissingPlainFormat" xml:space="preserve">
+    <value>已暂缓更新到 {0}：sp-mod.com 称它所需的某个模组没有合适的版本。仍可在该模组自己的更新对话框中安装。</value>
+  </data>
   <data name="Installed_HeldBackTogetherFormat" xml:space="preserve">
     <value>与 {0} 一起更新：两者各自需要对方的新版本。</value>
   </data>

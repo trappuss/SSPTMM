@@ -6329,6 +6329,12 @@ L'installer quand même ?</value>
   <data name="Installed_HeldBackPlainFormat" xml:space="preserve">
     <value>Mise à jour vers {0} retenue : selon sp-mod.com, elle casserait un autre mod installé, sans préciser lequel. La fenêtre de mise à jour du mod permet quand même de l'installer.</value>
   </data>
+  <data name="Installed_HeldBackMissingFormat" xml:space="preserve">
+    <value>Mise à jour vers {0} retenue : elle nécessite {1} dans une version que sp-mod.com ne propose pas pour SPT {2}. La fenêtre de mise à jour du mod permet quand même de l'installer.</value>
+  </data>
+  <data name="Installed_HeldBackMissingPlainFormat" xml:space="preserve">
+    <value>Mise à jour vers {0} retenue : selon sp-mod.com, un mod dont elle a besoin n'a aucune version qui convient. La fenêtre de mise à jour du mod permet quand même de l'installer.</value>
+  </data>
   <data name="Installed_HeldBackTogetherFormat" xml:space="preserve">
     <value>Se met à jour avec {0} : chacun a besoin de la nouvelle version de l'autre.</value>
   </data>

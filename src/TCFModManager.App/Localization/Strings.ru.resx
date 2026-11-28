@@ -6665,6 +6665,12 @@
   <data name="Installed_HeldBackPlainFormat" xml:space="preserve">
     <value>Обновление до {0} задержано: по данным sp-mod.com, оно сломает другой установленный мод (какой именно, не указано). Установить его всё же можно в окне обновления самого мода.</value>
   </data>
+  <data name="Installed_HeldBackMissingFormat" xml:space="preserve">
+    <value>Обновление до {0} задержано: ему нужен {1} в версии, которой на sp-mod.com нет для SPT {2}. Установить его всё же можно в окне обновления самого мода.</value>
+  </data>
+  <data name="Installed_HeldBackMissingPlainFormat" xml:space="preserve">
+    <value>Обновление до {0} задержано: по данным sp-mod.com, у нужного ему мода нет подходящей версии. Установить его всё же можно в окне обновления самого мода.</value>
+  </data>
   <data name="Installed_HeldBackTogetherFormat" xml:space="preserve">
     <value>Обновляется вместе с {0}: каждому нужна новая версия другого.</value>
   </data>
